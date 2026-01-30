@@ -1,0 +1,6 @@
+@Covoiturage_La_Cite_Server_Core__HostAddress = http://localhost:5221
+
+GET {{Covoiturage_La_Cite_Server_Core__HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
