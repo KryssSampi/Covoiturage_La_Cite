@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Covoiturage_La_Cite_Server_Core_.Controllers
+namespace Covoiturage_La_Cite_Server_Core_.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
