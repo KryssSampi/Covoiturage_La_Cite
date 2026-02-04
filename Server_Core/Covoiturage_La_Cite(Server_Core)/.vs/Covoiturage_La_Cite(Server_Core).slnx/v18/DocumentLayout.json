@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|d:\\covoiturage_la_cite\\server_core\\covoiturage_la_cite(server_core)\\covoiturage_la_cite(server_core)\\application\\interfaces\\.gitkeep||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|solutionrelative:covoiturage_la_cite(server_core)\\application\\interfaces\\.gitkeep||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|d:\\covoiturage_la_cite\\server_core\\covoiturage_la_cite(server_core)\\covoiturage_la_cite(server_core)\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|solutionrelative:covoiturage_la_cite(server_core)\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|d:\\covoiturage_la_cite\\server_core\\covoiturage_la_cite(server_core)\\covoiturage_la_cite(server_core)\\data\\postgresql\\repositories\\userrepository\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|solutionrelative:covoiturage_la_cite(server_core)\\data\\postgresql\\repositories\\userrepository\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -51,10 +59,6 @@
       "RelativeMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|solutionrelative:covoiturage_la_cite(server_core)\\covoiturage_la_cite(server_core).csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|d:\\covoiturage_la_cite\\server_core\\covoiturage_la_cite(server_core)\\covoiturage_la_cite(server_core)\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|solutionrelative:covoiturage_la_cite(server_core)\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|d:\\covoiturage_la_cite\\server_core\\covoiturage_la_cite(server_core)\\covoiturage_la_cite(server_core)\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{5759EA03-7823-8696-EE01-590F957C6B2E}|Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj|solutionrelative:covoiturage_la_cite(server_core)\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     }
@@ -76,7 +80,7 @@
         },
         {
           "DockedWidth": 18,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -100,20 +104,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "appsettings.Development.json",
-              "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\appsettings.Development.json",
-              "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\appsettings.Development.json",
-              "ToolTip": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\appsettings.Development.json",
-              "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\appsettings.Development.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAACYAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-02-04T01:10:58.698Z",
+              "DocumentIndex": 0,
+              "Title": ".gitkeep",
+              "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Application\\Interfaces\\.gitkeep",
+              "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Application\\Interfaces\\.gitkeep",
+              "ToolTip": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Application\\Interfaces\\.gitkeep",
+              "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\Application\\Interfaces\\.gitkeep",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-02-04T06:13:24.08Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "UserController.cs",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Api\\Controllers\\UserController\\UserController.cs",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Api\\Controllers\\UserController\\UserController.cs",
@@ -121,12 +125,11 @@
               "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\Api\\Controllers\\UserController\\UserController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAABJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-04T04:52:37.398Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-04T04:52:37.398Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 8,
               "Title": "Covoiturage_La_Cite(Server_Core).http",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).http",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).http",
@@ -134,12 +137,11 @@
               "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).http",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
-              "WhenOpened": "2026-01-30T00:36:57.252Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-30T00:36:57.252Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "UserServices.cs",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Application\\Services\\UserServices\\UserServices.cs",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Application\\Services\\UserServices\\UserServices.cs",
@@ -147,12 +149,11 @@
               "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\Application\\Services\\UserServices\\UserServices.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-04T04:41:03.456Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-04T04:41:03.456Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "UserRepository.cs",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Data\\PostgreSQL\\Repositories\\UserRepository\\UserRepository.cs",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Data\\PostgreSQL\\Repositories\\UserRepository\\UserRepository.cs",
@@ -164,16 +165,33 @@
               "EditorCaption": ""
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{68487888-204a-11d3-87eb-00c04f7971a5}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": ".gitignore",
+              "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\.gitignore",
+              "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\.gitignore",
+              "ToolTip": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\.gitignore",
+              "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\.gitignore",
+              "ViewState": "AgIAAAgBAAAAAAAAAAAAABQAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-30T00:53:35.417Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
+              "Title": "appsettings.Development.json",
+              "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\appsettings.Development.json",
+              "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\appsettings.Development.json",
+              "ToolTip": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\appsettings.Development.json",
+              "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\appsettings.Development.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAACYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-02-04T01:10:58.698Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Program.cs",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Program.cs",
@@ -181,12 +199,11 @@
               "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\Program.cs",
               "ViewState": "AgIAAA0AAAAAAAAAAAAAABYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-04T01:13:21.175Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-04T01:13:21.175Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 7,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\appsettings.json",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\appsettings.json",
@@ -194,12 +211,11 @@
               "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-02-04T00:28:03.487Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-04T00:28:03.487Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "WeatherForecastController.cs",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Api\\Controllers\\WeatherForecastController.cs",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Api\\Controllers\\WeatherForecastController.cs",
@@ -211,7 +227,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 9,
               "Title": "AppDbContext.cs",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Data\\PostgreSQL\\AppDbContext.cs",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Data\\PostgreSQL\\AppDbContext.cs",
@@ -223,7 +239,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 12,
               "Title": "MongoDbContext.cs",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Data\\MongoDB\\MongoDbContext.cs",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Data\\MongoDB\\MongoDbContext.cs",
@@ -235,7 +251,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 11,
               "Title": ".env",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\.env",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\.env",
@@ -247,7 +263,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 13,
               "Title": "Covoiturage_La_Cite(Server_Core).csproj",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core).csproj",
@@ -259,19 +275,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": ".gitignore",
-              "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\.gitignore",
-              "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\.gitignore",
-              "ToolTip": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\.gitignore",
-              "RelativeToolTip": "Covoiturage_La_Cite(Server_Core)\\.gitignore",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAALAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-01-30T00:53:35.417Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "launchSettings.json",
               "DocumentMoniker": "D:\\Covoiturage_La_Cite\\Server_Core\\Covoiturage_La_Cite(Server_Core)\\Covoiturage_La_Cite(Server_Core)\\Properties\\launchSettings.json",
               "RelativeDocumentMoniker": "Covoiturage_La_Cite(Server_Core)\\Properties\\launchSettings.json",
@@ -280,6 +284,14 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-02-04T01:14:50.978Z"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{68487888-204a-11d3-87eb-00c04f7971a5}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
             }
           ]
         }
