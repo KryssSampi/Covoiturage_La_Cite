@@ -28,15 +28,4 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Api\Middlewares\" />
-    <Folder Include="Api\DTOs\" />
-    <Folder Include="Api\Configurations\" />
-    <Folder Include="Application\Interfaces\" />
-    <Folder Include="Application\DTOs\" />
-    <Folder Include="Application\Validations\" />
-    <Folder Include="Data\MongoDB\DocumentModel\" />
-    <Folder Include="Data\MongoDB\Repositories\" />
-  </ItemGroup>
-
 </Project>
