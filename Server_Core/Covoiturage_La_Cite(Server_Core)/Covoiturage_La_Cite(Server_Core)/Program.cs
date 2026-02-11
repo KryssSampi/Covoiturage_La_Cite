@@ -19,6 +19,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         o => o.UseNetTopologySuite()
     )
 );
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserServices>();
@@ -31,6 +41,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+app.UseCors("AllowAll");
+
 
 app.UseHttpsRedirection();
 
