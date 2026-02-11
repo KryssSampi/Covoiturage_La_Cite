@@ -16,7 +16,7 @@ namespace Covoiturage_La_Cite_Server_Core_.Api.Controllers.UserController
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = _userServices.GetAllUsersAsync();
+            var users = _userServices.GetAllUsers();
             return Ok(users);
         }
 
