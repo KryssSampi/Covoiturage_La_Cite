@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Covoiturage_La_Cite_Server_Core_.Data.Models;
+﻿using Covoiturage_La_Cite_Server_Core_.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Covoiturage_La_Cite_Server_Core_.Data.PostgresSQL;
+namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 
 public partial class AppDbContext : DbContext
 {
