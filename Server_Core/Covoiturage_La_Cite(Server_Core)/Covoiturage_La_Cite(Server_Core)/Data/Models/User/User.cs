@@ -31,9 +31,9 @@ public partial class User
     [StringLength(255)]
     public string MicrosoftId { get; set; } = null!;
 
-    [Column("nom_complet")]
+    [Column("nom")]
     [StringLength(200)]
-    public string NomComplet { get; set; } = null!;
+    public string Nom { get; set; } = null!;
 
     [Column("photo_url")]
     [StringLength(500)]
@@ -70,6 +70,10 @@ public partial class User
 
     [Column("updated_at", TypeName = "timestamp without time zone")]
     public DateTime UpdatedAt { get; set; }
+
+    [Column("prenom")]
+    [StringLength(100)]
+    public string? Prenom { get; set; }
 
     [InverseProperty("AdminIntervenant")]
     public virtual ICollection<AlertesUrgence> AlertesUrgenceAdminIntervenants { get; set; } = new List<AlertesUrgence>();
