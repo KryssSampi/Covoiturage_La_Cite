@@ -1,10 +1,16 @@
-﻿using Covoiturage_La_Cite_Server_Core_.Data.Models;
+﻿using System;
+using System.Collections.Generic;
+using Covoiturage_La_Cite_Server_Core_.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
+namespace Covoiturage_La_Cite_Server_Core_.Data.PostgresSQL;
 
 public partial class AppDbContext : DbContext
 {
+    public AppDbContext()
+    {
+    }
+
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {
@@ -105,6 +111,10 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<WaypointsTrajet> WaypointsTrajets { get; set; }
 
     public virtual DbSet<ZonesCampus> ZonesCampuses { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=pg-26d8eb52-covoituragelacitev1.f.aivencloud.com;Port=15099;Database=Covoiturage_la_Cite;Username=avnadmin;Password=AVNS_5zaAhNTniiqcp-TNb6-", x => x.UseNetTopologySuite());
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
