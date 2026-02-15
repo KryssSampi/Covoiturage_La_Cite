@@ -1,4 +1,3 @@
-import { UserModel } from "../models";
 import { UserRole } from "../models/UserModel";
 
 export const Testusers  = [

@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { useAppState } from "@/app/app_state";
-import { Language } from "@/app/app_state";
+import { useAppState } from "@/core/state/app_state";
+import { Language } from "@/core/state/app_state";
 
 export function WhyUsSection() {
     const appState = useAppState();
@@ -70,24 +70,37 @@ export function WhyUsSection() {
       </div>
             <div className="w-full h-200 flex items-center justify-center gap-15 mt-10 grid-cols-3" >
         {advantagesList.slice(3, 6).map((advantage, index) => (
+  
           <div key={index} className="w-100 h-110 bg-white rounded-3xl shadow-lg p-6 flex flex-col items-center text-center hover:scale-110 transition-transform " >
-            <Image src={advantage.source} alt={appState.lang === Language.FR ? advantage.titlefr : advantage.titleen} width={160} height={160} className="mb-4" />
+            <Image src={advantage.source} alt={appState.lang === Language.FR ? advantage.titlefr : advantage.titleen} width={advantage.titlefr === "Simplicité" ? 195 : 160} height={160} />
             <h3 className="text-5xl -mt-5  font-semibold text-[#5E9FE9]">{appState.lang === Language.FR ? advantage.titlefr : advantage.titleen}</h3>
               <div className="w-80 h-px bg-[#000000] mt-2 mb-4"/>
             <p className="text-gray-600 text-2xl mt-2">{appState.lang === Language.FR ? advantage.descriptionfr : advantage.descriptionen}</p>
           </div>
-        ))}
+        ))}    
       </div>
     </div>
   );
 }
 class advantages {
-    constructor(titlefr, titleen, source, descriptionfr = "", descriptionen = "") {
-        this.titlefr = titlefr;
-        this.titleen = titleen;
-        this.source = source;
-        this.descriptionfr = descriptionfr;
-        this.descriptionen = descriptionen;  
+    titlefr: string;
+    titleen: string;
+    source: string;
+    descriptionfr: string;
+    descriptionen: string;
+
+    constructor(
+      titlefr: string,
+      titleen: string,
+      source: string,
+      descriptionfr: string = "",
+      descriptionen: string = ""
+    ) {
+      this.titlefr = titlefr;
+      this.titleen = titleen;
+      this.source = source;
+      this.descriptionfr = descriptionfr;
+      this.descriptionen = descriptionen;  
     }
 }
 

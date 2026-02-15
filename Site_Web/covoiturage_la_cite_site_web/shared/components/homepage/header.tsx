@@ -1,7 +1,7 @@
 "use client";
-import { useAppState, Language } from "@/app/app_state";
-import { ToggleLangButton } from "@/ui/boutons/togglelang";
-import { MainLogo } from "@/ui/logo/main_logo";
+import { useAppState, Language } from "@/core/state/app_state";
+import { ToggleLangButton } from "@/shared/ui/buttons/togglelang";
+import { MainLogo } from "@/shared/ui/logo/main_logo";
 import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -14,8 +14,8 @@ export function Header() {
 
   const mainLinks = [
     { href: "/", fr: "Accueil", en: "Home" },
-    { href: "/#pourquoi-nous-choisir", fr: "Pourquoi Nous Choisir ?", en: "Why chouse us ?" },
-    { href: "/#comment-ca-marche", fr: "Comment Ça Marche ?", en: "How it Work ?" },
+    { href: "/#pourquoi-nous-choisir", fr: "Pourquoi Nous Choisir ?", en: "Why choose us ?" },
+    { href: "/#comment-ca-marche", fr: "Comment Ça Marche ?", en: "How it Works ?" },
   ];
 
   return (

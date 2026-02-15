@@ -9,14 +9,14 @@
 'use client';
 
 import Image from "next/image";                                                   //Liens des images utilisées dans la page d'accueil
-import { Header } from "@/composant/homepage/header";                             // Composant de l'en-tête de la page d'accueil, qui inclut la navigation et le logo
-import { WhyUsSection } from "@/composant/homepage/whyus_section"                 // Composant de la section "Pourquoi Nous Choisir", qui présente les avantages de notre service de covoiturage pour les étudiants.
-import { HowItWorkSection } from "@/composant/homepage/howitwork_section"         // Composant de la section "Comment ça marche", qui explique le processus de réservation et d'utilisation de notre plateforme de covoiturage pour les étudiants.
-import { Footer } from "@/composant/footer"                                       // Composant du pied de page, qui contient des liens vers les pages de politique de confidentialité, les conditions d'utilisation et les réseaux sociaux, ainsi que des informations de contact.
-import { Language, useAppState } from "./app_state";                              // Importation du contexte de l'application pour gérer l'état global, notamment la langue sélectionnée par l'utilisateur (français ou anglais).
-import { StatsSection } from "@/composant/homepage/stats_section"                 // Composant de la section "Statistiques", qui présente des données et des chiffres clés sur l'utilisation de notre plateforme de covoiturage pour les étudiants, tels que le nombre de trajets réservés, les économies réalisées et les avis des utilisateurs.
-import { WarmSentence } from "@/ui/warm_sentence"                                 // Composant de la section "Phrase d'Accroche", qui affiche une phrase motivante ou un slogan pour encourager les visiteurs à s'inscrire et à utiliser notre service de covoiturage pour les étudiants.
-import { Hero } from "@/composant/homepage/hero";                                  // Composant de la section "Héro", qui est la première section visible sur la page d'accueil, présentant une image accrocheuse et un message de bienvenue pour attirer l'attention des visiteurs et les inciter à explorer notre plateforme de covoiturage pour les étudiants.
+import { Header } from "@/shared/components/homepage/header";                             // Composant de l'en-tête de la page d'accueil, qui inclut la navigation et le logo
+import { WhyUsSection } from '../shared/components/homepage/whyus_section'  // Composant de la section "Pourquoi Nous Choisir", qui présente les avantages de notre service de covoiturage pour les étudiants.
+import { HowItWorkSection } from "../shared/components/homepage/howitwork_section"         // Composant de la section "Comment ça marche", qui explique le processus de réservation et d'utilisation de notre plateforme de covoiturage pour les étudiants.
+import { Footer } from "../shared/components/footer"                                       // Composant du pied de page, qui contient des liens vers les pages de politique de confidentialité, les conditions d'utilisation et les réseaux sociaux, ainsi que des informations de contact.
+import { Language, useAppState } from "../core/state/app_state";                              // Importation du contexte de l'application pour gérer l'état global, notamment la langue sélectionnée par l'utilisateur (français ou anglais).
+import { StatsSection } from "@/shared/components/homepage/stats_section"                 // Composant de la section "Statistiques", qui présente des données et des chiffres clés sur l'utilisation de notre plateforme de covoiturage pour les étudiants, tels que le nombre de trajets réservés, les économies réalisées et les avis des utilisateurs.
+import { WarmSentence } from "@/shared/ui/warm-sentence"                                 // Composant de la section "Phrase d'Accroche", qui affiche une phrase motivante ou un slogan pour encourager les visiteurs à s'inscrire et à utiliser notre service de covoiturage pour les étudiants.
+import { Hero } from "@/shared/components/homepage/hero";                                  // Composant de la section "Héro", qui est la première section visible sur la page d'accueil, présentant une image accrocheuse et un message de bienvenue pour attirer l'attention des visiteurs et les inciter à explorer notre plateforme de covoiturage pour les étudiants.           // Composant de la section "Pourquoi Nous Choisir", qui présente les avantages de notre service de covoiturage pour les étudiants.
 import Link from "next/link";
 
 export default function Home() {
@@ -29,7 +29,7 @@ export default function Home() {
       {/* Un seul header suffit, le composant Header contient déjà la logique sticky */}
       <Header />
 
-      <main className="flex-grow">
+      <main className="grow">
         {/* Hero Section : Utilise des classes Tailwind plutôt que des attributs HTML anciens */}
         <Hero />
 

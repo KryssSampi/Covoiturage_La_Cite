@@ -1,0 +1,66 @@
+{
+  "date": "2026-02-15T18:12:17.751Z",
+  "reorganizationPlan": [
+    {
+      "from": "app/models",
+      "to": "domain/models",
+      "type": "move-directory",
+      "description": "Déplacement des modèles vers domain (cœur métier)"
+    },
+    {
+      "from": "app/app_state.ts",
+      "to": "core/state/app_state.ts",
+      "type": "move-file",
+      "description": "Déplacement du state global vers core"
+    },
+    {
+      "from": "app/data/testdata.js",
+      "to": "tests/fixtures/testdata.js",
+      "type": "move-file",
+      "description": "Déplacement des données de test vers tests/fixtures"
+    },
+    {
+      "from": "composant/footer.jsx",
+      "to": "shared/components/footer.jsx",
+      "type": "move-file",
+      "description": "Déplacement du footer vers shared/components"
+    },
+    {
+      "from": "composant/homepage",
+      "to": "shared/components/homepage",
+      "type": "move-directory",
+      "description": "Déplacement des composants homepage vers shared"
+    },
+    {
+      "from": "ui/boutons",
+      "to": "shared/ui/buttons",
+      "type": "move-directory",
+      "description": "Déplacement des boutons vers shared/ui"
+    },
+    {
+      "from": "ui/logo",
+      "to": "shared/ui/logo",
+      "type": "move-directory",
+      "description": "Déplacement du logo vers shared/ui"
+    },
+    {
+      "from": "ui/warm_sentence.jsx",
+      "to": "shared/ui/warm-sentence.jsx",
+      "type": "move-file",
+      "description": "Déplacement du composant UI vers shared/ui"
+    },
+    {
+      "from": "generate-models.js",
+      "to": "scripts/generate-models.js",
+      "type": "move-file",
+      "description": "Déplacement du générateur de modèles vers scripts"
+    },
+    {
+      "from": "generate-architecture.js",
+      "to": "scripts/generate-architecture.js",
+      "type": "move-file",
+      "description": "Déplacement du générateur d'architecture vers scripts"
+    }
+  ],
+  "note": "Sauvegarde créée avant la réorganisation. Utilisez Git pour revenir en arrière si nécessaire."
+}

@@ -1,5 +1,5 @@
-import { Language } from "@/app/app_state";
-import { useAppState } from "@/app/app_state";
+import { Language } from "@/core/state/app_state";
+import { useAppState } from "@/core/state/app_state";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -18,10 +18,9 @@ export function Hero() {
 
       <div
         className="relative z-10 bottom-0 flex-col left-5 w-full py-0 flex mt-100 mb-30 text-color-white"
-        align="bottom"
       >
         <div>
-        <h1 className="text-7xl font-bold mb-4 " align="left">
+        <h1 className="text-7xl font-bold mb-4 text-left">
           {" "}
           {appState.lang === Language.FR
             ? "Le Covoiturage Étudiant"
@@ -31,16 +30,15 @@ export function Hero() {
             {appState.lang === Language.FR ? "Collège" : "College"}
           </span>
         </h1>
-        <p className="text-5xl font-bold" align="left">
+        <p className="text-5xl font-bold text-left">
           {appState.lang === Language.FR
             ? "Voyageons ensemble, économions tous sainement !"
             : "Let's travel together and save by an healthy way !"}
         </p>
-        <div className="flex mb-8 gap-6" align="left">
+        <div className="flex mb-8 gap-6">
           <Link
             href="/inscription"
-            className="mt-8 w-100 inline-block  bg-[#08316E] text-white   px-6 py-3 rounded-lg text-3xl font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300 active:scale-95 "
-            align="center"
+            className="mt-8 w-100 inline-block  bg-[#08316E] text-white   px-6 py-3 rounded-lg text-3xl font-semibold hover:bg-blue-700 hover:scale-105 transition-all duration-300 active:scale-95 text-center"
           >
             {appState.lang === Language.FR
               ? "Trouver un trajet"
@@ -48,8 +46,7 @@ export function Hero() {
           </Link>
           <Link
             href="/inscription"
-            className="mt-8 w-100 inline-block bg-white  text-[#08316E] px-6 py-3 rounded-lg text-3xl font-semibold hover:bg-[#e2e2e2] hover:opacity-90 hover:scale-105 transition-all duration-300 active:scale-95 "
-            align="center"
+            className="mt-8 w-100 inline-block bg-white  text-[#08316E] px-6 py-3 rounded-lg text-3xl font-semibold hover:bg-[#e2e2e2] hover:opacity-90 hover:scale-105 transition-all duration-300 active:scale-95 text-center"
           >
             {appState.lang === Language.FR
               ? "Proposer un trajet"

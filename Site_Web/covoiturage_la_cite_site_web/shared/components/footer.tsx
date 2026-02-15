@@ -1,5 +1,5 @@
-import { Language, useAppState } from "@/app/app_state";
-import { MainLogo } from "@/ui/logo/main_logo";
+import { Language, useAppState } from "@/core/state/app_state";
+import { MainLogo } from "@/shared/ui/logo/main_logo";
 import { FaFacebookSquare,FaFacebookMessenger, FaInstagram, FaWhatsapp, FaArrowUp } from "react-icons/fa";
 import { AnimatePresence , motion } from "framer-motion";
 import { useEffect , useState } from "react";
@@ -35,7 +35,7 @@ export function Footer() {
 <MainLogo />
 </div>
 <div className="bg-gray-600 flex w-px h-75 ml-40 mt-5" />
-<div className="ml-30 mt-20" align="center"  >
+<div className="ml-30 mt-20 object-center"  >
 <h2 className="text-violet-600 text-3xl">{appState.lang === Language.FR ? "Lien Rapide" : "Short-cut Link"}</h2>
 <ul>
 <li>
@@ -61,7 +61,7 @@ export function Footer() {
 </ul>
 </div>
 <div className="ml-70 -mt-10 flex flex-col gap-y-20">
-  <div className=" mt-20" align="center"  >
+  <div className=" mt-20 object-center"  >
 <h2 className="text-violet-600 text-3xl">{appState.lang === Language.FR ? "Support" : "Support"}</h2>
 <ul>
 <li>
@@ -87,13 +87,13 @@ export function Footer() {
 <FaFacebookSquare />
 </Link>
 <Link href=" " className=" scale-250">
-{FaFacebookMessenger()}
+<FaFacebookMessenger />
 </Link>
 <Link href=" " className=" scale-250">
 <FaInstagram />
 </Link>
 <Link href=" " className=" scale-250">
-{FaWhatsapp()}
+<FaWhatsapp />
 </Link>
 </div>
 

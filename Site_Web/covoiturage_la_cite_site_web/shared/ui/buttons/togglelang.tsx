@@ -1,7 +1,7 @@
 
 
-import {  useAppState } from "@/app/app_state";
-import { Language } from "@/app/app_state";
+import {  useAppState } from "@/core/state/app_state";
+import { Language } from "@/core/state/app_state";
 
 export function ToggleLangButton() {
 const AppState = useAppState();
