@@ -26,7 +26,7 @@ function pascalCase(str) {
   ).join('');
 }
 
-function getTsType(pgType, isNullable) {
+function getJsType(pgType, isNullable) {
   pgType = pgType.toLowerCase();
   let baseType = 'any';
   
@@ -49,13 +49,37 @@ function getTsType(pgType, isNullable) {
     baseType = 'any';
   } else if (pgType.startsWith('ARRAY') || pgType.includes('[]') || pgType.startsWith('_')) {
     let innerType = pgType.replace('ARRAY', '').replace('[]', '').replace('_', '').trim();
-    let baseInner = getTsType(innerType, false);
+    let baseInner = getJsType(innerType, false);
     baseType = `${baseInner}[]`;
   } else if (['inet', 'cidr', 'macaddr', 'macaddr8'].includes(pgType)) {
     baseType = 'string';
   } else if (pgType === 'bytea') {
     baseType = 'Buffer';
-  }
+  }else if (pgType === 'tsvector') {
+    baseType = 'string';
+  }else if (pgType === 'uuid') {
+    baseType = 'string';
+  }else if (pgType === 'xml') {
+    baseType = 'string';
+  }else if(pgType === 'point') {
+    baseType = '{ x: number; y: number }';
+  } else if (pgType === 'line') {
+    baseType = '{ a: number; b: number; c: number }';
+  } else if (pgType === 'lseg') {
+    baseType = '{ x1: number; y1: number; x2: number; y2: number }';
+  } else if (pgType === 'Datetime') {
+    baseType = 'string';
+  }else if (pgType === 'Time') {
+    baseType = 'string';
+  } else if (pgType === 'Date') {
+    baseType = 'string';
+  } else if (pgType === 'Timestamp') {
+    baseType = 'string';
+  } else if (pgType === 'Timestamptz') {
+    baseType = 'string';
+  } else if (pgType === 'Interval') {
+    baseType = 'string';
+  } 
   
   return isNullable ? `${baseType} | null` : baseType;
 }
@@ -68,7 +92,7 @@ function generateInterface(tableName, columns) {
     const field = col.column_name;
     const pgType = col.udt_name || col.data_type;
     const isNullable = col.is_nullable === 'YES';
-    const tsType = getTsType(pgType, isNullable);
+    const tsType = getJsType(pgType, isNullable);
     const optional = isNullable ? '?' : '';
     code += `  ${field}${optional}: ${tsType};\n`;
   });
