@@ -1,4 +1,4 @@
-/* AUTO-GENERATED - 2026-02-14 03:38:03 */
+/* AUTO-GENERATED - 2026-02-15 02:48:22 */
 
 export { AlertesUrgenceModel } from './AlertesUrgenceModel';
 export { BadgeModel } from './BadgeModel';
