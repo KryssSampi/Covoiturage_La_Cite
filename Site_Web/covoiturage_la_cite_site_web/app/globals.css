@@ -1,17 +1,69 @@
 @import "tailwindcss";
 
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --animate-wave-pulse: shimmer 2s linear infinite;
+}
+/* === Wave Pulse Background === */
+
+@keyframes wavePulse {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
 }
 
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+.wave-pulse {
+  --wave-color: rgba(247, 122, 122, 0.418); /* fallback rouge */
+
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--wave-color) 20%,
+    var(--wave-color) 40%,
+    transparent 100%
+  );
+
+  background-size: 200% 100%;
+  animation: wavePulse 4s linear infinite;
+}
+@media (hover: none) {
+  .hover\:scale-110:hover { transform: none; }
+  .hover\:bg-blue-600:hover { background-color: inherit; }
+}
+@media (max-width: 640px) {
+  html {
+    /* Réduit l'échelle de base de l'application sur mobile */
+    font-size: 14px; 
+  }
+  
+  /* Force tous les éléments "statiques" à ne jamais dépasser l'écran */
+  * {
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+}
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -23,4 +75,90 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+/* ============================= */
+/* MOBILE GLOBAL OVERRIDE MODE */
+/* ============================= */
+
+.mobile-mode div {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.mobile-mode div[class*="flex"] {
+  flex-direction: column !important;
+}
+
+.mobile-mode div {
+  padding-left: clamp(8px, 3vw, 16px) !important;
+  padding-right: clamp(8px, 3vw, 16px) !important;
+}
+
+.mobile-mode img,
+.mobile-mode video,
+.mobile-mode canvas,
+.mobile-mode svg {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.mobile-mode * {
+  overflow-x: hidden !important;
+}
+/* === Notification Vibration === */
+
+@keyframes softVibrate {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-1px); }
+  40%  { transform: translateX(1px); }
+  60%  { transform: translateX(-1px); }
+  80%  { transform: translateX(1px); }
+  100% { transform: translateX(0); }
+}
+
+.vibrate-soft {
+  animation: softVibrate 1s ease-in-out infinite;
+}
+/* === Holographic Edge Pulse === */
+
+@keyframes edgePulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+}
+p , h1, h2, h3, h4, h5, h6 , span , div  {
+  cursor: default;
+}
+.pulse-edge {
+  position: relative;
+  z-index: 0;
+}
+
+.pulse-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+
+  --pulse-color: rgba(59,130,246,0.6);
+
+  background: radial-gradient(
+    Rectangle at center,
+    transparent 55%,
+    var(--pulse-color) 70%,
+    transparent 85%
+  );
+
+  animation: edgePulse 2s ease-in-out infinite;
 }

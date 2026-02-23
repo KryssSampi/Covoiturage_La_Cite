@@ -1,4 +1,4 @@
-
+"use client";
 
 import {  useAppState } from "@/core/state/app_state";
 import { Language } from "@/core/state/app_state";
