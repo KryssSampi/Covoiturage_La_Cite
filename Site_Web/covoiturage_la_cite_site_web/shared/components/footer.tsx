@@ -1,9 +1,12 @@
+"use client";
+
 import { Language, useAppState } from "@/core/state/app_state";
 import { MainLogo } from "@/shared/ui/logo/main_logo";
 import { FaFacebookSquare,FaFacebookMessenger, FaInstagram, FaWhatsapp, FaArrowUp } from "react-icons/fa";
 import { AnimatePresence , motion } from "framer-motion";
 import { useEffect , useState } from "react";
 import Link from "next/link";
+import { useIsMobileOrTablet } from "../hooks/useismobileortable";
 
 
 export function Footer() {
@@ -28,14 +31,15 @@ export function Footer() {
     });
   };
     const appState = useAppState()
+    const isbellowlg = useIsMobileOrTablet();
   return (
     <div className="w-full h-100  flex flex-col  items-center justify-center bg-[#08316E] text-white text-lg font-semibold">
 <div className=" flex w-full h-170">
-    <div className="scale-200 h-30 items-center mt-40 ml-40">
+    <div className="lg:scale-200 scale-150 h-30 items-center lg:mt-40 mt-35 lg:ml-40 ml-10">
 <MainLogo />
 </div>
-<div className="bg-gray-600 flex w-px h-75 ml-40 mt-5" />
-<div className="ml-30 mt-20 object-center"  >
+{!isbellowlg && <div className="bg-gray-600 flex w-px h-75 lg:ml-40 mt-5" />}
+<div className="lg:ml-30 ml-15 lg:mt-20 text-center lg:text-left  object-center lg:scale-100 scale-75 "  >
 <h2 className="text-violet-600 text-3xl">{appState.lang === Language.FR ? "Lien Rapide" : "Short-cut Link"}</h2>
 <ul>
 <li>
@@ -60,8 +64,8 @@ export function Footer() {
 </li>
 </ul>
 </div>
-<div className="ml-70 -mt-10 flex flex-col gap-y-20">
-  <div className=" mt-20 object-center"  >
+<div className="lg:ml-70 -ml-60 mr-10 lg:-mt-10 mt-35 lg:scale-100 scale-80 flex flex-col gap-y-20">
+  <div className=" lg:mt-20 mt-10 object-center"  >
 <h2 className="text-violet-600 text-3xl">{appState.lang === Language.FR ? "Support" : "Support"}</h2>
 <ul>
 <li>
@@ -82,17 +86,17 @@ export function Footer() {
 
 </ul>
 </div>
-<div className="flex gap-x-10">
-<Link href=" " className=" scale-250">
+<div className="flex gap-x-2 lg:ml-20 lg:mt-0 -mt-15 scale-180 lg:scale-250 ">
+<Link href=" " className=" ">
 <FaFacebookSquare />
 </Link>
-<Link href=" " className=" scale-250">
+<Link href=" " className=" ">
 <FaFacebookMessenger />
 </Link>
-<Link href=" " className=" scale-250">
+<Link href=" " className=" ">
 <FaInstagram />
 </Link>
-<Link href=" " className=" scale-250">
+<Link href=" " className=" ">
 <FaWhatsapp />
 </Link>
 </div>
@@ -121,8 +125,8 @@ export function Footer() {
 
 
 </div>
-<div className="w-full h-px bg-gray-600"/>
-<p className="text-gray-500 m-5 text-lg"> &copy; Covoiturage la cité 2026 All Right Resevered </p>
+<div className="lg:w-full  h-px bg-gray-600"/>
+<p className="text-gray-500 m-5 text-xs lg:text-lg"> &copy; Covoiturage la cité 2026 All Right Resevered </p>
     </div>
   );
 }

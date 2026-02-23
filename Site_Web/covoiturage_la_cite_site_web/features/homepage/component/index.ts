@@ -1,0 +1,5 @@
+export { HowItWorkSection } from './howitwork_section'
+export { StatsSection } from './stats_section'
+export { WhyUsSection } from './whyus_section'
+export { Header } from './header'
+export { Hero } from './hero'

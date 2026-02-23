@@ -1,18 +1,8 @@
 
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "../../globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Configuration de la police monospace Geist
 
 export const metadata: Metadata = {
   title: "Covoiturage La Cité - Page de Connexion",
@@ -26,12 +16,8 @@ export default function RootLayout({
 }>) {
 
 return (
-    <html lang="en" style={{ scrollBehavior:'smooth' , overflowX : 'hidden'}}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+<>
         {children}
-      </body>
-    </html>
+  </>
   );
 }

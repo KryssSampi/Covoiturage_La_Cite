@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { useAppState } from '@/core/state/app_state';
 
 interface Trajet {
   id: string;
@@ -15,6 +16,7 @@ interface Trajet {
 }
 
 export default function TrajetsPage() {
+  const appState = useAppState()
   const [trajets, setTrajets] = useState<Trajet[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -75,6 +77,7 @@ export default function TrajetsPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Bienvenue {appState.userConnected?.nom}</h1>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Trajets disponibles
