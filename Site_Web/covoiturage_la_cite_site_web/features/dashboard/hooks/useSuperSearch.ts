@@ -17,7 +17,7 @@
  * @param onSearch Callback appelé à la soumission avec les paramètres construits
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   format,
   addDays,
@@ -43,6 +43,9 @@ export interface UseSuperSearchReturn {
   arrivalLocation: string;
   setDepartureLocation: (v: string) => void;
   setArrivalLocation: (v: string) => void;
+
+  // ── Erreur de localisation du départ ────────────────────────────────────
+  departureError: string | null;
 
   // ── Suggestions d'autocomplétion ────────────────────────────────────────
   departureSuggestions: LocationSuggestion[];
@@ -129,8 +132,14 @@ export function useSuperSearch(
   const [departureSuggestions, setDepartureSuggestions] = useState<LocationSuggestion[]>([]);
   const [arrivalSuggestions, setArrivalSuggestions] = useState<LocationSuggestion[]>([]);
 
+  // ── Coordonnées GPS sélectionnées (remplies quand l'utilisateur choisit une suggestion) ─
+  const [departureCoords, setDepartureCoords] = useState<[number, number] | undefined>(undefined);
+  const [arrivalCoords, setArrivalCoords]     = useState<[number, number] | undefined>(undefined);
+
   // ── Géolocalisation ───────────────────────────────────────────────────────
   const [isCurrentLocationLoading, setIsCurrentLocationLoading] = useState(false);
+  // État pour l'erreur de localisation du départ
+  const [departureError, setDepartureError] = useState<string | null>(null);
 
   // ── Mode "Maintenant" vs "Planifié" ──────────────────────────────────────
   const [departIsNotNow, setDepartIsNotNow] = useState(false);
@@ -284,42 +293,111 @@ export function useSuperSearch(
   const selectDepartureSuggestion = (suggestion: LocationSuggestion) => {
     setDepartureLocation(suggestion.label);
     setDepartureSuggestions([]);
-    // TODO: setDepartureCoords(suggestion.coordinates);
+    // Stocke les coordonnées [lng, lat] pour les transmettre à la page de recherche
+    setDepartureCoords(suggestion.coordinates as [number, number]);
   };
 
   /**
    * Sélectionne une suggestion d'arrivée.
-   * TODO: setArrivalCoords(suggestion.coordinates);
    */
   const selectArrivalSuggestion = (suggestion: LocationSuggestion) => {
     setArrivalLocation(suggestion.label);
     setArrivalSuggestions([]);
-    // TODO: setArrivalCoords(suggestion.coordinates);
+    // Stocke les coordonnées [lng, lat] pour les transmettre à la page de recherche
+    setArrivalCoords(suggestion.coordinates as [number, number]);
   };
 
   // ── Géolocalisation ───────────────────────────────────────────────────────
 
+  // Ancienne version de handleGetCurrentLocation supprimée pour éviter la redéclaration.
   /**
-   * Détecte la position GPS du navigateur et la convertit en adresse
-   * via getAddressFromCoords (reverse geocoding Nominatim).
-   * TODO: Brancher sur /api/locations/reverse?lat={lat}&lng={lng} si API interne.
-   */
-  const handleGetCurrentLocation = () => {
-    if (!navigator.geolocation) return;
-    setIsCurrentLocationLoading(true);
+ * @snippet handleGetCurrentLocation — à intégrer dans useSuperSearch.ts
+ *
+ * Gère la géolocalisation + reverse geocoding avec fallback UI complet.
+ * Remplace l'ancienne version qui exposait les coordonnées brutes en cas d'échec.
+ *
+ * Comportement :
+ * - Succès geocoding  → adresse lisible dans le champ départ
+ * - Échec geocoding   → message d'erreur clair, champ vide (jamais de "45.4215, -75.6972")
+ * - Refus géoloc      → message d'erreur clair
+ * - Timeout géoloc    → message d'erreur clair (timeout 10s, plus long que les 5s d'avant)
+ */
 
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords: { latitude, longitude } }) => {
-        const address = await getAddressFromCoords(latitude, longitude);
-        setDepartureLocation(address);
-        setIsCurrentLocationLoading(false);
-      },
-      () => {
-        setIsCurrentLocationLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 },
+const handleGetCurrentLocation = useCallback(() => {
+  if (!navigator.geolocation) {
+    // Navigateur ne supporte pas la géolocalisation
+    setDepartureError(
+      isFR
+        ? "La géolocalisation n'est pas supportée par votre navigateur."
+        : "Geolocation is not supported by your browser.",
     );
-  };
+    return;
+  }
+
+  setIsCurrentLocationLoading(true);
+  setDepartureError(null); // Réinitialise l'erreur précédente
+
+  navigator.geolocation.getCurrentPosition(
+    // ── Succès géolocalisation ──────────────────────────────────────────────
+    async ({ coords: { latitude, longitude } }) => {
+      const address = await getAddressFromCoords(latitude, longitude);
+
+      if (address) {
+        // ✅ Adresse obtenue → on remplit le champ ET on stocke les coords [lng, lat]
+        setDepartureLocation(address);
+        setDepartureCoords([longitude, latitude]); // [lng, lat] convention app
+      } else {
+        // ❌ Geocoding échoué après tous les retries
+        // On NE met PAS les coordonnées brutes — on informe l'utilisateur
+        setDepartureError(
+          isFR
+            ? "Impossible de déterminer votre adresse. Veuillez la saisir manuellement."
+            : "Unable to determine your address. Please enter it manually.",
+        );
+        // Le champ reste vide — l'utilisateur tape lui-même
+        setDepartureLocation("");
+        setDepartureCoords(undefined); // pas de coords si adresse indisponible
+      }
+
+      setIsCurrentLocationLoading(false);
+    },
+
+    // ── Échec géolocalisation (refus ou timeout) ────────────────────────────
+    (error) => {
+      const messages: Record<number, { fr: string; en: string }> = {
+        1: { // PERMISSION_DENIED
+          fr: "Accès à la localisation refusé. Vérifiez les permissions de votre navigateur.",
+          en: "Location access denied. Please check your browser permissions.",
+        },
+        2: { // POSITION_UNAVAILABLE
+          fr: "Position indisponible. Vérifiez votre connexion GPS.",
+          en: "Position unavailable. Please check your GPS connection.",
+        },
+        3: { // TIMEOUT
+          fr: "Délai de localisation dépassé. Réessayez ou saisissez l'adresse manuellement.",
+          en: "Location timed out. Please retry or enter the address manually.",
+        },
+      };
+
+      const msg = messages[error.code] ?? {
+        fr: "Erreur de localisation inconnue.",
+        en: "Unknown location error.",
+      };
+
+      setDepartureError(isFR ? msg.fr : msg.en);
+      setIsCurrentLocationLoading(false);
+    },
+
+    // ── Options géolocalisation ─────────────────────────────────────────────
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,     // 10s — plus généreux que les 5s d'avant
+      maximumAge: 30000,  // Accepte une position en cache de moins de 30s
+    },
+  );
+}, [isFR, setDepartureLocation, setIsCurrentLocationLoading]);
+
+
 
   // ── Soumission ────────────────────────────────────────────────────────────
 
@@ -351,6 +429,9 @@ export function useSuperSearch(
       arrivalTime: departIsNotNow ? arrivalTime : format(new Date(), "HH:mm"),
       isNow: !departIsNotNow,
       searchType: isDriver ? "driver" : "passenger",
+      // Coordonnées GPS — présentes si l'utilisateur a sélectionné une suggestion
+      departureCoords,
+      arrivalCoords,
     };
 
     onSearch?.(params);
@@ -372,6 +453,7 @@ export function useSuperSearch(
     // Géolocalisation
     isCurrentLocationLoading,
     handleGetCurrentLocation,
+    departureError, // Ajout de l'erreur de localisation du départ
     // Mode Maintenant / Planifié
     departIsNotNow,
     setDepartIsNotNow,

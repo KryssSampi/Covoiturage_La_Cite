@@ -12,4 +12,8 @@ export interface Trip {
   passengers: Passenger[];
   driver: Driver;
   doneDate: string | null;
+  /** Coordonnées GPS du point de départ [lng, lat] — utilisées pour tracer la polyline */
+  departureCoords?: [number, number];
+  /** Coordonnées GPS du point d'arrivée [lng, lat] — utilisées pour tracer la polyline */
+  arrivalCoords?: [number, number];
 }

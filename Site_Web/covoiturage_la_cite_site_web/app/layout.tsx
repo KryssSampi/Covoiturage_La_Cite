@@ -35,10 +35,15 @@ export default function RootLayout({
  
 
 return (
-    <html lang="en" style={{ scrollBehavior:'smooth' , overflowX : 'hidden'} }>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-200 `} style={{ overflowX : 'hidden'}}
-         suppressHydrationWarning={true}
-      >
+<html 
+  lang="en" 
+  style={{ scrollBehavior: 'smooth' }}
+  suppressHydrationWarning={true}  // Empêche les warnings causés par les extensions navigateur (ex: MetaMask)
+>
+  <body 
+    className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-200`}
+    suppressHydrationWarning={true}
+  >
         <LoaderProvider>
           <LoaderManager />
           {children}

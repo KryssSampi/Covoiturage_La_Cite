@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import {useAppState } from "@/core/state/app_state";
-import { useParams,useRouter } from "next/navigation";
+import { useAppState } from "@/core/state/app_state";
+import { useParams, useRouter } from "next/navigation";
+import UsersList from "@/features/admin/components/UsersList";
 
 
 export default function AdminDashboardPage() {
@@ -30,15 +31,38 @@ export default function AdminDashboardPage() {
   }
  
   return (
+    <div className="p-8 w-full min-h-screen flex flex-col">
+      {/* En-tête du tableau de bord admin */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-800">
+          Tableau de bord — Administrateur
+        </h1>
+        <p className="text-gray-500 text-sm mt-1">
+          Connecté en tant que{' '}
+          <span className="font-medium">
+            {user.prenom} {user.nom}
+          </span>{' '}
+          · {user.email}
+        </p>
+      </div>
 
-    <div className="p-8 w-full h-screen flex flex-col items-center justify-center">
-      <h1 className="text-2xl font-bold mb-4">Tableau de bord de l&apos;administrateur - {params.id}</h1>
-      <p>Bienvenue sur votre tableau de bord {user.prenom} {user.nom} ! Ici, vous pouvez gérer vos trajets, consulter vos réservations et mettre à jour votre profil.
-  vous êtes un  {user.role.toString()} et votre adresse email est {user.email}.</p>
-  <button className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700" onClick={() => appState.logout()}>
-    Se déconnecter
-  </button>
+      {/* Section : liste des utilisateurs */}
+      <section>
+        <h2 className="text-lg font-semibold text-gray-700 mb-4">
+          Utilisateurs inscrits
+        </h2>
+        <UsersList />
+      </section>
+
+      {/* Bouton de déconnexion */}
+      <div className="mt-8">
+        <button
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+          onClick={() => appState.logout()}
+        >
+          Se déconnecter
+        </button>
+      </div>
     </div>
-
   );
 }

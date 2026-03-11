@@ -8,6 +8,7 @@ export interface Reservation {
   destination: string;
   date: string;
   time: string;
+  duration: number | null;
   maxPassengers: number;
   passengers: Passenger[];
   driver: Driver;

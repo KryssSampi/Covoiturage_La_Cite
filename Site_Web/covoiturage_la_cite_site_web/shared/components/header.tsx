@@ -1,142 +1,232 @@
 "use client";
 
-import { useAppState, Language } from "@/core/state/app_state";
+/**
+ * @file header.tsx
+ * @description Composant Header — JSX pur, zéro logique.
+ *
+ * Toute la logique est dans useHeader.ts.
+ * Ce fichier ne contient que :
+ * - L'appel à useHeader()
+ * - Le rendu JSX
+ * - Les sous-composants purement visuels
+ */
+
 import Link from "next/link";
 import Image from "next/image";
+import { FaRegBell } from "react-icons/fa";
+import { FiMenu, FiX } from "react-icons/fi";
 import { ToggleLangButton } from "@/shared/ui/buttons/togglelang";
 import { MainLogo } from "../ui/logo/main_logo";
-import { FaRegBell } from "react-icons/fa";
-import { useState } from "react";
 import CustomToggle from "@/shared/ui/toggles/simple_toggle";
-import { useIsMobileOrTablet } from "../hooks/useismobileortable";
-import { useLoader } from "@/core/context/loader.context";
-import { useRouter } from "next/navigation";
+
+import { useHeader } from "../hooks/useheader";
+import { NavItem } from "../types/header.types";
+
+// ─── Composant principal ─────────────────────────────────────────────────────
 
 export function Header() {
-    const appState = useAppState();
-    const isbellowlg = useIsMobileOrTablet();
-    const { setActiveLoader } = useLoader();
-    const router = useRouter();
-    const [ishover1, setIshover1] = useState(false);
-    const [ishover2, setIshover2] = useState(false);
-    const [ishover3, setIshover3] = useState(false);
-    const [ishover4, setIshover4] = useState(false);
-    const [ishover5, setIshover5] = useState(false);
-    const [isActive1, setIsActive1] = useState(true);
-    const [isActive2, setIsActive2] = useState(false);
-    const [isActive3, setIsActive3] = useState(false);
-    const [isActive4] = useState(false);
-    const [isActive5, setIsActive5] = useState(false);
-    const [istoggleActif, setIsToggleActif] = useState(false);
-    const [isPassengerActif] = useState(true);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
-    const [, setIsMenuOver] = useState(false);
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
+  const {
+    isFR,
+    isDriver,
+    avatarUrl,
+    visibleNavItems,
+    burgerItems,
+    avatarMenuItems,
+    resolveHref,
+    isActive,
+    scrolled,
+    mounted,
+    isMenuOpen,
+    menuRef,
+    toggleMenu,
+    isAvatarOpen,
+    avatarRef,
+    toggleAvatar,
+    isDriverActive,
+    setIsDriverActive,
+    handleLogout,
+  } = useHeader();
 
-   const handleLogout = () => {
-    // Active le loader et redirige l'utilisateur vers la page de connexion
-    setActiveLoader(true);
-    router.push('/login');
-    appState.logout();
+  return (
+    // suppressHydrationWarning évite les faux positifs causés par les extensions navigateur (ex: MetaMask)
+    <header
+      suppressHydrationWarning
+      className={`sticky top-0 z-50 w-full bg-blue-800 transition-shadow duration-300 ${
+        mounted && scrolled ? "shadow-xl shadow-blue-950/50" : "shadow-md"
+      }`}
+    >
+      <div className="flex items-center justify-between px-3 lg:px-6 h-14 lg:h-16">
+
+        {/* ── Logo ─────────────────────────────────────────────────────────── */}
+        <div className="flex items-center shrink-0 scale-75 lg:scale-100 -ml-3 lg:ml-0">
+          <MainLogo />
+        </div>
+
+        {/* ── Navigation centrale ──────────────────────────────────────────── */}
+        <nav className="flex items-center gap-x-1 lg:gap-x-5 mx-2 lg:mx-6">
+          {visibleNavItems.map((item) => (
+            <NavLink
+              key={item.href}
+              href={resolveHref(item.href)}
+              label={isFR ? item.labelFR : item.labelEN}
+              active={isActive(item.href)}
+            />
+          ))}
+            {/* Burger */}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={toggleMenu}
+              aria-label={isFR ? "Ouvrir le menu" : "Open menu"}
+              className="text-white p-1.5 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              {isMenuOpen
+                ? <FiX    className="text-2xl transition-transform duration-200 rotate-90" />
+                : <FiMenu className="text-2xl transition-transform duration-200" />
+              }
+            </button>
+
+            <Dropdown open={isMenuOpen} align="right" className="w-56">
+              {/* Toggle conducteur dans le burger — mobile uniquement */}
+              {isDriver && (
+                <div className="flex lg:hidden items-center justify-between px-4 py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-700">
+                    {isFR ? "Mode actif" : "Active mode"}
+                  </span>
+                  <CustomToggle
+                    bindValue={isDriverActive}
+                    onToggle={setIsDriverActive}
+                    activeColor="bg-green-400"
+                  />
+                </div>
+              )}
+              {burgerItems.map((item) => (
+                <DropdownLink
+                  key={item.href}
+                  href={item.href}
+                  label={isFR ? item.labelFR : item.labelEN}
+                />
+              ))}
+            </Dropdown>
+          </div>
+        </nav>
+
+        {/* ── Actions droite ───────────────────────────────────────────────── */}
+        <div className="flex items-center gap-x-2 lg:gap-x-4 shrink-0">
+
+          <ToggleLangButton />
+          <Separator />
+          <BellButton count={3} />
+          <Separator />
+
+          {/* Avatar + dropdown profil */}
+          <div className="relative" ref={avatarRef}>
+            <AvatarButton
+              isActive={isDriver ? isDriverActive : true}
+              avatarUrl={avatarUrl}
+              onClick={toggleAvatar}
+            />
+            <Dropdown open={isAvatarOpen} align="right" className="w-44">
+              {avatarMenuItems.map((item) => (
+                <DropdownLink
+                  key={item.href}
+                  href={item.href}
+                  label={isFR ? item.labelFR : item.labelEN}
+                />
+              ))}
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                {isFR ? "Se déconnecter" : "Log out"}
+              </button>
+            </Dropdown>
+          </div>
+
+          {/* Toggle conducteur actif — desktop uniquement */}
+          {isDriver && (
+            <div className="hidden lg:flex flex-col items-center text-white text-xs leading-tight gap-y-0.5">
+              <span>{isFR ? "Actif" : "Active"}</span>
+              <CustomToggle
+                bindValue={isDriverActive}
+                onToggle={setIsDriverActive}
+                activeColor="bg-green-400"
+              />
+            </div>
+          )}
+       
+
+        </div>
+      </div>
+    </header>
+  );
 }
 
-    return (
-        <header className="flex flex-col top-0 z-999 sticky w-full">
-            <div className="bg-blue-800 flex shadow-md  sticky top-0 z-50 justify-between items-center lg:px-6 ">
-                <div className="flex items-center lg:scale-100 scale-75 -ml-5">
-                    <MainLogo />
-                </div>
-                <div className="flex items-center space-x-6  object-right">
-                    <nav className="container mx-auto lg:px-4  -ml-20  pr-0 py-0 flex gap-x-5 justify-between items-center">
-                        <button className="text-white lg:text-xl   font-bold relative" onMouseEnter={() => setIshover1(true)} onMouseLeave={() => setIshover1(false)} onClick={() => setIsActive1(true)}>
-                            <Link href={`/${appState.userConnected?.role.toString()}/${appState.userConnected?.id}`} className={`text-white lg:text-xl font-bold ${ishover1 ? 'text-xl text-blue-300 ' : ' '}`}>
-                                {appState.lang === Language.FR ? 'Acceuil' : 'Home'}
-                            </Link>
-                            <div className={`absolute bottom-0 left-0 right-0 h-1 bg-blue-300 rounded-full transition-all duration-300 ${isActive1 ? 'scale-x-100' : ''}  ${ishover1 && !isActive1 ? 'scale-x-100' : 'scale-x-0'}`} />
-                        </button>
-                        {!isbellowlg && (<>
-                            <button className="text-white text-xl font-bold relative" onMouseEnter={() => setIshover2(true)} onMouseLeave={() => setIshover2(false)} onClick={() => setIsActive2(true)}>
-                                <Link href="/planifier" className={`text-white text-xl font-bold ${ishover2 ? 'text-xl text-blue-300 ' : ' '}`}>
-                                    {appState.lang === Language.FR ? 'Planifier' : 'Plan'}
-                                </Link>
-                                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-blue-300 rounded-full transition-all duration-300 ${isActive2 ? 'scale-x-100' : ''}  ${ishover2 && !isActive2 ? 'scale-x-100' : 'scale-x-0'}`} />
-                            </button>
-                            <button className="text-white text-xl font-bold relative" onMouseEnter={() => setIshover3(true)} onMouseLeave={() => setIshover3(false)} onClick={() => setIsActive3(true)}>
-                                <Link href="/historique" className={`text-white text-xl font-bold ${ishover3 ? 'text-xl text-blue-300 ' : ' '}`}>
-                                    {appState.lang === Language.FR ? 'Historique' : 'History'}
-                                </Link>
-                                <div className={`absolute bottom-0 left-0 right-0 h-1 bg-blue-300 rounded-full transition-all duration-300 ${isActive3 ? 'scale-x-100' : ''}  ${ishover3 && !isActive3 ? 'scale-x-100' : 'scale-x-0'}`} />
-                            </button></>
-                        )}
-                        <button className="text-white lg:text-xl text-2xs font-bold relative" onMouseEnter={() => { setIshover4(true); setIsMenuOpen(true); }} onMouseLeave={() => { setIshover4(false); setIsMenuOpen(false); }} onClick={toggleMenu}>
-                            {appState.lang === Language.FR ? 'Menu' : 'Menu'}
-                            <div className={`absolute bottom-0 left-0 right-0 h-1 bg-blue-300 rounded-full transition-all duration-300 ${isActive4 ? 'scale-x-100' : ''}  ${ishover4 && !isActive4 ? 'scale-x-100' : 'scale-x-0'}`} />
-                        </button>
-                        <button className="text-white lg:text-xl text-2xs font-bold relative" onMouseEnter={() => setIshover5(true)} onMouseLeave={() => setIshover5(false)} onClick={() => setIsActive5(true)}>
-                            <Link href="/FAQ" className={`text-white lg:text-xl text-2xs font-bold ${ishover5 ? 'lg:text-xl text-blue-300 ' : ' '}`}>
-                                {appState.lang === Language.FR ? 'FAQ' : 'FAQ'}
-                            </Link>
-                            <div className={`absolute bottom-0 left-0 right-0 h-1 bg-blue-300 rounded-full transition-all duration-300 ${isActive5 ? 'scale-x-100' : ''}  ${ishover5 && !isActive5 ? 'scale-x-100' : 'scale-x-0'}`} />
-                        </button>
-                    </nav>
+// ─── Sous-composants visuels ──────────────────────────────────────────────────
 
-                    <div className="w-px h-6 lg:ml-0 ml-1 lg:mr-0 -mr-2 bg-gray-400" />
-                    <div className={`flex items-center space-x-6 ${isbellowlg ? ' -mr-5' : 'mr-6'}`}>
-                        <ToggleLangButton />
-                    </div>
-                    <div className="inline-flex bg-transparent relative lg:-ml-3 ml-3  " >
-                        <div className="bg-red-600 lg:text-2xs right-0 -top-1  text-xs lg:w-5 lg:h-5 w-4 h-4 text-center justify-center items-center text-white rounded-full absolute">
-                            <span className="p-1 relative">3</span>
-                        </div>
-                        <FaRegBell className="text-white lg:text-4xl  text-3xl" />
-                    </div>
-                    <button className="text-white text-xl  bg-white lg:w-20 lg:h-15 w-10 h-10 lg:ml-0 -ml-5 font-bold relative" style={{ borderRadius: '50%' }} onMouseEnter={() => setIsAvatarMenuOpen(true)} onMouseLeave={() => setIsAvatarMenuOpen(false)}>
-                        <div className="bg-red-600  right-0 top-0 w-3 h-3 text-center text-white rounded-full absolute" />
-                        {appState.userConnected?.role.toString().toLowerCase() === "passenger" ?
-                            (isPassengerActif === true ? (
-                                <div className="bg-green-600  right-0 bottom-0 lg:w-4 lg:h-4 w-3 h-3 text-center text-white rounded-full absolute" />
-                            ) : (<div className="absolute right-0 bottom-0 lg:w-4 lg:h-4 w-3 h-3 bg-gray-600 border-2 border-gray-400 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-500 transition-colors">
-                                <span className="text-gray-400 lg:text-[8px] text-[6px] font-bold leading-none mt-0.5">✕</span>
-                            </div>)) : (istoggleActif === true ? (
-                                <div className="bg-green-600  right-0 bottom-0 lg:w-4 lg:h-4 w-3 h-3 text-center text-white rounded-full absolute" />
-                            ) : (<div className="absolute right-0 bottom-0 lg:w-4 lg:h-4 w-3 h-3 bg-gray-600 lg:border-2 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-500 transition-colors">
-                                <span className="text-gray-400 lg:text-[8px] text-[6px] font-bold leading-none mt-0.5">✕</span>
-                            </div>
-                            ))}
-                        <Image src="https://static.vecteezy.com/system/resources/thumbnails/048/216/761/small/modern-male-avatar-with-black-hair-and-hoodie-illustration-free-png.png" alt="Profile" width={35} height={40} className="lg:w-full lg:h-full rounded-full object-cover" />
-                    </button>
-                    {appState.userConnected?.role.toString() === "driver" && (
-                        <div className=" flex flex-col text-center lg:ml-0 -ml-5 lg:text-2xl">
-                            {appState.lang === Language.FR ? "Actif" : "Active"}
+function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`relative text-sm lg:text-base font-semibold px-1 py-1 transition-colors duration-200 group ${
+        active ? "text-blue-200" : "text-white hover:text-blue-200"
+      }`}
+    >
+      {label}
+      <span className={`absolute bottom-0 left-0 right-0 h-0.5 bg-blue-300 rounded-full transition-transform duration-200 origin-left ${
+        active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+      }`} />
+    </Link>
+  );
+}
 
-                            <div className="lg:scale-100 scale-80">
-                                <CustomToggle bindValue={istoggleActif} onToggle={(value) => setIsToggleActif(value)} activeColor="bg-green-400" />
-                            </div>
+function BellButton({ count }: { count: number }) {
+  return (
+    <Link href="/notifications" className="relative p-1 group" aria-label="Notifications">
+      <FaRegBell className="text-white text-2xl lg:text-3xl group-hover:text-blue-200 transition-colors duration-200" />
+      {count > 0 && (
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 lg:w-5 lg:h-5 rounded-full flex items-center justify-center leading-none">
+          {count > 99 ? "99+" : count}
+        </span>
+      )}
+    </Link>
+  );
+}
 
-                        </div>
-                    )}
-                </div>
-                <div className={`absolute lg:top-16 top-12 text-center right-0 w-30 bg-white shadow-lg rounded-md py-2 ${isAvatarMenuOpen ? 'block' : 'hidden'}`} onMouseEnter={() => { setIsAvatarMenuOpen(true) }} onMouseLeave={() => { setIsAvatarMenuOpen(false) }}>
-                    <Link href="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">{appState.lang === Language.FR ? 'Profil' : 'Profile'}</Link>
-                    <Link href="/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">{appState.lang === Language.FR ? 'Paramètres' : 'Settings'}</Link>
-                    <button onClick={ () => handleLogout() } className="w-full text-center px-4 py-2 text-gray-800 hover:bg-gray-100">{appState.lang === Language.FR ? 'Se Déconnecter' : 'Log Out'}</button>
-                </div>
-                <div className={`absolute top-12 lg:right-45 w-80 text-center bg-white shadow-lg rounded-md py-2 ${isMenuOpen ? 'block' : 'hidden'}`} onMouseEnter={() => { setIsMenuOpen(true) }} onMouseLeave={() => { setIsMenuOver(false); setIsMenuOpen(false) }}>
-                    {isbellowlg && (<>
-                        <Link href={`/${appState.userConnected?.role.toString()}/${appState.userConnected?.id}/Planifier`} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">{appState.lang === Language.FR ? 'Planifier' : 'Plan'}</Link>
-                        <Link href={`/${appState.userConnected?.role.toString()}/${appState.userConnected?.id}/Historique`} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">{appState.lang === Language.FR ? 'Historique' : 'History'}</Link>
-                    </>)}
-                    <Link href="/profile" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">{appState.lang === Language.FR ? 'Mes Favoris' : 'My Favorites'}</Link>
-                    <Link href="/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">{appState.lang === Language.FR ? 'Avis Sur Moi' : 'Reviews About Me'}</Link>
-                    <Link href="/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">{appState.lang === Language.FR ? 'Nouveautés' : 'New Features'}</Link>
-                    <Link href="/settings" className="block px-4 py-2 text-gray-800 hover:bg-gray-100">{appState.lang === Language.FR ? 'Go Board' : 'Go Board'}</Link>
+function AvatarButton({ isActive, avatarUrl, onClick }: { isActive: boolean; avatarUrl: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label="Menu profil"
+      className="relative w-9 h-9 lg:w-11 lg:h-11 rounded-full ring-2 ring-blue-400 hover:ring-blue-200 transition-all duration-200"
+    >
+      <Image src={avatarUrl} alt="Avatar" fill className="rounded-full object-cover" />
+      <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full border-2 border-blue-800 transition-colors duration-300 ${
+        isActive ? "bg-green-400" : "bg-gray-500"
+      }`} />
+    </button>
+  );
+}
 
-                </div>
+function Dropdown({ open, align, className, children }: { open: boolean; align: "left" | "right"; className?: string; children: React.ReactNode }) {
+  return (
+    <div className={`absolute top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 transition-all duration-200 origin-top-right ${
+      align === "right" ? "right-0" : "left-0"
+    } ${className ?? ""} ${
+      open ? "opacity-100 scale-100 translate-y-0 pointer-events-auto" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+    }`}>
+      <div className="py-1 w-full">{children}</div>
+    </div>
+  );
+}
 
-            </div>
-        </header>
-    );
+function DropdownLink({ href, label }: Pick<NavItem, "href"> & { label: string }) {
+  return (
+    <Link href={href} className="block px-4 py-2 text-center text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150">
+      {label}
+    </Link>
+  );
+}
+
+function Separator() {
+  return <div className="w-px h-5 bg-blue-600 hidden lg:block" />;
 }

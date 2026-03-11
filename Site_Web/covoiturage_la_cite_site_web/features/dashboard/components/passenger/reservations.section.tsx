@@ -144,7 +144,7 @@ interface ReservationCardProps {
  */
 
 
-function ReservationCard({ reservation, isPassengerListOpen, onTogglePassengerList, onClosePassengerList }: ReservationCardProps) {
+export function ReservationCard({ reservation, isPassengerListOpen, onTogglePassengerList, onClosePassengerList }: ReservationCardProps) {
   const { lang } = useAppState();
 
   return (

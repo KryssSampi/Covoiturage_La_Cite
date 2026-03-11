@@ -1,5 +1,15 @@
 @import "tailwindcss";
+/* Leaflet — doit être ici, Turbopack ignore les imports CSS dans les composants */
+@import "leaflet/dist/leaflet.css";
 
+/* Correction hauteur conteneur Leaflet (nécessaire pour que la tuile s'affiche) */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  border-radius: 12px;
+  z-index: 0;
+}
 
 @keyframes shimmer {
   from { background-position: -200% 0; }
@@ -48,6 +58,9 @@
   background-size: 200% 100%;
   animation: wavePulse 4s linear infinite;
 }
+  html {
+    background-color: white;
+  }
 @media (hover: none) {
   .hover\:scale-110:hover { transform: none; }
   .hover\:bg-blue-600:hover { background-color: inherit; }
@@ -57,6 +70,8 @@
     /* Réduit l'échelle de base de l'application sur mobile */
     font-size: 14px; 
   }
+
+
   
   /* Force tous les éléments "statiques" à ne jamais dépasser l'écran */
   * {
@@ -161,4 +176,139 @@ p , h1, h2, h3, h4, h5, h6 , span , div  {
   );
 
   animation: edgePulse 2s ease-in-out infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  /* Contient le overflow horizontal sans créer de contexte qui tue sticky */
+  max-width: 100vw;
+  overflow-x: clip; /* clip au lieu de hidden — ne crée pas de scroll container */
+}
+
+@keyframes background-pulse {
+  0%, 100% {
+    background-color: var(--pulse-from, rgba(255,255,255,0.05));
+  }
+  50% {
+    background-color: var(--pulse-to, rgba(255,255,255,0.12));
+  }
+}
+
+.animate-bg-pulse {
+  animation: background-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.section-pulse {
+  /* Fallback si --bg n'est pas déclaré : bleu neutre discret */
+  --bg: #3b82f6;
+
+  /* Dérivées automatiques — jamais à configurer manuellement */
+  --pulse-ring: color-mix(in srgb, var(--bg) 25%, transparent);
+  --pulse-glow: color-mix(in srgb, var(--bg) 10%, transparent);
+  --pulse-ring-strong: color-mix(in srgb, var(--bg) 35%, transparent);
+}
+
+
+/* ─── Keyframes ──────────────────────────────────────────────────────────── */
+
+/**
+ * Lueur de fond — pseudo-élément ::before.
+ * Travaille sur l'opacité pour rester GPU-acceleré.
+ * Rythme double battement : battement 1 → silence → battement 2 → longue pause.
+ */
+@keyframes pulse-glow {
+  0%        { opacity: 0; transform: scale(1);      }
+  22%       { opacity: 1; transform: scale(1.002);  }   /* battement 1 */
+  45%       { opacity: 0; transform: scale(1);      }   /* silence     */
+  60%       { opacity: 0.8; transform: scale(1.002); }  /* battement 2 */
+  80%, 100% { opacity: 0; transform: scale(1);      }   /* longue pause */
+}
+
+/**
+ * Ring border — box-shadow qui se propage vers l'extérieur.
+ * Synchronisé avec pulse-glow pour un effet cohérent.
+ */
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 var(--pulse-ring), 0 0 0 0 var(--pulse-glow);
+  }
+  22% {
+    box-shadow: 0 0 0 8px var(--pulse-ring-strong), 0 0 28px 0 var(--pulse-glow);
+  }
+  45% {
+    box-shadow: 0 0 0 2px var(--pulse-ring), 0 0 8px 0 var(--pulse-glow);
+  }
+  60% {
+    box-shadow: 0 0 0 6px var(--pulse-ring), 0 0 20px 0 var(--pulse-glow);
+  }
+  80%, 100% {
+    box-shadow: 0 0 0 0 var(--pulse-ring), 0 0 0 0 var(--pulse-glow);
+  }
+}
+
+
+/* ─── Classe principale ──────────────────────────────────────────────────── */
+
+.section-pulse {
+  position: relative;
+  isolation: isolate;
+
+  animation: pulse-ring 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+  animation-delay: 0.5s;
+}
+
+.section-pulse::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at 50% 0%,
+    var(--pulse-glow) 0%,
+    transparent 70%
+  );
+  animation: pulse-glow 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+  animation-delay: 0.5s;
+  pointer-events: none;
+  z-index: -1;
+}
+
+
+/* ─── Variantes de rythme ────────────────────────────────────────────────── */
+
+/* Urgence — plus rapide (pénalités, trajet en retard) */
+.section-pulse--urgent {
+  animation-duration: 2.4s;
+  --pulse-ring: color-mix(in srgb, var(--bg) 40%, transparent);
+  --pulse-ring-strong: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+.section-pulse--urgent::before {
+  animation-duration: 2.4s;
+  --pulse-glow: color-mix(in srgb, var(--bg) 18%, transparent);
+}
+
+/* Lent — pour les grandes sections informatives */
+.section-pulse--slow {
+  animation-duration: 7s;
+}
+.section-pulse--slow::before {
+  animation-duration: 7s;
+}
+
+
+/* ─── Respect des préférences utilisateur ────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .section-pulse,
+  .section-pulse::before {
+    animation: none;
+  }
+
+  /* Ring statique très discret — signale l'état sans bouger */
+  .section-pulse {
+    box-shadow: 0 0 0 2px var(--pulse-ring);
+  }
 }

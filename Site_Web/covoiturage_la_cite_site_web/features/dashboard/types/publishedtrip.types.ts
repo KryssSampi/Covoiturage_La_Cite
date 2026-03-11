@@ -18,6 +18,10 @@ export interface PublishedTrip {
   date: string;
   /** Heure de départ "HH:mm" */
   time: string;
+
+  /** Durée estimée du trajet en minutes */
+  duration: number| null;
+
   /** Capacité totale du véhicule - 1 (conducteur exclu) */
   maxPassengers: number;
   /** Liste des passagers confirmés */
@@ -28,6 +32,12 @@ export interface PublishedTrip {
   pendingRequests: number;
   /** Statut courant du trajet */
   status: PublishedTripStatus;
+
+  // ── Données géographiques (optionnelles — enrichies par l'API) ─────────────
+  /** Coordonnées du départ [lng, lat] — format Photon/OSRM */
+  departureCoords?: [number, number];
+  /** Coordonnées de l'arrivée [lng, lat] — format Photon/OSRM */
+  arrivalCoords?: [number, number];
 }
 
 /**

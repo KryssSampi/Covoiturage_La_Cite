@@ -4,8 +4,7 @@ export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const protectedRoutes = ['/admin', '/driver', '/passenger'];
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-    const user =  request.cookies.get('userConnected')?.value || sessionStorage.getItem('userConnected');
- 
+    const user =  request.cookies.get('userConnected')?.value || localStorage.getItem('userConnected') ;
     if (isProtectedRoute && !user) {
         return NextResponse.redirect(new URL('/', request.url));
     }

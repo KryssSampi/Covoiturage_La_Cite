@@ -193,6 +193,7 @@ function TripCard({ trip, isPassengerListOpen, onTogglePassengerList, onClosePas
  * ou une liste défilable de cartes de trajets dans le cas contraire.
  */
 export function RecommendedRidesSection() {
+  
   const { lang } = useAppState();
   const { trips, isEmpty, openPassengerLists, togglePassengerList, closePassengerList } = useRecommendedRides();
 

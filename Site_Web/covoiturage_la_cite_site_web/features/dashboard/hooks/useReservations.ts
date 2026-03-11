@@ -1,7 +1,7 @@
 // features/dashboard/hooks/useReservations.ts
 
 import { useMemo, useState } from "react";
-import { FIXTURES_RESERVATIONS } from "@/tests/fixtures/dashboard/reservations.fixtures";
+import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import { ReservationStatus, type Reservation } from "../types";
 
 function sortReservations(reservations: Reservation[]): Reservation[] {
@@ -31,10 +31,11 @@ interface UseReservationsReturn {
 }
 
 export function useReservations(): UseReservationsReturn {
-  // TODO: Remplacer FIXTURES_RESERVATIONS par un appel API
-  // const { data } = useQuery({ queryKey: ["my-reservations"], queryFn: fetchMyReservations });
+  // Source unique : DashboardContext — les fixtures sont chargées une seule fois dans le provider
+  // TODO: Remplacer par un appel API dans DashboardContext
+  const { reservations: rawReservations } = useDashboardContext();
 
-  const reservations = useMemo(() => sortReservations(FIXTURES_RESERVATIONS), []);
+  const reservations = useMemo(() => sortReservations(rawReservations), [rawReservations]);
 
   const [openPassengerLists, setOpenPassengerLists] = useState<boolean[]>(
     () => reservations.map(() => false)

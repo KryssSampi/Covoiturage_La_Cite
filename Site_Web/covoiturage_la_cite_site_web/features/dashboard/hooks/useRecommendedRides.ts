@@ -1,7 +1,7 @@
 // features/dashboard/hooks/useRecommendedRides.ts
 
 import { useMemo, useState } from "react";
-import { FIXTURES_TRIPS } from "@/tests/fixtures/dashboard/trips.fixtures";
+import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import type { Trip } from "../types";
 
 interface UseRecommendedRidesReturn {
@@ -13,12 +13,13 @@ interface UseRecommendedRidesReturn {
 }
 
 export function useRecommendedRides(): UseRecommendedRidesReturn {
-  // TODO: Remplacer FIXTURES_TRIPS par un appel API
-  // const { data } = useQuery({ queryKey: ["recommended-trips"], queryFn: fetchRecommendedTrips });
+  // Source unique : DashboardContext — les fixtures sont chargées une seule fois dans le provider
+  // TODO: Remplacer par un appel API dans DashboardContext
+  const { recommendedTrips: rawTrips } = useDashboardContext();
 
   const trips = useMemo(
-    () => [...FIXTURES_TRIPS].sort((a, b) => a.date.localeCompare(b.date)),
-    []
+    () => [...rawTrips].sort((a, b) => a.date.localeCompare(b.date)),
+    [rawTrips]
   );
 
   const [openPassengerLists, setOpenPassengerLists] = useState<boolean[]>(
