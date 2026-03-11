@@ -53,8 +53,9 @@ export function NotificationsSection({
   return (
     <section
       className={`w-full py-5 border rounded-lg shadow-md p-6
-        ${unreadCount !== 0 ? "animate-pulse" : ""}
+        ${unreadCount !== 0 ? " section-pulse " : ""}
         ${isDriver ? "bg-[#08316e]" : unreadCount !== 0 ? "bg-gray-200" : "bg-[#f8f8f8]"}`}
+          style={{ '--bg': isDriver ? '#08316e' : '#f8f8f8' } as React.CSSProperties}
     >
       {/* ─── En-tête ────────────────────────────────────────────────────── */}
       <div className="w-full justify-between flex mx-auto items-center">

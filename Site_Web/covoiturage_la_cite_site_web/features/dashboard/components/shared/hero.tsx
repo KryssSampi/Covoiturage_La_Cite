@@ -160,7 +160,28 @@ export function Hero() {
          * en props favDestinations pour pré-remplir les suggestions rapides.
          * GET /api/users/{userId}/favorites → mapper en { label, value, icon }
          */}
-        <SuperSearchSection onSearch={() => {}} />
+        <SuperSearchSection onSearch={(params) => {
+          // Redirige vers la page de recherche du rôle courant avec les paramètres encodés
+          const base = isDriver
+            ? `/driver/search/${appState.userConnected?.id}`
+            : `/passenger/search/${appState.userConnected?.id}`;
+
+          const q = new URLSearchParams({
+            dep: params.departureLocation,
+            arr: params.arrivalLocation,
+          });
+          // Ajoute les coordonnées si disponibles (sélection via suggestion)
+          // Les clés doivent correspondre exactement à ce que lisent les pages de recherche
+          if (params.departureCoords) {
+            q.set("depLng", String(params.departureCoords[0]));
+            q.set("depLat", String(params.departureCoords[1]));
+          }
+          if (params.arrivalCoords) {
+            q.set("arrLng", String(params.arrivalCoords[0]));
+            q.set("arrLat", String(params.arrivalCoords[1]));
+          }
+          router.push(`${base}?${q.toString()}`);
+        }} />
       </div>
     </section>
   );

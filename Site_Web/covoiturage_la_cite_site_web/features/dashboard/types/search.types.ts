@@ -53,6 +53,10 @@ export interface SearchParams {
   isNow: boolean;
   /** "passenger" = rechercher un trajet / "driver" = planifier un trajet */
   searchType: "passenger" | "driver";
+  /** Coordonnées GPS du départ [lng, lat] — undefined si non sélectionné via suggestion */
+  departureCoords?: [number, number];
+  /** Coordonnées GPS de l'arrivée [lng, lat] — undefined si non sélectionné via suggestion */
+  arrivalCoords?: [number, number];
 }
 
 // ─── Props composant ─────────────────────────────────────────────────────────

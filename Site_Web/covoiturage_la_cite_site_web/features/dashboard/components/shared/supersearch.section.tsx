@@ -18,6 +18,8 @@
  * @uses SearchParams, SuperSearchSectionProps — types depuis dashboard/types
  */
 
+import { useState, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import { format } from "date-fns";
 import { FaLocationDot, FaMagnifyingGlass, FaX } from "react-icons/fa6";
 import {
@@ -35,7 +37,7 @@ import {
 import { Language, useAppState } from "@/core/state/app_state";
 
 import { useSuperSearch } from "../../hooks";
-import { SuperSearchSectionProps } from "../../types/search.types";
+import { LocationSuggestion, SuperSearchSectionProps } from "../../types/search.types";
 
 // ─── Destinations favorites par défaut ───────────────────────────────────────
 // Utilisées quand aucune prop favDestinations n'est fournie.
@@ -46,6 +48,58 @@ const DEFAULT_FAV_DESTINATIONS: SuperSearchSectionProps["favDestinations"] = [
   { label: "Université", value: "Université de Paris, 75013 Paris", icon: <FaSchool /> },
   { label: "Travail", value: "Gare Montparnasse, 75014 Paris", icon: <FaBriefcase /> },
 ];
+
+// ─── Portal de suggestions ───────────────────────────────────────────────────
+
+/** Contourne le stacking context créé par scale-110 sur le form */
+function SuperSuggestionPortal({
+  anchorRef,
+  suggestions,
+  onSelect,
+}: {
+  anchorRef:   { readonly current: HTMLElement | null };
+  suggestions: LocationSuggestion[];
+  onSelect:    (s: LocationSuggestion) => void;
+}) {
+  const [coords, setCoords] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!suggestions.length || !anchorRef.current) return;
+    const r = anchorRef.current.getBoundingClientRect();
+    setCoords({ top: r.bottom + 4, left: r.left, width: Math.max(r.width, 220) });
+  }, [suggestions, anchorRef]);
+
+  if (!suggestions.length || !coords || typeof document === "undefined") return null;
+
+  return createPortal(
+    <ul style={{
+      position:    "fixed",
+      top:         coords.top,
+      left:        coords.left,
+      width:       coords.width,
+      zIndex:      99999,
+      background:  "#fff",
+      borderRadius: 6,
+      border:      "1px solid #d1d5db",
+      boxShadow:   "0 10px 25px rgba(8,49,110,0.18)",
+      overflow:    "hidden",
+      padding:     0,
+      margin:      0,
+      listStyle:   "none",
+    }}>
+      {suggestions.map((s, i) => (
+        <li
+          key={i}
+          className="p-3 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-0 text-gray-800"
+          onMouseDown={() => onSelect(s)}
+        >
+          {s.label}
+        </li>
+      ))}
+    </ul>,
+    document.body,
+  );
+}
 
 // ─── Composant principal ─────────────────────────────────────────────────────
 
@@ -115,31 +169,29 @@ export function SuperSearchSection({
               id="departure"
               ref={departureRef}
               value={departureLocation}
+              rows={1}
               onChange={(e) => handleDepartureInputChange(e.target.value)}
               onFocus={() => departureRef.current?.select()}
-              className="max-w-70 h-10 resize-none overflow-hidden items-center
+              onInput={(e) => {
+                const el = e.currentTarget;
+                el.style.height = "auto";
+                el.style.height = Math.min(el.scrollHeight, 160) + "px";
+              }}
+              style={{ height: "40px", minHeight: "40px", maxHeight: "160px", overflowY: "auto" }}
+              className="max-w-70 resize-none items-center
                 justify-center text-center text-[28px] border-0 text-black font-light
                 placeholder-gray-500 active:border-0 focus:border-0
                 focus-within:w-fit focus-within:max-w-70 focus-within:transition-all
-                focus-within:duration-300 focus-within:h-20 focus-within:text-left
-                focus-within:overflow-auto"
+                focus-within:duration-300 focus-within:text-left"
               placeholder={isFR ? "D'où Partez Vous ?" : "Where Do You Start?"}
             />
 
-            {/* Liste de suggestions départ */}
-            {departureSuggestions.length > 0 && (
-              <ul className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-b-md shadow-xl z-50">
-                {departureSuggestions.map((s, i) => (
-                  <li
-                    key={i}
-                    className="p-3 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-0 text-gray-800"
-                    onClick={() => selectDepartureSuggestion(s)}
-                  >
-                    {s.label}
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* Suggestions départ — portal pour dépasser le stacking context de scale-110 */}
+            <SuperSuggestionPortal
+              anchorRef={departureRef as unknown as { readonly current: HTMLElement | null }}
+              suggestions={departureSuggestions}
+              onSelect={selectDepartureSuggestion}
+            />
 
             {/* Bouton géolocalisation */}
             <button
@@ -174,31 +226,29 @@ export function SuperSearchSection({
               id="arrival"
               ref={arrivalRef}
               value={arrivalLocation}
+              rows={1}
               onChange={(e) => handleArrivalInputChange(e.target.value)}
               onFocus={() => arrivalRef.current?.select()}
-              className="max-w-70 h-10 resize-none overflow-hidden items-center
+              onInput={(e) => {
+                const el = e.currentTarget;
+                el.style.height = "auto";
+                el.style.height = Math.min(el.scrollHeight, 160) + "px";
+              }}
+              style={{ height: "40px", minHeight: "40px", maxHeight: "160px", overflowY: "auto" }}
+              className="max-w-70 resize-none items-center
                 justify-center text-center text-[28px] border-0 text-black font-light
                 placeholder-gray-500 active:border-0 focus:border-0
                 focus-within:w-fit focus-within:max-w-70 focus-within:transition-all
-                focus-within:duration-300 focus-within:h-20 focus-within:text-left
-                focus-within:overflow-auto"
+                focus-within:duration-300 focus-within:text-left"
               placeholder={isFR ? "Où Allez Vous ?" : "Where Are You Going?"}
             />
 
-            {/* Liste de suggestions arrivée */}
-            {arrivalSuggestions.length > 0 && (
-              <ul className="absolute top-full left-0 w-full bg-white border border-gray-300 rounded-b-md shadow-xl z-50">
-                {arrivalSuggestions.map((s, i) => (
-                  <li
-                    key={i}
-                    className="p-3 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-0 text-gray-800"
-                    onClick={() => selectArrivalSuggestion(s)}
-                  >
-                    {s.label}
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* Suggestions arrivée — portal pour dépasser le stacking context de scale-110 */}
+            <SuperSuggestionPortal
+              anchorRef={arrivalRef as unknown as { readonly current: HTMLElement | null }}
+              suggestions={arrivalSuggestions}
+              onSelect={selectArrivalSuggestion}
+            />
 
             {/* Bouton domicile + menu déroulant favoris */}
             <button
@@ -252,8 +302,8 @@ export function SuperSearchSection({
           </label>
         </div>
 
-        {/* ─── Sélecteur Date / Heure ──────────────────────────────────── */}
-        <label
+        {/* ─── Sélecteur Date / Heure — masqué pour le conducteur (sa recherche de circuits n'utilise pas les heures) */}
+        {!isDriver && <label
           htmlFor="options"
           className="text-2xl font-semibold mt-8 bg-white p-2 rounded-md border-2
                      border-gray-300 w-full text-center text-gray-500 transition-all duration-300"
@@ -391,7 +441,7 @@ export function SuperSearchSection({
               </button>
             </>
           )}
-        </label>
+        </label>}
 
         {/* ─── Bouton de soumission ────────────────────────────────────── */}
         <button

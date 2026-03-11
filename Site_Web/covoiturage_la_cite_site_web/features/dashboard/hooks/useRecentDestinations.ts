@@ -1,7 +1,7 @@
 // features/dashboard/hooks/useRecentDestinations.ts
 
 import { useMemo } from "react";
-import { FIXTURES_RECENT_DESTINATIONS } from "@/tests/fixtures/dashboard/recentDestination.fixtures";
+import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import type { Destination } from "../types";
 
 interface UseRecentDestinationsReturn {
@@ -10,12 +10,13 @@ interface UseRecentDestinationsReturn {
 }
 
 export function useRecentDestinations(): UseRecentDestinationsReturn {
-  // TODO: Remplacer FIXTURES_RECENT_DESTINATIONS par un appel API
-  // const { data } = useQuery({ queryKey: ["recent-destinations"], queryFn: fetchRecentDestinations });
+  // Source unique : DashboardContext — les fixtures sont chargées une seule fois dans le provider
+  // TODO: Remplacer par un appel API dans DashboardContext
+  const { recentDestinations: raw } = useDashboardContext();
 
   const destinations = useMemo(
-    () => [...FIXTURES_RECENT_DESTINATIONS].sort((a, b) => b.disponibility - a.disponibility),
-    []
+    () => [...raw].sort((a, b) => b.disponibility - a.disponibility),
+    [raw]
   );
 
   return {

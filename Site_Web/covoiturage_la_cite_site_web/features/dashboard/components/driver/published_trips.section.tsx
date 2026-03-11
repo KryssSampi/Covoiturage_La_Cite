@@ -116,7 +116,7 @@ export function PublishedTripSection({ trips = FIXTURE_PUBLISHED_TRIPS }: { trip
  * Affiche les détails d'un trajet publié dans la liste du conducteur.
  * Les images Unsplash (départ / destination) sont chargées en parallèle au montage.
  */
-function PublishedTripCard({
+export function PublishedTripCard({
   model,
   isPassengerListOpens,
   setIsPassengerListOpens,
@@ -218,11 +218,11 @@ function PublishedTripCard({
           </div>
 
           {/* Tarif */}
-          <div className="w-fit flex flex-col items-center justify-center">
+          <div className="w-full flex flex-col items-center justify-center">
             <span className="text-black font-bold text-xl underline">
               {isFR ? "Tarif" : "Fare"}
             </span>
-            <span className="text-xl font-bold text-green-500">{trip.price} CAD</span>
+            <span className="text-lg w-fit font-bold text-green-500">{trip.price} CAD</span>
           </div>
         </div>
 

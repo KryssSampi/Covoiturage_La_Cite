@@ -10,13 +10,17 @@ export const FIXTURE_PUBLISHED_TRIPS: PublishedTrip[] = [
     time: "14:00",
     maxPassengers: 3,
     passengers: [
-      { id: 1, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png", name: "Alice Dupont",   rating: 4.5, tripsCount: 10 },
-      { id: 2, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png", name: "Bob Martin",     rating: 4.0, tripsCount: 8  },
+      { id: 1, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png", name: "Alice Dupont", rating: 4.5, tripsCount: 10 },
+      { id: 2, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png", name: "Bob Martin", rating: 4.0, tripsCount: 8 },
       { id: 3, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png", name: "Charlie Durand", rating: 4.8, tripsCount: 15 },
     ],
     price: 25,
     pendingRequests: 2,
     status: PublishedTripStatus.Confirmed,
+    duration: 120,
+    // Ottawa downtown → Montréal centre
+    departureCoords:  [-75.6972, 45.4215],
+    arrivalCoords:    [-73.5673, 45.5017],
   },
   {
     id: 2,
@@ -31,6 +35,10 @@ export const FIXTURE_PUBLISHED_TRIPS: PublishedTrip[] = [
     price: 15,
     pendingRequests: 0,
     status: PublishedTripStatus.InProgress,
+    duration: 45,
+    // Campus La Cité → Gatineau (centre-ville)
+    departureCoords:  [-75.6720, 45.4189],
+    arrivalCoords:    [-75.7171, 45.4765],
   },
   {
     id: 3,
@@ -45,6 +53,10 @@ export const FIXTURE_PUBLISHED_TRIPS: PublishedTrip[] = [
     price: 20,
     pendingRequests: 0,
     status: PublishedTripStatus.Cancelled,
+    duration: 25,
+    // Orléans → Rideau Centre
+    departureCoords:  [-75.5159, 45.4556],
+    arrivalCoords:    [-75.6878, 45.4261],
   },
   {
     id: 4,
@@ -59,6 +71,10 @@ export const FIXTURE_PUBLISHED_TRIPS: PublishedTrip[] = [
     price: 30,
     pendingRequests: 1,
     status: PublishedTripStatus.Published,
+    duration: 35,
+    // Gatineau centre → Ottawa downtown
+    departureCoords:  [-75.7171, 45.4765],
+    arrivalCoords:    [-75.6972, 45.4215],
   },
   {
     id: 5,
@@ -73,6 +89,10 @@ export const FIXTURE_PUBLISHED_TRIPS: PublishedTrip[] = [
     price: 20,
     pendingRequests: 0,
     status: PublishedTripStatus.Completed,
+    duration: 28,
+    // Barrhaven → Nepean
+    departureCoords:  [-75.7446, 45.2767],
+    arrivalCoords:    [-75.7192, 45.3521],
   },
   {
     id: 6,
@@ -87,5 +107,9 @@ export const FIXTURE_PUBLISHED_TRIPS: PublishedTrip[] = [
     price: 25,
     pendingRequests: 0,
     status: PublishedTripStatus.Confirmed,
+    duration: 28,
+    // Nepean → Barrhaven (inverse du trajet 5)
+    departureCoords:  [-75.7192, 45.3521],
+    arrivalCoords:    [-75.7446, 45.2767],
   },
 ];

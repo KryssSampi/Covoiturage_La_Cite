@@ -18,6 +18,7 @@ import { useIsMobileOrTablet } from "@/shared/hooks/useismobileortable";
 import { useState } from "react";
 import { useLoader } from "@/core/context/loader.context";
 import { PublishedTripSection, ReservationRequestsSection, QuickPlanSection, FinanceSection } from "@/features/dashboard/components/driver"; // À ajuster selon l'organisation finale des composants
+import { DashboardProvider } from "@/features/dashboard/context/DashboardContext";
 
 export default function DriverDashboardPage() {
   const appState = useAppState();
@@ -62,9 +63,14 @@ export default function DriverDashboardPage() {
     }
   }, [mounted, setActiveLoader]);
 
-  if (!mounted) return null; // On peut aussi retourner un loader ici si on veut
+  if (!mounted || user?.id !== params.id || user?.role.toString().toLowerCase() !== "driver") {
+    setActiveLoader(true);
+    return null; // On peut aussi retourner un loader ici si on veut
+  } else {
   return (
-    <div className="flex flex-col mb-10">
+    // DashboardProvider centralise toutes les données du feature dashboard
+    <DashboardProvider>
+      <div className="flex flex-col mb-10">
       <Hero />
       {!isBelowLg ? (
         <main className="w-full h-full flex flex-col bg-white  px-10 py-10 scale-y-105">
@@ -106,5 +112,7 @@ export default function DriverDashboardPage() {
         </main>
       )}
     </div>
+    </DashboardProvider>
   );
+}
 }

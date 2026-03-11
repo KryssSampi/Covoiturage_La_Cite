@@ -188,3 +188,8 @@ export function useAppState() {
 
     return AppState.MainInstance;
 }
+
+export function getUserConnected() {
+    const appState = AppState.MainInstance;
+    return appState.userConnected;
+}

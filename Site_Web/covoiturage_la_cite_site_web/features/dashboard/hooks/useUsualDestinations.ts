@@ -1,7 +1,7 @@
 // features/dashboard/hooks/useUsualDestinations.ts
 
 import { useMemo } from "react";
-import { FIXTURES_USUAL_DESTINATIONS } from "@/tests/fixtures/dashboard/usualDestination.fixtures";
+import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import type { Destination } from "../types";
 
 interface UseUsualDestinationsReturn {
@@ -10,12 +10,13 @@ interface UseUsualDestinationsReturn {
 }
 
 export function useUsualDestinations(): UseUsualDestinationsReturn {
-  // TODO: Remplacer FIXTURES_USUAL_DESTINATIONS par un appel API
-  // const { data } = useQuery({ queryKey: ["usual-destinations"], queryFn: fetchUsualDestinations });
+  // Source unique : DashboardContext — les fixtures sont chargées une seule fois dans le provider
+  // TODO: Remplacer par un appel API dans DashboardContext
+  const { usualDestinations: raw } = useDashboardContext();
 
   const destinations = useMemo(
-    () => [...FIXTURES_USUAL_DESTINATIONS].sort((a, b) => b.disponibility - a.disponibility),
-    []
+    () => [...raw].sort((a, b) => b.disponibility - a.disponibility),
+    [raw]
   );
 
   return {
