@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+
+  /* 🔥 AJOUTE ÇA */
+  --lacite: #007A33;
+  --lacite-dark: #005A26;
+  --lacite-light: #E6F4EC;
+}
+
+
