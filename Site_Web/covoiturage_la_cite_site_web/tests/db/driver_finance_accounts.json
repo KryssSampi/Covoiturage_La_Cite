@@ -1,0 +1,61 @@
+[
+  {
+    "id": "DFA-USR-2026-00001",
+    "driverId": "USR-2026-00001",
+    "soldeDisponible": 49.25,
+    "soldeEnTransit": 8.25,
+    "soldePenalites": 0,
+    "tauxPrelevement": 0.1,
+    "commission": 0.15,
+    "transactions": [
+      {
+        "id": "DTXN-001",
+        "type": "revenu_trajet",
+        "montant": 17,
+        "description": "Trajet Campus → Place d'Orléans (1 passager)",
+        "trajetId": "TRJ-2026-00001",
+        "statut": "confirme",
+        "createdAt": "2026-03-15T08:45:00.000Z"
+      },
+      {
+        "id": "DTXN-002",
+        "type": "retrait_banque",
+        "montant": 49.25,
+        "description": "Retrait vers Banque TD ***1234",
+        "statut": "confirme",
+        "createdAt": "2026-03-01T09:15:00.000Z"
+      },
+      {
+        "id": "DTXN-2026-53922",
+        "type": "revenu_trajet",
+        "montant": 8.25,
+        "description": "Trajet TRJ-2026-00008 — en transit (réservation RSV-2026-00008)",
+        "trajetId": "TRJ-2026-00008",
+        "statut": "en_transit",
+        "createdAt": "2026-03-21T23:17:47.403Z"
+      }
+    ],
+    "updatedAt": "2026-03-21T23:17:47.403Z"
+  },
+  {
+    "id": "DFA-USR-2026-00003",
+    "driverId": "USR-2026-00003",
+    "soldeDisponible": 38.25,
+    "soldeEnTransit": 0,
+    "soldePenalites": 0,
+    "tauxPrelevement": 0.1,
+    "commission": 0.15,
+    "transactions": [
+      {
+        "id": "DTXN-003",
+        "type": "revenu_trajet",
+        "montant": 12.75,
+        "description": "Trajet Campus → Gatineau (1 passager)",
+        "trajetId": "TRJ-2026-00002",
+        "statut": "confirme",
+        "createdAt": "2026-03-18T17:30:00.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-18T11:20:00.000Z"
+  }
+]

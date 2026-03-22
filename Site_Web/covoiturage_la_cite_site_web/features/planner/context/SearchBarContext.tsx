@@ -30,6 +30,12 @@ import {
 
 // ─── TYPE DU CONTEXTE ─────────────────────────────────────────────────────────
 
+/** Variable de transition conducteur : stocke date/heure choisies via TimeCell */
+export interface PendingDateTime {
+  date: string; // format "yyyy-MM-dd"
+  time: string; // format "HH:MM"
+}
+
 interface SearchBarContextType {
   // ── Affichage de la barre slide-down ────────────────────────────────────
   searchbarIsActive:    boolean;
@@ -69,10 +75,25 @@ interface SearchBarContextType {
   plannerSearchValues:  RouteMapInitialValues | null;
   /** Entre en mode planner search IMMÉDIATEMENT (animation) et ouvre la searchbar */
   enterPlannerMode:     () => void;
-  /** Consolide les valeurs saisies et met à jour la carte (plannerSearchActive est déjà true) */
-  triggerPlannerSearch: () => void;
+  /**
+   * Consolide les valeurs saisies et bascule vers RouteMapSearch.
+   * @param override — date/heure à injecter (depuis TimeCell passager)
+   */
+  triggerPlannerSearch: (override?: { date?: string; time?: string }) => void;
   /** Revient au mode calendrier (désactive la recherche planner) */
   exitPlannerSearch:    () => void;
+
+  // ── Toast calendrier ─────────────────────────────────────────────────────
+  /** Affiche le toast "Veuillez sélectionner la période" sur le calendrier */
+  showCalendarToast:    boolean;
+  setShowCalendarToast: (v: boolean) => void;
+
+  // ── Variable de transition conducteur ────────────────────────────────────
+  /** Date/heure mémorisées lors du clic sur une TimeCell (conducteur uniquement) */
+  pendingDateTime:      PendingDateTime | null;
+  setPendingDateTime:   (v: PendingDateTime | null) => void;
+  /** Efface la variable de transition (appelé à la fermeture du formulaire) */
+  clearPendingDateTime: () => void;
 
   // ── Setters legacy (compat avec ancien code utilisant des refs) ───────────
   setDeparture: (value: string) => void;
@@ -109,6 +130,13 @@ export function SearchBarProvider({ children }: { children: ReactNode }) {
   // ── Mode planner recherche ────────────────────────────────────────────────
   const [plannerSearchActive, setPlannerSearchActive] = useState(false);
   const [plannerSearchValues, setPlannerSearchValues] = useState<RouteMapInitialValues | null>(null);
+
+  // ── Toast calendrier ─────────────────────────────────────────────────────
+  const [showCalendarToast, setShowCalendarToast] = useState(false);
+
+  // ── Variable de transition conducteur ────────────────────────────────────
+  const [pendingDateTime, setPendingDateTime] = useState<PendingDateTime | null>(null);
+  const clearPendingDateTime = useCallback(() => setPendingDateTime(null), []);
 
   // ── Refs DOM (focus externe + compat legacy) ──────────────────────────────
   const departureinputRef = useRef<HTMLInputElement>(null);
@@ -164,32 +192,34 @@ export function SearchBarProvider({ children }: { children: ReactNode }) {
   // ── Mode planner recherche ─────────────────────────────────────────────────
 
   /**
-   * Entre en mode planner search IMMÉDIATEMENT :
-   * - plannerSearchActive = true  → déclenche l'animation calendrier → carte
-   * - ouvre la searchbar         → l'utilisateur peut saisir ses critères
-   * Appelé par le bouton "Planifier un trajet" et les TimeCells.
+   * Ouvre la searchbar pour saisir les critères de recherche.
+   * PlannerSearchActive reste false — le calendrier reste visible pendant la saisie.
+   * C'est triggerPlannerSearch() qui bascule vers RouteMapSearch une fois les
+   * valeurs consolidées, garantissant que le composant monte avec les vraies coords.
    */
   const enterPlannerMode = useCallback(() => {
-    setPlannerSearchActive(true); // anime la sortie du calendrier
-    setSearchbarIsActive(true);   // ouvre la barre pour saisir départ / arrivée
+    setSearchbarIsActive(true); // ouvre la barre pour saisir départ / arrivée
   }, []);
 
   /**
    * Consolide les valeurs saisies, ferme la barre slide-down,
-   * et met à jour la carte (plannerSearchActive est déjà true).
+   * et bascule vers RouteMapSearch.
+   * @param override — date/heure à injecter directement (depuis TimeCell)
    */
-  const triggerPlannerSearch = useCallback(() => {
+  const triggerPlannerSearch = useCallback((override?: { date?: string; time?: string }) => {
     setSearchbarIsActive(false);
     setPlannerSearchValues({
       departureLabel:  departureValue  || undefined,
       arrivalLabel:    arrivalValue    || undefined,
       departureCoords: departureCoords ?? undefined,
       arrivalCoords:   arrivalCoords   ?? undefined,
-      departureTime:   departureTimeValue || undefined,
+      // L'override injecte la date/heure du TimeCell cliqué
+      departureDate:   override?.date  || dateValue  || undefined,
+      departureTime:   override?.time  || departureTimeValue || undefined,
       arrivalTime:     arrivalTimeValue   || undefined,
     });
     setPlannerSearchActive(true);
-  }, [departureValue, arrivalValue, departureCoords, arrivalCoords, departureTimeValue, arrivalTimeValue]);
+  }, [departureValue, arrivalValue, departureCoords, arrivalCoords, dateValue, departureTimeValue, arrivalTimeValue]);
 
   /** Revient au mode calendrier */
   const exitPlannerSearch = useCallback(() => {
@@ -244,6 +274,12 @@ export function SearchBarProvider({ children }: { children: ReactNode }) {
     enterPlannerMode,
     triggerPlannerSearch,
     exitPlannerSearch,
+
+    showCalendarToast,
+    setShowCalendarToast,
+    pendingDateTime,
+    setPendingDateTime,
+    clearPendingDateTime,
 
     setDeparture,
     setArrival,

@@ -12,7 +12,7 @@ import { DriverFinanceSummary } from "@/features/dashboard/types/financesummary.
 
 export const FIXTURE_DRIVER_FINANCE: DriverFinanceSummary = {
   id: 1,
-  mensualProfit: 150.75,
+  soldeDisponible: 150.75,
   currency: "CAD",
   weeklyProfit: 35.50,
   weeklyPendingProfit: 20.00,

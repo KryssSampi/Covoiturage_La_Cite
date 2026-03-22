@@ -31,6 +31,7 @@ import { RidesEmptyState }     from "@/features/planner/components/shared/rides/
 export function RideArea() {
   const {
     isFr, isDriver, lang,
+    showAll, setShowAll,
     currentDay, isToday, goPrevDay, goNextDay, goToday,
     filterStatus, setFilterStatus,
     sortBy, setSortBy,
@@ -52,9 +53,11 @@ export function RideArea() {
         lang={lang}
         currentDay={currentDay}
         isToday={isToday}
+        showAll={showAll}
         onPrevDay={goPrevDay}
         onNextDay={goNextDay}
         onToday={goToday}
+        onToggleShowAll={() => setShowAll(!showAll)}
       />
 
       {/* ── Légende de statuts (filtre rapide) ─────────────────────────── */}
@@ -83,7 +86,7 @@ export function RideArea() {
       />
 
       {/* ── Liste des trajets ou état vide ──────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3 min-h-0">
+      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3 min-h-0 max-h-125">
         {visibleRides.length === 0 ? (
           <RidesEmptyState
             isFr={isFr}

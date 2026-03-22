@@ -33,10 +33,10 @@ const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number
 // ─── Contenu intérieur — doit être dans le Provider pour accéder au contexte ───
 
 function PlannerContent() {
-  const { plannerSearchActive, plannerSearchValues, exitPlannerSearch } = useHeroSearchBar();
+  const { plannerSearchActive, plannerSearchValues, pendingDateTime, exitPlannerSearch } = useHeroSearchBar();
 
   return (
-    <div className="flex flex-col mb-10 bg-white">
+    <div className="flex flex-col mb-10 h-full bg-white">
       <Hero />
 
       {/* Bouton "Retour au calendrier" : glisse depuis la gauche lors de l'entrée en mode search */}
@@ -55,7 +55,7 @@ function PlannerContent() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-[#08316e] hover:bg-[#0a4a9e] text-white rounded-lg shadow transition-colors duration-200"
             >
               <FaCalendarDays size={14} />
-              Retour au calendrier
+              {"Retour au calendrier"}
             </button>
             <span className="text-sm text-gray-500">
               {plannerSearchValues?.departureLabel && plannerSearchValues?.arrivalLabel
@@ -78,11 +78,11 @@ function PlannerContent() {
             transition={transition}
             className="px-4 pt-2 pb-6"
           >
-            {/* Mode compact : pas de hero ni de barre de recherche intégrée */}
+            {/* Le pendingDateTime est transmis pour être sauvegardé lors du choix de circuit */}
             <RouteMapSearch
               role="driver"
               initialValues={plannerSearchValues ?? undefined}
-              hideSearchBar
+              pendingDateTime={pendingDateTime}
             />
           </motion.div>
         ) : (

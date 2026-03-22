@@ -1,0 +1,32 @@
+[
+  {
+    "id": "VEH-2026-00001",
+    "driverId": "USR-2026-00001",
+    "make": "Toyota",
+    "model": "Corolla",
+    "year": 2022,
+    "color": "Gris perle",
+    "licensePlate": "LECL 2022",
+    "maxSeats": 4,
+    "photoUrl": null,
+    "isActive": true,
+    "isValidated": true,
+    "createdAt": "2024-09-01T08:10:00.000Z",
+    "updatedAt": "2024-09-01T08:10:00.000Z"
+  },
+  {
+    "id": "VEH-2026-00002",
+    "driverId": "USR-2026-00003",
+    "make": "Honda",
+    "model": "Civic",
+    "year": 2020,
+    "color": "Bleu nuit",
+    "licensePlate": "TREM 2020",
+    "maxSeats": 4,
+    "photoUrl": null,
+    "isActive": true,
+    "isValidated": true,
+    "createdAt": "2024-09-15T09:15:00.000Z",
+    "updatedAt": "2024-09-15T09:15:00.000Z"
+  }
+]

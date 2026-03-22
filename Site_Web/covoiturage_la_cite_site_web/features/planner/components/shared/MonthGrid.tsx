@@ -35,8 +35,10 @@ export function MonthGrid({ isFr, pivot, rides, role, selectedDay, onDayClick }:
       minHeight:           "50vh",
       display:             "grid",
       gridTemplateColumns: "repeat(7,1fr)",
+      gridAutoRows:        "1fr",
       gap:                 0,
       padding:             "0",
+      background:          "#ffffff",
     }}>
       {/* En-têtes des jours de la semaine */}
       {days.map((d) => (
@@ -46,10 +48,11 @@ export function MonthGrid({ isFr, pivot, rides, role, selectedDay, onDayClick }:
           fontWeight:      600,
           color:           "#08316e",
           padding:         "5px 0",
-          borderInline:    "1px solid rgba(0,0,0,0.5)",
-          borderBlock:     "1px solid rgba(0,0,0,0.5)",
+          borderInline:    "1px solid #d1d5db",
+          borderBlock:     "1px solid #d1d5db",
           letterSpacing:   1,
           textTransform:   "uppercase",
+          background:      "#f8fafc",
         }}>
           {d}
         </div>

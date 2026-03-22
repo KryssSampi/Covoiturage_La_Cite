@@ -18,6 +18,7 @@ export enum NotificationType {
   Infos         = "infos",
   Rappel        = "rappel",
   NouvelleAvis  = "nouvelle-avis",
+  AlerteTrajet  = "alerte-trajet",
   Any           = "any",
 }
 
@@ -29,7 +30,11 @@ export enum NotificationType {
  */
 export interface Notification {
   /** Identifiant unique de la notification */
-  id: number;
+  id: string;
+  /** ID de l'utilisateur destinataire — pour filtrer les notifications par utilisateur */
+  userId: string;
+  /** Titre court affiché en gras */
+  title: string;
   /** Type déterminant l'icône et le comportement visuel */
   type: NotificationType;
   /** Corps du message affiché à l'utilisateur */
@@ -40,6 +45,16 @@ export interface Notification {
   time: string;
   /** false = point bleu non-lu affiché, true = notification déjà consultée */
   isRead: boolean;
+  /** Notification urgente — style rouge + animation pulse */
+  isImportant: boolean;
+  /** ID du trajet lié (si applicable) */
+  relatedTripId: string | null;
+  /** ID de la réservation liée (si applicable) */
+  relatedReservationId: string | null;
+  /** Date/heure complète ISO de création */
+  createdAt: string;
+  /** Lien de navigation associé (optionnel — ex. wishing trip → page de recherche) */
+  link?: string;
 }
 
 // ─── Constantes ──────────────────────────────────────────────────────────────

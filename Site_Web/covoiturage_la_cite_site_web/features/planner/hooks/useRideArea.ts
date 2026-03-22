@@ -34,6 +34,10 @@ export interface UseRideAreaReturn {
   isDriver: boolean;
   lang:     Language;
 
+  // ─ mode « voir tout » ─
+  showAll:    boolean;
+  setShowAll: (v: boolean) => void;
+
   // ─ navigation par jour ─
   currentDay: Date;
   isToday:    boolean;
@@ -74,7 +78,7 @@ export interface UseRideAreaReturn {
 
 export function useRideArea(): UseRideAreaReturn {
   // ─── Source unique : PlannerContext ──────────────────────────────────────
-  const { currentDay, setCurrentDay, lang, isDriver, rides } = usePlannerContext();
+  const { currentDay, setCurrentDay, showAll, setShowAll, lang, isDriver, rides } = usePlannerContext();
   const isFr    = lang === Language.FR;
   const isToday = currentDay.toDateString() === new Date().toDateString();
 
@@ -103,13 +107,14 @@ export function useRideArea(): UseRideAreaReturn {
     () => rides.map(() => false),
   );
 
-  // ─── Trajets bruts du jour sélectionné ───────────────────────────────────
+  // ─── Trajets bruts : tous les trajets ou seulement ceux du jour ──────────
   const rawDayRides = useMemo<(PublishedTrip | Reservation)[]>(() => {
+    if (showAll) return [...rides];
     return rides.filter(trip => {
       const tripDate = new Date(trip.date);
       return tripDate.toDateString() === currentDay.toDateString();
     });
-  }, [currentDay, rides]);
+  }, [currentDay, rides, showAll]);
 
   // ─── Application filtre + recherche + tri ────────────────────────────────
   const visibleRides = useMemo<(PublishedTrip | Reservation)[]>(() => {
@@ -162,6 +167,7 @@ export function useRideArea(): UseRideAreaReturn {
 
   return {
     isFr, isDriver, lang,
+    showAll, setShowAll,
     currentDay, isToday, goPrevDay, goNextDay, goToday,
     filterStatus, setFilterStatus,
     sortBy, setSortBy,

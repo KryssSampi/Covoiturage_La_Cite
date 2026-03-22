@@ -31,7 +31,7 @@ export function UsualDestinationsSection() {
   // Récupère l'état de l'application pour accéder à la langue
   const appState                  = useAppState();
   // Hook personnalisé pour récupérer les destinations habituelles et vérifier si la liste est vide
-  const { destinations, isEmpty } = useUsualDestinations();
+  const { destinations, surveyMap, isEmpty } = useUsualDestinations();
 
   return (
     <section className="w-full py-5 flex flex-col items-center border rounded-lg shadow-md mx-5 bg-white">
@@ -60,7 +60,11 @@ export function UsualDestinationsSection() {
         /* Liste scrollable des destinations habituelles */
         <div className="w-full h-80 overflow-y-auto flex flex-col gap-4 px-5 py-3">
           {destinations.map((dest) => (
-            <DestinationCard key={dest.id} dest={dest} />
+            <DestinationCard
+              key={dest.id}
+              dest={dest}
+              survey={surveyMap.get(`${dest.departure}|${dest.destination}`)}
+            />
           ))}
         </div>
       )}

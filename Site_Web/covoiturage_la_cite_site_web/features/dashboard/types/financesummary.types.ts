@@ -7,9 +7,9 @@
  */
 export interface DriverFinanceSummary {
   /** Identifiant interne */
-  id: number;
-  /** Gain net accumulé sur le mois courant en CAD */
-  mensualProfit: number;
+  id?: string;
+  /** Solde disponible pour retrait — revenus nets après commission et pénalités (CAD) */
+  soldeDisponible: number;
   /** Devise affichée (ex: "CAD") */
   currency: string;
   /** Gain confirmé sur la semaine courante */

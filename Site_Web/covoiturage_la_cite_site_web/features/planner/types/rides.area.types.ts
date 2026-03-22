@@ -30,9 +30,11 @@ export interface RidesAreaHeaderProps {
   currentDay: Date;
   isToday:    boolean;
   lang:       Language;
+  showAll:    boolean;
   onPrevDay:  () => void;
   onNextDay:  () => void;
   onToday:    () => void;
+  onToggleShowAll: () => void;
 }
 
 /** Props de la légende de statuts cliquable */

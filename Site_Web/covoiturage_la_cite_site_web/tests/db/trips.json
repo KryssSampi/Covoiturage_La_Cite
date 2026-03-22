@@ -1,0 +1,1402 @@
+[
+  {
+    "id": "TRJ-2026-00001",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [
+      "USR-2026-00002"
+    ],
+    "departure": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON K1K 4R3",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": "Devant l'entrÃ©e principale, cÃ´tÃ© promenade de l'Aviation"
+    },
+    "arrival": {
+      "label": "Place d'OrlÃ©ans",
+      "fullAddress": "110 place d'OrlÃ©ans Drive, OrlÃ©ans, ON K1C 2L9",
+      "coordinates": {
+        "lat": 45.4777,
+        "lng": -75.5117
+      },
+      "instructions": "EntrÃ©e principale du centre commercial"
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.422,
+        -75.642
+      ],
+      [
+        45.4235,
+        -75.639
+      ],
+      [
+        45.425,
+        -75.635
+      ],
+      [
+        45.4268,
+        -75.631
+      ],
+      [
+        45.4285,
+        -75.627
+      ],
+      [
+        45.431,
+        -75.623
+      ],
+      [
+        45.4335,
+        -75.618
+      ],
+      [
+        45.436,
+        -75.609
+      ],
+      [
+        45.438,
+        -75.6
+      ],
+      [
+        45.44,
+        -75.59
+      ],
+      [
+        45.442,
+        -75.58
+      ],
+      [
+        45.445,
+        -75.57
+      ],
+      [
+        45.449,
+        -75.558
+      ],
+      [
+        45.453,
+        -75.545
+      ],
+      [
+        45.458,
+        -75.532
+      ],
+      [
+        45.463,
+        -75.522
+      ],
+      [
+        45.468,
+        -75.518
+      ],
+      [
+        45.472,
+        -75.515
+      ],
+      [
+        45.475,
+        -75.513
+      ],
+      [
+        45.4777,
+        -75.5117
+      ]
+    ],
+    "departureDate": "2026-03-22",
+    "departureTime": "08:00",
+    "estimatedArrivalTime": "08:35",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "recurrent",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": "DÃ©part ponctuel Ã  8h00. Merci d'Ãªtre prÃ©sent 5 minutes Ã  l'avance."
+    },
+    "recurrenceDays": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "recurrenceEndDate": "2026-04-30",
+    "estimatedDistanceKm": 14.2,
+    "estimatedDurationMinutes": 35,
+    "co2SavedKg": 2.8,
+    "createdAt": "2026-03-20T18:00:00.000Z",
+    "updatedAt": "2026-03-21T09:30:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 1
+  },
+  {
+    "id": "TRJ-2026-00002",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [],
+    "departure": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON K1K 4R3",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": "Devant l'entrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Barrhaven Centre",
+      "fullAddress": "3651 Strandherd Drive, Nepean, ON K2J 4G8",
+      "coordinates": {
+        "lat": 45.2745,
+        "lng": -75.7368
+      },
+      "instructions": "Stationnement du Walmart"
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.419,
+        -75.645
+      ],
+      [
+        45.416,
+        -75.648
+      ],
+      [
+        45.41,
+        -75.652
+      ],
+      [
+        45.404,
+        -75.657
+      ],
+      [
+        45.396,
+        -75.662
+      ],
+      [
+        45.387,
+        -75.668
+      ],
+      [
+        45.378,
+        -75.674
+      ],
+      [
+        45.368,
+        -75.682
+      ],
+      [
+        45.358,
+        -75.696
+      ],
+      [
+        45.345,
+        -75.708
+      ],
+      [
+        45.331,
+        -75.72
+      ],
+      [
+        45.316,
+        -75.73
+      ],
+      [
+        45.297,
+        -75.735
+      ],
+      [
+        45.282,
+        -75.737
+      ],
+      [
+        45.2745,
+        -75.7368
+      ]
+    ],
+    "departureDate": "2026-03-22",
+    "departureTime": "17:30",
+    "estimatedArrivalTime": "18:20",
+    "pricePerPassenger": 8,
+    "paymentMethod": "interac",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "unique",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true,
+      "conversationLevel": "chatty",
+      "driverNote": "Je peux faire un dÃ©tour raisonnable si besoin."
+    },
+    "recurrenceDays": null,
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 22.5,
+    "estimatedDurationMinutes": 50,
+    "co2SavedKg": 4.5,
+    "createdAt": "2026-03-21T07:00:00.000Z",
+    "updatedAt": "2026-03-21T07:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 0
+  },
+  {
+    "id": "TRJ-2026-00003",
+    "driverId": "USR-2026-00003",
+    "vehicleId": "VEH-2026-00002",
+    "passengerIds": [
+      "USR-2026-00004"
+    ],
+    "departure": {
+      "label": "Byward Market",
+      "fullAddress": "55 Byward Market Square, Ottawa, ON K1N 9C3",
+      "coordinates": {
+        "lat": 45.4278,
+        "lng": -75.6944
+      },
+      "instructions": "Coin York et William"
+    },
+    "arrival": {
+      "label": "Kanata Centrum",
+      "fullAddress": "8 Hines Road, Kanata, ON K2K 3A9",
+      "coordinates": {
+        "lat": 45.3268,
+        "lng": -75.905
+      },
+      "instructions": "Voie d'accÃ¨s principale du centre"
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4278,
+        -75.6944
+      ],
+      [
+        45.425,
+        -75.7
+      ],
+      [
+        45.42,
+        -75.715
+      ],
+      [
+        45.415,
+        -75.735
+      ],
+      [
+        45.409,
+        -75.76
+      ],
+      [
+        45.404,
+        -75.785
+      ],
+      [
+        45.398,
+        -75.81
+      ],
+      [
+        45.389,
+        -75.835
+      ],
+      [
+        45.379,
+        -75.855
+      ],
+      [
+        45.368,
+        -75.875
+      ],
+      [
+        45.353,
+        -75.89
+      ],
+      [
+        45.34,
+        -75.898
+      ],
+      [
+        45.33,
+        -75.902
+      ],
+      [
+        45.3268,
+        -75.905
+      ]
+    ],
+    "departureDate": "2026-03-22",
+    "departureTime": "09:00",
+    "estimatedArrivalTime": "09:50",
+    "pricePerPassenger": 7,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "unique",
+    "preferences": {
+      "baggageAllowed": false,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false,
+      "conversationLevel": "quiet",
+      "driverNote": "Trajet silencieux apprÃ©ciÃ©. Merci."
+    },
+    "recurrenceDays": null,
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 28.7,
+    "estimatedDurationMinutes": 48,
+    "co2SavedKg": 5.7,
+    "createdAt": "2026-03-20T20:00:00.000Z",
+    "updatedAt": "2026-03-20T20:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 1
+  },
+  {
+    "id": "TRJ-2026-00004",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [
+      "USR-2026-00002",
+      "USR-2026-00004"
+    ],
+    "departure": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON K1K 4R3",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": "Devant l'entrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Place d'OrlÃ©ans",
+      "fullAddress": "110 place d'OrlÃ©ans Drive, OrlÃ©ans, ON K1C 2L9",
+      "coordinates": {
+        "lat": 45.4777,
+        "lng": -75.5117
+      },
+      "instructions": "EntrÃ©e principale du centre commercial"
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.422,
+        -75.642
+      ],
+      [
+        45.4235,
+        -75.639
+      ],
+      [
+        45.425,
+        -75.635
+      ],
+      [
+        45.4268,
+        -75.631
+      ],
+      [
+        45.4285,
+        -75.627
+      ],
+      [
+        45.431,
+        -75.623
+      ],
+      [
+        45.4335,
+        -75.618
+      ],
+      [
+        45.436,
+        -75.609
+      ],
+      [
+        45.44,
+        -75.59
+      ],
+      [
+        45.445,
+        -75.57
+      ],
+      [
+        45.449,
+        -75.558
+      ],
+      [
+        45.453,
+        -75.545
+      ],
+      [
+        45.458,
+        -75.532
+      ],
+      [
+        45.463,
+        -75.522
+      ],
+      [
+        45.468,
+        -75.518
+      ],
+      [
+        45.472,
+        -75.515
+      ],
+      [
+        45.475,
+        -75.513
+      ],
+      [
+        45.4777,
+        -75.5117
+      ]
+    ],
+    "departureDate": "2026-03-21",
+    "departureTime": "08:00",
+    "estimatedArrivalTime": "08:35",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "in_progress",
+    "departureType": "planned",
+    "tripType": "recurrent",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "recurrenceEndDate": "2026-04-30",
+    "estimatedDistanceKm": 14.2,
+    "estimatedDurationMinutes": 35,
+    "co2SavedKg": 2.8,
+    "createdAt": "2026-03-19T10:00:00.000Z",
+    "updatedAt": "2026-03-21T08:02:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 2
+  },
+  {
+    "id": "TRJ-2026-00005",
+    "driverId": "USR-2026-00003",
+    "vehicleId": "VEH-2026-00002",
+    "passengerIds": [
+      "USR-2026-00002"
+    ],
+    "departure": {
+      "label": "Westboro Village",
+      "fullAddress": "370 Domaine Westboro Village, Ottawa, ON K1Z 8H2",
+      "coordinates": {
+        "lat": 45.3939,
+        "lng": -75.7468
+      },
+      "instructions": "Coin Richmond et Island Park"
+    },
+    "arrival": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON K1K 4R3",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.3939,
+        -75.7468
+      ],
+      [
+        45.398,
+        -75.735
+      ],
+      [
+        45.402,
+        -75.72
+      ],
+      [
+        45.406,
+        -75.705
+      ],
+      [
+        45.41,
+        -75.69
+      ],
+      [
+        45.414,
+        -75.675
+      ],
+      [
+        45.4175,
+        -75.66
+      ],
+      [
+        45.42,
+        -75.652
+      ],
+      [
+        45.4215,
+        -75.6442
+      ]
+    ],
+    "departureDate": "2026-03-20",
+    "departureTime": "07:45",
+    "estimatedArrivalTime": "08:15",
+    "pricePerPassenger": 4,
+    "paymentMethod": "cash",
+    "status": "completed",
+    "departureType": "planned",
+    "tripType": "unique",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false,
+      "conversationLevel": "quiet",
+      "driverNote": null
+    },
+    "recurrenceDays": null,
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 9.8,
+    "estimatedDurationMinutes": 28,
+    "co2SavedKg": 1.9,
+    "createdAt": "2026-03-19T20:00:00.000Z",
+    "updatedAt": "2026-03-20T08:20:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 1
+  },
+  {
+    "id": "TRJ-2026-00006",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [],
+    "departure": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa ON",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Place d'OrlÃ©ans",
+      "fullAddress": "110 place d'OrlÃ©ans Drive, OrlÃ©ans ON",
+      "coordinates": {
+        "lat": 45.4777,
+        "lng": -75.5117
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.4327,
+        -75.6177
+      ],
+      [
+        45.444,
+        -75.5912
+      ],
+      [
+        45.4552,
+        -75.5647
+      ],
+      [
+        45.4665,
+        -75.5382
+      ],
+      [
+        45.4777,
+        -75.5117
+      ]
+    ],
+    "departureDate": "2026-03-22",
+    "departureTime": "07:30",
+    "estimatedArrivalTime": "08:30",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 17.5,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-20T12:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 0
+  },
+  {
+    "id": "TRJ-2026-00007",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [
+      "USR-2026-00002"
+    ],
+    "departure": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa ON",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Rideau Centre",
+      "fullAddress": "50 rue Rideau, Ottawa ON",
+      "coordinates": {
+        "lat": 45.4247,
+        "lng": -75.693
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.4221,
+        -75.654
+      ],
+      [
+        45.4228,
+        -75.6637
+      ],
+      [
+        45.4234,
+        -75.6735
+      ],
+      [
+        45.4241,
+        -75.6832
+      ],
+      [
+        45.4247,
+        -75.693
+      ]
+    ],
+    "departureDate": "2026-03-23",
+    "departureTime": "08:00",
+    "estimatedArrivalTime": "09:00",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "cancelled",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 4.5,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-22T05:39:02.238Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 1
+  },
+  {
+    "id": "TRJ-2026-00008",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [
+      "USR-2026-00002"
+    ],
+    "departure": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa ON",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Tunney's Pasture",
+      "fullAddress": "Tunney's Pasture, Ottawa ON",
+      "coordinates": {
+        "lat": 45.404,
+        "lng": -75.738
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.418,
+        -75.663
+      ],
+      [
+        45.4145,
+        -75.6817
+      ],
+      [
+        45.411,
+        -75.7005
+      ],
+      [
+        45.4075,
+        -75.7192
+      ],
+      [
+        45.404,
+        -75.738
+      ]
+    ],
+    "departureDate": "2026-03-24",
+    "departureTime": "07:45",
+    "estimatedArrivalTime": "08:45",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 9.9,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-21T23:17:47.383Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 1
+  },
+  {
+    "id": "TRJ-2026-00009",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [
+      "USR-2026-00002"
+    ],
+    "departure": {
+      "label": "Place d'OrlÃ©ans",
+      "fullAddress": "110 place d'OrlÃ©ans Drive, OrlÃ©ans ON",
+      "coordinates": {
+        "lat": 45.4777,
+        "lng": -75.5117
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "HÃ´pital Civic",
+      "fullAddress": "1053 rue Carling, Ottawa ON",
+      "coordinates": {
+        "lat": 45.393,
+        "lng": -75.734
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4777,
+        -75.5117
+      ],
+      [
+        45.4608,
+        -75.5562
+      ],
+      [
+        45.4438,
+        -75.6006
+      ],
+      [
+        45.4269,
+        -75.6451
+      ],
+      [
+        45.4099,
+        -75.6895
+      ],
+      [
+        45.393,
+        -75.734
+      ]
+    ],
+    "departureDate": "2026-03-26",
+    "departureTime": "08:15",
+    "estimatedArrivalTime": "09:15",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 28.3,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-20T12:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 1
+  },
+  {
+    "id": "TRJ-2026-00010",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [],
+    "departure": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa ON",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Gatineau Centre-Ville",
+      "fullAddress": "170 rue de l'HÃ´tel-de-Ville, Gatineau QC",
+      "coordinates": {
+        "lat": 45.4768,
+        "lng": -75.702
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.4326,
+        -75.6558
+      ],
+      [
+        45.4436,
+        -75.6673
+      ],
+      [
+        45.4547,
+        -75.6789
+      ],
+      [
+        45.4657,
+        -75.6904
+      ],
+      [
+        45.4768,
+        -75.702
+      ]
+    ],
+    "departureDate": "2026-03-28",
+    "departureTime": "17:00",
+    "estimatedArrivalTime": "18:00",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 11.1,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-20T12:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 0
+  },
+  {
+    "id": "TRJ-2026-00011",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [
+      "USR-2026-00002",
+      "USR-2026-00004"
+    ],
+    "departure": {
+      "label": "Rideau Centre",
+      "fullAddress": "50 rue Rideau, Ottawa ON",
+      "coordinates": {
+        "lat": 45.4247,
+        "lng": -75.693
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Billings Bridge",
+      "fullAddress": "2277 Riverside Drive, Ottawa ON",
+      "coordinates": {
+        "lat": 45.3905,
+        "lng": -75.6782
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4247,
+        -75.693
+      ],
+      [
+        45.4179,
+        -75.69
+      ],
+      [
+        45.411,
+        -75.6871
+      ],
+      [
+        45.4042,
+        -75.6841
+      ],
+      [
+        45.3973,
+        -75.6812
+      ],
+      [
+        45.3905,
+        -75.6782
+      ]
+    ],
+    "departureDate": "2026-03-31",
+    "departureTime": "08:30",
+    "estimatedArrivalTime": "09:30",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 5.1,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-20T12:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 2
+  },
+  {
+    "id": "TRJ-2026-00012",
+    "driverId": "USR-2026-00001",
+    "vehicleId": "VEH-2026-00001",
+    "passengerIds": [
+      "USR-2026-00002"
+    ],
+    "departure": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa ON",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "South Keys",
+      "fullAddress": "2210 Bank Street, Ottawa ON",
+      "coordinates": {
+        "lat": 45.3648,
+        "lng": -75.6706
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.4102,
+        -75.6495
+      ],
+      [
+        45.3988,
+        -75.6548
+      ],
+      [
+        45.3875,
+        -75.66
+      ],
+      [
+        45.3761,
+        -75.6653
+      ],
+      [
+        45.3648,
+        -75.6706
+      ]
+    ],
+    "departureDate": "2026-03-16",
+    "departureTime": "08:00",
+    "estimatedArrivalTime": "09:00",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "completed",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 8.5,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-20T12:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 1
+  },
+  {
+    "id": "TRJ-2026-00013",
+    "driverId": "USR-2026-00003",
+    "vehicleId": "VEH-2026-00002",
+    "passengerIds": [
+      "USR-2026-00002"
+    ],
+    "departure": {
+      "label": "Tunney's Pasture",
+      "fullAddress": "Tunney's Pasture, Ottawa ON",
+      "coordinates": {
+        "lat": 45.404,
+        "lng": -75.738
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Campus La CitÃ©",
+      "fullAddress": "801 promenade de l'Aviation, Ottawa ON",
+      "coordinates": {
+        "lat": 45.4215,
+        "lng": -75.6442
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.404,
+        -75.738
+      ],
+      [
+        45.4075,
+        -75.7192
+      ],
+      [
+        45.411,
+        -75.7005
+      ],
+      [
+        45.4145,
+        -75.6817
+      ],
+      [
+        45.418,
+        -75.663
+      ],
+      [
+        45.4215,
+        -75.6442
+      ]
+    ],
+    "departureDate": "2026-03-22",
+    "departureTime": "08:00",
+    "estimatedArrivalTime": "09:00",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 9.9,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-20T12:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 1
+  },
+  {
+    "id": "TRJ-2026-00014",
+    "driverId": "USR-2026-00003",
+    "vehicleId": "VEH-2026-00002",
+    "passengerIds": [],
+    "departure": {
+      "label": "HÃ´pital Civic",
+      "fullAddress": "1053 rue Carling, Ottawa ON",
+      "coordinates": {
+        "lat": 45.393,
+        "lng": -75.734
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Rideau Centre",
+      "fullAddress": "50 rue Rideau, Ottawa ON",
+      "coordinates": {
+        "lat": 45.4247,
+        "lng": -75.693
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.393,
+        -75.734
+      ],
+      [
+        45.3993,
+        -75.7258
+      ],
+      [
+        45.4057,
+        -75.7176
+      ],
+      [
+        45.412,
+        -75.7094
+      ],
+      [
+        45.4184,
+        -75.7012
+      ],
+      [
+        45.4247,
+        -75.693
+      ]
+    ],
+    "departureDate": "2026-03-25",
+    "departureTime": "07:30",
+    "estimatedArrivalTime": "08:30",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 7,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-20T12:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 0
+  },
+  {
+    "id": "TRJ-2026-00015",
+    "driverId": "USR-2026-00003",
+    "vehicleId": "VEH-2026-00002",
+    "passengerIds": [],
+    "departure": {
+      "label": "Gatineau Centre-Ville",
+      "fullAddress": "170 rue de l'HÃ´tel-de-Ville, Gatineau QC",
+      "coordinates": {
+        "lat": 45.4768,
+        "lng": -75.702
+      },
+      "instructions": "EntrÃ©e principale"
+    },
+    "arrival": {
+      "label": "Place d'OrlÃ©ans",
+      "fullAddress": "110 place d'OrlÃ©ans Drive, OrlÃ©ans ON",
+      "coordinates": {
+        "lat": 45.4777,
+        "lng": -75.5117
+      },
+      "instructions": null
+    },
+    "waypoints": [],
+    "polyline": [
+      [
+        45.4768,
+        -75.702
+      ],
+      [
+        45.477,
+        -75.6639
+      ],
+      [
+        45.4772,
+        -75.6259
+      ],
+      [
+        45.4773,
+        -75.5878
+      ],
+      [
+        45.4775,
+        -75.5498
+      ],
+      [
+        45.4777,
+        -75.5117
+      ]
+    ],
+    "departureDate": "2026-03-27",
+    "departureTime": "17:30",
+    "estimatedArrivalTime": "18:30",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "published",
+    "departureType": "planned",
+    "tripType": "ponctuel",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false,
+      "conversationLevel": "moderate",
+      "driverNote": null
+    },
+    "recurrenceDays": [],
+    "recurrenceEndDate": null,
+    "estimatedDistanceKm": 16.3,
+    "estimatedDurationMinutes": 30,
+    "co2SavedKg": 2.4,
+    "createdAt": "2026-02-19T13:00:00.000Z",
+    "updatedAt": "2026-03-20T12:00:00.000Z",
+    "notes": null,
+    "maxPassengers": 3,
+    "currentPassengers": 0
+  }
+]

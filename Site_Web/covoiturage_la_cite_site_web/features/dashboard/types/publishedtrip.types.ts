@@ -9,7 +9,9 @@ import { Passenger } from "./passenger.types";
 
 export interface PublishedTrip {
   /** Identifiant unique du trajet */
-  id: number;
+  id: string;
+  /** ID du conducteur propriétaire de ce trajet */
+  driverId: string;
   /** Ville / adresse de départ */
   departure: string;
   /** Ville / adresse d'arrivée */
@@ -38,6 +40,8 @@ export interface PublishedTrip {
   departureCoords?: [number, number];
   /** Coordonnées de l'arrivée [lng, lat] — format Photon/OSRM */
   arrivalCoords?: [number, number];
+  /** true lorsque le trajet est confirmé/publié ET que le départ est dans moins de 30 min */
+  isImminent?: boolean;
 }
 
 /**

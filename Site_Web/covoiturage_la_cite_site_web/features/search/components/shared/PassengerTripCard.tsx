@@ -15,7 +15,7 @@ import { Trip } from "@/features/dashboard/types/trip.types";
 import { MatchingScore } from "@/features/search/types/search.feature.types";
 import {
   FaLocationDot, FaFlag, FaCalendarDays, FaClock, FaStar,
-  FaUserGroup, FaArrowRight,
+  FaUserGroup, FaArrowRight, FaMagnifyingGlass,
 } from "react-icons/fa6";
 
 interface PassengerTripCardProps {
@@ -79,6 +79,7 @@ export function PassengerTripCard({ trip, score, onReserve }: PassengerTripCardP
               alt={trip.driver.name}
               fill
               style={{ objectFit: "cover" }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/assets/placeholder/placeholer-profile-picture.png"; }}
             />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -187,7 +188,11 @@ export function PassengerTripCard({ trip, score, onReserve }: PassengerTripCardP
             if (seatsLeft > 0) (e.currentTarget as HTMLButtonElement).style.background = "#08316e";
           }}
         >
-          {seatsLeft > 0 ? "🔍 Réserver" : "Complet"}
+          {seatsLeft > 0 ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <FaMagnifyingGlass size={11} /> Réserver
+            </span>
+          ) : "Complet"}
         </button>
       </div>
     </div>

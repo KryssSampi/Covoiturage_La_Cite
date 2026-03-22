@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { FaPlus, FaBan } from "react-icons/fa6";
 import { useHeroSearchBar } from "@/features/planner/context/SearchBarContext";
 import { useIndisponibility } from "@/features/planner/context/IndisponibilityContext";
+import { usePlannerContext } from "@/features/planner/context/PlannerContext";
 
 // ─── PROPS ────────────────────────────────────────────────────────────────────
 
@@ -35,8 +36,9 @@ export function TimeCell({ day, hour, minute, hasRide }: TimeCellProps) {
   const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // ── Contextes ─────────────────────────────────────────────────────────────
-  const { enterPlannerMode, setDate, setTime } = useHeroSearchBar();
+  // ── Contextes ─────────────────────────────────────────────────
+  const { triggerPlannerSearch, setPendingDateTime } = useHeroSearchBar();
+  const { isDriver } = usePlannerContext();
   const {
     disponibilitySetterIsActive,
     isSlotUnavailable,
@@ -46,6 +48,11 @@ export function TimeCell({ day, hour, minute, hasRide }: TimeCellProps) {
 
   // Indique si ce créneau est actuellement marqué indisponible
   const unavailable = isSlotUnavailable(day, hour, minute);
+
+  // ── Créneau passé → non interactif (grisé, pas de menu, pas de clic) ─────
+  const slotDateTime = new Date(day);
+  slotDateTime.setHours(hour, minute, 0, 0);
+  const isPast = slotDateTime < new Date();
 
   // ── Fermeture du menu contextuel au clic extérieur ────────────────────────
   useEffect(() => {
@@ -61,20 +68,28 @@ export function TimeCell({ day, hour, minute, hasRide }: TimeCellProps) {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
-  /** Ouvre le menu contextuel */
+  /** Ouvre le menu contextuel (désactivé pour les créneaux passés) */
   const handleOpen = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (isPast) return;
     setMenuPos({ x: e.clientX, y: e.clientY });
   };
 
-  /** Pré-remplit la searchbar avec la date/heure et bascule immédiatement en mode planner search */
+  /** Pré-remplit la searchbar avec la date/heure et bascule en mode planner search selon le rôle */
   const handleAddRide = () => {
     setMenuPos(null);
-    setDate(format(day, "yyyy-MM-dd"));
-    setTime(`${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`);
-    // Déclenche l'animation calendrier → RouteMapSearch ET ouvre la searchbar
-    enterPlannerMode();
+    const date = format(day, "yyyy-MM-dd");
+    const time = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    if (isDriver) {
+      // Conducteur : stocke la date/heure comme variable de transition,
+      // puis ouvre RouteMapSearch pour sélectionner un circuit
+      setPendingDateTime({ date, time });
+      triggerPlannerSearch(); // sans override de date/heure dans le formulaire
+    } else {
+      // Passager : pré-remplit la date/heure dans le formulaire RouteMapSearch
+      triggerPlannerSearch({ date, time });
+    }
   };
 
   /** Marque le créneau comme indisponible depuis le menu contextuel */
@@ -97,22 +112,24 @@ export function TimeCell({ day, hour, minute, hasRide }: TimeCellProps) {
        * Fond rouge translucide si le créneau est marqué indisponible.
        */}
       <div
-        onClick={handleOpen}
-        onContextMenu={handleOpen}
+        onClick={isPast ? undefined : handleOpen}
+        onContextMenu={isPast ? (e) => e.preventDefault() : handleOpen}
         style={{
           flex:       1,
-          cursor:     "pointer",
+          cursor:     isPast ? "default" : "pointer",
           position:   "relative",
-          background: unavailable
-            ? "rgba(220,38,38,0.14)"
-            : "transparent",
+          background: isPast
+            ? "rgba(0,0,0,0.06)"
+            : unavailable
+              ? "rgba(220,38,38,0.14)"
+              : "transparent",
           transition: "background 0.15s",
         }}
-        onMouseEnter={(e) => {
+        onMouseEnter={isPast ? undefined : (e) => {
           if (!unavailable)
             e.currentTarget.style.background = "rgba(8,49,110,0.06)";
         }}
-        onMouseLeave={(e) => {
+        onMouseLeave={isPast ? undefined : (e) => {
           e.currentTarget.style.background = unavailable
             ? "rgba(220,38,38,0.14)"
             : "transparent";
@@ -123,7 +140,7 @@ export function TimeCell({ day, hour, minute, hasRide }: TimeCellProps) {
          * Visible uniquement si le panneau d'indisponibilité est actif
          * ET que le créneau ne contient pas de trajet.
          */}
-        {disponibilitySetterIsActive && !hasRide && (
+        {!isPast && disponibilitySetterIsActive && !hasRide && (
           <button
             onClick={handleCheckboxToggle}
             title={

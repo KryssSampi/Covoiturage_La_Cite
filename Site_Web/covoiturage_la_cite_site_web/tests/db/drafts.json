@@ -1,0 +1,27 @@
+[
+  {
+    "id": "DRF-2026-00001",
+    "driverId": "USR-2026-00001",
+    "departureLocation": "La Cité collégiale, 801 prom. de l'Aviation, Ottawa",
+    "arrivalLocation": "Place d'Orléans, Ottawa",
+    "departureDate": "2026-03-28",
+    "departureTime": "08:30",
+    "vehicleId": "VEH-2026-00001",
+    "maxPassengers": 4,
+    "availableSeats": 3,
+    "pricePerPassenger": 5,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [45.4565, -75.6159],
+    "arrivalCoords": [45.4726, -75.5180],
+    "notes": "Départ côté entrée principale du campus",
+    "createdAt": "2026-03-20T14:22:00.000Z",
+    "updatedAt": "2026-03-20T14:22:00.000Z"
+  }
+]

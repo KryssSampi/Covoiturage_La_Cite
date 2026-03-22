@@ -57,4 +57,13 @@ export const FIXTURE_NOTIFICATIONS: Notification[] = [
     time: "06:30",
     isRead: true,
   },
+  {
+    id: 7,
+    type: NotificationType.AlerteTrajet,
+    message: "Un nouveau trajet correspond à votre alerte : Barrhaven → Campus La Cité, le 22 mars à 07:45.",
+    date: "2026-03-20",
+    time: "14:30",
+    isRead: false,
+    link: "/passenger/search/me?dep=Barrhaven&arr=Campus%20La%20Cit%C3%A9&depLng=-75.77&depLat=45.275&arrLng=-75.683&arrLat=45.4215",
+  },
 ];

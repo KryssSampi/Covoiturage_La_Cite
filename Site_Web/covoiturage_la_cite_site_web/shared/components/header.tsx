@@ -29,6 +29,7 @@ export function Header() {
     isFR,
     isDriver,
     avatarUrl,
+    notifCount,
     visibleNavItems,
     burgerItems,
     avatarMenuItems,
@@ -45,6 +46,8 @@ export function Header() {
     isDriverActive,
     setIsDriverActive,
     handleLogout,
+    activePageTitle,
+    isOngoingTrip,
   } = useHeader();
 
   return (
@@ -58,7 +61,7 @@ export function Header() {
       <div className="flex items-center justify-between px-3 lg:px-6 h-14 lg:h-16">
 
         {/* ── Logo ─────────────────────────────────────────────────────────── */}
-        <div className="flex items-center shrink-0 scale-75 lg:scale-100 -ml-3 lg:ml-0">
+        <div className="flex items-center shrink-0 scale-75 lg:scale-90 -ml-3 lg:ml-0">
           <MainLogo />
         </div>
 
@@ -89,12 +92,12 @@ export function Header() {
               {/* Toggle conducteur dans le burger — mobile uniquement */}
               {isDriver && (
                 <div className="flex lg:hidden items-center justify-between px-4 py-2 border-b border-gray-100">
-                  <span className="text-sm text-gray-700">
+                  <span className={`text-sm text-gray-700 ${isOngoingTrip ? 'opacity-50' : ''}`}>
                     {isFR ? "Mode actif" : "Active mode"}
                   </span>
                   <CustomToggle
-                    bindValue={isDriverActive}
-                    onToggle={setIsDriverActive}
+                    bindValue={isOngoingTrip ? false : isDriverActive}
+                    onToggle={isOngoingTrip ? () => {} : setIsDriverActive}
                     activeColor="bg-green-400"
                   />
                 </div>
@@ -108,6 +111,14 @@ export function Header() {
               ))}
             </Dropdown>
           </div>
+
+          {/* Titre de la page active — visible uniquement si absent de la barre de nav */}
+          {activePageTitle && (
+            <span className="relative text-sm lg:text-base font-semibold px-1 py-1 text-blue-200">
+              {isFR ? activePageTitle.fr : activePageTitle.en}
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-300 rounded-full" />
+            </span>
+          )}
         </nav>
 
         {/* ── Actions droite ───────────────────────────────────────────────── */}
@@ -115,13 +126,14 @@ export function Header() {
 
           <ToggleLangButton />
           <Separator />
-          <BellButton count={3} />
+          <BellButton count={notifCount} />
           <Separator />
 
           {/* Avatar + dropdown profil */}
           <div className="relative" ref={avatarRef}>
             <AvatarButton
-              isActive={isDriver ? isDriverActive : true}
+              isActive={isOngoingTrip ? false : (isDriver ? isDriverActive : true)}
+              isOngoingTrip={isOngoingTrip}
               avatarUrl={avatarUrl}
               onClick={toggleAvatar}
             />
@@ -145,10 +157,10 @@ export function Header() {
           {/* Toggle conducteur actif — desktop uniquement */}
           {isDriver && (
             <div className="hidden lg:flex flex-col items-center text-white text-xs leading-tight gap-y-0.5">
-              <span>{isFR ? "Actif" : "Active"}</span>
+              <span className={isOngoingTrip ? 'opacity-50' : ''}>{isFR ? "Actif" : "Active"}</span>
               <CustomToggle
-                bindValue={isDriverActive}
-                onToggle={setIsDriverActive}
+                bindValue={isOngoingTrip ? false : isDriverActive}
+                onToggle={isOngoingTrip ? () => {} : setIsDriverActive}
                 activeColor="bg-green-400"
               />
             </div>
@@ -192,17 +204,33 @@ function BellButton({ count }: { count: number }) {
   );
 }
 
-function AvatarButton({ isActive, avatarUrl, onClick }: { isActive: boolean; avatarUrl: string; onClick: () => void }) {
+const AVATAR_FALLBACK = "https://static.vecteezy.com/system/resources/thumbnails/048/216/761/small/modern-male-avatar-with-black-hair-and-hoodie-illustration-free-png.png";
+
+function AvatarButton({ isActive, isOngoingTrip, avatarUrl, onClick }: { isActive: boolean; isOngoingTrip?: boolean; avatarUrl: string; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
       aria-label="Menu profil"
       className="relative w-9 h-9 lg:w-11 lg:h-11 rounded-full ring-2 ring-blue-400 hover:ring-blue-200 transition-all duration-200"
     >
-      <Image src={avatarUrl} alt="Avatar" fill className="rounded-full object-cover" />
-      <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full border-2 border-blue-800 transition-colors duration-300 ${
-        isActive ? "bg-green-400" : "bg-gray-500"
-      }`} />
+      {/* onError : repli sur l'avatar générique si l'URL de profil est invalide ou introuvable */}
+      <Image
+        src={avatarUrl || AVATAR_FALLBACK}
+        alt="Avatar"
+        fill
+        className="rounded-full object-cover"
+        onError={(e) => { (e.currentTarget as HTMLImageElement).src = AVATAR_FALLBACK; }}
+      />
+      {/* Indicateur de statut : sens interdit (rouge + barre) pendant un trajet, sinon cercle vert/gris */}
+      {isOngoingTrip ? (
+        <span className="absolute bottom-0 right-0 w-3 h-3 lg:w-3.5 lg:h-3.5 rounded-full border-2 border-blue-800 bg-red-500 flex items-center justify-center">
+          <span className="block w-[60%] h-0.5 bg-white rounded-full" />
+        </span>
+      ) : (
+        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full border-2 border-blue-800 transition-colors duration-300 ${
+          isActive ? "bg-green-400" : "bg-gray-500"
+        }`} />
+      )}
     </button>
   );
 }

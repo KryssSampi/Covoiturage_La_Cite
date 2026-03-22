@@ -28,6 +28,8 @@ export interface FavDestination {
   label: string;
   value: string;
   icon: JSX.Element;
+  /** Coordonnées GPS du favori pour autofill */
+  coordonnees?: { lat: number; lng: number };
 }
 
 /**

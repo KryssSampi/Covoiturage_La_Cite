@@ -4,61 +4,122 @@
  * @file published_trips.section.tsx
  * @description Section "Mes Trajets Publiés" — exclusif au rôle Conducteur.
  *
- * Affiche la liste des trajets publiés du conducteur, triés par priorité :
+ * Composant autonome : reçoit uniquement un driverId et gère son propre état
+ * via SSE (Server-Sent Events). Les données se mettent à jour en temps réel
+ * sans actualisation de page (création, modification, annulation de trajets).
+ *
+ * Affiche tous les trajets sauf les complétés, triés par priorité :
  * 1. En cours (GPS actif — bouton carte visible)
- * 2. À venir confirmés / complets
+ * 2. Complets / À venir confirmés
  * 3. Publiés en attente de passagers
  * 4. Annulés
- * 5. Terminés
  *
- * Chaque carte affiche : images Unsplash de la ville départ/arrivée,
- * passagers confirmés avec avatars, badge statut coloré, tarif,
- * demandes en attente, et un bouton carte pour les trajets InProgress.
+ * Chaque carte : images Unsplash, badge statut, passagers, tarif,
+ * bouton Démarrer (imminent), toast de blocage si trajet déjà en cours.
  *
+ * @uses useLiveTrips — flux SSE trips + reservations
  * @uses usePublishedTrips — tri, formatage statut, état UI liste passagers
- * @uses PublishedTrip, PublishedTripStatus — types depuis dashboard/types
- * @uses FIXTURE_PUBLISHED_TRIPS — données de test (à remplacer par API)
  */
 
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FaArrowRight } from "react-icons/fa";
-import { FaLocationDot } from "react-icons/fa6";
+import { FaLocationDot, FaBan } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { getCityImage } from "@/core/lib/unsplash";
 import { formatDate } from "@/core/utils/date.utils";
 
+import { useLiveTrips } from "../../hooks/useLiveTrips";
 import { usePublishedTrips } from "../../hooks/usePublishedTrips";
 import {
-  PublishedTrip,
   PublishedTripStatus,
   PublishedTripCardModel,
-  Passenger,
 } from "../../types";
-import { FIXTURE_PUBLISHED_TRIPS } from "@/tests/fixtures/dashboard/publishedtrips.fixtures";
+import { CancelConfirmToast } from "@/shared/components/CancelConfirmToast";
+import { PassengerAvatars } from "@/shared/components/PassengerAvatars";
+
+// ─── Squelette de chargement ─────────────────────────────────────────────────
+
+/** Placeholder animé affiché pendant le chargement SSE */
+function TripsSkeleton() {
+  return (
+    <div className="w-full flex flex-col items-center px-10 gap-4 py-4">
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="w-full h-36 rounded-xl bg-gray-200 animate-pulse"
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Toast plein écran : trajet déjà en cours ────────────────────────────────
+
+/** Overlay bloquant affiché quand le conducteur essaie de démarrer un 2e trajet */
+function InProgressBlockToast({
+  isOpen,
+  onClose,
+  isFR,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  isFR: boolean;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
+        <div className="text-6xl mb-4">⚠️</div>
+        <h3 className="text-2xl font-bold text-gray-900 mb-3">
+          {isFR ? "Trajet déjà en cours" : "Trip already in progress"}
+        </h3>
+        <p className="text-gray-600 text-lg mb-6">
+          {isFR
+            ? "Vous avez déjà un trajet en cours. Veuillez le terminer avant d'en démarrer un nouveau."
+            : "You already have a trip in progress. Please finish it before starting a new one."}
+        </p>
+        <button
+          onClick={onClose}
+          className="px-8 py-3 bg-[#08316e] text-white text-lg font-semibold rounded-full hover:bg-[#0a4a9e] transition-colors"
+        >
+          {isFR ? "Compris" : "Got it"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 // ─── Composant principal ─────────────────────────────────────────────────────
 
 /**
  * PublishedTripSection
  *
- * @param trips Liste des trajets publiés du conducteur.
- *   Par défaut : FIXTURE_PUBLISHED_TRIPS.
- *   TODO: Brancher sur GET /api/driver/{userId}/trips?status=active&limit=10
+ * Composant autonome — reçoit uniquement le driverId.
+ * Se connecte au flux SSE et maintient la liste des trajets à jour en temps réel.
  */
-export function PublishedTripSection({ trips = FIXTURE_PUBLISHED_TRIPS }: { trips?: PublishedTrip[] }) {
+export function PublishedTripSection({ driverId }: { driverId: string }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
+  // Flux SSE en temps réel
+  const { trips: liveTrips, isLoading, error, hasInProgressTrip } = useLiveTrips(driverId);
+
+  // Tri et formatage
   const {
     tripModels,
     isPassengerListOpens,
     setIsPassengerListOpens,
     formatStatus,
     getStatusColor,
-  } = usePublishedTrips(trips);
+  } = usePublishedTrips(liveTrips ?? []);
+
+  // État du toast de blocage (trajet déjà en cours)
+  const [showBlockToast, setShowBlockToast] = useState(false);
 
   return (
     <section className="w-full py-10 mx-auto flex flex-col justify-center items-center rounded-lg shadow-md bg-white text-black">
@@ -68,18 +129,24 @@ export function PublishedTripSection({ trips = FIXTURE_PUBLISHED_TRIPS }: { trip
           {isFR ? "Mes Trajets Publiés" : "My Published Trips"}
         </h2>
         <Link
-          href="/driver/trips"
+          href="/trajets?view=tous"
           className="text-lg font-medium text-blue-500 hover:underline hover:text-blue-700"
         >
-          {isFR ? "Voir tous" : "See all"} {">"}
+          {isFR ? "Voir plus" : "See more"} {">"}
         </Link>
       </div>
 
       <div className="w-13/15 h-1 bg-[#08316e] rounded-full" />
 
-      {/* ─── Liste ou état vide ───────────────────────────────────────── */}
-      <div className="w-full h-100 container justify-center items-center px-10">
-        {tripModels.length === 0 ? (
+      {/* ─── Contenu : loader / erreur / liste / état vide ────────────── */}
+      <div className="w-full h-100 flex flex-col justify-center items-center px-10">
+        {isLoading ? (
+          <TripsSkeleton />
+        ) : error ? (
+          <div className="w-full h-full flex justify-center items-center">
+            <p className="text-red-500 text-lg text-center">{error}</p>
+          </div>
+        ) : tripModels.length === 0 ? (
           <div className="w-full h-full flex justify-center items-center">
             <p className="text-gray-700 text-2xl text-center">
               {isFR ? "Aucun trajet publié pour le moment." : "No published trips at the moment."}
@@ -90,14 +157,17 @@ export function PublishedTripSection({ trips = FIXTURE_PUBLISHED_TRIPS }: { trip
             className="w-full flex flex-col max-h-100 items-center px-10 overflow-y-auto"
             style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
           >
-            {tripModels.map((model) => (
+            {tripModels.map((model, index) => (
               <PublishedTripCard
                 key={model.trip.id}
                 model={model}
+                index={index}
                 isPassengerListOpens={isPassengerListOpens}
                 setIsPassengerListOpens={setIsPassengerListOpens}
                 formatStatus={formatStatus}
                 getStatusColor={getStatusColor}
+                hasInProgressTrip={hasInProgressTrip}
+                onBlockStart={() => setShowBlockToast(true)}
               />
             ))}
           </div>
@@ -105,6 +175,13 @@ export function PublishedTripSection({ trips = FIXTURE_PUBLISHED_TRIPS }: { trip
       </div>
 
       <div className="w-13/15 h-1 bg-[#08316e] rounded-full" />
+
+      {/* Toast de blocage — trajet déjà en cours */}
+      <InProgressBlockToast
+        isOpen={showBlockToast}
+        onClose={() => setShowBlockToast(false)}
+        isFR={isFR}
+      />
     </section>
   );
 }
@@ -118,23 +195,31 @@ export function PublishedTripSection({ trips = FIXTURE_PUBLISHED_TRIPS }: { trip
  */
 export function PublishedTripCard({
   model,
+  index,
   isPassengerListOpens,
   setIsPassengerListOpens,
   formatStatus,
   getStatusColor,
+  hasInProgressTrip,
+  onBlockStart,
 }: {
   model: PublishedTripCardModel;
+  index: number;
   isPassengerListOpens: { isPassengerListOpen: boolean }[];
   setIsPassengerListOpens: React.Dispatch<React.SetStateAction<{ isPassengerListOpen: boolean }[]>>;
   formatStatus: (status: PublishedTripStatus, lang: Language) => string;
   getStatusColor: (status: PublishedTripStatus) => string;
+  hasInProgressTrip: boolean;
+  onBlockStart: () => void;
 }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
+  const router = useRouter();
   const { trip } = model;
 
   const [departureImg,   setDepartureImg]   = useState("");
   const [destinationImg, setDestinationImg] = useState("");
+  const [showCancelToast, setShowCancelToast] = useState(false);
 
   // Chargement en parallèle des images Unsplash des deux villes
   useEffect(() => {
@@ -150,21 +235,59 @@ export function PublishedTripCard({
   const togglePassengerList = () => {
     setIsPassengerListOpens((prev) =>
       prev.map((item, i) =>
-        i === trip.id - 1 ? { isPassengerListOpen: !item.isPassengerListOpen } : item,
+        i === index ? { isPassengerListOpen: !item.isPassengerListOpen } : item,
       ),
     );
   };
 
   const closePassengerList = () => {
     setIsPassengerListOpens((prev) =>
-      prev.map((item, i) => (i === trip.id - 1 ? { isPassengerListOpen: false } : item)),
+      prev.map((item, i) => (i === index ? { isPassengerListOpen: false } : item)),
     );
   };
 
-  const isListOpen = isPassengerListOpens[trip.id - 1]?.isPassengerListOpen ?? false;
+  const isListOpen = isPassengerListOpens[index]?.isPassengerListOpen ?? false;
+
+  // Navigation vers la vue détaillée du trajet avec contexte URL
+  const handleCardClick = () => {
+    const status = trip.isImminent ? 'imminent' : trip.status;
+    router.push(`/trajets/${trip.id}?source=publishedtrip&status=${status}`);
+  };
+
+  // Démarrage du trajet — bloque si un autre trajet est déjà en cours
+  const handleStartTrip = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (hasInProgressTrip) {
+      onBlockStart();
+      return;
+    }
+    router.push(`/trajet-en-cours/${trip.id}`);
+  };
+
+  // Annulation du trajet — envoie PATCH /api/trips/{id}/status { action: 'cancel' }
+  const handleCancelConfirm = async () => {
+    try {
+      const res = await fetch(`/api/trips/${trip.id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'cancel' }),
+      });
+      if (!res.ok) {
+        console.error('[PublishedTripCard] Échec annulation:', await res.text());
+      }
+    } catch (err) {
+      console.error('[PublishedTripCard] Erreur annulation:', err);
+    } finally {
+      setShowCancelToast(false);
+    }
+  };
 
   return (
-    <div className="w-full h-fit flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-4 hover:shadow-2xl hover:scale-[1.02] transition-all">
+    <>
+    <div
+      onClick={handleCardClick}
+      className="w-full h-fit flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-4 hover:shadow-2xl hover:scale-[1.02] transition-all cursor-pointer"
+    >
 
       {/* ─── Images départ / arrivée (clip-path diagonal) ─────────────── */}
       <div className="relative w-[27%] h-32 rounded-xl overflow-hidden group bg-gray-200">
@@ -230,11 +353,9 @@ export function PublishedTripCard({
         <div className="w-full justify-between flex items-center mt-1">
           <PassengerAvatars
             passengers={trip.passengers}
-            tripId={trip.id}
-            isListOpen={isListOpen}
+            isOpen={isListOpen}
             onToggle={togglePassengerList}
             onClose={closePassengerList}
-            lang={appState.lang}
           />
           {trip.pendingRequests > 0 && (
             <p className="font-bold text-2xl text-[#08316e]">
@@ -255,9 +376,23 @@ export function PublishedTripCard({
         >
           &bull; {formatStatus(trip.status, appState.lang)}
         </span>
+        {/* Bouton Démarrer le trajet — trajet imminent */}
+        {trip.isImminent && trip.status !== PublishedTripStatus.InProgress && (
+          <button
+            onClick={handleStartTrip}
+            className="flex w-10/12 h-10 justify-center text-xl items-center gap-1.5 px-4 py-1.5 rounded-full font-semibold text-white animate-pulse hover:opacity-90 active:scale-95 transition-all duration-200 shadow-sm"
+            style={{ backgroundColor: '#0aad6a' }}
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-white inline-block" />
+            {isFR ? "Démarrer" : "Start"}
+          </button>
+        )}
+
+        {/* Bouton carte — trajet en cours */}
         {trip.status === PublishedTripStatus.InProgress && (
           <Link
-            href={`/map?reservationId=${trip.id}`}
+            href={`/trajet-en-cours/${trip.id}`}
+            onClick={(e) => e.stopPropagation()}
             className="w-fit relative flex items-center justify-center rounded-lg
                        hover:scale-105 active:scale-95 transition px-2 py-1"
           >
@@ -273,94 +408,30 @@ export function PublishedTripCard({
             </span>
           </Link>
         )}
+
+        {/* Bouton annuler — masqué si annulé ou terminé */}
+        {trip.status !== PublishedTripStatus.Cancelled &&
+         trip.status !== PublishedTripStatus.Completed && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowCancelToast(true); }}
+            className="flex w-10/12 h-10 justify-center text-xl items-center gap-1.5 px-4 py-1.5 rounded-full font-semibold border-2 border-red-400 text-red-500 bg-red-50 hover:bg-red-500 hover:text-white transition-all duration-200 active:scale-95 shadow-sm"
+          >
+            <FaBan size={18} />
+            {isFR ? "Annuler" : "Cancel"}
+          </button>
+        )}
       </div>
     </div>
+
+    {/* Toast de confirmation d'annulation */}
+    <CancelConfirmToast
+      isOpen={showCancelToast}
+      label={isFR ? "ce trajet" : "this trip"}
+      onConfirm={handleCancelConfirm}
+      onCancel={() => setShowCancelToast(false)}
+    />
+    </>
   );
 }
 
-// ─── Sous-composant avatars passagers ────────────────────────────────────────
 
-/**
- * Affiche les 2 premiers avatars passagers avec :
- * - Lien vers le profil public
- * - Nom si passager unique
- * - Badge "+N autres" cliquable si > 2 passagers (ouvre une liste déroulante)
- */
-function PassengerAvatars({
-  passengers,
-  isListOpen,
-  onToggle,
-  onClose,
-  lang,
-}: {
-  passengers: Passenger[];
-  tripId: number;
-  isListOpen: boolean;
-  onToggle: () => void;
-  onClose: () => void;
-  lang: Language;
-}) {
-  return (
-    <div
-      className={`flex items-center gap-2 ${passengers.length === 1 ? "bg-white px-2 rounded-full" : ""}`}
-    >
-      {passengers.slice(0, 2).map((p) => (
-        <Link key={p.id} href={`/public-profile?accountid=${p.id}`} className="flex items-center gap-2">
-          <Image
-            src={p.pictureUrl}
-            alt={`${p.name} profile picture`}
-            className="w-10 h-10 rounded-full"
-            width={400}
-            height={400}
-          />
-        </Link>
-      ))}
-
-      {passengers.length === 1 && (
-        <Link href={`/public-profile?accountid=${passengers[0].id}`} className="flex items-center gap-2">
-          <span className="text-sm text-gray-700 hover:text-blue-500 hover:underline">
-            {passengers[0].name}
-          </span>
-        </Link>
-      )}
-
-      {passengers.length > 2 && (
-        <>
-          <span
-            className="text-sm text-gray-700 hover:text-blue-400 hover:underline cursor-pointer"
-            onClick={onToggle}
-          >
-            +{passengers.length - 2} {lang === Language.FR ? "autres" : "more"}
-          </span>
-
-          {/* Liste déroulante de tous les passagers */}
-          <div
-            className={`flex flex-col absolute left-1 bottom-10 rounded-lg bg-white p-2 items-center mt-2
-              shadow-lg transition-all
-              ${isListOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-            onMouseLeave={onClose}
-          >
-            {passengers.map((p) => (
-              <Link
-                key={p.id}
-                href={`/public-profile?accountid=${p.id}`}
-                className="flex justify-between items-center gap-2 w-full"
-              >
-                <Image
-                  src={p.pictureUrl}
-                  alt={`${p.name} profile picture`}
-                  className="w-10 h-10 rounded-full"
-                  width={400}
-                  height={400}
-                />
-                <span className="text-sm text-gray-700 hover:text-blue-500 text-start hover:underline">
-                  {p.name}
-                </span>
-              </Link>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}

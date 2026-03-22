@@ -103,6 +103,12 @@ function makeTrip(
     doneDate:         null,
     departureCoords:  depCoords,
     arrivalCoords:    arrCoords,
+    // Polyline de fallback [lat, lng] — ligne directe entre départ et arrivée.
+    // Les coordonnées COORDS sont en [lng, lat] → on inverse pour Leaflet.
+    latLngs: [
+      [depCoords[1], depCoords[0]],
+      [arrCoords[1], arrCoords[0]],
+    ],
   };
 }
 

@@ -3,5 +3,6 @@ export enum ReservationStatus {
   Pending    = "pending",
   Cancelled  = "cancelled",
   Completed  = "completed",
+  Rejected   = "rejected",
   InProgress = "in-progress",
 }

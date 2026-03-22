@@ -17,7 +17,7 @@
  * Au clic : met à jour currentDay dans PlannerContext ET bascule la vue semaine.
  */
 
-import { format, isBefore, isToday, startOfDay } from "date-fns";
+import { isBefore, isToday, startOfDay } from "date-fns";
 import { FaPlus }                                  from "react-icons/fa6";
 import { MonthCell}                         from "@/features/planner/types/calendar.types";
 import { TODAY }                                   from "@/features/planner/constants/calendar.constants";
@@ -62,18 +62,15 @@ export function DayCell({ cell, rides, role: _role, selectedDay, onClick }: DayC
   const satColor   = count > 0 && !past ? getSaturationColor(ratio) : null;
 
   // ── Contextes ────────────────────────────────────────────────────────────
-  const { setDate, OpenSearchBar }   = useHeroSearchBar();
-  const { setCurrentDay }            = usePlannerContext();
+  const { setShowCalendarToast } = useHeroSearchBar();
+  const { setCurrentDay }        = usePlannerContext();
 
-  // ── Gestionnaire de clic ─────────────────────────────────────────────────
+  // ── Gestionnaire de clic principal : bascule vers la vue semaine ─────────
   const handleClick = () => {
     // Synchronise le jour sélectionné dans le contexte partagé
     setCurrentDay(date);
     // Notifie le parent pour basculer vers la vue semaine
     onClick(date);
-    // Pré-remplit la searchbar avec la date cliquée
-    setDate(format(date, "yyyy-MM-dd"));
-    OpenSearchBar();
   };
 
   // ── Calcul du fond de la cellule ─────────────────────────────────────────
@@ -92,40 +89,41 @@ export function DayCell({ cell, rides, role: _role, selectedDay, onClick }: DayC
   let opacity = 1;
 
   if (todayCell && isSelected) {
-    // État "aujourd'hui ET sélectionné" : remplissage plein
+    // Aujourd'hui + sélectionné : remplissage plein bleu marine
     bgColor     = "#08316e";
     borderStyle = "2px solid #08316e";
   } else if (todayCell) {
-    // État "aujourd'hui seul" : teinte bleue douce + contour pointillé
-    bgColor     = "rgba(8,49,110,0.07)";
-    borderStyle = "1.5px dashed rgba(8,49,110,0.55)";
+    // Aujourd'hui seul : teinte bleue visible + contour pointillé fort
+    bgColor     = "rgba(8,49,110,0.10)";
+    borderStyle = "2px dashed #08316e";
   } else if (isSelected) {
-    // État "sélectionné (non aujourd'hui)" : teinte bleue pâle + contour solide
-    bgColor     = "rgba(8,49,110,0.09)";
-    borderStyle = "1.5px solid rgba(8,49,110,0.7)";
+    // Sélectionné (non aujourd'hui) : accent bleu pâle + contour solide
+    bgColor     = "rgba(8,49,110,0.07)";
+    borderStyle = "2px solid rgba(8,49,110,0.60)";
   } else if (past) {
-    // État "passé" : fond gris très léger
-    bgColor     = cell.current ? "rgba(0,0,0,0.04)" : "rgba(0,0,0,0.02)";
-    borderStyle = "0.5px solid rgba(0,0,0,0.08)";
-    opacity     = cell.current ? 0.5 : 0.3;
+    // Passé : gris franc pour marquer clairement l'inactivité
+    bgColor     = cell.current ? "#f1f3f5" : "#eaecef";
+    borderStyle = cell.current ? "1px solid #dde0e6" : "1px solid #d5d8de";
+    opacity     = cell.current ? 1 : 0.55;
   } else if (satColor) {
-    // État "futur avec trajets" : dégradé de saturation
+    // Futur avec trajets : couleur de saturation verte→rouge
     bgColor     = satColor;
-    borderStyle = "0.5px solid rgba(0,0,0,0.07)";
+    borderStyle = "1px solid rgba(0,0,0,0.08)";
   } else if (!cell.current) {
-    // Hors mois courant, futur
-    bgColor     = "rgba(0,0,0,0.015)";
-    borderStyle = "0.5px solid rgba(0,0,0,0.05)";
-    opacity     = 0.55;
+    // Hors mois courant, futur : très légèrement gris
+    bgColor     = "#f9fafb";
+    borderStyle = "1px solid #f0f1f3";
+    opacity     = 0.60;
   } else {
-    // Jour du mois courant, futur, vide
-    bgColor     = "rgba(255,255,255,0.55)";
-    borderStyle = "0.5px solid rgba(0,0,0,0.07)";
+    // Jour du mois courant, futur, vide : blanc pur
+    bgColor     = "#ffffff";
+    borderStyle = "1px solid #e5e7eb";
   }
 
   const base: React.CSSProperties = {
     borderRadius:   0,
-    minHeight:      64,
+    minHeight:      100,
+    height:         "100%",
     cursor:         "pointer",
     display:        "flex",
     flexDirection:  "column",
@@ -149,21 +147,19 @@ export function DayCell({ cell, rides, role: _role, selectedDay, onClick }: DayC
   let dayNumColor: string;
 
   if (todayCell && isSelected) {
-    dayNumColor = "#ffffff";                        // blanc sur fond plein
+    dayNumColor = "#ffffff";                        // blanc sur fond plein bleu
   } else if (todayCell) {
-    dayNumColor = "#08316e";                        // bleu marine sur teinte
+    dayNumColor = "#08316e";                        // bleu marine vif
   } else if (isSelected) {
-    dayNumColor = "#08316e";                        // bleu marine sur teinte
+    dayNumColor = "#08316e";                        // bleu marine
   } else if (past) {
-    dayNumColor = cell.current
-      ? "rgba(0,0,0,0.30)"                         // passé courant : gris moyen
-      : "rgba(0,0,0,0.18)";                        // passé hors-mois : gris très clair
+    dayNumColor = cell.current ? "#9ca3af" : "#b5b9c1"; // gris moyen / gris clair
   } else if (!cell.current) {
-    dayNumColor = "rgba(0,0,0,0.22)";              // hors mois : gris pâle
+    dayNumColor = "#b0b5bd";                        // hors mois : gris discret
   } else if (count > 0) {
-    dayNumColor = "rgba(0,0,0,0.45)";              // avec trajets : gris foncé discret
+    dayNumColor = "#374151";                        // avec trajets : gris foncé lisible
   } else {
-    dayNumColor = "rgba(0,0,0,0.78)";              // vide futur : noir doux
+    dayNumColor = "#1f2937";                        // futur vide : texte sombre clair
   }
 
   // ── Poids de police du numéro ─────────────────────────────────────────────
@@ -206,9 +202,11 @@ export function DayCell({ cell, rides, role: _role, selectedDay, onClick }: DayC
       )}
 
       {/* Bouton "+" : jours vides, futurs, dans le mois courant, non sélectionnés */}
+      {/* Clic sur le bouton "+" : stocke la date sélectionnée et affiche le toast */}
       {count === 0 && !past && cell.current && !isSelected && (
         <div
           className="hover:scale-110"
+          onClick={(e) => { e.stopPropagation(); setCurrentDay(date); setShowCalendarToast(true); }}
           style={{
             marginTop:      6,
             width:          28,
@@ -221,6 +219,7 @@ export function DayCell({ cell, rides, role: _role, selectedDay, onClick }: DayC
             justifyContent: "center",
             color:          "rgba(0,0,0,0.35)",
             transition:     "all 0.2s",
+            cursor:         "pointer",
           }}
         >
           <FaPlus size={10} />

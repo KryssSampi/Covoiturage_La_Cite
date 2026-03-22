@@ -18,7 +18,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";
-import { FaMessage } from "react-icons/fa6";
+import { FaMessage, FaBell } from "react-icons/fa6";
 import { useRouter } from "next/navigation";
 
 import { Language, useAppState } from "@/core/state/app_state";
@@ -26,7 +26,6 @@ import { formatDate } from "@/core/utils/date.utils";
 
 import { useNotifications } from "../../hooks/useNotifications";
 import { Notification, NotificationType } from "../../types/notification.types";
-import { FIXTURE_NOTIFICATIONS } from "@/tests/fixtures/dashboard/notifications.fixtures";
 
 // ─── Composant principal ─────────────────────────────────────────────────────
 
@@ -38,9 +37,9 @@ import { FIXTURE_NOTIFICATIONS } from "@/tests/fixtures/dashboard/notifications.
  *   TODO: Brancher sur GET /api/users/{userId}/notifications?limit=6&unreadFirst=true
  */
 export function NotificationsSection({
-  notifications: rawNotifications = FIXTURE_NOTIFICATIONS,
+  notifications: rawNotifications,
 }: {
-  notifications?: Notification[];
+  notifications: Notification[];
 }) {
   const appState = useAppState();
   const router = useRouter();
@@ -125,11 +124,12 @@ export function NotificationsSection({
                     ? "bg-red-100 border-red-500"
                     : `bg-gray-100 ${isDriver ? "border-blue-400" : "border-[#08316e]"}`
                   }`}
-                onClick={() =>
+                onClick={() => {
+                  const role = appState.userConnected?.role?.toString().toLowerCase() ?? 'passenger';
                   router.push(
-                    `/${appState.userConnected?.id}/notifications?notificationViewOpen=true&notificationId=${notification.id}`
-                  )
-                }
+                    `/${role}/notifications/${appState.userConnected?.id}?notificationid=${notification.id}`
+                  );
+                }}
               >
                 <div
                   className={`flex w-full h-full items-center justify-between p-2 ${
@@ -196,6 +196,8 @@ function NotificationIcon({ type }: { type: NotificationType }) {
       return <Image src="/assets/notification-icons/rappel.png" alt="Rappel" {...iconProps} />;
     case NotificationType.NouvelleAvis:
       return <FaStar className="text-[#08316e] text-3xl" />;
+    case NotificationType.AlerteTrajet:
+      return <FaBell className="text-[#08316e] text-3xl" />;
     default:
       return <FaMessage className="text-[#08316e] text-3xl" />;
   }
@@ -239,6 +241,8 @@ function NotificationTitle({
       return <span className="text-black font-bold text-xl">{isFR ? "Rappel" : "Reminder"}</span>;
     case NotificationType.NouvelleAvis:
       return <span className="text-black font-bold text-xl">{isFR ? "Nouvel Avis" : "New Review"}</span>;
+    case NotificationType.AlerteTrajet:
+      return <span className="text-[#08316e] font-bold text-xl">{isFR ? "Alerte Trajet" : "Trip Alert"}</span>;
     default:
       return <span className="text-black font-bold text-xl">{isFR ? "Notification" : "Notification"}</span>;
   }

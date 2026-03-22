@@ -3,6 +3,7 @@ import { ReservationRequest } from "@/features/dashboard/types/reservationreques
 export const FIXTURE_RESERVATION_REQUESTS: ReservationRequest[] = [
   {
     id: 1,
+    reservationId: "RES-FIXTURE-001",
     departure: "Ottawa",
     destination: "Montreal",
     date: "2026-02-23",
@@ -14,6 +15,7 @@ export const FIXTURE_RESERVATION_REQUESTS: ReservationRequest[] = [
   },
   {
     id: 2,
+    reservationId: "RES-FIXTURE-002",
     departure: "Campus La Cité",
     destination: "Gatineau",
     date: new Date().toISOString(),
@@ -25,6 +27,7 @@ export const FIXTURE_RESERVATION_REQUESTS: ReservationRequest[] = [
   },
   {
     id: 3,
+    reservationId: "RES-FIXTURE-003",
     departure: "Orléans",
     destination: "Rideau",
     date: "2026-02-25",
@@ -36,6 +39,7 @@ export const FIXTURE_RESERVATION_REQUESTS: ReservationRequest[] = [
   },
   {
     id: 4,
+    reservationId: "RES-FIXTURE-004",
     departure: "Gatineau",
     destination: "Ottawa",
     date: "2026-02-28",
@@ -47,6 +51,7 @@ export const FIXTURE_RESERVATION_REQUESTS: ReservationRequest[] = [
   },
   {
     id: 5,
+    reservationId: "RES-FIXTURE-005",
     departure: "Barrhaven",
     destination: "Nepean",
     date: "2026-02-28",
@@ -58,6 +63,7 @@ export const FIXTURE_RESERVATION_REQUESTS: ReservationRequest[] = [
   },
   {
     id: 6,
+    reservationId: "RES-FIXTURE-006",
     departure: "Nepean",
     destination: "Barrhaven",
     date: "2026-02-24",

@@ -17,9 +17,10 @@
  * @uses FIXTURE_RESERVATION_REQUESTS — données de test (à remplacer par API)
  */
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaUserFriends, FaArrowRight, FaStar } from "react-icons/fa";
+import { FaUserFriends, FaArrowRight, FaStar, FaSpinner } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
@@ -30,7 +31,9 @@ import {
   ReservationRequest,
   ReservationRequestCardModel,
 } from "../../types";
-import { FIXTURE_RESERVATION_REQUESTS } from "@/tests/fixtures/dashboard/reservationrequest.fixtures";
+
+// URL de repli si la photo de profil du passager est introuvable
+const AVATAR_FALLBACK = "https://static.vecteezy.com/system/resources/thumbnails/048/216/761/small/modern-male-avatar-with-black-hair-and-hoodie-illustration-free-png.png";
 
 // ─── Composant principal ─────────────────────────────────────────────────────
 
@@ -44,15 +47,28 @@ import { FIXTURE_RESERVATION_REQUESTS } from "@/tests/fixtures/dashboard/reserva
  *   TODO: Brancher POST /api/reservation-requests/{id}/decline (bouton Refuser)
  */
 export function ReservationRequestsSection({
-  requests = FIXTURE_RESERVATION_REQUESTS,
+  requests,
 }: {
-  requests?: ReservationRequest[];
+  requests: ReservationRequest[];
 }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
+  // Identifiants des demandes acceptées (retrait optimiste de la liste)
+  const [acceptedIds, setAcceptedIds] = useState<string[]>([]);
+
   const { requestModels, isPassengerListOpens, setIsPassengerListOpens } =
     useReservationRequests(requests);
+
+  // Filtre les cartes dont la demande a déjà été acceptée
+  const visibleModels = requestModels.filter(
+    (m) => !acceptedIds.includes(String(m.request.id))
+  );
+
+  /** Callback appelé par ReservationRequestCard après confirmation serveur */
+  const handleAccepted = (id: string) => {
+    setAcceptedIds((prev) => [...prev, id]);
+  };
 
   return (
     <section className="w-full py-10 mx-auto flex flex-col justify-center items-center rounded-lg shadow-md bg-[#08316ee5] text-white">
@@ -72,8 +88,8 @@ export function ReservationRequestsSection({
       <div className="w-13/15 h-1 bg-white rounded-full" />
 
       {/* ─── Liste ou état vide ───────────────────────────────────────── */}
-      <div className="w-full h-100 container justify-center items-center px-10">
-        {requestModels.length === 0 ? (
+      <div className="w-full h-100 flex flex-col justify-center items-center px-10">
+        {visibleModels.length === 0 ? (
           <div className="w-full h-full flex justify-center items-center">
             <p className="text-white text-2xl text-center">
               {isFR ? "Aucune demande de réservation pour le moment." : "No reservation requests at the moment."}
@@ -84,10 +100,11 @@ export function ReservationRequestsSection({
             className="w-full flex flex-col max-h-100 items-center px-10 overflow-y-auto"
             style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
           >
-            {requestModels.map((model) => (
+            {visibleModels.map((model) => (
               <ReservationRequestCard
                 key={model.request.id}
                 model={model}
+                onAccepted={handleAccepted}
                 isPassengerListOpens={isPassengerListOpens}
                 setIsPassengerListOpens={setIsPassengerListOpens}
               />
@@ -113,8 +130,10 @@ export function ReservationRequestsSection({
  */
 function ReservationRequestCard({
   model,
+  onAccepted,
 }: {
   model: ReservationRequestCardModel;
+  onAccepted: (id: string) => void;
   isPassengerListOpens: { isPassengerListOpen: boolean }[];
   setIsPassengerListOpens: React.Dispatch<
     React.SetStateAction<{ isPassengerListOpen: boolean }[]>
@@ -124,6 +143,29 @@ function ReservationRequestCard({
   const isFR = appState.lang === Language.FR;
   const { request } = model;
 
+  // État de chargement pour le bouton Accepter
+  const [isAccepting, setIsAccepting] = useState(false);
+
+  /** Appelle POST /api/reservations/[id]/accept, puis retire la carte de la liste */
+  const handleAccept = async () => {
+    setIsAccepting(true);
+    try {
+      const res = await fetch(`/api/reservations/${request.id}/accept`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        console.error("[accept]", body.error ?? res.statusText);
+        return;
+      }
+      onAccepted(String(request.id));
+    } catch (err) {
+      console.error("[accept]", err);
+    } finally {
+      setIsAccepting(false);
+    }
+  };
+
 
 
   return (
@@ -131,11 +173,12 @@ function ReservationRequestCard({
 
       {/* ─── Photo de profil de l'applicant ──────────────────────────── */}
       <Image
-        src={request.applicant.urlPicture}
+        src={request.applicant.urlPicture || AVATAR_FALLBACK}
         alt={`${request.applicant.name} profile picture`}
         className="w-2/11 h-35 rounded-xl"
         width={400}
         height={400}
+        onError={(e) => { (e.currentTarget as HTMLImageElement).src = AVATAR_FALLBACK; }}
       />
 
       <div className="w-px h-40 bg-black" />
@@ -198,18 +241,22 @@ function ReservationRequestCard({
       <div className="flex flex-col h-full justify-between w-3/11 gap-y-10 items-center">
         <button
           className="w-full bg-green-600 hover:bg-green-800 hover:shadow text-gray-300
-                     font-bold py-1 text-2xl px-4 rounded-xl transition-colors"
-          onClick={() => {
-            // TODO: POST /api/reservation-requests/{request.id}/accept
-          }}
+                     font-bold py-1 text-2xl px-4 rounded-xl transition-colors
+                     flex items-center justify-center gap-2 disabled:opacity-60"
+          onClick={handleAccept}
+          disabled={isAccepting}
         >
-          {isFR ? "Accepter" : "Accept"}
+          {isAccepting ? (
+            <FaSpinner className="animate-spin text-2xl" />
+          ) : (
+            isFR ? "Accepter" : "Accept"
+          )}
         </button>
         <button
           className="w-full bg-red-600 hover:bg-red-800 hover:shadow text-gray-300
                      font-bold py-1 text-2xl px-4 rounded-xl transition-colors"
           onClick={() => {
-            // TODO: POST /api/reservation-requests/{request.id}/decline
+            // TODO: POST /api/reservations/${request.id}/refuse
           }}
         >
           {isFR ? "Refuser" : "Decline"}

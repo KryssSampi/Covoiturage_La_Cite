@@ -16,6 +16,9 @@ export interface NavItem {
   labelFR: string;
   labelEN: string;
   href: string;
+
+  isDriverOnly?: boolean; // Affiché uniquement pour les conducteurs
+  isPassengerOnly?: boolean; // Affiché uniquement pour les passagers
   /**
    * Si true : affiché dans la barre de nav sur desktop (md+).
    * Sur mobile, il passe automatiquement dans le menu burger.
@@ -59,7 +62,10 @@ export const MENU_ITEMS: NavItem[] = [
   { labelFR: "Planifier",             labelEN: "Plan",             href: `/${role}/planifier/${id}`              },
   { labelFR: "Historique",            labelEN: "History",          href: `/${role}/historique/${id}`             },
   { labelFR: "Demandes",              labelEN: "Bookings Requests",href: `/${role}/reservations/${id}`           },
-  { labelFR: "Mes Favoris",           labelEN: "My Favorites",     href: `/${role}/favoris/${id}`                },
+  {labelFR: "Statistiques",           labelEN: "Statics",          href: `/${role}/statistiques/${id}`           },
+   {labelFR: "Finances",              labelEN: "Finances",         href: `/${role}/finances/${id}`              },
+    {labelFR: "Mes Brouillons",            labelEN: "Drafts trips",           href: `/driver/brouillons/${id}`   , isDriverOnly: true },       
+   { labelFR: "Mes Favoris",           labelEN: "My Favorites",     href: `/${role}/favoris/${id}`                },
   { labelFR: "Avis sur moi",          labelEN: "Reviews",          href: `/${role}/reviews/${id}`                },
   { labelFR: "Nouveautés",            labelEN: "New Features",     href: `/${role}/nouveautes/${id}`             },
   { labelFR: "Go Board",              labelEN: "Go Board",         href: `/${role}/goboard/${id}`                },
@@ -74,4 +80,17 @@ export const MENU_ITEMS: NavItem[] = [
 export const AVATAR_MENU_ITEMS: NavItem[] = [
   { labelFR: "Profil",                labelEN: "Profile",          href: `/profile/${id}`                        },
   { labelFR: "Paramètres",            labelEN: "Settings",         href: `/${role}/settings/${id}`               },
+]
+
+/**
+ * Pages supplémentaires non présentes dans la navigation principale ni le burger.
+ * Utilisé par le Header pour afficher le titre de la page active
+ * lorsqu'elle n'est pas déjà visible dans la barre de navigation.
+ */
+export const EXTRA_PAGE_TITLES: NavItem[] = [
+  { labelFR: "Recherche",             labelEN: "Search",           href: `/${role}/search/${id}`                 },
+  { labelFR: "Nouveau trajet",        labelEN: "New Trip",         href: `/driver/create-trip/${id}`             },
+  { labelFR: "Détail du trajet",      labelEN: "Trip Details",     href: `/trajets`                              },
+  { labelFR: "Notifications",         labelEN: "Notifications",    href: `/notifications`                        },
+  { labelFR: "Trajet en cours",       labelEN: "Ongoing Trip",     href: `/trajet-en-cours`                      },
 ]

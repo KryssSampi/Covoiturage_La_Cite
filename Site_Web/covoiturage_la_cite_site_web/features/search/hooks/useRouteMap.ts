@@ -50,6 +50,8 @@ export interface UseRouteMapReturn {
   arrivalCoords:        [number, number] | null; // [lng, lat]
 
   // ── Heures de départ / arrivée ────────────────────────────────────────────
+  departureDate:    string; // "yyyy-MM-dd" ou ""
+  setDepartureDate: React.Dispatch<React.SetStateAction<string>>;
   departureTime:    string; // "HH:MM" ou ""
   setDepartureTime: React.Dispatch<React.SetStateAction<string>>;
   arrivalTime:      string; // "HH:MM" ou ""
@@ -82,6 +84,8 @@ export interface RouteMapInitialValues {
   departureCoords?: [number, number];
   /** [lng, lat] — format Photon/OSRM */
   arrivalCoords?:   [number, number];
+  /** Date de départ souhaitée — format "yyyy-MM-dd" */
+  departureDate?:   string;
   /** Heure de départ souhaitée — format "HH:MM" */
   departureTime?:   string;
   /** Heure d'arrivée souhaitée — format "HH:MM" */
@@ -106,6 +110,7 @@ export function useRouteMap(initial?: RouteMapInitialValues): UseRouteMapReturn 
   const [arrivalCoords,        setArrivalCoords]        = useState<[number, number] | null>(initial?.arrivalCoords ?? null);
 
   // ── Heures de départ / arrivée ─────────────────────────────────────────────
+  const [departureDate,        setDepartureDate]        = useState(initial?.departureDate ?? "");
   const [departureTime,        setDepartureTime]        = useState(initial?.departureTime ?? "");
   const [arrivalTime,          setArrivalTime]          = useState(initial?.arrivalTime   ?? "");
 
@@ -246,6 +251,8 @@ export function useRouteMap(initial?: RouteMapInitialValues): UseRouteMapReturn 
 
     departureTime,
     setDepartureTime,
+    departureDate,
+    setDepartureDate,
     arrivalTime,
     setArrivalTime,
 

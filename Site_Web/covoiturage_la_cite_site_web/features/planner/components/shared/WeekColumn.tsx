@@ -55,7 +55,9 @@ export function WeekColumn({ day, rides, role, selectedDay }: WeekColumnProps) {
   if (isSelected && todayCol) {
     bg = "rgba(8,49,110,0.07)";   // selected + today
   } else if (isSelected) {
-    bg = "rgba(8,49,110,0.05)";   // sélectionné non-today
+    bg = "rgba(8,49,110,0.05)";   // sélectionné (même passé)
+  } else if (past) {
+    bg = "rgba(0,0,0,0.035)";    // passé non-sélectionné : gris léger
   } else if (satColor) {
     bg = satColor;
   } else if (todayCol) {

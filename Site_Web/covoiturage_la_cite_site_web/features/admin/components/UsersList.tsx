@@ -100,6 +100,7 @@ export default function UsersList() {
                     width={32}
                     height={32}
                     className="rounded-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/assets/placeholder/placeholer-profile-picture.png"; }}
                   />
                 ) : (
                   <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 font-bold text-xs">

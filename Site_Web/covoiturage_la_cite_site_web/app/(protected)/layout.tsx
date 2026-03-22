@@ -5,6 +5,8 @@ import { Header } from "@/shared/components/header";
 import { LoaderProvider, useLoader } from "@/core/context/loader.context";
 import { LoaderManager } from "@/shared/components/LoaderManager";
 import { useAppState } from "@/core/state/app_state";
+import { DbProvider } from "@/core/context/db.context";
+import { TripProvider } from "@/core/context/trip.context";
 import { useEffect, useSyncExternalStore } from "react";
 
 /**
@@ -48,9 +50,13 @@ export default function RootLayout({
   return (
     <LoaderProvider>
       <LoaderManager />
-      <Header />
-      {children}
-      <Footer />
+      <DbProvider>
+        <TripProvider>
+          <Header />
+          {children}
+          <Footer />
+        </TripProvider>
+      </DbProvider>
     </LoaderProvider>
   );
 }

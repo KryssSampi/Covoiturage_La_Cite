@@ -42,6 +42,7 @@ export function RidesList({
             isPassengerListOpen: isPassengerListOpens[ride.id - 1]?.isPassengerListOpen ?? false,
           };
           return (
+            <div key={ride.id} className="w-full transform scale-x-95 ">
             <PublishedTripCard
               key={ride.id}
               model={model}
@@ -50,6 +51,7 @@ export function RidesList({
               formatStatus={formatStatus}
               getStatusColor={getStatusColor}
             />
+            </div>
           );
         })}
       </>
@@ -60,6 +62,7 @@ export function RidesList({
   return (
     <>
       {(visibleRides as Reservation[]).map((ride, idx) => (
+         <div key={ride.id} className="w-full transform scale-x-95">
         <ReservationCard
           key={ride.id}
           reservation={ride}
@@ -75,6 +78,7 @@ export function RidesList({
             )
           }
         />
+        </div>
       ))}
     </>
   );

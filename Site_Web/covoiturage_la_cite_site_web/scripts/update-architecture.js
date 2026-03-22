@@ -325,6 +325,76 @@ const EXACT_COMMENTS = {
   "tests/fixtures/dashboard/tripways.fixtures.ts":            "Données fictives — sens/direction des trajets",
   "tests/fixtures/dashboard/usualDestination.fixtures.ts":    "Données fictives — lieux habituels passager",
   "features/planner/context/PlannerFeatureProvider.tsx": "Context global du planificateur — regroupe tous les providers nécessaires au fonctionnement du calendrier",
+
+  // ── .docs/updating-files/Create-TripView/ ─────────────────────────────────
+  ".docs/updating-files/Create-TripView/BasicInfoSection.tsx":       "Prototype — section formulaire infos de base du trajet (départ, arrivée, date, heure)",
+  ".docs/updating-files/Create-TripView/CreateTripForm.tsx":         "Prototype — formulaire principal de création de trajet avec layout 2 colonnes et actions publier/brouillon",
+  ".docs/updating-files/Create-TripView/MapPreviewSection.tsx":      "Prototype — section prévisualisation carte du trajet avec placeholder Maps/Leaflet",
+  ".docs/updating-files/Create-TripView/PricingLeftSection.tsx":     "Prototype — section tarification gauche avec prix, mode de paiement et préférences toggle",
+  ".docs/updating-files/Create-TripView/PricingRightSection.tsx":    "Prototype — section tarification droite avec stepper de prix et sélection mode de paiement",
+  ".docs/updating-files/Create-TripView/StepperInput.tsx":           "Composant UI — input numérique avec boutons +/− (stepper) réutilisable",
+  ".docs/updating-files/Create-TripView/TogglePreferenceRow.tsx":    "Composant UI — ligne de préférence avec interrupteur toggle et icône",
+  ".docs/updating-files/Create-TripView/VehicleSection.tsx":         "Prototype — section sélection de véhicule et gestion du nombre de places disponibles",
+
+  // ── .docs/updating-files/favorites-and-statistics/ ────────────────────────
+  ".docs/updating-files/favorites-and-statistics/App.tsx":               "Prototype — point d'entrée démo avec switcher entre pages Favoris et Statistiques",
+  ".docs/updating-files/favorites-and-statistics/favoris (1).html":      "Maquette HTML — page Mes Favoris avec CSS intégré (lieux, utilisateurs, alertes)",
+  ".docs/updating-files/favorites-and-statistics/FavorisPage.tsx":       "Prototype — page Mes Favoris avec onglets lieux, utilisateurs favoris et alertes trajet",
+  ".docs/updating-files/favorites-and-statistics/LaCite_Pages.jsx":      "Prototype monofichier — composants partagés, hooks, données mock et pages combinées (JSX)",
+  ".docs/updating-files/favorites-and-statistics/mockData.ts":           "Données mock — jeux de données fictifs pour favoris, statistiques, finances et GoBoard",
+  ".docs/updating-files/favorites-and-statistics/shared.tsx":            "Composants partagés — Navbar, Card, TrendMsg, Toggle et styles CSS globaux réutilisables",
+  ".docs/updating-files/favorites-and-statistics/statistiques.html":     "Maquette HTML — page Mes Statistiques avec graphiques CSS (KPI, CO₂, notes)",
+  ".docs/updating-files/favorites-and-statistics/StatistiquesPage.tsx":  "Prototype — page Statistiques avec KPI, graphique CO₂, scatter et badges obtenus",
+  ".docs/updating-files/favorites-and-statistics/types.ts":              "Types TypeScript — interfaces pour Favoris, Statistiques, Finances et GoBoard",
+
+  // ── .docs/updating-files/GoBoard-and-Finances/ ────────────────────────────
+  ".docs/updating-files/GoBoard-and-Finances/App.tsx":            "Prototype — point d'entrée démo 4 pages (Favoris, Finances, GoBoard, Statistiques)",
+  ".docs/updating-files/GoBoard-and-Finances/finances.html":      "Maquette HTML — page Mes Finances avec solde, transactions et histogramme",
+  ".docs/updating-files/GoBoard-and-Finances/FinancesPage.tsx":   "Prototype — page Finances avec solde, transactions, pénalités et graphique revenus/semaine",
+  ".docs/updating-files/GoBoard-and-Finances/goboard.html":       "Maquette HTML — page Go! Board avec GoScore, classement et missions",
+  ".docs/updating-files/GoBoard-and-Finances/GoBoardPage.tsx":    "Prototype — page Go! Board avec jauge GoScore, missions, classement et défis écologiques",
+
+  // ── .docs/updating-files/ListingView/ ─────────────────────────────────────
+  ".docs/updating-files/ListingView/ActiveChipsBar.tsx":    "Composant — barre de chips de filtres actifs avec suppression individuelle et globale",
+  ".docs/updating-files/ListingView/EmptyState.tsx":        "Composant — état vide générique (aucun résultat) avec CTA configurable",
+  ".docs/updating-files/ListingView/FilterDropdown.tsx":    "Composant — dropdown de filtres multi-groupes avec checkboxes et compteur actif",
+  ".docs/updating-files/ListingView/ListDetailPage.tsx":    "Prototype — page liste/détail générique avec recherche, filtres, tri et vue détail latérale",
+  ".docs/updating-files/ListingView/MobileDetailSheet.tsx": "Composant — bottom sheet mobile pour afficher le détail d'un élément sélectionné",
+  ".docs/updating-files/ListingView/Skeletons.tsx":         "Composant — squelettes de chargement (skeleton) pour les cartes et le panneau de détail",
+  ".docs/updating-files/ListingView/SortDropdown.tsx":      "Composant — dropdown de tri avec options sélectionnables et indicateur actif",
+
+  // ── .docs/updating-files/Published_TripView/ ──────────────────────────────
+  ".docs/updating-files/Published_TripView/MapOverlay.tsx":               "Composant — overlay plein écran de la carte au clic avec placeholder d'intégration",
+  ".docs/updating-files/Published_TripView/PublishedTripView.tsx":        "Prototype — page complète de consultation d'un trajet publié avec carte, résumé et réservation",
+  ".docs/updating-files/Published_TripView/ReservationConfirmModal.tsx":  "Composant — modale de confirmation de réservation avec résumé trajet et conducteur",
+  ".docs/updating-files/Published_TripView/ReserveButton.tsx":            "Composant — bouton de réservation multi-états (réserver, en attente, confirmé, complet)",
+  ".docs/updating-files/Published_TripView/TripMapArea.tsx":              "Composant — zone carte statique en haut de page avec badge durée/distance et lien overlay",
+  ".docs/updating-files/Published_TripView/TripPointSection.tsx":         "Composant — carte de détail d'un point de trajet (départ ou arrivée) avec adresse",
+  ".docs/updating-files/Published_TripView/TripPreferencesSection.tsx":   "Composant — section préférences du trajet (bagages, animaux, fumeur, musique, message)",
+  ".docs/updating-files/Published_TripView/TripStatusSection.tsx":        "Composant — section statut du trajet (type, récurrence, paiement, places, dernière MAJ)",
+  ".docs/updating-files/Published_TripView/TripSummaryCard.tsx":          "Composant — carte résumé du trajet avec conducteur, prix, véhicule et bouton réserver",
+
+  // ── .docs/updating-files/mapservice/ ────────────────────────────────────
+  ".docs/updating-files/mapservice/TrajetMapV2.tsx": "Prototype — carte Leaflet v2 (CARTO Voyager, polyline bicolore, couches campus/Overpass, boutons off-screen, recalcul OSRM)",
+
+  // ── .docs/updating-files/ongoing-trip-View/ ───────────────────────────────
+  ".docs/updating-files/ongoing-trip-View/index.hooks.ts":              "Prototype — hook useProgression simulant un trajet temps réel avec timer, calcul d'ETA et régénération auto de fixture",
+  ".docs/updating-files/ongoing-trip-View/other-components.tsx":        "Prototype — page assemblant ProgressionSection, Messagerie, SignalementOverlay et évaluation post-trajet",
+  ".docs/updating-files/ongoing-trip-View/ProgressionMessagerie.tsx":   "Prototype — barre de progression temps réel avec étapes, ETA, distances et animation de fin de trajet",
+  ".docs/updating-files/ongoing-trip-View/SignalementOverlay.tsx":      "Prototype — overlay signalement multi-étapes (cible, motif, sévérité, détails) avec motifs adaptatifs par rôle",
+  ".docs/updating-files/ongoing-trip-View/trajet-en-cours.html":       "Prototype — maquette HTML/CSS statique complète de la page trajet en cours (nav, cartes, progression, messagerie)",
+
+  // ── features/map-service/layers/ ──────────────────────────────────────────
+  "features/map-service/layers/campus.ts":    "Couche carte — polygone périmètre campus La Cité + marqueurs zones internes avec visibilité conditionnelle au zoom",
+  "features/map-service/layers/offscreen.ts": "Couche carte — boutons directionnels sur les bords de la carte pour POIs hors du viewport avec repositionnement dynamique",
+  "features/map-service/layers/overpass.ts":  "Couche carte — requêtes Overpass API (arrêts bus + stations-service) avec debounce 600 ms et cache par bounding-box",
+
+  // ── features/trajet-en-cours/hooks/ ───────────────────────────────────────
+  "features/trajet-en-cours/hooks/index.hooks.ts": "Hooks feature — useProgression (simulation trajet), useMessagerie (conversations) et useSignalement (formulaire multi-étapes)",
+
+  // ── Autres ────────────────────────────────────────────────────────────────
+  "lib/db.ts":    "Service — pool de connexions PostgreSQL (singleton) avec support SSL pour BD cloud",
+  ".env.local":   "Configuration — variables d'environnement sensibles (DATABASE_URL, clés API, SSL)",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

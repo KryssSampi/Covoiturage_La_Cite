@@ -6,7 +6,7 @@
  */
 export interface Applicant {
   /** UUID de l'applicant */
-  id: number;
+  id: string;
   /** URL de la photo de profil */
   urlPicture: string;
   /** Prénom + nom affiché */

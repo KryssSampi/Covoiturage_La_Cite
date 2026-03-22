@@ -30,24 +30,25 @@ import {
   FaHome,
   FaPlus,
   FaChevronUp,
-  FaSchool,
-  FaBriefcase,
 } from "react-icons/fa";
 
 import { Language, useAppState } from "@/core/state/app_state";
+import { FIXTURE_LIEUX_FAVORIS } from "@/shared/fixtures/favoris.fixtures";
+import { getLieuFavoriIcon } from "@/shared/utils/lieu-favori-icon";
 
 import { useSuperSearch } from "../../hooks";
 import { LocationSuggestion, SuperSearchSectionProps } from "../../types/search.types";
 
 // ─── Destinations favorites par défaut ───────────────────────────────────────
-// Utilisées quand aucune prop favDestinations n'est fournie.
-// TODO: Remplacer par GET /api/users/{userId}/favorites → mapper en FavDestination[]
+// Générées depuis la fixture unifiée des lieux favoris.
 
-const DEFAULT_FAV_DESTINATIONS: SuperSearchSectionProps["favDestinations"] = [
-  { label: "Domicile", value: "La Cité, 75014 Paris", icon: <FaHome /> },
-  { label: "Université", value: "Université de Paris, 75013 Paris", icon: <FaSchool /> },
-  { label: "Travail", value: "Gare Montparnasse, 75014 Paris", icon: <FaBriefcase /> },
-];
+const DEFAULT_FAV_DESTINATIONS: SuperSearchSectionProps["favDestinations"] =
+  FIXTURE_LIEUX_FAVORIS.map((fav) => ({
+    label: fav.pseudonyme,
+    value: fav.adresse,
+    icon:  getLieuFavoriIcon(fav.iconTag, ""),
+    coordonnees: fav.coordonnees,
+  }));
 
 // ─── Portal de suggestions ───────────────────────────────────────────────────
 
@@ -140,6 +141,7 @@ export function SuperSearchSection({
     dateInputRef, timeInputRef, departureRef, arrivalRef,
     isFavMenuOpen, setIsFavMenuOpen,
     handleSubmit,
+    setArrivalCoords,
   } = useSuperSearch(defaultDeparture, defaultArrival, onSearch);
 
   return (
@@ -261,7 +263,10 @@ export function SuperSearchSection({
                 className="text-2xl text-[#08216e]"
                 onClick={() => {
                   const home = favDestinations?.find((f) => f.label === "Domicile");
-                  if (home) setArrivalLocation(home.value);
+                  if (home) {
+                    setArrivalLocation(home.value);
+                    if (home.coordonnees) setArrivalCoords([home.coordonnees.lng, home.coordonnees.lat]);
+                  }
                 }}
               />
               <FaChevronDown
@@ -290,6 +295,7 @@ export function SuperSearchSection({
                     className="text-gray-700 flex justify-between hover:bg-gray-100 rounded-md p-1 cursor-pointer transition-colors"
                     onClick={() => {
                       setArrivalLocation(fav.value);
+                      if (fav.coordonnees) setArrivalCoords([fav.coordonnees.lng, fav.coordonnees.lat]);
                       setIsFavMenuOpen(false);
                     }}
                   >

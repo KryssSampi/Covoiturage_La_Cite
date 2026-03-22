@@ -13,8 +13,8 @@
  */
 
 import { useMemo } from "react";
-import { Trip }           from "@/features/dashboard/types/trip.types";
-import { MatchingScore }  from "@/features/search/types/search.feature.types";
+import { Trip }                    from "@/features/dashboard/types/trip.types";
+import { MatchingScore, TripWithCoords } from "@/features/search/types/search.feature.types";
 
 const EARTH_R = 6_371_000;
 
@@ -69,10 +69,7 @@ function placesScore(available: number): number {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type TripWithCoords = Trip & {
-  departureCoords?: [number, number];
-  arrivalCoords?:   [number, number];
-};
+// TripWithCoords est exporté depuis search.feature.types (type fusionné)
 
 interface UseMatchingScoreParams {
   trips:            Trip[];

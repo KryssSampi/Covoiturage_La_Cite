@@ -6,8 +6,10 @@ import { RideArea }                from "@/features/planner/components/shared/ri
 import SuperCalendar               from "@/features/planner/components/shared/calendar";
 import { PlannerFeatureProvider }  from "@/features/planner/context/PlannerFeatureProvider";
 import { useHeroSearchBar }        from "@/features/planner/context/SearchBarContext";
+import { useMemo }                 from "react";
 import dynamic                     from "next/dynamic";
-import ALL_SEARCH_TRIPS            from "@/tests/fixtures/search/search_trips.fixtures";
+import { useDb }                   from "@/core/context/db.context";
+import { tripsToTripWithCoords }   from "@/features/search/converters/search.converter";
 import { FaCalendarDays }          from "react-icons/fa6";
 
 // RouteMapSearch chargé en client-only (Leaflet ne fonctionne pas en SSR)
@@ -36,8 +38,13 @@ const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number
 function PlannerContent() {
   const { plannerSearchActive, plannerSearchValues, exitPlannerSearch } = useHeroSearchBar();
 
+  // Récupération des trajets réels depuis la base de données statique
+  const { trips, users } = useDb();
+  const usersMap = useMemo(() => new Map(users.map((u) => [u.id, u])), [users]);
+  const availableTrips = useMemo(() => tripsToTripWithCoords(trips, usersMap), [trips, usersMap]);
+
   return (
-    <div className="flex flex-col mb-10 bg-white">
+    <div className="flex flex-col h-full mb-10 bg-white">
       <Hero />
 
       {/* Bouton "Retour au calendrier" : glisse depuis la gauche lors de l'entrée en mode search */}
@@ -79,12 +86,13 @@ function PlannerContent() {
             transition={transition}
             className="px-4 pt-2 pb-6"
           >
-            {/* Mode compact : pas de hero ni de barre de recherche intégrée */}
+            {/* Formulaire de recherche connecté au contexte via initialValues ;
+                la key force le remontage complet à chaque nouvelle recherche */}
             <RouteMapSearch
+              key={`${plannerSearchValues?.departureLabel}|${plannerSearchValues?.arrivalLabel}`}
               role="passenger"
               initialValues={plannerSearchValues ?? undefined}
-              availableTrips={ALL_SEARCH_TRIPS}
-              hideSearchBar
+              availableTrips={availableTrips}
             />
           </motion.div>
         ) : (
