@@ -12,39 +12,46 @@
  * @uses Favorite — type depuis dashboard/types
  */
 
-import { FaBriefcase, FaCity, FaGraduationCap, FaHome } from "react-icons/fa";
 import { FaX } from "react-icons/fa6";
 import Link from "next/link";
 import { createPortal } from "react-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { useIsMobileOrTablet } from "@/shared/hooks/useismobileortable";
+import { FIXTURE_LIEUX_FAVORIS } from "@/shared/fixtures/favoris.fixtures";
+import { getLieuFavoriIcon } from "@/shared/utils/lieu-favori-icon";
+import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
 
 import { useFavorites } from "../../hooks/useFavorites";
-import { Favorite, COLLEGE_LACITE_ADDRESS } from "../../types/favorite.types";
-import { FIXTURE_FAVORITES } from "@/tests/fixtures/dashboard/favorites.fixtures";
 
 // ─── Composant principal ─────────────────────────────────────────────────────
 
 /**
  * FavoritesSection
  *
- * @param favorites Liste des favoris de l'utilisateur.
- *   Par défaut : données de test (FIXTURE_FAVORITES).
- *   TODO: Brancher sur GET /api/users/{userId}/favorites
+ * Charge les lieux favoris de l'utilisateur courant via GET /api/lieux-favoris.
+ * Repli sur les fixtures si l'API échoue ou si l'utilisateur n'est pas connecté.
  */
-export function FavoritesSection({
-  favorites: initialFavorites = FIXTURE_FAVORITES,
-}: {
-  favorites?: Favorite[];
-}) {
+export function FavoritesSection() {
   const appState = useAppState();
   const isBelowLg = useIsMobileOrTablet();
   const isFR = appState.lang === Language.FR;
+  const userId = appState.userConnected?.id;
 
-  // État local de la liste (gère la suppression côté client en attendant l'API)
-  const [favorites, setFavorites] = useState<Favorite[]>(initialFavorites);
+  // Démarre avec les fixtures — remplacé par l'API dès que les données arrivent
+  const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>(FIXTURE_LIEUX_FAVORIS);
+
+  // Chargement des lieux favoris réels de l'utilisateur courant
+  useEffect(() => {
+    if (!userId) return;
+    fetch(`/api/lieux-favoris?userId=${userId}`)
+      .then((r) => r.json())
+      .then((data: LieuFavoriUnifie[]) => {
+        if (Array.isArray(data) && data.length > 0) setFavorites(data);
+      })
+      .catch(() => { /* repli silencieux sur les fixtures déjà chargées */ });
+  }, [userId]);
 
   const {
     isDeleteModalOpen,
@@ -56,10 +63,20 @@ export function FavoritesSection({
     organizeFavorites,
   } = useFavorites();
 
-  // Callback passé à handleDelete : met à jour la liste locale après suppression
+  // Callback passé à handleDelete : met à jour la liste locale ET appelle l'API
   const onFavoriteDeleted = (name: string) => {
-    setFavorites((prev) => prev.filter((f) => f.name !== name));
+    const fav = favorites.find((f) => f.pseudonyme === name);
+    if (fav && userId) {
+      fetch(`/api/lieux-favoris?id=${fav.id}&userId=${userId}`, { method: 'DELETE' })
+        .catch(() => { /* suppression côté client maintenue même si l'API échoue */ });
+    }
+    setFavorites((prev) => prev.filter((f) => f.pseudonyme !== name));
   };
+
+  // Le favori Campus La Cité (ancré, toujours en premier)
+  const campusFav = favorites.find((f) => f.isAnchored);
+  // Les autres favoris (non ancrés)
+  const userFavorites = favorites.filter((f) => !f.isAnchored);
 
   const isDriverOrMobile =
     isBelowLg || appState.userConnected?.role === "driver";
@@ -92,32 +109,34 @@ export function FavoritesSection({
                 : "flex-row overflow-x-auto custom-scrollbar pb-6 max-w-4xl"
             }`}
           >
-            {/* Collège La Cité — toujours présent, non supprimable */}
-            <button
-              className="flex-none h-16 flex items-center gap-4 px-6 bg-[#08316e] rounded-full shadow-sm hover:bg-[#06214e] hover:scale-[1.03] transition-all duration-300"
-              onClick={() => handleAutofill(COLLEGE_LACITE_ADDRESS)}
-              title="801, promenade de l'Aviation, Ottawa..."
-            >
-              <FaGraduationCap className="text-3xl text-white" />
-              <span className="text-white text-2xl font-medium whitespace-nowrap">
-                {isFR ? "Collège" : "College"}
-              </span>
-            </button>
+            {/* Campus La Cité — toujours présent, non supprimable (ancré) */}
+            {campusFav && (
+              <button
+                className="flex-none h-16 flex items-center gap-4 px-6 bg-[#08316e] rounded-full shadow-sm hover:bg-[#06214e] hover:scale-[1.03] transition-all duration-300"
+                onClick={() => handleAutofill(campusFav.adresse, campusFav.coordonnees)}
+                title={campusFav.adresse}
+              >
+                {getLieuFavoriIcon(campusFav.iconTag, "text-3xl text-white")}
+                <span className="text-white text-2xl font-medium whitespace-nowrap">
+                  {isFR ? "Collège" : "College"}
+                </span>
+              </button>
+            )}
 
             {/* Favoris utilisateur triés (Domicile > Travail > autres) */}
-            {organizeFavorites(favorites).map((favorite) => (
+            {organizeFavorites(userFavorites).map((favorite) => (
               <button
                 key={favorite.id}
                 className={`flex-none h-16 flex items-center gap-4 px-6 bg-[#08316e] rounded-full shadow-sm hover:bg-[#06214e] hover:scale-[1.03] transition-all duration-300 ${
                   isDriverOrMobile ? "w-full justify-between" : "w-fit"
                 }`}
-                onClick={() => handleAutofill(favorite.value)}
-                title={favorite.value}
+                onClick={() => handleAutofill(favorite.adresse, favorite.coordonnees)}
+                title={favorite.adresse}
               >
                 <div className="flex items-center gap-4">
-                  <FavoriteIcon name={favorite.name} />
+                  {getLieuFavoriIcon(favorite.iconTag, "text-3xl text-white")}
                   <span className="text-white text-2xl font-medium whitespace-nowrap">
-                    {favorite.name}
+                    {favorite.pseudonyme}
                   </span>
                 </div>
 
@@ -126,7 +145,7 @@ export function FavoritesSection({
                   className="text-white text-3xl cursor-pointer hover:text-red-400 p-1"
                   onClick={(e) => {
                     e.stopPropagation();
-                    openDeleteModal(favorite.name);
+                    openDeleteModal(favorite.pseudonyme);
                   }}
                 />
               </button>
@@ -214,15 +233,7 @@ function DeleteModal({
 
 /**
  * Icône correspondant au nom du favori.
- * "Domicile" → maison, "Travail" → mallette, autres → ville générique.
+ * 
  */
-function FavoriteIcon({ name }: { name: string }) {
-  switch (name) {
-    case "Domicile":
-      return <FaHome className="text-4xl text-white" />;
-    case "Travail":
-      return <FaBriefcase className="text-4xl text-white" />;
-    default:
-      return <FaCity className="text-4xl text-white" />;
-  }
-}
+
+

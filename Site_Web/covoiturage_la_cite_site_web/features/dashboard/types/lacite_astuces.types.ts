@@ -11,8 +11,8 @@
  * Chaque astuce est bilingue avec une image illustrative.
  */
 export interface Tip {
-  /** Identifiant unique de l'astuce */
-  id: number;
+  /** Identifiant unique de l'astuce (ex: "TIP-001") */
+  id: string;
   /** Chemin vers l'image dans /public */
   src: string;
   /** Titre affiché en français */

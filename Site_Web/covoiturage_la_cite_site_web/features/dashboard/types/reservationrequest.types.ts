@@ -8,8 +8,8 @@ import { Applicant } from "./applicant.types";
  * TODO: GET /api/driver/{userId}/reservation-requests?status=pending
  */
 export interface ReservationRequest {
-  /** Identifiant unique de la demande */
-  id: number;
+  /** Identifiant unique de la demande (ex: "RSV-2026-00001") */
+  id: string;
   /** Passager demandeur */
   applicant: Applicant;
   /** Ville de départ du trajet concerné */

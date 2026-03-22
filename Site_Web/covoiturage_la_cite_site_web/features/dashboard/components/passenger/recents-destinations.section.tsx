@@ -30,8 +30,8 @@ import { DestinationCard } from "./destination.card";
  */
 
 export function RecentsDestinationsSection() {
-  const appState                  = useAppState();
-  const { destinations, isEmpty } = useRecentDestinations();
+  const appState                             = useAppState();
+  const { destinations, surveyMap, isEmpty } = useRecentDestinations();
 
   return (
     <section className="w-full py-5 flex flex-col items-center border rounded-lg shadow-md mx-5 bg-white">
@@ -55,7 +55,11 @@ export function RecentsDestinationsSection() {
       ) : (
         <div className="w-full h-80 overflow-y-auto flex flex-col gap-4 px-5 py-3">
           {destinations.map((dest) => (
-            <DestinationCard key={dest.id} dest={dest} />
+            <DestinationCard
+              key={dest.id}
+              dest={dest}
+              survey={surveyMap.get(`${dest.departure}|${dest.destination}`)}
+            />
           ))}
         </div>
       )}

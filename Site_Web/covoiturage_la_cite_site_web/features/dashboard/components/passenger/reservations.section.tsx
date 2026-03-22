@@ -1,118 +1,22 @@
 // features/dashboard/components/passenger/reservations.section.tsx
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { FaUserFriends, FaStar, FaArrowRight } from "react-icons/fa";
-import { FaLocationDot } from "react-icons/fa6";
+import { FaLocationDot, FaBan } from "react-icons/fa6";
 import { Language, useAppState } from "@/core/state/app_state";
 import { useReservations } from "../../hooks/useReservations";
 import { formatDate } from "@/core/utils/date.utils";
-import { ReservationStatus, type Reservation, type Passenger } from "../../types";
+import { ReservationStatus, type Reservation } from "../../types";
+import { CancelConfirmToast } from "@/shared/components/CancelConfirmToast";
+import { PassengerAvatars } from "@/shared/components/PassengerAvatars";
+import { getReservationStatusLabel, getReservationStatusClasses } from "@/shared/utils/status.utils";
 
-// ─── Utilitaires statut ──────────────────────────────────────────────────────
-/**
- * Retourne le libellé localisé correspondant au statut d'une réservation.
- *
- * @param status - Le statut de la réservation à traduire.
- * @param lang - La langue dans laquelle retourner le libellé ({@link Language.FR} ou {@link Language.EN}).
- * @returns Le libellé du statut dans la langue spécifiée.
- */
-
-
-function getStatusLabel(status: ReservationStatus, lang: Language): string {
-  const labels: Record<ReservationStatus, Record<Language, string>> = {
-    [ReservationStatus.Confirmed]:  { [Language.FR]: "Confirmée",  [Language.EN]: "Confirmed"   },
-    [ReservationStatus.Pending]:    { [Language.FR]: "En attente", [Language.EN]: "Pending"     },
-    [ReservationStatus.Cancelled]:  { [Language.FR]: "Annulée",    [Language.EN]: "Cancelled"   },
-    [ReservationStatus.Completed]:  { [Language.FR]: "Terminée",   [Language.EN]: "Completed"   },
-    [ReservationStatus.InProgress]: { [Language.FR]: "En cours",   [Language.EN]: "In Progress" },
-  };
-  return labels[status][lang];
-}
-
-/**
- * Retourne les classes CSS Tailwind correspondant au style visuel d'un statut de réservation.
- *
- * @param status - Le statut de la réservation pour lequel obtenir les classes CSS.
- * @returns Une chaîne de classes CSS Tailwind définissant la couleur de fond et la couleur du texte du badge de statut.
- */
-
-function getStatusClasses(status: ReservationStatus): string {
-  const classes: Record<ReservationStatus, string> = {
-    [ReservationStatus.Confirmed]:  "bg-green-400 text-white",
-    [ReservationStatus.Pending]:    "bg-gray-600 text-white",
-    [ReservationStatus.Cancelled]:  "bg-orange-400 text-white",
-    [ReservationStatus.Completed]:  "bg-[#08316e] text-white",
-    [ReservationStatus.InProgress]: "bg-red-400 text-white",
-  };
-  return classes[status];
-}
-
-// ─── Sous-composant : avatars passagers ─────────────────────────────────────
-
-interface PassengerAvatarsProps {
-  passengers: Passenger[];
-  isOpen: boolean;
-  onToggle: () => void;
-  onClose: () => void;
-}
-/**
- * Affiche les avatars des passagers d'une réservation avec une liste déroulante extensible.
- *
- * @param props - Les propriétés du composant.
- * @param props.passengers - La liste des passagers à afficher sous forme d'avatars.
- * @param props.isOpen - Indique si la liste déroulante des passagers supplémentaires est ouverte.
- * @param props.onToggle - Fonction de rappel pour basculer la visibilité de la liste déroulante.
- * @param props.onClose - Fonction de rappel pour fermer la liste déroulante.
- *
- * @remarks
- * - Si un seul passager est présent, son avatar et son nom sont affichés côte à côte avec un lien vers son profil public.
- * - Si deux passagers ou moins sont présents, leurs avatars sont affichés directement.
- * - Si plus de deux passagers sont présents, les deux premiers avatars sont affichés avec un indicateur « +N autres »
- *   cliquable qui ouvre une liste déroulante contenant tous les passagers avec leurs avatars et noms.
- * - La liste déroulante se ferme automatiquement lorsque la souris quitte la zone.
- *
- * @returns Le composant rendu affichant les avatars des passagers.
- */
-
-
-function PassengerAvatars({ passengers, isOpen, onToggle, onClose }: PassengerAvatarsProps) {
-  const { lang } = useAppState();
-
-  return (
-    <div className={`relative flex items-center gap-2 mt-2 ${passengers.length === 1 ? "bg-white px-2 rounded-full" : ""}`}>
-      {passengers.slice(0, 2).map((p) => (
-        <Link key={p.id} href={`/public-profile?accountid=${p.id}`}>
-          <Image src={p.pictureUrl} alt={p.name} className="w-10 h-10 rounded-full" width={40} height={40} />
-        </Link>
-      ))}
-
-      {passengers.length === 1 && (
-        <Link href={`/public-profile?accountid=${passengers[0].id}`} className="text-sm text-gray-700 hover:text-blue-500 hover:underline">
-          {passengers[0].name}
-        </Link>
-      )}
-
-      {passengers.length > 2 && (
-        <span className="text-sm text-gray-700 hover:text-blue-400 hover:underline cursor-pointer" onClick={onToggle}>
-          +{passengers.length - 2} {lang === Language.FR ? "autres" : "more"}
-        </span>
-      )}
-
-      {passengers.length > 2 && isOpen && (
-        <div className="absolute left-0 bottom-10 z-10 flex flex-col rounded-lg bg-white shadow-lg p-2 gap-1" onMouseLeave={onClose}>
-          {passengers.map((p) => (
-            <Link key={p.id} href={`/public-profile?accountid=${p.id}`} className="flex items-center gap-2">
-              <Image src={p.pictureUrl} alt={p.name} className="w-8 h-8 rounded-full" width={32} height={32} />
-              <span className="text-sm text-gray-700 hover:text-blue-500 hover:underline">{p.name}</span>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+// ─── Constante de fallback pour les photos de profil ─────────────────────────
+const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
 
 // ─── Sous-composant : carte réservation ─────────────────────────────────────
 
@@ -121,35 +25,63 @@ interface ReservationCardProps {
   isPassengerListOpen: boolean;
   onTogglePassengerList: () => void;
   onClosePassengerList: () => void;
+  /** Appelé quand le passager confirme l'annulation */
+  onCancelConfirm: (reservationId: string) => void;
+  /** Appelé quand le passager clique sur Démarrer */
+  onStartTrip: (reservationId: string) => void;
+  /** Indique si une action est en cours de traitement */
+  isActionLoading: boolean;
 }
 
 /**
  * Affiche une carte de réservation individuelle contenant les informations du conducteur,
  * les détails de l'itinéraire, les avatars des passagers et le statut de la réservation.
  *
- * @param props - Les propriétés du composant.
- * @param props.reservation - Les données de la réservation incluant le conducteur, l'itinéraire, les passagers et le statut.
- * @param props.isPassengerListOpen - Indique si la liste déroulante des passagers est actuellement ouverte.
- * @param props.onTogglePassengerList - Fonction de rappel pour basculer la visibilité de la liste déroulante des passagers.
- * @param props.onClosePassengerList - Fonction de rappel pour fermer la liste déroulante des passagers.
- *
- * @remarks
- * La carte affiche la photo de profil du conducteur, son nom (sous forme de lien vers son profil public),
- * sa note, le nombre de trajets effectués, les lieux de départ et de destination, les avatars des passagers
- * avec un indicateur de capacité, ainsi que le badge de statut de la réservation.
- * Lorsque le statut de la réservation est {@link ReservationStatus.InProgress}, un lien supplémentaire
- * d'aperçu de carte est affiché pour naviguer vers la vue de carte en direct.
- *
- * @returns Le composant de carte de réservation rendu.
+ * Logique métier des boutons :
+ * - **Démarrer** : visible si `isImminent` — appelle l'API start, redirige vers /trajet-en-cours/[tripId]
+ * - **Voir (carte)** : visible si le statut est InProgress — redirige vers /trajet-en-cours/[tripId]
+ * - **Annuler** : visible si le statut est pending ou confirmed — appelle l'API cancel
  */
-
-
-export function ReservationCard({ reservation, isPassengerListOpen, onTogglePassengerList, onClosePassengerList }: ReservationCardProps) {
+export function ReservationCard({
+  reservation,
+  isPassengerListOpen,
+  onTogglePassengerList,
+  onClosePassengerList,
+  onCancelConfirm,
+  onStartTrip,
+  isActionLoading,
+}: ReservationCardProps) {
   const { lang } = useAppState();
+  const router = useRouter();
+
+  // État du toast de confirmation d'annulation
+  const [showCancelToast, setShowCancelToast] = useState(false);
+
+  // Navigation vers la vue détaillée du trajet avec contexte URL
+  const handleCardClick = () => {
+    const status = reservation.isImminent ? 'imminent' : reservation.status;
+    router.push(`/trajets/${reservation.tripId}?source=reservation&status=${status}`);
+  };
+
+  // Confirmation d'annulation — délègue au hook
+  const handleCancelConfirm = () => {
+    setShowCancelToast(false);
+    onCancelConfirm(reservation.id);
+  };
+
+  // Démarrer le trajet — délègue au hook
+  const handleStart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onStartTrip(reservation.id);
+  };
 
   return (
-    <div className="w-full flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-4 hover:shadow-2xl hover:scale-105 transition-all active:scale-95">
-      <Image src={reservation.driver.pictureUrl} alt={reservation.driver.name} className="w-2/11 h-35 rounded-xl object-cover" width={400} height={400} />
+    <>
+      <div
+        onClick={handleCardClick}
+        className="w-full flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-4 hover:shadow-2xl hover:scale-105 transition-all active:scale-95 cursor-pointer"
+      >
+      <Image src={reservation.driver.pictureUrl || AVATAR_FALLBACK} alt={reservation.driver.name} className="w-2/11 h-35 rounded-xl object-cover" width={400} height={400} onError={(e) => { (e.currentTarget as HTMLImageElement).src = AVATAR_FALLBACK; }} />
 
       <div className="w-px h-30 bg-black shrink-0" />
 
@@ -160,7 +92,7 @@ export function ReservationCard({ reservation, isPassengerListOpen, onTogglePass
 
         <div className="flex items-center text-black text-2xl gap-2">
           {lang === Language.FR ? "Avec :" : "With:"}
-          <Link href={`/public-profile?accountid=${reservation.driver.id}`} className="text-2xl font-semibold text-blue-500 hover:text-blue-700 hover:underline">
+          <Link href={`/public-profile?accountid=${reservation.driver.id}`} className="text-2xl font-semibold text-blue-500 hover:text-blue-700 hover:underline" onClick={(e) => e.stopPropagation()}>
             {reservation.driver.name}
           </Link>
           <p className="text-yellow-400 text-xl flex gap-1 items-center">
@@ -193,20 +125,60 @@ export function ReservationCard({ reservation, isPassengerListOpen, onTogglePass
       <div className="w-px h-30 bg-black shrink-0" />
 
       <div className="flex flex-col justify-center items-center w-2/11 gap-2 shrink-0">
-        <span className={`text-xl px-3 py-1 rounded-full w-full text-center ${getStatusClasses(reservation.status)}`}>
-          &bull; {getStatusLabel(reservation.status, lang)}
+        <span className={`text-xl px-3 py-1 rounded-full w-full text-center ${getReservationStatusClasses(reservation.status)}`}>
+          &bull; {getReservationStatusLabel(reservation.status, lang)}
         </span>
 
+        {/* Bouton Démarrer le trajet — réservation imminente et confirmée */}
+        {reservation.isImminent && reservation.status === ReservationStatus.Confirmed && (
+          <button
+            onClick={handleStart}
+            disabled={isActionLoading}
+            className="flex w-10/12 h-10 justify-center text-xl items-center gap-1.5 px-4 py-1.5 rounded-full font-semibold text-white animate-pulse hover:opacity-90 active:scale-95 transition-all duration-200 shadow-sm disabled:opacity-50"
+            style={{ backgroundColor: '#0aad6a' }}
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-white inline-block" />
+            {lang === Language.FR ? "Démarrer" : "Start"}
+          </button>
+        )}
+
+        {/* Bouton carte — visible quand le trajet est en cours, redirige vers la page trajet-en-cours */}
         {reservation.status === ReservationStatus.InProgress && (
-          <Link href={`/map?reservationId=${reservation.id}`} className="relative flex items-center justify-center rounded-lg hover:scale-105 active:scale-95 transition px-2 py-1">
+          <Link
+            href={`/trajet-en-cours/${reservation.tripId}`}
+            className="relative flex items-center justify-center rounded-lg hover:scale-105 active:scale-95 transition px-2 py-1"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Image src="/assets/reservertion_map_button/reservation-map.png" alt="Map preview" width={80} height={80} className="w-20 h-20 object-cover rounded-lg" />
             <span className="absolute text-white text-xl font-light hover:underline">
               {lang === Language.FR ? "Voir" : "See"}
             </span>
           </Link>
         )}
+
+        {/* Bouton annuler — visible seulement si pending ou confirmed (annulable) */}
+        {(reservation.status === ReservationStatus.Pending ||
+          reservation.status === ReservationStatus.Confirmed) && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowCancelToast(true); }}
+            disabled={isActionLoading}
+            className="flex w-10/12 h-10 justify-center text-xl items-center gap-1.5 px-4 py-1.5 rounded-full font-semibold border-2 border-red-400 text-red-500 bg-red-50 hover:bg-red-500 hover:text-white transition-all duration-200 active:scale-95 shadow-sm disabled:opacity-50"
+          >
+            <FaBan size={18} />
+            {lang === Language.FR ? "Annuler" : "Cancel"}
+          </button>
+        )}
       </div>
     </div>
+
+      {/* Toast de confirmation d'annulation */}
+      <CancelConfirmToast
+        isOpen={showCancelToast}
+        label={lang === Language.FR ? "cette réservation" : "this reservation"}
+        onConfirm={handleCancelConfirm}
+        onCancel={() => setShowCancelToast(false)}
+      />
+    </>
   );
 }
 
@@ -215,20 +187,53 @@ export function ReservationCard({ reservation, isPassengerListOpen, onTogglePass
 /**
  * Section principale affichant la liste des réservations du passager sur le tableau de bord.
  *
- * @remarks
- * Ce composant récupère les réservations via le hook {@link useReservations} et les affiche
- * sous forme de cartes ({@link ReservationCard}) dans un conteneur défilable verticalement.
- * Un message est affiché lorsqu'aucune réservation n'est disponible.
- * Un lien « Voir tous » permet de naviguer vers la page complète des réservations.
- * La section est entièrement localisée en français et en anglais selon la langue de l'application.
- *
- * @returns La section des réservations rendue.
+ * Fonctionnalités :
+ * - Mise à jour automatique en temps réel via SSE (db-watch/reservations)
+ * - Tri par priorité de statut (en cours → confirmé → en attente → annulé → terminé)
+ * - Bouton « Voir tous » redirige vers le planner (ride area) en mode « voir tout »
+ *   avec les filtres passés par URL
+ * - Chaque carte exécute sa logique métier (annuler, démarrer, voir carte)
  */
 // ─── Section principale ──────────────────────────────────────────────────────
 
-export function ReservationsSection() {
-  const { lang }                                                                       = useAppState();
-  const { reservations, isEmpty, openPassengerLists, togglePassengerList, closePassengerList } = useReservations();
+interface ReservationsSectionProps {
+  reservations: Reservation[];
+}
+
+export function ReservationsSection({ reservations: rawReservations }: ReservationsSectionProps) {
+  const { lang, userConnected } = useAppState();
+  const router = useRouter();
+  const passengerId = userConnected?.id ?? null;
+
+  // Hook avec SSE temps réel + actions métier (cancel, start)
+  const {
+    reservations,
+    isEmpty,
+    openPassengerLists,
+    togglePassengerList,
+    closePassengerList,
+    cancelReservation,
+    startReservation,
+    isActionLoading,
+  } = useReservations(rawReservations, passengerId);
+
+  // Annulation d'une réservation via l'API
+  const handleCancelConfirm = async (reservationId: string) => {
+    await cancelReservation(reservationId);
+  };
+
+  // Démarrage d'un trajet : API start → redirection vers trajet-en-cours
+  const handleStartTrip = async (reservationId: string) => {
+    const tripId = await startReservation(reservationId);
+    if (tripId) {
+      router.push(`/trajet-en-cours/${tripId}`);
+    }
+  };
+
+  // Lien « Voir tous » : redirige vers le planner en mode voir tout avec filtres par URL
+  const plannerHref = passengerId
+    ? `/passenger/planifier/${passengerId}?showAll=true&role=passenger`
+    : '/reservations';
 
   return (
     <section className="w-full py-10 mx-auto flex flex-col justify-center items-center rounded-lg shadow-md bg-white text-black">
@@ -236,14 +241,14 @@ export function ReservationsSection() {
         <h2 className="text-3xl font-bold">
           {lang === Language.FR ? "Mes Réservations" : "My Reservations"}
         </h2>
-        <Link href="/reservations" className="text-lg font-medium text-blue-500 hover:underline hover:text-blue-700">
+        <Link href={plannerHref} className="text-lg font-medium text-blue-500 hover:underline hover:text-blue-700">
           {lang === Language.FR ? "Voir tous" : "See all"} {">"}
         </Link>
       </div>
 
       <div className="w-13/15 h-1 bg-[#08316e] rounded-full" />
 
-      <div className="w-full h-150 container justify-center items-center px-10">
+      <div className="w-full h-150 flex flex-col justify-center items-center px-10">
         {isEmpty ? (
           <div className="w-full h-full flex justify-center items-center">
             <p className="text-gray-700 text-2xl text-center">
@@ -259,6 +264,9 @@ export function ReservationsSection() {
                 isPassengerListOpen={openPassengerLists[index]}
                 onTogglePassengerList={() => togglePassengerList(index)}
                 onClosePassengerList={() => closePassengerList(index)}
+                onCancelConfirm={handleCancelConfirm}
+                onStartTrip={handleStartTrip}
+                isActionLoading={isActionLoading}
               />
             ))}
           </div>

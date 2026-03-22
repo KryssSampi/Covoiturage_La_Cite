@@ -13,9 +13,10 @@ import {
   SortKey,
   PassengerSortKey,
   DriverSortKey,
-  PASSENGER_SORT_OPTIONS,
-  DRIVER_SORT_OPTIONS,
+  getPASSENGER_SORT_OPTIONS,
+  getDRIVER_SORT_OPTIONS,
 } from "@/features/search/types/search.feature.types";
+import { Language, useAppState } from '@/core/state/app_state';
 
 interface SortSectionProps {
   role:          SearchRole;
@@ -27,10 +28,13 @@ interface SortSectionProps {
  * SortSection — sélecteur de tri en chips horizontaux.
  */
 export function SortSection({ role, activeSortKey, onSortChange }: SortSectionProps) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
+
   const options =
     role === "passenger"
-      ? PASSENGER_SORT_OPTIONS
-      : DRIVER_SORT_OPTIONS;
+      ? getPASSENGER_SORT_OPTIONS(isFR)
+      : getDRIVER_SORT_OPTIONS(isFR);
 
   return (
     <div style={{
@@ -41,7 +45,7 @@ export function SortSection({ role, activeSortKey, onSortChange }: SortSectionPr
       padding:    "4px 0",
     }}>
       <span style={{ fontSize: 12, fontWeight: 600, color: "#5a6a85", whiteSpace: "nowrap" }}>
-        Trier :
+        {isFR ? 'Trier :' : 'Sort:'}
       </span>
 
       {options.map((opt) => {

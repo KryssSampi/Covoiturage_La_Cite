@@ -20,7 +20,7 @@
  * - Bilingue FR/EN
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 import { useAppState, Language } from "@/core/state/app_state";
@@ -32,6 +32,7 @@ import {
   NAV_ITEMS,
   MENU_ITEMS,
   AVATAR_MENU_ITEMS,
+  EXTRA_PAGE_TITLES,
 } from "../types/header.types";
 
 // ─── Hook utilitaire interne ──────────────────────────────────────────────────
@@ -65,6 +66,8 @@ export interface UseHeaderReturn {
   // ── Rôle & utilisateur ────────────────────────────────────────────────────
   isDriver: boolean;
   avatarUrl: string;
+  /** Nombre de notifications non lues de l'utilisateur courant */
+  notifCount: number;
 
   // ── Navigation ────────────────────────────────────────────────────────────
   /** Liens visibles dans la barre selon la taille d'écran */
@@ -98,6 +101,14 @@ export interface UseHeaderReturn {
 
   // ── Actions ───────────────────────────────────────────────────────────────
   handleLogout: () => void;
+
+  // ── Titre page active ─────────────────────────────────────────────────────
+  /** Titre de la page active si elle n'est pas affichée dans la barre de navigation */
+  activePageTitle: { fr: string; en: string } | null;
+
+  // ── Trajet en cours ───────────────────────────────────────────────────────
+  /** true si l'utilisateur est sur la page « Trajet en cours » */
+  isOngoingTrip: boolean;
 }
 
 // ─── Hook principal ───────────────────────────────────────────────────────────
@@ -112,7 +123,9 @@ export function useHeader(): UseHeaderReturn {
   // ── Dérivés utilisateur ───────────────────────────────────────────────────
   const isFR       = appState.lang === Language.FR;
   const isDriver   = appState.userConnected?.role?.toString() === "driver";
-  const avatarUrl  =  "https://static.vecteezy.com/system/resources/thumbnails/048/216/761/small/modern-male-avatar-with-black-hair-and-hoodie-illustration-free-png.png";
+  // Utilise la photo de profil réelle, avec fallback vers un avatar générique si null/undefined
+  const avatarUrl  = appState.userConnected?.avatarUrl
+    ?? "https://static.vecteezy.com/system/resources/thumbnails/048/216/761/small/modern-male-avatar-with-black-hair-and-hoodie-illustration-free-png.png";
 
   // ── États ─────────────────────────────────────────────────────────────────
   const [isMenuOpen,     setIsMenuOpen]     = useState(false);
@@ -121,6 +134,8 @@ export function useHeader(): UseHeaderReturn {
   const [scrolled,       setScrolled]       = useState(false);
   // Indique si le composant est monté côté client — évite le mismatch SSR/client sur la classe scroll
   const [mounted,        setMounted]        = useState(false);
+  // Nombre de notifications non lues — rechargé à chaque changement d'utilisateur
+  const [notifCount,     setNotifCount]     = useState(0);
 
   // ── Refs click-outside ────────────────────────────────────────────────────
   const menuRef   = useRef<HTMLDivElement>(null);
@@ -142,6 +157,22 @@ export function useHeader(): UseHeaderReturn {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // ── Compteur de notifications non lues ───────────────────────────────────
+  useEffect(() => {
+    const userId = appState.userConnected?.id;
+    if (!userId) {
+      setNotifCount(0);
+      return;
+    }
+    fetch(`/api/notifications?userId=${userId}`)
+      .then((r) => r.json())
+      .then((data: { isRead: boolean }[]) => {
+        const unread = Array.isArray(data) ? data.filter((n) => !n.isRead).length : 0;
+        setNotifCount(unread);
+      })
+      .catch(() => setNotifCount(0));
+  }, [appState.userConnected?.id]);
 
   // ── Fermeture automatique au changement de route ──────────────────────────
   // Utilisation de useEffect pour synchroniser l'état lors du changement de route sans provoquer de rendus en cascade
@@ -178,12 +209,20 @@ export function useHeader(): UseHeaderReturn {
    * Liens dans le burger :
    * - Mobile  → tout MENU_ITEMS (les liens de la barre sont aussi ici)
    * - Desktop → MENU_ITEMS privés des liens déjà visibles dans la barre
+   * Filtrage par rôle : isDriverOnly exclut les non-conducteurs
    */
-  const burgerItems = isMobile
-    ? MENU_ITEMS
-    : MENU_ITEMS.filter(
-        (item) => !NAV_ITEMS.find((n) => n.href === item.href && n.desktopOnly),
-      );
+  const burgerItems = useMemo(() => {
+    const roleFiltered = MENU_ITEMS.filter((item) => {
+      if (item.isDriverOnly && !isDriver) return false;
+      if (item.isPassengerOnly && isDriver) return false;
+      return true;
+    });
+    return isMobile
+      ? roleFiltered
+      : roleFiltered.filter(
+          (item) => !NAV_ITEMS.find((n) => n.href === item.href && n.desktopOnly),
+        );
+  }, [isMobile, isDriver]);
 
   // ── Toggles ───────────────────────────────────────────────────────────────
   const toggleMenu   = useCallback(() => setIsMenuOpen((p) => !p),   []);
@@ -196,11 +235,26 @@ export function useHeader(): UseHeaderReturn {
     appState.logout();
   }, [setActiveLoader, router, appState]);
 
+  // ── Titre de la page active (si absente de la barre de navigation) ────────
+  const activePageTitle = useMemo(() => {
+    // Combiner tous les items connus (nav, burger, avatar, pages extra)
+    const allItems = [...NAV_ITEMS, ...MENU_ITEMS, ...AVATAR_MENU_ITEMS, ...EXTRA_PAGE_TITLES];
+    const active   = allItems.find((item) => isActive(item.href));
+    if (!active) return null;
+    // Si déjà visible dans la barre de nav → rien à afficher
+    if (visibleNavItems.some((v) => v.href === active.href)) return null;
+    return { fr: active.labelFR, en: active.labelEN };
+  }, [isActive, visibleNavItems]);
+
+  // ── Trajet en cours — badge « EN ROUTE » dans le header ─────────────────
+  const isOngoingTrip = pathname.startsWith('/trajet-en-cours');
+
   // ── Retour ────────────────────────────────────────────────────────────────
   return {
     isFR,
     isDriver,
     avatarUrl,
+    notifCount,
     visibleNavItems,
     burgerItems,
     avatarMenuItems: AVATAR_MENU_ITEMS,
@@ -217,5 +271,7 @@ export function useHeader(): UseHeaderReturn {
     isDriverActive,
     setIsDriverActive,
     handleLogout,
+    activePageTitle,
+    isOngoingTrip,
   };
 }

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useAppState } from "@/core/state/app_state";
 import { useParams, useRouter } from "next/navigation";
 import UsersList from "@/features/admin/components/UsersList";
+import AdminTripsPanel from "@/features/admin/components/AdminTripsPanel";
 
 
 export default function AdminDashboardPage() {
@@ -47,12 +48,15 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Section : liste des utilisateurs */}
-      <section>
+      <section className="mb-8">
         <h2 className="text-lg font-semibold text-gray-700 mb-4">
           Utilisateurs inscrits
         </h2>
         <UsersList />
       </section>
+
+      {/* Section : gestion des trajets + simulation d'événements */}
+      <AdminTripsPanel />
 
       {/* Bouton de déconnexion */}
       <div className="mt-8">

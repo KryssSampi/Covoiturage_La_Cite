@@ -4,7 +4,9 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useAppState } from '@/core/state/app_state';
+import { FaUser, FaUserGroup } from 'react-icons/fa6';
 
+// Représentation minimale d'un trajet pour l'affichage public
 interface Trajet {
   id: string;
   depart: string;
@@ -21,44 +23,38 @@ export default function TrajetsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Données mockées (remplacer par fetch('/api/trajets'))
-    setTimeout(() => {
-      setTrajets([
-        {
-          id: '1',
-          depart: 'Paris',
-          arrivee: 'Lyon',
-          date: '2024-02-15 14:00',
-          prix: 25,
-          places: 3,
-          conducteur: 'Marie D.'
-        },
-        {
-          id: '2',
-          depart: 'Marseille',
-          arrivee: 'Nice',
-          date: '2024-02-16 09:30',
-          prix: 15,
-          places: 2,
-          conducteur: 'Pierre L.'
-        },
-        {
-          id: '3',
-          depart: 'Toulouse',
-          arrivee: 'Bordeaux',
-          date: '2024-02-17 16:00',
-          prix: 20,
-          places: 4,
-          conducteur: 'Sophie M.'
-        },
-      ]);
-      setLoading(false);
-    }, 500);
+    // Chargement des trajets disponibles depuis la base JSON
+    fetch('/api/trips?status=published')
+      .then((res) => res.json())
+      .then((data: unknown[]) => {
+        // Conversion du modèle serveur vers l'affichage
+        const mapped: Trajet[] = (data as {
+          id: string;
+          departure: string;
+          destination: string;
+          departureTime: string;
+          pricePerPassenger: number;
+          maxPassengers: number;
+          currentPassengers: number;
+          driverId: string;
+        }[]).map((t) => ({
+          id:         t.id,
+          depart:     t.departure,
+          arrivee:    t.destination,
+          date:       t.departureTime,
+          prix:       t.pricePerPassenger,
+          places:     t.maxPassengers - t.currentPassengers,
+          conducteur: t.driverId, // sera enrichi si nécessaire
+        }));
+        setTrajets(mapped);
+      })
+      .catch(() => setTrajets([]))
+      .finally(() => setLoading(false));
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* En-tête */}
       <header className="bg-white shadow">
         <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold text-blue-600">
@@ -75,7 +71,7 @@ export default function TrajetsPage() {
         </nav>
       </header>
 
-      {/* Main Content */}
+      {/* Contenu principal */}
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Bienvenue {appState.userConnected?.nom}</h1>
         <div className="mb-8">
@@ -87,10 +83,10 @@ export default function TrajetsPage() {
           </p>
         </div>
 
-        {/* Search Bar */}
+        {/* Barre de recherche */}
         <SearchBar />
 
-        {/* Trajets List */}
+        {/* Liste des trajets */}
         {loading ? (
           <div className="text-center py-12">
             <p className="text-gray-500">Chargement des trajets...</p>
@@ -107,7 +103,7 @@ export default function TrajetsPage() {
   );
 }
 
-// Composant Search Bar
+// Composant barre de recherche
 function SearchBar() {
   return (
     <div className="bg-white p-4 rounded-lg shadow mb-6">
@@ -154,11 +150,11 @@ function TrajetCard({ trajet }: { trajet: Trajet }) {
 
       <div className="border-t pt-4 mt-4">
         <div className="flex justify-between items-center mb-4">
-          <div className="text-sm text-gray-600">
-            👤 {trajet.conducteur}
+          <div className="text-sm text-gray-600 flex items-center gap-1">
+            <FaUser size={13} color="#6b7280" /> {trajet.conducteur}
           </div>
-          <div className="text-sm text-gray-600">
-            💺 {trajet.places} places
+          <div className="text-sm text-gray-600 flex items-center gap-1">
+            <FaUserGroup size={13} color="#6b7280" /> {trajet.places} places
           </div>
         </div>
 

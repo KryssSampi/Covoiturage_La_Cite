@@ -23,7 +23,6 @@ import Image from "next/image";
 import { useAppState, Language } from "@/core/state/app_state";
 
 import { UserStatsSummary } from "../../types/review.types";
-import { FIXTURE_USER_STATS } from "@/tests/fixtures/dashboard/stats.fixtures";
 
 // ─── Composant principal ─────────────────────────────────────────────────────
 
@@ -36,7 +35,7 @@ import { FIXTURE_USER_STATS } from "@/tests/fixtures/dashboard/stats.fixtures";
  *   → Fournir depuis le parent (dashboard page) via props pour respecter
  *     le pattern "fetch en haut, affichage en bas".
  */
-export function StatisticSection({ stats = FIXTURE_USER_STATS }: { stats?: UserStatsSummary }) {
+export function StatisticSection({ stats }: { stats: UserStatsSummary }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
   const isPassenger = appState.userConnected?.role?.toString() === "passenger";

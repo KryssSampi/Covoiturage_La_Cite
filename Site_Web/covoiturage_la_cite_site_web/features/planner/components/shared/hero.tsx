@@ -74,7 +74,7 @@ function PlannerSuggestionPortal({
         <button key={i} onMouseDown={() => onSelect(s)}
           className="w-full text-left px-3 py-2 text-xs text-gray-800 hover:bg-blue-50 border-b border-gray-100 last:border-0 block"
         >
-          📍 {s.label}
+          <FaLocationDot size={11} color="#08316e" /> {s.label}
         </button>
       ))}
     </div>,
@@ -114,7 +114,6 @@ export function Hero() {
     setDateValue,
     dateinputRef,
     // Mode planner search
-    enterPlannerMode,
     triggerPlannerSearch,
   } = useHeroSearchBar();
 
@@ -136,10 +135,10 @@ export function Hero() {
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
-  /** Bascule immédiatement en mode planner search (animation) et ouvre la barre de recherche */
+  /** Ouvre RouteMapSearch immédiatement avec un formulaire vide */
   const handleSearchClick = () => {
     setDisponibilitySetterIsActive(false);
-    enterPlannerMode();
+    triggerPlannerSearch(); // formulaire vide, sans date/heure pré-remplie
   };
 
   /** Bascule le panneau d'indisponibilité et ferme la barre de recherche */
@@ -275,7 +274,7 @@ export function Hero() {
 
           {/* ── Bouton Rechercher → déclenche le mode planner search ─── */}
           <button
-            onClick={triggerPlannerSearch}
+            onClick={() => triggerPlannerSearch()}
             className="self-end inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-white hover:bg-gray-100 text-[#08316e] rounded-lg border border-black/20 shadow hover:scale-105 transition-all duration-200"
           >
             <FaMagnifyingGlass />

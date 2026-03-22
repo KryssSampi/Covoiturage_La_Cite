@@ -1,6 +1,16 @@
 import { PublishedTripStatus } from "@/features/dashboard/types";
 import {PublishedTrip} from "@/features/dashboard/types" ; 
 
+// Génère une date/heure dans 15 min — le trajet sera toujours imminent
+function dans15min() {
+  const d = new Date(Date.now() + 15 * 60_000);
+  return {
+    date: d.toISOString().slice(0, 10),
+    time: d.toTimeString().slice(0, 5),
+  };
+}
+const IMMINENT = dans15min();
+
 export const FIXTURE_PUBLISHED_TRIPS: PublishedTrip[] = [
   {
     id: 1,
@@ -111,5 +121,23 @@ export const FIXTURE_PUBLISHED_TRIPS: PublishedTrip[] = [
     // Nepean → Barrhaven (inverse du trajet 5)
     departureCoords:  [-75.7192, 45.3521],
     arrivalCoords:    [-75.7446, 45.2767],
+  },
+  {
+    id: 7,
+    departure: "Campus La Cité",
+    destination: "Place d'Orléans",
+    date: IMMINENT.date,
+    time: IMMINENT.time,
+    maxPassengers: 3,
+    passengers: [
+      { id: 8, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png", name: "Sophie Nguyen", rating: 4.6, tripsCount: 12 },
+    ],
+    price: 12,
+    pendingRequests: 0,
+    status: PublishedTripStatus.Confirmed,
+    duration: 22,
+    departureCoords: [-75.6720, 45.4189],
+    arrivalCoords:   [-75.5159, 45.4556],
+    isImminent: true,
   },
 ];

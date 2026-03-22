@@ -13,7 +13,7 @@
  */
 
 import { useRef, useEffect }                          from "react";
-import { format, startOfWeek, addDays, getDay, isToday } from "date-fns";
+import { format, startOfWeek, addDays, getDay, isToday, isBefore, startOfDay } from "date-fns";
 import {
   DAYS_FR, DAYS_EN, DAY_START_HOUR, PX_PER_MIN,
 }                                                     from "@/features/planner/constants/calendar.constants";
@@ -74,34 +74,43 @@ export function WeekGrid({ isFr, pivot, rides, role, selectedDay, onDayClick }: 
         {weekDays.map((d, i) => {
           const todayCol   = isToday(d);
           const isSelected = d.toDateString() === selectedDay.toDateString();
+          const pastDay    = isBefore(startOfDay(d), startOfDay(new Date())) && !todayCol;
 
-          // Fond du header selon l'état
+          // Fond du header : sélectionné prime sur passé
           const headerBg = (todayCol && isSelected)
-            ? "#08316e"                               // today + selected : plein
+            ? "#08316e"
             : todayCol
-              ? "rgba(8,49,110,0.10)"                 // today seul : teinte
+              ? "rgba(8,49,110,0.10)"
               : isSelected
-                ? "rgba(8,49,110,0.07)"               // selected seul : très pâle
-                : "transparent";
+                ? "rgba(8,49,110,0.07)"
+                : pastDay
+                  ? "#f1f3f5"
+                  : "transparent";
 
           // Bordure basse indicateur
           const headerBorderBottom = isSelected
             ? "2.5px solid #08316e"
             : todayCol
               ? "2px dashed rgba(8,49,110,0.4)"
-              : "1px solid rgba(0,0,0,0.06)";
+              : pastDay
+                ? "1px solid #dde0e6"
+                : "1px solid rgba(0,0,0,0.06)";
 
           // Couleur du nom du jour
           const dayNameColor = (todayCol || isSelected)
             ? "#08316e"
-            : "#6b7280";
+            : pastDay
+              ? "#9ca3af"
+              : "#6b7280";
 
           // Couleur du numéro
           const dayNumColor = (todayCol && isSelected)
             ? "#ffffff"
             : (todayCol || isSelected)
               ? "#08316e"
-              : "#111827";
+              : pastDay
+                ? "#9ca3af"
+                : "#111827";
 
           // Fond du cercle numéro
           const circleBg = (todayCol && isSelected)

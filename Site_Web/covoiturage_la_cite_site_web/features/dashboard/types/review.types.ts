@@ -13,11 +13,13 @@
  */
 export interface Review {
   /** Identifiant unique de l'avis */
-  id: number;
+  id: string;
   /** Prénom + nom de l'évaluateur affiché */
   reviewer: string;
   /** UUID de l'évaluateur — utilisé pour le lien vers son profil public */
-  reviewerid: string;
+  reviewerId: string;
+  /** UUID de l'utilisateur évalué — pour filtrer les avis reçus */
+  revieweeId: string;
   /** Chemin vers la photo de profil de l'évaluateur */
   reviewerpicture: string;
   /** Note sur 5 (supporte les demi-étoiles ex: 3.5) */
@@ -26,6 +28,12 @@ export interface Review {
   date: string;
   /** Commentaire libre laissé par l'évaluateur */
   comment: string;
+  /** Tags descriptifs (ex: ["ponctuel", "sympathique"]) */
+  tags: string[];
+  /** ID du trajet lié (si applicable) */
+  tripId: string | null;
+  /** Date/heure complète ISO de création */
+  createdAt: string;
 }
 
 // ─── Types pour les stats ────────────────────────────────────────────────────

@@ -1,7 +1,4 @@
-export interface Driver {
-  id: number;
-  pictureUrl: string;
-  name: string;
-  rating: number;
-  tripsCount: number;
-}
+import { UserProfile } from './user-profile.types';
+
+// Alias — Driver et Passenger partagent la même structure (UserProfile)
+export type Driver = UserProfile;

@@ -13,7 +13,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { Favorite } from "../types/favorite.types";
+import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
 
 // ─── Types du hook ───────────────────────────────────────────────────────────
 
@@ -22,8 +22,8 @@ interface UseFavoritesReturn {
   favoriteSelectedForDelete: string | null;
   /** true = modal de confirmation suppression ouvert */
   isDeleteModalOpen: boolean;
-  /** Dispatch un événement CustomEvent vers SuperSearchSection pour remplir l'input départ */
-  handleAutofill: (value: string) => void;
+  /** Dispatch un événement CustomEvent vers SuperSearchSection pour remplir l'input arrivée */
+  handleAutofill: (value: string, coordonnees?: { lat: number; lng: number }) => void;
   /** Confirme la suppression du favori sélectionné (appel API à brancher) */
   handleDelete: (favoriteName: string, onDeleted: (name: string) => void) => void;
   /** Ouvre le modal de confirmation et mémorise le favori ciblé */
@@ -31,7 +31,7 @@ interface UseFavoritesReturn {
   /** Ferme le modal sans supprimer */
   closeDeleteModal: () => void;
   /** Réorganise les favoris : Domicile en 1er, Travail en 2ème, puis le reste */
-  organizeFavorites: (favorites: Favorite[]) => Favorite[];
+  organizeFavorites: (favorites: LieuFavoriUnifie[]) => LieuFavoriUnifie[];
 }
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
@@ -51,10 +51,13 @@ export function useFavorites(): UseFavoritesReturn {
 
   /**
    * Dispatch un événement CustomEvent capturé par SuperSearchSection
-   * pour remplir automatiquement le champ de départ avec l'adresse du favori.
+   * pour remplir automatiquement le champ d'arrivée avec l'adresse du favori.
+   * Inclut les coordonnées pour pré-remplir l'arrivée GPS.
    */
-  const handleAutofill = (value: string) => {
-    const event = new CustomEvent("gero-search-section-autofill", { detail: value });
+  const handleAutofill = (value: string, coordonnees?: { lat: number; lng: number }) => {
+    const event = new CustomEvent("gero-search-section-autofill", {
+      detail: { value, coordonnees },
+    });
     window.dispatchEvent(event);
     window.scrollTo({
       top: 0,
@@ -87,13 +90,13 @@ export function useFavorites(): UseFavoritesReturn {
    * Trie les favoris pour toujours afficher Domicile puis Travail en premier.
    * Les autres favoris sont conservés dans leur ordre d'origine.
    */
-  const organizeFavorites = (favorites: Favorite[]): Favorite[] => {
-    const domicile = favorites.find((f) => f.name === "Domicile");
-    const travail = favorites.find((f) => f.name === "Travail");
+  const organizeFavorites = (favorites: LieuFavoriUnifie[]): LieuFavoriUnifie[] => {
+    const domicile = favorites.find((f) => f.iconTag === "domicile");
+    const travail = favorites.find((f) => f.iconTag === "travail");
     const autres = favorites.filter(
-      (f) => f.name !== "Domicile" && f.name !== "Travail"
+      (f) => f.iconTag !== "domicile" && f.iconTag !== "travail"
     );
-    return [domicile, travail, ...autres].filter((fav): fav is Favorite => Boolean(fav));
+    return [domicile, travail, ...autres].filter((fav): fav is LieuFavoriUnifie => Boolean(fav));
   };
 
   return {

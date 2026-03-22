@@ -8,69 +8,12 @@ import { FaPlusCircle, FaUserFriends } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { Language, useAppState } from "@/core/state/app_state";
 import { useRecommendedRides } from "../../hooks/useRecommendedRides";
-import type { Trip, Passenger } from "../../types";
+import type { Trip } from "../../types";
 import { formatDate } from "@/core/utils/date.utils";
+import { PassengerAvatars } from "@/shared/components/PassengerAvatars";
 
-// ─── Sous-composant : avatars des passagers ─────────────────────────────────
-
-/** Props pour le composant d'affichage des avatars passagers */
-interface PassengerAvatarsProps {
-  /** Liste des passagers à afficher */
-  passengers: Passenger[];
-  /** Indique si la liste déroulante des passagers est ouverte */
-  isOpen: boolean;
-  /** Fonction pour basculer l'affichage de la liste déroulante */
-  onToggle: () => void;
-  /** Fonction pour fermer la liste déroulante */
-  onClose: () => void;
-}
-
-/**
- * Affiche les avatars des passagers d'un trajet.
- * - Montre au maximum 2 avatars directement.
- * - Si un seul passager, affiche aussi son nom cliquable.
- * - Si plus de 2 passagers, affiche un lien "+X autres" avec une liste déroulante.
- */
-function PassengerAvatars({ passengers, isOpen, onToggle, onClose }: PassengerAvatarsProps) {
-  const { lang } = useAppState();
-
-  return (
-    <div className="relative flex items-center gap-2 mt-2">
-      {/* Affichage des 2 premiers avatars avec lien vers le profil public */}
-      {passengers.slice(0, 2).map((p) => (
-        <Link key={p.id} href={`/public-profile?accountid=${p.id}`}>
-          <Image src={p.pictureUrl} alt={p.name} className="w-10 h-10 rounded-full" width={40} height={40} />
-        </Link>
-      ))}
-
-      {/* Si un seul passager, afficher son nom à côté de l'avatar */}
-      {passengers.length === 1 && (
-        <Link href={`/public-profile?accountid=${passengers[0].id}`} className="text-sm text-gray-700 hover:text-blue-500 hover:underline">
-          {passengers[0].name}
-        </Link>
-      )}
-
-      {/* Indicateur du nombre de passagers supplémentaires (au-delà de 2) */}
-      {passengers.length > 2 && (
-        <span className="text-sm text-gray-700 hover:text-blue-400 hover:underline cursor-pointer" onClick={onToggle}>
-          +{passengers.length - 2} {lang === Language.FR ? "autres" : "more"}
-        </span>
-      )}
-
-      {/* Liste déroulante affichant tous les passagers au survol */}
-      {passengers.length > 2 && isOpen && (
-        <div className="absolute left-0 bottom-10 z-10 flex flex-col rounded-lg bg-white shadow-lg p-2 gap-1" onMouseLeave={onClose}>
-          {passengers.map((p) => (
-            <Link key={p.id} href={`/public-profile?accountid=${p.id}`} className="flex items-center gap-2">
-              <Image src={p.pictureUrl} alt={p.name} className="w-8 h-8 rounded-full" width={32} height={32} />
-              <span className="text-sm text-gray-700 hover:text-blue-500 hover:underline">{p.name}</span>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
+// ─── Constante de fallback pour les photos de profil ─────────────────────────
+const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
 
 // ─── Sous-composant : carte d'un trajet recommandé ──────────────────────────
 
@@ -108,7 +51,7 @@ function TripCard({ trip, isPassengerListOpen, onTogglePassengerList, onClosePas
   return (
     <div className="w-full flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-4 hover:shadow-2xl hover:scale-105 transition-all active:scale-95">
       {/* Photo de profil du conducteur */}
-      <Image src={trip.driver.pictureUrl} alt={trip.driver.name} className="w-2/11 h-35 rounded-xl object-cover" width={400} height={400} />
+      <Image src={trip.driver.pictureUrl || AVATAR_FALLBACK} alt={trip.driver.name} className="w-2/11 h-35 rounded-xl object-cover" width={400} height={400} onError={(e) => { (e.currentTarget as HTMLImageElement).src = AVATAR_FALLBACK; }} />
 
       {/* Séparateur vertical entre la photo et les détails */}
       <div className="w-px h-30 bg-black shrink-0" />
@@ -170,7 +113,7 @@ function TripCard({ trip, isPassengerListOpen, onTogglePassengerList, onClosePas
       <div className="flex flex-col justify-center w-2/11 items-center shrink-0">
         <button
           className="w-full bg-[#08316e] text-white font-bold py-2 px-4 rounded-full text-xl hover:bg-[#06214a] hover:scale-105 active:scale-95 transition-all"
-          onClick={() => router.push(`/trip-view/${trip.id}`)}
+          onClick={() => router.push(`/trajets/${trip.id}`)}
         >
           <FaPlusCircle className="inline-block mr-2" />
           {lang === Language.FR ? "Réserver" : "Book"}
@@ -204,7 +147,7 @@ export function RecommendedRidesSection() {
         <h2 className="text-3xl font-bold">
           {lang === Language.FR ? "Trajet(s) Recommandé(s)" : "Recommended Rides"}
         </h2>
-        <Link href="/reservations" className="text-lg font-medium text-blue-500 hover:underline hover:text-blue-700">
+        <Link href="/trajets" className="text-lg font-medium text-blue-500 hover:underline hover:text-blue-700">
           {lang === Language.FR ? "Voir tous" : "See all"} {">"}
         </Link>
       </div>
@@ -213,7 +156,7 @@ export function RecommendedRidesSection() {
       <div className="w-13/15 h-1 bg-[#08316e] rounded-full" />
 
       {/* Contenu principal : message vide ou liste de cartes de trajets */}
-      <div className="w-full h-100 container justify-center items-center px-10">
+      <div className="w-full h-100 flex flex-col justify-center items-center px-10">
         {isEmpty ? (
           // Message affiché lorsqu'aucun trajet recommandé n'est disponible
           <div className="w-full h-full flex justify-center items-center">

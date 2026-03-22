@@ -3,16 +3,18 @@
 /**
  * @file page.tsx — app/(protected)/passenger/search/[id]/page.tsx
  *
- * Injecte les fixtures de trajets dans RouteMapSearch.
- * En production, remplacer ALL_SEARCH_TRIPS par un appel API réel.
+ * Charge les trajets publiés depuis la base de données statique (useDb)
+ * et les injecte dans RouteMapSearch via le convertisseur search.converter.
  */
 
-import { useEffect }                              from "react";
+import { useEffect, useMemo, useState }          from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useLoader }                             from "@/core/context/loader.context";
 import { useAppState }                           from "@/core/state/app_state";
+import { useDb }                                 from "@/core/context/db.context";
+import { tripsToTripWithCoords }                 from "@/features/search/converters/search.converter";
 import { RouteMapSearch }                        from "@/features/search/components/shared/RouteMapSearch";
-import ALL_SEARCH_TRIPS                          from "@/tests/fixtures/search/search_trips.fixtures";
+import type { TripWithCoords }                   from "@/features/search/types/search.feature.types";
 
 export default function PassengerSearchPage() {
   const appState            = useAppState();
@@ -21,6 +23,39 @@ export default function PassengerSearchPage() {
   const searchParams        = useSearchParams();
   const { setActiveLoader } = useLoader();
   const user                = appState.userConnected;
+
+  // Récupération des trajets réels depuis la base de données statique
+  const { trips, users } = useDb();
+
+  // Map utilisateurs pour les convertisseurs
+  const usersMap = useMemo(
+    () => new Map(users.map((u) => [u.id, u])),
+    [users]
+  );
+
+  // Conversion des TripModel en TripWithCoords (format RouteMapSearch)
+  const convertedTrips = useMemo(
+    () => tripsToTripWithCoords(trips, usersMap),
+    [trips, usersMap]
+  );
+
+  // Mode survey : si des matching trips pré-calculés sont en sessionStorage,
+  // on les utilise à la place des trips réels (pas de recherche live)
+  const [availableTrips, setAvailableTrips] = useState<TripWithCoords[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("surveyMatchingTrips");
+      if (raw) {
+        const parsed: TripWithCoords[] = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) setAvailableTrips(parsed);
+        sessionStorage.removeItem("surveyMatchingTrips");
+      } else {
+        // Mise à jour si les trips réels ont changé (ex: après création)
+        setAvailableTrips(convertedTrips);
+      }
+    } catch { /* sessionStorage indisponible ou JSON invalide */ }
+  }, [convertedTrips]);
 
   // ── Guard : vérification rôle / identité ─────────────────────────────────
   useEffect(() => {
@@ -52,12 +87,11 @@ export default function PassengerSearchPage() {
       : undefined,
   };
 
-  // TODO : remplacer ALL_SEARCH_TRIPS par un appel API réel
   return (
     <RouteMapSearch
       role="passenger"
       initialValues={initialValues}
-      availableTrips={ALL_SEARCH_TRIPS}
+      availableTrips={availableTrips}
     />
   );
 }

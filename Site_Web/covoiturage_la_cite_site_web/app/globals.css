@@ -58,7 +58,9 @@
   background-size: 200% 100%;
   animation: wavePulse 4s linear infinite;
 }
-  html {
+
+  html  , body{
+
     background-color: white;
   }
 @media (hover: none) {
@@ -311,4 +313,61 @@ body {
   .section-pulse {
     box-shadow: 0 0 0 2px var(--pulse-ring);
   }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Favoris & Statistiques — Animations et utilitaires
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Apparition vers le haut avec fondu */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Montée pour les overlays / panneaux */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Croissance verticale pour les barres de graphique */
+@keyframes barGrow {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+
+/* Pop élastique pour les points du scatter */
+@keyframes scatterPop {
+  0%   { transform: scale(0); opacity: 0; }
+  70%  { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Révélation au défilement — état initial (invisible) */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* Révélation au défilement — état visible (déclenché par IntersectionObserver) */
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scrollbar fine pour les histogrammes horizontaux */
+.hist-scroll::-webkit-scrollbar { height: 4px; }
+.hist-scroll::-webkit-scrollbar-thumb {
+  background: rgba(8, 49, 110, 0.13);
+  border-radius: 2px;
+}
+
+/* Scrollbar fine pour les conteneurs avec zoom */
+.zoom-wrap::-webkit-scrollbar { width: 4px; height: 4px; }
+.zoom-wrap::-webkit-scrollbar-thumb {
+  background: rgba(8, 49, 110, 0.13);
+  border-radius: 2px;
 }

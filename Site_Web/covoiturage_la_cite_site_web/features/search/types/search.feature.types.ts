@@ -3,6 +3,8 @@
  * @description Types/interfaces du feature Search — enrichis avec matching score.
  */
 
+import { Trip } from "@/features/dashboard/types/trip.types";
+
 // ─── RÔLE ─────────────────────────────────────────────────────────────────────
 
 export type SearchRole = "passenger" | "driver";
@@ -77,16 +79,29 @@ export interface SortOption<K extends SortKey = SortKey> {
   label: string;
 }
 
-export const PASSENGER_SORT_OPTIONS: SortOption<PassengerSortKey>[] = [
-  { key: "matching_desc",  label: "Meilleur match"      },
-  { key: "price_asc",      label: "Prix croissant"       },
-  { key: "price_desc",     label: "Prix décroissant"     },
-  { key: "departure_asc",  label: "Départ le plus tôt"   },
-  { key: "seats_desc",     label: "Plus de places"       },
+export const getPASSENGER_SORT_OPTIONS = (isFR: boolean): SortOption<PassengerSortKey>[] => [
+  { key: "matching_desc",  label: isFR ? "Meilleur match"    : "Best match"          },
+  { key: "price_asc",      label: isFR ? "Prix croissant"    : "Price ascending"     },
+  { key: "price_desc",     label: isFR ? "Prix décroissant"  : "Price descending"    },
+  { key: "departure_asc",  label: isFR ? "Départ le plus tôt": "Earliest departure"  },
+  { key: "seats_desc",     label: isFR ? "Plus de places"    : "Most seats"          },
 ];
 
-export const DRIVER_SORT_OPTIONS: SortOption<DriverSortKey>[] = [
-  { key: "default",      label: "Recommandé"        },
-  { key: "distance_asc", label: "Distance minimale"  },
-  { key: "duration_asc", label: "Durée minimale"     },
+export const getDRIVER_SORT_OPTIONS = (isFR: boolean): SortOption<DriverSortKey>[] => [
+  { key: "default",      label: isFR ? "Recommandé"       : "Recommended"       },
+  { key: "distance_asc", label: isFR ? "Distance minimale": "Shortest distance"  },
+  { key: "duration_asc", label: isFR ? "Durée minimale"   : "Shortest duration"  },
 ];
+
+// ─── TRIP AVEC COORDONNÉES ─────────────────────────────────────────────────────
+
+/**
+ * Extension de Trip avec coordonnées géographiques optionnelles.
+ * Version fusionnée (superset) des deux définitions locales présentes
+ * dans useMatchingScore et usePassengerSearch.
+ */
+export type TripWithCoords = Trip & {
+  departureCoords?: [number, number]; // [lng, lat]
+  arrivalCoords?:   [number, number]; // [lng, lat]
+  status?:          string;           // Champ optionnel pour le filtre statuses
+};

@@ -108,6 +108,9 @@ export interface UseSuperSearchReturn {
   isFavMenuOpen: boolean;
   setIsFavMenuOpen: (v: boolean) => void;
 
+  // ── Coordonnées GPS arrivée (ex: passées par le dropdown favoris) ───────
+  setArrivalCoords: (coords: [number, number] | undefined) => void;
+
   // ── Soumission ──────────────────────────────────────────────────────────
   /** Handler de soumission du formulaire : construit SearchParams et appelle onSearch */
   handleSubmit: (e: React.FormEvent) => void;
@@ -170,8 +173,13 @@ export function useSuperSearch(
   // clique sur un favori. Ce hook écoute cet événement et remplit le champ arrivée.
   useEffect(() => {
     const handler = (e: Event) => {
-      const value = (e as CustomEvent<string>).detail;
+      const detail = (e as CustomEvent<{ value: string; coordonnees?: { lat: number; lng: number } }>).detail;
+      if (!detail) return;
+      const { value, coordonnees } = typeof detail === 'string'
+        ? { value: detail, coordonnees: undefined }
+        : detail;
       if (value) setArrivalLocation(value);
+      if (coordonnees) setArrivalCoords([coordonnees.lng, coordonnees.lat]);
     };
     window.addEventListener("gero-search-section-autofill", handler);
     return () => window.removeEventListener("gero-search-section-autofill", handler);
@@ -480,6 +488,8 @@ const handleGetCurrentLocation = useCallback(() => {
     // Menu favoris
     isFavMenuOpen,
     setIsFavMenuOpen,
+    // Coordonnées GPS arrivée
+    setArrivalCoords,
     // Soumission
     handleSubmit,
   };

@@ -10,6 +10,7 @@ import { TODAY, DRIVER_STATUS_COLORS, PASSENGER_STATUS_COLORS } from "@/features
 import { useCalendarWindow }                       from "@/features/planner/hooks/useCalendarWindow";
 import { CalendarNav }                             from "@/features/planner/components/shared/CalendarNav";
 import { CalendarCarousel }                        from "@/features/planner/components/shared/CalendarCarousel";
+import { CalendarToast }                           from "@/features/planner/components/shared/CalendarToast";
 import { usePlannerContext }                       from "@/features/planner/context/PlannerContext";
 
 // ─── COMPOSANT PRINCIPAL ──────────────────────────────────────────────────────
@@ -71,9 +72,9 @@ export default function SuperCalendar() {
 
   return (
     <div style={{
-      background:     "linear-gradient(160deg,#DfDfDf 0%,#efefef 60%,#FFFFFF 100%)",
+      background:     "white",
       position:       "relative",
-      minHeight:      "50vh",
+      minHeight:      "80vh",
       display:        "flex",
       alignItems:     "center",
       justifyContent: "center",
@@ -115,7 +116,7 @@ export default function SuperCalendar() {
               color:      role === Role.DRIVER ? "#4ade80" : "#60a5fa",
               fontWeight: 700, letterSpacing: 0.5,
             }}>
-              {role === Role.DRIVER ? "Conducteur" : "Passager"}
+              {role === Role.DRIVER ? (isFr ? "Conducteur" : "Driver") : (isFr ? "Passager" : "Passenger")}
             </span>
           </div>
 
@@ -221,6 +222,9 @@ export default function SuperCalendar() {
           </div>
         </div>
       </div>
+
+      {/* Toast d'invitation — overlay sur le calendrier, ferme et bascule en vue semaine */}
+      <CalendarToast onOk={() => handleDayClick(currentDay)} />
     </div>
   );
 }

@@ -1,0 +1,110 @@
+[
+  {
+    "id": "BANK-USR-2026-00001",
+    "userId": "USR-2026-00001",
+    "ibanMasque": "***-***-1234",
+    "nomBanque": "Banque TD",
+    "soldeDisponible": 1250.75,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-001",
+        "type": "depot",
+        "montant": 500.00,
+        "description": "Dépôt initial de test",
+        "statut": "complete",
+        "createdAt": "2026-01-15T10:00:00.000Z"
+      },
+      {
+        "id": "BTXN-002",
+        "type": "depot",
+        "montant": 800.00,
+        "description": "Dépôt test #2",
+        "statut": "complete",
+        "createdAt": "2026-02-10T14:30:00.000Z"
+      },
+      {
+        "id": "BTXN-003",
+        "type": "retrait",
+        "montant": 49.25,
+        "description": "Retrait vers Banque TD ***1234",
+        "statut": "complete",
+        "createdAt": "2026-03-01T09:15:00.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-20T14:30:00.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00002",
+    "userId": "USR-2026-00002",
+    "ibanMasque": "***-***-5678",
+    "nomBanque": "Banque RBC",
+    "soldeDisponible": 320.50,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-004",
+        "type": "depot",
+        "montant": 400.00,
+        "description": "Dépôt initial de test",
+        "statut": "complete",
+        "createdAt": "2026-01-20T11:00:00.000Z"
+      },
+      {
+        "id": "BTXN-005",
+        "type": "retrait",
+        "montant": 79.50,
+        "description": "Retrait vers Banque RBC ***5678",
+        "statut": "complete",
+        "createdAt": "2026-02-25T16:00:00.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-20T09:15:00.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00003",
+    "userId": "USR-2026-00003",
+    "ibanMasque": "***-***-9012",
+    "nomBanque": "Desjardins",
+    "soldeDisponible": 875.20,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-006",
+        "type": "depot",
+        "montant": 875.20,
+        "description": "Dépôt initial de test",
+        "statut": "complete",
+        "createdAt": "2026-01-10T08:00:00.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-18T11:20:00.000Z"
+  },
+  {
+    "id": "BANK-APP-LA-CITE",
+    "userId": "ADMIN-SYSTEM",
+    "ibanMasque": "***-***-0000",
+    "nomBanque": "Compte Plateforme Cité-Voiturage",
+    "soldeDisponible": 245.80,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-007",
+        "type": "transit_entrant",
+        "montant": 3.00,
+        "description": "Commission trajet TRJ-2026-00001",
+        "statut": "complete",
+        "createdAt": "2026-03-15T08:45:00.000Z"
+      },
+      {
+        "id": "BTXN-008",
+        "type": "transit_entrant",
+        "montant": 2.25,
+        "description": "Commission trajet TRJ-2026-00002",
+        "statut": "complete",
+        "createdAt": "2026-03-18T17:30:00.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-20T14:30:00.000Z"
+  }
+]

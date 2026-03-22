@@ -7,6 +7,7 @@
  */
 
 import type { RidesEmptyStateProps } from "@/features/planner/types/rides.area.types";
+import { FaCalendarDays } from "react-icons/fa6";
 
 /**
  * Affiche un message contextuel lorsqu'aucun trajet n'est disponible.
@@ -17,8 +18,8 @@ export function RidesEmptyState({ isFr, isFiltered, onReset }: RidesEmptyStatePr
     <div className="flex-1 flex flex-col items-center justify-center gap-4 py-20 select-none">
 
       {/* Icône illustrative */}
-      <span className="text-6xl" role="img" aria-label={isFr ? "calendrier" : "calendar"}>
-        🗓️
+      <span className="flex items-center justify-center">
+        <FaCalendarDays size={52} color="#9ca3af" aria-label={isFr ? "calendrier" : "calendar"} />
       </span>
 
       {/* Message principal */}

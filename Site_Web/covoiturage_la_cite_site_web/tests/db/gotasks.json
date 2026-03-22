@@ -1,0 +1,191 @@
+[
+  {
+    "id": "GT-001",
+    "titlefr": "Compléter votre profil",
+    "titleen": "Complete your profile",
+    "descriptionfr": "Ajoutez une photo de profil, une bio et vos préférences de covoiturage pour aider les autres à mieux vous connaître.",
+    "descriptionen": "Add a profile picture, bio, and carpooling preferences to help others get to know you better.",
+    "category": "mixte",
+    "link": "/profile",
+    "points": 50,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": true },
+      { "userId": "USR-2026-00002", "isDone": true },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-002",
+    "titlefr": "Terminer votre premier trajet",
+    "titleen": "Complete your first ride",
+    "descriptionfr": "Effectuez votre premier trajet en tant que passager ou conducteur pour gagner des points et débloquer de nouvelles fonctionnalités.",
+    "descriptionen": "Complete your first ride as a passenger or driver to earn points and unlock new features.",
+    "category": "mixte",
+    "link": "/trajets",
+    "points": 30,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": true },
+      { "userId": "USR-2026-00002", "isDone": false },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-003",
+    "titlefr": "Effectuer 3 trajets cette semaine",
+    "titleen": "Complete 3 rides this week",
+    "descriptionfr": "Participez à au moins 3 trajets cette semaine pour montrer votre engagement envers le covoiturage et gagner des points supplémentaires.",
+    "descriptionen": "Participate in at least 3 rides this week to show your commitment to carpooling and earn extra points.",
+    "category": "mixte",
+    "link": "/trajets",
+    "points": 20,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": false },
+      { "userId": "USR-2026-00002", "isDone": false },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-004",
+    "titlefr": "Inviter un ami de La Cité à rejoindre",
+    "titleen": "Invite a friend from La Cité to join",
+    "descriptionfr": "Partagez votre lien d'invitation avec un ami de La Cité pour l'encourager à rejoindre la plateforme et gagner des points lorsque votre ami s'inscrit.",
+    "descriptionen": "Share your referral link with a friend from La Cité to encourage them to join the platform and earn points when your friend signs up.",
+    "category": "mixte",
+    "link": "/invite",
+    "points": 10,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": false },
+      { "userId": "USR-2026-00002", "isDone": false },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-005",
+    "titlefr": "Partager votre trajet sur les réseaux sociaux",
+    "titleen": "Share your ride on social media",
+    "descriptionfr": "Partagez votre trajet sur les réseaux sociaux pour encourager vos amis à rejoindre la plateforme et gagner des points supplémentaires.",
+    "descriptionen": "Share your ride on social media to encourage your friends to join the platform and earn extra points.",
+    "category": "mixte",
+    "link": "/share",
+    "points": 5,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": false },
+      { "userId": "USR-2026-00002", "isDone": false },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-006",
+    "titlefr": "Laisser votre premier avis après un trajet",
+    "titleen": "Leave your first review after a ride",
+    "descriptionfr": "Laissez votre premier avis après un trajet pour aider les autres utilisateurs à prendre des décisions éclairées et gagner des points.",
+    "descriptionen": "Leave your first review after a ride to help other users make informed decisions and earn points.",
+    "category": "mixte",
+    "link": "/reviews",
+    "points": 15,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": true },
+      { "userId": "USR-2026-00002", "isDone": false },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-007",
+    "titlefr": "Participer à un événement de covoiturage de La Cité",
+    "titleen": "Attend a La Cité carpooling event",
+    "descriptionfr": "Participez à un événement de covoiturage organisé par La Cité pour rencontrer d'autres utilisateurs et gagner des points.",
+    "descriptionen": "Attend a carpooling event organized by La Cité to meet other users and earn points.",
+    "category": "mixte",
+    "link": "/events",
+    "points": 25,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": false },
+      { "userId": "USR-2026-00002", "isDone": false },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-008",
+    "titlefr": "Atteindre un score de 500 points",
+    "titleen": "Reach a score of 500 points",
+    "descriptionfr": "Atteignez un score de 500 points pour débloquer un badge de covoitureur actif.",
+    "descriptionen": "Reach a score of 500 points to unlock an active carpooler badge.",
+    "category": "mixte",
+    "link": "/goboard",
+    "points": 100,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": true },
+      { "userId": "USR-2026-00002", "isDone": false },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-009",
+    "titlefr": "Atteindre un score de 1000 points",
+    "titleen": "Reach a score of 1000 points",
+    "descriptionfr": "Atteignez un score de 1000 points pour débloquer le badge d'expert du covoiturage.",
+    "descriptionen": "Reach a score of 1000 points to unlock the carpooling expert badge.",
+    "category": "mixte",
+    "link": "/goboard",
+    "points": 200,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": false },
+      { "userId": "USR-2026-00002", "isDone": false },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-010",
+    "titlefr": "Publier votre premier trajet en tant que conducteur",
+    "titleen": "Publish your first trip as a driver",
+    "descriptionfr": "Publiez votre premier trajet pour proposer une place à d'autres étudiants de La Cité et gagner des points conducteur.",
+    "descriptionen": "Publish your first trip to offer a seat to other La Cité students and earn driver points.",
+    "category": "driverOnly",
+    "link": "/driver/create-trip",
+    "points": 40,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": true },
+      { "userId": "USR-2026-00003", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-011",
+    "titlefr": "Ajouter votre véhicule",
+    "titleen": "Add your vehicle",
+    "descriptionfr": "Enregistrez votre véhicule dans votre profil pour pouvoir publier des trajets avec ses détails.",
+    "descriptionen": "Register your vehicle in your profile to publish trips with its details.",
+    "category": "driverOnly",
+    "link": "/profile",
+    "points": 25,
+    "progression": [
+      { "userId": "USR-2026-00001", "isDone": true },
+      { "userId": "USR-2026-00003", "isDone": true }
+    ]
+  },
+  {
+    "id": "GT-012",
+    "titlefr": "Réserver votre premier trajet",
+    "titleen": "Book your first ride",
+    "descriptionfr": "Réservez une place sur un trajet disponible pour découvrir le covoiturage à La Cité.",
+    "descriptionen": "Book a seat on an available trip to discover carpooling at La Cité.",
+    "category": "passengerOnly",
+    "link": "/passenger/search",
+    "points": 35,
+    "progression": [
+      { "userId": "USR-2026-00002", "isDone": false }
+    ]
+  },
+  {
+    "id": "GT-013",
+    "titlefr": "Ajouter un lieu favori",
+    "titleen": "Add a favorite place",
+    "descriptionfr": "Ajoutez un lieu favori (maison, campus, travail) pour accélérer vos recherches de covoiturage.",
+    "descriptionen": "Add a favorite place (home, campus, work) to speed up your carpooling searches.",
+    "category": "passengerOnly",
+    "link": "/favoris",
+    "points": 15,
+    "progression": [
+      { "userId": "USR-2026-00002", "isDone": true }
+    ]
+  }
+]

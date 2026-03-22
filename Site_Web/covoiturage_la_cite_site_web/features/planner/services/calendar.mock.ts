@@ -12,7 +12,7 @@ import { TODAY } from "@/features/planner/constants/calendar.constants";
  * @param role - "driver" ou "passenger"
  * @returns Tableau de trajets simulés
  */
-export function makeMockRides(role: string): (PublishedTrip | Reservation)[] {
+export function makeMockRides(role: string): Ride[] {
   // Crée une Date pour aujourd'hui avec l'heure/minute spécifiées
   const s = (h: number, m: number): Date => {
     const d = new Date(TODAY);
@@ -21,7 +21,7 @@ export function makeMockRides(role: string): (PublishedTrip | Reservation)[] {
   };
 
   // Trajets fictifs du conducteur
-  const driverRides: (PublishedTrip | Reservation)[] = [
+  const driverRides: Ride[] = [
     { id: "r1", date: TODAY,              start: s(7, 23),  end: s(8, 47),  origin: "Campus La Cité", destination: "Orléans",        status: PublishedTripStatus.Confirmed  },
     { id: "r2", date: TODAY,              start: s(12, 0),  end: s(12, 45), origin: "Orléans",        destination: "Campus La Cité", status: PublishedTripStatus.Full       },
     { id: "r3", date: addDays(TODAY, 1),  start: s(7, 30),  end: s(8, 30),  origin: "Barrhaven",      destination: "Campus La Cité", status: PublishedTripStatus.Published  },
@@ -34,7 +34,7 @@ export function makeMockRides(role: string): (PublishedTrip | Reservation)[] {
   ];
 
   // Trajets fictifs du passager
-  const passengerRides: (PublishedTrip | Reservation)[] = [
+  const passengerRides: Ride[] = [
     { id: "r1", date: TODAY,             start: s(7, 23), end: s(8, 47), origin: "Campus La Cité", destination: "Orléans",        status: ReservationStatus.Confirmed },
     { id: "r2", date: addDays(TODAY, 1), start: s(8, 0),  end: s(9, 0),  origin: "Orléans",        destination: "Campus La Cité", status: ReservationStatus.Pending   },
     { id: "r3", date: addDays(TODAY, 3), start: s(17, 0), end: s(18, 0), origin: "Campus La Cité", destination: "Barrhaven",      status: ReservationStatus.Confirmed },
@@ -50,4 +50,4 @@ export function makeMockRides(role: string): (PublishedTrip | Reservation)[] {
  * À remplacer par un appel API réel en production.
  */
 const _user = getUserConnected();
-export const MOCK_RIDES: (PublishedTrip | Reservation)[] = makeMockRides(_user?.role ?? "passenger");
+export const MOCK_RIDES: Ride[] = makeMockRides(_user?.role ?? "passenger");

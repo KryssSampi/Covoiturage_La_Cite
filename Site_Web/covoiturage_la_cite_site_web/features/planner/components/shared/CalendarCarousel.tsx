@@ -68,7 +68,7 @@ export function CalendarCarousel({
         ref={trackRef}
         style={{
           display:    "flex",
-          maxHeight:  "50vh",
+          maxHeight:  "70vh",
           flex:       1,
           transform:  trackTranslate,
           transition: animDir

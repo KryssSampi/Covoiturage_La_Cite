@@ -10,7 +10,7 @@
  *   - Badge de score de matching (coin supérieur droit)
  *   - Gestion des places disponibles (badge vert/rouge)
  *   - Bouton "Complet" désactivé si aucune place disponible
- *   - Callback onReserve ou redirection /trip-view/:id
+ *   - Callback onReserve ou redirection /trajets/:id
  *
  * Layout horizontal :
  *   [Photo conducteur] | [Détails : date · conducteur · trajet · passagers + prix] | [Bouton]
@@ -32,8 +32,9 @@ import {
 
 import { Language, useAppState }                    from "@/core/state/app_state";
 import { formatDate }                               from "@/core/utils/date.utils";
-import type { Trip, Passenger }                     from "@/features/dashboard/types";
+import type { Trip }                                from "@/features/dashboard/types";
 import type { MatchingScore }                       from "@/features/search/types/search.feature.types";
+import { PassengerAvatars }                         from "@/shared/components/PassengerAvatars";
 
 // ─── Utilitaire : couleurs du badge matching ──────────────────────────────────
 
@@ -41,106 +42,16 @@ import type { MatchingScore }                       from "@/features/search/type
  * Retourne les couleurs et le libellé correspondant au score de matching.
  * Seuils : ≥80 Excellent, ≥60 Bon match, ≥40 Passable, <40 Faible
  */
-function matchColor(score: number): {
+function matchColor(score: number, isFR: boolean): {
   bg:    string;
   ring:  string;
   text:  string;
   label: string;
 } {
   if (score >= 80) return { bg: "#e8f5e9", ring: "#2e7d32", text: "#1b5e20", label: "Excellent"  };
-  if (score >= 60) return { bg: "#e3f2fd", ring: "#1565c0", text: "#0d47a1", label: "Bon match"  };
-  if (score >= 40) return { bg: "#fff8e1", ring: "#f57f17", text: "#e65100", label: "Passable"   };
-  return            { bg: "#fce4ec", ring: "#c62828", text: "#b71c1c", label: "Faible"     };
-}
-
-// ─── Sous-composant : avatars des passagers ───────────────────────────────────
-
-interface PassengerAvatarsProps {
-  /** Liste des passagers inscrits sur ce trajet */
-  passengers: Passenger[];
-  /** État d'ouverture de la liste déroulante */
-  isOpen:     boolean;
-  /** Basculer l'ouverture */
-  onToggle:   () => void;
-  /** Fermer la liste */
-  onClose:    () => void;
-}
-
-/**
- * Affiche les avatars des 2 premiers passagers.
- * Si > 2 passagers, un lien "+N autres" ouvre une liste déroulante.
- */
-function PassengerAvatars({
-  passengers,
-  isOpen,
-  onToggle,
-  onClose,
-}: PassengerAvatarsProps) {
-  const { lang } = useAppState();
-
-  return (
-    <div className="relative flex items-center gap-2 mt-2">
-      {/* Avatars des 2 premiers passagers */}
-      {passengers.slice(0, 2).map((p) => (
-        <Link key={p.id} href={`/public-profile?accountid=${p.id}`}>
-          <Image
-            src={p.pictureUrl || "/assets/placeholder/placeholer-profile-picture.png"}
-            alt={p.name}
-            className="w-10 h-10 rounded-full object-cover border-2 border-[#08316e]"
-            width={40}
-            height={40}
-          />
-        </Link>
-      ))}
-
-      {/* Si un seul passager, afficher son nom */}
-      {passengers.length === 1 && (
-        <Link
-          href={`/public-profile?accountid=${passengers[0].id}`}
-          className="text-sm text-gray-700 hover:text-blue-500 hover:underline"
-        >
-          {passengers[0].name}
-        </Link>
-      )}
-
-      {/* Indicateur "+N autres" pour plus de 2 passagers */}
-      {passengers.length > 2 && (
-        <span
-          className="text-sm text-gray-700 hover:text-blue-400 hover:underline cursor-pointer"
-          onClick={onToggle}
-        >
-          +{passengers.length - 2} {lang === Language.FR ? "autres" : "more"}
-        </span>
-      )}
-
-      {/* Liste déroulante — tous les passagers */}
-      {passengers.length > 2 && isOpen && (
-        <div
-          className="absolute left-0 bottom-10 z-10 flex flex-col rounded-lg bg-white shadow-lg p-2 gap-1"
-          onMouseLeave={onClose}
-        >
-          {passengers.map((p) => (
-            <Link
-              key={p.id}
-              href={`/public-profile?accountid=${p.id}`}
-              className="flex items-center gap-2"
-            >
-              <Image
-                src={p.pictureUrl || "/assets/placeholder/placeholer-profile-picture.png"}
-                alt={p.name}
-                className="w-8 h-8 rounded-full object-cover"
-                width={32}
-                height={32}
-              />
-              <span className="text-sm text-gray-700 hover:text-blue-500 hover:underline">
-                {p.name}
-              </span>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  if (score >= 60) return { bg: "#e3f2fd", ring: "#1565c0", text: "#0d47a1", label: isFR ? "Bon match" : "Good match"  };
+  if (score >= 40) return { bg: "#fff8e1", ring: "#f57f17", text: "#e65100", label: isFR ? "Passable" : "Fair"   };
+  return            { bg: "#fce4ec", ring: "#c62828", text: "#b71c1c", label: isFR ? "Faible" : "Weak"     };
 }
 
 // ─── Composant principal ──────────────────────────────────────────────────────
@@ -154,7 +65,7 @@ export interface RecommendedTripCardProps {
   isSelected?: boolean;
   /** Callback déclenché au clic sur la carte — affiche la polyline sur la carte */
   onSelect?:   (trip: Trip) => void;
-  /** Callback de réservation — si absent, redirige vers /trip-view/:id */
+  /** Callback de réservation — si absent, redirige vers /trajets/:id */
   onReserve?:  (tripId: number) => void;
 }
 
@@ -189,7 +100,7 @@ export function RecommendedTripCard({
   const isFull    = seatsLeft <= 0;
 
   // Couleurs du badge matching
-  const mc = score ? matchColor(score.total) : null;
+  const mc = score ? matchColor(score.total, lang === Language.FR) : null;
 
   /** Navigation vers la page de détails ou callback externe */
   function handleReserve(e: React.MouseEvent) {
@@ -198,7 +109,7 @@ export function RecommendedTripCard({
     if (onReserve) {
       onReserve(trip.id);
     } else {
-      router.push(`/trip-view/${trip.id}`);
+      router.push(`/trajets/${trip.id}`);
     }
   }
 
@@ -249,6 +160,7 @@ export function RecommendedTripCard({
           className="w-24 h-32 rounded-xl object-cover"
           width={200}
           height={280}
+          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/assets/placeholder/placeholer-profile-picture.png"; }}
         />
       </div>
 
@@ -305,6 +217,7 @@ export function RecommendedTripCard({
             isOpen={isPassengerListOpen}
             onToggle={() => setIsPassengerListOpen((v) => !v)}
             onClose={() => setIsPassengerListOpen(false)}
+            withBorder
           />
 
           {/* Compteur places + prix */}

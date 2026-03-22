@@ -1,0 +1,75 @@
+[
+  {
+    "id": "FAV-LOC-00001",
+    "userId": "USR-2026-00001",
+    "pseudonyme": "Campus La Cité",
+    "adresse": "801, promenade de l'Aviation K1K 4R3, Ontario, Ottawa, Canada",
+    "coordonnees": { "lat": 45.4215, "lng": -75.6830 },
+    "iconTag": "campus",
+    "isAnchored": true,
+    "hasOffScreenButton": true
+  },
+  {
+    "id": "FAV-LOC-00002",
+    "userId": "USR-2026-00001",
+    "pseudonyme": "Domicile",
+    "adresse": "250 rue de la paix, Gatineau, Quebec, Canada",
+    "coordonnees": { "lat": 45.4380, "lng": -75.7200 },
+    "iconTag": "domicile",
+    "hasOffScreenButton": true
+  },
+  {
+    "id": "FAV-LOC-00003",
+    "userId": "USR-2026-00001",
+    "pseudonyme": "Place d'Orléans",
+    "adresse": "110 Place d'Orléans Dr, Orléans, Ontario, Canada",
+    "coordonnees": { "lat": 45.4782, "lng": -75.5167 },
+    "iconTag": "ville"
+  },
+  {
+    "id": "FAV-LOC-00004",
+    "userId": "USR-2026-00002",
+    "pseudonyme": "Campus La Cité",
+    "adresse": "801, promenade de l'Aviation K1K 4R3, Ontario, Ottawa, Canada",
+    "coordonnees": { "lat": 45.4215, "lng": -75.6830 },
+    "iconTag": "campus",
+    "isAnchored": true,
+    "hasOffScreenButton": true
+  },
+  {
+    "id": "FAV-LOC-00005",
+    "userId": "USR-2026-00002",
+    "pseudonyme": "Domicile",
+    "adresse": "88 avenue Hurdman, Ottawa, Ontario, Canada",
+    "coordonnees": { "lat": 45.4102, "lng": -75.6720 },
+    "iconTag": "domicile",
+    "hasOffScreenButton": true
+  },
+  {
+    "id": "FAV-LOC-00006",
+    "userId": "USR-2026-00002",
+    "pseudonyme": "Westboro Village",
+    "adresse": "Westboro, Ottawa, Ontario, Canada",
+    "coordonnees": { "lat": 45.3913, "lng": -75.7490 },
+    "iconTag": "ville"
+  },
+  {
+    "id": "FAV-LOC-00007",
+    "userId": "USR-2026-00003",
+    "pseudonyme": "Campus La Cité",
+    "adresse": "801, promenade de l'Aviation K1K 4R3, Ontario, Ottawa, Canada",
+    "coordonnees": { "lat": 45.4215, "lng": -75.6830 },
+    "iconTag": "campus",
+    "isAnchored": true,
+    "hasOffScreenButton": true
+  },
+  {
+    "id": "FAV-LOC-00008",
+    "userId": "USR-2026-00003",
+    "pseudonyme": "Domicile",
+    "adresse": "150 rue Montfort, Ottawa, Ontario, Canada",
+    "coordonnees": { "lat": 45.4350, "lng": -75.6510 },
+    "iconTag": "domicile",
+    "hasOffScreenButton": true
+  }
+]

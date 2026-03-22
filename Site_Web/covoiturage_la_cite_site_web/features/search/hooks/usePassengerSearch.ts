@@ -23,6 +23,7 @@ import {
   PassengerSortKey,
   DEFAULT_SEARCH_FILTERS,
   MatchingScore,
+  TripWithCoords,
 } from "@/features/search/types/search.feature.types";
 
 // ─── Fonctions géographiques ──────────────────────────────────────────────────
@@ -66,11 +67,7 @@ function horaireScore(tripTime: string, desiredHour?: number): number {
 
 // ─── Extension du type Trip avec coordonnées (présentes dans les fixtures) ────
 
-type TripWithCoords = Trip & {
-  departureCoords?: [number, number]; // [lng, lat]
-  arrivalCoords?:   [number, number]; // [lng, lat]
-  status?:          string;           // Champ optionnel pour le filtre statuses
-};
+// TripWithCoords est exporté depuis search.feature.types (type fusionné)
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 

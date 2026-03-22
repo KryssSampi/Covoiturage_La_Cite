@@ -26,7 +26,9 @@ import { useAppState, Language } from "@/core/state/app_state";
 import { formatDate } from "@/core/utils/date.utils";
 
 import { Review } from "../../types/review.types";
-import { FIXTURE_REVIEWS } from "@/tests/fixtures/dashboard/reviews.fixtures";
+
+/** Avatar par défaut si la photo de l'évaluateur est introuvable */
+const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
 
 // ─── Composant principal ─────────────────────────────────────────────────────
 
@@ -37,7 +39,7 @@ import { FIXTURE_REVIEWS } from "@/tests/fixtures/dashboard/reviews.fixtures";
  *   Par défaut : données de test (FIXTURE_REVIEWS).
  *   TODO: Brancher sur GET /api/users/{userId}/reviews?limit=5&sort=date_desc
  */
-export function ReviewsSection({ reviews = FIXTURE_REVIEWS }: { reviews?: Review[] }) {
+export function ReviewsSection({ reviews }: { reviews: Review[] }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
@@ -56,7 +58,7 @@ export function ReviewsSection({ reviews = FIXTURE_REVIEWS }: { reviews?: Review
 
         {reviews.length === 0 ? (
           /* ─── État vide ──────────────────────────────────────────────── */
-          <div className="w-11/12 mx-auto flex justify-center max-h-50 overflow-y-auto">
+          <div className="w-11/12 mx-auto flex flex-col justify-center items-center max-h-50 overflow-y-auto">
             <p className="text-gray-700 text-4xl m-10">
               {isFR ? "Aucun avis pour le moment." : "No reviews yet."}
             </p>
@@ -71,18 +73,19 @@ export function ReviewsSection({ reviews = FIXTURE_REVIEWS }: { reviews?: Review
               >
                 {/* Partie gauche : photo + infos évaluateur + commentaire */}
                 <div className="flex items-center mb-2">
-                  <Link href={`/public-profile/${review.reviewerid}`} className="flex items-center">
+                  <Link href={`/public-profile/${review.reviewerId}`} className="flex items-center">
                     <Image
-                      src={review.reviewerpicture}
+                      src={review.reviewerpicture || AVATAR_FALLBACK}
                       alt={`${review.reviewer} profile picture`}
                       width={600}
                       height={600}
-                      className="w-20 h-20 rounded-full mr-4"
+                      className="w-20 h-20 rounded-full mr-4 object-cover"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).src = AVATAR_FALLBACK; }}
                     />
                   </Link>
                   <div className="flex flex-col items-start mb-2">
                     <div className="flex items-center mb-2">
-                      <Link href={`/public-profile/${review.reviewerid}`}>
+                      <Link href={`/public-profile/${review.reviewerId}`}>
                         <h3 className="text-lg text-[#08316e] font-semibold hover:underline">
                           {review.reviewer}
                         </h3>

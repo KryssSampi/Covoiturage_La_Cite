@@ -21,17 +21,21 @@
  */
 
 import dynamic              from "next/dynamic";
+import { useRouter }        from "next/navigation";
 import { useState, useRef, useLayoutEffect } from "react";
 import { createPortal }     from "react-dom";
-import { FaLocationDot, FaMagnifyingGlass, FaArrowRight, FaChevronDown, FaChevronUp, FaRotateLeft, FaClock } from "react-icons/fa6";
+import { FaLocationDot, FaMagnifyingGlass, FaArrowRight, FaChevronDown, FaChevronUp, FaRotateLeft, FaClock, FaTriangleExclamation } from "react-icons/fa6";
 import { FaSlidersH } from "react-icons/fa";  
-import { SearchRole, SortKey, PassengerSortKey, DriverSortKey, SearchFilters, DEFAULT_SEARCH_FILTERS, PASSENGER_SORT_OPTIONS, DRIVER_SORT_OPTIONS, MapCircuit } from "@/features/search/types/search.feature.types";
+import { SearchRole, SortKey, PassengerSortKey, DriverSortKey, SearchFilters, DEFAULT_SEARCH_FILTERS, getPASSENGER_SORT_OPTIONS, getDRIVER_SORT_OPTIONS, MapCircuit } from "@/features/search/types/search.feature.types";
 import { useRouteMap, RouteMapInitialValues, LocationSuggestion } from "@/features/search/hooks/useRouteMap";
 import { useDriverSearch }    from "@/features/search/hooks/useDriverSearch";
 import { usePassengerSearch } from "@/features/search/hooks/usePassengerSearch";
 import { ActiveFiltersBar }   from "./ActiveFiltersBar";
 import { ListingZone }        from "./ListingZone";
 import { Trip }               from "@/features/dashboard/types/trip.types";
+import { useAppState }        from "@/core/state/app_state";
+import { Language }            from "@/core/state/app_state";
+import type { PendingDateTime } from "@/features/planner/context/SearchBarContext";
 
 // URL de base OSRM — partagée avec useRouteMap
 const OSRM_BASE = "https://router.project-osrm.org/route/v1/driving";
@@ -48,6 +52,12 @@ export interface RouteMapSearchProps {
   onReserveTrip?:    (tripId: number) => void;
   /** Masque le hero + la barre de recherche (mode compact du planner) */
   hideSearchBar?:   boolean;
+  /**
+   * Variable de transition conducteur : date/heure choisie via TimeCell.
+   * Sauvegardée en sessionStorage lors du choix de circuit pour pré-remplir
+   * le formulaire de création de trajet.
+   */
+  pendingDateTime?: PendingDateTime | null;
 }
 
 // ─── Suggestion Dropdown ──────────────────────────────────────────────────────
@@ -98,7 +108,9 @@ function SuggestionDropdown({
             borderBottom: i < suggestions.length - 1 ? "1px solid #f0f4fb" : "none",
           }}
         >
-          <span style={{ marginRight: 8 }}>📍</span>
+          <span style={{ marginRight: 8, display: 'inline-flex', alignItems: 'center' }}>
+            <FaLocationDot size={12} color="#08316e" />
+          </span>
           {s.label}
         </button>
       ))}
@@ -116,7 +128,13 @@ export function RouteMapSearch({
   onPublishCircuit,
   onReserveTrip,
   hideSearchBar   = false,
+  pendingDateTime = null,
 }: RouteMapSearchProps) {
+
+  // ── Navigation + état utilisateur (pour la route vers create-trip) ────────
+  const router   = useRouter();
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
 
   // ── Route Map (inputs + OSRM single route pour passager) ─────────────────
   const routeMap = useRouteMap(initialValues);
@@ -159,7 +177,34 @@ export function RouteMapSearch({
   // ── Active circuit ─────────────────────────────────────────────────────────
   const [activeCircuitIdx, setActiveCircuitIdx] = useState(0);
   const sortedCircuits = driverSearch.filteredAndSortedCircuits(sortKey as DriverSortKey, filters);
-
+  // ── Handler : le conducteur choisit un circuit → naviguer vers create-trip ──
+  /**
+   * Construit l'URL de création de trajet avec les coordonnées du circuit sélectionné.
+   * Format : /driver/create-trip/[userId]?lieu_de_depart=lng,lat&lieu_darrivee=lng,lat
+   */
+  function handleChooseCircuit(circuit: MapCircuit) {
+    const userId   = appState.userConnected?.id ?? 'me';
+    // Sauvegarder le circuit complet en sessionStorage pour la polyline dans CreateTripForm
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('selectedCircuit', JSON.stringify(circuit));
+      // Si une date/heure de départ a été sélectionnée via TimeCell (variable de transition),
+      // on la sauvegarde également pour pré-remplir le formulaire de création
+      if (pendingDateTime) {
+        sessionStorage.setItem('pendingTripDateTime', JSON.stringify(pendingDateTime));
+      } else {
+        sessionStorage.removeItem('pendingTripDateTime');
+      }
+    }
+    // Construire l'URL avec les noms de lieux + la date/heure si disponibles
+    let url = `/driver/create-trip/${userId}` +
+      `?lieu_de_depart=${encodeURIComponent(circuit.departureLabel)}` +
+      `&lieu_darrivee=${encodeURIComponent(circuit.arrivalLabel)}`;
+    if (pendingDateTime) {
+      url += `&departure_date=${encodeURIComponent(pendingDateTime.date)}`;
+      url += `&departure_time=${encodeURIComponent(pendingDateTime.time)}`;
+    }
+    router.push(url);
+  }
   // ── Trajet passager sélectionné (clic sur une carte) ──────────────────────
   const [selectedTripId,    setSelectedTripId]    = useState<number | null>(null);
   const [selectedTripRoute, setSelectedTripRoute] = useState<[number, number][]>([]);
@@ -201,8 +246,8 @@ export function RouteMapSearch({
       );
       setSelectedTripRoute(latLngs);
     } catch {
-      // En cas d'erreur, on affiche quand même les marqueurs (pas de polyline)
-      setSelectedTripRoute([]);
+      // Fallback : utiliser la polyline de la fixture si fournie, sinon route vide
+      setSelectedTripRoute(trip.latLngs ?? []);
     }
   }
 
@@ -228,7 +273,7 @@ export function RouteMapSearch({
   const isLoading = role === "driver" ? driverSearch.isLoading : routeMap.isLoading;
   const error     = role === "driver" ? driverSearch.error     : routeMap.error;
 
-  const sortOptions = role === "passenger" ? PASSENGER_SORT_OPTIONS : DRIVER_SORT_OPTIONS;
+  const sortOptions = role === "passenger" ? getPASSENGER_SORT_OPTIONS(isFR) : getDRIVER_SORT_OPTIONS(isFR);
 
   // ── Circuits pour la carte ─────────────────────────────────────────────────
   const mapCircuits = role === "driver" ? sortedCircuits : [];
@@ -281,12 +326,12 @@ export function RouteMapSearch({
 
         <div style={{ position: "relative", width: "100%" }}>
           <h1 style={{ margin: "0 0 6px", fontSize: 28, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>
-            <span style={{ color: "#7eb8ff" }}>Recherche</span> de Trajet
+            {isFR ? <><span style={{ color: "#7eb8ff" }}>Recherche</span> de Trajet</> : <><span style={{ color: "#7eb8ff" }}>Trip</span> Search</>}
           </h1>
           <p style={{ margin: "0 0 20px", fontSize: 14, color: "#a8c8f0", fontWeight: 500 }}>
             {role === "driver"
-              ? "Trouve les meilleurs circuits de covoiturage à proposer"
-              : "Trouve un trajet qui correspond à ton chemin"}
+              ? (isFR ? "Trouve les meilleurs circuits de covoiturage à proposer" : "Find the best carpool circuits to offer")
+              : (isFR ? "Trouve un trajet qui correspond à ton chemin" : "Find a trip that matches your route")}
           </p>
 
           {/* Barre de recherche */}
@@ -309,7 +354,7 @@ export function RouteMapSearch({
                   ref={departureRef}
                   value={departureValue}
                   onChange={(e) => onDepartureChange(e.target.value)}
-                  placeholder="Départ…"
+                  placeholder={isFR ? "Départ…" : "Departure…"}
                   style={{
                     flex: 1, border: "none", outline: "none",
                     fontSize: 14, color: "#1a2a45", fontWeight: 600,
@@ -349,15 +394,31 @@ export function RouteMapSearch({
               <SuggestionDropdown anchorRef={arrContainerRef} suggestions={arrivalSuggestions} onSelect={onArrivalSelect} />
             </div>
 
-            {/* Sélection des heures — masqué pour le conducteur (sa recherche de circuits n'utilise pas les heures) */}
+            {/* Sélection de la date et des heures — masqué pour le conducteur (sa recherche de circuits n'utilise pas la date/heure) */}
             {role !== "driver" && (
               <>
+                {/* Date de départ */}
+                <div style={{ position: "relative", minWidth: 155 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", borderRadius: 10, padding: "8px 12px" }}>
+                    <FaClock size={13} color="#08316e" />
+                    <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: "#5a6a85" }}>{isFR ? 'Date de départ' : 'Departure date'}</span>
+                      <input
+                        type="date"
+                        value={routeMap.departureDate}
+                        onChange={(e) => routeMap.setDepartureDate(e.target.value)}
+                        style={{ border: "none", outline: "none", fontSize: 13, color: "#1a2a45", fontWeight: 600, background: "transparent" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Heure de départ */}
                 <div style={{ position: "relative", minWidth: 130 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", borderRadius: 10, padding: "8px 12px" }}>
                     <FaClock size={13} color="#08316e" />
                     <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: "#5a6a85" }}>Départ</span>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: "#5a6a85" }}>{isFR ? 'Départ' : 'Departure'}</span>
                       <input
                         type="time"
                         value={routeMap.departureTime}
@@ -373,7 +434,7 @@ export function RouteMapSearch({
                   <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", borderRadius: 10, padding: "8px 12px" }}>
                     <FaClock size={13} color="#e04a2f" />
                     <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                      <span style={{ fontSize: 10, fontWeight: 600, color: "#5a6a85" }}>Arrivée</span>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: "#5a6a85" }}>{isFR ? 'Arrivée' : 'Arrival'}</span>
                       <input
                         type="time"
                         value={routeMap.arrivalTime}
@@ -403,13 +464,14 @@ export function RouteMapSearch({
               }}
             >
               <FaMagnifyingGlass size={14} />
-              {isLoading ? "Recherche…" : "Rechercher"}
+              {isLoading ? (isFR ? "Recherche…" : "Searching…") : (isFR ? "Rechercher" : "Search")}
             </button>
           </div>
 
           {error && (
-            <div style={{ marginTop: 10, padding: "8px 14px", background: "rgba(224,74,47,0.15)", borderRadius: 8, fontSize: 12, color: "#ffb3a3" }}>
-              ⚠️ {error}
+              <div style={{ marginTop: 10, padding: "8px 14px", background: "rgba(224,74,47,0.15)", borderRadius: 8, fontSize: 12, color: "#ffb3a3", display: "flex", alignItems: "center", gap: 6 }}>
+                <FaTriangleExclamation size={13} color="#ff9980" />
+                {error}
             </div>
           )}
         </div>
@@ -418,7 +480,7 @@ export function RouteMapSearch({
       {/* ── Corps principal ────────────────────────────────────────────────────── */}
       <div style={{ width: "100%", padding: "16px 24px 40px" }}>
 
-        {/* Layout 2 colonnes (filtres | carte) */}
+        {/* Layout 3 colonnes (filtres | carte | tri) */}
         <div style={{ display: "flex", gap: 16, marginBottom: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
 
           {/* Colonne gauche : Filtres + Tri */}
@@ -440,7 +502,7 @@ export function RouteMapSearch({
               >
                 <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, fontWeight: 700, color: "#08316e" }}>
                   <FaSlidersH size={14} />
-                  Filtres
+                  {isFR ? 'Filtres' : 'Filters'}
                   {/* compteur filtres actifs */}
                   {Object.keys(filters).filter((k) => {
                     const key = k as keyof SearchFilters;
@@ -467,23 +529,23 @@ export function RouteMapSearch({
                 <div style={{ padding: "0 16px 16px", display: "flex", flexDirection: "column", gap: 14 }}>
                   {role === "passenger" && (
                     <>
-                      <FilterInput label="Nom du conducteur" value={filters.driverName ?? ""}
+                      <FilterInput label={isFR ? "Nom du conducteur" : "Driver name"} value={filters.driverName ?? ""}
                         onChange={(v) => updateFilter("driverName", v || undefined)} />
-                      <FilterRange label="Rayon départ" value={filters.departureRadiusMeters} min={100} max={10000} step={100} unit="m"
+                      <FilterRange label={isFR ? "Rayon départ" : "Departure radius"} value={filters.departureRadiusMeters} min={100} max={10000} step={100} unit="m"
                         onChange={(v) => updateFilter("departureRadiusMeters", v)} />
-                      <FilterRange label="Rayon arrivée" value={filters.arrivalRadiusMeters} min={100} max={10000} step={100} unit="m"
+                      <FilterRange label={isFR ? "Rayon arrivée" : "Arrival radius"} value={filters.arrivalRadiusMeters} min={100} max={10000} step={100} unit="m"
                         onChange={(v) => updateFilter("arrivalRadiusMeters", v)} />
-                      <FilterNumber label="Prix max. ($/pers.)" value={filters.maxPrice} min={1} max={200} placeholder="Pas de limite"
+                      <FilterNumber label={isFR ? "Prix max. ($/pers.)" : "Max price ($/pers.)"} value={filters.maxPrice} min={1} max={200} placeholder={isFR ? "Pas de limite" : "No limit"}
                         onChange={(v) => updateFilter("maxPrice", v)} />
-                      <FilterNumber label="Places min. dispo." value={filters.minSeatsAvailable} min={1} max={8} placeholder="1"
+                      <FilterNumber label={isFR ? "Places min. dispo." : "Min seats avail."} value={filters.minSeatsAvailable} min={1} max={8} placeholder="1"
                         onChange={(v) => updateFilter("minSeatsAvailable", v)} />
                     </>
                   )}
                   {role === "driver" && (
                     <>
-                      <FilterRange label="Durée max" value={filters.maxDurationMinutes ?? 120} min={10} max={300} step={10} unit="min"
+                      <FilterRange label={isFR ? "Durée max" : "Max duration"} value={filters.maxDurationMinutes ?? 120} min={10} max={300} step={10} unit="min"
                         onChange={(v) => updateFilter("maxDurationMinutes", v)} />
-                      <FilterRange label="Distance max" value={(filters.maxDistanceKm ?? 100) * 1000} min={5000} max={300000} step={5000} unit="km"
+                      <FilterRange label={isFR ? "Distance max" : "Max distance"} value={(filters.maxDistanceKm ?? 100) * 1000} min={5000} max={300000} step={5000} unit="km"
                         display={(v) => (v / 1000).toFixed(0)} onChange={(v) => updateFilter("maxDistanceKm", v / 1000)} />
                     </>
                   )}
@@ -492,7 +554,7 @@ export function RouteMapSearch({
                     background: "transparent", border: "1.5px solid #d0d8e8", borderRadius: 8,
                     padding: "7px 0", fontSize: 12, color: "#5a6a85", cursor: "pointer", fontWeight: 600,
                   }}>
-                    <FaRotateLeft size={10} /> Réinitialiser
+                    <FaRotateLeft size={10} /> {isFR ? 'Réinitialiser' : 'Reset'}
                   </button>
                 </div>
               </div>
@@ -504,18 +566,18 @@ export function RouteMapSearch({
             {/* Compteur résultats */}
             {role === "passenger" && (
               <div style={{ fontSize: 12, color: "#5a6a85", textAlign: "center", padding: "4px 0" }}>
-                {filteredTrips.length} trajet{filteredTrips.length !== 1 ? "s" : ""} sur {totalCount}
+                {filteredTrips.length} {isFR ? `trajet${filteredTrips.length !== 1 ? "s" : ""} sur` : `trip${filteredTrips.length !== 1 ? "s" : ""} of`} {totalCount}
               </div>
             )}
             {role === "driver" && sortedCircuits.length > 0 && (
               <div style={{ fontSize: 12, color: "#5a6a85", textAlign: "center", padding: "4px 0" }}>
-                {sortedCircuits.length} circuit{sortedCircuits.length !== 1 ? "s" : ""} trouvé{sortedCircuits.length !== 1 ? "s" : ""}
+                {sortedCircuits.length} circuit{sortedCircuits.length !== 1 ? "s" : ""} {isFR ? `trouvé${sortedCircuits.length !== 1 ? "s" : ""}` : 'found'}
               </div>
             )}
           </div>
 
           {/* Colonne droite : Carte */}
-          <div style={{ flex: 1, minWidth: 280 }}>
+          <div style={{ flex: 1, minWidth: 280 , maxHeight: "60vh", position: "relative"}}>
             <div style={{ borderRadius: 16, overflow: "hidden", border: "1.5px solid #d0d8e8", boxShadow: "0 2px 12px rgba(8,49,110,0.1)" }}>
               {/* A/B = coords de la recherche (stables, ne bougent pas). Trip = coords du trajet cliqué (vert/rouge) */}
               <MapView
@@ -533,14 +595,40 @@ export function RouteMapSearch({
                 showRadiusCircles={role === "passenger"}
                 departureRadiusMeters={filters.departureRadiusMeters}
                 arrivalRadiusMeters={filters.arrivalRadiusMeters}
-                height="480px"
+                height="60vh"
               />
             </div>
+
+            {/* Overlay de chargement — blur la carte pendant que les résultats sont en cours */}
+            {isLoading && (
+              <div style={{
+                position: "absolute", inset: 0, zIndex: 20,
+                borderRadius: 16,
+                background: "rgba(245,248,255,0.6)",
+                backdropFilter: "blur(6px)",
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center", gap: 12,
+              }}>
+                <div style={{
+                  width: 38, height: 38, borderRadius: "50%",
+                  border: "3.5px solid rgba(8,49,110,0.12)",
+                  borderTop: "3.5px solid #08316e",
+                  animation: "ms-search-spin .8s linear infinite",
+                }} />
+                <span style={{
+                  fontSize: 13, fontWeight: 700, color: "#08316e",
+                  fontFamily: "'Syne', sans-serif",
+                }}>
+                  {role === "driver" ? (isFR ? "Recherche de circuits…" : "Searching circuits…") : (isFR ? "Recherche de trajets…" : "Searching trips…")}
+                </span>
+                <style>{`@keyframes ms-search-spin { to { transform: rotate(360deg) } }`}</style>
+              </div>
+            )}
           </div>
 
               {/* Tri */}
             <div style={{ background: "#fff", border: "1.5px solid #d0d8e8", borderRadius: 14, padding: "12px 16px", boxShadow: "0 1px 6px rgba(8,49,110,0.06)" , minWidth: 260, marginTop: 16}}>
-              <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 700, color: "#5a6a85" }}>Trier par :</p>
+              <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 700, color: "#5a6a85" }}>{isFR ? 'Trier par :' : 'Sort by:'}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {sortOptions.map((opt) => {
                   const isActive = opt.key === sortKey;
@@ -563,12 +651,12 @@ export function RouteMapSearch({
         </div>
 
         {/* ── Listing ─────────────────────────────────────────────────────────── */}
-        <div style={{ background: "#fff", borderRadius: 16, border: "1.5px solid #d0d8e8", padding: "20px 16px", boxShadow: "0 1px 6px rgba(8,49,110,0.06)", maxHeight: "25vh", display: "flex", flexDirection: "column"   }}>
+        <div style={{ background: "#fff", borderRadius: 16, border: "1.5px solid #d0d8e8", padding: "20px 16px", boxShadow: "0 1px 6px rgba(8,49,110,0.06)", maxHeight: "40vh", display: "flex", flexDirection: "column"   }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#08316e" }}>
               {role === "passenger"
-                ? `${filteredTrips.length} trajet${filteredTrips.length !== 1 ? "s" : ""} disponible${filteredTrips.length !== 1 ? "s" : ""}`
-                : `${sortedCircuits.length} circuit${sortedCircuits.length !== 1 ? "s" : ""} trouvé${sortedCircuits.length !== 1 ? "s" : ""}`}
+                ? (isFR ? `${filteredTrips.length} trajet${filteredTrips.length !== 1 ? "s" : ""} disponible${filteredTrips.length !== 1 ? "s" : ""}` : `${filteredTrips.length} available trip${filteredTrips.length !== 1 ? "s" : ""}`)
+                : (isFR ? `${sortedCircuits.length} circuit${sortedCircuits.length !== 1 ? "s" : ""} trouvé${sortedCircuits.length !== 1 ? "s" : ""}` : `${sortedCircuits.length} circuit${sortedCircuits.length !== 1 ? "s" : ""} found`)}
             </h2>
           </div>
           {/* Zone de défilement de la liste de résultats */}
@@ -584,7 +672,12 @@ export function RouteMapSearch({
               onSelectTrip={handleSelectTrip}
               onSelectCircuit={setActiveCircuitIdx}
               onPublishCircuit={onPublishCircuit}
+              onChooseCircuit={handleChooseCircuit}
               onReserveTrip={onReserveTrip}
+              departureLabel={routeMap.departureValue}
+              arrivalLabel={routeMap.arrivalValue}
+              departureCoords={routeMap.departureCoords}
+              arrivalCoords={routeMap.arrivalCoords}
             />
           </div>
         </div>
@@ -596,10 +689,12 @@ export function RouteMapSearch({
 // ─── Sous-composants filtres inline ──────────────────────────────────────────
 
 function FilterInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const { lang } = useAppState();
+  const isFR = lang === Language.FR;
   return (
     <div>
       <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#1a2a45", marginBottom: 5 }}>{label}</label>
-      <input type="text" value={value} placeholder="Rechercher…" onChange={(e) => onChange(e.target.value)}
+      <input type="text" value={value} placeholder={isFR ? "Rechercher…" : "Search…"} onChange={(e) => onChange(e.target.value)}
         style={{ width: "100%", border: "1.5px solid #d0d8e8", borderRadius: 8, padding: "6px 10px", fontSize: 13, color: "#1a2a45", outline: "none", boxSizing: "border-box" }} />
     </div>
   );

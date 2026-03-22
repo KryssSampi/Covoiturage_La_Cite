@@ -1,53 +1,47 @@
 /**
  * @file useGoBoard.ts
  * @description Hook gérant l'état d'affichage des descriptions dans le GoBoard.
- * Extrait de goboard.section.tsx pour séparer logique et présentation.
  *
  * Responsabilités :
- * - Initialiser le tableau de visibilité des descriptions (une entrée par tâche)
- * - Fournir un toggle individuel par index de tâche
+ * - Maintenir un Map<string, boolean> de visibilité des descriptions
+ * - Fournir un toggle individuel par ID de tâche
  *
- * @param taskCount Nombre de tâches à gérer (longueur de la liste GoTask)
+ * @param taskIds Liste des IDs de tâches à gérer
  * @returns {UseGoBoardReturn} État et handler à brancher sur GoBoard
  */
 
-import { useState } from "react";
-import { TaskDescriptionVisibility } from "../types/goboard.types";
+import { useState, useCallback, useEffect } from "react";
 
 // ─── Types du hook ───────────────────────────────────────────────────────────
 
 interface UseGoBoardReturn {
-  /**
-   * Tableau indexé sur GoTask.id - 1.
-   * descriptionVisibles[i].isDescriptionVisible === true → description dépliée.
-   */
-  descriptionVisibles: TaskDescriptionVisibility[];
-  /**
-   * Bascule la visibilité de la description d'une tâche.
-   * @param index Index dans le tableau (GoTask.id - 1)
-   */
-  toggleDescription: (index: number) => void;
+  /** Map indexée sur GoTask.id → true si description dépliée */
+  descriptionVisibles: Record<string, boolean>;
+  /** Bascule la visibilité de la description d'une tâche */
+  toggleDescription: (taskId: string) => void;
 }
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
 
-export function useGoBoard(taskCount: number): UseGoBoardReturn {
-  // Initialise toutes les descriptions comme fermées au montage
-  const [descriptionVisibles, setDescriptionVisibles] = useState<TaskDescriptionVisibility[]>(
-    Array.from({ length: taskCount }, () => ({ isDescriptionVisible: false }))
-  );
+export function useGoBoard(taskIds: string[]): UseGoBoardReturn {
+  // Initialise toutes les descriptions comme fermées
+  const [descriptionVisibles, setDescriptionVisibles] = useState<Record<string, boolean>>({});
 
-  /**
-   * Bascule la description de la tâche à l'index donné.
-   * Utilise un spread pour garantir l'immutabilité et déclencher le re-render.
-   */
-  const toggleDescription = (index: number) => {
-    setDescriptionVisibles((prev) => {
-      const next = [...prev];
-      next[index] = { isDescriptionVisible: !next[index].isDescriptionVisible };
-      return next;
-    });
-  };
+  // Réinitialise quand la liste de tâches change
+  useEffect(() => {
+    const init: Record<string, boolean> = {};
+    for (const id of taskIds) {
+      init[id] = false;
+    }
+    setDescriptionVisibles(init);
+  }, [taskIds.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const toggleDescription = useCallback((taskId: string) => {
+    setDescriptionVisibles((prev) => ({
+      ...prev,
+      [taskId]: !prev[taskId],
+    }));
+  }, []);
 
   return { descriptionVisibles, toggleDescription };
 }

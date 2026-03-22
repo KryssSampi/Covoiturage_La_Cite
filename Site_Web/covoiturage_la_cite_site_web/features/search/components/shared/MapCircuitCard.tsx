@@ -13,6 +13,7 @@
 
 import { FaArrowRight, FaCar } from "react-icons/fa6";
 import { MapCircuit } from "@/features/search/types/search.feature.types";
+import { Language, useAppState } from "@/core/state/app_state";
 
 function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -50,8 +51,8 @@ function latToTile(lat: number, zoom: number): number {
 }
 
 // Badge couleur selon rang
-function rankStyle(idx: number): { bg: string; color: string; label: string } {
-  if (idx === 0) return { bg: "#08316e", color: "#fff",      label: "Principal" };
+function rankStyle(idx: number, isFR: boolean): { bg: string; color: string; label: string } {
+  if (idx === 0) return { bg: "#08316e", color: "#fff",      label: isFR ? "Principal" : "Main" };
   if (idx === 1) return { bg: "#1565c0", color: "#fff",      label: `Alt. ${idx}` };
   if (idx === 2) return { bg: "#1976d2", color: "#fff",      label: `Alt. ${idx}` };
   return           { bg: "#e8eef8",    color: "#08316e",    label: `Alt. ${idx}` };
@@ -62,10 +63,14 @@ interface MapCircuitCardProps {
   isActive:   boolean;
   onSelect:   (index: number) => void;
   onPublish?: (circuit: MapCircuit) => void;
+  /** Déclenché quand le conducteur choisit ce circuit pour créer un trajet */
+  onChoose?:  (circuit: MapCircuit) => void;
 }
 
-export function MapCircuitCard({ circuit, isActive, onSelect, onPublish }: MapCircuitCardProps) {
-  const rank = rankStyle(circuit.routeIndex);
+export function MapCircuitCard({ circuit, isActive, onSelect, onPublish, onChoose }: MapCircuitCardProps) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
+  const rank = rankStyle(circuit.routeIndex, isFR);
 
   return (
     <div
@@ -161,7 +166,7 @@ export function MapCircuitCard({ circuit, isActive, onSelect, onPublish }: MapCi
                 {" "}{formatDurationUnit(circuit.duration)}
               </span>
             </span>
-            <span style={{ fontSize: 10, color: "#90a4c0", fontWeight: 500 }}>Durée</span>
+            <span style={{ fontSize: 10, color: "#90a4c0", fontWeight: 500 }}>{isFR ? 'Durée' : 'Duration'}</span>
           </div>
           <div style={{ width: 1, height: 28, background: "#e0e8f4" }} />
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
@@ -188,7 +193,26 @@ export function MapCircuitCard({ circuit, isActive, onSelect, onPublish }: MapCi
             }}
           >
             <FaCar size={11} />
-            + Publier ce circuit
+            {isFR ? '+ Publier ce circuit' : '+ Publish this circuit'}
+          </button>
+        )}
+
+        {/* Bouton choisir ce circuit — ouvre la page de création de trajet avec les coords pré-remplies */}
+        {onChoose && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onChoose(circuit); }}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              background: "#16a34a",
+              color: "#fff",
+              border: "none", borderRadius: 8,
+              padding: "7px 12px",
+              fontSize: 12, fontWeight: 700,
+              cursor: "pointer", transition: "all 0.18s",
+              marginTop: 4,
+            }}
+          >
+            {isFR ? 'Choisir ce circuit' : 'Choose this circuit'}
           </button>
         )}
       </div>

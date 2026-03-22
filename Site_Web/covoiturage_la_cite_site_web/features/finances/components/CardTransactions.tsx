@@ -1,0 +1,87 @@
+"use client";
+
+/**
+ * CardTransactions — liste les transactions récentes (revenus, transit, pénalités, retraits).
+ */
+
+import React from "react";
+import {
+  FaCircleCheck, FaArrowsRotate, FaCircleXmark,
+  FaMoneyBillTransfer, FaArrowRight,
+} from "react-icons/fa6";
+import Card from "./ui/Card";
+import CardHeader from "./ui/CardHeader";
+import TrendMsg from "./ui/TrendMsg";
+import type { Transaction } from "../types/finances.types";
+
+// ─── Config visuelle par type de transaction ─────────────────────────────────────
+const TX_CONFIG: Record<Transaction["type"], { bg: string; icon: React.ReactNode; amtColor: string; badgeBg: string; badgeColor: string; badgeLabel: string }> = {
+  revenu:   { bg: "rgba(10,173,106,0.1)",  icon: <FaCircleCheck size={14} className="text-[#0aad6a]" />,           amtColor: "#0aad6a", badgeBg: "rgba(10,173,106,0.1)",  badgeColor: "#0aad6a", badgeLabel: "Confirmé" },
+  transit:  { bg: "rgba(0,152,200,0.1)",   icon: <FaArrowsRotate size={14} className="text-[#0098c8]" />,          amtColor: "#0098c8", badgeBg: "rgba(0,152,200,0.1)",   badgeColor: "#0098c8", badgeLabel: "Transit" },
+  penalite: { bg: "rgba(224,48,80,0.09)",  icon: <FaCircleXmark size={14} className="text-[#e03050]" />,            amtColor: "#e03050", badgeBg: "rgba(224,48,80,0.09)",  badgeColor: "#e03050", badgeLabel: "Pénalité" },
+  retrait:  { bg: "rgba(8,49,110,0.07)",   icon: <FaMoneyBillTransfer size={14} className="text-[#08316e]" />,      amtColor: "#08316e", badgeBg: "rgba(8,49,110,0.07)",   badgeColor: "#08316e", badgeLabel: "Retrait" },
+};
+
+// Métadonnées descriptives par identifiant de transaction
+const TX_META: Record<string, string> = {
+  t1: "Ottawa → Campus · 13 mars 08h15 · 1 passager",
+  t2: "Gatineau → Campus · En cours",
+  t3: "Campus → Vanier · 12 mars · 2 passagers",
+  t4: "Ottawa → Campus · 10 mars",
+  t5: "Orléans → Campus · 10 mars · 1 passager",
+};
+
+// ─── Composant ──────────────────────────────────────────────────────────────
+
+function CardTransactions({ transactions }: { transactions: Transaction[] }) {
+  return (
+    <Card delay={250} className="md:col-span-2">
+      <CardHeader
+        dotColor="#0aad6a"
+        title="Transactions Récentes"
+        right={
+          <span className="text-[#08316e] text-[11px] cursor-pointer font-semibold flex items-center gap-1">
+            Voir tout <FaArrowRight size={9} />
+          </span>
+        }
+      />
+      <div className="px-5 pb-3">
+        {transactions.map((tx, i) => {
+          const cfg = TX_CONFIG[tx.type];
+          return (
+            <div
+              key={tx.id}
+              className="flex items-center gap-3 py-3"
+              style={{ borderBottom: i < transactions.length - 1 ? "1px solid rgba(8,49,110,0.05)" : "none" }}
+            >
+              <div className="w-9 h-9 rounded-[9px] flex items-center justify-center shrink-0" style={{ background: cfg.bg }}>
+                {cfg.icon}
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-xs">{tx.description}</div>
+                <div className="text-[10px] text-[#7a90b8] mt-0.5">{TX_META[tx.id] || ""}</div>
+              </div>
+              <div className="text-right">
+                <div className="font-[Syne] font-extrabold text-sm" style={{ color: cfg.amtColor }}>
+                  {tx.montant > 0 ? "+" : ""}{tx.montant.toFixed(2)} $
+                </div>
+                <span
+                  className="text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] mt-0.5 inline-block"
+                  style={{ background: cfg.badgeBg, color: cfg.badgeColor }}
+                >
+                  {cfg.badgeLabel}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <TrendMsg variant="up" icon={<FaCircleCheck className="text-[#0aad6a]" />}>
+        <strong>5 transactions ce mois, dont 4 revenus positifs.</strong>{" "}
+        Votre trajet du 12 mars (2 passagers, 34 $) est votre meilleure transaction de la période.
+      </TrendMsg>
+    </Card>
+  );
+}
+
+export default CardTransactions;
