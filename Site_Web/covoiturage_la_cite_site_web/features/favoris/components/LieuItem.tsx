@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Carte d'un lieu favori avec icône par tag, adresse, compteur
- * de trajets et bouton de suppression.
+ * Carte d'un lieu favori avec icône par tag, adresse
+ * et bouton de suppression (masqué pour les lieux ancrés).
  */
 
 import React from "react";
@@ -58,19 +58,16 @@ const LieuItem: React.FC<LieuItemProps> = ({ lieu, onDelete, delay = 0 }) => {
         </div>
       </div>
 
-      {/* Nombre de trajets */}
-      <span className="text-[9px] font-bold px-2 py-0.5 rounded-[5px] bg-[rgba(8,49,110,0.13)] text-[#08316e] tracking-wide shrink-0">
-        {lieu.nbTrajets} trajets
-      </span>
-
-      {/* Bouton de suppression */}
-      <button
-        onClick={() => onDelete?.(lieu.id)}
-        className="flex items-center justify-center w-[26px] h-[26px] rounded-md bg-transparent border-none cursor-pointer text-[#7a90b8] hover:text-[#e03050] transition-colors duration-200"
-        aria-label={`Supprimer ${lieu.label}`}
-      >
-        <FaXmark size={12} />
-      </button>
+      {/* Bouton de suppression — masqué pour les lieux ancrés */}
+      {onDelete && (
+        <button
+          onClick={() => onDelete(lieu.id)}
+          className="flex items-center justify-center w-[26px] h-[26px] rounded-md bg-transparent border-none cursor-pointer text-[#7a90b8] hover:text-[#e03050] transition-colors duration-200"
+          aria-label={`Supprimer ${lieu.label}`}
+        >
+          <FaXmark size={12} />
+        </button>
+      )}
     </div>
   );
 };

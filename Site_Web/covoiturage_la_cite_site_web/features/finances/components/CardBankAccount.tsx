@@ -5,11 +5,11 @@
  * le compte bancaire simulé d'un utilisateur.
  *
  * ⚠️  USAGE TEST UNIQUEMENT — À retirer avant la mise en production.
- * Affiche le solde, le montant en transit, les dernières transactions
- * et permet de simuler un dépôt ou de déclencher un retrait.
+ * Composant purement présentatif : aucun appel API.
+ * Les données et actions sont injectées par la page parente.
  */
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState } from "react";
 import { FaLandmark, FaArrowDown, FaArrowUp, FaRotate, FaTriangleExclamation } from "react-icons/fa6";
 import Card from "./ui/Card";
 import CardHeader from "./ui/CardHeader";
@@ -18,10 +18,18 @@ import type { BankAccountModel, BankAccountTransaction } from "@/core/models/Ban
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface CardBankAccountProps {
-  /** Identifiant de l'utilisateur dont on affiche le compte */
-  userId: string;
+  /** Données du compte bancaire — null si introuvable */
+  account?: BankAccountModel | null;
   /** Si vrai, affiche le bouton de retrait conducteur vers ce compte */
   isDriver?: boolean;
+  /** Indique si les données sont en cours de chargement */
+  isLoading?: boolean;
+  /** Callback pour simuler un dépôt — injecté par la page parente */
+  onDeposit?: (montant: number, description: string) => Promise<{ ok: boolean; msg: string }>;
+  /** Callback pour déclencher un retrait — injecté par la page parente */
+  onWithdraw?: () => Promise<{ ok: boolean; msg: string }>;
+  /** Callback pour rafraîchir les données du compte */
+  onRefresh?: () => void;
 }
 
 // ─── Couleur par type de transaction ─────────────────────────────────────────
@@ -42,31 +50,21 @@ function txnSign(type: BankAccountTransaction["type"]): "+" | "−" {
 
 // ─── Composant ───────────────────────────────────────────────────────────────
 
-export default function CardBankAccount({ userId, isDriver = false }: CardBankAccountProps) {
-  const [account, setAccount]       = useState<BankAccountModel | null>(null);
-  const [loading, setLoading]       = useState(true);
+export default function CardBankAccount({
+  account = null,
+  isDriver = false,
+  isLoading = false,
+  onDeposit,
+  onWithdraw,
+  onRefresh,
+}: CardBankAccountProps) {
   const [depositAmount, setDeposit] = useState("100");
   const [feedback, setFeedback]     = useState<{ msg: string; ok: boolean } | null>(null);
   const [busy, setBusy]             = useState(false);
 
-  // ── Chargement du compte ──────────────────────────────────────────────────
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/payment/bank-account?userId=${encodeURIComponent(userId)}`);
-      if (res.ok) {
-        const data = await res.json() as BankAccountModel;
-        setAccount(data);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
-
-  useEffect(() => { void load(); }, [load]);
-
   // ── Simuler un dépôt de test ─────────────────────────────────────────────
   async function handleDeposit() {
+    if (!onDeposit) return;
     setBusy(true);
     setFeedback(null);
     try {
@@ -75,14 +73,8 @@ export default function CardBankAccount({ userId, isDriver = false }: CardBankAc
         setFeedback({ msg: "Montant invalide", ok: false });
         return;
       }
-      const res = await fetch("/api/payment/deposit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, montant, description: "Dépôt de test" }),
-      });
-      const data = await res.json() as { message?: string; error?: string };
-      setFeedback({ msg: data.message ?? data.error ?? "Erreur", ok: res.ok });
-      if (res.ok) await load();
+      const result = await onDeposit(montant, "Dépôt de test");
+      setFeedback(result);
     } finally {
       setBusy(false);
     }
@@ -90,27 +82,19 @@ export default function CardBankAccount({ userId, isDriver = false }: CardBankAc
 
   // ── Retrait conducteur → compte bancaire ─────────────────────────────────
   async function handleWithdraw() {
+    if (!onWithdraw) return;
     setBusy(true);
     setFeedback(null);
     try {
-      const res = await fetch("/api/payment/withdraw", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ driverId: userId }),
-      });
-      const data = await res.json() as { message?: string; error?: string; montantRetire?: number };
-      setFeedback({
-        msg: res.ok ? `${data.message ?? "Retrait effectué"} (${(data.montantRetire ?? 0).toFixed(2)} $)` : (data.error ?? "Erreur"),
-        ok: res.ok,
-      });
-      if (res.ok) await load();
+      const result = await onWithdraw();
+      setFeedback(result);
     } finally {
       setBusy(false);
     }
   }
 
   // ── Rendu chargement ─────────────────────────────────────────────────────
-  if (loading) {
+  if (isLoading) {
     return (
       <Card delay={400} className="md:col-span-3">
         <CardHeader dotColor="#c8960a" title="Compte Bancaire Simulé (TEST)" />
@@ -212,7 +196,7 @@ export default function CardBankAccount({ userId, isDriver = false }: CardBankAc
 
           {/* Rafraîchir */}
           <button
-            onClick={() => void load()}
+            onClick={() => onRefresh?.()}
             disabled={busy}
             className="flex items-center gap-2 px-4 py-2 bg-white text-[#08316e] border-[1.5px] border-[#08316e] rounded-[9px] font-bold text-[13px] cursor-pointer font-['DM_Sans'] disabled:opacity-50"
           >

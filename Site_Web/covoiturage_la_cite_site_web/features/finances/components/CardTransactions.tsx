@@ -1,44 +1,56 @@
 "use client";
 
 /**
- * CardTransactions — liste les transactions récentes (revenus, transit, pénalités, retraits).
+ * CardTransactions — historique des transactions (revenus, transit, pénalités, retraits, économies…).
+ * Composant de présentation pure : toutes les données et tendances viennent des props.
  */
 
 import React from "react";
 import {
   FaCircleCheck, FaArrowsRotate, FaCircleXmark,
-  FaMoneyBillTransfer, FaArrowRight,
+  FaMoneyBillTransfer, FaArrowRight, FaPiggyBank,
+  FaCreditCard, FaRotateLeft, FaHourglass,
 } from "react-icons/fa6";
 import Card from "./ui/Card";
 import CardHeader from "./ui/CardHeader";
 import TrendMsg from "./ui/TrendMsg";
-import type { Transaction } from "../types/finances.types";
+import type { Transaction, TrendMessage } from "../types/finances.types";
+
+// ─── Props ──────────────────────────────────────────────────────────────────
+
+export interface CardTransactionsProps {
+  transactions: Transaction[];
+  tendance: TrendMessage;
+  colSpanClass?: string;
+}
 
 // ─── Config visuelle par type de transaction ─────────────────────────────────────
 const TX_CONFIG: Record<Transaction["type"], { bg: string; icon: React.ReactNode; amtColor: string; badgeBg: string; badgeColor: string; badgeLabel: string }> = {
-  revenu:   { bg: "rgba(10,173,106,0.1)",  icon: <FaCircleCheck size={14} className="text-[#0aad6a]" />,           amtColor: "#0aad6a", badgeBg: "rgba(10,173,106,0.1)",  badgeColor: "#0aad6a", badgeLabel: "Confirmé" },
-  transit:  { bg: "rgba(0,152,200,0.1)",   icon: <FaArrowsRotate size={14} className="text-[#0098c8]" />,          amtColor: "#0098c8", badgeBg: "rgba(0,152,200,0.1)",   badgeColor: "#0098c8", badgeLabel: "Transit" },
-  penalite: { bg: "rgba(224,48,80,0.09)",  icon: <FaCircleXmark size={14} className="text-[#e03050]" />,            amtColor: "#e03050", badgeBg: "rgba(224,48,80,0.09)",  badgeColor: "#e03050", badgeLabel: "Pénalité" },
-  retrait:  { bg: "rgba(8,49,110,0.07)",   icon: <FaMoneyBillTransfer size={14} className="text-[#08316e]" />,      amtColor: "#08316e", badgeBg: "rgba(8,49,110,0.07)",   badgeColor: "#08316e", badgeLabel: "Retrait" },
+  revenu:        { bg: "rgba(10,173,106,0.1)",  icon: <FaCircleCheck size={14} className="text-[#0aad6a]" />,           amtColor: "#0aad6a", badgeBg: "rgba(10,173,106,0.1)",  badgeColor: "#0aad6a", badgeLabel: "Confirmé" },
+  transit:       { bg: "rgba(0,152,200,0.1)",   icon: <FaArrowsRotate size={14} className="text-[#0098c8]" />,          amtColor: "#0098c8", badgeBg: "rgba(0,152,200,0.1)",   badgeColor: "#0098c8", badgeLabel: "Transit" },
+  penalite:      { bg: "rgba(224,48,80,0.09)",  icon: <FaCircleXmark size={14} className="text-[#e03050]" />,            amtColor: "#e03050", badgeBg: "rgba(224,48,80,0.09)",  badgeColor: "#e03050", badgeLabel: "Pénalité" },
+  retrait:       { bg: "rgba(8,49,110,0.07)",   icon: <FaMoneyBillTransfer size={14} className="text-[#08316e]" />,      amtColor: "#08316e", badgeBg: "rgba(8,49,110,0.07)",   badgeColor: "#08316e", badgeLabel: "Retrait" },
+  economie:      { bg: "rgba(10,173,106,0.1)",  icon: <FaPiggyBank size={14} className="text-[#0aad6a]" />,              amtColor: "#0aad6a", badgeBg: "rgba(10,173,106,0.1)",  badgeColor: "#0aad6a", badgeLabel: "Économie" },
+  paiement:      { bg: "rgba(200,150,10,0.08)", icon: <FaCreditCard size={14} className="text-[#c8960a]" />,             amtColor: "#c8960a", badgeBg: "rgba(200,150,10,0.08)", badgeColor: "#c8960a", badgeLabel: "Paiement" },
+  remboursement: { bg: "rgba(0,152,200,0.1)",   icon: <FaRotateLeft size={14} className="text-[#0098c8]" />,             amtColor: "#0098c8", badgeBg: "rgba(0,152,200,0.1)",   badgeColor: "#0098c8", badgeLabel: "Remboursé" },
+  holding:       { bg: "rgba(8,49,110,0.05)",   icon: <FaHourglass size={14} className="text-[#7a90b8]" />,              amtColor: "#7a90b8", badgeBg: "rgba(8,49,110,0.05)",   badgeColor: "#7a90b8", badgeLabel: "En attente" },
 };
 
-// Métadonnées descriptives par identifiant de transaction
-const TX_META: Record<string, string> = {
-  t1: "Ottawa → Campus · 13 mars 08h15 · 1 passager",
-  t2: "Gatineau → Campus · En cours",
-  t3: "Campus → Vanier · 12 mars · 2 passagers",
-  t4: "Ottawa → Campus · 10 mars",
-  t5: "Orléans → Campus · 10 mars · 1 passager",
+// ─── Icône de tendance par variant ──────────────────────────────────────────
+const TREND_ICON: Record<TrendMessage["variant"], React.ReactNode> = {
+  up:     <FaCircleCheck className="text-[#0aad6a]" />,
+  down:   <FaCircleXmark className="text-[#e03050]" />,
+  stable: <FaArrowsRotate className="text-[#0098c8]" />,
 };
 
 // ─── Composant ──────────────────────────────────────────────────────────────
 
-function CardTransactions({ transactions }: { transactions: Transaction[] }) {
+function CardTransactions({ transactions, tendance, colSpanClass }: CardTransactionsProps) {
   return (
-    <Card delay={250} className="md:col-span-2">
+    <Card delay={250} className={colSpanClass}>
       <CardHeader
         dotColor="#0aad6a"
-        title="Transactions Récentes"
+        title="Historique des Transactions"
         right={
           <span className="text-[#08316e] text-[11px] cursor-pointer font-semibold flex items-center gap-1">
             Voir tout <FaArrowRight size={9} />
@@ -59,11 +71,11 @@ function CardTransactions({ transactions }: { transactions: Transaction[] }) {
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-xs">{tx.description}</div>
-                <div className="text-[10px] text-[#7a90b8] mt-0.5">{TX_META[tx.id] || ""}</div>
+                <div className="text-[10px] text-[#7a90b8] mt-0.5">{tx.date}</div>
               </div>
               <div className="text-right">
                 <div className="font-[Syne] font-extrabold text-sm" style={{ color: cfg.amtColor }}>
-                  {tx.montant > 0 ? "+" : ""}{tx.montant.toFixed(2)} $
+                  {tx.montant > 0 ? "-" : ""}{tx.montant.toFixed(2)} $
                 </div>
                 <span
                   className="text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] mt-0.5 inline-block"
@@ -76,9 +88,10 @@ function CardTransactions({ transactions }: { transactions: Transaction[] }) {
           );
         })}
       </div>
-      <TrendMsg variant="up" icon={<FaCircleCheck className="text-[#0aad6a]" />}>
-        <strong>5 transactions ce mois, dont 4 revenus positifs.</strong>{" "}
-        Votre trajet du 12 mars (2 passagers, 34 $) est votre meilleure transaction de la période.
+      {/* Message de tendance dynamique */}
+      <TrendMsg variant={tendance.variant} icon={TREND_ICON[tendance.variant]}>
+        <strong>{tendance.texteBold}</strong>{" "}
+        {tendance.texte}
       </TrendMsg>
     </Card>
   );

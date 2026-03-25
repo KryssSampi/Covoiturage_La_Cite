@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAppState } from '@/core/state/app_state';
 import { FaUser, FaUserGroup } from 'react-icons/fa6';
 
@@ -22,35 +22,57 @@ export default function TrajetsPage() {
   const [trajets, setTrajets] = useState<Trajet[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Chargement des trajets disponibles depuis la base JSON
-    fetch('/api/trips?status=published')
-      .then((res) => res.json())
-      .then((data: unknown[]) => {
-        // Conversion du modèle serveur vers l'affichage
-        const mapped: Trajet[] = (data as {
-          id: string;
-          departure: string;
-          destination: string;
-          departureTime: string;
-          pricePerPassenger: number;
-          maxPassengers: number;
-          currentPassengers: number;
-          driverId: string;
-        }[]).map((t) => ({
-          id:         t.id,
-          depart:     t.departure,
-          arrivee:    t.destination,
-          date:       t.departureTime,
-          prix:       t.pricePerPassenger,
-          places:     t.maxPassengers - t.currentPassengers,
-          conducteur: t.driverId, // sera enrichi si nécessaire
-        }));
-        setTrajets(mapped);
-      })
-      .catch(() => setTrajets([]))
-      .finally(() => setLoading(false));
+  // Chargement des trajets disponibles depuis l'API
+  const loadData = useCallback(async () => {
+    try {
+      const res = await fetch('/api/trips?status=published');
+      if (!res.ok) return;
+      const data: unknown[] = await res.json();
+      // Conversion du modèle serveur vers l'affichage
+      const mapped: Trajet[] = (data as {
+        id: string;
+        departure: string;
+        destination: string;
+        departureTime: string;
+        pricePerPassenger: number;
+        maxPassengers: number;
+        currentPassengers: number;
+        driverId: string;
+      }[]).map((t) => ({
+        id:         t.id,
+        depart:     t.departure,
+        arrivee:    t.destination,
+        date:       t.departureTime,
+        prix:       t.pricePerPassenger,
+        places:     t.maxPassengers - t.currentPassengers,
+        conducteur: t.driverId,
+      }));
+      setTrajets(mapped);
+    } catch {
+      setTrajets([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Chargement initial
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
+
+  // SSE : mise à jour temps réel lorsque les trajets changent
+  useEffect(() => {
+    const es = new EventSource('/api/sse/db-watch/trips');
+    let isFirst = true;
+
+    es.addEventListener('update', () => {
+      // On ignore le premier événement (données déjà chargées via l'API)
+      if (isFirst) { isFirst = false; return; }
+      void loadData();
+    });
+
+    return () => es.close();
+  }, [loadData]);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -15,15 +15,18 @@ interface AddUserOverlayProps {
   open: boolean;
   onClose: () => void;
   usersSearch: UserSearchResult[];
+  /** Callback d'ajout — envoie le targetUserId au backend via la page route */
+  onAdd?: (targetUserId: string) => Promise<{ ok: boolean }>;
 }
 
 // ─── Composant ───────────────────────────────────────────────────────────────
 
-const AddUserOverlay: React.FC<AddUserOverlayProps> = ({ open, onClose, usersSearch }) => {
+const AddUserOverlay: React.FC<AddUserOverlayProps> = ({ open, onClose, usersSearch, onAdd }) => {
   /* État local : saisie de recherche et utilisateur sélectionné */
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [selectedName, setSelectedName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   /* Filtrage des résultats selon la saisie */
   const filtered = query.trim()
@@ -106,7 +109,7 @@ const AddUserOverlay: React.FC<AddUserOverlayProps> = ({ open, onClose, usersSea
 
                   {/* Infos utilisateur */}
                   <div className="flex-1">
-                    <div className="font-semibold text-xs">{u.name}</div>
+                    <div className="font-semibold text-xs text-[#0d1f3c]">{u.name}</div>
                     <div className="text-[10px] text-[#7a90b8] mt-0.5 flex items-center gap-1">
                       {u.role} · <FaStar size={9} className="text-[#c8960a]" /> {u.note} · {u.badge}
                     </div>
@@ -142,15 +145,30 @@ const AddUserOverlay: React.FC<AddUserOverlayProps> = ({ open, onClose, usersSea
             Annuler
           </button>
           <button
-            disabled={!selected}
+            disabled={!selected || submitting}
+            onClick={async () => {
+              if (!selected || !onAdd || submitting) return;
+              setSubmitting(true);
+              try {
+                const result = await onAdd(selected);
+                if (result.ok) {
+                  setQuery("");
+                  setSelected(null);
+                  setSelectedName("");
+                  onClose();
+                }
+              } finally {
+                setSubmitting(false);
+              }
+            }}
             className={`flex-1 py-2.5 border-none rounded-[10px] font-bold text-sm font-['DM_Sans',sans-serif] ${
-              selected
+              selected && !submitting
                 ? "text-white cursor-pointer"
                 : "text-[#7a90b8] bg-[rgba(8,49,110,0.18)] cursor-not-allowed"
             }`}
-            style={selected ? { background: "linear-gradient(135deg,#08316e,#1a5cb0)" } : undefined}
+            style={selected && !submitting ? { background: "linear-gradient(135deg,#08316e,#1a5cb0)" } : undefined}
           >
-            Ajouter aux favoris
+            {submitting ? "Ajout…" : "Ajouter aux favoris"}
           </button>
         </div>
       </div>

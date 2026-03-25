@@ -14,8 +14,12 @@ const PLACEHOLDER = "/assets/placeholder/placeholer-profile-picture.png";
 // GÃ©nÃ¨re une date/heure dans 15 min â€” la rÃ©servation sera toujours imminente
 function dans15min() {
   const d = new Date(Date.now() + 15 * 60_000);
+  // Formatage local (évite le décalage UTC qui retourne la date de demain après 20h EDT)
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   return {
-    date: d.toISOString().slice(0, 10),
+    date: `${year}-${month}-${day}`,
     time: d.toTimeString().slice(0, 5),
   };
 }
@@ -24,6 +28,7 @@ const IMMINENT = dans15min();
 export const FIXTURES_RESERVATIONS: Reservation[] = [
   {
     id: "1",
+    tripId: "3",
     departure: "Ottawa", destination: "Montreal",
     date: "2026-02-23", time: "14:00",
     maxPassengers: 3, doneDate: null, duration: null,
@@ -37,7 +42,8 @@ export const FIXTURES_RESERVATIONS: Reservation[] = [
   },
   {
     id: "2",
-    departure: "Campus La CitÃ©", destination: "Gatineau",
+    tripId: "7",
+    departure: "Campus La Cité", destination: "Gatineau",
     date: new Date().toISOString(), time: "09:00",
     maxPassengers: 2, doneDate: null, duration: null,
     status: ReservationStatus.InProgress,
@@ -46,7 +52,8 @@ export const FIXTURES_RESERVATIONS: Reservation[] = [
   },
   {
     id: "3",
-    departure: "OrlÃ©ans", destination: "Rideau",
+    tripId: "3",
+    departure: "Orléans", destination: "Rideau",
     date: "2026-02-25", time: "18:00",
     maxPassengers: 4, doneDate: null, duration: null,
     status: ReservationStatus.Cancelled,
@@ -55,6 +62,7 @@ export const FIXTURES_RESERVATIONS: Reservation[] = [
   },
   {
     id: "4",
+    tripId: "7",
     departure: "Gatineau", destination: "Ottawa",
     date: "2026-02-28", time: "12:00",
     maxPassengers: 3, doneDate: null, duration: null,
@@ -64,6 +72,7 @@ export const FIXTURES_RESERVATIONS: Reservation[] = [
   },
   {
     id: "5",
+    tripId: "5",
     departure: "Barrhaven", destination: "Nepean",
     date: "2026-03-01", time: "16:00",
     maxPassengers: 2, doneDate: "2026-03-01", duration: null,
@@ -73,6 +82,7 @@ export const FIXTURES_RESERVATIONS: Reservation[] = [
   },
   {
     id: "6",
+    tripId: "6",
     departure: "Nepean", destination: "Barrhaven",
     date: "2026-02-24", time: "10:00",
     maxPassengers: 3, doneDate: null, duration: null,
@@ -82,7 +92,8 @@ export const FIXTURES_RESERVATIONS: Reservation[] = [
   },
   {
     id: "7",
-    departure: "Campus La CitÃ©", destination: "Place d'OrlÃ©ans",
+    tripId: "7",
+    departure: "Campus La Cité", destination: "Place d'Orléans",
     date: IMMINENT.date, time: IMMINENT.time,
     duration: 22,
     maxPassengers: 3, doneDate: null,

@@ -12,8 +12,9 @@ export interface LieuFavori {
   coordonnees: { lat: number; lng: number };
   isPrincipal: boolean;
   icon: LieuFavoriTag;
-  nbTrajets: number;
   tagCouleur?: string;
+  /** Lieu ancré non supprimable (ex : Campus La Cité) */
+  isAnchored?: boolean;
 }
 
 export type LieuFavoriTag = "campus" | "domicile" | "travail" | "autre";
@@ -22,6 +23,8 @@ export type LieuFavoriTag = "campus" | "domicile" | "travail" | "autre";
 
 export interface UtilisateurFavori {
   id: string;
+  /** ID de l'affinité associée — utile pour le CRUD */
+  affiniteId: string;
   nomComplet: string;
   initiales: string;
   role: "conducteur" | "passager";
@@ -35,9 +38,9 @@ export interface UtilisateurFavori {
   avatarGradient: string;
 }
 
-// ─── Alerte Trajet ───────────────────────────────────────────────────────────
+// ─── Alerte Trajet (SurveyTrip catégorie alerte) ────────────────────────────
 
-export type AlerteStatut = "actif" | "en_attente" | "desactive";
+export type AlerteStatut = "actif" | "desactive";
 
 export interface AlerteTrajet {
   id: string;
@@ -52,29 +55,14 @@ export interface AlerteTrajet {
   noteMinimale: number;
   prixMax?: number;
   statut: AlerteStatut;
-  derniereCorrespondance?: string;
+  /** Le toggle de surveillance — contrôlé par l'utilisateur */
+  surveyIsOn: boolean;
 }
 
 // ─── Onglet & Page Model ─────────────────────────────────────────────────────
 
-export type OngletFavoris = "lieux" | "utilisateurs" | "alertes";
-
-export interface FavorisStats {
-  totalLieux: number;
-  totalTrajets: number;
-  distanceMoyenneKm: number;
-  tempsMoyenMin: number;
-}
-
-export interface FavorisPageModel {
-  utilisateurId: string;
-  lieux: LieuFavori[];
-  conducteursFavoris: UtilisateurFavori[];
-  passagersFavoris: UtilisateurFavori[];
-  alertes: AlerteTrajet[];
-  ongletActif: OngletFavoris;
-  stats: FavorisStats;
-}
+/** Les sections de la page (plus de toggle — toutes visibles, scroll direct) */
+export type SectionFavoris = "lieux" | "utilisateurs" | "alertes";
 
 // ─── Résultat de recherche utilisateur (overlay) ─────────────────────────────
 
@@ -86,4 +74,30 @@ export interface UserSearchResult {
   badge: string;
   initiales: string;
   gradient: string;
+}
+
+// ─── Réponse API consolidée ──────────────────────────────────────────────────
+
+export interface FavorisApiResponse {
+  lieux: LieuFavori[];
+  utilisateursFavoris: UtilisateurFavori[];
+  alertes: AlerteTrajet[];
+  usersSearch: UserSearchResult[];
+}
+
+// ─── Callbacks CRUD passées en props à FavorisPage ───────────────────────────
+
+export interface FavorisCallbacks {
+  /** Ajouter un lieu favori */
+  onAddLieu: (data: { adresse: string; pseudonyme: string; iconTag: string; coordonnees: { lat: number; lng: number } }) => Promise<{ ok: boolean }>;
+  /** Supprimer un lieu favori */
+  onDeleteLieu: (id: string) => Promise<{ ok: boolean }>;
+  /** Ajouter un utilisateur en favori (crée/met à jour l'affinité) */
+  onAddUserFavori: (targetUserId: string) => Promise<{ ok: boolean }>;
+  /** Retirer un utilisateur des favoris */
+  onDeleteUserFavori: (affiniteId: string) => Promise<{ ok: boolean }>;
+  /** Toggle surveyIsOn sur une alerte */
+  onToggleAlerte: (alerteId: string, newState: boolean) => Promise<{ ok: boolean }>;
+  /** Supprimer une alerte */
+  onDeleteAlerte: (alerteId: string) => Promise<{ ok: boolean }>;
 }

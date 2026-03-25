@@ -16,6 +16,7 @@ import { createContext, useContext, useMemo, type ReactNode } from "react";
 
 import { Language, useAppState }           from "@/core/state/app_state";
 import { useDb }                           from "@/core/context/db.context";
+import { isTripBlockedByIndisponibility } from "@/core/utils/indisponibility.utils";
 import {
   tripModelToTrip,
   tripModelToReservation,
@@ -68,7 +69,7 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
   const isDriver = appState.userConnected?.role.toString() === "driver";
 
   // Données réelles depuis la base JSON via DbProvider
-  const { trips, myReservations, reservations: allReservations, users } = useDb();
+  const { trips, myReservations, reservations: allReservations, users, myIndisponibility } = useDb();
 
   // ID du passager connecté — pour exclure ses propres trajets des recommandations
   const currentUserId = appState.userConnected?.id ?? null;
@@ -106,7 +107,8 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
         t.status === "published" &&              // uniquement les trajets avec places disponibles
         t.driverId !== currentUserId &&          // pas ses propres trajets
         !reservedTripIds.has(t.id) &&            // pas déjà réservé
-        t.passengerIds.length < t.maxPassengers  // pas complet
+        t.passengerIds.length < t.maxPassengers && // pas complet
+        !isTripBlockedByIndisponibility(t, myIndisponibility)
       )
       .map((t) => {
         const driver     = usersMap.get(t.driverId);
@@ -117,7 +119,7 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
         return tripModelToTrip(t, driver, passengers);
       })
       .filter((t): t is Trip => t !== null);
-  }, [trips, usersMap, currentUserId, allReservations]);
+  }, [trips, usersMap, currentUserId, allReservations, myIndisponibility]);
 
   // Destinations : gardées en fixtures (non critiques pour le test du cycle de vie)
   const recentDestinations  = useMemo(() => FIXTURES_RECENT_DESTINATIONS, []);

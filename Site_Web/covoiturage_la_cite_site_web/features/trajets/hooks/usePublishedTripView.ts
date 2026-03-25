@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { differenceInHours } from 'date-fns';
 import {
   PublishedTripViewData,
@@ -10,7 +11,7 @@ import {
   TripViewSource,
 } from '../types/published-trip.view.types';
 import type { MapOverlayMode } from '../components/published-trip/ui/MapOverlay';
-import { useTripActions } from '@/core/context/trip.context';
+import { useAppState } from '@/core/state/app_state';
 
 // Délai d'attente après un refus (heures)
 const REFUSAL_COOLDOWN_HOURS = 24;
@@ -36,13 +37,21 @@ export function usePublishedTripView({
   source,
   sourceStatus,
 }: UsePublishedTripViewProps) {
-  const { requestReservation, isReserving } = useTripActions();
+  const router = useRouter();
+  const { userConnected } = useAppState();
+  const passengerId = userConnected?.id;
 
   const [isMapOverlayOpen, setMapOverlayOpen] = useState(false);
   const [overlayMode, setOverlayMode] = useState<MapOverlayMode>('route');
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [localReservationStatus, setLocalReservationStatus] =
     useState<ReservationStatus>(existingReservation?.status ?? 'none');
+  const [reservationToast, setReservationToast] = useState<{
+    isOpen: boolean;
+    success: boolean;
+    message: string;
+  }>({ isOpen: false, success: false, message: '' });
 
   // ── Calcul de l'état du bouton selon la source URL ou le rôle standard ─
   const buttonState = useMemo((): ReserveButtonState => {
@@ -107,20 +116,49 @@ export function usePublishedTripView({
 
   const closeConfirmModal = useCallback(() => setConfirmModalOpen(false), []);
 
-  // Envoi réel de la demande de réservation via le TripContext
+  // Envoi de la demande de réservation via POST /api/reservations
   const confirmReservation = useCallback(async () => {
+    if (!passengerId) return;
+    setConfirmModalOpen(false);
+    setIsSubmitting(true);
+
     try {
-      await requestReservation({
-        tripId: trip.id,
-        driverId: trip.driver.id,
-        pricePerSeat: trip.pricePerPassenger,
+      const res = await fetch('/api/reservations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tripId: trip.id, passengerId }),
       });
-      setLocalReservationStatus('pending');
-      setConfirmModalOpen(false);
+
+      const data = await res.json() as { id?: string; error?: string };
+
+      if (res.ok) {
+        setLocalReservationStatus('pending');
+        setReservationToast({ isOpen: true, success: true, message: data.id ?? '' });
+      } else {
+        setReservationToast({
+          isOpen: true,
+          success: false,
+          message: data.error ?? 'Erreur serveur',
+        });
+      }
     } catch {
-      // L'erreur est accessible via useTripActions().activeError
+      setReservationToast({ isOpen: true, success: false, message: 'Erreur réseau' });
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [requestReservation, trip.id, trip.driver.id, trip.pricePerPassenger]);
+  }, [trip.id, passengerId]);
+
+  // Callback du bouton OK/Fermer du toast
+  const handleReservationToastOk = useCallback(() => {
+    const wasSuccess = reservationToast.success;
+    setReservationToast((prev) => ({ ...prev, isOpen: false }));
+
+    if (wasSuccess && passengerId) {
+      // Signaler au planificateur de scroller vers la zone trajets
+      try { sessionStorage.setItem('plannerScrollToRides', '1'); } catch { /* sstorage indisponible */ }
+      router.push(`/passenger/${passengerId}/planifier`);
+    }
+  }, [reservationToast.success, passengerId, router]);
 
   // Ouvre l'overlay dans le mode 'route' (polyline complète)
   const openMapOverlay = useCallback(() => {
@@ -147,10 +185,12 @@ export function usePublishedTripView({
     isMapOverlayOpen,
     overlayMode,
     isConfirmModalOpen,
-    isSubmitting: isReserving,
+    isSubmitting,
+    reservationToast,
     openConfirmModal,
     closeConfirmModal,
     confirmReservation,
+    handleReservationToastOk,
     openMapOverlay,
     openMapOverlayDeparture,
     openMapOverlayArrival,

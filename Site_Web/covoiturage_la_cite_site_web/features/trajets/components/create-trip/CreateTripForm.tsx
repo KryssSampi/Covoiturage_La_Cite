@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useCreateTrip } from '../../hooks';
 import { TripWayPrefill } from '../../types';
+import type { MockVehicle } from '../../constants/trip.constants';
 import {
   BasicInfoSection,
   VehicleSection,
@@ -14,26 +14,30 @@ import {
 import { useAppState } from '@/core/state/app_state';
 import { getProposals } from '@/core/services/location.suggestion';
 import { fetchRoute } from '@/features/search/services/osrm.service';
+import { ReservationRequestToast } from '@/shared/components/ReservationRequestToast';
 
 interface CreateTripFormProps {
   // Prenom + nom du conducteur pour le titre personnalise
   driverName?: string;
   // Valeurs pre-remplies issues d'un TripWay (depart, arrivee, date, heure)
   initialValues?: TripWayPrefill;
+  /** Véhicules du conducteur, fournis par la page via GET /api/vehicles */
+  vehicles: MockVehicle[];
 }
 
 export const CreateTripForm: React.FC<CreateTripFormProps> = ({
   driverName = "Conducteur",
   initialValues,
+  vehicles,
 }) => {
-  const router = useRouter();
-   const appState = useAppState();
-   driverName = appState.userConnected?.prenom || driverName; // Si le prenom est disponible dans l'état global, l'utiliser
+  const appState = useAppState();
+  // Récupère le prénom du conducteur connecté, sinon utilise la valeur par défaut
+  driverName = appState.userConnected?.firstName || driverName;
+
   // Polyline du circuit ou brouillon — initialisée depuis sessionStorage au montage
   const [circuitLatLngs, setCircuitLatLngs] = useState<[number, number][] | null>(() => {
     if (typeof window === 'undefined') return null;
 
-    // 1. Vérifier d'abord le brouillon de planification rapide (QuickPlan)
     const draftStored = sessionStorage.getItem('quickPlanDraft');
     if (draftStored) {
       try {
@@ -41,26 +45,25 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
         if (Array.isArray(draft.polyline) && draft.polyline.length >= 2) {
           return draft.polyline as [number, number][];
         }
-      } catch { /* Brouillon invalide — on continue */ }
+      } catch { /* Brouillon invalide */ }
     }
 
-    // 2. Sinon, vérifier le circuit sélectionné (TripWay)
     const circuitStored = sessionStorage.getItem('selectedCircuit');
     if (circuitStored) {
       try {
         const circuit = JSON.parse(circuitStored);
         return Array.isArray(circuit.latLngs) ? (circuit.latLngs as [number, number][]) : null;
-      } catch { /* Circuit invalide — on ignore */ }
+      } catch { /* Circuit invalide */ }
     }
 
     return null;
   });
 
-  // Les valeurs pre-remplies sont fusionnees avec les defauts dans le hook
   const {
     form,
     errors,
     isSubmitting,
+    tripToast,
     setField,
     setPreference,
     incrementPrice,
@@ -70,11 +73,12 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
     onVehicleChange,
     handlePublish,
     handleSaveDraft,
-  } = useCreateTrip(initialValues);
+    dismissToast,
+  } = useCreateTrip(vehicles, initialValues);
 
   // Calcul dynamique de la polyline si absente mais lieux disponibles
   useEffect(() => {
-    if (circuitLatLngs) return; // déjà récupérée depuis sessionStorage
+    if (circuitLatLngs) return;
     const dep = form.departureLocation;
     const arr = form.arrivalLocation;
     if (!dep || !arr) return;
@@ -83,45 +87,40 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
 
     (async () => {
       try {
-        // Géocodage des adresses via Photon pour obtenir les coordonnées [lng, lat]
         const [depResults, arrResults] = await Promise.all([
           getProposals(dep),
           getProposals(arr),
         ]);
         if (cancelled || !depResults.length || !arrResults.length) return;
 
-        const depCoords = depResults[0].coordinates; // [lng, lat]
-        const arrCoords = arrResults[0].coordinates; // [lng, lat]
+        const depCoords = depResults[0].coordinates;
+        const arrCoords = arrResults[0].coordinates;
 
-        // Calcul du tracé OSRM
         const route = await fetchRoute(depCoords, arrCoords);
         if (cancelled || !route.latLngs?.length) return;
 
         setCircuitLatLngs(route.latLngs);
 
-        // Persiste la polyline + coords dans le brouillon sessionStorage
         if (typeof window !== 'undefined') {
           const raw = sessionStorage.getItem('quickPlanDraft');
           if (raw) {
             try {
               const draft = JSON.parse(raw);
               draft.polyline = route.latLngs;
-              draft.departureCoords = [depCoords[1], depCoords[0]]; // [lat, lng]
-              draft.arrivalCoords = [arrCoords[1], arrCoords[0]];   // [lat, lng]
+              draft.departureCoords = [depCoords[1], depCoords[0]];
+              draft.arrivalCoords   = [arrCoords[1], arrCoords[0]];
               sessionStorage.setItem('quickPlanDraft', JSON.stringify(draft));
             } catch { /* ignore */ }
           }
         }
-      } catch {
-        // Échec silencieux — la carte affichera le fond sans polyline
-      }
+      } catch { /* Échec silencieux */ }
     })();
 
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Exécuté une seule fois au montage
+  }, []);
 
-  // Nettoyage de la variable de transition conducteur (pendingTripDateTime) au démontage
+  // Nettoyage de la variable de transition conducteur au démontage
   useEffect(() => {
     return () => {
       if (typeof window !== 'undefined') {
@@ -129,18 +128,6 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
       }
     };
   }, []);
-
-  // Publier le trajet puis rediriger vers le tableau de bord conducteur
-  const onPublish = async () => {
-    await handlePublish();
-    // TODO: rediriger vers la page du conducteur apres confirmation API
-    router.push('/driver');
-  };
-
-  // Sauvegarder en brouillon et rester sur la page
-  const onDraft = async () => {
-    await handleSaveDraft();
-  };
 
   return (
     <div className="min-h-screen text-black" style={{ background: '#f0f4f8' }}>
@@ -177,6 +164,7 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
             <VehicleSection
               form={form}
               errors={errors}
+              vehicles={vehicles}
               onVehicleChange={onVehicleChange}
               incrementAvailableSeats={incrementAvailableSeats}
               decrementAvailableSeats={decrementAvailableSeats}
@@ -187,7 +175,6 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
               decrementPrice={decrementPrice}
               setField={setField}
             />
-            {/* Carte de previsualisation - polyline du circuit selectionne */}
             <MapPreviewSection
               departureLocation={form.departureLocation}
               arrivalLocation={form.arrivalLocation}
@@ -200,7 +187,7 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
         <div className="flex flex-col sm:flex-row gap-3 mt-8">
           <button
             type="button"
-            onClick={onPublish}
+            onClick={handlePublish}
             disabled={isSubmitting}
             className="flex-1 sm:flex-none px-8 py-3 rounded-lg text-white font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ backgroundColor: '#08316e' }}
@@ -210,7 +197,7 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
 
           <button
             type="button"
-            onClick={onDraft}
+            onClick={handleSaveDraft}
             disabled={isSubmitting}
             className="flex-1 sm:flex-none px-8 py-3 rounded-lg font-semibold text-sm border border-gray-300 bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 disabled:opacity-60 disabled:cursor-not-allowed"
           >
@@ -218,6 +205,15 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Toast publication / brouillon */}
+      <ReservationRequestToast
+        isOpen={tripToast.isOpen}
+        success={tripToast.success}
+        message={tripToast.message}
+        onOk={dismissToast}
+        okLabel="Fermer"
+      />
     </div>
   );
 };

@@ -1,29 +1,18 @@
 "use client";
 
 /**
- * Hook gérant la configuration ListDetailPage pour les avis reçus.
- * Commun aux deux rôles (conducteur et passager).
+ * Hook de configuration ListDetailPage pour les avis reçus.
+ * Commun aux deux rôles. Fournit uniquement tri, recherche et message vide.
+ * Les données sont chargées au niveau de la page route (pattern dashboard).
  */
 
 import { useMemo } from "react";
 import { Language, useAppState } from "@/core/state/app_state";
-import { useDb } from "@/core/context/db.context";
-import { reviewModelToReview } from "@/features/dashboard/converters/dashboard.converter";
 import type { SortOption } from "@/shared/components/list-detail-page";
 
-export function useReviewsList() {
+export function useReviewsConfig() {
   const { lang } = useAppState();
-  const { myReviews, users } = useDb();
   const isFR = lang === Language.FR;
-
-  // Transformation des ReviewModel → Review (type UI dashboard)
-  const items = useMemo(
-    () => myReviews.map((r) => {
-      const reviewer = users.find((u) => u.id === r.reviewerId);
-      return reviewModelToReview(r, reviewer);
-    }),
-    [myReviews, users],
-  );
 
   // Tri par date ou par note
   const sortOptions: SortOption[] = useMemo(() => [
@@ -64,5 +53,5 @@ export function useReviewsList() {
     ? "Aucun avis pour le moment."
     : "No reviews yet.";
 
-  return { items, sortOptions, searchKeys, emptyMessage };
+  return { sortOptions, searchKeys, emptyMessage };
 }

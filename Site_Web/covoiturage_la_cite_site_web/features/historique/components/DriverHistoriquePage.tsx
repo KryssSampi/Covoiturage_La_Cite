@@ -15,7 +15,13 @@ import { formatDate } from "@/core/utils/date.utils";
 import { ListDetailPage } from "@/shared/components/list-detail-page";
 import { getPublishedTripStatusLabel, getPublishedTripStatusColor } from "@/shared/utils/status.utils";
 import { type PublishedTrip } from "@/features/dashboard/types";
-import { useDriverHistoriqueList } from "../hooks/useDriverHistoriqueList";
+import { useDriverHistoriqueConfig } from "../hooks/useDriverHistoriqueList";
+
+// ─── Props du composant (données fournies par la page route) ──────────────
+
+interface DriverHistoriquePageProps {
+  items: PublishedTrip[];
+}
 
 // ─── Carte de trajet publié pour le listing ──────────────────────────────────
 
@@ -52,9 +58,9 @@ function PublishedTripListCard({ trip, lang }: { trip: PublishedTrip; lang: Lang
 
 // ─── Page principale ─────────────────────────────────────────────────────────
 
-export function DriverHistoriquePage() {
+export function DriverHistoriquePage({ items }: DriverHistoriquePageProps) {
   const { lang } = useAppState();
-  const { items, filterGroups, sortOptions, searchKeys, emptyMessage } = useDriverHistoriqueList();
+  const { filterGroups, sortOptions, searchKeys, emptyMessage } = useDriverHistoriqueConfig();
 
   const renderCard = useCallback(
     (trip: PublishedTrip) => <PublishedTripListCard trip={trip} lang={lang} />,

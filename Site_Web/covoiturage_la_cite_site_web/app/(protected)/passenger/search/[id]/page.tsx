@@ -3,18 +3,20 @@
 /**
  * @file page.tsx — app/(protected)/passenger/search/[id]/page.tsx
  *
- * Charge les trajets publiés depuis la base de données statique (useDb)
- * et les injecte dans RouteMapSearch via le convertisseur search.converter.
+ * La page fait le fetch : POST /api/passenger/search
+ * Le backend exécute le matching v4 côté serveur et renvoie des TripSearchDTO
+ * (sans données sensibles). Le converter transforme les DTOs en TripWithCoords
+ * pour RouteMapSearch.
  */
 
-import { useEffect, useMemo, useState }          from "react";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useLoader }                             from "@/core/context/loader.context";
-import { useAppState }                           from "@/core/state/app_state";
-import { useDb }                                 from "@/core/context/db.context";
-import { tripsToTripWithCoords }                 from "@/features/search/converters/search.converter";
-import { RouteMapSearch }                        from "@/features/search/components/shared/RouteMapSearch";
-import type { TripWithCoords }                   from "@/features/search/types/search.feature.types";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useParams, useSearchParams, useRouter }     from "next/navigation";
+import { useLoader }                                 from "@/core/context/loader.context";
+import { useAppState }                               from "@/core/state/app_state";
+import { tripSearchDTOToTripWithCoords }             from "@/features/search/converters/search.converter";
+import { RouteMapSearch }                            from "@/features/search/components/shared/RouteMapSearch";
+import type { TripWithCoords }                       from "@/features/search/types/search.feature.types";
+import type { TripSearchDTO }                        from "@/features/search/utils/matchingV4";
 
 export default function PassengerSearchPage() {
   const appState            = useAppState();
@@ -23,39 +25,63 @@ export default function PassengerSearchPage() {
   const searchParams        = useSearchParams();
   const { setActiveLoader } = useLoader();
   const user                = appState.userConnected;
+  const [, startTransition] = useTransition();
 
-  // Récupération des trajets réels depuis la base de données statique
-  const { trips, users } = useDb();
-
-  // Map utilisateurs pour les convertisseurs
-  const usersMap = useMemo(
-    () => new Map(users.map((u) => [u.id, u])),
-    [users]
-  );
-
-  // Conversion des TripModel en TripWithCoords (format RouteMapSearch)
-  const convertedTrips = useMemo(
-    () => tripsToTripWithCoords(trips, usersMap),
-    [trips, usersMap]
-  );
-
-  // Mode survey : si des matching trips pré-calculés sont en sessionStorage,
-  // on les utilise à la place des trips réels (pas de recherche live)
   const [availableTrips, setAvailableTrips] = useState<TripWithCoords[]>([]);
+  // Ref pour éviter les appels en cascade lors du changement de dépendances
+  const hasFetchedRef = useRef(false);
 
-  useEffect(() => {
+  // Coordonnées issues des searchParams ([lng, lat] côté UI, [lat, lng] attendu par l'API)
+  const depLat = searchParams.get("depLat");
+  const depLng = searchParams.get("depLng");
+  const arrLat = searchParams.get("arrLat");
+  const arrLng = searchParams.get("arrLng");
+
+  const fetchTrips = useCallback(async () => {
+    if (!user?.id) return;
+
+    // Mode survey : trips pré-calculés en sessionStorage → on les utilise directement
     try {
       const raw = sessionStorage.getItem("surveyMatchingTrips");
       if (raw) {
         const parsed: TripWithCoords[] = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) setAvailableTrips(parsed);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setAvailableTrips(parsed);
+        }
         sessionStorage.removeItem("surveyMatchingTrips");
-      } else {
-        // Mise à jour si les trips réels ont changé (ex: après création)
-        setAvailableTrips(convertedTrips);
+        return;
       }
     } catch { /* sessionStorage indisponible ou JSON invalide */ }
-  }, [convertedTrips]);
+
+    // Fetch côté serveur : matching v4, données sensibles masquées côté serveur
+    try {
+      const body: Record<string, unknown> = { passengerId: user.id };
+      if (depLat && depLng) body.departureCoords = [parseFloat(depLat), parseFloat(depLng)];
+      if (arrLat && arrLng) body.arrivalCoords   = [parseFloat(arrLat), parseFloat(arrLng)];
+
+      const res = await fetch('/api/passenger/search', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
+      });
+
+      if (!res.ok) return;
+
+      const data = await res.json() as { trips: TripSearchDTO[] };
+      setAvailableTrips(data.trips.map(tripSearchDTOToTripWithCoords));
+    } catch { /* erreur réseau silencieuse */ }
+  }, [user, depLat, depLng, arrLat, arrLng]);
+
+  // Déclenche le fetch une seule fois au montage du composant
+  useEffect(() => {
+    if (!hasFetchedRef.current) {
+      hasFetchedRef.current = true;
+      // Wrapper l'appel fetchTrips() dans startTransition pour éviter les rendus en cascade
+      startTransition(() => {
+        fetchTrips();
+      });
+    }
+  }, [startTransition, fetchTrips]);
 
   // ── Guard : vérification rôle / identité ─────────────────────────────────
   useEffect(() => {
@@ -77,13 +103,13 @@ export default function PassengerSearchPage() {
   ) return null;
 
   const initialValues = {
-    departureLabel:  searchParams.get("dep")    ?? undefined,
-    arrivalLabel:    searchParams.get("arr")    ?? undefined,
-    departureCoords: searchParams.get("depLng") && searchParams.get("depLat")
-      ? [parseFloat(searchParams.get("depLng")!), parseFloat(searchParams.get("depLat")!)] as [number, number]
+    departureLabel:  searchParams.get("dep") ?? undefined,
+    arrivalLabel:    searchParams.get("arr") ?? undefined,
+    departureCoords: depLng && depLat
+      ? [parseFloat(depLng), parseFloat(depLat)] as [number, number]
       : undefined,
-    arrivalCoords:   searchParams.get("arrLng") && searchParams.get("arrLat")
-      ? [parseFloat(searchParams.get("arrLng")!), parseFloat(searchParams.get("arrLat")!)] as [number, number]
+    arrivalCoords: arrLng && arrLat
+      ? [parseFloat(arrLng), parseFloat(arrLat)] as [number, number]
       : undefined,
   };
 

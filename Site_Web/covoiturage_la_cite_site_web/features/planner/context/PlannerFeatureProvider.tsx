@@ -1,41 +1,51 @@
 "use client";
 
-/**
- * @file PlannerFeatureProvider.tsx
- * @description Provider racine du feature planner.
- *
- * Compose les trois contextes du feature dans le bon ordre d'imbrication :
- * 1. PlannerProvider       → données métier (lang, isDriver, rides, currentDay)
- * 2. IndisponibilityProvider → gestion des créneaux d'indisponibilité
- * 3. SearchBarProvider     → état de la barre de recherche + refs DOM
- *
- * Usage :
- * ```tsx
- * <PlannerFeatureProvider>
- *   <Hero />
- *   <SuperCalendar />
- *   <RideArea />
- * </PlannerFeatureProvider>
- * ```
- *
- * Remplace les trois providers imbriqués manuellement dans chaque page planner.
- */
+import type { ReactNode } from "react";
 
-import { ReactNode }                   from "react";
-import { PlannerProvider }             from "@/features/planner/context/PlannerContext";
-import { IndisponibilityProvider }     from "@/features/planner/context/IndisponibilityContext";
-import { SearchBarProvider }           from "@/features/planner/context/SearchBarContext";
+import type { IndisponibilityDateRange } from "@/core/models/IndisponibilityModel";
+import type { Language } from "@/core/state/app_state";
+import type { PublishedTrip, Reservation } from "@/features/dashboard/types";
+import { PlannerProvider } from "@/features/planner/context/PlannerContext";
+import { IndisponibilityProvider } from "@/features/planner/context/IndisponibilityContext";
+import { SearchBarProvider } from "@/features/planner/context/SearchBarContext";
 
-export function PlannerFeatureProvider({ children }: { children: ReactNode }) {
+interface PlannerFeatureProviderProps {
+  children: ReactNode;
+  lang: Language;
+  isDriver: boolean;
+  rides: (PublishedTrip | Reservation)[];
+  indisponibilities?: IndisponibilityDateRange[];
+  onSaveIndisponibilities?: (dates: IndisponibilityDateRange[]) => Promise<void>;
+  onCancelTrip?: (tripId: string) => Promise<boolean>;
+  onCancelReservation?: (reservationId: string, raison?: string) => Promise<boolean>;
+  onStartReservation?: (reservationId: string) => Promise<string | null>;
+}
+
+export function PlannerFeatureProvider({
+  children,
+  lang,
+  isDriver,
+  rides,
+  indisponibilities,
+  onSaveIndisponibilities,
+  onCancelTrip,
+  onCancelReservation,
+  onStartReservation,
+}: PlannerFeatureProviderProps) {
   return (
-    // PlannerProvider en tête : fournit lang, isDriver, rides, currentDay
-    <PlannerProvider>
-      {/* IndisponibilityProvider : gestion des créneaux récurrents */}
-      <IndisponibilityProvider>
-        {/* SearchBarProvider : refs et état de la searchbar du Hero */}
-        <SearchBarProvider>
-          {children}
-        </SearchBarProvider>
+    <PlannerProvider
+      lang={lang}
+      isDriver={isDriver}
+      rides={rides}
+      onCancelTrip={onCancelTrip}
+      onCancelReservation={onCancelReservation}
+      onStartReservation={onStartReservation}
+    >
+      <IndisponibilityProvider
+        initialDates={indisponibilities}
+        onSaveIndisponibilities={onSaveIndisponibilities}
+      >
+        <SearchBarProvider>{children}</SearchBarProvider>
       </IndisponibilityProvider>
     </PlannerProvider>
   );

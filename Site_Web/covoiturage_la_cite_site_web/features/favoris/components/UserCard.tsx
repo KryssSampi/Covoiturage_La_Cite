@@ -5,8 +5,9 @@
  * avatar, note, badges, stats et bascule d'alerte personnelle.
  */
 
-import React, { useState } from "react";
-import { FaBell } from "react-icons/fa6";
+import React from "react";
+import Link from "next/link";
+import { FaXmark } from "react-icons/fa6";
 import { useScrollReveal } from "@/shared/hooks/useScrollReveal";
 import type { UtilisateurFavori } from "../types/favoris.types";
 import { Language, useAppState } from "@/core/state/app_state";
@@ -16,13 +17,13 @@ import { Language, useAppState } from "@/core/state/app_state";
 interface UserCardProps {
   user: UtilisateurFavori;
   delay?: number;
+  /** Callback de suppression — retire l'utilisateur des favoris */
+  onDelete?: () => void;
 }
 
 // ─── Composant ───────────────────────────────────────────────────────────────
 
-const UserCard: React.FC<UserCardProps> = ({ user, delay = 0 }) => {
-  /* État local : alerte de disponibilité active ou non */
-  const [alertOn, setAlertOn] = useState(user.alerteActive);
+const UserCard: React.FC<UserCardProps> = ({ user, delay = 0, onDelete }) => {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>({ threshold: 0.1 });
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
@@ -48,7 +49,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, delay = 0 }) => {
 
       {/* Informations principales */}
       <div className="flex-1">
-        <div className="font-bold text-[13px] text-[#0d1f3c]">{user.nomComplet}</div>
+        <Link href={`/profile/${user.id}`} className="font-bold text-[13px] text-[#0d1f3c] hover:underline">{user.nomComplet}</Link>
         <div className="text-[#7a90b8] text-[11px] mt-0.5 flex gap-1.5 items-center">
           <span className="text-[#c8960a] text-[10px]">
             {"★".repeat(Math.round(user.note))}
@@ -84,7 +85,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, delay = 0 }) => {
         </div>
       </div>
 
-      {/* Zone droite : rôle + bouton alerte */}
+      {/* Zone droite : rôle + bouton suppression */}
       <div className="flex flex-col gap-1.5 items-end shrink-0">
         <span
           className={`text-[9px] font-bold px-2 py-0.5 rounded-[5px] tracking-wide ${
@@ -95,17 +96,15 @@ const UserCard: React.FC<UserCardProps> = ({ user, delay = 0 }) => {
         >
           {user.role === "conducteur" ? (isFR ? "Conducteur" : "Driver") : (isFR ? "Passager" : "Passenger")}
         </span>
-        <button
-          onClick={() => setAlertOn(!alertOn)}
-          className={`flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-[7px] cursor-pointer transition-all duration-200 font-semibold font-['DM_Sans',sans-serif] border-[1.5px] ${
-            alertOn
-              ? "border-[#0aad6a] text-[#0aad6a] bg-[rgba(10,173,106,0.1)]"
-              : "border-[rgba(8,49,110,0.09)] text-[#7a90b8] bg-transparent"
-          }`}
-        >
-          <FaBell size={10} />
-          {alertOn ? (isFR ? "Alerté" : "Alerted") : (isFR ? "Alerter" : "Alert")}
-        </button>
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            className="flex items-center justify-center w-[26px] h-[26px] rounded-md bg-transparent border-none cursor-pointer text-[#7a90b8] hover:text-[#e03050] transition-colors duration-200"
+            aria-label={`Retirer ${user.nomComplet} des favoris`}
+          >
+            <FaXmark size={12} />
+          </button>
+        )}
       </div>
     </div>
   );

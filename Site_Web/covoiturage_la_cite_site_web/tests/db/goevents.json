@@ -1,0 +1,128 @@
+[
+  {
+    "id": "GE-001",
+    "titre": "Go!Tâche complétée — Compléter votre profil",
+    "date": "2026-01-15T10:30:00.000Z",
+    "points": 50,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-002",
+    "titre": "Go!Tâche complétée — Terminer votre premier trajet",
+    "date": "2026-02-03T14:20:00.000Z",
+    "points": 30,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-003",
+    "titre": "Go!Tâche complétée — Laisser votre premier avis après un trajet",
+    "date": "2026-02-18T09:45:00.000Z",
+    "points": 15,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-004",
+    "titre": "Go!Tâche complétée — Atteindre un score de 500 points",
+    "date": "2026-03-01T08:00:00.000Z",
+    "points": 100,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-005",
+    "titre": "Go!Tâche complétée — Publier votre premier trajet en tant que conducteur",
+    "date": "2026-01-22T16:10:00.000Z",
+    "points": 40,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-006",
+    "titre": "Go!Tâche complétée — Ajouter votre véhicule",
+    "date": "2026-01-10T11:00:00.000Z",
+    "points": 25,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-007",
+    "titre": "Go!Tâche complétée — Compléter votre profil",
+    "date": "2026-02-10T08:30:00.000Z",
+    "points": 50,
+    "utilisateurId": "USR-2026-00002"
+  },
+  {
+    "id": "GE-008",
+    "titre": "Go!Tâche complétée — Ajouter un lieu favori",
+    "date": "2026-02-25T13:45:00.000Z",
+    "points": 15,
+    "utilisateurId": "USR-2026-00002"
+  },
+  {
+    "id": "GE-009",
+    "titre": "Go!Tâche complétée — Ajouter votre véhicule",
+    "date": "2026-01-20T10:00:00.000Z",
+    "points": 25,
+    "utilisateurId": "USR-2026-00003"
+  },
+  {
+    "id": "GE-GT-001-USR-2026-00001",
+    "titre": "Go!Tâche complétée — Compléter votre profil",
+    "date": "2026-01-15T10:30:00.000Z",
+    "points": 50,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-GT-001-USR-2026-00002",
+    "titre": "Go!Tâche complétée — Compléter votre profil",
+    "date": "2026-02-10T08:30:00.000Z",
+    "points": 50,
+    "utilisateurId": "USR-2026-00002"
+  },
+  {
+    "id": "GE-GT-002-USR-2026-00001",
+    "titre": "Go!Tâche complétée — Terminer votre premier trajet",
+    "date": "2026-02-03T14:20:00.000Z",
+    "points": 30,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-GT-006-USR-2026-00001",
+    "titre": "Go!Tâche complétée — Laisser votre premier avis après un trajet",
+    "date": "2026-02-18T09:45:00.000Z",
+    "points": 15,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-GT-008-USR-2026-00001",
+    "titre": "Go!Tâche complétée — Atteindre un score de 500 points",
+    "date": "2026-03-01T08:00:00.000Z",
+    "points": 100,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-GT-010-USR-2026-00001",
+    "titre": "Go!Tâche complétée — Publier votre premier trajet en tant que conducteur",
+    "date": "2026-01-22T16:10:00.000Z",
+    "points": 40,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-GT-011-USR-2026-00001",
+    "titre": "Go!Tâche complétée — Ajouter votre véhicule",
+    "date": "2026-01-10T11:00:00.000Z",
+    "points": 25,
+    "utilisateurId": "USR-2026-00001"
+  },
+  {
+    "id": "GE-GT-011-USR-2026-00003",
+    "titre": "Go!Tâche complétée — Ajouter votre véhicule",
+    "date": "2026-01-20T10:00:00.000Z",
+    "points": 25,
+    "utilisateurId": "USR-2026-00003"
+  },
+  {
+    "id": "GE-GT-013-USR-2026-00002",
+    "titre": "Go!Tâche complétée — Ajouter un lieu favori",
+    "date": "2026-02-25T13:45:00.000Z",
+    "points": 15,
+    "utilisateurId": "USR-2026-00002"
+  }
+]

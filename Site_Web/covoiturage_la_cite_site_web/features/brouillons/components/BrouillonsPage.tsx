@@ -2,7 +2,8 @@
 
 /**
  * @file BrouillonsPage.tsx
- * @description Page de listing des brouillons de trajets (conducteur uniquement).
+ * @description Composant de listing des brouillons de trajets (conducteur uniquement).
+ * Composant pur : reçoit items et callbacks de la page route.
  * Utilise ListDetailPage avec DraftTripCard et DraftDetailView.
  */
 
@@ -11,10 +12,16 @@ import { ListDetailPage } from "@/shared/components/list-detail-page";
 import type { DraftTrip } from "@/features/brouillons/types";
 import { DraftTripCard }   from "./DraftTripCard";
 import { DraftDetailView } from "./DraftDetailView";
-import { useDrafts }       from "../hooks/useDrafts";
+import { useDraftsConfig } from "../hooks/useDrafts";
 
-export function BrouillonsPage() {
-  const { drafts, sortOptions, searchKeys, emptyMessage } = useDrafts();
+/** Props injectées par la page route */
+export interface BrouillonsPageProps {
+  items: DraftTrip[];
+  onRemove?: (id: string) => void;
+}
+
+export function BrouillonsPage({ items, onRemove }: BrouillonsPageProps) {
+  const { sortOptions, searchKeys, emptyMessage } = useDraftsConfig();
 
   // Rendu d'une carte dans la liste
   const renderCard = useCallback(
@@ -32,7 +39,7 @@ export function BrouillonsPage() {
 
   return (
     <ListDetailPage
-      items={drafts}
+      items={items}
       renderCard={renderCard}
       renderDetail={renderDetail}
       sortOptions={sortOptions}

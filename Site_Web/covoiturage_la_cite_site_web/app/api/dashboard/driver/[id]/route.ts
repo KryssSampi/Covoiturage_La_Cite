@@ -60,7 +60,7 @@ export async function GET(
       });
 
     const publishedTrips = driverTrips
-      .filter((t) => ['published', 'full', 'confirmed', 'in_progress'].includes(t.status))
+      .filter((t) => ['published', 'full', 'in_progress'].includes(t.status))
       .map((t) => {
         const passengers = t.passengerIds
           .map((pid) => usersMap.get(pid))

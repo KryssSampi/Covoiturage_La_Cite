@@ -1,0 +1,23 @@
+[
+  {
+    "id": "ECO-001",
+    "titre": "Éco-Débutant",
+    "description": "Faites vos premiers pas écologiques en économisant 10 kg de CO₂ grâce au covoiturage.",
+    "cibleCO2Kg": 10,
+    "recompense": "Badge Éco-Débutant"
+  },
+  {
+    "id": "ECO-002",
+    "titre": "Éco-Conscient",
+    "description": "Poursuivez vos efforts en atteignant 50 kg de CO₂ économisés — chaque trajet partagé compte.",
+    "cibleCO2Kg": 50,
+    "recompense": "Badge Éco-Conscient + email félicitations"
+  },
+  {
+    "id": "ECO-003",
+    "titre": "Éco-Warrior",
+    "description": "Devenez un champion de l'environnement en économisant 200 kg de CO₂ au total.",
+    "cibleCO2Kg": 200,
+    "recompense": "Badge Expert Éco"
+  }
+]

@@ -1,4 +1,4 @@
 export { PassengerHistoriquePage } from "./components/PassengerHistoriquePage";
 export { DriverHistoriquePage } from "./components/DriverHistoriquePage";
-export { usePassengerHistoriqueList } from "./hooks/usePassengerHistoriqueList";
-export { useDriverHistoriqueList } from "./hooks/useDriverHistoriqueList";
+export { usePassengerHistoriqueConfig } from "./hooks/usePassengerHistoriqueList";
+export { useDriverHistoriqueConfig } from "./hooks/useDriverHistoriqueList";

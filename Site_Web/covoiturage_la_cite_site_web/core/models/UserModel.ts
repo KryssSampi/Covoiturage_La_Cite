@@ -28,6 +28,10 @@ export interface DriverProfile {
   co2SavedKg: number;
   /** Taux d'annulation (0.05 = 5%) */
   cancellationRate: number;
+  /** Score de ponctualité 0–100 (calculé depuis user_stats) */
+  punctualityScore: number;
+  /** Nombre de fois absent comme conducteur (no-show) */
+  noShowCount: number;
 }
 
 /** Profil spécifique au rôle de passager */
@@ -38,6 +42,10 @@ export interface PassengerProfile {
   totalTripsAsPassenger: number;
   /** CO2 économisé en kg grâce au covoiturage */
   co2SavedKg: number;
+  /** Score de ponctualité 0–100 (calculé depuis user_stats) */
+  punctualityScore: number;
+  /** Nombre de no-shows comme passager */
+  noShowCount: number;
 }
 
 /** Préférences de l'utilisateur */
@@ -94,6 +102,10 @@ export interface UserModel {
   goScore: number;
   /** IDs des badges obtenus */
   badgeIds: string[];
+
+  // ── Préférences étendues ───────────────────────────────────────────────────
+  /** FK vers UserPreferencesModel — null = préférences par défaut */
+  preferencesId?: string;
 
   // ── Metadata ──────────────────────────────────────────────────────────────
   createdAt: string;

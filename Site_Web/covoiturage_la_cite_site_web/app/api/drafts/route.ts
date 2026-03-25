@@ -3,6 +3,9 @@
  * POST /api/drafts   — Création ou sauvegarde d'un brouillon
  */
 import { NextResponse } from 'next/server';
+import type { DraftTrip } from '@/features/brouillons/types';
+import type { IndisponibilityModel } from '@/core/models/IndisponibilityModel';
+import { isDraftBlockedByIndisponibility } from '@/core/utils/indisponibility.utils';
 import { persistenceManager } from '@/tests/PersistenceManager';
 
 type DraftRecord = Record<string, unknown>;
@@ -13,7 +16,12 @@ export async function GET(req: Request) {
     const driverId = searchParams.get('driverId');
 
     let drafts = persistenceManager.readAll<DraftRecord>('drafts');
-    if (driverId) drafts = drafts.filter((d) => d.driverId === driverId);
+    if (driverId) {
+      const indisponibility = persistenceManager.readById<IndisponibilityModel>('indisponibilities', driverId);
+      drafts = drafts
+        .filter((d) => d.driverId === driverId)
+        .filter((draft) => !isDraftBlockedByIndisponibility(draft as unknown as DraftTrip, indisponibility));
+    }
 
     // Tri antéchronologique sur updatedAt
     drafts.sort(

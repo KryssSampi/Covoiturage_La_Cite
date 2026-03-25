@@ -14,7 +14,7 @@ import TrendMsg from "./ui/TrendMsg";
 // ─── Composant ──────────────────────────────────────────────────────────────
 
 function ScatterGainHeure() {
-  const { scale, zoomIn, zoomOut, reset } = useZoom(1, 1, 3, 0.3);
+  const { scale, zoomIn, zoomOut, reset, containerRef } = useZoom(1, 1, 3, 0.3);
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>({ threshold: 0.2 });
 
   return (
@@ -27,6 +27,7 @@ function ScatterGainHeure() {
       {/* Conteneur hauteur fixe — la carte ne grandit pas au zoom */}
       <div className="overflow-hidden mx-5 my-3 rounded-[10px] border border-[rgba(8,49,110,0.09)]" style={{ aspectRatio: "340/180" }}>
       <div
+        ref={containerRef}
         className="zoom-wrap overflow-auto h-full bg-[#f0f4fb]"
       >
         <div

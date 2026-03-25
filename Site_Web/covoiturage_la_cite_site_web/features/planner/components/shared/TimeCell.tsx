@@ -53,6 +53,7 @@ export function TimeCell({ day, hour, minute, hasRide }: TimeCellProps) {
   const slotDateTime = new Date(day);
   slotDateTime.setHours(hour, minute, 0, 0);
   const isPast = slotDateTime < new Date();
+  const isBlocked = isPast || hasRide || unavailable;
 
   // ── Fermeture du menu contextuel au clic extérieur ────────────────────────
   useEffect(() => {
@@ -72,7 +73,7 @@ export function TimeCell({ day, hour, minute, hasRide }: TimeCellProps) {
   const handleOpen = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (isPast) return;
+    if (isBlocked) return;
     setMenuPos({ x: e.clientX, y: e.clientY });
   };
 
@@ -112,24 +113,26 @@ export function TimeCell({ day, hour, minute, hasRide }: TimeCellProps) {
        * Fond rouge translucide si le créneau est marqué indisponible.
        */}
       <div
-        onClick={isPast ? undefined : handleOpen}
-        onContextMenu={isPast ? (e) => e.preventDefault() : handleOpen}
+        onClick={isBlocked ? undefined : handleOpen}
+        onContextMenu={isBlocked ? (e) => e.preventDefault() : handleOpen}
         style={{
           flex:       1,
-          cursor:     isPast ? "default" : "pointer",
+          cursor:     isBlocked ? "default" : "pointer",
           position:   "relative",
           background: isPast
             ? "rgba(0,0,0,0.06)"
+            : hasRide
+              ? "rgba(8,49,110,0.08)"
             : unavailable
               ? "rgba(220,38,38,0.14)"
               : "transparent",
           transition: "background 0.15s",
         }}
-        onMouseEnter={isPast ? undefined : (e) => {
+        onMouseEnter={isBlocked ? undefined : (e) => {
           if (!unavailable)
             e.currentTarget.style.background = "rgba(8,49,110,0.06)";
         }}
-        onMouseLeave={isPast ? undefined : (e) => {
+        onMouseLeave={isBlocked ? undefined : (e) => {
           e.currentTarget.style.background = unavailable
             ? "rgba(220,38,38,0.14)"
             : "transparent";

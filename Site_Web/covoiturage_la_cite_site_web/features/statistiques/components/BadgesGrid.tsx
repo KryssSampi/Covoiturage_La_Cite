@@ -12,18 +12,18 @@ import {
 import { useScrollReveal } from "@/shared/hooks/useScrollReveal";
 import type { BadgeObtenu } from "../types/statistiques.types";
 
-// ─── Icônes de badge par nom ─────────────────────────────────────────────────────
+// ─── Mapping iconKey → composant React Icons ────────────────────────────────
 
-const BADGE_ICONS: Record<string, React.ReactNode> = {
-  "Confirmé":      <FaCircleCheck size={20} className="text-[#0aad6a]" />,
-  "Régulier":      <FaCar size={20} className="text-[#08316e]" />,
-  "Ponctuel":      <FaGaugeHigh size={20} className="text-[#c8960a]" />,
-  "Éco-Débutant":  <FaSeedling size={20} className="text-[#0aad6a]" />,
-  "Fiable":        <FaMedal size={20} className="text-[#c8960a]" />,
-  "Étudiant Cité": <FaStar size={20} className="text-[#08316e]" />,
-  "Social":        <FaShareNodes size={20} className="text-[#0098c8]" />,
-  "Expert":        <FaMedal size={20} className="text-[#c8960a]" />,
-  "Éco-Conscient": <FaLeaf size={20} className="text-[#0aad6a]" />,
+const ICON_MAP: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  FaCircleCheck, FaCar, FaGaugeHigh, FaSeedling,
+  FaMedal, FaStar, FaShareNodes, FaLeaf, FaLock,
+};
+
+/** Résout l'icône à partir de l'iconKey et l'iconColor fournis par le backend */
+const resolveIcon = (iconKey?: string, iconColor?: string): React.ReactNode => {
+  const Icon = iconKey ? ICON_MAP[iconKey] : undefined;
+  if (!Icon) return <FaMedal size={20} className="text-[#7a90b8]" />;
+  return <span style={{ color: iconColor ?? "#7a90b8" }}><Icon size={20} /></span>;
 };
 
 // ─── Composant ──────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ const BadgesGrid: React.FC<{ badges: BadgeObtenu[] }> = ({ badges }) => {
           }`}
           style={{ transitionDelay: `${i * 50}ms` }}
         >
-          <div className="flex justify-center mb-1">{BADGE_ICONS[b.nom] ?? <FaMedal size={20} className="text-[#7a90b8]" />}</div>
+          <div className="flex justify-center mb-1">{resolveIcon(b.iconKey, b.iconColor)}</div>
           <div className="text-[10px] font-bold text-[#0d1f3c]">{b.nom}</div>
           <div className="text-[9px] text-[#7a90b8] mt-0.5">{b.description}</div>
           <div className={`text-[9px] mt-0.5 flex items-center justify-center gap-0.5 ${b.locked ? "text-[#7a90b8]" : "text-[#c8960a]"}`}>

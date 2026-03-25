@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * CardDefis — liste les défis écologiques avec barres de progression et badges de statut.
+ * CardDefis — liste les défis écologiques (EcoChallenges) avec barres de progression CO₂.
  */
 
 import React from "react";
@@ -9,16 +9,18 @@ import { FaSeedling, FaLeaf, FaLock } from "react-icons/fa6";
 import Card from "./ui/Card";
 import CardHeader from "./ui/CardHeader";
 import TrendMsg from "./ui/TrendMsg";
-import type { DefiEcologique } from "../types/goboard.types";
+import type { EcoChallengeAvecProgression } from "../types/goboard.types";
 
-// Mapping icône par nom de défi
+// Mapping icône par titre de défi
 const DEFI_ICONS: Record<string, React.ReactNode> = {
+  "Éco-Débutant":  <FaSeedling size={11} className="text-[#c8960a]" />,
   "Éco-Conscient": <FaSeedling size={11} className="text-[#0aad6a]" />,
   "Éco-Warrior":   <FaLeaf size={11} className="text-[#0aad6a]" />,
-  "Éco-Débutant":  <FaSeedling size={11} className="text-[#c8960a]" />,
 };
 
-function CardDefis({ defis }: { defis: DefiEcologique[] }) {
+function CardDefis({ defis }: { defis: EcoChallengeAvecProgression[] }) {
+  const activeDefi = defis.find((d) => d.statut === "actif");
+
   return (
     <Card delay={250}>
       <CardHeader
@@ -26,7 +28,7 @@ function CardDefis({ defis }: { defis: DefiEcologique[] }) {
         title="Défis Écologiques"
         right={
           <span className="text-[#0aad6a] text-[11px] font-semibold flex items-center gap-1">
-            <FaSeedling size={10} /> Actifs
+            <FaSeedling size={10} /> CO₂
           </span>
         }
       />
@@ -45,7 +47,7 @@ function CardDefis({ defis }: { defis: DefiEcologique[] }) {
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="font-[Syne] font-bold text-xs text-[#0d1f3c] flex items-center gap-1.5">
-                  {DEFI_ICONS[d.nom] || <FaSeedling size={11} className="text-[#08316e]" />} {d.nom}
+                  {DEFI_ICONS[d.titre] || <FaSeedling size={11} className="text-[#08316e]" />} {d.titre}
                 </div>
                 <span
                   className="text-[9px] font-bold px-2 py-0.5 rounded-[5px] shrink-0"
@@ -57,9 +59,10 @@ function CardDefis({ defis }: { defis: DefiEcologique[] }) {
                   {isActive ? "En cours" : isLocked ? <span className="flex items-center gap-0.5"><FaLock size={7} /> Verrouillé</span> : "Complété"}
                 </span>
               </div>
-              <div className="text-[10px] text-[#7a90b8] mt-1">{d.cible}</div>
+              <div className="text-[10px] text-[#7a90b8] mt-1">{d.description}</div>
+              {/* Barre de progression CO₂ */}
               <div className="flex items-center gap-2 mt-2">
-                <div className="flex-1 h-1.25 bg-[rgba(8,49,110,0.08)] rounded-sm overflow-hidden">
+                <div className="flex-1 h-1.5 bg-[rgba(8,49,110,0.08)] rounded-sm overflow-hidden">
                   <div
                     className="h-full rounded-sm transition-[width] duration-1000 ease-out"
                     style={{ width: `${d.progres}%`, background: barColor, opacity: isLocked ? 0.4 : 1 }}
@@ -67,14 +70,17 @@ function CardDefis({ defis }: { defis: DefiEcologique[] }) {
                 </div>
                 <div className="text-[10px] font-bold" style={{ color: pctColor }}>{d.progres}%</div>
               </div>
+              <div className="text-[9px] text-[#7a90b8] mt-0.5">Cible : {d.cibleCO2Kg} kg CO₂</div>
               {isActive && <div className="text-[10px] text-[#c8960a] mt-1">{d.recompense}</div>}
             </div>
           );
         })}
       </div>
-      <TrendMsg variant="up" icon={<FaLeaf className="text-[#0aad6a]" />}>
-        <strong>Éco-Conscient à 47%</strong> — il vous reste environ 265 km CO₂ pour le compléter. À votre rythme actuel, vous l&apos;obtiendrez dans ~3 semaines.
-      </TrendMsg>
+      {activeDefi && (
+        <TrendMsg variant="up" icon={<FaLeaf className="text-[#0aad6a]" />}>
+          <strong>{activeDefi.titre} à {activeDefi.progres}%</strong> — continuez vos trajets partagés pour atteindre la cible de {activeDefi.cibleCO2Kg} kg CO₂.
+        </TrendMsg>
+      )}
     </Card>
   );
 }

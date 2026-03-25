@@ -129,6 +129,14 @@ export interface TripModel {
   /** Date de fin de récurrence, format "YYYY-MM-DD" */
   recurrenceEndDate?: string;
 
+  // ── Critères matching v4 ──────────────────────────────────────────────────
+  /** GoScore minimum requis du passager (0 = aucun) */
+  minPassengerGoScore?: number;
+  /** Langue préférée dans ce trajet */
+  languagePreference?: 'fr' | 'en' | 'bilingual' | 'any';
+  /** Niveau de bagages maximum accepté dans le véhicule */
+  maxBaggageLevel?: 'none' | 'light' | 'heavy';
+
   // ── Statistiques calculées ─────────────────────────────────────────────────
   estimatedDistanceKm?: number;
   estimatedDurationMinutes?: number;

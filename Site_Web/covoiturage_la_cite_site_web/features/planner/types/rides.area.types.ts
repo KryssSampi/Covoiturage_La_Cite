@@ -4,7 +4,6 @@
  */
 
 import type { Language } from "@/core/state/app_state";
-import type { Dispatch, SetStateAction } from "react";
 import type { PublishedTripStatus } from "@/features/dashboard/types";
 
 // ─── TRI ──────────────────────────────────────────────────────────────────────
@@ -74,12 +73,9 @@ export interface RidesListProps {
   isDriver:                boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   visibleRides:            any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  isPassengerListOpens:    any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setIsPassengerListOpens: (v: any) => void;
   formatStatus:            (status: PublishedTripStatus, lang: Language) => string;
   getStatusColor:          (status: PublishedTripStatus) => string;
-  openPassengerLists:      boolean[];
-  setOpenPassengerLists:   Dispatch<SetStateAction<boolean[]>>;
+  onCancelTrip?:           (tripId: string) => Promise<boolean>;
+  onCancelReservation?:    (reservationId: string, raison?: string) => Promise<boolean>;
+  onStartReservation?:     (reservationId: string) => Promise<string | null>;
 }

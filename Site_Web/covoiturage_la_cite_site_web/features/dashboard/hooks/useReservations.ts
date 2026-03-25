@@ -1,6 +1,8 @@
 // features/dashboard/hooks/useReservations.ts
+// Hook purement frontend : tri, UI des listes de passagers, délégation des callbacks.
+// Aucun appel API ni SSE — les actions métier sont injectées par la page parente.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ReservationStatus, type Reservation } from "../types";
 
 // ─── Tri déterministe des réservations par priorité de statut ─────────────────
@@ -23,6 +25,15 @@ function sortReservations(reservations: Reservation[]): Reservation[] {
   return [...inProgress, ...upcoming, ...pending, ...cancelled, ...done];
 }
 
+// ─── Callbacks injectés par la page parente ───────────────────────────────────
+
+export interface ReservationCallbacks {
+  /** Annule une réservation — appelé par la page qui détient la logique API */
+  onCancel?: (reservationId: string, raison?: string) => Promise<boolean>;
+  /** Démarre un trajet — retourne le tripId pour la redirection */
+  onStart?: (reservationId: string) => Promise<string | null>;
+}
+
 // ─── Interface de retour ──────────────────────────────────────────────────────
 
 interface UseReservationsReturn {
@@ -31,9 +42,9 @@ interface UseReservationsReturn {
   openPassengerLists: boolean[];
   togglePassengerList: (index: number) => void;
   closePassengerList: (index: number) => void;
-  /** Annule une réservation via l'API */
+  /** Délègue l'annulation au callback parent */
   cancelReservation: (reservationId: string, raison?: string) => Promise<boolean>;
-  /** Démarre un trajet (réservation confirmed → in_progress) via l'API */
+  /** Délègue le démarrage au callback parent */
   startReservation: (reservationId: string) => Promise<string | null>;
   /** Indique si une action est en cours */
   isActionLoading: boolean;
@@ -43,45 +54,12 @@ interface UseReservationsReturn {
 
 export function useReservations(
   rawReservations: Reservation[],
-  passengerId?: string | null
+  callbacks?: ReservationCallbacks,
 ): UseReservationsReturn {
-  // Données locales mises à jour via SSE
-  const [liveReservations, setLiveReservations] = useState<Reservation[] | null>(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
-  const eventSourceRef = useRef<EventSource | null>(null);
 
-  // Abonnement SSE pour les mises à jour en temps réel
-  useEffect(() => {
-    if (!passengerId) return;
-
-    const es = new EventSource('/api/sse/db-watch/reservations');
-    eventSourceRef.current = es;
-
-    es.addEventListener('update', () => {
-      // Quand les réservations changent en DB, re-fetch les données converties du dashboard
-      fetch(`/api/dashboard/passenger/${passengerId}`)
-        .then((res) => res.ok ? res.json() : null)
-        .then((data) => {
-          if (data?.reservations) {
-            setLiveReservations(data.reservations);
-          }
-        })
-        .catch(() => { /* Erreur silencieuse — le prochain événement SSE réessaiera */ });
-    });
-
-    es.onerror = () => {
-      // Reconnexion automatique gérée par EventSource
-    };
-
-    return () => {
-      es.close();
-      eventSourceRef.current = null;
-    };
-  }, [passengerId]);
-
-  // Source de données : SSE si disponible, sinon props initiales
-  const source = liveReservations ?? rawReservations;
-  const reservations = useMemo(() => sortReservations(source), [source]);
+  // Tri des réservations reçues en props
+  const reservations = useMemo(() => sortReservations(rawReservations), [rawReservations]);
 
   const [openPassengerLists, setOpenPassengerLists] = useState<boolean[]>(
     () => reservations.map(() => false)
@@ -101,42 +79,27 @@ export function useReservations(
   const closePassengerList = (index: number) =>
     setOpenPassengerLists((prev) => prev.map((v, i) => (i === index ? false : v)));
 
-  // ─── Actions métier ─────────────────────────────────────────────────────────
+  // ─── Délégation des actions métier aux callbacks parents ────────────────────
 
-  /** Annule une réservation via POST /api/reservations/[id]/cancel */
-  const cancelReservation = useCallback(async (reservationId: string, raison?: string): Promise<boolean> => {
+  const cancelReservation = async (reservationId: string, raison?: string): Promise<boolean> => {
+    if (!callbacks?.onCancel) return false;
     setIsActionLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${reservationId}/cancel`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ raison }),
-      });
-      return res.ok;
-    } catch {
-      return false;
+      return await callbacks.onCancel(reservationId, raison);
     } finally {
       setIsActionLoading(false);
     }
-  }, []);
+  };
 
-  /** Démarre une réservation — retourne le tripId pour la redirection */
-  const startReservation = useCallback(async (reservationId: string): Promise<string | null> => {
+  const startReservation = async (reservationId: string): Promise<string | null> => {
+    if (!callbacks?.onStart) return null;
     setIsActionLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${reservationId}/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return data.tripId ?? null;
-    } catch {
-      return null;
+      return await callbacks.onStart(reservationId);
     } finally {
       setIsActionLoading(false);
     }
-  }, []);
+  };
 
   return {
     reservations,

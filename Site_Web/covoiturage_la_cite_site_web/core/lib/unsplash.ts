@@ -1,52 +1,94 @@
-export async function getCityImage(city: string) {
-  const lowerCity = city.toLowerCase();
+const DEFAULT_CITY_IMAGE = "/assets/destinations-pictures/default-city.png";
+const LACITE_IMAGE = "/assets/destinations-pictures/la-cite.png";
+const HOME_IMAGE = "/assets/destinations-pictures/maison.png";
+const WORK_IMAGE = "/assets/destinations-pictures/travail.png";
 
-  if (lowerCity.includes("cité")) {
-    const image = "/assets/destinations-pictures/la-cite.png";
-    setImage(image);
-    return image;
+const imageCache = new Map<string, string>();
+const inflightCache = new Map<string, Promise<string>>();
+
+function normalizeCity(city: string) {
+  return city
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9\s'-]/g, " ")
+    .toLowerCase()
+    .trim();
+}
+
+function getLocalImage(city: string) {
+  const normalized = normalizeCity(city);
+
+  if (
+    normalized.includes("cite") ||
+    normalized.includes("campus") ||
+    normalized.includes("college")
+  ) {
+    return LACITE_IMAGE;
   }
 
-  switch (lowerCity) {
-    case "campus la cité":
-    case "la cité":
-    case "cité":
-    case "cité collégiale":
-        const image = "/assets/destinations-pictures/la-cite.png";
-        setImage(image);
-        return image;
+  if (normalized.includes("maison") || normalized.includes("domicile")) {
+    return HOME_IMAGE;
+  }
 
-    case "maison":
-        const imageMaison = "/assets/destinations-pictures/maison.png";
-        setImage(imageMaison);
-        return imageMaison;
-    case "travail":
-        const imageTravail = "/assets/destinations-pictures/travail.png";
-        setImage(imageTravail);
-        return imageTravail;   
+  if (normalized.includes("travail")) {
+    return WORK_IMAGE;
+  }
 
-    default:
-      const res = await fetch(`/api/unsplash?city=${city}`);
+  return DEFAULT_CITY_IMAGE;
+}
+
+async function fetchWithTimeout(url: string, timeoutMs: number) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function getCityImage(city: string) {
+  const cacheKey = normalizeCity(city);
+
+  if (!cacheKey) {
+    return DEFAULT_CITY_IMAGE;
+  }
+
+  if (imageCache.has(cacheKey)) {
+    return imageCache.get(cacheKey) ?? DEFAULT_CITY_IMAGE;
+  }
+
+  if (inflightCache.has(cacheKey)) {
+    return inflightCache.get(cacheKey) ?? Promise.resolve(DEFAULT_CITY_IMAGE);
+  }
+
+  const localImage = getLocalImage(city);
+
+  const promise = (async () => {
+    try {
+      const res = await fetchWithTimeout(
+        `/api/unsplash?city=${encodeURIComponent(city)}`,
+        2500
+      );
 
       if (!res.ok) {
-        return null;
+        imageCache.set(cacheKey, localImage);
+        return localImage;
       }
 
       const data = await res.json();
-      if(!data.image || data.image.length === 0) {
-        const defaultImage = "/assets/destinations-pictures/default-city.png";
-        setImage(defaultImage);
-        return defaultImage;
-      }
-      setImage(data.image);
-      return data?.image || null;
-  }
-}
-function setImage(image: string | null): void {
-  if (typeof window !== "undefined") {
-    const imageElement = document.querySelector("img[data-city-image]");
-    if (imageElement) {
-      imageElement.setAttribute("src", image || "");
+      const image = data?.image || localImage;
+      imageCache.set(cacheKey, image);
+      return image;
+    } catch {
+      imageCache.set(cacheKey, localImage);
+      return localImage;
+    } finally {
+      inflightCache.delete(cacheKey);
     }
-  }
+  })();
+
+  inflightCache.set(cacheKey, promise);
+  return promise;
 }

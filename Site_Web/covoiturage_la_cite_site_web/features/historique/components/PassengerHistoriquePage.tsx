@@ -15,7 +15,13 @@ import { Language, useAppState } from "@/core/state/app_state";
 import { formatDate } from "@/core/utils/date.utils";
 import { ListDetailPage } from "@/shared/components/list-detail-page";
 import type { Trip } from "@/features/dashboard/types/trip.types";
-import { usePassengerHistoriqueList } from "../hooks/usePassengerHistoriqueList";
+import { usePassengerHistoriqueConfig } from "../hooks/usePassengerHistoriqueList";
+
+// ─── Props du composant (données fournies par la page route) ──────────────
+
+interface PassengerHistoriquePageProps {
+  items: Trip[];
+}
 
 // ─── Constante de fallback pour les photos de profil ─────────────────────────
 const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
@@ -65,9 +71,9 @@ function TripListCard({ trip, lang }: { trip: Trip; lang: Language }) {
 
 // ─── Page principale ─────────────────────────────────────────────────────────
 
-export function PassengerHistoriquePage() {
+export function PassengerHistoriquePage({ items }: PassengerHistoriquePageProps) {
   const { lang } = useAppState();
-  const { items, sortOptions, searchKeys, emptyMessage } = usePassengerHistoriqueList();
+  const { sortOptions, searchKeys, emptyMessage } = usePassengerHistoriqueConfig();
 
   const renderCard = useCallback(
     (trip: Trip) => <TripListCard trip={trip} lang={lang} />,

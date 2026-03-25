@@ -1,81 +1,112 @@
 "use client";
 
-/**
- * @file reservation_requests.section.tsx
- * @description Section "Mes Demandes de Réservation" — exclusif au rôle Conducteur.
- *
- * Affiche les demandes de réservation en attente, triées par :
- * 1. Note de l'applicant décroissante (passagers fiables en premier)
- * 2. Date/heure croissante (créneaux les plus proches d'abord)
- *
- * Chaque carte : photo + note + trajets effectués de l'applicant,
- * détails du trajet (départ → arrivée, date, places, prix),
- * boutons Accepter / Refuser.
- *
- * @uses useReservationRequests — tri et encapsulation en modèles
- * @uses ReservationRequest — type depuis dashboard/types
- * @uses FIXTURE_RESERVATION_REQUESTS — données de test (à remplacer par API)
- */
-
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { FaUserFriends, FaArrowRight, FaStar, FaSpinner } from "react-icons/fa";
+import { FaUserFriends, FaArrowRight, FaStar } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { formatDate } from "@/core/utils/date.utils";
-
-import { useReservationRequests } from "../../hooks";
-import {
+import type {
   ReservationRequest,
   ReservationRequestCardModel,
 } from "../../types";
+import {
+  ReservationDecisionToast,
+  type DecisionType,
+  type DecisionDetails,
+} from "@/shared/components/ReservationDecisionToast";
+import { FIXTURE_RESERVATION_REQUESTS } from "@/tests/fixtures/dashboard/reservationrequest.fixtures";
 
-// URL de repli si la photo de profil du passager est introuvable
-const AVATAR_FALLBACK = "https://static.vecteezy.com/system/resources/thumbnails/048/216/761/small/modern-male-avatar-with-black-hair-and-hoodie-illustration-free-png.png";
+const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
 
-// ─── Composant principal ─────────────────────────────────────────────────────
+function organizeRequests(requests: ReservationRequest[]): ReservationRequest[] {
+  return [...requests].sort((a, b) => {
+    const noteDiff = b.applicant.note - a.applicant.note;
+    if (noteDiff !== 0) return noteDiff;
+    return new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime();
+  });
+}
 
-/**
- * ReservationRequestsSection
- *
- * @param requests Liste des demandes de réservation en attente.
- *   Par défaut : FIXTURE_RESERVATION_REQUESTS.
- *   TODO: Brancher sur GET /api/driver/{userId}/reservation-requests?status=pending
- *   TODO: Brancher POST /api/reservation-requests/{id}/accept (bouton Accepter)
- *   TODO: Brancher POST /api/reservation-requests/{id}/decline (bouton Refuser)
- */
 export function ReservationRequestsSection({
   requests,
+  onAcceptRequest,
+  onRejectRequest,
+  isActionLoading = false,
 }: {
-  requests: ReservationRequest[];
+  requests?: ReservationRequest[];
+  onAcceptRequest?: (id: string) => Promise<boolean>;
+  onRejectRequest?: (id: string) => Promise<boolean>;
+  isActionLoading?: boolean;
 }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
-  // Identifiants des demandes acceptées (retrait optimiste de la liste)
-  const [acceptedIds, setAcceptedIds] = useState<string[]>([]);
+  // Données visibles — dérivées directement des props
+  const visibleRequests = requests ?? FIXTURE_RESERVATION_REQUESTS;
+  const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
 
-  const { requestModels, isPassengerListOpens, setIsPassengerListOpens } =
-    useReservationRequests(requests);
-
-  // Filtre les cartes dont la demande a déjà été acceptée
-  const visibleModels = requestModels.filter(
-    (m) => !acceptedIds.includes(String(m.request.id))
+  const requestModels = useMemo<ReservationRequestCardModel[]>(
+    () =>
+      organizeRequests(visibleRequests)
+        .filter((r) => !removedIds.has(String(r.id)))
+        .map((request) => ({
+          request,
+          isPassengerListOpen: false,
+        })),
+    [visibleRequests, removedIds]
   );
 
-  /** Callback appelé par ReservationRequestCard après confirmation serveur */
-  const handleAccepted = (id: string) => {
-    setAcceptedIds((prev) => [...prev, id]);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastDecision, setToastDecision] = useState<DecisionType>("accept");
+  const [toastDetails, setToastDetails] = useState<DecisionDetails>({
+    applicantName: "",
+    departure: "",
+    destination: "",
+    date: "",
+    time: "",
+  });
+  const [toastTargetId, setToastTargetId] = useState<string>("");
+
+  const openDecisionToast = (
+    id: string,
+    decision: DecisionType,
+    request: ReservationRequest,
+  ) => {
+    setToastTargetId(id);
+    setToastDecision(decision);
+    setToastDetails({
+      applicantName: request.applicant.name,
+      departure: request.departure,
+      destination: request.destination,
+      date: request.date,
+      time: request.time,
+    });
+    setToastOpen(true);
+  };
+
+  const handleConfirmDecision = async () => {
+    setToastOpen(false);
+
+    if (toastDecision === "accept") {
+      const ok = await (onAcceptRequest?.(toastTargetId) ?? Promise.resolve(true));
+      if (ok) {
+        setRemovedIds((prev) => new Set(prev).add(toastTargetId));
+      }
+    } else {
+      const ok = await (onRejectRequest?.(toastTargetId) ?? Promise.resolve(true));
+      if (ok) {
+        setRemovedIds((prev) => new Set(prev).add(toastTargetId));
+      }
+    }
   };
 
   return (
     <section className="w-full py-10 mx-auto flex flex-col justify-center items-center rounded-lg shadow-md bg-[#08316ee5] text-white">
-      {/* ─── En-tête ──────────────────────────────────────────────────── */}
       <div className="w-full flex justify-between mx-auto items-center px-10">
         <h2 className="text-3xl font-bold">
-          {isFR ? "Mes Demandes de Réservation" : "My Reservation Requests"}
+          {isFR ? "Mes Demandes de Reservation" : "My Reservation Requests"}
         </h2>
         <Link
           href="/driver/reservations"
@@ -87,12 +118,11 @@ export function ReservationRequestsSection({
 
       <div className="w-13/15 h-1 bg-white rounded-full" />
 
-      {/* ─── Liste ou état vide ───────────────────────────────────────── */}
       <div className="w-full h-100 flex flex-col justify-center items-center px-10">
-        {visibleModels.length === 0 ? (
+        {requestModels.length === 0 ? (
           <div className="w-full h-full flex justify-center items-center">
             <p className="text-white text-2xl text-center">
-              {isFR ? "Aucune demande de réservation pour le moment." : "No reservation requests at the moment."}
+              {isFR ? "Aucune demande de reservation pour le moment." : "No reservation requests at the moment."}
             </p>
           </div>
         ) : (
@@ -100,13 +130,13 @@ export function ReservationRequestsSection({
             className="w-full flex flex-col max-h-100 items-center px-10 overflow-y-auto"
             style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
           >
-            {visibleModels.map((model) => (
+            {requestModels.map((model) => (
               <ReservationRequestCard
-                key={model.request.id}
+                key={String(model.request.id)}
                 model={model}
-                onAccepted={handleAccepted}
-                isPassengerListOpens={isPassengerListOpens}
-                setIsPassengerListOpens={setIsPassengerListOpens}
+                onAccept={(id) => openDecisionToast(id, "accept", model.request)}
+                onReject={(id) => openDecisionToast(id, "reject", model.request)}
+                isActionLoading={isActionLoading}
               />
             ))}
           </div>
@@ -114,64 +144,35 @@ export function ReservationRequestsSection({
       </div>
 
       <div className="w-13/15 h-1 bg-white rounded-full" />
+
+      <ReservationDecisionToast
+        isOpen={toastOpen}
+        decision={toastDecision}
+        details={toastDetails}
+        onConfirm={handleConfirmDecision}
+        onCancel={() => setToastOpen(false)}
+      />
     </section>
   );
 }
 
-// ─── Carte de demande ────────────────────────────────────────────────────────
-
-/**
- * ReservationRequestCard
- * Affiche les détails d'une demande de réservation avec actions Accepter / Refuser.
- * Les images Unsplash (départ / arrivée) sont chargées en parallèle au montage.
- *
- * TODO: onClick Accepter → POST /api/reservation-requests/{id}/accept
- * TODO: onClick Refuser  → POST /api/reservation-requests/{id}/decline
- */
 function ReservationRequestCard({
   model,
-  onAccepted,
+  onAccept,
+  onReject,
+  isActionLoading,
 }: {
   model: ReservationRequestCardModel;
-  onAccepted: (id: string) => void;
-  isPassengerListOpens: { isPassengerListOpen: boolean }[];
-  setIsPassengerListOpens: React.Dispatch<
-    React.SetStateAction<{ isPassengerListOpen: boolean }[]>
-  >;
+  onAccept: (id: string) => void;
+  onReject: (id: string) => void;
+  isActionLoading: boolean;
 }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
   const { request } = model;
 
-  // État de chargement pour le bouton Accepter
-  const [isAccepting, setIsAccepting] = useState(false);
-
-  /** Appelle POST /api/reservations/[id]/accept, puis retire la carte de la liste */
-  const handleAccept = async () => {
-    setIsAccepting(true);
-    try {
-      const res = await fetch(`/api/reservations/${request.id}/accept`, {
-        method: "POST",
-      });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        console.error("[accept]", body.error ?? res.statusText);
-        return;
-      }
-      onAccepted(String(request.id));
-    } catch (err) {
-      console.error("[accept]", err);
-    } finally {
-      setIsAccepting(false);
-    }
-  };
-
-
-
   return (
     <div className="w-full h-fit flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-2xs border border-gray-300 shadow-white bg-gray-200 p-4 mb-4 hover:shadow-xl hover:scale-[1.02] transition-all">
-
-      {/* ─── Photo de profil de l'applicant ──────────────────────────── */}
       <Image
         src={request.applicant.urlPicture || AVATAR_FALLBACK}
         alt={`${request.applicant.name} profile picture`}
@@ -183,10 +184,7 @@ function ReservationRequestCard({
 
       <div className="w-px h-40 bg-black" />
 
-      {/* ─── Informations applicant + trajet ─────────────────────────── */}
       <div className="flex flex-col relative items-start justify-center gap-y-1 h-full w-full">
-
-        {/* Nom + note + trajets effectués */}
         <div className="flex items-center text-black text-2xl gap-x-2">
           <Link
             href={`/public-profile?accountid=${request.applicant.id}`}
@@ -203,7 +201,6 @@ function ReservationRequestCard({
           </p>
         </div>
 
-        {/* Résumé du trajet demandé */}
         <p className="flex gap-1 text-[#08316e] items-baseline font-semibold text-2xl">
           {isFR ? "Veut rejoindre votre trajet de" : "Wants to join your ride from"} :
         </p>
@@ -224,7 +221,6 @@ function ReservationRequestCard({
           </p>
         </div>
 
-        {/* Date, heure, prix */}
         <div className="w-full text-black justify-between flex items-center">
           <span className="text-xl font-semibold text-black">
             {isFR ? "De : " : "Of : "}
@@ -237,27 +233,18 @@ function ReservationRequestCard({
         </div>
       </div>
 
-      {/* ─── Actions Accepter / Refuser ───────────────────────────────── */}
       <div className="flex flex-col h-full justify-between w-3/11 gap-y-10 items-center">
         <button
-          className="w-full bg-green-600 hover:bg-green-800 hover:shadow text-gray-300
-                     font-bold py-1 text-2xl px-4 rounded-xl transition-colors
-                     flex items-center justify-center gap-2 disabled:opacity-60"
-          onClick={handleAccept}
-          disabled={isAccepting}
+          className="w-full bg-green-600 hover:bg-green-800 hover:shadow text-gray-300 font-bold py-1 text-2xl px-4 rounded-xl transition-colors disabled:opacity-50"
+          onClick={() => onAccept(String(request.id))}
+          disabled={isActionLoading}
         >
-          {isAccepting ? (
-            <FaSpinner className="animate-spin text-2xl" />
-          ) : (
-            isFR ? "Accepter" : "Accept"
-          )}
+          {isFR ? "Accepter" : "Accept"}
         </button>
         <button
-          className="w-full bg-red-600 hover:bg-red-800 hover:shadow text-gray-300
-                     font-bold py-1 text-2xl px-4 rounded-xl transition-colors"
-          onClick={() => {
-            // TODO: POST /api/reservations/${request.id}/refuse
-          }}
+          className="w-full bg-red-600 hover:bg-red-800 hover:shadow text-gray-300 font-bold py-1 text-2xl px-4 rounded-xl transition-colors disabled:opacity-50"
+          onClick={() => onReject(String(request.id))}
+          disabled={isActionLoading}
         >
           {isFR ? "Refuser" : "Decline"}
         </button>

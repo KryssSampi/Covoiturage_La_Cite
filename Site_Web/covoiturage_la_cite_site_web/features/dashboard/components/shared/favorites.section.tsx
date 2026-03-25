@@ -1,21 +1,9 @@
 "use client";
 
-/**
- * @file favorites.section.tsx
- * @description Section "Mes Favoris" du dashboard — commune à tous les rôles.
- *
- * Affiche les lieux favoris de l'utilisateur sous forme de pills cliquables.
- * Un clic autofill le champ de départ de SuperSearchSection via un CustomEvent.
- * Le bouton "Collège La Cité" est toujours présent en premier (favori implicite non supprimable).
- *
- * @uses useFavorites — logique d'état (modal, tri, autofill)
- * @uses Favorite — type depuis dashboard/types
- */
-
 import { FaX } from "react-icons/fa6";
 import Link from "next/link";
 import { createPortal } from "react-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { useIsMobileOrTablet } from "@/shared/hooks/useismobileortable";
@@ -25,33 +13,19 @@ import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
 
 import { useFavorites } from "../../hooks/useFavorites";
 
-// ─── Composant principal ─────────────────────────────────────────────────────
-
-/**
- * FavoritesSection
- *
- * Charge les lieux favoris de l'utilisateur courant via GET /api/lieux-favoris.
- * Repli sur les fixtures si l'API échoue ou si l'utilisateur n'est pas connecté.
- */
-export function FavoritesSection() {
+export function FavoritesSection({
+  favorites: initialFavorites = FIXTURE_LIEUX_FAVORIS,
+  onDeleteFavorite,
+}: {
+  favorites?: LieuFavoriUnifie[];
+  onDeleteFavorite?: (favorite: LieuFavoriUnifie) => void | Promise<void>;
+}) {
   const appState = useAppState();
   const isBelowLg = useIsMobileOrTablet();
   const isFR = appState.lang === Language.FR;
-  const userId = appState.userConnected?.id;
 
-  // Démarre avec les fixtures — remplacé par l'API dès que les données arrivent
-  const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>(FIXTURE_LIEUX_FAVORIS);
-
-  // Chargement des lieux favoris réels de l'utilisateur courant
-  useEffect(() => {
-    if (!userId) return;
-    fetch(`/api/lieux-favoris?userId=${userId}`)
-      .then((r) => r.json())
-      .then((data: LieuFavoriUnifie[]) => {
-        if (Array.isArray(data) && data.length > 0) setFavorites(data);
-      })
-      .catch(() => { /* repli silencieux sur les fixtures déjà chargées */ });
-  }, [userId]);
+  // Liste locale : initialisée avec les props du parent
+  const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>(initialFavorites);
 
   const {
     isDeleteModalOpen,
@@ -63,19 +37,15 @@ export function FavoritesSection() {
     organizeFavorites,
   } = useFavorites();
 
-  // Callback passé à handleDelete : met à jour la liste locale ET appelle l'API
-  const onFavoriteDeleted = (name: string) => {
-    const fav = favorites.find((f) => f.pseudonyme === name);
-    if (fav && userId) {
-      fetch(`/api/lieux-favoris?id=${fav.id}&userId=${userId}`, { method: 'DELETE' })
-        .catch(() => { /* suppression côté client maintenue même si l'API échoue */ });
+  const onFavoriteDeleted = async (name: string) => {
+    const favorite = favorites.find((f) => f.pseudonyme === name);
+    if (favorite && onDeleteFavorite) {
+      await onDeleteFavorite(favorite);
     }
     setFavorites((prev) => prev.filter((f) => f.pseudonyme !== name));
   };
 
-  // Le favori Campus La Cité (ancré, toujours en premier)
   const campusFav = favorites.find((f) => f.isAnchored);
-  // Les autres favoris (non ancrés)
   const userFavorites = favorites.filter((f) => !f.isAnchored);
 
   const isDriverOrMobile =
@@ -84,7 +54,6 @@ export function FavoritesSection() {
   return (
     <>
       <section className="w-full border rounded-lg shadow-md bg-white flex flex-col overflow-hidden">
-        {/* ─── Header ──────────────────────────────────────────────────── */}
         <div className="p-6 pb-2 space-y-3">
           <div className="flex justify-between items-center px-1">
             <h2 className="text-3xl text-black font-bold">
@@ -100,7 +69,6 @@ export function FavoritesSection() {
           <div className="bg-[#08316e] h-1 w-full rounded-full" />
         </div>
 
-        {/* ─── Liste des favoris ───────────────────────────────────────── */}
         <div className="flex justify-center items-center overflow-hidden">
           <div
             className={`px-6 py-4 flex gap-4 w-full ${
@@ -109,7 +77,6 @@ export function FavoritesSection() {
                 : "flex-row overflow-x-auto custom-scrollbar pb-6 max-w-4xl"
             }`}
           >
-            {/* Campus La Cité — toujours présent, non supprimable (ancré) */}
             {campusFav && (
               <button
                 className="flex-none h-16 flex items-center gap-4 px-6 bg-[#08316e] rounded-full shadow-sm hover:bg-[#06214e] hover:scale-[1.03] transition-all duration-300"
@@ -118,12 +85,11 @@ export function FavoritesSection() {
               >
                 {getLieuFavoriIcon(campusFav.iconTag, "text-3xl text-white")}
                 <span className="text-white text-2xl font-medium whitespace-nowrap">
-                  {isFR ? "Collège" : "College"}
+                  {isFR ? "College" : "College"}
                 </span>
               </button>
             )}
 
-            {/* Favoris utilisateur triés (Domicile > Travail > autres) */}
             {organizeFavorites(userFavorites).map((favorite) => (
               <button
                 key={favorite.id}
@@ -140,7 +106,6 @@ export function FavoritesSection() {
                   </span>
                 </div>
 
-                {/* Bouton de suppression : stoppe la propagation pour ne pas déclencher l'autofill */}
                 <FaX
                   className="text-white text-3xl cursor-pointer hover:text-red-400 p-1"
                   onClick={(e) => {
@@ -153,19 +118,19 @@ export function FavoritesSection() {
           </div>
         </div>
 
-        {/* ─── Footer ──────────────────────────────────────────────────── */}
         <div className="px-6 pb-4">
           <div className="bg-[#08316e] h-1 w-full rounded-full" />
         </div>
       </section>
 
-      {/* ─── Modal de confirmation suppression (via Portal) ──────────── */}
       {isDeleteModalOpen && favoriteSelectedForDelete && (
         <DeleteModal
           favoriteName={favoriteSelectedForDelete}
           onClose={closeDeleteModal}
           onConfirm={() =>
-            handleDelete(favoriteSelectedForDelete, onFavoriteDeleted)
+            handleDelete(favoriteSelectedForDelete, () => {
+              void onFavoriteDeleted(favoriteSelectedForDelete);
+            })
           }
         />
       )}
@@ -173,12 +138,6 @@ export function FavoritesSection() {
   );
 }
 
-// ─── Sous-composants ─────────────────────────────────────────────────────────
-
-/**
- * Modal de confirmation suppression d'un favori.
- * Rendu via createPortal pour s'afficher au-dessus de tout le contenu.
- */
 function DeleteModal({
   favoriteName,
   onClose,
@@ -200,7 +159,7 @@ function DeleteModal({
         <p className="mb-4 text-2xl">
           {isFR ? (
             <>
-              Êtes-vous sûr de vouloir supprimer{" "}
+              Etes-vous sur de vouloir supprimer{" "}
               <span className="font-black">{favoriteName}</span> de vos favoris ?
             </>
           ) : (
@@ -230,10 +189,3 @@ function DeleteModal({
     document.body
   );
 }
-
-/**
- * Icône correspondant au nom du favori.
- * 
- */
-
-

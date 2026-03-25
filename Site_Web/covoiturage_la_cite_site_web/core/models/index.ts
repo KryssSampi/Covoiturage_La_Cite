@@ -49,3 +49,58 @@ export type {
   ReviewModel,
   RevieweeRole,
 } from './ReviewModel';
+
+export type {
+  BadgeModel,
+  BadgeCategorie,
+  BadgeIconKey,
+} from './BadgeModel';
+
+export type {
+  UserStatModel,
+  UserStatKpis,
+  UserStatTrajets,
+  UserStatCO2Mois,
+  UserStatScatterPoint,
+  UserStatNotesHebdo,
+  UserStatDistributionNotes,
+  UserStatTrajetResume,
+  UserStatImpactEco,
+  UserStatBadgeRef,
+} from './UserStatModel';
+
+export type {
+  PassengerFinanceAccountModel,
+  PassengerFinanceTransaction,
+} from './PassengerFinanceAccountModel';
+
+export type {
+  UserPreferencesModel,
+  ConversationLevelPref,
+  BaggageLevel,
+  LanguagePreference,
+  PaymentMethodPref,
+  MusicGenre,
+} from './UserPreferencesModel';
+export { DEFAULT_USER_PREFERENCES_EXTENDED } from './UserPreferencesModel';
+
+export type {
+  AffiniteModel,
+  AffiniteRecord,
+  AffiniteRatingEvent,
+  OrigineRelation,
+} from './AffiniteModel';
+export { createAffiniteFromFirstTrip, computeAffiniteScore } from './AffiniteModel';
+
+export type {
+  SignalementModel,
+  LitigeModel,
+  LitigeEchange,
+  CibleSignalement,
+  NiveauSeverite,
+  NiveauSecurite,
+  StatutSignalement,
+  StatutLitige,
+  DecisionLitige,
+  PartieLitige,
+} from './SignalementModel';

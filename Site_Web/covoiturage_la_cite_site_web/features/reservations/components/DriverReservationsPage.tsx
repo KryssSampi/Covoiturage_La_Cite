@@ -25,11 +25,19 @@ import {
 } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
-import { useTripActions } from "@/core/context/trip.context";
 import { formatDate } from "@/core/utils/date.utils";
 import { ListDetailPage } from "@/shared/components/list-detail-page";
 import type { ReservationRequest } from "@/features/dashboard/types";
-import { useDriverReservationRequestsList } from "../hooks/useDriverReservationRequestsList";
+import { useDriverReservationRequestsConfig } from "../hooks/useDriverReservationRequestsList";
+
+// ─── Props du composant (données et handlers fournis par la page route) ──────
+
+interface DriverReservationsPageProps {
+  items: ReservationRequest[];
+  onAcceptRequest: (id: string) => Promise<boolean>;
+  onRejectRequest: (id: string) => Promise<boolean>;
+  isActionLoading?: boolean;
+}
 
 // ─── Constante de fallback pour les photos de profil ─────────────────────────
 const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
@@ -104,13 +112,16 @@ function ReservationRequestListCard({
 function FakeProfileDetail({
   request,
   lang,
+  onAccept,
+  onReject,
 }: {
   request: ReservationRequest;
   lang: Language;
+  onAccept: (id: string) => Promise<boolean>;
+  onReject: (id: string) => Promise<boolean>;
 }) {
   const isFR = lang === Language.FR;
   const { applicant } = request;
-  const { acceptReservation, refuseReservation } = useTripActions();
   const [isPending, setIsPending] = useState<'accept' | 'refuse' | null>(null);
 
   return (
@@ -229,7 +240,7 @@ function FakeProfileDetail({
           style={{ backgroundColor: "#16a34a" }}
           onClick={async () => {
             setIsPending('accept');
-            try { await acceptReservation(request.reservationId); }
+            try { await onAccept(request.id); }
             finally { setIsPending(null); }
           }}
         >
@@ -242,7 +253,7 @@ function FakeProfileDetail({
           style={{ backgroundColor: "#dc2626" }}
           onClick={async () => {
             setIsPending('refuse');
-            try { await refuseReservation(request.reservationId); }
+            try { await onReject(request.id); }
             finally { setIsPending(null); }
           }}
         >
@@ -256,9 +267,13 @@ function FakeProfileDetail({
 
 // ─── Page principale ─────────────────────────────────────────────────────────
 
-export function DriverReservationsPage() {
+export function DriverReservationsPage({
+  items,
+  onAcceptRequest,
+  onRejectRequest,
+}: DriverReservationsPageProps) {
   const { lang } = useAppState();
-  const { items, sortOptions, searchKeys, emptyMessage } = useDriverReservationRequestsList();
+  const { sortOptions, searchKeys, emptyMessage } = useDriverReservationRequestsConfig();
 
   // Rendu de la carte de demande dans le listing
   const renderCard = useCallback(
@@ -271,9 +286,14 @@ export function DriverReservationsPage() {
   // Rendu détail : fake profile page avec détails trajet + boutons accepter/refuser
   const renderDetail = useCallback(
     (request: ReservationRequest) => (
-      <FakeProfileDetail request={request} lang={lang} />
+      <FakeProfileDetail
+        request={request}
+        lang={lang}
+        onAccept={onAcceptRequest}
+        onReject={onRejectRequest}
+      />
     ),
-    [lang],
+    [lang, onAcceptRequest, onRejectRequest],
   );
 
   return (

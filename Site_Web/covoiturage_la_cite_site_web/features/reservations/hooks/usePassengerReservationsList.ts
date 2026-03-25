@@ -1,43 +1,19 @@
 "use client";
 
 /**
- * Hook gérant la configuration ListDetailPage pour les réservations du passager.
- * Fournit les données réelles via useDb(), les filtres par statut et les options de tri.
+ * Hook de configuration ListDetailPage pour les réservations du passager.
+ * Fournit uniquement les filtres, options de tri, recherche et message vide.
+ * Les données sont chargées au niveau de la page route (pattern dashboard).
  */
 
 import { useMemo } from "react";
 import { Language, useAppState } from "@/core/state/app_state";
-import { useDb } from "@/core/context/db.context";
-import { reservationToPassengerView } from "@/features/reservations/converters/reservation.converter";
 import { ReservationStatus } from "@/features/dashboard/types";
 import type { FilterGroup, SortOption } from "@/shared/components/list-detail-page";
 
-export function usePassengerReservationsList() {
+export function usePassengerReservationsConfig() {
   const { lang } = useAppState();
   const isFR = lang === Language.FR;
-
-  // Données réelles depuis le DbProvider : réservations du passager connecté
-  const { myReservations, trips, users } = useDb();
-
-  // Map de recherche rapide sur les utilisateurs
-  const usersMap = useMemo(
-    () => new Map(users.map((u) => [u.id, u])),
-    [users]
-  );
-
-  // Conversion des ReservationModel en Reservation (format UI dashboard)
-  const items = useMemo(
-    () =>
-      myReservations
-        .map((r) => {
-          const trip   = trips.find((t) => t.id === r.tripId);
-          const driver = usersMap.get(r.driverId);
-          if (!trip || !driver) return null;
-          return reservationToPassengerView(r, trip, driver);
-        })
-        .filter((r) => r !== null),
-    [myReservations, trips, usersMap]
-  );
 
   // Filtre par statut de réservation
   const filterGroups: FilterGroup[] = useMemo(() => [
@@ -79,5 +55,5 @@ export function usePassengerReservationsList() {
     ? "Aucune réservation pour le moment."
     : "No reservations at the moment.";
 
-  return { items, filterGroups, sortOptions, searchKeys, emptyMessage };
+  return { filterGroups, sortOptions, searchKeys, emptyMessage };
 }

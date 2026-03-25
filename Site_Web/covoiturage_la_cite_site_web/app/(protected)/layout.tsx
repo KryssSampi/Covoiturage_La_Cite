@@ -2,12 +2,13 @@
 
 import { Footer } from "@/shared/components/footer";
 import { Header } from "@/shared/components/header";
-import { LoaderProvider, useLoader } from "@/core/context/loader.context";
+import { useLoader } from "@/core/context/loader.context";
 import { LoaderManager } from "@/shared/components/LoaderManager";
 import { useAppState } from "@/core/state/app_state";
 import { DbProvider } from "@/core/context/db.context";
 import { TripProvider } from "@/core/context/trip.context";
 import { useEffect, useSyncExternalStore } from "react";
+import { useRouter } from "next/navigation";
 
 /**
  * Détecte si le composant est monté côté client.
@@ -29,6 +30,7 @@ export default function RootLayout({
 }>) {
   const appState        = useAppState();
   const { setActiveLoader } = useLoader();
+  const router = useRouter();
 
   // false sur le serveur ET lors du premier rendu client → aucun mismatch d'hydratation
   const mounted = useIsMounted();
@@ -37,9 +39,9 @@ export default function RootLayout({
   useEffect(() => {
     if (mounted && !appState.userConnected) {
       setActiveLoader(true);
-      window.location.href = "/login";
+      router.replace("/login");
     }
-  }, [mounted, appState.userConnected, setActiveLoader]);
+  }, [mounted, appState.userConnected, router, setActiveLoader]);
 
   // Avant le montage : null côté serveur ET client → rendu identique, aucun mismatch
   if (!mounted) return null;
@@ -48,7 +50,7 @@ export default function RootLayout({
   if (!appState.userConnected) return null;
 
   return (
-    <LoaderProvider>
+    <>
       <LoaderManager />
       <DbProvider>
         <TripProvider>
@@ -57,6 +59,6 @@ export default function RootLayout({
           <Footer />
         </TripProvider>
       </DbProvider>
-    </LoaderProvider>
+    </>
   );
 }

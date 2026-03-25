@@ -2,14 +2,16 @@
 
 /**
  * Page d'historique des trajets — rôle Passager.
- * Affiche la liste des trajets auxquels le passager a participé via ListDetailPage.
+ * Récupère les données via API, souscrit au SSE pour les mises à jour temps réel,
+ * et passe les items à PassengerHistoriquePage (composant pur).
  */
 
-import { useEffect } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useLoader } from "@/core/context/loader.context";
 import { useAppState } from "@/core/state/app_state";
 import { PassengerHistoriquePage } from "@/features/historique";
+import type { Trip } from "@/features/dashboard/types/trip.types";
 
 export default function PassengerHistoriqueRoutePage() {
   const appState            = useAppState();
@@ -17,6 +19,8 @@ export default function PassengerHistoriqueRoutePage() {
   const router              = useRouter();
   const { setActiveLoader } = useLoader();
   const user                = appState.userConnected;
+
+  const [items, setItems] = useState<Trip[]>([]);
 
   // Vérification rôle / identité
   useEffect(() => {
@@ -29,7 +33,38 @@ export default function PassengerHistoriqueRoutePage() {
     }
   }, [user, params, router, setActiveLoader]);
 
+  // Chargement des données depuis l'API dédiée (montage backend)
+  const loadData = useCallback(async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`/api/passenger/historique?passengerId=${encodeURIComponent(user.id)}`);
+      if (!res.ok) return;
+      setItems(await res.json());
+    } catch (error) {
+      console.error("[passenger/historique] loadData", error);
+    }
+  }, [user]);
+
+  // Chargement initial
+  useEffect(() => {
+    if (!user || user.role?.toString().toLowerCase() !== "passenger") return;
+    if (user.id !== params.id) return;
+    void loadData();
+  }, [loadData, params.id, user]);
+
+  // SSE : mise à jour temps réel lorsque les réservations changent
+  useEffect(() => {
+    if (!user || user.id !== params.id) return;
+    const es = new EventSource("/api/sse/db-watch/reservations");
+    let isFirst = true;
+    es.addEventListener("update", () => {
+      if (isFirst) { isFirst = false; return; }
+      void loadData();
+    });
+    return () => es.close();
+  }, [user, params.id, loadData]);
+
   if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "passenger") return null;
 
-  return <PassengerHistoriquePage />;
+  return <PassengerHistoriquePage items={items} />;
 }

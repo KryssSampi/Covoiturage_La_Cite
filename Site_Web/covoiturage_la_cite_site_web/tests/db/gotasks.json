@@ -9,9 +9,20 @@
     "link": "/profile",
     "points": 50,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": true },
-      { "userId": "USR-2026-00002", "isDone": true },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": true,
+        "completeAt": "2026-01-15T10:30:00.000Z"
+      },
+      {
+        "userId": "USR-2026-00002",
+        "isDone": true,
+        "completeAt": "2026-02-10T08:30:00.000Z"
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -24,9 +35,19 @@
     "link": "/trajets",
     "points": 30,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": true },
-      { "userId": "USR-2026-00002", "isDone": false },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": true,
+        "completeAt": "2026-02-03T14:20:00.000Z"
+      },
+      {
+        "userId": "USR-2026-00002",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -39,9 +60,18 @@
     "link": "/trajets",
     "points": 20,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": false },
-      { "userId": "USR-2026-00002", "isDone": false },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00002",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -54,9 +84,18 @@
     "link": "/invite",
     "points": 10,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": false },
-      { "userId": "USR-2026-00002", "isDone": false },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00002",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -69,9 +108,18 @@
     "link": "/share",
     "points": 5,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": false },
-      { "userId": "USR-2026-00002", "isDone": false },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00002",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -84,9 +132,19 @@
     "link": "/reviews",
     "points": 15,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": true },
-      { "userId": "USR-2026-00002", "isDone": false },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": true,
+        "completeAt": "2026-02-18T09:45:00.000Z"
+      },
+      {
+        "userId": "USR-2026-00002",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -99,9 +157,18 @@
     "link": "/events",
     "points": 25,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": false },
-      { "userId": "USR-2026-00002", "isDone": false },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00002",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -114,9 +181,19 @@
     "link": "/goboard",
     "points": 100,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": true },
-      { "userId": "USR-2026-00002", "isDone": false },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": true,
+        "completeAt": "2026-03-01T08:00:00.000Z"
+      },
+      {
+        "userId": "USR-2026-00002",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -129,9 +206,18 @@
     "link": "/goboard",
     "points": 200,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": false },
-      { "userId": "USR-2026-00002", "isDone": false },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00002",
+        "isDone": false
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -144,8 +230,15 @@
     "link": "/driver/create-trip",
     "points": 40,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": true },
-      { "userId": "USR-2026-00003", "isDone": false }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": true,
+        "completeAt": "2026-01-22T16:10:00.000Z"
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": false
+      }
     ]
   },
   {
@@ -158,8 +251,16 @@
     "link": "/profile",
     "points": 25,
     "progression": [
-      { "userId": "USR-2026-00001", "isDone": true },
-      { "userId": "USR-2026-00003", "isDone": true }
+      {
+        "userId": "USR-2026-00001",
+        "isDone": true,
+        "completeAt": "2026-01-10T11:00:00.000Z"
+      },
+      {
+        "userId": "USR-2026-00003",
+        "isDone": true,
+        "completeAt": "2026-01-20T10:00:00.000Z"
+      }
     ]
   },
   {
@@ -172,7 +273,10 @@
     "link": "/passenger/search",
     "points": 35,
     "progression": [
-      { "userId": "USR-2026-00002", "isDone": false }
+      {
+        "userId": "USR-2026-00002",
+        "isDone": false
+      }
     ]
   },
   {
@@ -185,7 +289,11 @@
     "link": "/favoris",
     "points": 15,
     "progression": [
-      { "userId": "USR-2026-00002", "isDone": true }
+      {
+        "userId": "USR-2026-00002",
+        "isDone": true,
+        "completeAt": "2026-02-25T13:45:00.000Z"
+      }
     ]
   }
 ]

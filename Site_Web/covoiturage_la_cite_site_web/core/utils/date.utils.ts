@@ -33,14 +33,33 @@ const MS_PER_DAY = 1_000 * 60 * 60 * 24;
  *
  * @param dateString Date au format ISO "YYYY-MM-DD" ou ISO string complet
  * @param lang Langue courante de l'application (Language.FR | Language.EN)
+ * @param time Heure optionnelle "HH:mm" — si fournie, la comparaison utilise le datetime absolu
  * @returns Chaîne localisée prête à l'affichage
  */
-export function formatDate(dateString: string, lang: Language): string {
+export function formatDate(dateString: string, lang: Language, time?: string): string {
   if (!dateString) return "";
 
-  const date = new Date(dateString);
+  const date = parseDisplayDate(dateString);
   const now = new Date();
   const locale = lang === Language.FR ? "fr-FR" : "en-US";
+
+  // Si l'heure est fournie, on compare le datetime absolu (jour + heure)
+  // pour éviter qu'un trajet imminent (ex: 00h30 demain, dans 1h) affiche « Demain »
+  if (time) {
+    const [h, m] = time.split(":").map(Number);
+    const departure = new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m);
+    const diffMs = departure.getTime() - now.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    // Départ dans les 2 prochaines heures → « Imminent »
+    if (diffHours >= 0 && diffHours <= 2) {
+      return lang === Language.FR ? "Imminent" : "Imminent";
+    }
+    // Départ dans les 12 prochaines heures → « Aujourd'hui » même si jour calendrier = demain
+    if (diffHours > 0 && diffHours <= 12) {
+      return lang === Language.FR ? "Aujourd'hui" : "Today";
+    }
+  }
 
   // Normalisation à minuit pour éviter les décalages d'heure locale
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -105,4 +124,13 @@ export function formatDate(dateString: string, lang: Language): string {
   return lang === Language.FR
     ? `Il y a ${years} an${years > 1 ? "s" : ""}`
     : `${years} year${years > 1 ? "s" : ""} ago`;
+}
+
+function parseDisplayDate(dateString: string): Date {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    const [year, month, day] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  return new Date(dateString);
 }

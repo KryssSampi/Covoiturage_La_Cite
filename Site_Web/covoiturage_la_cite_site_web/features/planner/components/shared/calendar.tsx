@@ -4,7 +4,7 @@ import { useState } from "react";
 import { addMonths, addWeeks, startOfWeek } from "date-fns";
 import { FaCalendar, FaClock } from "react-icons/fa6";
 
-import { getUserConnected, Language, useAppState } from "@/core/state/app_state";
+import { Language, useAppState } from "@/core/state/app_state";
 import { Role }                                    from "@/features/planner/types/calendar.types";
 import { TODAY, DRIVER_STATUS_COLORS, PASSENGER_STATUS_COLORS } from "@/features/planner/constants/calendar.constants";
 import { useCalendarWindow }                       from "@/features/planner/hooks/useCalendarWindow";
@@ -21,9 +21,8 @@ import { usePlannerContext }                       from "@/features/planner/cont
  * et distribue l'état aux composants enfants.
  */
 export default function SuperCalendar() {
-  const user  = getUserConnected();
-  const role  = user?.role.toString() ?? "passenger";
-  const rides = usePlannerContext().rides;
+  const { rides, isDriver } = usePlannerContext();
+  const role = isDriver ? Role.DRIVER : Role.PASSENGER;
 
   // Jour sélectionné partagé avec RideArea via PlannerContext
   const { currentDay, setCurrentDay } = usePlannerContext();
@@ -39,8 +38,8 @@ export default function SuperCalendar() {
   const isFr     = appState.lang === Language.FR;
 
   // Calcule la date pivot en fonction du décalage (mois ou semaine)
-  const monthPivot = (off: number): Date => addMonths(TODAY, monthCal.offset + off);
-  const weekPivot  = (off: number): Date => addWeeks(TODAY,  weekCal.offset  + off);
+  const monthPivot = (off: number): Date => addMonths(TODAY, off);
+  const weekPivot  = (off: number): Date => addWeeks(TODAY, off);
 
   // Contrôle l'animation de transition lors du basculement de vue
   const [disposing, setDisposing] = useState(false);
@@ -185,7 +184,7 @@ export default function SuperCalendar() {
             window4={view === "month" ? monthCal.window4 : weekCal.window4}
             animDir={view === "month" ? monthCal.animDir : weekCal.animDir}
             rides={rides}
-            role={role || "passenger"}
+            role={role}
             selectedDay={currentDay}
             onDayClick={handleDayClick}
             pivotFn={view === "month" ? monthPivot : weekPivot}

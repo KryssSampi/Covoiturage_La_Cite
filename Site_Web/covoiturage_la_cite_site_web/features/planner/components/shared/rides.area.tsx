@@ -39,9 +39,8 @@ export function RideArea() {
     hasActiveFilter,
     rawDayRides, visibleRides, statusCounts,
     statusKeys, statusLabels,
-    isPassengerListOpens, setIsPassengerListOpens,
     formatStatus, getStatusColor,
-    openPassengerLists, setOpenPassengerLists,
+    onCancelTrip, onCancelReservation, onStartReservation,
   } = useRideArea();
 
   return (
@@ -97,12 +96,11 @@ export function RideArea() {
           <RidesList
             isDriver={isDriver}
             visibleRides={visibleRides}
-            isPassengerListOpens={isPassengerListOpens}
-            setIsPassengerListOpens={setIsPassengerListOpens}
             formatStatus={formatStatus}
             getStatusColor={getStatusColor}
-            openPassengerLists={openPassengerLists}
-            setOpenPassengerLists={setOpenPassengerLists}
+            onCancelTrip={onCancelTrip}
+            onCancelReservation={onCancelReservation}
+            onStartReservation={onStartReservation}
           />
         )}
       </div>

@@ -1,0 +1,153 @@
+[
+  {
+    "id": "stat-USR-2026-00001",
+    "userId": "USR-2026-00001",
+    "updatedAt": "2026-03-13T12:00:00.000Z",
+    "kpis": { "nbTrajets": 32, "co2TotalKg": 557.5, "noteMoyenne": 4.2, "goScore": 820 },
+    "statsTrajets": {
+      "conducteur": 28,
+      "passager": 4,
+      "totalKm": 1248,
+      "dureeMoyenneMin": 22,
+      "annulations": 1,
+      "ponctualite": 96,
+      "passagersUniques": 14,
+      "gainNet": 312.5
+    },
+    "co2ParMois": [
+      { "mois": "Oct", "kg": 42 },
+      { "mois": "Nov", "kg": 68 },
+      { "mois": "Dec", "kg": 85 },
+      { "mois": "Jan", "kg": 128 },
+      { "mois": "Fev", "kg": 195 },
+      { "mois": "Mars", "kg": 234 },
+      { "mois": "Avr", "kg": 0, "isFutur": true },
+      { "mois": "Mai", "kg": 0, "isFutur": true }
+    ],
+    "scatterCO2Distance": [
+      { "distanceKm": 8, "co2Kg": 3.6, "categorie": "courte" },
+      { "distanceKm": 10, "co2Kg": 4.5, "categorie": "courte" },
+      { "distanceKm": 12, "co2Kg": 5.4, "categorie": "courte" },
+      { "distanceKm": 14, "co2Kg": 6.3, "categorie": "courte" },
+      { "distanceKm": 16, "co2Kg": 8.4, "categorie": "moyenne" },
+      { "distanceKm": 18, "co2Kg": 9.9, "categorie": "moyenne" },
+      { "distanceKm": 19, "co2Kg": 10.8, "categorie": "moyenne" },
+      { "distanceKm": 21, "co2Kg": 12.0, "categorie": "moyenne" },
+      { "distanceKm": 22, "co2Kg": 13.2, "categorie": "longue" },
+      { "distanceKm": 25, "co2Kg": 15.0, "categorie": "longue" },
+      { "distanceKm": 28, "co2Kg": 16.8, "categorie": "longue" },
+      { "distanceKm": 32, "co2Kg": 19.2, "categorie": "longue" }
+    ],
+    "notesParSemaine": [
+      { "semaine": "S7 fev", "notes": [5, 5, 4], "mediane": 5 },
+      { "semaine": "S8 fev", "notes": [5, 4, 5], "mediane": 5 },
+      { "semaine": "S9 mars", "notes": [4, 3, 4], "mediane": 4 },
+      { "semaine": "S10 mars", "notes": [5, 5, 5, 4], "mediane": 5 },
+      { "semaine": "S11 mars", "notes": [5, 4], "mediane": 4.5 }
+    ],
+    "distributionNotes": {
+      "etoile1": 1,
+      "etoile2": 1,
+      "etoile3": 3,
+      "etoile4": 8,
+      "etoile5": 15,
+      "totalAvis": 28,
+      "roleLabel": "Conducteur"
+    },
+    "badgeRefs": [
+      { "badgeId": "badge-confirme", "dateObtention": "Oct. 2025", "locked": false },
+      { "badgeId": "badge-regulier", "dateObtention": "Jan. 2026", "locked": false },
+      { "badgeId": "badge-ponctuel", "dateObtention": "Fev. 2026", "locked": false },
+      { "badgeId": "badge-eco-debutant", "dateObtention": "Jan. 2026", "locked": false },
+      { "badgeId": "badge-fiable", "dateObtention": "Mars 2026", "locked": false },
+      { "badgeId": "badge-etudiant-cite", "dateObtention": "Oct. 2025", "locked": false },
+      { "badgeId": "badge-social", "dateObtention": "Fev. 2026", "locked": false },
+      { "badgeId": "badge-expert", "locked": true, "restant": "19 restants" },
+      { "badgeId": "badge-eco-conscient", "locked": true, "restant": "En cours" }
+    ],
+    "derniersTrajetsSummary": [
+      { "id": "t1", "depart": "Ottawa", "arrivee": "Campus La Cite", "date": "Auj. 08h15", "nbPassagers": 1, "distanceKm": 12, "gainNet": 17, "co2EconomiseKg": 8.4, "noteRecue": 5, "statut": "complete" },
+      { "id": "t2", "depart": "Campus", "arrivee": "Vanier", "date": "Hier 17h", "nbPassagers": 2, "distanceKm": 9, "gainNet": 34, "co2EconomiseKg": 12.6, "noteRecue": 4, "statut": "complete" },
+      { "id": "t3", "depart": "Gatineau", "arrivee": "Campus", "date": "11 mars", "nbPassagers": 1, "distanceKm": 18, "gainNet": 20, "co2EconomiseKg": 12.6, "noteRecue": 5, "statut": "complete" },
+      { "id": "t4", "depart": "Ottawa", "arrivee": "Montreal", "date": "8 mars", "nbPassagers": 0, "distanceKm": 200, "gainNet": -8.75, "co2EconomiseKg": 0, "statut": "annule" },
+      { "id": "t5", "depart": "Orleans", "arrivee": "Campus", "date": "7 mars", "nbPassagers": 1, "distanceKm": 22, "gainNet": 22, "co2EconomiseKg": 15.4, "noteRecue": 5, "statut": "complete" }
+    ],
+    "impactEco": {
+      "co2TotalKg": 557.5,
+      "kmTotaux": 1248,
+      "carburantLitres": 219,
+      "arbresEquivalents": 28,
+      "voituresEvitees": 47,
+      "economiesDollars": 412
+    },
+    "kpisParPeriode": {
+      "7j": { "nbTrajets": 5, "co2TotalKg": 42.3, "noteMoyenne": 4.6, "goScore": 820 },
+      "mois": { "nbTrajets": 14, "co2TotalKg": 234.5, "noteMoyenne": 4.2, "goScore": 820 },
+      "3mois": { "nbTrajets": 28, "co2TotalKg": 457.0, "noteMoyenne": 4.3, "goScore": 820 },
+      "6mois": { "nbTrajets": 32, "co2TotalKg": 557.5, "noteMoyenne": 4.2, "goScore": 820 },
+      "tout": { "nbTrajets": 32, "co2TotalKg": 557.5, "noteMoyenne": 4.2, "goScore": 820 }
+    },
+    "co2ParMoisParPeriode": {
+      "7j": [{ "mois": "Mars", "kg": 42 }],
+      "mois": [{ "mois": "Mars", "kg": 234 }],
+      "3mois": [{ "mois": "Jan", "kg": 128 }, { "mois": "Fev", "kg": 195 }, { "mois": "Mars", "kg": 234 }],
+      "6mois": [{ "mois": "Oct", "kg": 42 }, { "mois": "Nov", "kg": 68 }, { "mois": "Dec", "kg": 85 }, { "mois": "Jan", "kg": 128 }, { "mois": "Fev", "kg": 195 }, { "mois": "Mars", "kg": 234 }],
+      "tout": [{ "mois": "Oct", "kg": 42 }, { "mois": "Nov", "kg": 68 }, { "mois": "Dec", "kg": 85 }, { "mois": "Jan", "kg": 128 }, { "mois": "Fev", "kg": 195 }, { "mois": "Mars", "kg": 234 }]
+    },
+    "notesParSemaineParPeriode": {
+      "7j": [{ "semaine": "S11 mars", "notes": [5, 4], "mediane": 4.5 }],
+      "mois": [{ "semaine": "S9 mars", "notes": [4, 3, 4], "mediane": 4 }, { "semaine": "S10 mars", "notes": [5, 5, 5, 4], "mediane": 5 }, { "semaine": "S11 mars", "notes": [5, 4], "mediane": 4.5 }],
+      "3mois": [{ "semaine": "S7 fev", "notes": [5, 5, 4], "mediane": 5 }, { "semaine": "S8 fev", "notes": [5, 4, 5], "mediane": 5 }, { "semaine": "S9 mars", "notes": [4, 3, 4], "mediane": 4 }, { "semaine": "S10 mars", "notes": [5, 5, 5, 4], "mediane": 5 }, { "semaine": "S11 mars", "notes": [5, 4], "mediane": 4.5 }],
+      "6mois": [{ "semaine": "S7 fev", "notes": [5, 5, 4], "mediane": 5 }, { "semaine": "S8 fev", "notes": [5, 4, 5], "mediane": 5 }, { "semaine": "S9 mars", "notes": [4, 3, 4], "mediane": 4 }, { "semaine": "S10 mars", "notes": [5, 5, 5, 4], "mediane": 5 }, { "semaine": "S11 mars", "notes": [5, 4], "mediane": 4.5 }],
+      "tout": [{ "semaine": "S7 fev", "notes": [5, 5, 4], "mediane": 5 }, { "semaine": "S8 fev", "notes": [5, 4, 5], "mediane": 5 }, { "semaine": "S9 mars", "notes": [4, 3, 4], "mediane": 4 }, { "semaine": "S10 mars", "notes": [5, 5, 5, 4], "mediane": 5 }, { "semaine": "S11 mars", "notes": [5, 4], "mediane": 4.5 }]
+    },
+    "scatterParPeriode": {
+      "7j": [{ "distanceKm": 12, "co2Kg": 5.4, "categorie": "courte" }, { "distanceKm": 9, "co2Kg": 4.1, "categorie": "courte" }],
+      "mois": [{ "distanceKm": 8, "co2Kg": 3.6, "categorie": "courte" }, { "distanceKm": 12, "co2Kg": 5.4, "categorie": "courte" }, { "distanceKm": 18, "co2Kg": 9.9, "categorie": "moyenne" }, { "distanceKm": 22, "co2Kg": 13.2, "categorie": "longue" }, { "distanceKm": 25, "co2Kg": 15.0, "categorie": "longue" }],
+      "3mois": [{ "distanceKm": 8, "co2Kg": 3.6, "categorie": "courte" }, { "distanceKm": 10, "co2Kg": 4.5, "categorie": "courte" }, { "distanceKm": 12, "co2Kg": 5.4, "categorie": "courte" }, { "distanceKm": 14, "co2Kg": 6.3, "categorie": "courte" }, { "distanceKm": 16, "co2Kg": 8.4, "categorie": "moyenne" }, { "distanceKm": 18, "co2Kg": 9.9, "categorie": "moyenne" }, { "distanceKm": 22, "co2Kg": 13.2, "categorie": "longue" }, { "distanceKm": 25, "co2Kg": 15.0, "categorie": "longue" }],
+      "6mois": [{ "distanceKm": 8, "co2Kg": 3.6, "categorie": "courte" }, { "distanceKm": 10, "co2Kg": 4.5, "categorie": "courte" }, { "distanceKm": 12, "co2Kg": 5.4, "categorie": "courte" }, { "distanceKm": 14, "co2Kg": 6.3, "categorie": "courte" }, { "distanceKm": 16, "co2Kg": 8.4, "categorie": "moyenne" }, { "distanceKm": 18, "co2Kg": 9.9, "categorie": "moyenne" }, { "distanceKm": 19, "co2Kg": 10.8, "categorie": "moyenne" }, { "distanceKm": 21, "co2Kg": 12.0, "categorie": "moyenne" }, { "distanceKm": 22, "co2Kg": 13.2, "categorie": "longue" }, { "distanceKm": 25, "co2Kg": 15.0, "categorie": "longue" }, { "distanceKm": 28, "co2Kg": 16.8, "categorie": "longue" }, { "distanceKm": 32, "co2Kg": 19.2, "categorie": "longue" }],
+      "tout": [{ "distanceKm": 8, "co2Kg": 3.6, "categorie": "courte" }, { "distanceKm": 10, "co2Kg": 4.5, "categorie": "courte" }, { "distanceKm": 12, "co2Kg": 5.4, "categorie": "courte" }, { "distanceKm": 14, "co2Kg": 6.3, "categorie": "courte" }, { "distanceKm": 16, "co2Kg": 8.4, "categorie": "moyenne" }, { "distanceKm": 18, "co2Kg": 9.9, "categorie": "moyenne" }, { "distanceKm": 19, "co2Kg": 10.8, "categorie": "moyenne" }, { "distanceKm": 21, "co2Kg": 12.0, "categorie": "moyenne" }, { "distanceKm": 22, "co2Kg": 13.2, "categorie": "longue" }, { "distanceKm": 25, "co2Kg": 15.0, "categorie": "longue" }, { "distanceKm": 28, "co2Kg": 16.8, "categorie": "longue" }, { "distanceKm": 32, "co2Kg": 19.2, "categorie": "longue" }]
+    },
+    "impactEcoParPeriode": {
+      "7j": { "co2TotalKg": 42.3, "kmTotaux": 95, "carburantLitres": 18, "arbresEquivalents": 2, "voituresEvitees": 3, "economiesDollars": 11 },
+      "mois": { "co2TotalKg": 234.5, "kmTotaux": 526, "carburantLitres": 102, "arbresEquivalents": 12, "voituresEvitees": 20, "economiesDollars": 63 },
+      "3mois": { "co2TotalKg": 457.0, "kmTotaux": 1022, "carburantLitres": 199, "arbresEquivalents": 23, "voituresEvitees": 39, "economiesDollars": 123 },
+      "6mois": { "co2TotalKg": 557.5, "kmTotaux": 1248, "carburantLitres": 219, "arbresEquivalents": 28, "voituresEvitees": 47, "economiesDollars": 412 },
+      "tout": { "co2TotalKg": 557.5, "kmTotaux": 1248, "carburantLitres": 219, "arbresEquivalents": 28, "voituresEvitees": 47, "economiesDollars": 412 }
+    },
+    "trajetsParPeriode": {
+      "7j": [
+        { "id": "t1", "depart": "Ottawa", "arrivee": "Campus La Cite", "date": "Auj. 08h15", "nbPassagers": 1, "distanceKm": 12, "gainNet": 17, "co2EconomiseKg": 8.4, "noteRecue": 5, "statut": "complete" },
+        { "id": "t2", "depart": "Campus", "arrivee": "Vanier", "date": "Hier 17h", "nbPassagers": 2, "distanceKm": 9, "gainNet": 34, "co2EconomiseKg": 12.6, "noteRecue": 4, "statut": "complete" }
+      ],
+      "mois": [
+        { "id": "t1", "depart": "Ottawa", "arrivee": "Campus La Cite", "date": "Auj. 08h15", "nbPassagers": 1, "distanceKm": 12, "gainNet": 17, "co2EconomiseKg": 8.4, "noteRecue": 5, "statut": "complete" },
+        { "id": "t2", "depart": "Campus", "arrivee": "Vanier", "date": "Hier 17h", "nbPassagers": 2, "distanceKm": 9, "gainNet": 34, "co2EconomiseKg": 12.6, "noteRecue": 4, "statut": "complete" },
+        { "id": "t3", "depart": "Gatineau", "arrivee": "Campus", "date": "11 mars", "nbPassagers": 1, "distanceKm": 18, "gainNet": 20, "co2EconomiseKg": 12.6, "noteRecue": 5, "statut": "complete" },
+        { "id": "t4", "depart": "Ottawa", "arrivee": "Montreal", "date": "8 mars", "nbPassagers": 0, "distanceKm": 200, "gainNet": -8.75, "co2EconomiseKg": 0, "statut": "annule" },
+        { "id": "t5", "depart": "Orleans", "arrivee": "Campus", "date": "7 mars", "nbPassagers": 1, "distanceKm": 22, "gainNet": 22, "co2EconomiseKg": 15.4, "noteRecue": 5, "statut": "complete" }
+      ],
+      "3mois": [
+        { "id": "t1", "depart": "Ottawa", "arrivee": "Campus La Cite", "date": "Auj. 08h15", "nbPassagers": 1, "distanceKm": 12, "gainNet": 17, "co2EconomiseKg": 8.4, "noteRecue": 5, "statut": "complete" },
+        { "id": "t2", "depart": "Campus", "arrivee": "Vanier", "date": "Hier 17h", "nbPassagers": 2, "distanceKm": 9, "gainNet": 34, "co2EconomiseKg": 12.6, "noteRecue": 4, "statut": "complete" },
+        { "id": "t3", "depart": "Gatineau", "arrivee": "Campus", "date": "11 mars", "nbPassagers": 1, "distanceKm": 18, "gainNet": 20, "co2EconomiseKg": 12.6, "noteRecue": 5, "statut": "complete" },
+        { "id": "t4", "depart": "Ottawa", "arrivee": "Montreal", "date": "8 mars", "nbPassagers": 0, "distanceKm": 200, "gainNet": -8.75, "co2EconomiseKg": 0, "statut": "annule" },
+        { "id": "t5", "depart": "Orleans", "arrivee": "Campus", "date": "7 mars", "nbPassagers": 1, "distanceKm": 22, "gainNet": 22, "co2EconomiseKg": 15.4, "noteRecue": 5, "statut": "complete" }
+      ],
+      "6mois": [
+        { "id": "t1", "depart": "Ottawa", "arrivee": "Campus La Cite", "date": "Auj. 08h15", "nbPassagers": 1, "distanceKm": 12, "gainNet": 17, "co2EconomiseKg": 8.4, "noteRecue": 5, "statut": "complete" },
+        { "id": "t2", "depart": "Campus", "arrivee": "Vanier", "date": "Hier 17h", "nbPassagers": 2, "distanceKm": 9, "gainNet": 34, "co2EconomiseKg": 12.6, "noteRecue": 4, "statut": "complete" },
+        { "id": "t3", "depart": "Gatineau", "arrivee": "Campus", "date": "11 mars", "nbPassagers": 1, "distanceKm": 18, "gainNet": 20, "co2EconomiseKg": 12.6, "noteRecue": 5, "statut": "complete" },
+        { "id": "t4", "depart": "Ottawa", "arrivee": "Montreal", "date": "8 mars", "nbPassagers": 0, "distanceKm": 200, "gainNet": -8.75, "co2EconomiseKg": 0, "statut": "annule" },
+        { "id": "t5", "depart": "Orleans", "arrivee": "Campus", "date": "7 mars", "nbPassagers": 1, "distanceKm": 22, "gainNet": 22, "co2EconomiseKg": 15.4, "noteRecue": 5, "statut": "complete" }
+      ],
+      "tout": [
+        { "id": "t1", "depart": "Ottawa", "arrivee": "Campus La Cite", "date": "Auj. 08h15", "nbPassagers": 1, "distanceKm": 12, "gainNet": 17, "co2EconomiseKg": 8.4, "noteRecue": 5, "statut": "complete" },
+        { "id": "t2", "depart": "Campus", "arrivee": "Vanier", "date": "Hier 17h", "nbPassagers": 2, "distanceKm": 9, "gainNet": 34, "co2EconomiseKg": 12.6, "noteRecue": 4, "statut": "complete" },
+        { "id": "t3", "depart": "Gatineau", "arrivee": "Campus", "date": "11 mars", "nbPassagers": 1, "distanceKm": 18, "gainNet": 20, "co2EconomiseKg": 12.6, "noteRecue": 5, "statut": "complete" },
+        { "id": "t4", "depart": "Ottawa", "arrivee": "Montreal", "date": "8 mars", "nbPassagers": 0, "distanceKm": 200, "gainNet": -8.75, "co2EconomiseKg": 0, "statut": "annule" },
+        { "id": "t5", "depart": "Orleans", "arrivee": "Campus", "date": "7 mars", "nbPassagers": 1, "distanceKm": 22, "gainNet": 22, "co2EconomiseKg": 15.4, "noteRecue": 5, "statut": "complete" }
+      ]
+    }
+  }
+]

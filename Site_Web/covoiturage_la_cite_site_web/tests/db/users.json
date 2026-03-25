@@ -17,12 +17,16 @@
       "averageRating": 4.9,
       "totalTripsAsDriver": 87,
       "co2SavedKg": 342.5,
-      "cancellationRate": 0.02
+      "cancellationRate": 0.02,
+      "punctualityScore": 96,
+      "noShowCount": 0
     },
     "passengerProfile": {
       "averageRating": 4.8,
       "totalTripsAsPassenger": 12,
-      "co2SavedKg": 41.2
+      "co2SavedKg": 41.2,
+      "punctualityScore": 95,
+      "noShowCount": 0
     },
     "preferences": {
       "musicAccepted": true,
@@ -31,7 +35,12 @@
       "conversationLevel": "moderate"
     },
     "goScore": 920,
-    "badgeIds": ["BADGE-VETERAN", "BADGE-ECO-CHAMPION", "BADGE-SUPER-DRIVER"],
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION",
+      "BADGE-SUPER-DRIVER"
+    ],
+    "preferencesId": "PREF-2026-00001",
     "createdAt": "2024-09-01T08:00:00.000Z",
     "updatedAt": "2026-03-20T14:30:00.000Z"
   },
@@ -51,7 +60,9 @@
     "passengerProfile": {
       "averageRating": 4.7,
       "totalTripsAsPassenger": 34,
-      "co2SavedKg": 89.6
+      "co2SavedKg": 89.6,
+      "punctualityScore": 88,
+      "noShowCount": 1
     },
     "preferences": {
       "musicAccepted": true,
@@ -60,7 +71,11 @@
       "conversationLevel": "moderate"
     },
     "goScore": 540,
-    "badgeIds": ["BADGE-FIRST-TRIP", "BADGE-GREEN-COMMUTER"],
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00002",
     "createdAt": "2024-10-15T10:00:00.000Z",
     "updatedAt": "2026-03-20T09:15:00.000Z"
   },
@@ -82,12 +97,16 @@
       "averageRating": 4.7,
       "totalTripsAsDriver": 52,
       "co2SavedKg": 198.3,
-      "cancellationRate": 0.04
+      "cancellationRate": 0.04,
+      "punctualityScore": 91,
+      "noShowCount": 1
     },
     "passengerProfile": {
       "averageRating": 4.9,
       "totalTripsAsPassenger": 8,
-      "co2SavedKg": 22.1
+      "co2SavedKg": 22.1,
+      "punctualityScore": 97,
+      "noShowCount": 0
     },
     "preferences": {
       "musicAccepted": false,
@@ -96,7 +115,11 @@
       "conversationLevel": "quiet"
     },
     "goScore": 710,
-    "badgeIds": ["BADGE-VETERAN", "BADGE-ECO-CHAMPION"],
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION"
+    ],
+    "preferencesId": "PREF-2026-00003",
     "createdAt": "2024-09-15T09:00:00.000Z",
     "updatedAt": "2026-03-18T11:20:00.000Z"
   },
@@ -116,7 +139,9 @@
     "passengerProfile": {
       "averageRating": 4.5,
       "totalTripsAsPassenger": 18,
-      "co2SavedKg": 45.8
+      "co2SavedKg": 45.8,
+      "punctualityScore": 80,
+      "noShowCount": 0
     },
     "preferences": {
       "musicAccepted": true,
@@ -125,7 +150,10 @@
       "conversationLevel": "chatty"
     },
     "goScore": 320,
-    "badgeIds": ["BADGE-FIRST-TRIP"],
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": null,
     "createdAt": "2025-01-10T14:00:00.000Z",
     "updatedAt": "2026-03-15T16:45:00.000Z"
   }
