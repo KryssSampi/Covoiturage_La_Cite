@@ -17,29 +17,29 @@
  * Chaque carte : images Unsplash, badge statut, passagers, tarif,
  * bouton Démarrer (imminent), toast de blocage si trajet déjà en cours.
  *
- * @uses useLiveTrips — flux SSE trips + reservations
  * @uses usePublishedTrips — tri, formatage statut, état UI liste passagers
  */
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaArrowRight } from "react-icons/fa";
 import { FaLocationDot, FaBan } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
-import { getCityImage } from "@/core/lib/unsplash";
 import { formatDate } from "@/core/utils/date.utils";
 
-import { useLiveTrips } from "../../hooks/useLiveTrips";
 import { usePublishedTrips } from "../../hooks/usePublishedTrips";
 import {
   PublishedTripStatus,
   PublishedTripCardModel,
+  PublishedTrip,
 } from "../../types";
 import { CancelConfirmToast } from "@/shared/components/CancelConfirmToast";
 import { PassengerAvatars } from "@/shared/components/PassengerAvatars";
+
+const DEFAULT_CITY_IMAGE = "/assets/destinations-pictures/default-city.png";
 
 // ─── Squelette de chargement ─────────────────────────────────────────────────
 
@@ -74,7 +74,7 @@ function InProgressBlockToast({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center">
-        <div className="text-6xl mb-4">⚠️</div>
+        <div className="text-6xl mb-4"><FaBan /></div>
         <h3 className="text-2xl font-bold text-gray-900 mb-3">
           {isFR ? "Trajet déjà en cours" : "Trip already in progress"}
         </h3>
@@ -98,16 +98,19 @@ function InProgressBlockToast({
 
 /**
  * PublishedTripSection
- *
- * Composant autonome — reçoit uniquement le driverId.
- * Se connecte au flux SSE et maintient la liste des trajets à jour en temps réel.
+ * Composant de présentation — reçoit les données et callbacks du parent.
+ * Aucune logique backend (SSE, fetch) : tout est délégué au parent.
  */
-export function PublishedTripSection({ driverId }: { driverId: string }) {
+export function PublishedTripSection({trips, onCancelTrip, onStartTrip, isLoading = false, error = null}: {
+  trips: PublishedTrip[] | null;
+  onCancelTrip: (id: string) => Promise<void> | null;
+  onStartTrip: (id: string) => Promise<void> | null;
+  isLoading?: boolean;
+  error?: string | null;
+})  {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
-  // Flux SSE en temps réel
-  const { trips: liveTrips, isLoading, error, hasInProgressTrip } = useLiveTrips(driverId);
 
   // Tri et formatage
   const {
@@ -116,7 +119,8 @@ export function PublishedTripSection({ driverId }: { driverId: string }) {
     setIsPassengerListOpens,
     formatStatus,
     getStatusColor,
-  } = usePublishedTrips(liveTrips ?? []);
+    hasInProgressTrip,
+  } = usePublishedTrips(trips ?? []);
 
   // État du toast de blocage (trajet déjà en cours)
   const [showBlockToast, setShowBlockToast] = useState(false);
@@ -167,7 +171,11 @@ export function PublishedTripSection({ driverId }: { driverId: string }) {
                 formatStatus={formatStatus}
                 getStatusColor={getStatusColor}
                 hasInProgressTrip={hasInProgressTrip}
-                onBlockStart={() => setShowBlockToast(true)}
+                onBlockStart={() => {
+                  setShowBlockToast(true);
+                }}
+                onCancelTrip={onCancelTrip} // Prop de la fonction d'annulation — appel API dans la page d'accueil du Driver
+                onStartTrip={onStartTrip} // Prop de la fonction de démarrage ,qui est un Call api dans la page d'acceuil du Driver
               />
             ))}
           </div>
@@ -200,6 +208,8 @@ export function PublishedTripCard({
   setIsPassengerListOpens,
   formatStatus,
   getStatusColor,
+  onCancelTrip = async () => {},
+  onStartTrip = async () => {},
   hasInProgressTrip,
   onBlockStart,
 }: {
@@ -210,6 +220,8 @@ export function PublishedTripCard({
   formatStatus: (status: PublishedTripStatus, lang: Language) => string;
   getStatusColor: (status: PublishedTripStatus) => string;
   hasInProgressTrip: boolean;
+  onCancelTrip: (id: string) => Promise<void> | null;
+  onStartTrip: (id: string) => Promise<void> | null;
   onBlockStart: () => void;
 }) {
   const appState = useAppState();
@@ -217,20 +229,9 @@ export function PublishedTripCard({
   const router = useRouter();
   const { trip } = model;
 
-  const [departureImg,   setDepartureImg]   = useState("");
-  const [destinationImg, setDestinationImg] = useState("");
+  const [departureImg]   = useState(DEFAULT_CITY_IMAGE);
+  const [destinationImg] = useState(DEFAULT_CITY_IMAGE);
   const [showCancelToast, setShowCancelToast] = useState(false);
-
-  // Chargement en parallèle des images Unsplash des deux villes
-  useEffect(() => {
-    Promise.all([
-      getCityImage(trip.departure),
-      getCityImage(trip.destination),
-    ]).then(([dep, dest]) => {
-      setDepartureImg(dep);
-      setDestinationImg(dest);
-    });
-  }, [trip.departure, trip.destination]);
 
   const togglePassengerList = () => {
     setIsPassengerListOpens((prev) =>
@@ -258,29 +259,30 @@ export function PublishedTripCard({
   const handleStartTrip = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (hasInProgressTrip) {
-      onBlockStart();
+       try {
+          onStartTrip(trip.id);
+        } catch (err) {
+          console.error('[PublishedTripCard] Erreur démarrage:', err);
+        } finally {
+        onBlockStart();
+        router.push(`/trajet-en-cours/${trip.id}`);
+        }
       return;
     }
-    router.push(`/trajet-en-cours/${trip.id}`);
+  
   };
 
   // Annulation du trajet — envoie PATCH /api/trips/{id}/status { action: 'cancel' }
   const handleCancelConfirm = async () => {
     try {
-      const res = await fetch(`/api/trips/${trip.id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'cancel' }),
-      });
-      if (!res.ok) {
-        console.error('[PublishedTripCard] Échec annulation:', await res.text());
-      }
+      await onCancelTrip(trip.id);
     } catch (err) {
       console.error('[PublishedTripCard] Erreur annulation:', err);
     } finally {
       setShowCancelToast(false);
     }
   };
+      
 
   return (
     <>
@@ -291,26 +293,22 @@ export function PublishedTripCard({
 
       {/* ─── Images départ / arrivée (clip-path diagonal) ─────────────── */}
       <div className="relative w-[27%] h-32 rounded-xl overflow-hidden group bg-gray-200">
-        {departureImg && (
-          <Image
-            src={departureImg}
-            alt={trip.departure}
-            fill
-            sizes="20vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-110
-                       [clip-path:polygon(0_0,65%_0,35%_100%,0_100%)] z-10"
-          />
-        )}
-        {destinationImg && (
-          <Image
-            src={destinationImg}
-            alt={trip.destination}
-            fill
-            sizes="20vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-110
-                       [clip-path:polygon(65%_0,100%_0,100%_100%,35%_100%)] z-0"
-          />
-        )}
+        <Image
+          src={departureImg}
+          alt={trip.departure}
+          fill
+          sizes="20vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-110
+                     [clip-path:polygon(0_0,65%_0,35%_100%,0_100%)] z-10"
+        />
+        <Image
+          src={destinationImg}
+          alt={trip.destination}
+          fill
+          sizes="20vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-110
+                     [clip-path:polygon(65%_0,100%_0,100%_100%,35%_100%)] z-0"
+        />
       </div>
 
       <div className="w-px h-30 bg-black" />
@@ -322,7 +320,7 @@ export function PublishedTripCard({
         <div className="w-full justify-between flex items-center mt-2">
           <div className="flex flex-col items-start w-full">
             <span className="text-xl font-semibold text-black">
-              {formatDate(trip.date, appState.lang)} : {trip.time}
+              {formatDate(trip.date, appState.lang, trip.time)} : {trip.time}
             </span>
             <p className="flex gap-1 text-[#08316e] items-baseline text-2xl">
               <FaLocationDot />
@@ -433,5 +431,4 @@ export function PublishedTripCard({
     </>
   );
 }
-
 

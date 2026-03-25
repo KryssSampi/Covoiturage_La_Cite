@@ -38,6 +38,8 @@ interface UsePublishedTripsReturn {
   formatStatus: (status: PublishedTripStatus, lang: Language) => string;
   /** Retourne les classes Tailwind de couleur du badge statut */
   getStatusColor: (status: PublishedTripStatus) => string;
+  /** Vrai si au moins un trajet est en cours (InProgress) */
+  hasInProgressTrip: boolean;
 }
 
 // ─── Helpers purs (hors hook pour éviter les re-créations) ───────────────────
@@ -81,8 +83,17 @@ export function usePublishedTrips(trips: PublishedTrip[]): UsePublishedTripsRetu
 
   // État d'expansion des listes passagers, indexé sur tripModels
   const [isPassengerListOpens, setIsPassengerListOpens] = useState(
-    tripModels.map(() => ({ isPassengerListOpen: false })),
+    () => tripModels.map(() => ({ isPassengerListOpen: false })),
   );
+
+  // Ajuste la taille quand tripModels change (pattern React recommandé)
+  const [prevTripCount, setPrevTripCount] = useState(tripModels.length);
+  if (tripModels.length !== prevTripCount) {
+    setPrevTripCount(tripModels.length);
+    setIsPassengerListOpens((prev) =>
+      tripModels.map((_, i) => prev[i] ?? { isPassengerListOpen: false }),
+    );
+  }
 
   const formatStatus = (status: PublishedTripStatus, lang: Language): string =>
     getPublishedTripStatusLabel(status, lang);
@@ -90,11 +101,18 @@ export function usePublishedTrips(trips: PublishedTrip[]): UsePublishedTripsRetu
   const getStatusColor = (status: PublishedTripStatus): string =>
     getPublishedTripStatusColor(status);
 
+  // Vrai si au moins un trajet est actuellement en cours
+  const hasInProgressTrip = useMemo(
+    () => trips.some((t) => t.status === PublishedTripStatus.InProgress),
+    [trips],
+  );
+
   return {
     tripModels,
     isPassengerListOpens,
     setIsPassengerListOpens,
     formatStatus,
     getStatusColor,
+    hasInProgressTrip,
   };
 }

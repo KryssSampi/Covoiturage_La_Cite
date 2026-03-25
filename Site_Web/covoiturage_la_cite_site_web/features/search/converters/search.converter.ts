@@ -1,11 +1,42 @@
 import type { TripModel } from '@/core/models/TripModel';
 import type { UserModel } from '@/core/models/UserModel';
+import type { TripSearchDTO } from '@/features/search/utils/matchingV4';
 import type { TripWithCoords } from '../types/search.feature.types';
 
 /**
  * Convertisseurs search
- * Transforment un TripModel en types attendus par les hooks de recherche
+ * Transforment un TripModel (ou TripSearchDTO) en types attendus par les hooks de recherche
  */
+
+/**
+ * Convertit un TripSearchDTO (retourné par POST /api/passenger/search) en TripWithCoords.
+ * Les données sensibles (driverId brut, passengerIds) ne sont jamais transmises — ce DTO
+ * est la seule représentation côté client.
+ */
+export function tripSearchDTOToTripWithCoords(dto: TripSearchDTO): TripWithCoords {
+  return {
+    id: dto.id,
+    departure:    dto.departure.label,
+    destination:  dto.arrival.label,
+    date:         dto.departureDate,
+    time:         dto.departureTime,
+    price:        dto.pricePerPassenger,
+    maxPassengers: dto.maxPassengers,
+    passengers:   [], // non exposé dans le DTO (confidentialité)
+    driver: {
+      id:          dto.driver.id,
+      pictureUrl:  dto.driver.avatarUrl ?? '',
+      name:        dto.driver.firstName,
+      rating:      dto.driver.rating,
+      tripsCount:  dto.driver.tripCount,
+    },
+    doneDate:       null,
+    departureCoords: [dto.departure.coordinates.lng, dto.departure.coordinates.lat],
+    arrivalCoords:   [dto.arrival.coordinates.lng,   dto.arrival.coordinates.lat],
+    latLngs:         dto.polyline.length > 0 ? dto.polyline : undefined,
+    status:          'published',
+  };
+}
 
 /** Convertit un TripModel en TripWithCoords (format utilisé par usePassengerSearch) */
 export function tripModelToTripWithCoords(

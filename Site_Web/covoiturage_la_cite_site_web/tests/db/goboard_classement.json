@@ -1,0 +1,9 @@
+[
+  { "utilisateurId": "USR-2026-00001", "nom": "Ahmed I.", "goScore": 820 },
+  { "utilisateurId": "USR-2026-00004", "nom": "Marie-Claude L.", "goScore": 980 },
+  { "utilisateurId": "USR-2026-00005", "nom": "Jean-Pierre M.", "goScore": 942 },
+  { "utilisateurId": "USR-2026-00006", "nom": "Sofia B.", "goScore": 895 },
+  { "utilisateurId": "USR-2026-00003", "nom": "Pauline D.", "goScore": 310 },
+  { "utilisateurId": "USR-2026-00002", "nom": "Lucas T.", "goScore": 180 },
+  { "utilisateurId": "USR-2026-00007", "nom": "Jean B..", "goScore": 200 }
+]

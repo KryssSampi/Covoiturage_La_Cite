@@ -1,55 +1,71 @@
-import { CreateTripForm } from '@/features/trajets';
-import { TripWayPrefill } from '@/features/trajets/types';
+"use client";
 
 /**
  * Route : /driver/create-trip/[id]
- * [id] = ID de l'utilisateur conducteur (meme pattern que /driver/[id])
+ * [id] = ID du conducteur
  *
- * SearchParams optionnels (pre-remplissage depuis un circuit TripWay) :
- *   ?lieu_de_depart=lng,lat&lieu_darrivee=lng,lat
+ * La page fait le fetch : GET /api/vehicles?driverId=[id]
+ * Si un seul véhicule → sélecteur désactivé dans le formulaire.
  *
- * Layout herite : app/(protected)/layout.tsx
- * -> verifie la session et le role conducteur
+ * SearchParams optionnels (pré-remplissage depuis un circuit TripWay) :
+ *   ?lieu_de_depart=lng,lat&lieu_darrivee=lng,lat&departure_date=...&departure_time=...
+ *
+ * Layout hérité : app/(protected)/layout.tsx
  */
 
-interface PageProps {
-  params:       Promise<{ id: string }>;
-  searchParams: Promise<{
-    lieu_de_depart?:  string;
-    lieu_darrivee?:   string;
-    departure_date?:  string;
-    departure_time?:  string;
-  }>;
+import { useEffect, useState }                   from "react";
+import { useParams, useSearchParams }            from "next/navigation";
+import { CreateTripForm }                        from "@/features/trajets";
+import type { TripWayPrefill }                   from "@/features/trajets/types";
+import type { MockVehicle }                      from "@/features/trajets/constants/trip.constants";
+
+interface VehicleRecord {
+  id:       string;
+  make:     string;
+  model:    string;
+  year?:    number;
+  color?:   string;
+  maxSeats: number;
 }
 
-export default async function CreateTripPage({ params, searchParams }: PageProps) {
-  const { id }   = await params;
-  const sp       = await searchParams;
+export default function CreateTripPage() {
+  const params       = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const driverId     = params.id;
 
-  // Construction des valeurs pre-remplies à partir du circuit sélectionné et du TimeCell
+  const [vehicles, setVehicles] = useState<MockVehicle[]>([]);
+
+  // Fetch des véhicules du conducteur
+  useEffect(() => {
+    if (!driverId) return;
+
+    fetch(`/api/vehicles?driverId=${encodeURIComponent(driverId)}`)
+      .then((r) => r.ok ? r.json() as Promise<VehicleRecord[]> : Promise.resolve([]))
+      .then((data) =>
+        setVehicles(
+          data.map((v) => ({
+            id:            v.id,
+            label:         `${v.make} ${v.model}${v.year ? ` ${v.year}` : ''}`,
+            maxPassengers: v.maxSeats,
+            color:         v.color,
+          }))
+        )
+      )
+      .catch(() => { /* erreur réseau silencieuse — formulaire sans véhicule */ });
+  }, [driverId]);
+
+  // Construction des valeurs pré-remplies depuis les searchParams
   const initialValues: TripWayPrefill = {
-    ...(sp.lieu_de_depart  && { departureLocation: sp.lieu_de_depart  }),
-    ...(sp.lieu_darrivee   && { arrivalLocation:   sp.lieu_darrivee   }),
-    ...(sp.departure_date  && { departureDate:     sp.departure_date  }),
-    ...(sp.departure_time  && { departureTime:     sp.departure_time  }),
+    ...(searchParams.get("lieu_de_depart")  && { departureLocation: searchParams.get("lieu_de_depart")!  }),
+    ...(searchParams.get("lieu_darrivee")   && { arrivalLocation:   searchParams.get("lieu_darrivee")!   }),
+    ...(searchParams.get("departure_date")  && { departureDate:     searchParams.get("departure_date")!  }),
+    ...(searchParams.get("departure_time")  && { departureTime:     searchParams.get("departure_time")!  }),
   };
-
-  // TODO: fetch conductor.firstName via getConductorById(id) pour personnaliser
-  const driverName = 'Conducteur';
-  // Supprime l'avertissement 'id is defined but never used' pendant le TODO
-  console.debug('[CreateTripPage] conductorId:', id);
 
   return (
     <CreateTripForm
-      driverName={driverName}
       initialValues={initialValues}
+      vehicles={vehicles}
     />
   );
-}
-
-export async function generateMetadata() {
-  return {
-    title: 'Creer un trajet - La Cite Covoiturage',
-    description: 'Publiez un nouveau trajet de covoiturage pour la communaute La Cite.',
-  };
 }

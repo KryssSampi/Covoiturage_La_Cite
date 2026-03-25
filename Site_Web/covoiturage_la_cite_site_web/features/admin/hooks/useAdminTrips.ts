@@ -8,62 +8,15 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type SimulationEvent =
-  | "retard_15_30"
-  | "retard_30_60"
-  | "retard_60plus"
-  | "annulation_conducteur"
-  | "no_show_conducteur"
-  | "no_show_passager"
-  | "trajet_complete"
-  | "litige"
-  | "accident";
-
-export interface AdminReservation {
-  id: string;
-  passengerId: string;
-  passengerName: string;
-  status: string;
-  [key: string]: unknown;
-}
-
-export interface AdminTrip {
-  id: string;
-  driverId: string;
-  driverName: string;
-  status: string;
-  pricePerPassenger: number;
-  totalPassengers: number;
-  reservations: AdminReservation[];
-  departureTime?: string;
-  departureDate?: string;
-  departure?: { label: string };
-  arrival?: { label: string };
-  [key: string]: unknown;
-}
-
-export interface SimulateResult {
-  success: boolean;
-  event: SimulationEvent;
-  tripId: string;
-  message: string;
-  penalite?: { montant: number; pointsReputation: number; suspension?: string } | null;
-  affectedReservations: number;
-}
-
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+import type { AdminTrip, SimulateResult, SimulationEvent } from "@/features/admin/types/adminTrips";
 
 export function useAdminTrips() {
-  const [trips, setTrips]       = useState<AdminTrip[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
+  const [trips, setTrips] = useState<AdminTrip[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [simResult, setSimResult] = useState<SimulateResult | null>(null);
-  const [simBusy, setSimBusy]   = useState(false);
+  const [simBusy, setSimBusy] = useState(false);
 
-  // ── Chargement des trajets ────────────────────────────────────────────────
   const loadTrips = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -79,13 +32,14 @@ export function useAdminTrips() {
     }
   }, []);
 
-  useEffect(() => { void loadTrips(); }, [loadTrips]);
+  useEffect(() => {
+    void loadTrips();
+  }, [loadTrips]);
 
-  // ── Simulation d'un événement ─────────────────────────────────────────────
   const simulateEvent = useCallback(async (
     tripId: string,
     event: SimulationEvent,
-    params?: { reservationId?: string }
+    params?: { reservationId?: string },
   ) => {
     setSimBusy(true);
     setSimResult(null);
@@ -100,11 +54,16 @@ export function useAdminTrips() {
         setSimResult({ success: false, event, tripId, message: data.error ?? "Erreur", affectedReservations: 0 });
       } else {
         setSimResult(data);
-        // Recharge les trajets pour refléter les changements
         await loadTrips();
       }
     } catch (err) {
-      setSimResult({ success: false, event, tripId, message: (err as Error).message, affectedReservations: 0 });
+      setSimResult({
+        success: false,
+        event,
+        tripId,
+        message: (err as Error).message,
+        affectedReservations: 0,
+      });
     } finally {
       setSimBusy(false);
     }

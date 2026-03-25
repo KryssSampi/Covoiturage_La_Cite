@@ -10,7 +10,7 @@ import type { DataPointCO2Distance } from "../types/statistiques.types";
 
 // ─── Composant ──────────────────────────────────────────────────────────────
 
-const CO2DistanceScatter: React.FC<{ data: DataPointCO2Distance[]; scale: number }> = ({ data, scale }) => {
+const CO2DistanceScatter: React.FC<{ data: DataPointCO2Distance[]; scale: number; containerRef?: React.RefObject<HTMLDivElement | null> }> = ({ data, scale, containerRef }) => {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
   const catColor: Record<string, string> = { courte: "#e03050", moyenne: "#0aad6a", longue: "#0098c8" };
   const minD = 5, maxD = 35, minCO2 = 0, maxCO2 = 22;
@@ -36,7 +36,7 @@ const CO2DistanceScatter: React.FC<{ data: DataPointCO2Distance[]; scale: number
     <div ref={ref}>
       {/* Conteneur hauteur fixe — la carte ne grandit pas au zoom */}
       <div className="w-full overflow-hidden" style={{ aspectRatio: "260/150" }}>
-      <div className="zoom-wrap overflow-auto h-full" style={{ cursor: scale > 1 ? "zoom-out" : "zoom-in" }}>
+      <div ref={containerRef} className="zoom-wrap overflow-auto h-full" style={{ cursor: scale > 1 ? "zoom-out" : "zoom-in" }}>
         <div
           className="px-5 pt-3 pb-2"
           style={{ transformOrigin: "top left", transform: `scale(${scale})`, transition: "transform .3s", width: `${100 / scale}%` }}

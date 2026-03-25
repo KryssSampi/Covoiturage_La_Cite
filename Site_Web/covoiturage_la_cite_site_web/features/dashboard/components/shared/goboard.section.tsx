@@ -1,27 +1,5 @@
 "use client";
 
-/**
- * @file goboard.section.tsx
- * @description Section GoBoard du dashboard — commune à tous les rôles.
- *
- * Composant autonome : se connecte au flux SSE des GoTasks et se met à jour
- * en temps réel. Les tâches sont filtrées par le rôle de l'utilisateur :
- *   - mixte → tout le monde
- *   - driverOnly → conducteurs uniquement
- *   - passengerOnly → passagers uniquement
- *
- * Les cases ne sont pas cochables par l'utilisateur : seul un admin peut
- * modifier la progression côté serveur. La case est cochée si dans la
- * progression de cet utilisateur, isDone est true.
- *
- * Affiche deux éléments de gamification :
- * 1. GoScore — jauge circulaire + score numérique avec label dynamique
- * 2. GoTâches — liste SSE avec description accordéon + lien d'action
- *
- * @uses useLiveGoTasks — hook SSE GoTasks (temps réel + filtrage rôle)
- * @uses useGoBoard — gestion de l'accordéon des descriptions
- */
-
 import Link from "next/link";
 import { useMemo } from "react";
 import { FaExternalLinkAlt, FaLink } from "react-icons/fa";
@@ -30,11 +8,14 @@ import { Language, useAppState } from "@/core/state/app_state";
 import { GoScoreDial } from "@/shared/ui/goscoredial";
 
 import { useGoBoard } from "../../hooks/useGoBoard";
-import { useLiveGoTasks, GoTaskView } from "../../hooks/useLiveGoTasks";
+import type { GoTask } from "../../types/goboard.types";
+import { FIXTURE_GO_TASKS } from "@/tests/fixtures/dashboard/goboard.fixtures";
 
-// ─── Squelette de chargement ─────────────────────────────────────────────────
+export interface GoTaskView {
+  task: GoTask;
+  isCompleted: boolean;
+}
 
-/** Placeholder animé affiché pendant le chargement SSE */
 function GoTasksSkeleton({ isDriver }: { isDriver: boolean }) {
   return (
     <div className="flex flex-col w-full gap-2 py-3">
@@ -50,20 +31,16 @@ function GoTasksSkeleton({ isDriver }: { isDriver: boolean }) {
   );
 }
 
-// ─── Composant principal ─────────────────────────────────────────────────────
-
-/**
- * GoBoard
- *
- * Composant autonome — se connecte au flux SSE des GoTasks.
- * Les tâches sont filtrées par rôle et la progression de l'utilisateur courant.
- *
- * @param currentScore GoScore actuel de l'utilisateur.
- */
 export function GoBoard({
   currentScore = 820,
+  tasks = FIXTURE_GO_TASKS,
+  isLoading = false,
+  error = null,
 }: {
   currentScore?: number;
+  tasks?: GoTask[];
+  isLoading?: boolean;
+  error?: string | null;
 }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
@@ -71,13 +48,25 @@ export function GoBoard({
   const userId = appState.userConnected?.id;
   const role = appState.userConnected?.role?.toString().toLowerCase();
 
-  // Flux SSE temps réel — filtré par rôle + progression utilisateur
-  const { tasks, isLoading, error } = useLiveGoTasks(userId, role);
+  const taskViews = useMemo<GoTaskView[]>(() => {
+    const wantsDriverTasks = role === "driver";
 
-  // IDs des tâches pour le hook d'accordéon
+    return tasks
+      .filter((task) => {
+        if (task.category === "mixte") return true;
+        if (task.category === "driverOnly") return wantsDriverTasks;
+        if (task.category === "passengerOnly") return !wantsDriverTasks;
+        return false;
+      })
+      .map((task) => ({
+        task,
+        isCompleted: task.progression?.find((p) => p.userId === userId)?.isDone ?? false,
+      }));
+  }, [role, tasks, userId]);
+
   const taskIds = useMemo(
-    () => (tasks ?? []).map((tv) => tv.task.id),
-    [tasks],
+    () => taskViews.map((tv) => tv.task.id),
+    [taskViews],
   );
   const { descriptionVisibles, toggleDescription } = useGoBoard(taskIds);
 
@@ -87,7 +76,6 @@ export function GoBoard({
         isDriver ? "bg-[#08316e]" : "bg-[#efefef]"
       }`}
     >
-      {/* ─── En-tête ───────────────────────────────────────────────────── */}
       <div className="container mx-auto flex items-center justify-between">
         <h2
           className={`text-4xl font-bold -mt-10 mb-1 ${
@@ -104,19 +92,16 @@ export function GoBoard({
       </div>
 
       <div className="container mx-auto flex flex-col items-center justify-between gap-y-10">
-        {/* ─── Section GoScore ─────────────────────────────────────────── */}
         <div className="container flex flex-col border-t bg-white items-center justify-center border-black mx-auto">
           <h1 className="text-2xl font-semibold mb-4 text-gray-800">
             <span className="text-blue-300">Go!</span> Score
           </h1>
 
           <div className="flex items-center -mt-5 justify-between w-full h-fit">
-            {/* Jauge circulaire */}
             <div className="flex max-w-3/7 items-center">
               <GoScoreDial currentScore={currentScore} />
             </div>
 
-            {/* Score numérique + label */}
             <div className="flex flex-col items-center text-center">
               <span
                 className={`${
@@ -132,13 +117,7 @@ export function GoBoard({
                 }`}
               >
                 Hyper G
-                {[
-                  isDriver ? "3xl" : "2xl",
-                  "xl",
-                  "lg",
-                  "[16px]",
-                  "sm",
-                ].map((size) => (
+                {[isDriver ? "3xl" : "2xl", "xl", "lg", "[16px]", "sm"].map((size) => (
                   <span key={size} className={`text-${size} text-green-500`}>
                     O
                   </span>
@@ -149,13 +128,12 @@ export function GoBoard({
           </div>
         </div>
 
-        {/* ─── Section GoTâches ─────────────────────────────────────────── */}
         <h1
           className={`text-2xl font-semibold -mt-5 -mb-10 ${
             isDriver ? "text-white" : "text-gray-800"
           }`}
         >
-          <span className="text-blue-300">Go!</span> Tâches
+          <span className="text-blue-300">Go!</span> Taches
         </h1>
 
         <div className="flex flex-col border-y-2 border-black w-full items-center bg-transparent justify-center relative">
@@ -165,27 +143,25 @@ export function GoBoard({
                         overflow-x-hidden"
             style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
           >
-            {/* Chargement SSE */}
             {isLoading ? (
               <GoTasksSkeleton isDriver={!!isDriver} />
             ) : error ? (
               <div className="flex items-center justify-center h-full p-6">
                 <p className="text-red-500 text-center">{error}</p>
               </div>
-            ) : !tasks || tasks.length === 0 ? (
+            ) : taskViews.length === 0 ? (
               <div className="flex items-center justify-center h-full p-6">
                 <p className="text-gray-500 text-center text-lg">
-                  {isFR ? "Aucune tâche disponible." : "No tasks available."}
+                  {isFR ? "Aucune tache disponible." : "No tasks available."}
                 </p>
               </div>
             ) : (
-              tasks.map((tv: GoTaskView) => (
+              taskViews.map((tv) => (
                 <button
                   key={tv.task.id}
                   onClick={() => toggleDescription(tv.task.id)}
                   className="flex flex-col items-center w-full px-5 py-3 border hover:bg-gray-100 hover:scale-[1.02] transition-all gap-3"
                 >
-                  {/* Ligne principale : checkbox + titre + points */}
                   <div className="flex items-center w-full">
                     <input
                       type="checkbox"
@@ -208,7 +184,6 @@ export function GoBoard({
                     </span>
                   </div>
 
-                  {/* Description accordéon */}
                   <div
                     className={`grid transition-all duration-500 ease-in-out bg-gray-300 overflow-hidden ${
                       descriptionVisibles[tv.task.id]

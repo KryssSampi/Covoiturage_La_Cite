@@ -1,8 +1,10 @@
 ﻿"use client";
 
 /**
- * Page Mes Statistiques â€” KPIs, graphiques COâ‚‚, notes, badges, trajets, impact.
- * Les sous-composants sont importÃ©s depuis ./components/.
+ * Page Mes Statistiques - KPIs, graphiques CO2, notes, badges, trajets, impact.
+ *
+ * Composant de PRESENTATION PURE : recoit toutes les donnees en props.
+ * Aucun fetch, aucun useDb - tout est injecte depuis la page route.
  */
 
 import React from "react";
@@ -13,107 +15,123 @@ import {
 
 import { useZoom } from "@/shared/hooks/useScrollReveal";
 import FeatureHeader from "@/shared/components/FeatureHeader";
-import { useStatistiques } from "../hooks/useStatistiques";
 
-// â”€â”€â”€ Sous-composants UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-import Card        from "./ui/Card";
-import CardHeader  from "./ui/CardHeader";
-import TrendMsg    from "./ui/TrendMsg";
-import ZoomControls  from "./ui/ZoomControls";
+import type {
+  Periode,
+  StatistiquesPageModel,
+} from "../types/statistiques.types";
+
+// --- Sous-composants UI ---
+import Card           from "./ui/Card";
+import CardHeader     from "./ui/CardHeader";
+import TrendMsg       from "./ui/TrendMsg";
+import ZoomControls   from "./ui/ZoomControls";
 import PeriodSelector from "./ui/PeriodSelector";
 
-// â”€â”€â”€ Sous-composants feature â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-import KpiCard             from "./KpiCard";
-import CO2BarChart         from "./CO2BarChart";
-import CO2DistanceScatter  from "./CO2DistanceScatter";
-import NotesTimeline       from "./NotesTimeline";
-import BadgesGrid          from "./BadgesGrid";
-import TripsList           from "./TripsList";
-import ImpactEcoSection    from "./ImpactEcoSection";
+// --- Sous-composants feature ---
+import KpiCard            from "./KpiCard";
+import CO2BarChart        from "./CO2BarChart";
+import CO2DistanceScatter from "./CO2DistanceScatter";
+import NotesTimeline      from "./NotesTimeline";
+import BadgesGrid         from "./BadgesGrid";
+import TripsList          from "./TripsList";
+import ImpactEcoSection   from "./ImpactEcoSection";
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// PAGE PRINCIPALE STATISTIQUES
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// --- Props ---
 
-export default function StatistiquesPage() {
-  const {
-    periode, setPeriode, periodes,
-    co2ParMois, scatterCO2Distance,
-    notesParSemaine, badgesObtenus, derniersTrajetsSummary, impactEco,
-  } = useStatistiques();
+interface StatistiquesPageProps {
+  /** Donnees completes assemblees par le backend */
+  data: StatistiquesPageModel;
+  /** Periode active (etat gere par la page route) */
+  periode: Periode;
+  /** Callback pour changer la periode (declenche un nouveau fetch) */
+  onPeriodeChange: (p: Periode) => void;
+  /** Liste des periodes disponibles */
+  periodes: Periode[];
+}
 
-  const { scale: scatterScale, zoomIn: ziS, zoomOut: zoS, reset: rstS } = useZoom();
+// --- PAGE PRINCIPALE STATISTIQUES ---
+
+export default function StatistiquesPage({
+  data,
+  periode,
+  onPeriodeChange,
+  periodes,
+}: StatistiquesPageProps) {
+  const { scale: scatterScale, zoomIn: ziS, zoomOut: zoS, reset: rstS, containerRef: scatterRef } = useZoom();
+
+  const { kpis, co2ParMois, co2Total, scatterCO2Distance, notesParSemaine,
+    distributionNotes, badges, badgesSummary, derniersTrajetsSummary,
+    impactEco, trends } = data;
 
   return (
     <div className="min-h-screen text-black bg-[#f0f4fb]">
-      {/* En-tÃªte */}
+      {/* En-tete */}
       <FeatureHeader
         breadcrumb="Mes Statistiques"
         title="Mes Statistiques"
         subtitle="Votre impact, performances et historique complet"
       >
-        <PeriodSelector periodes={periodes} active={periode} onChange={setPeriode} />
+        <PeriodSelector periodes={periodes} active={periode} onChange={onPeriodeChange} />
       </FeatureHeader>
 
-      {/* KPI Hero — 4 colonnes */}
+      {/* KPI Hero - 4 colonnes */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-6 md:px-10 pt-5">
-        <KpiCard iconKey="trajets" value="32"    label="Trajets partagés"       trend="↑ +8 vs mois précédent" trendColor="#0aad6a" delay={50} />
-        <KpiCard iconKey="co2"     value="234.5" unit="kg" label="CO₂ économisé ce mois" trend="↑ +18% vs fév."       trendColor="#0aad6a" delay={100} />
-        <KpiCard iconKey="note"    value="4.2"   unit="/5" label="Note moyenne"           trend="→ stable"              trendColor="#7a90b8" delay={150} />
-        <KpiCard iconKey="score"   value="820"   label="GO! Score"              trend="Hyper GOoooo!"         trendColor="#0aad6a" delay={200} />
+        <KpiCard iconKey="trajets" value={String(kpis.nbTrajets.value)} label="Trajets partag&eacute;s" trend={kpis.nbTrajets.trend} trendColor={kpis.nbTrajets.trendColor} delay={50} />
+        <KpiCard iconKey="co2" value={String(kpis.co2.value)} unit="kg" label="CO2 economise" trend={kpis.co2.trend} trendColor={kpis.co2.trendColor} delay={100} />
+        <KpiCard iconKey="note" value={String(kpis.note.value)} unit="/5" label="Note moyenne" trend={kpis.note.trend} trendColor={kpis.note.trendColor} delay={150} />
+        <KpiCard iconKey="score" value={String(kpis.goScore.value)} label="GO! Score" trend={kpis.goScore.trend} trendColor={kpis.goScore.trendColor} delay={200} />
       </div>
 
       {/* Grille principale */}
       <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr] gap-4 px-6 md:px-10 pt-5 pb-3">
 
-        {/* Histogramme CO₂ */}
-        <Card delay={200}>
-          <CardHeader dotColor="#0aad6a" title="CO₂ Économisé par Mois (Histogramme)" />
-          <CO2BarChart data={co2ParMois} />
-          <TrendMsg variant="up" icon={<FaChartLine className="text-[#0aad6a]" />}>
-            <strong>Progression constante : +83% de CO₂ économisé depuis janvier.</strong>{" "}
-            À ce rythme vous atteindrez 800 kg cumulés d&apos;ici fin mai — soit l&apos;équivalent de 45 arbres plantés.
+        {/* Histogramme CO2 */}
+        <Card delay={200} className="flex flex-col">
+          <CardHeader dotColor="#0aad6a" title="CO2 Economise par Mois (Histogramme)" />
+          <CO2BarChart data={co2ParMois} co2Total={co2Total} />
+          <TrendMsg variant={trends.co2Chart.variant} icon={<FaChartLine className="text-[#0aad6a]" />}>
+            {trends.co2Chart.text}
           </TrendMsg>
         </Card>
 
-        {/* Scatter CO₂ × Distance */}
-        <Card delay={250}>
+        {/* Scatter CO2 x Distance */}
+        <Card delay={250} className="flex flex-col">
           <CardHeader
             dotColor="#0098c8"
-            title="CO₂ Économisé — Distance"
+            title="CO2 Economise - Distance"
             right={<ZoomControls onPlus={ziS} onMinus={zoS} onReset={rstS} />}
           />
-          <CO2DistanceScatter data={scatterCO2Distance} scale={scatterScale} />
-          <TrendMsg variant="stable" icon={<FaRuler className="text-[#08316e]" />}>
-            <strong>Corrélation forte entre distance et CO₂ économisé.</strong>{" "}
-            Vos trajets de 15–23 km sont les plus impactants — priorisez les passagers sur ces distances pour maximiser votre impact.
+          <CO2DistanceScatter data={scatterCO2Distance} scale={scatterScale} containerRef={scatterRef} />
+          <TrendMsg variant={trends.scatter.variant} icon={<FaRuler className="text-[#08316e]" />}>
+            {trends.scatter.text}
           </TrendMsg>
         </Card>
 
         {/* Notes Timeline */}
-        <Card delay={300}>
+        <Card delay={300} className="flex flex-col">
           <CardHeader dotColor="#c8960a" title="Histogramme Temporel des Notes" />
-          <NotesTimeline data={notesParSemaine} />
-          <TrendMsg variant="up" icon={<FaStar className="text-[#c8960a]" />}>
-            <strong>Vos notes sont globalement excellentes</strong> avec une médiane à 5☆ sur 4 des 7 dernières semaines.
+          <NotesTimeline data={notesParSemaine} distribution={distributionNotes} />
+          <TrendMsg variant={trends.notes.variant} icon={<FaStar className="text-[#c8960a]" />}>
+            {trends.notes.text}
           </TrendMsg>
         </Card>
 
         {/* Badges */}
-        <Card delay={350}>
+        <Card delay={350} className="flex flex-col">
           <CardHeader
             dotColor="#c8960a"
-            title="Badges & Récompenses"
-            right={<span className="text-[11px] text-[#7a90b8]">7 / 20 badges</span>}
+            title="Badges & Recompenses"
+            right={<span className="text-[11px] text-[#7a90b8]">{badgesSummary.obtenus} / {badgesSummary.total} badges</span>}
           />
-          <BadgesGrid badges={badgesObtenus} />
-          <TrendMsg variant="up" icon={<FaMedal className="text-[#c8960a]" />}>
-            <strong>7 badges obtenus en 5 mois.</strong> Votre prochain badge &quot;Expert&quot; nécessite 19 trajets supplémentaires.
+          <BadgesGrid badges={badges} />
+          <TrendMsg variant={trends.badges.variant} icon={<FaMedal className="text-[#c8960a]" />}>
+            {trends.badges.text}
           </TrendMsg>
         </Card>
 
-        {/* Derniers Trajets — pleine largeur */}
-        <Card delay={400} className="md:col-span-2">
+        {/* Derniers Trajets - pleine largeur */}
+        <Card delay={400} className="md:col-span-2 flex flex-col">
           <CardHeader
             dotColor="#08316e"
             title="Derniers Trajets"
@@ -124,21 +142,20 @@ export default function StatistiquesPage() {
             }
           />
           <TripsList trips={derniersTrajetsSummary} />
-          <TrendMsg variant="up" icon={<FaCircleCheck className="text-[#0aad6a]" />}>
-            <strong>4 trajets réussis sur 5 récents.</strong> Votre trajet du 12 mars avec 2 passagers a généré 34 $ et économisé 12.6 kg de CO₂.
+          <TrendMsg variant={trends.trajets.variant} icon={<FaCircleCheck className="text-[#0aad6a]" />}>
+            {trends.trajets.text}
           </TrendMsg>
         </Card>
 
-        {/* Impact Écologique — pleine largeur */}
-        <Card delay={450} className="md:col-span-2">
+        {/* Impact Ecologique - pleine largeur */}
+        <Card delay={450} className="md:col-span-2 flex flex-col">
           <CardHeader
             dotColor="#0aad6a"
-            title="Impact Écologique Global"
-            right={<span className="text-[11px] text-[#7a90b8]">Depuis oct. 2025</span>}
+            title="Impact Ecologique Global"
           />
           <ImpactEcoSection impact={impactEco} />
-          <TrendMsg variant="up" icon={<FaEarthAmericas className="text-[#0aad6a]" />}>
-            <strong>557.5 kg CO₂ économisés en 5 mois</strong> — l&apos;équivalent de 28 arbres plantés ou 47 voitures maintenues au garage pour une journée.
+          <TrendMsg variant={trends.impact.variant} icon={<FaEarthAmericas className="text-[#0aad6a]" />}>
+            {trends.impact.text}
           </TrendMsg>
         </Card>
       </div>

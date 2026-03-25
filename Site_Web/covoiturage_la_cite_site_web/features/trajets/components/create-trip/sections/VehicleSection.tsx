@@ -2,12 +2,14 @@
 
 import React from 'react';
 import { CreateTripFormState } from '../../../types';
-import { MOCK_VEHICLES } from '../../../constants/trip.constants';
+import type { MockVehicle } from '../../../constants/trip.constants';
 import { StepperInput } from '../ui';
 
 interface VehicleSectionProps {
   form:                    CreateTripFormState;
   errors:                  Partial<Record<keyof CreateTripFormState, string>>;
+  /** Véhicules réels du conducteur, fournis par la page via l'API */
+  vehicles:                MockVehicle[];
   onVehicleChange:         (vehicleId: string) => void;
   incrementAvailableSeats: () => void;
   decrementAvailableSeats: () => void;
@@ -16,11 +18,13 @@ interface VehicleSectionProps {
 export const VehicleSection: React.FC<VehicleSectionProps> = ({
   form,
   errors,
+  vehicles,
   onVehicleChange,
   incrementAvailableSeats,
   decrementAvailableSeats,
 }) => {
-  const selectedVehicle = MOCK_VEHICLES.find((v) => v.id === form.vehicleId);
+  const selectedVehicle = vehicles.find((v) => v.id === form.vehicleId) ?? vehicles[0] ?? null;
+  const singleVehicle   = vehicles.length === 1 ? vehicles[0] : null;
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
@@ -32,25 +36,38 @@ export const VehicleSection: React.FC<VehicleSectionProps> = ({
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">Vehicule</label>
         <div className="relative">
-          <select
-            value={form.vehicleId}
-            onChange={(e) => onVehicleChange(e.target.value)}
-            className="w-full px-3 py-2.5 border rounded-lg text-sm appearance-none bg-white focus:outline-none focus:ring-2 transition pr-8 cursor-pointer"
-            style={{ borderColor: errors.vehicleId ? '#ef4444' : '#d1d5db' }}
-          >
-            <option value="" disabled>
-              Selectionner un vehicule...
-            </option>
-            {MOCK_VEHICLES.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.label}{v.color ? ` — ${v.color}` : ''}
+          {singleVehicle ? (
+            /* Un seul véhicule → champ désactivé affichant son nom */
+            <input
+              type="text"
+              readOnly
+              disabled
+              value={`${singleVehicle.label}${singleVehicle.color ? ` — ${singleVehicle.color}` : ''}`}
+              className="w-full px-3 py-2.5 border rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed"
+              style={{ borderColor: '#d1d5db' }}
+            />
+          ) : (
+            <select
+              value={form.vehicleId}
+              onChange={(e) => onVehicleChange(e.target.value)}
+              className="w-full px-3 py-2.5 border rounded-lg text-sm appearance-none bg-white focus:outline-none focus:ring-2 transition pr-8 cursor-pointer"
+              style={{ borderColor: errors.vehicleId ? '#ef4444' : '#d1d5db' }}
+            >
+              <option value="" disabled>
+                {vehicles.length === 0 ? 'Aucun vehicule enregistre' : 'Selectionner un vehicule...'}
               </option>
-            ))}
-          </select>
-          {/* Chevron visuel */}
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-            ▾
-          </span>
+              {vehicles.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.label}{v.color ? ` — ${v.color}` : ''}
+                </option>
+              ))}
+            </select>
+          )}
+          {!singleVehicle && (
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+              ▾
+            </span>
+          )}
         </div>
         {errors.vehicleId && (
           <p className="text-xs text-red-500 mt-1">{errors.vehicleId}</p>

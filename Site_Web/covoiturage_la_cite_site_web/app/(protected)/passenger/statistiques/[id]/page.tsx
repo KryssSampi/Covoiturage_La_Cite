@@ -2,14 +2,17 @@
 
 /**
  * Page Statistiques — rôle Passager.
- * Même page que le conducteur (indépendant du rôle).
+ * Récupère les données via API, souscrit au SSE pour les mises à jour temps réel,
+ * et passe les données assemblées à StatistiquesPage (composant pur).
  */
 
-import { useEffect } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useLoader } from "@/core/context/loader.context";
 import { useAppState } from "@/core/state/app_state";
 import { StatistiquesPage } from "@/features/statistiques";
+import { useStatistiques } from "@/features/statistiques/hooks/useStatistiques";
+import type { StatistiquesPageModel } from "@/features/statistiques/types/statistiques.types";
 
 export default function PassengerStatistiquesRoutePage() {
   const appState            = useAppState();
@@ -17,6 +20,9 @@ export default function PassengerStatistiquesRoutePage() {
   const router              = useRouter();
   const { setActiveLoader } = useLoader();
   const user                = appState.userConnected;
+
+  const { periode, setPeriode, periodes } = useStatistiques();
+  const [data, setData] = useState<StatistiquesPageModel | null>(null);
 
   // Vérification rôle / identité
   useEffect(() => {
@@ -29,7 +35,48 @@ export default function PassengerStatistiquesRoutePage() {
     }
   }, [user, params, router, setActiveLoader]);
 
-  if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "passenger") return null;
+  // Chargement des données depuis l'API (inclut la période active)
+  const loadData = useCallback(async (p: string) => {
+    if (!user) return;
+    try {
+      const res = await fetch(
+        `/api/statistiques?userId=${encodeURIComponent(user.id)}&periode=${encodeURIComponent(p)}`,
+      );
+      if (!res.ok) return;
+      setData(await res.json());
+    } catch (error) {
+      console.error("[passenger/statistiques] loadData", error);
+    }
+  }, [user]);
 
-  return <StatistiquesPage />;
+  // Chargement initial + rechargement quand la période change
+  useEffect(() => {
+    if (!user || user.role?.toString().toLowerCase() !== "passenger") return;
+    if (user.id !== params.id) return;
+    void loadData(periode);
+  }, [loadData, params.id, user, periode]);
+
+  // SSE : mise à jour temps réel lorsque les stats changent
+  useEffect(() => {
+    if (!user || user.id !== params.id) return;
+    const es = new EventSource("/api/sse/db-watch/user_stats");
+    let isFirst = true;
+    es.addEventListener("update", () => {
+      if (isFirst) { isFirst = false; return; }
+      void loadData(periode);
+    });
+    return () => es.close();
+  }, [user, params.id, loadData, periode]);
+
+  if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "passenger") return null;
+  if (!data) return null;
+
+  return (
+    <StatistiquesPage
+      data={data}
+      periode={periode}
+      onPeriodeChange={setPeriode}
+      periodes={periodes}
+    />
+  );
 }

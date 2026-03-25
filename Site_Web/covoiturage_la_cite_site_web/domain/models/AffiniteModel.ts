@@ -6,11 +6,12 @@
 /**
  * AffiniteModel — Modèle de base de données pour l'affinité entre deux utilisateurs.
  *
- * Le score d'affinité augmente de +1 à chaque trajet complété ensemble
- * sans litige déclaré entre les deux parties.
+ * L'affinité est créée dès le premier trajet complété ensemble et croît
+ * de +1 à chaque trajet sans litige, indépendamment du statut favori.
  *
- * Ce modèle est bidirectionnel : la paire (userId1, userId2) est stockée
- * en ordre croissant d'ID pour éviter les doublons.
+ * Pour apparaître dans la liste de favoris d'un utilisateur :
+ *  1. L'utilisateur connecté doit être celui dans idPersonneQuiAMisEnFavoris
+ *  2. isActuallyFavorite doit être true (mis manuellement par l'utilisateur)
  */
 export class AffiniteModel {
   /** Identifiant unique de l'entrée d'affinité */
@@ -21,6 +22,13 @@ export class AffiniteModel {
 
   /** ID de l'utilisateur qui a été mis en favoris */
   idPersonneEnFavoris: string = '';
+
+  /**
+   * Indique si l'utilisateur a explicitement ajouté cette personne en favori.
+   * L'affinité existe dès le premier trajet, mais n'apparaît dans les favoris
+   * que lorsque isActuallyFavorite est true.
+   */
+  isActuallyFavorite: boolean = false;
 
   /**
    * Note d'affinité — grimpe de +1 à chaque trajet complété ensemble

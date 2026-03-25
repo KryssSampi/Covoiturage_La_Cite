@@ -10,50 +10,86 @@ export interface DataPointGoScore {
   delta: number;
 }
 
-/** Mission hebdomadaire avec système de progression */
-export interface Mission {
+/** Progression d'un utilisateur sur une GoTask */
+export interface GoTaskProgression {
+  userId: string;
+  isDone: boolean;
+  /** Date ISO de complétion — renseigné uniquement quand isDone = true */
+  completeAt?: string;
+}
+
+/** GoTask stockée en base JSON */
+export interface GoTask {
+  id: string;
+  titlefr: string;
+  titleen: string;
+  descriptionfr: string;
+  descriptionen: string;
+  category: "mixte" | "driverOnly" | "passengerOnly";
+  link: string;
+  points: number;
+  progression: GoTaskProgression[];
+}
+
+/** GoEvent — entrée dans l'historique des points (GoTasks complétées + autres événements) */
+export interface GoEvent {
+  id: string;
+  titre: string;
+  date: string;
+  points: number;
+  utilisateurId: string;
+}
+
+/** Défi écologique avec cible CO₂ et barre de progression */
+export interface EcoChallenge {
   id: string;
   titre: string;
   description: string;
-  pointsRecompense: number;
-  progres: number;
-  objectif: number;
-  estCompletee: boolean;
-}
-
-/** Défi écologique avec 3 états possibles */
-export interface DefiEcologique {
-  id: string;
-  nom: string;
-  cible: string;
-  progres: number;
-  statut: "actif" | "verrouille" | "complete";
+  /** Cible en kg de CO₂ économisés */
+  cibleCO2Kg: number;
   recompense: string;
 }
 
-/** Entrée dans le classement mensuel */
+/** Défi écologique enrichi avec la progression de l'utilisateur */
+export interface EcoChallengeAvecProgression extends EcoChallenge {
+  /** Progression 0-100 (pourcentage) */
+  progres: number;
+  statut: "actif" | "verrouille" | "complete";
+}
+
+/** Entrée dans le classement hebdomadaire */
 export interface EntreeClassement {
   rang: number;
   utilisateurId: string;
   nom: string;
   score: number;
-  nbTrajets: number;
-  note: number;
   estMoi: boolean;
 }
 
-/** Entrée dans l'historique des points GoScore */
-export interface EntreeHistoriquePts {
-  label: string;
-  pts: number;
-  signe: "+" | "-";
-  date: Date;
+/** Entrée stockée dans le classement hebdomadaire statique (DB) */
+export interface ClassementEntry {
+  utilisateurId: string;
+  nom: string;
+  goScore: number;
 }
 
 /** Palier de réputation */
 export type GoTier = "Excellent" | "Bon" | "Passable" | "Restreint";
 
-/** Modèle complet de la page Go! Board */
+/** Réponse de l'API /api/goboard — données complètes pour la page */
+export interface GoBoardApiResponse {
+  goScore: number;
+  tier: GoTier;
+  rang: number;
+  pointsGagnes: number;
+  pointsPerdus: number;
+  goTasks: GoTask[];
+  classement: EntreeClassement[];
+  defisEco: EcoChallengeAvecProgression[];
+  goEvents: GoEvent[];
+}
+
+/** Modèle complet de la page Go! Board (legacy — utilisé par les fixtures) */
 export interface GoBoardPageModel {
   utilisateurId: string;
   goScore: number;
@@ -65,6 +101,17 @@ export interface GoBoardPageModel {
   progressionScatter: DataPointGoScore[];
   missions: Mission[];
   classement: EntreeClassement[];
-  defisEco: DefiEcologique[];
-  historiquePts: EntreeHistoriquePts[];
+  defisEco: EcoChallengeAvecProgression[];
+  goEvents: GoEvent[];
+}
+
+/** Mission (legacy — remplacé par GoTask dans la nouvelle archi) */
+export interface Mission {
+  id: string;
+  titre: string;
+  description: string;
+  pointsRecompense: number;
+  progres: number;
+  objectif: number;
+  estCompletee: boolean;
 }

@@ -1,34 +1,19 @@
 "use client";
 
 /**
- * Hook gérant la configuration ListDetailPage pour l'historique des trajets publiés du conducteur.
+ * Hook de configuration ListDetailPage pour l'historique des trajets publiés du conducteur.
+ * Fournit uniquement les filtres, options de tri, recherche et message vide.
+ * Les données sont chargées au niveau de la page route (pattern dashboard).
  */
 
 import { useMemo } from "react";
 import { Language, useAppState } from "@/core/state/app_state";
-import { useDb } from "@/core/context/db.context";
-import { tripModelToPublishedTrip } from "@/features/dashboard/converters/dashboard.converter";
 import { PublishedTripStatus } from "@/features/dashboard/types";
 import type { FilterGroup, SortOption } from "@/shared/components/list-detail-page";
 
-export function useDriverHistoriqueList() {
+export function useDriverHistoriqueConfig() {
   const { lang } = useAppState();
-  const { myTrips, reservations, users } = useDb();
   const isFR = lang === Language.FR;
-
-  // Transformation des TripModel → PublishedTrip (type UI dashboard)
-  const items = useMemo(
-    () => myTrips.map((trip) => {
-      const tripReservations = reservations.filter((r) => r.tripId === trip.id);
-      const passengers = tripReservations
-        .filter((r) => r.status === 'confirmed' || r.status === 'completed')
-        .map((r) => users.find((u) => u.id === r.passengerId))
-        .filter(Boolean) as (typeof users)[0][];
-      const pendingCount = tripReservations.filter((r) => r.status === 'pending').length;
-      return tripModelToPublishedTrip(trip, passengers, pendingCount);
-    }),
-    [myTrips, reservations, users],
-  );
 
   // Filtre par statut du trajet
   const filterGroups: FilterGroup[] = useMemo(() => [
@@ -78,5 +63,5 @@ export function useDriverHistoriqueList() {
     ? "Aucun trajet publié dans l'historique."
     : "No published trips in history.";
 
-  return { items, filterGroups, sortOptions, searchKeys, emptyMessage };
+  return { filterGroups, sortOptions, searchKeys, emptyMessage };
 }

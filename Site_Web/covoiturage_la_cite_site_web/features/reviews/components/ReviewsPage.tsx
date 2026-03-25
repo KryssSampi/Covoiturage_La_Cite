@@ -15,7 +15,12 @@ import { Language, useAppState } from "@/core/state/app_state";
 import { formatDate } from "@/core/utils/date.utils";
 import { ListDetailPage } from "@/shared/components/list-detail-page";
 import type { Review } from "@/features/dashboard/types/review.types";
-import { useReviewsList } from "../hooks/useReviewsList";
+import { useReviewsConfig } from "../hooks/useReviewsList";
+
+/** Props injectées par la page route */
+interface ReviewsPageProps {
+  items: Review[];
+}
 
 /** Avatar par défaut si la photo de l'évaluateur est introuvable */
 const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
@@ -52,7 +57,7 @@ function ReviewListCard({ review, lang }: { review: Review; lang: Language }) {
     <div className="flex items-center gap-3 p-3">
       {/* Photo évaluateur */}
       <Link
-        href={`/public-profile/${review.reviewerid}`}
+        href={`/public-profile/${review.reviewerId}`}
         onClick={(e) => e.stopPropagation()}
       >
         <Image
@@ -69,7 +74,7 @@ function ReviewListCard({ review, lang }: { review: Review; lang: Language }) {
       <div className="flex flex-col flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <Link
-            href={`/public-profile/${review.reviewerid}`}
+            href={`/public-profile/${review.reviewerId}`}
             className="text-[18px] font-semibold text-[#08316e] hover:underline truncate"
             onClick={(e) => e.stopPropagation()}
           >
@@ -90,9 +95,9 @@ function ReviewListCard({ review, lang }: { review: Review; lang: Language }) {
 
 // ─── Page principale ─────────────────────────────────────────────────────────
 
-export function ReviewsPage() {
+export function ReviewsPage({ items }: ReviewsPageProps) {
   const { lang } = useAppState();
-  const { items, sortOptions, searchKeys, emptyMessage } = useReviewsList();
+  const { sortOptions, searchKeys, emptyMessage } = useReviewsConfig();
 
   const renderCard = useCallback(
     (review: Review) => <ReviewListCard review={review} lang={lang} />,

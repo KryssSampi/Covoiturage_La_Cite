@@ -6,11 +6,19 @@
 
 import React from "react";
 import { useScrollReveal } from "@/shared/hooks/useScrollReveal";
-import type { DonneesNotesHebdo } from "../types/statistiques.types";
+import type { DonneesNotesHebdo, DistributionNotes } from "../types/statistiques.types";
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Génère la chaîne d'étoiles pleines/vides à partir de la note moyenne */
+const buildStars = (note: number): string => {
+  const full = Math.round(note);
+  return "★".repeat(full) + "☆".repeat(5 - full);
+};
 
 // ─── Composant ──────────────────────────────────────────────────────────────
 
-const NotesTimeline: React.FC<{ data: DonneesNotesHebdo[] }> = ({ data }) => {
+const NotesTimeline: React.FC<{ data: DonneesNotesHebdo[]; distribution?: DistributionNotes }> = ({ data, distribution }) => {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
   const SVG_W = 500, SVG_H = 180, WEEK_W = 65, BAR_W = 10, MAX_NOTE = 5, H_AREA = 100;
   const NOTE_H = (n: number) => (n / MAX_NOTE) * H_AREA;
@@ -95,38 +103,49 @@ const NotesTimeline: React.FC<{ data: DonneesNotesHebdo[] }> = ({ data }) => {
         <span className="text-[#7a90b8]">← Faire défiler →</span>
       </div>
 
-      {/* Ventilation des notes */}
-      <div className="px-5 pb-3.5">
-        <div className="flex items-center gap-3.5 mb-3">
-          <div className="font-['Syne',sans-serif] font-extrabold text-[44px] text-[#c8960a] leading-none">4.2</div>
-          <div>
-            <div className="text-xl text-[#c8960a] tracking-widest">★★★★☆</div>
-            <div className="text-[11px] text-[#7a90b8] mt-0.5">28 avis · Conducteur</div>
-          </div>
-        </div>
-        {[
-          { star: "5 ★", pct: 54, count: 15, color: "#c8960a" },
-          { star: "4 ★", pct: 29, count: 8,  color: "#c8960a" },
-          { star: "3 ★", pct: 11, count: 3,  color: "#7a90b8" },
-          { star: "2 ★", pct: 4,  count: 1,  color: "#e03050" },
-          { star: "1 ★", pct: 4,  count: 1,  color: "#e03050" },
-        ].map((r) => (
-          <div key={r.star} className="flex items-center gap-2 text-[11px] mb-1.5">
-            <span className="text-[#7a90b8] w-[34px] text-right shrink-0">{r.star}</span>
-            <div className="flex-1 h-1.25 bg-[rgba(8,49,110,0.07)] rounded-sm overflow-hidden">
-              <div
-                className="h-full rounded-sm"
-                style={{
-                  background: r.color,
-                  width: isVisible ? `${r.pct}%` : "0%",
-                  transition: "width 0.8s ease 0.3s",
-                }}
-              />
+      {/* Ventilation des notes (dynamique via distribution) */}
+      {distribution && (() => {
+        const total = distribution.totalAvis || 1;
+        const rows = [
+          { star: "5 ★", count: distribution.etoile5, color: "#c8960a" },
+          { star: "4 ★", count: distribution.etoile4, color: "#c8960a" },
+          { star: "3 ★", count: distribution.etoile3, color: "#7a90b8" },
+          { star: "2 ★", count: distribution.etoile2, color: "#e03050" },
+          { star: "1 ★", count: distribution.etoile1, color: "#e03050" },
+        ];
+        return (
+          <div className="px-5 pb-3.5">
+            <div className="flex items-center gap-3.5 mb-3">
+              <div className="font-['Syne',sans-serif] font-extrabold text-[44px] text-[#c8960a] leading-none">
+                {distribution.noteMoyenne.toFixed(1)}
+              </div>
+              <div>
+                <div className="text-xl text-[#c8960a] tracking-widest">{buildStars(distribution.noteMoyenne)}</div>
+                <div className="text-[11px] text-[#7a90b8] mt-0.5">{distribution.totalAvis} avis · {distribution.roleLabel}</div>
+              </div>
             </div>
-            <span className="text-[#7a90b8] w-5 text-[10px]">{r.count}</span>
+            {rows.map((r) => {
+              const pct = Math.round((r.count / total) * 100);
+              return (
+                <div key={r.star} className="flex items-center gap-2 text-[11px] mb-1.5">
+                  <span className="text-[#7a90b8] w-[34px] text-right shrink-0">{r.star}</span>
+                  <div className="flex-1 h-1.25 bg-[rgba(8,49,110,0.07)] rounded-sm overflow-hidden">
+                    <div
+                      className="h-full rounded-sm"
+                      style={{
+                        background: r.color,
+                        width: isVisible ? `${pct}%` : "0%",
+                        transition: "width 0.8s ease 0.3s",
+                      }}
+                    />
+                  </div>
+                  <span className="text-[#7a90b8] w-5 text-[10px]">{r.count}</span>
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
+        );
+      })()}
     </div>
   );
 };

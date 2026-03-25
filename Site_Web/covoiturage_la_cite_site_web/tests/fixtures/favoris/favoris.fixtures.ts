@@ -4,15 +4,23 @@
  */
 
 import type {
-  FavorisPageModel,
+  FavorisApiResponse,
   UserSearchResult,
 } from "@/features/favoris/types/favoris.types";
 
+// ─── Données de recherche utilisateur (overlay) ──────────────────────────────
+
+export const FIXTURES_USER_SEARCH: UserSearchResult[] = [
+  { id: "u01", name: "Sophie Martin",   role: "Passager",   note: "4.8", badge: "Régulière",  initiales: "SM", gradient: "linear-gradient(135deg,#6a1a8a,#c070e0)" },
+  { id: "u02", name: "David Nguyen",    role: "Conducteur", note: "4.9", badge: "Expert",      initiales: "DN", gradient: "linear-gradient(135deg,#08316e,#1a5cb0)" },
+  { id: "u03", name: "Fatima Zahra",    role: "Passager",   note: "5.0", badge: "Nouveau",     initiales: "FZ", gradient: "linear-gradient(135deg,#0a6040,#0aad6a)" },
+  { id: "u04", name: "Antoine Leblanc", role: "Conducteur", note: "4.5", badge: "Confirmé",    initiales: "AL", gradient: "linear-gradient(135deg,#8a3a1a,#e08040)" },
+  { id: "u05", name: "Sarah Côté",      role: "Passager",   note: "4.7", badge: "Ponctuelle",  initiales: "SC", gradient: "linear-gradient(135deg,#1a3a8a,#4070e0)" },
+];
+
 // ─── Données Favoris ─────────────────────────────────────────────────────────
 
-export const FIXTURES_FAVORIS: FavorisPageModel = {
-  utilisateurId: "u-ahmed",
-  ongletActif: "lieux",
+export const FIXTURES_FAVORIS: FavorisApiResponse = {
   lieux: [
     {
       id: "l1",
@@ -20,7 +28,6 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
       adresse: "801 prom. de l'Aviation, Ottawa",
       isPrincipal: true,
       icon: "campus",
-      nbTrajets: 24,
       coordonnees: { lat: 45.44, lng: -75.67 },
     },
     {
@@ -29,7 +36,6 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
       adresse: "214 rue Principale, Ottawa, ON",
       isPrincipal: false,
       icon: "domicile",
-      nbTrajets: 32,
       coordonnees: { lat: 45.42, lng: -75.69 },
     },
     {
@@ -38,7 +44,6 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
       adresse: "340 rue Sparks, Ottawa, ON K1R 7S8",
       isPrincipal: false,
       icon: "travail",
-      nbTrajets: 12,
       coordonnees: { lat: 45.42, lng: -75.7 },
     },
     {
@@ -47,13 +52,13 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
       adresse: "Prom. du Portage, Gatineau, QC J8X 4B4",
       isPrincipal: false,
       icon: "autre",
-      nbTrajets: 7,
       coordonnees: { lat: 45.42, lng: -75.72 },
     },
   ],
-  conducteursFavoris: [
+  utilisateursFavoris: [
     {
       id: "c1",
+      affiniteId: "AFF-c1",
       nomComplet: "Ahmed Ibrahim",
       initiales: "AI",
       role: "conducteur",
@@ -68,6 +73,7 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
     },
     {
       id: "c2",
+      affiniteId: "AFF-c2",
       nomComplet: "Julie Tremblay",
       initiales: "JT",
       role: "conducteur",
@@ -82,6 +88,7 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
     },
     {
       id: "c3",
+      affiniteId: "AFF-c3",
       nomComplet: "Marc Langlois",
       initiales: "ML",
       role: "conducteur",
@@ -94,10 +101,9 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
       alerteActive: false,
       avatarGradient: "linear-gradient(135deg,#4a1a8a,#a070ff)",
     },
-  ],
-  passagersFavoris: [
     {
       id: "p1",
+      affiniteId: "AFF-p1",
       nomComplet: "Pauline Dubois",
       initiales: "PD",
       role: "passager",
@@ -112,6 +118,7 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
     },
     {
       id: "p2",
+      affiniteId: "AFF-p2",
       nomComplet: "Karima Belkhadem",
       initiales: "KB",
       role: "passager",
@@ -126,6 +133,7 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
     },
     {
       id: "p3",
+      affiniteId: "AFF-p3",
       nomComplet: "Samuel Okafor",
       initiales: "SO",
       role: "passager",
@@ -152,7 +160,7 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
       favorisUniquement: true,
       noteMinimale: 4.5,
       statut: "actif",
-      derniereCorrespondance: "il y a 2h — Ahmed I.",
+      surveyIsOn: true,
     },
     {
       id: "a2",
@@ -166,7 +174,8 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
       favorisUniquement: false,
       noteMinimale: 4.0,
       prixMax: 10,
-      statut: "en_attente",
+      statut: "actif",
+      surveyIsOn: true,
     },
     {
       id: "a3",
@@ -180,23 +189,8 @@ export const FIXTURES_FAVORIS: FavorisPageModel = {
       favorisUniquement: false,
       noteMinimale: 4.0,
       statut: "desactive",
-      derniereCorrespondance: "Dernier match : il y a 3 sem.",
+      surveyIsOn: false,
     },
   ],
-  stats: {
-    totalLieux: 4,
-    totalTrajets: 32,
-    distanceMoyenneKm: 12,
-    tempsMoyenMin: 18,
-  },
+  usersSearch: FIXTURES_USER_SEARCH,
 };
-
-// ─── Données de recherche utilisateur (overlay) ──────────────────────────────
-
-export const FIXTURES_USER_SEARCH: UserSearchResult[] = [
-  { id: "u01", name: "Sophie Martin",   role: "Passager",   note: "4.8", badge: "Régulière",  initiales: "SM", gradient: "linear-gradient(135deg,#6a1a8a,#c070e0)" },
-  { id: "u02", name: "David Nguyen",    role: "Conducteur", note: "4.9", badge: "Expert",      initiales: "DN", gradient: "linear-gradient(135deg,#08316e,#1a5cb0)" },
-  { id: "u03", name: "Fatima Zahra",    role: "Passager",   note: "5.0", badge: "Nouveau",     initiales: "FZ", gradient: "linear-gradient(135deg,#0a6040,#0aad6a)" },
-  { id: "u04", name: "Antoine Leblanc", role: "Conducteur", note: "4.5", badge: "Confirmé",    initiales: "AL", gradient: "linear-gradient(135deg,#8a3a1a,#e08040)" },
-  { id: "u05", name: "Sarah Côté",      role: "Passager",   note: "4.7", badge: "Ponctuelle",  initiales: "SC", gradient: "linear-gradient(135deg,#1a3a8a,#4070e0)" },
-];

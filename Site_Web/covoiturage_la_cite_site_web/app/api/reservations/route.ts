@@ -3,12 +3,13 @@
  * POST /api/reservations   — Création d'une réservation (+ blocage holding 6$ passager)
  */
 import { NextResponse } from 'next/server';
+import type { TripModel } from '@/core/models/TripModel';
+import type { IndisponibilityModel } from '@/core/models/IndisponibilityModel';
+import { isTripBlockedByIndisponibility } from '@/core/utils/indisponibility.utils';
 import { persistenceManager } from '@/tests/PersistenceManager';
 import { paymentService } from '@/server/services/PaymentService';
 
 type ReservationRecord = Record<string, unknown>;
-type TripRecord = Record<string, unknown>;
-
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -51,12 +52,29 @@ export async function POST(req: Request) {
       );
     }
 
-    const trip = persistenceManager.readById<TripRecord>('trips', body.tripId as string);
+    const trip = persistenceManager.readById<TripModel>('trips', body.tripId as string);
     if (!trip) {
       return NextResponse.json({ error: 'Trajet introuvable' }, { status: 404 });
     }
     if ((trip.currentPassengers as number) >= (trip.maxPassengers as number)) {
       return NextResponse.json({ error: 'Plus de places disponibles' }, { status: 409 });
+    }
+
+    const passengerIndisponibility = persistenceManager.readById<IndisponibilityModel>('indisponibilities', passengerId);
+    if (isTripBlockedByIndisponibility(trip, passengerIndisponibility)) {
+      return NextResponse.json(
+        { error: "Le passager est indisponible sur cette plage" },
+        { status: 409 },
+      );
+    }
+
+    const driverId = String(trip.driverId);
+    const driverIndisponibility = persistenceManager.readById<IndisponibilityModel>('indisponibilities', driverId);
+    if (isTripBlockedByIndisponibility(trip, driverIndisponibility)) {
+      return NextResponse.json(
+        { error: "Le conducteur est indisponible sur cette plage" },
+        { status: 409 },
+      );
     }
 
     const year = new Date().getFullYear();
@@ -67,7 +85,7 @@ export async function POST(req: Request) {
       ...body,
       id: `RSV-${year}-${rand}`,
       status: 'pending',
-      driverId: trip.driverId,
+      driverId,
       createdAt: now,
       updatedAt: now,
     };

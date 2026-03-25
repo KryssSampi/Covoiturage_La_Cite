@@ -30,7 +30,13 @@ import {
   IMPORTANT_NOTIFICATION_TYPES,
   type Notification,
 } from "@/features/dashboard/types/notification.types";
-import { useNotificationsList } from "../hooks/useNotificationsList";
+import { useNotificationsConfig } from "../hooks/useNotificationsList";
+
+// ─── Props du composant (données fournies par la page route) ──────────────
+
+interface NotificationsPageProps {
+  items: Notification[];
+}
 
 // ─── Sous-composant icône (repris de notifications.section.tsx) ──────────────
 
@@ -264,9 +270,9 @@ function NotificationMailDetail({
 
 // ─── Page principale ─────────────────────────────────────────────────────────
 
-export function NotificationsPage() {
+export function NotificationsPage({ items }: NotificationsPageProps) {
   const { lang } = useAppState();
-  const { items, filterGroups, sortOptions, searchKeys, emptyMessage } = useNotificationsList();
+  const { filterGroups, sortOptions, searchKeys, emptyMessage } = useNotificationsConfig();
 
   const renderCard = useCallback(
     (notification: Notification) => (

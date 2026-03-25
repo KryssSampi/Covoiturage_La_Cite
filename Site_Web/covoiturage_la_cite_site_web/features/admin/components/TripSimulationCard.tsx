@@ -14,7 +14,7 @@ import {
   FaGavel, FaCarBurst, FaCircleXmark, FaUserXmark,
   FaChevronDown,
 } from "react-icons/fa6";
-import type { AdminTrip, SimulationEvent } from "@/features/admin/hooks/useAdminTrips";
+import type { AdminTrip, SimulationEvent } from "@/features/admin/types/adminTrips";
 
 // ─── Configuration des événements simulables ──────────────────────────────────
 

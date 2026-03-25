@@ -6,6 +6,7 @@ import { usePublishedTripView } from '../../hooks/usePublishedTripView';
 import { TripMapArea, TripSummaryCard, TripPointSection, TripPreferencesSection, TripStatusSection } from './sections';
 import { MapOverlay, ReservationConfirmModal } from './ui';
 import { CancelConfirmToast } from '@/shared/components/CancelConfirmToast';
+import { ReservationRequestToast } from '@/shared/components/ReservationRequestToast';
 import { Language, useAppState } from '@/core/state/app_state';
 
 // Polyline placeholder — ligne droite entre départ et arrivée quand pas de données OSRM
@@ -56,9 +57,11 @@ export const PublishedTripView: React.FC<PublishedTripViewProps> = ({
     overlayMode,
     isConfirmModalOpen,
     isSubmitting,
+    reservationToast,
     openConfirmModal,
     closeConfirmModal,
     confirmReservation,
+    handleReservationToastOk,
     openMapOverlay,
     openMapOverlayDeparture,
     openMapOverlayArrival,
@@ -188,6 +191,14 @@ export const PublishedTripView: React.FC<PublishedTripViewProps> = ({
         label={cancelLabel}
         onConfirm={handleCancelConfirm}
         onCancel={() => setShowCancelToast(false)}
+      />
+
+      {/* Toast après envoi d'une demande de réservation */}
+      <ReservationRequestToast
+        isOpen={reservationToast.isOpen}
+        success={reservationToast.success}
+        message={reservationToast.message}
+        onOk={handleReservationToastOk}
       />
     </>
   );

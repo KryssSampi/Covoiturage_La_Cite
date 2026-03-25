@@ -2,9 +2,9 @@
   {
     "id": "DRF-2026-00001",
     "driverId": "USR-2026-00001",
-    "departureLocation": "La Cité collégiale, 801 prom. de l'Aviation, Ottawa",
-    "arrivalLocation": "Place d'Orléans, Ottawa",
-    "departureDate": "2026-03-28",
+    "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "departureDate": "2026-03-27",
     "departureTime": "08:30",
     "vehicleId": "VEH-2026-00001",
     "maxPassengers": 4,
@@ -18,10 +18,116 @@
       "musicAllowed": true,
       "flexibleItinerary": false
     },
-    "departureCoords": [45.4565, -75.6159],
-    "arrivalCoords": [45.4726, -75.5180],
-    "notes": "Départ côté entrée principale du campus",
-    "createdAt": "2026-03-20T14:22:00.000Z",
-    "updatedAt": "2026-03-20T14:22:00.000Z"
+    "departureCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "arrivalCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "notes": "Brouillon genere automatiquement pour les tests.",
+    "createdAt": "2026-03-20T14:00:00.000Z",
+    "updatedAt": "2026-03-21T09:30:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00002",
+    "driverId": "USR-2026-00003",
+    "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "departureDate": "2026-03-28",
+    "departureTime": "17:15",
+    "vehicleId": "VEH-2026-00002",
+    "maxPassengers": 4,
+    "availableSeats": 3,
+    "pricePerPassenger": 6,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4278,
+      -75.6944
+    ],
+    "arrivalCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "notes": "Brouillon genere automatiquement pour les tests.",
+    "createdAt": "2026-03-20T14:00:00.000Z",
+    "updatedAt": "2026-03-21T09:30:00.000Z"
+  },
+  {
+    "driverId": "USR-2026-00003",
+    "departureLocation": "avenue Mona, Ottawa",
+    "arrivalLocation": "Collège La Cité 801, Ottawa K1J 7P6 (Ontario)",
+    "departureDate": "2026-03-31",
+    "departureTime": "11:00",
+    "vehicleId": "",
+    "maxPassengers": 4,
+    "availableSeats": 3,
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": true,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "notes": "",
+    "updatedAt": "2026-03-24T06:08:30.550Z",
+    "id": "DRF-2026-64674",
+    "createdAt": "2026-03-24T06:08:30.550Z"
+  },
+  {
+    "driverId": "USR-2026-00003",
+    "departureLocation": "avenue Mona, Ottawa",
+    "arrivalLocation": "Collège La Cité 801, Ottawa K1J 7P6 (Ontario)",
+    "departureDate": "2026-03-31",
+    "departureTime": "11:00",
+    "vehicleId": "",
+    "maxPassengers": 4,
+    "availableSeats": 3,
+    "pricePerPassenger": 15,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": true,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "notes": "",
+    "updatedAt": "2026-03-24T06:08:56.011Z",
+    "id": "DRF-2026-31323",
+    "createdAt": "2026-03-24T06:08:56.011Z"
+  },
+  {
+    "driverId": "USR-2026-00003",
+    "departureLocation": "avenue Mona, Ottawa",
+    "arrivalLocation": "Collège La Cité 801, Ottawa K1J 7P6 (Ontario)",
+    "departureDate": "2026-03-30",
+    "departureTime": "11:00",
+    "vehicleId": "",
+    "maxPassengers": 4,
+    "availableSeats": 3,
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": false,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false
+    },
+    "notes": "",
+    "updatedAt": "2026-03-24T06:15:28.138Z",
+    "id": "DRF-2026-85077",
+    "createdAt": "2026-03-24T06:15:28.138Z"
   }
 ]

@@ -24,11 +24,19 @@ export type AllowedEntity =
   | 'drafts'
   | 'bank_accounts'
   | 'driver_finance_accounts'
+  | 'passenger_finance_accounts'
   | 'penalites'
   | 'lieux_favoris'
   | 'affinites'
   | 'gotasks'
-  | 'astuces';
+  | 'goevents'
+  | 'goboard_classement'
+  | 'eco_challenges'
+  | 'astuces'
+  | 'nouveautes'
+  | 'indisponibilities'
+  | 'badges'
+  | 'user_stats';
 
 export class PersistenceManager {
   private static _instance: PersistenceManager;
@@ -45,11 +53,19 @@ export class PersistenceManager {
     'drafts',
     'bank_accounts',
     'driver_finance_accounts',
+    'passenger_finance_accounts',
     'penalites',
     'lieux_favoris',
     'affinites',
     'gotasks',
+    'goevents',
+    'goboard_classement',
+    'eco_challenges',
     'astuces',
+    'nouveautes',
+    'indisponibilities',
+    'badges',
+    'user_stats',
   ];
 
   private constructor() {

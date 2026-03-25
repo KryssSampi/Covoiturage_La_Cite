@@ -1,46 +1,18 @@
 "use client";
 
 /**
- * Hook gérant la configuration ListDetailPage pour les demandes de réservation du conducteur.
- * Fournit les données réelles via useDb() et les options de tri par date ou note.
+ * Hook de configuration ListDetailPage pour les demandes de réservation du conducteur.
+ * Fournit uniquement les options de tri, recherche et message vide.
+ * Les données sont chargées au niveau de la page route (pattern dashboard).
  */
 
 import { useMemo } from "react";
 import { Language, useAppState } from "@/core/state/app_state";
-import { useDb } from "@/core/context/db.context";
-import { reservationToDriverRequest } from "@/features/reservations/converters/reservation.converter";
 import type { SortOption } from "@/shared/components/list-detail-page";
 
-export function useDriverReservationRequestsList() {
-  const { lang, userConnected } = useAppState();
+export function useDriverReservationRequestsConfig() {
+  const { lang } = useAppState();
   const isFR = lang === Language.FR;
-
-  // Données réelles depuis le DbProvider
-  const { reservations, trips, users } = useDb();
-
-  // Map de recherche rapide sur les utilisateurs
-  const usersMap = useMemo(
-    () => new Map(users.map((u) => [u.id, u])),
-    [users]
-  );
-
-  // Filtrer les demandes en attente pour le conducteur connecté et les convertir
-  const items = useMemo(
-    () =>
-      reservations
-        .filter(
-          (r) =>
-            r.driverId === userConnected?.id && r.status === "pending"
-        )
-        .map((r) => {
-          const trip      = trips.find((t) => t.id === r.tripId);
-          const passenger = usersMap.get(r.passengerId);
-          if (!trip || !passenger) return null;
-          return reservationToDriverRequest(r, trip, passenger);
-        })
-        .filter((r) => r !== null),
-    [reservations, trips, usersMap, userConnected?.id]
-  );
 
   // Tri par date ou par note de l'applicant
   const sortOptions: SortOption[] = useMemo(() => [
@@ -76,5 +48,5 @@ export function useDriverReservationRequestsList() {
     ? "Aucune demande de réservation pour le moment."
     : "No reservation requests at the moment.";
 
-  return { items, sortOptions, searchKeys, emptyMessage };
+  return { sortOptions, searchKeys, emptyMessage };
 }

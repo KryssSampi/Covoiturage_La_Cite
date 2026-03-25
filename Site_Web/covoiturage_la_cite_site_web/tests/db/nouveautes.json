@@ -1,0 +1,30 @@
+[
+  {
+    "id": "NVT-2026-00001",
+    "title": "Nouveauté Cité-Voiturage #1",
+    "videoUrl": "https://www.youtube.com/watch?v=cwfZmKuM3a4",
+    "thumbnailUrl": "https://img.youtube.com/vi/cwfZmKuM3a4/mqdefault.jpg",
+    "createdAt": "2026-01-15T10:00:00.000Z"
+  },
+  {
+    "id": "NVT-2026-00002",
+    "title": "Nouveauté Cité-Voiturage #2",
+    "videoUrl": "https://www.youtube.com/watch?v=IKcxlaiH8m0",
+    "thumbnailUrl": "https://img.youtube.com/vi/IKcxlaiH8m0/mqdefault.jpg",
+    "createdAt": "2026-02-01T10:00:00.000Z"
+  },
+  {
+    "id": "NVT-2026-00003",
+    "title": "Nouveauté Cité-Voiturage #3",
+    "videoUrl": "https://www.youtube.com/watch?v=okkVK6-e1yA",
+    "thumbnailUrl": "https://img.youtube.com/vi/okkVK6-e1yA/mqdefault.jpg",
+    "createdAt": "2026-02-20T10:00:00.000Z"
+  },
+  {
+    "id": "NVT-2026-00004",
+    "title": "Nouveauté Cité-Voiturage #4",
+    "videoUrl": "https://www.youtube.com/watch?v=hTgk2Rs99b0",
+    "thumbnailUrl": "https://img.youtube.com/vi/hTgk2Rs99b0/mqdefault.jpg",
+    "createdAt": "2026-03-10T10:00:00.000Z"
+  }
+]

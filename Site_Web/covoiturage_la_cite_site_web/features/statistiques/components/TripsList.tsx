@@ -14,7 +14,7 @@ import type { TrajetResume } from "../types/statistiques.types";
 const TripsList: React.FC<{ trips: TrajetResume[] }> = ({ trips }) => {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
   return (
-    <div ref={ref} className="px-5 pb-3">
+    <div ref={ref} className="px-5 pb-3 max-h-[80vh] overflow-y-auto">
       {trips.map((t, i) => (
         <div
           key={t.id}

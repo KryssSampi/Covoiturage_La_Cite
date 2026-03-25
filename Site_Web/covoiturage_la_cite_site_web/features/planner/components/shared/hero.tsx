@@ -1,7 +1,8 @@
 ﻿"use client";
 
-import { useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { format } from "date-fns";
 import Image from "next/image";
 import { useIsMobileOrTablet } from "@/shared/hooks/useismobileortable";
 import { Language, useAppState } from "@/core/state/app_state";
@@ -132,6 +133,22 @@ export function Hero() {
   const appState = useAppState();
   const isFR     = appState.lang === Language.FR;
   const isMobile = useIsMobileOrTablet();
+
+  const displayedIndisponibilities = useMemo(() => {
+    const grouped = new Map<string, (typeof indisponibilities)[number]>();
+
+    for (const item of indisponibilities) {
+      const key = item.weekday && item.start && item.end
+        ? `${item.weekday}|${item.start}|${item.end}`
+        : `${item.startAt}|${item.endAt}`;
+
+      if (!grouped.has(key)) {
+        grouped.set(key, item);
+      }
+    }
+
+    return Array.from(grouped.values());
+  }, [indisponibilities]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
@@ -409,11 +426,11 @@ export function Hero() {
             <div className="flex flex-col gap-2 flex-1 min-w-0">
               <p className="text-sm font-semibold text-blue-200">
                 {isFR
-                  ? `Indisponibilités enregistrées (${indisponibilities.length}) :`
-                  : `Saved unavailabilities (${indisponibilities.length}):`}
+                  ? `Indisponibilités enregistrées (${displayedIndisponibilities.length}) :`
+                  : `Saved unavailabilities (${displayedIndisponibilities.length}):`}
               </p>
 
-              {indisponibilities.length === 0 ? (
+              {displayedIndisponibilities.length === 0 ? (
                 <p className="text-xs text-gray-400 italic">
                   {isFR
                     ? "Aucune indisponibilité enregistrée."
@@ -422,23 +439,23 @@ export function Hero() {
               ) : (
                 <ul className="flex flex-col gap-1.5 max-h-36 overflow-y-auto pr-1"
                 >
-                  {indisponibilities.map((item, idx) => {
-                    // Traduit le libellé du jour selon la langue active
-                    const dayLabel =
-                      WEEKDAY_LABEL[item.weekday.toLowerCase()]?.[isFR ? "fr" : "en"] ??
-                      item.weekday;
+                  {displayedIndisponibilities.map((item, idx) => {
+                    const dayLabel = item.weekday
+                      ? WEEKDAY_LABEL[item.weekday.toLowerCase()]?.[isFR ? "fr" : "en"] ?? item.weekday
+                      : format(new Date(item.startAt), isFR ? "dd/MM/yyyy" : "yyyy-MM-dd");
+                    const timeLabel = item.start && item.end
+                      ? `${item.start} → ${item.end}`
+                      : `${format(new Date(item.startAt), "HH:mm")} → ${format(new Date(item.endAt), "HH:mm")}`;
                     return (
                       <li
                         key={idx}
                         className="flex items-center justify-between gap-2 bg-white/10 rounded-lg px-3 py-1.5 text-sm"
                       >
                         <span>
-                          {isFR
-                            ? `${dayLabel} · ${item.start} → ${item.end}`
-                            : `${dayLabel} · ${item.start} → ${item.end}`}
+                          {`${dayLabel} · ${timeLabel}`}
                         </span>
                         <button
-                          onClick={() => removeIndisponibility(idx)}
+                          onClick={() => removeIndisponibility(item)}
                           className="shrink-0 p-1 rounded-full text-red-300 hover:text-red-100 hover:bg-red-500/30 transition"
                           aria-label={isFR ? "Supprimer" : "Remove"}
                         >
@@ -468,4 +485,3 @@ export function Hero() {
     </section>
   );
 }
-

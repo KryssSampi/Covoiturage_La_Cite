@@ -1,45 +1,65 @@
 /**
  * Données fictives pour la page Go! Board.
+ * Aligné sur GoBoardApiResponse (nouveau format).
  */
-import type { GoBoardPageModel } from "@/features/goboard/types/goboard.types";
+import type { GoBoardApiResponse } from "@/features/goboard/types/goboard.types";
 
-export const FIXTURES_GOBOARD: GoBoardPageModel = {
-  utilisateurId: "ahmed-ibrahim",
+export const FIXTURES_GOBOARD: GoBoardApiResponse = {
   goScore: 820,
-  goScoreLabel: "Hyper GOoooo!",
   tier: "Excellent",
   rang: 42,
   pointsGagnes: 245,
   pointsPerdus: -20,
-  progressionScatter: [],
-  missions: [
-    { id: "m1", titre: "Compléter votre profil",                     description: "Photo, véhicule, préférences renseignés",              pointsRecompense: 50, progres: 1, objectif: 1, estCompletee: true  },
-    { id: "m2", titre: "Terminer votre premier trajet avec passager", description: "Complétez 1 trajet partagé complet",                   pointsRecompense: 30, progres: 0, objectif: 1, estCompletee: false },
-    { id: "m3", titre: "Effectuer 3 trajets cette semaine",           description: "3 trajets complétés dans la même semaine",             pointsRecompense: 20, progres: 2, objectif: 3, estCompletee: false },
-    { id: "m4", titre: "Inviter un ami de La Cité",                   description: "Votre ami doit s\u0027inscrire avec votre lien",       pointsRecompense: 10, progres: 0, objectif: 1, estCompletee: false },
-    { id: "m5", titre: "Partager votre trajet sur les réseaux",       description: "Publiez sur Facebook ou Instagram",                    pointsRecompense:  5, progres: 0, objectif: 1, estCompletee: false },
-    { id: "m6", titre: "Laisser votre premier avis passager",         description: "Évaluez un passager après un trajet",                  pointsRecompense: 15, progres: 0, objectif: 1, estCompletee: false },
+  goTasks: [
+    {
+      id: "GT-001", titlefr: "Compléter votre profil", titleen: "Complete your profile",
+      descriptionfr: "Photo, véhicule, préférences renseignés", descriptionen: "Photo, vehicle, preferences filled",
+      category: "mixte", link: "/profile", points: 50,
+      progression: [{ userId: "USR-2026-00001", isDone: true, completeAt: "2026-01-15T10:00:00.000Z" }],
+    },
+    {
+      id: "GT-002", titlefr: "Terminer votre premier trajet avec passager", titleen: "Complete your first trip with a passenger",
+      descriptionfr: "Complétez 1 trajet partagé complet", descriptionen: "Complete 1 full shared trip",
+      category: "driverOnly", link: "/trajets", points: 30,
+      progression: [{ userId: "USR-2026-00001", isDone: false }],
+    },
+    {
+      id: "GT-003", titlefr: "Effectuer 3 trajets cette semaine", titleen: "Complete 3 trips this week",
+      descriptionfr: "3 trajets complétés dans la même semaine", descriptionen: "3 trips completed in the same week",
+      category: "mixte", link: "/trajets", points: 20,
+      progression: [{ userId: "USR-2026-00001", isDone: false }],
+    },
+    {
+      id: "GT-004", titlefr: "Inviter un ami de La Cité", titleen: "Invite a friend from La Cité",
+      descriptionfr: "Votre ami doit s'inscrire avec votre lien", descriptionen: "Your friend must register with your link",
+      category: "mixte", link: "/profile", points: 10,
+      progression: [{ userId: "USR-2026-00001", isDone: false }],
+    },
+    {
+      id: "GT-005", titlefr: "Laisser votre premier avis passager", titleen: "Leave your first passenger review",
+      descriptionfr: "Évaluez un passager après un trajet", descriptionen: "Rate a passenger after a trip",
+      category: "driverOnly", link: "/reviews", points: 15,
+      progression: [{ userId: "USR-2026-00001", isDone: false }],
+    },
   ],
   classement: [
-    { rang: 1,  utilisateurId: "mcl", nom: "Marie-Claude L.",  score: 980, nbTrajets: 28, note: 4.9, estMoi: false },
-    { rang: 2,  utilisateurId: "jpm", nom: "Jean-Pierre M.",   score: 942, nbTrajets: 24, note: 4.8, estMoi: false },
-    { rang: 3,  utilisateurId: "sb",  nom: "Sofia B.",         score: 895, nbTrajets: 21, note: 4.9, estMoi: false },
-    { rang: 42, utilisateurId: "ai",  nom: "Ahmed I.",         score: 820, nbTrajets: 14, note: 4.9, estMoi: true  },
+    { rang: 1,  utilisateurId: "USR-2026-00004", nom: "Marie-Claude L.",  score: 980, estMoi: false },
+    { rang: 2,  utilisateurId: "USR-2026-00005", nom: "Jean-Pierre M.",   score: 942, estMoi: false },
+    { rang: 3,  utilisateurId: "USR-2026-00006", nom: "Sofia B.",         score: 895, estMoi: false },
+    { rang: 42, utilisateurId: "USR-2026-00001", nom: "Ahmed I.",         score: 820, estMoi: true  },
   ],
   defisEco: [
-    { id: "d1", nom: "Éco-Conscient", cible: "Économiser 500 km de CO₂ en covoiturage",   progres: 47,  statut: "actif",      recompense: "Badge + email félicitations" },
-    { id: "d2", nom: "Éco-Warrior",   cible: "Économiser 1 000 km de CO₂ total",          progres: 23,  statut: "verrouille", recompense: "Badge Expert Éco" },
-    { id: "d3", nom: "Éco-Débutant",  cible: "50 km économisés — obtenu le 5 janv. 2026", progres: 100, statut: "complete",   recompense: "Complété" },
+    { id: "ECO-001", titre: "Éco-Débutant",  description: "Sauvez 10 kg de CO₂ en covoiturant",        cibleCO2Kg: 10,  recompense: "Badge Éco-Débutant",  progres: 100, statut: "complete" },
+    { id: "ECO-002", titre: "Éco-Conscient",  description: "Économisez 50 kg de CO₂ en covoiturage",    cibleCO2Kg: 50,  recompense: "Badge Éco-Conscient", progres: 47,  statut: "actif" },
+    { id: "ECO-003", titre: "Éco-Warrior",    description: "Économisez 200 kg de CO₂ — objectif ultime", cibleCO2Kg: 200, recompense: "Badge Expert Éco",    progres: 12,  statut: "verrouille" },
   ],
-  historiquePts: [
-    { label: "Trajet complété",        pts: 5,  signe: "+", date: new Date("2026-03-13T08:15:00") },
-    { label: "Éval. 5★ — Pauline D.",  pts: 10, signe: "+", date: new Date("2026-03-12T19:32:00") },
-    { label: "Badge : Ponctuel",       pts: 15, signe: "+", date: new Date("2026-03-12T00:00:00") },
-    { label: "Retard 18 min",          pts: 10, signe: "-", date: new Date("2026-03-10T08:30:00") },
-    { label: "Trajets ×3",            pts: 15, signe: "+", date: new Date("2026-03-09T00:00:00") },
-    { label: "Annulation <24h",        pts: 15, signe: "-", date: new Date("2026-03-08T00:00:00") },
-    { label: "Éval. 5★ ×2",           pts: 20, signe: "+", date: new Date("2026-03-07T00:00:00") },
-    { label: "10 trajets consécutifs", pts: 20, signe: "+", date: new Date("2026-03-05T00:00:00") },
-    { label: "Défi Éco-Débutant",      pts: 15, signe: "+", date: new Date("2026-01-05T00:00:00") },
+  goEvents: [
+    { id: "GE-001", titre: "Tâche complétée : Compléter votre profil",    date: "2026-01-15T10:00:00.000Z", points: 50, utilisateurId: "USR-2026-00001" },
+    { id: "GE-002", titre: "Trajet complété",                             date: "2026-03-13T08:15:00.000Z", points: 5,  utilisateurId: "USR-2026-00001" },
+    { id: "GE-003", titre: "Éval. 5 étoiles — Pauline D.",                date: "2026-03-12T19:32:00.000Z", points: 10, utilisateurId: "USR-2026-00001" },
+    { id: "GE-004", titre: "Badge : Ponctuel",                            date: "2026-03-12T00:00:00.000Z", points: 15, utilisateurId: "USR-2026-00001" },
+    { id: "GE-005", titre: "Trajet complété x3",                          date: "2026-03-09T00:00:00.000Z", points: 15, utilisateurId: "USR-2026-00001" },
+    { id: "GE-006", titre: "10 trajets consécutifs",                      date: "2026-03-05T00:00:00.000Z", points: 20, utilisateurId: "USR-2026-00001" },
+    { id: "GE-007", titre: "Défi Éco-Débutant complété",                  date: "2026-01-05T00:00:00.000Z", points: 15, utilisateurId: "USR-2026-00001" },
   ],
 };

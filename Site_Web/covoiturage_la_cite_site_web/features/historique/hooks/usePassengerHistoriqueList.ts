@@ -1,35 +1,18 @@
 "use client";
 
 /**
- * Hook gérant la configuration ListDetailPage pour l'historique des trajets du passager.
+ * Hook de configuration ListDetailPage pour l'historique des trajets du passager.
+ * Fournit uniquement les options de tri, recherche et message vide.
+ * Les données sont chargées au niveau de la page route (pattern dashboard).
  */
 
 import { useMemo } from "react";
 import { Language, useAppState } from "@/core/state/app_state";
-import { useDb } from "@/core/context/db.context";
-import { tripModelToTrip } from "@/features/dashboard/converters/dashboard.converter";
 import type { SortOption } from "@/shared/components/list-detail-page";
 
-export function usePassengerHistoriqueList() {
+export function usePassengerHistoriqueConfig() {
   const { lang } = useAppState();
-  const { myReservations, trips, users } = useDb();
   const isFR = lang === Language.FR;
-
-  // Transformation des trajets liés aux réservations → Trip (type UI dashboard)
-  const items = useMemo(
-    () => myReservations
-      .map((res) => {
-        const trip   = trips.find((t) => t.id === res.tripId);
-        const driver = trip ? users.find((u) => u.id === trip.driverId) : undefined;
-        if (!trip || !driver) return null;
-        const passengers = trip.passengerIds
-          .map((pid) => users.find((u) => u.id === pid))
-          .filter(Boolean) as (typeof users)[0][];
-        return tripModelToTrip(trip, driver, passengers);
-      })
-      .filter((t): t is NonNullable<typeof t> => t !== null),
-    [myReservations, trips, users],
-  );
 
   // Tri par date
   const sortOptions: SortOption[] = useMemo(() => [
@@ -63,5 +46,5 @@ export function usePassengerHistoriqueList() {
     ? "Aucun trajet dans l'historique."
     : "No trips in history.";
 
-  return { items, sortOptions, searchKeys, emptyMessage };
+  return { sortOptions, searchKeys, emptyMessage };
 }

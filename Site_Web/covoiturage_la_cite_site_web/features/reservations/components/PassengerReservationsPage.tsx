@@ -22,7 +22,13 @@ import { ReservationStatus, type Reservation } from "@/features/dashboard/types"
 import { PublishedTripView } from "@/features/trajets/components/published-trip";
 import { MOCK_PUBLISHED_TRIP } from "@/features/trajets/fixtures/published-trip.fixtures";
 import type { ReservationStatus as ViewReservationStatus, TripViewSource } from "@/features/trajets/types/published-trip.view.types";
-import { usePassengerReservationsList } from "../hooks/usePassengerReservationsList";
+import { usePassengerReservationsConfig } from "../hooks/usePassengerReservationsList";
+
+// ─── Props du composant (données fournies par la page route) ──────────────
+
+interface PassengerReservationsPageProps {
+  items: Reservation[];
+}
 
 // ─── Constante de fallback pour les photos de profil ─────────────────────────
 const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
@@ -90,9 +96,9 @@ function ReservationListCard({ reservation, lang }: { reservation: Reservation; 
 
 // ─── Page principale ─────────────────────────────────────────────────────────
 
-export function PassengerReservationsPage() {
+export function PassengerReservationsPage({ items }: PassengerReservationsPageProps) {
   const { lang } = useAppState();
-  const { items, filterGroups, sortOptions, searchKeys, emptyMessage } = usePassengerReservationsList();
+  const { filterGroups, sortOptions, searchKeys, emptyMessage } = usePassengerReservationsConfig();
 
   // Rendu de la carte de réservation dans le listing
   const renderCard = useCallback(

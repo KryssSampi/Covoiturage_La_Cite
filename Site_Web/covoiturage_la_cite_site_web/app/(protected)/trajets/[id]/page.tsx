@@ -1,6 +1,17 @@
+import { cookies } from 'next/headers';
+import { notFound } from 'next/navigation';
 import { PublishedTripView } from '@/features/trajets/components/published-trip';
-import { MOCK_PUBLISHED_TRIP } from '@/features/trajets/fixtures/published-trip.fixtures';
+import {
+  toPublishedTripViewData,
+  toTrajetsReservationStatus,
+} from '@/features/trajets/converters/trip.converter';
 import { ViewerRole, TripViewSource } from '@/features/trajets/types/published-trip.view.types';
+import { persistenceManager } from '@/tests/PersistenceManager';
+import type { ReservationModel } from '@/core/models/ReservationModel';
+import type { TripModel } from '@/core/models/TripModel';
+import type { ConnectedUser } from '@/core/state/app_state';
+import type { UserModel } from '@/core/models/UserModel';
+import type { VehicleModel } from '@/core/models/VehicleModel';
 
 /**
  * Route : /trajets/[id]
@@ -10,11 +21,11 @@ import { ViewerRole, TripViewSource } from '@/features/trajets/types/published-t
  *   Conducteur auteur  : bouton Gerer les demandes
  *   Admin              : lecture seule
  *
- * Paramètres URL optionnels :
- *   ?source=reservation|publishedtrip  — d'où vient la navigation
+ * Parametres URL optionnels :
+ *   ?source=reservation|publishedtrip  — d'ou vient la navigation
  *   &status=confirmed|pending|...      — statut de la carte source
  *
- * Header & Footer herités de app/(protected)/layout.tsx
+ * Header & Footer herites de app/(protected)/layout.tsx
  */
 
 interface PageProps {
@@ -22,25 +33,84 @@ interface PageProps {
   searchParams: Promise<{ source?: string; status?: string }>;
 }
 
+async function getConnectedUserFromCookie() {
+  const cookieStore = await cookies();
+  const raw = cookieStore.get('userConnected')?.value;
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(decodeURIComponent(raw)) as Pick<ConnectedUser, 'id' | 'role'>;
+  } catch {
+    return null;
+  }
+}
+
 export default async function TripViewPage({ params, searchParams }: PageProps) {
   const { id } = await params;
   const { source: rawSource, status } = await searchParams;
 
-  // TODO: fetch le trajet par id depuis la base de donnees
-  // TODO: fetch la session -> viewerRole + existingReservation
-  const trip = MOCK_PUBLISHED_TRIP; // remplacer par fetch({ id })
-  void id; // sera utilise lors du vrai fetch
+  const trip = persistenceManager.readById<TripModel>('trips', id);
+  if (!trip) {
+    notFound();
+  }
 
-  const viewerRole: ViewerRole = 'passenger';
-  const existingReservation = undefined;
+  const driver = persistenceManager.readById<UserModel>('users', trip.driverId);
+  if (!driver) {
+    notFound();
+  }
 
-  // Source de navigation validée
+  const vehicle =
+    persistenceManager.readById<VehicleModel>('vehicles', trip.vehicleId) ??
+    {
+      id: trip.vehicleId,
+      driverId: trip.driverId,
+      make: 'Vehicule',
+      model: 'non renseigne',
+      year: new Date(trip.createdAt).getFullYear(),
+      color: 'Inconnue',
+      licensePlate: '',
+      maxSeats: trip.maxPassengers + 1,
+      isActive: true,
+      isValidated: true,
+      createdAt: trip.createdAt,
+      updatedAt: trip.updatedAt,
+    };
+
+  const tripView = toPublishedTripViewData(trip, driver, vehicle);
+  const connectedUser = await getConnectedUserFromCookie();
+
+  const viewerRole: ViewerRole =
+    connectedUser?.role === 'admin'
+      ? 'admin'
+      : connectedUser?.id === trip.driverId
+        ? 'driver_owner'
+        : 'passenger';
+
+  const existingReservationModel =
+    connectedUser?.id && connectedUser.id !== trip.driverId
+      ? persistenceManager
+          .readAll<ReservationModel>('reservations')
+          .filter((reservation) => reservation.tripId === trip.id && reservation.passengerId === connectedUser.id)
+          .sort(
+            (a, b) =>
+              new Date(b.updatedAt ?? b.createdAt).getTime() -
+              new Date(a.updatedAt ?? a.createdAt).getTime()
+          )[0]
+      : undefined;
+
+  const existingReservation = existingReservationModel
+    ? {
+        status: toTrajetsReservationStatus(existingReservationModel.status),
+        updatedAt: existingReservationModel.updatedAt ?? existingReservationModel.createdAt,
+      }
+    : undefined;
+
   const source: TripViewSource =
     rawSource === 'reservation' || rawSource === 'publishedtrip' ? rawSource : null;
 
   return (
     <PublishedTripView
-      trip={trip}
+      trip={tripView}
       viewerRole={viewerRole}
       existingReservation={existingReservation}
       source={source}
@@ -50,8 +120,12 @@ export default async function TripViewPage({ params, searchParams }: PageProps) 
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  await params;
+  const { id } = await params;
+  const trip = persistenceManager.readById<TripModel>('trips', id);
+
   return {
-    title: 'Détails du trajet — La Cité Covoiturage',
+    title: trip
+      ? `${trip.departure.label} vers ${trip.arrival.label} — La Cite Covoiturage`
+      : 'Details du trajet — La Cite Covoiturage',
   };
 }

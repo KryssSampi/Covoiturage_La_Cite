@@ -338,6 +338,19 @@ body {
   to   { transform: scaleY(1); }
 }
 
+/* Boutons finances — effet hover scale + ombre + clic */
+.btn-finance {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-finance:hover {
+  transform: scale(1.045);
+  box-shadow: 0 4px 16px rgba(8, 49, 110, 0.18);
+}
+.btn-finance:active {
+  transform: scale(0.97);
+  box-shadow: 0 1px 4px rgba(8, 49, 110, 0.12);
+}
+
 /* Pop élastique pour les points du scatter */
 @keyframes scatterPop {
   0%   { transform: scale(0); opacity: 0; }

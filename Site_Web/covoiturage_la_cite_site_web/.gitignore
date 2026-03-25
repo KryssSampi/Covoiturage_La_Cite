@@ -45,3 +45,4 @@ next-env.d.ts
 .architecture-update/
 .wireframes/
 .docs/
+.claude/

@@ -1,2 +1,2 @@
 export { ReviewsPage } from "./components/ReviewsPage";
-export { useReviewsList } from "./hooks/useReviewsList";
+export { useReviewsConfig } from "./hooks/useReviewsList";

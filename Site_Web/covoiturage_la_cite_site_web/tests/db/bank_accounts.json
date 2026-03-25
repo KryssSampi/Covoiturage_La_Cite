@@ -10,7 +10,7 @@
       {
         "id": "BTXN-001",
         "type": "depot",
-        "montant": 500.00,
+        "montant": 500,
         "description": "Dépôt initial de test",
         "statut": "complete",
         "createdAt": "2026-01-15T10:00:00.000Z"
@@ -18,7 +18,7 @@
       {
         "id": "BTXN-002",
         "type": "depot",
-        "montant": 800.00,
+        "montant": 800,
         "description": "Dépôt test #2",
         "statut": "complete",
         "createdAt": "2026-02-10T14:30:00.000Z"
@@ -39,13 +39,13 @@
     "userId": "USR-2026-00002",
     "ibanMasque": "***-***-5678",
     "nomBanque": "Banque RBC",
-    "soldeDisponible": 320.50,
+    "soldeDisponible": 320.5,
     "montantEnTransit": 0,
     "transactions": [
       {
         "id": "BTXN-004",
         "type": "depot",
-        "montant": 400.00,
+        "montant": 400,
         "description": "Dépôt initial de test",
         "statut": "complete",
         "createdAt": "2026-01-20T11:00:00.000Z"
@@ -53,7 +53,7 @@
       {
         "id": "BTXN-005",
         "type": "retrait",
-        "montant": 79.50,
+        "montant": 79.5,
         "description": "Retrait vers Banque RBC ***5678",
         "statut": "complete",
         "createdAt": "2026-02-25T16:00:00.000Z"
@@ -66,13 +66,13 @@
     "userId": "USR-2026-00003",
     "ibanMasque": "***-***-9012",
     "nomBanque": "Desjardins",
-    "soldeDisponible": 875.20,
+    "soldeDisponible": 875.2,
     "montantEnTransit": 0,
     "transactions": [
       {
         "id": "BTXN-006",
         "type": "depot",
-        "montant": 875.20,
+        "montant": 875.2,
         "description": "Dépôt initial de test",
         "statut": "complete",
         "createdAt": "2026-01-10T08:00:00.000Z"
@@ -85,13 +85,13 @@
     "userId": "ADMIN-SYSTEM",
     "ibanMasque": "***-***-0000",
     "nomBanque": "Compte Plateforme Cité-Voiturage",
-    "soldeDisponible": 245.80,
+    "soldeDisponible": 245.8,
     "montantEnTransit": 0,
     "transactions": [
       {
         "id": "BTXN-007",
         "type": "transit_entrant",
-        "montant": 3.00,
+        "montant": 3,
         "description": "Commission trajet TRJ-2026-00001",
         "statut": "complete",
         "createdAt": "2026-03-15T08:45:00.000Z"

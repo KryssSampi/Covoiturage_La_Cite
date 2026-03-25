@@ -1,27 +1,19 @@
 "use client";
 
 /**
- * Hook gérant la configuration ListDetailPage pour les notifications.
- * Commun aux deux rôles. Fournit filtres par type et statut de lecture.
+ * Hook de configuration ListDetailPage pour les notifications.
+ * Commun aux deux rôles. Fournit uniquement les filtres, options de tri, recherche et message vide.
+ * Les données sont chargées au niveau de la page route (pattern dashboard).
  */
 
 import { useMemo } from "react";
 import { Language, useAppState } from "@/core/state/app_state";
-import { useDb } from "@/core/context/db.context";
-import { notificationModelToNotification } from "@/features/dashboard/converters/dashboard.converter";
 import { NotificationType } from "@/features/dashboard/types";
 import type { FilterGroup, SortOption } from "@/shared/components/list-detail-page";
 
-export function useNotificationsList() {
+export function useNotificationsConfig() {
   const { lang } = useAppState();
-  const { myNotifications } = useDb();
   const isFR = lang === Language.FR;
-
-  // Transformation des NotificationModel → Notification (type UI dashboard)
-  const items = useMemo(
-    () => myNotifications.map(notificationModelToNotification),
-    [myNotifications],
-  );
 
   // Filtres par type de notification et statut lu/non-lu
   const filterGroups: FilterGroup[] = useMemo(() => [
@@ -65,5 +57,5 @@ export function useNotificationsList() {
     ? "Aucune notification pour le moment."
     : "No notifications at the moment.";
 
-  return { items, filterGroups, sortOptions, searchKeys, emptyMessage };
+  return { filterGroups, sortOptions, searchKeys, emptyMessage };
 }

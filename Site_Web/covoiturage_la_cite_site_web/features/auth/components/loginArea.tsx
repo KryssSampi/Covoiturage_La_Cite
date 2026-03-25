@@ -2,14 +2,14 @@
 'use client'
 
 import { useAppState, Language } from '@/core/state/app_state'
-import { useLoginForm } from '../hooks/useloginForm'
+import { useLoginForm, type OnLoginCallback } from '../hooks/useloginForm'
 import { FaArrowLeft, FaHome } from 'react-icons/fa'
 import { useLoader } from '@/core/context/loader.context'
 
-export function LoginArea() {
+export function LoginArea({ onLogin }: { onLogin?: OnLoginCallback }) {
   const appState = useAppState()
   const { setActiveLoader } = useLoader();
-  const { email, setEmail, error, isLoading, handleLogin } = useLoginForm()
+  const { email, setEmail, error, isLoading, handleLogin } = useLoginForm(onLogin)
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

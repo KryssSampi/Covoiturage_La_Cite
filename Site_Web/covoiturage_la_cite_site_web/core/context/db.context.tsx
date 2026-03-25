@@ -13,6 +13,7 @@ import type { NotificationModel } from '@/core/models/NotificationModel';
 import type { VehicleModel } from '@/core/models/VehicleModel';
 import type { UserModel } from '@/core/models/UserModel';
 import type { ReviewModel } from '@/core/models/ReviewModel';
+import type { IndisponibilityModel } from '@/core/models/IndisponibilityModel';
 import { useAppState } from '@/core/state/app_state';
 
 // ─── Types du contexte ────────────────────────────────────────────────────────
@@ -31,12 +32,14 @@ interface DbContextType {
   users: UserModel[];
   /** Tous les avis de la base de données statique */
   reviews: ReviewModel[];
+  indisponibilities: IndisponibilityModel[];
 
   // Actions de rechargement
   refreshTrips: () => Promise<void>;
   refreshReservations: () => Promise<void>;
   refreshNotifications: () => Promise<void>;
   refreshReviews: () => Promise<void>;
+  refreshIndisponibilities: () => Promise<void>;
   refreshAll: () => Promise<void>;
 
   // Données filtrées pour l'utilisateur courant
@@ -46,6 +49,7 @@ interface DbContextType {
   myVehicles: VehicleModel[];
   /** Avis reçus par l'utilisateur courant (revieweeId) */
   myReviews: ReviewModel[];
+  myIndisponibility: IndisponibilityModel | null;
   unreadNotificationsCount: number;
 }
 
@@ -73,6 +77,7 @@ export function DbProvider({ children }: { children: React.ReactNode }) {
   const [vehicles, setVehicles] = useState<VehicleModel[]>([]);
   const [users, setUsers] = useState<UserModel[]>([]);
   const [reviews, setReviews] = useState<ReviewModel[]>([]);
+  const [indisponibilities, setIndisponibilities] = useState<IndisponibilityModel[]>([]);
 
   const refreshTrips = useCallback(async () => {
     const data = await TripService.getAll();
@@ -104,6 +109,16 @@ export function DbProvider({ children }: { children: React.ReactNode }) {
     setReviews(data);
   }, []);
 
+  const refreshIndisponibilities = useCallback(async () => {
+    const data = await fetch('/api/db/indisponibilities', { cache: 'no-store' }).then(async (res) => {
+      if (!res.ok) {
+        throw new Error(`[DbProvider] indisponibilities ${res.status}`);
+      }
+      return res.json() as Promise<IndisponibilityModel[]>;
+    });
+    setIndisponibilities(data);
+  }, []);
+
   const refreshAll = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -115,13 +130,14 @@ export function DbProvider({ children }: { children: React.ReactNode }) {
         refreshVehicles(),
         refreshUsers(),
         refreshReviews(),
+        refreshIndisponibilities(),
       ]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur de chargement');
     } finally {
       setIsLoading(false);
     }
-  }, [refreshTrips, refreshReservations, refreshNotifications, refreshVehicles, refreshUsers, refreshReviews]);
+  }, [refreshTrips, refreshReservations, refreshNotifications, refreshVehicles, refreshUsers, refreshReviews, refreshIndisponibilities]);
 
   // Chargement initial
   useEffect(() => {
@@ -157,6 +173,10 @@ export function DbProvider({ children }: { children: React.ReactNode }) {
     ? reviews.filter((r) => r.revieweeId === userId)
     : [];
 
+  const myIndisponibility = userId
+    ? indisponibilities.find((item) => item.id === userId) ?? null
+    : null;
+
   const unreadNotificationsCount = myNotifications.filter((n) => !n.isRead).length;
 
   return (
@@ -170,16 +190,19 @@ export function DbProvider({ children }: { children: React.ReactNode }) {
         vehicles,
         users,
         reviews,
+        indisponibilities,
         refreshTrips,
         refreshReservations,
         refreshNotifications,
         refreshReviews,
+        refreshIndisponibilities,
         refreshAll,
         myTrips,
         myReservations,
         myNotifications,
         myVehicles,
         myReviews,
+        myIndisponibility,
         unreadNotificationsCount,
       }}
     >

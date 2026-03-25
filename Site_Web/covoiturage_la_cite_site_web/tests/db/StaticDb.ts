@@ -17,6 +17,7 @@ import type { VehicleModel } from '@/core/models/VehicleModel';
 import type { NotificationModel } from '@/core/models/NotificationModel';
 import type { MessageModel } from '@/core/models/MessageModel';
 import type { ReviewModel } from '@/core/models/ReviewModel';
+import type { IndisponibilityModel } from '@/core/models/IndisponibilityModel';
 import type { DraftTrip } from '@/features/brouillons/types';
 
 // ─── Types de la base de données ─────────────────────────────────────────────
@@ -30,6 +31,7 @@ export interface DbSchema {
   messages: MessageModel[];
   reviews: ReviewModel[];
   drafts: DraftTrip[];
+  indisponibilities: IndisponibilityModel[];
 }
 
 export type DbEntity = keyof DbSchema;

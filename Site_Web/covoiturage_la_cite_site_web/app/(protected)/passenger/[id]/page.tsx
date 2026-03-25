@@ -1,10 +1,8 @@
-
 "use client";
 
 import { useAppState } from "@/core/state/app_state";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 import {
   FavoritesSection,
   GoBoard,
@@ -17,16 +15,26 @@ import {
 } from "@/features/dashboard/components/shared";
 import { useIsMobileOrTablet } from "@/shared/hooks/useismobileortable";
 import { useLoader } from "@/core/context/loader.context";
-import { RecentsDestinationsSection, UsualDestinationsSection, RecommendedRidesSection, ReservationsSection } from "@/features/dashboard/components/passenger";
+import {
+  RecentsDestinationsSection,
+  UsualDestinationsSection,
+  RecommendedRidesSection,
+  ReservationsSection,
+} from "@/features/dashboard/components/passenger";
 import { DashboardProvider } from "@/features/dashboard/context/DashboardContext";
 import type {
   Reservation,
   Notification,
   Review,
   UserStatsSummary,
+  GoTask,
+  Tip,
 } from "@/features/dashboard/types";
+import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
+import { FIXTURE_GO_TASKS } from "@/tests/fixtures/dashboard/goboard.fixtures";
+import { LACITE_TIPS } from "@/tests/fixtures/dashboard/lacite_astuces.fixtures";
+import { FIXTURE_LIEUX_FAVORIS } from "@/shared/fixtures/favoris.fixtures";
 
-// Forme de la réponse de l'API dashboard passager
 interface PassengerDashboardData {
   reservations: Reservation[];
   notifications: Notification[];
@@ -34,7 +42,6 @@ interface PassengerDashboardData {
   stats: UserStatsSummary;
 }
 
-// Valeurs par défaut pour les données non encore chargées
 const DEFAULT_STATS: UserStatsSummary = {
   tripsCount: 0,
   co2SavedKg: 0,
@@ -49,87 +56,181 @@ export default function PassengerDashboardPage() {
   const isBelowLg = useIsMobileOrTablet();
   const user = appState.userConnected;
   const { setActiveLoader } = useLoader();
+  const routeId = typeof params.id === "string" ? params.id : params.id?.[0];
 
-  // Données du dashboard chargées depuis l'API
   const [dashData, setDashData] = useState<PassengerDashboardData | null>(null);
+  const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>(FIXTURE_LIEUX_FAVORIS);
+  const [tips, setTips] = useState<Tip[]>(LACITE_TIPS);
+  const [goTasks, setGoTasks] = useState<GoTask[]>(FIXTURE_GO_TASKS);
 
-  // Effet pour vérifier l'authentification et les permissions de l'utilisateur
   useEffect(() => {
-    if (
-      user?.id !== params.id ||
-      user?.role.toString().toLowerCase() !== "passenger"
+    if (!user) {
+      setActiveLoader(true);
+      router.replace("/");
+    } else if (
+      user.id !== routeId ||
+      user.role.toString().toLowerCase() !== "passenger"
     ) {
       setActiveLoader(true);
-      router.push(`/${user?.role.toString().toLowerCase()}/${user?.id}`);
+      router.replace(`/${user.role.toString().toLowerCase()}/${user.id}`);
     } else {
       const timer = setTimeout(() => setActiveLoader(false), 300);
       return () => clearTimeout(timer);
     }
-  }, [user, params, router, setActiveLoader]);
+  }, [routeId, router, setActiveLoader, user]);
 
-  // Chargement des données du dashboard depuis l'API une fois l'utilisateur confirmé
+  const loadPassengerData = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      const [dashboardRes, favoritesRes, astucesRes, goTasksRes] = await Promise.all([
+        fetch(`/api/dashboard/passenger/${user.id}`),
+        fetch(`/api/lieux-favoris?userId=${user.id}`),
+        fetch("/api/astuces"),
+        fetch("/api/gotasks"),
+      ]);
+
+      if (dashboardRes.ok) {
+        setDashData(await dashboardRes.json());
+      }
+      if (favoritesRes.ok) {
+        const payload = await favoritesRes.json();
+        if (Array.isArray(payload)) {
+          setFavorites(payload);
+        }
+      }
+      if (astucesRes.ok) {
+        const payload = await astucesRes.json();
+        if (Array.isArray(payload) && payload.length > 0) {
+          setTips(payload);
+        }
+      }
+      if (goTasksRes.ok) {
+        const payload = await goTasksRes.json();
+        if (Array.isArray(payload) && payload.length > 0) {
+          setGoTasks(payload);
+        }
+      }
+    } catch (error) {
+      console.error("[passenger/page] loadPassengerData", error);
+    }
+  }, [user]);
+
   useEffect(() => {
+    // Vérifier si l'utilisateur est authentifié et a le rôle de passager
     if (!user || user.role.toString().toLowerCase() !== "passenger") return;
-    if (user.id !== params.id) return;
+    // Vérifier que l'ID de route correspond à l'ID de l'utilisateur
+    if (user.id !== routeId) return;
+    
+    // Charger les données du passager dans une IIFE asynchrone
+    (async () => {
+      await loadPassengerData();
+    })();
+  }, [loadPassengerData, routeId, user]);
 
-    fetch(`/api/dashboard/passenger/${user.id}`)
-      .then((res) => res.json())
-      .then((data: PassengerDashboardData) => setDashData(data))
-      .catch(console.error);
-  }, [user, params.id]);
+  const handleCancelReservation = useCallback(async (reservationId: string, raison?: string) => {
+    try {
+      const res = await fetch(`/api/reservations/${encodeURIComponent(reservationId)}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ raison }),
+      });
+      if (!res.ok) return false;
+      await loadPassengerData();
+      return true;
+    } catch {
+      return false;
+    }
+  }, [loadPassengerData]);
 
-  // Vérifier que l'utilisateur a les bonnes permissions avant d'afficher le contenu
-  if (user?.id !== params.id || user?.role.toString().toLowerCase() !== "passenger") {
+  const handleStartReservation = useCallback(async (reservationId: string) => {
+    try {
+      const res = await fetch(`/api/reservations/${encodeURIComponent(reservationId)}/start`, {
+        method: "POST",
+      });
+      if (!res.ok) return null;
+      const payload = await res.json();
+      await loadPassengerData();
+      return typeof payload.tripId === "string" ? payload.tripId : null;
+    } catch {
+      return null;
+    }
+  }, [loadPassengerData]);
+
+  const handleDeleteFavorite = useCallback(async (favorite: LieuFavoriUnifie) => {
+    await fetch(`/api/lieux-favoris?id=${favorite.id}&userId=${user?.id}`, {
+      method: "DELETE",
+    });
+    setFavorites((prev) => prev.filter((item) => item.id !== favorite.id));
+  }, [user?.id]);
+
+  if (user?.id !== routeId || user?.role.toString().toLowerCase() !== "passenger") {
     return null;
   }
-  else {
-    // Le contenu du dashboard pour les passagers
+
   return (
-    // DashboardProvider centralise les données pour les composants non-critiques (GoBoard, Favoris, etc.)
     <DashboardProvider>
-      <div className="flex flex-col mb-10">
-      <Hero />
-      {!isBelowLg ? (
-        <main className="w-full  h-full flex flex-col bg-gray-100  px-10 py-5 scale-y-105 ">
-          <div className="w-full h-fit flex items-center justify-between  mb-6">
-            <div className="w-full h-full flex flex-col gap-6  pr-1">
-              <ReservationsSection reservations={dashData?.reservations ?? []} />
-              <FavoritesSection />
-              <ReviewsSection reviews={dashData?.reviews ?? []} />
-              <div className="flex">
-                <RecentsDestinationsSection />
-                <UsualDestinationsSection />
+      <div className="flex flex-col mb-10 overflow-x-hidden">
+        <Hero />
+        {!isBelowLg ? (
+          <main className="w-full h-full flex flex-col overflow-x-hidden overflow-y-visible bg-gray-100 px-6 py-5 xl:px-10">
+            <div className="flex w-full h-fit items-start gap-6 mb-6">
+              <div className="flex min-w-0 flex-1 flex-col gap-6 pr-1">
+                <ReservationsSection
+                  reservations={dashData?.reservations ?? []}
+                  onCancelReservation={handleCancelReservation}
+                  onStartReservation={handleStartReservation}
+                />
+                <FavoritesSection
+                  favorites={favorites}
+                  onDeleteFavorite={handleDeleteFavorite}
+                />
+                <ReviewsSection reviews={dashData?.reviews ?? []} />
+                {/* Section des destinations récentes et habituelles avec contraintes de largeur */}
+                <div className="flex gap-6 w-full min-w-0">
+                  <div className="flex-1 min-w-0">
+                  <RecentsDestinationsSection />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                  <UsualDestinationsSection />
+                  </div>
+                </div>
+                <RecommendedRidesSection />
               </div>
-              <RecommendedRidesSection />
+              <div className="flex w-full max-w-[30rem] shrink-0 flex-col gap-6 pl-0 xl:w-2/7 xl:pl-5">
+                <StatisticSection stats={dashData?.stats ?? DEFAULT_STATS} />
+                <NotificationsSection notifications={dashData?.notifications ?? []} />
+                <GoBoard currentScore={dashData?.stats?.goScore ?? 0} tasks={goTasks} />
+                <LaCiteAstucesSection tips={tips} />
+              </div>
             </div>
-            <div className="w-2/7 h-full flex flex-col gap-6 pl-5 ">
-              <StatisticSection stats={dashData?.stats ?? DEFAULT_STATS} />
-              <NotificationsSection notifications={dashData?.notifications ?? []} />
-              <GoBoard currentScore={dashData?.stats.goScore ?? 0} />
-              <LaCiteAstucesSection />
+            <div className="px-10">
+              <NouveautesSection />
             </div>
-          </div>
-          <div className="px-10">
+          </main>
+        ) : (
+          <main className="flex w-full max-w-full flex-col gap-y-5 overflow-x-hidden overflow-y-visible bg-gray-100 px-3 py-2 shadow-md">
+            <ReservationsSection
+              reservations={dashData?.reservations ?? []}
+              onCancelReservation={handleCancelReservation}
+              onStartReservation={handleStartReservation}
+            />
+            <NotificationsSection notifications={dashData?.notifications ?? []} />
+            <StatisticSection stats={dashData?.stats ?? DEFAULT_STATS} />
+            <FavoritesSection
+              favorites={favorites}
+              onDeleteFavorite={handleDeleteFavorite}
+            />
+            <ReviewsSection reviews={dashData?.reviews ?? []} />
+            <GoBoard currentScore={dashData?.stats?.goScore ?? 0} tasks={goTasks} />
+            <RecentsDestinationsSection />
+            <UsualDestinationsSection />
+            <RecommendedRidesSection />
+            <LaCiteAstucesSection tips={tips} />
             <NouveautesSection />
-          </div>
-        </main>
-      ) : (
-        <main className="w-full -mb-10 h-full flex flex-col bg-gray-100 gap-y-5  shadow-md py-2 px-3 scale-100">
-          <ReservationsSection reservations={dashData?.reservations ?? []} />
-          <NotificationsSection notifications={dashData?.notifications ?? []} />
-          <StatisticSection stats={dashData?.stats ?? DEFAULT_STATS} />
-          <FavoritesSection />
-          <ReviewsSection reviews={dashData?.reviews ?? []} />
-          <GoBoard currentScore={dashData?.stats.goScore ?? 0} />
-          <RecentsDestinationsSection />
-          <UsualDestinationsSection />
-          <RecommendedRidesSection />
-          <LaCiteAstucesSection />
-          <NouveautesSection />
-        </main>
-      )}
-    </div>
+          </main>
+        )}
+      </div>
     </DashboardProvider>
   );
-}
 }
