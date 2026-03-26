@@ -40,6 +40,31 @@ export const ReservationService = {
   // ─── Écriture ───────────────────────────────────────────────────────────────
 
   async create(reservation: ReservationModel): Promise<ReservationModel> {
+    const trip = await TripService.getById(reservation.tripId);
+    if (!trip) throw new Error(`Trajet ${reservation.tripId} introuvable`);
+    if (!['published', 'full'].includes(trip.status)) {
+      throw new Error('Ce trajet n\'accepte plus de nouvelles reservations');
+    }
+    if (trip.driverId === reservation.passengerId) {
+      throw new Error('Le conducteur ne peut pas reserver son propre trajet');
+    }
+    if (trip.passengerIds.includes(reservation.passengerId)) {
+      throw new Error('Le passager est deja confirme sur ce trajet');
+    }
+    if (trip.currentPassengers >= trip.maxPassengers) {
+      throw new Error('Aucune place disponible');
+    }
+
+    const existingReservations = await ReservationService.getByTripId(reservation.tripId);
+    const duplicateActiveReservation = existingReservations.find(
+      (item) =>
+        item.passengerId === reservation.passengerId &&
+        ['pending', 'confirmed', 'in_progress'].includes(item.status)
+    );
+    if (duplicateActiveReservation) {
+      throw new Error('Une reservation active existe deja pour ce passager sur ce trajet');
+    }
+
     await staticDb.add('reservations', reservation);
     return reservation;
   },
@@ -60,6 +85,18 @@ export const ReservationService = {
     if (!reservation) throw new Error(`Réservation ${reservationId} introuvable`);
     if (reservation.status !== 'pending') {
       throw new Error('Seules les réservations en attente peuvent être acceptées');
+    }
+
+    const trip = await TripService.getById(reservation.tripId);
+    if (!trip) throw new Error(`Trajet ${reservation.tripId} introuvable`);
+    if (!['published', 'full'].includes(trip.status)) {
+      throw new Error('Ce trajet ne peut plus confirmer de reservation');
+    }
+    if (trip.passengerIds.includes(reservation.passengerId)) {
+      throw new Error('Ce passager est deja confirme sur le trajet');
+    }
+    if (trip.currentPassengers >= trip.maxPassengers) {
+      throw new Error('Aucune place disponible');
     }
 
     const now = new Date().toISOString();

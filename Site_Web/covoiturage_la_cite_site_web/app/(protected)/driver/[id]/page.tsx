@@ -33,6 +33,7 @@ import type {
   Tip,
 } from "@/features/dashboard/types";
 import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
+import { getLieuFavoriIcon } from "@/shared/utils/lieu-favori-icon";
 import type { DraftTrip } from "@/features/brouillons/types";
 import { FIXTURE_DRAFTS } from "@/tests/fixtures/brouillons/drafts.fixtures";
 import { FIXTURE_GO_TASKS } from "@/tests/fixtures/dashboard/goboard.fixtures";
@@ -215,10 +216,17 @@ export default function DriverDashboardPage() {
     return null;
   }
 
+  const favDestinations = favorites.map((fav) => ({
+    label: fav.pseudonyme,
+    value: fav.adresse,
+    icon: getLieuFavoriIcon(fav.iconTag, ""),
+    coordonnees: fav.coordonnees,
+  }));
+
   return (
     <DashboardProvider>
       <div className="flex flex-col mb-10">
-        <Hero />
+        <Hero favDestinations={favDestinations} />
         {!isBelowLg ? (
           <main className="w-full h-full flex flex-col bg-white  px-10 py-10 scale-y-105">
             <div className="w-full h-fit flex items-center justify-between mb-6">

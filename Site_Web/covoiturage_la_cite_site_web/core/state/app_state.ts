@@ -37,7 +37,7 @@ export abstract class ObservableObject {
 
   public subscribe(l: () => void) {
     this.listeners.add(l);
-    return () => this.listeners.delete(l);
+    return () => { this.listeners.delete(l); };
   }
 
   protected notify() {

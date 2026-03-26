@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useCreateTrip } from '../../hooks';
 import { TripWayPrefill } from '../../types';
 import type { MockVehicle } from '../../constants/trip.constants';
@@ -64,6 +65,7 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
     errors,
     isSubmitting,
     tripToast,
+    showIndispoWarning,
     setField,
     setPreference,
     incrementPrice,
@@ -72,6 +74,8 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
     decrementAvailableSeats,
     onVehicleChange,
     handlePublish,
+    confirmPublishDespiteIndispo,
+    dismissIndispoWarning,
     handleSaveDraft,
     dismissToast,
   } = useCreateTrip(vehicles, initialValues);
@@ -211,9 +215,45 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
         isOpen={tripToast.isOpen}
         success={tripToast.success}
         message={tripToast.message}
+        titleOverride={tripToast.title}
+        bodyOverride={tripToast.message}
         onOk={dismissToast}
-        okLabel="Fermer"
+        okLabel={tripToast.redirectTripId ? "Voir mon planificateur" : "Fermer"}
       />
+
+      {/* Modal avertissement indisponibilité */}
+      {showIndispoWarning && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed inset-0 z-9999 flex items-center justify-center"
+          style={{ background: 'rgba(8, 49, 110, 0.5)', backdropFilter: 'blur(3px)' }}
+        >
+          <div className="bg-white rounded-2xl p-7 shadow-2xl max-w-md w-[90%] text-center">
+            <div className="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <p className="text-lg font-bold text-[#08316e] mb-3">Vous êtes déclaré indisponible</p>
+            <p className="text-sm text-gray-600 mb-6">
+              Ce trajet est prévu durant une période où vous avez déclaré une indisponibilité.
+              Voulez-vous quand même le créer ?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={dismissIndispoWarning}
+                className="flex-1 py-2.5 rounded-xl font-semibold text-sm border border-gray-300 bg-gray-100 text-gray-700 hover:bg-gray-200 transition active:scale-95"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => { void confirmPublishDespiteIndispo(); }}
+                className="flex-1 py-2.5 rounded-xl font-semibold text-sm text-white bg-[#08316e] hover:bg-[#0a4a9e] transition active:scale-95"
+              >
+                Créer quand même
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
     </div>
   );
 };

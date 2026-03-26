@@ -28,6 +28,7 @@ export type AllowedEntity =
   | 'penalites'
   | 'lieux_favoris'
   | 'affinites'
+  | 'user_preferences'
   | 'gotasks'
   | 'goevents'
   | 'goboard_classement'
@@ -57,6 +58,7 @@ export class PersistenceManager {
     'penalites',
     'lieux_favoris',
     'affinites',
+    'user_preferences',
     'gotasks',
     'goevents',
     'goboard_classement',

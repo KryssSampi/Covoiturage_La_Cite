@@ -1,111 +1,75 @@
 "use client";
 
-/**
- * @file RecommendedTripCard.tsx
- * @description Carte de trajet pour les résultats de recherche passager.
- *
- * Design basé sur la TripCard de la section "Trajets Recommandés" du dashboard
- * (features/dashboard/components/passenger/recommended-rides.section.tsx),
- * enrichie avec :
- *   - Badge de score de matching (coin supérieur droit)
- *   - Gestion des places disponibles (badge vert/rouge)
- *   - Bouton "Complet" désactivé si aucune place disponible
- *   - Callback onReserve ou redirection /trajets/:id
- *
- * Layout horizontal :
- *   [Photo conducteur] | [Détails : date · conducteur · trajet · passagers + prix] | [Bouton]
- */
+import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { FaStar, FaLocationDot, FaArrowRight } from "react-icons/fa6";
+import { FaPlusCircle, FaUserFriends } from "react-icons/fa";
 
-import Link           from "next/link";
-import Image          from "next/image";
-import { useState }   from "react";
-import { useRouter }  from "next/navigation";
-import {
-  FaStar,
-  FaLocationDot,
-  FaArrowRight,
-} from "react-icons/fa6";
-import {
-  FaPlusCircle,
-  FaUserFriends,
-} from "react-icons/fa";
+import { Language, useAppState } from "@/core/state/app_state";
+import { formatDate } from "@/core/utils/date.utils";
+import type { Trip } from "@/features/dashboard/types";
+import type { MatchingScore, BlockedTripReason } from "@/features/search/types/search.feature.types";
+import { PassengerAvatars } from "@/shared/components/PassengerAvatars";
 
-import { Language, useAppState }                    from "@/core/state/app_state";
-import { formatDate }                               from "@/core/utils/date.utils";
-import type { Trip }                                from "@/features/dashboard/types";
-import type { MatchingScore }                       from "@/features/search/types/search.feature.types";
-import { PassengerAvatars }                         from "@/shared/components/PassengerAvatars";
-
-// ─── Utilitaire : couleurs du badge matching ──────────────────────────────────
-
-/**
- * Retourne les couleurs et le libellé correspondant au score de matching.
- * Seuils : ≥80 Excellent, ≥60 Bon match, ≥40 Passable, <40 Faible
- */
 function matchColor(score: number, isFR: boolean): {
-  bg:    string;
-  ring:  string;
-  text:  string;
+  bg: string;
+  ring: string;
+  text: string;
   label: string;
 } {
-  if (score >= 80) return { bg: "#e8f5e9", ring: "#2e7d32", text: "#1b5e20", label: "Excellent"  };
-  if (score >= 60) return { bg: "#e3f2fd", ring: "#1565c0", text: "#0d47a1", label: isFR ? "Bon match" : "Good match"  };
-  if (score >= 40) return { bg: "#fff8e1", ring: "#f57f17", text: "#e65100", label: isFR ? "Passable" : "Fair"   };
-  return            { bg: "#fce4ec", ring: "#c62828", text: "#b71c1c", label: isFR ? "Faible" : "Weak"     };
+  if (score >= 80) return { bg: "#e8f5e9", ring: "#2e7d32", text: "#1b5e20", label: "Excellent" };
+  if (score >= 60) return { bg: "#e3f2fd", ring: "#1565c0", text: "#0d47a1", label: isFR ? "Bon match" : "Good match" };
+  if (score >= 40) return { bg: "#fff8e1", ring: "#f57f17", text: "#e65100", label: isFR ? "Passable" : "Fair" };
+  return { bg: "#fce4ec", ring: "#c62828", text: "#b71c1c", label: isFR ? "Faible" : "Weak" };
 }
 
-// ─── Composant principal ──────────────────────────────────────────────────────
+function blockedReasonLabel(reason: BlockedTripReason | undefined, isFR: boolean): string {
+  switch (reason) {
+    case "trip_full": return isFR ? "Trajet complet" : "Trip is full";
+    case "already_passenger": return isFR ? "Vous etes deja sur ce trajet" : "Already joined";
+    case "geo_departure_too_far": return isFR ? "Depart trop eloigne" : "Departure too far";
+    case "geo_arrival_too_far": return isFR ? "Arrivee trop eloignee" : "Arrival too far";
+    case "payment_incompatible": return isFR ? "Paiement incompatible" : "Payment mismatch";
+    case "goscore_too_low": return isFR ? "GoScore insuffisant" : "GoScore too low";
+    case "bad_past_experience": return isFR ? "Experience passee negative" : "Past affinity issue";
+    case "passenger_unreliable": return isFR ? "Profil passager a risque" : "Passenger risk";
+    case "trip_not_published": return isFR ? "Trajet non publie" : "Trip not published";
+    default: return isFR ? "Resultat bloque" : "Blocked result";
+  }
+}
 
 export interface RecommendedTripCardProps {
-  /** Données du trajet à afficher */
-  trip:        Trip;
-  /** Score de matching calculé par usePassengerSearch (optionnel) */
-  score?:      MatchingScore;
-  /** Indique si cette carte est la sélection active (polyline affichée sur la carte) */
+  trip: Trip;
+  score?: MatchingScore;
   isSelected?: boolean;
-  /** Callback déclenché au clic sur la carte — affiche la polyline sur la carte */
-  onSelect?:   (trip: Trip) => void;
-  /** Callback de réservation — si absent, redirige vers /trajets/:id */
-  onReserve?:  (tripId: number) => void;
+  onSelect?: (trip: Trip) => void;
+  onReserve?: (tripId: string) => void;
+  blockedReason?: BlockedTripReason;
 }
 
-/**
- * Carte de trajet riche pour les résultats de recherche passager.
- *
- * Affiche :
- * - Photo du conducteur (grande, à gauche)
- * - Date et heure de départ
- * - Nom du conducteur (lien profil) + note moyenne + nombre de trajets
- * - Itinéraire départ → destination avec icônes
- * - Avatars des passagers inscrits + compteur places libres/occupées
- * - Prix en CAD
- * - Badge de score de matching (coin supérieur droit) si disponible
- * - Bouton "Réserver" ou "Complet" (désactivé)
- */
 export function RecommendedTripCard({
   trip,
   score,
   isSelected = false,
   onSelect,
   onReserve,
+  blockedReason,
 }: RecommendedTripCardProps) {
   const { lang } = useAppState();
-  const router   = useRouter();
-
-  // État de la liste déroulante des passagers
+  const isFR = lang === Language.FR;
+  const router = useRouter();
   const [isPassengerListOpen, setIsPassengerListOpen] = useState(false);
 
-  // Calcul des places disponibles
   const seatsLeft = trip.maxPassengers - trip.passengers.length;
-  const isFull    = seatsLeft <= 0;
+  const isBlocked = Boolean(blockedReason);
+  const isFull = seatsLeft <= 0 || isBlocked;
+  const mc = score ? matchColor(score.total, isFR) : null;
 
-  // Couleurs du badge matching
-  const mc = score ? matchColor(score.total, lang === Language.FR) : null;
-
-  /** Navigation vers la page de détails ou callback externe */
   function handleReserve(e: React.MouseEvent) {
-    // Empêche le clic de remonter sur la carte (qui déclencherait onSelect)
     e.stopPropagation();
+    if (isBlocked) return;
     if (onReserve) {
       onReserve(trip.id);
     } else {
@@ -117,42 +81,42 @@ export function RecommendedTripCard({
     <div
       className="w-full flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-2 hover:shadow-2xl hover:scale-[1.01] transition-all active:scale-[0.99] relative overflow-visible"
       style={{
-        cursor:  onSelect ? "pointer" : "default",
+        cursor: onSelect ? "pointer" : "default",
         outline: isSelected ? "2.5px solid #08316e" : "none",
         boxShadow: isSelected
           ? "0 0 0 3px #08316e33, 0 6px 24px rgba(8,49,110,0.18)"
           : undefined,
         background: isSelected ? "#eef4ff" : undefined,
+        opacity: isBlocked ? 0.92 : 1,
       }}
       onClick={() => onSelect?.(trip)}
     >
-
-      {/* ── Badge matching score — coin supérieur droit ────────────────────── */}
       {mc && score && (
         <div
           className="absolute top-3 right-3 flex flex-col items-center rounded-xl px-2 py-1 z-10"
-          style={{
-            background: mc.bg,
-            border:     `1.5px solid ${mc.ring}55`,
-          }}
-          title={`Score de correspondance : ${score.total}/100\nGéo départ: ${score.geoDepart}/30 · Géo arrivée: ${score.geoArrivee}/30\nHoraire: ${score.horaire}/20 · Note: ${score.noteConducteur}/10 · Places: ${score.places}/10`}
+          style={{ background: mc.bg, border: `1.5px solid ${mc.ring}55` }}
+          title={`Score: ${score.total}/100`}
         >
-          <span
-            className="text-base font-extrabold leading-none"
-            style={{ color: mc.text }}
-          >
+          <span className="text-base font-extrabold leading-none" style={{ color: mc.text }}>
             {score.total}
           </span>
-          <span
-            className="text-[9px] font-bold tracking-wide uppercase"
-            style={{ color: mc.text }}
-          >
+          <span className="text-[9px] font-bold tracking-wide uppercase" style={{ color: mc.text }}>
             {mc.label}
           </span>
         </div>
       )}
 
-      {/* ── Photo de profil du conducteur ─────────────────────────────────── */}
+      {isBlocked && (
+        <div
+          className="absolute top-3 left-3 rounded-full px-3 py-1 z-10"
+          style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #f59e0b55" }}
+        >
+          <span className="text-[11px] font-extrabold uppercase tracking-wide">
+            {isFR ? "Bloque" : "Blocked"}
+          </span>
+        </div>
+      )}
+
       <div className="shrink-0">
         <Image
           src={trip.driver.pictureUrl || "/assets/placeholder/placeholer-profile-picture.png"}
@@ -160,26 +124,18 @@ export function RecommendedTripCard({
           className="w-24 h-32 rounded-xl object-cover"
           width={200}
           height={280}
-          onError={(e) => { (e.currentTarget as HTMLImageElement).src = "/assets/placeholder/placeholer-profile-picture.png"; }}
         />
       </div>
 
-      {/* ── Séparateur vertical ───────────────────────────────────────────── */}
       <div className="w-px h-28 bg-gray-400 shrink-0" />
 
-      {/* ── Bloc principal des détails ────────────────────────────────────── */}
       <div className="flex flex-col items-start w-full pr-28 gap-0.5">
-
-        {/* Date et heure */}
         <span className="text-lg font-semibold text-black">
           {formatDate(trip.date, lang)}&nbsp;:&nbsp;{trip.time}
         </span>
 
-        {/* Conducteur : nom + note + nombre de trajets */}
         <div className="flex items-center text-black text-base gap-2 flex-wrap">
-          <span className="text-gray-600 text-sm">
-            {lang === Language.FR ? "Avec :" : "With:"}
-          </span>
+          <span className="text-gray-600 text-sm">{isFR ? "Avec :" : "With:"}</span>
           <Link
             href={`/public-profile?accountid=${trip.driver.id}`}
             className="text-base font-semibold truncate max-w-40 text-blue-500 hover:text-blue-700 hover:underline"
@@ -191,12 +147,11 @@ export function RecommendedTripCard({
             <FaStar />
             <strong className="text-gray-800">{trip.driver.rating.toFixed(1)}</strong>
             <span className="text-gray-500 text-xs">
-              ({trip.driver.tripsCount} {lang === Language.FR ? "trajets" : "trips"})
+              ({trip.driver.tripsCount} {isFR ? "trajets" : "trips"})
             </span>
           </span>
         </div>
 
-        {/* Itinéraire départ → destination */}
         <p className="flex gap-1 items-baseline text-base text-[#08316e]">
           <FaLocationDot className="shrink-0 mt-0.5" />
           <span className="truncate max-w-28 text-black font-bold" title={trip.departure}>
@@ -208,10 +163,13 @@ export function RecommendedTripCard({
           </span>
         </p>
 
-        {/* Ligne du bas : avatars passagers | places libres | prix */}
-        <div className="w-full flex justify-between items-center flex-wrap gap-2">
+        {isBlocked && (
+          <p className="text-xs font-semibold text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mt-1">
+            {blockedReasonLabel(blockedReason, isFR)}
+          </p>
+        )}
 
-          {/* Avatars des passagers inscrits */}
+        <div className="w-full flex justify-between items-center flex-wrap gap-2">
           <PassengerAvatars
             passengers={trip.passengers}
             isOpen={isPassengerListOpen}
@@ -220,68 +178,62 @@ export function RecommendedTripCard({
             withBorder
           />
 
-          {/* Compteur places + prix */}
           <div className="flex items-center gap-4 ml-auto">
-
-            {/* Places libres / occupées */}
             <div className="flex items-center gap-1">
-              <span
-                className={`text-base font-semibold ${isFull ? "text-red-500" : "text-gray-700"}`}
-              >
+              <span className={`text-base font-semibold ${isFull ? "text-red-500" : "text-gray-700"}`}>
                 {trip.passengers.length}/{trip.maxPassengers}
               </span>
               <FaUserFriends className="text-[#08316e] text-lg" />
               {!isFull && (
                 <span className="text-xs font-medium text-green-700 bg-green-100 rounded-full px-2 py-0.5">
-                  {seatsLeft} {lang === Language.FR
+                  {seatsLeft} {isFR
                     ? `place${seatsLeft > 1 ? "s" : ""} libre${seatsLeft > 1 ? "s" : ""}`
                     : `seat${seatsLeft > 1 ? "s" : ""} free`}
                 </span>
               )}
               {isFull && (
                 <span className="text-xs font-bold text-red-700 bg-red-100 rounded-full px-2 py-0.5">
-                  {lang === Language.FR ? "Complet" : "Full"}
+                  {isBlocked ? (isFR ? "Bloque" : "Blocked") : (isFR ? "Complet" : "Full")}
                 </span>
               )}
             </div>
 
-            {/* Prix */}
             <div className="flex flex-col items-center">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                {lang === Language.FR ? "Prix" : "Price"}
+                {isFR ? "Prix" : "Price"}
               </span>
               <span className="text-lg font-extrabold text-red-500">
                 {trip.price}&nbsp;<span className="text-xs font-semibold text-gray-500">CAD</span>
               </span>
             </div>
-
           </div>
         </div>
       </div>
 
-      {/* ── Bouton Réserver ───────────────────────────────────────────────── */}
       <div className="flex flex-col justify-center items-center shrink-0 w-24">
         <button
           disabled={isFull}
           className="w-full font-bold py-2 px-3 rounded-full text-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-1"
           style={{
             background: isFull ? "#94a3b8" : "#08316e",
-            color:      "#fff",
+            color: "#fff",
           }}
           onMouseEnter={(e) => {
-            if (!isFull) (e.currentTarget as HTMLButtonElement).style.background = "#06214a";
+            if (!isFull) e.currentTarget.style.background = "#06214a";
           }}
           onMouseLeave={(e) => {
-            if (!isFull) (e.currentTarget as HTMLButtonElement).style.background = "#08316e";
+            if (!isFull) e.currentTarget.style.background = "#08316e";
           }}
-          onClick={handleReserve}        >
+          onClick={handleReserve}
+        >
           <FaPlusCircle />
-          {isFull
-            ? (lang === Language.FR ? "Complet" : "Full")
-            : (lang === Language.FR ? "Réserver" : "Book")}
+          {isBlocked
+            ? (isFR ? "Indisponible" : "Unavailable")
+            : isFull
+            ? (isFR ? "Complet" : "Full")
+            : (isFR ? "Reserver" : "Book")}
         </button>
       </div>
-
     </div>
   );
 }

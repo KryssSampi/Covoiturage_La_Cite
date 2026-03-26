@@ -1,76 +1,30 @@
-/**
- * POST /api/reservations/[id]/refuse
- *
- * Refuse une réservation en attente :
- *  1. Passe la réservation de pending → rejected
- *  2. Libère le holding 6$ si c'était la dernière demande active du passager
- *  3. Notifie le passager
- */
 import { NextResponse } from 'next/server';
-import { persistenceManager } from '@/tests/PersistenceManager';
-import { paymentService } from '@/server/services/PaymentService';
+import { refuseReservationWorkflow } from '@/core/services/reservation-lifecycle-api.service';
 
 type Context = { params: Promise<{ id: string }> };
-type ReservationRecord = Record<string, unknown>;
 
 export async function POST(req: Request, { params }: Context) {
   try {
     const { id } = await params;
-    const body = await req.json().catch(() => ({})) as { raison?: string };
 
-    const reservation = persistenceManager.readById<ReservationRecord>('reservations', id);
-    if (!reservation) {
-      return NextResponse.json({ error: 'Réservation introuvable' }, { status: 404 });
-    }
-    if (reservation.status !== 'pending') {
-      return NextResponse.json({ error: "La réservation n'est pas en attente" }, { status: 409 });
+    const callerId = req.headers.get('x-caller-id');
+    if (!callerId) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 
-    const passengerId = reservation.passengerId as string;
-    const now  = new Date().toISOString();
-    const year = new Date().getFullYear();
+    const body = (await req.json().catch(() => ({}))) as { raison?: string };
 
-    // ── 1. Refuser la réservation ─────────────────────────────────────────────
-    const updated = persistenceManager.updateItem<ReservationRecord>('reservations', id, {
-      status: 'rejected',
-      rejectedReason: body.raison ?? 'Refusé par le conducteur',
-      updatedAt: now,
-    });
-
-    // ── 2. Vérifier s'il reste d'autres demandes pending du même passager ─────
-    const allReservations = persistenceManager.readAll<ReservationRecord>('reservations');
-    const autresDemandesActives = allReservations.filter(
-      (r) => r.passengerId === passengerId && r.id !== id && r.status === 'pending'
-    );
-
-    // Si aucune autre demande active → libérer le holding 6$
-    if (autresDemandesActives.length === 0) {
-      paymentService.releaseHoldingAmount(passengerId, id);
+    const result = refuseReservationWorkflow(id, callerId, body.raison);
+    if (!result.reservation) {
+      return NextResponse.json({ error: result.error }, { status: result.status ?? 400 });
     }
-
-    // ── 3. Notification passager ──────────────────────────────────────────────
-    const rand = String(Math.floor(10000 + Math.random() * 90000)).padStart(5, '0');
-    persistenceManager.addItem('notifications', {
-      id:      `NTF-${year}-${rand}`,
-      userId:  passengerId,
-      type:    'reservation_refused',
-      title:   'Demande refusée',
-      message: body.raison
-        ? `Le conducteur a refusé votre demande : ${body.raison}`
-        : 'Votre demande de covoiturage a été refusée par le conducteur.',
-      isRead:  false,
-      isImportant: false,
-      relatedTripId:        reservation.tripId,
-      relatedReservationId: id,
-      createdAt: now,
-    });
 
     return NextResponse.json({
-      reservation: updated,
-      holdingLibere: autresDemandesActives.length === 0,
+      reservation: result.reservation,
+      holdingLibere: result.holdingLibere,
     });
-  } catch (err) {
-    console.error('[refuse]', err);
+  } catch (error) {
+    console.error('[refuse]', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

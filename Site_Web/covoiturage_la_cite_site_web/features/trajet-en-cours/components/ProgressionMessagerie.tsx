@@ -277,9 +277,11 @@ export function Messagerie({
   roleMoi,
   correspondants,
   moi,
-  conversationState,
-  onEnvoyerMessage,
-  onChangerCorrespondant,
+  activeConversation,
+  messagesActifs,
+  unreadCounts,
+  onSendMessage,
+  onSetActiveCorrespondant,
   onBroadcast,
 }: MessagerieProps) {
   const [inputVal, setInputVal] = useState('');
@@ -290,13 +292,15 @@ export function Messagerie({
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
+  // Résoudre le correspondant actif depuis activeConversation
+  const activeCorrespondantId = activeConversation
+    ? activeConversation.participantIds.find((pid) => pid !== moi.id) ?? ''
+    : '';
   const correspondantActif = correspondants.find(
-    (c) => c.id === conversationState.correspondantActifId,
+    (c) => c.id === activeCorrespondantId,
   );
-  const messages = useMemo(
-    () => conversationState.messages[conversationState.correspondantActifId] ?? [],
-    [conversationState.messages, conversationState.correspondantActifId],
-  );
+  // Les messages de la conversation active sont passés directement via les props
+  const messages = messagesActifs;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -304,7 +308,7 @@ export function Messagerie({
 
   const handleSend = () => {
     if (!inputVal.trim()) return;
-    onEnvoyerMessage(inputVal.trim());
+    onSendMessage(inputVal.trim());
     setInputVal('');
   };
 
@@ -320,7 +324,7 @@ export function Messagerie({
     const ids = new Set<string>();
     let prev: Date | null = null;
     for (const msg of messages) {
-      const d = new Date(msg.horodatage);
+      const d = new Date(msg.timestamp);
       if (!prev || !isSameDay(prev, d)) {
         ids.add(msg.id);
       }
@@ -408,13 +412,13 @@ export function Messagerie({
             {correspondants.map((c) => (
               <div
                 key={c.id}
-                onClick={() => { onChangerCorrespondant(c.id); setShowCorrespondants(false); }}
+                onClick={() => { onSetActiveCorrespondant(c.id); setShowCorrespondants(false); }}
                 style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '9px 12px',
                   cursor: 'pointer',
                   borderBottom: '1px solid rgba(8,49,110,.06)',
-                  background: c.id === conversationState.correspondantActifId
+                  background: c.id === activeCorrespondantId
                     ? 'rgba(8,49,110,0.05)' : '#fff',
                 }}
               >
@@ -433,8 +437,20 @@ export function Messagerie({
                     {c.estEnLigne ? (isFR ? 'En ligne' : 'Online') : (isFR ? 'Hors ligne' : 'Offline')}
                   </div>
                 </div>
-                {c.id === conversationState.correspondantActifId && (
+                {c.id === activeCorrespondantId && (
                   <span style={{ color: '#0aad6a', fontSize: 12 }}>✓</span>
+                )}
+                {/* Badge non-lus */}
+                {(unreadCounts[c.id] ?? 0) > 0 && (
+                  <span style={{
+                    minWidth: 18, height: 18, borderRadius: 9,
+                    background: '#e03050', color: '#fff',
+                    fontSize: 9, fontWeight: 800,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 5px',
+                  }}>
+                    {unreadCounts[c.id]}
+                  </span>
                 )}
               </div>
             ))}
@@ -521,9 +537,9 @@ export function Messagerie({
         background: '#f7f9fc', minHeight: 0,
       }}>
         {messages.map((msg) => {
-          const msgDate = new Date(msg.horodatage);
+          const msgDate = new Date(msg.timestamp);
           const showDate = dateDividerIds.has(msg.id);
-          const isMoi = msg.role === 'moi';
+          const isMoi = msg.senderId === moi.id;
 
           return (
             <div key={msg.id}>
@@ -562,13 +578,13 @@ export function Messagerie({
                       ? '0 1px 6px rgba(8,49,110,0.2)'
                       : '0 1px 4px rgba(8,49,110,0.08)',
                   }}>
-                    {msg.contenu}
+                    {msg.content}
                   </div>
                   <div style={{
                     fontSize: 9, color: '#7a90b8', marginTop: 3,
                     textAlign: isMoi ? 'left' : 'right',
                   }}>
-                    {HourStr(new Date(msg.horodatage))}
+                    {HourStr(new Date(msg.timestamp))}
                     {isMoi && <span style={{ marginLeft: 4 }}>✓</span>}
                   </div>
                 </div>

@@ -133,7 +133,7 @@ export function useHeader(externalNotifCount?: number): UseHeaderReturn {
     return () => {
       cancelled = true;
     };
-  }, [externalNotifCount, userId]);
+  }, [externalNotifCount, id]);
 
   useEffect(() => {
     closeMenu();

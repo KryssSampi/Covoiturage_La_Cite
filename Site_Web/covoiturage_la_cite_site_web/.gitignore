@@ -47,3 +47,4 @@ next-env.d.ts
 .docs/
 .claude/
 scripts/auto-commit/
+.IA_CHATs/

@@ -1,31 +1,33 @@
 [
   {
     "id": "USR-2026-00001",
-    "email": "2789183@collegelacite.ca",
+    "email": "2755000@collegelacite.ca",
     "firstName": "Sophie",
     "lastName": "Leclerc",
     "initials": "SL",
     "avatarUrl": null,
     "phone": "+1 (613) 555-0101",
     "role": "driver",
+    "createdAt": "2025-08-17T08:00:00.000Z",
+    "updatedAt": "2026-03-20T09:15:00.000Z",
     "canBeDriver": true,
     "profileVerified": true,
     "isActive": true,
     "driverProfile": {
       "validationStatus": "approved",
-      "reputationPoints": 810,
-      "averageRating": 4.9,
-      "totalTripsAsDriver": 87,
-      "co2SavedKg": 342.5,
+      "reputationPoints": 640,
+      "averageRating": 4.7,
+      "totalTripsAsDriver": 28,
+      "co2SavedKg": 128.5,
       "cancellationRate": 0.02,
-      "punctualityScore": 96,
+      "punctualityScore": 90,
       "noShowCount": 0
     },
     "passengerProfile": {
-      "averageRating": 4.8,
-      "totalTripsAsPassenger": 12,
-      "co2SavedKg": 41.2,
-      "punctualityScore": 95,
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 6,
+      "co2SavedKg": 18.4,
+      "punctualityScore": 92,
       "noShowCount": 0
     },
     "preferences": {
@@ -34,78 +36,43 @@
       "smokingAccepted": false,
       "conversationLevel": "moderate"
     },
-    "goScore": 920,
+    "goScore": 680,
     "badgeIds": [
       "BADGE-VETERAN",
       "BADGE-ECO-CHAMPION",
       "BADGE-SUPER-DRIVER"
     ],
-    "preferencesId": "PREF-2026-00001",
-    "createdAt": "2024-09-01T08:00:00.000Z",
-    "updatedAt": "2026-03-20T14:30:00.000Z"
+    "preferencesId": "PREF-2026-00001"
   },
   {
     "id": "USR-2026-00002",
-    "email": "2755184@collegelacite.ca",
+    "email": "2755037@collegelacite.ca",
     "firstName": "Ahmed",
     "lastName": "Ibrahim",
     "initials": "AI",
     "avatarUrl": null,
-    "phone": "+1 (613) 555-0202",
-    "role": "passenger",
-    "canBeDriver": false,
-    "profileVerified": true,
-    "isActive": true,
-    "driverProfile": null,
-    "passengerProfile": {
-      "averageRating": 4.7,
-      "totalTripsAsPassenger": 34,
-      "co2SavedKg": 89.6,
-      "punctualityScore": 88,
-      "noShowCount": 1
-    },
-    "preferences": {
-      "musicAccepted": true,
-      "petsAccepted": true,
-      "smokingAccepted": false,
-      "conversationLevel": "moderate"
-    },
-    "goScore": 540,
-    "badgeIds": [
-      "BADGE-FIRST-TRIP",
-      "BADGE-GREEN-COMMUTER"
-    ],
-    "preferencesId": "PREF-2026-00002",
-    "createdAt": "2024-10-15T10:00:00.000Z",
-    "updatedAt": "2026-03-20T09:15:00.000Z"
-  },
-  {
-    "id": "USR-2026-00003",
-    "email": "2766185@collegelacite.ca",
-    "firstName": "Marie",
-    "lastName": "Tremblay",
-    "initials": "MT",
-    "avatarUrl": null,
-    "phone": "+1 (613) 555-0303",
+    "phone": "+1 (613) 555-0108",
     "role": "driver",
+    "createdAt": "2025-08-26T09:00:00.000Z",
+    "updatedAt": "2026-03-19T10:15:00.000Z",
     "canBeDriver": true,
     "profileVerified": true,
     "isActive": true,
     "driverProfile": {
       "validationStatus": "approved",
-      "reputationPoints": 680,
-      "averageRating": 4.7,
-      "totalTripsAsDriver": 52,
-      "co2SavedKg": 198.3,
-      "cancellationRate": 0.04,
-      "punctualityScore": 91,
+      "reputationPoints": 695,
+      "averageRating": 4.8,
+      "totalTripsAsDriver": 45,
+      "co2SavedKg": 169.8,
+      "cancellationRate": 0.03,
+      "punctualityScore": 92,
       "noShowCount": 1
     },
     "passengerProfile": {
-      "averageRating": 4.9,
-      "totalTripsAsPassenger": 8,
-      "co2SavedKg": 22.1,
-      "punctualityScore": 97,
+      "averageRating": 4.8,
+      "totalTripsAsPassenger": 9,
+      "co2SavedKg": 25.2,
+      "punctualityScore": 94,
       "noShowCount": 0
     },
     "preferences": {
@@ -114,32 +81,1167 @@
       "smokingAccepted": false,
       "conversationLevel": "quiet"
     },
-    "goScore": 710,
+    "goScore": 755,
     "badgeIds": [
       "BADGE-VETERAN",
       "BADGE-ECO-CHAMPION"
     ],
-    "preferencesId": "PREF-2026-00003",
-    "createdAt": "2024-09-15T09:00:00.000Z",
-    "updatedAt": "2026-03-18T11:20:00.000Z"
+    "preferencesId": "PREF-2026-00002"
+  },
+  {
+    "id": "USR-2026-00003",
+    "email": "2755074@collegelacite.ca",
+    "firstName": "Marie",
+    "lastName": "Tremblay",
+    "initials": "MT",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0115",
+    "role": "driver",
+    "createdAt": "2025-09-04T10:00:00.000Z",
+    "updatedAt": "2026-03-18T11:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 750,
+      "averageRating": 4.6,
+      "totalTripsAsDriver": 62,
+      "co2SavedKg": 211.1,
+      "cancellationRate": 0.04,
+      "punctualityScore": 94,
+      "noShowCount": 0
+    },
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 12,
+      "co2SavedKg": 32,
+      "punctualityScore": 96,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 830,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION",
+      "BADGE-SUPER-DRIVER"
+    ],
+    "preferencesId": "PREF-2026-00003"
   },
   {
     "id": "USR-2026-00004",
-    "email": "2777186@collegelacite.ca",
+    "email": "2755111@collegelacite.ca",
     "firstName": "Jean-Paul",
     "lastName": "Gagnon",
     "initials": "JG",
     "avatarUrl": null,
-    "phone": "+1 (613) 555-0404",
-    "role": "admin",
+    "phone": "+1 (613) 555-0122",
+    "role": "driver",
+    "createdAt": "2025-09-13T11:00:00.000Z",
+    "updatedAt": "2026-03-17T12:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 805,
+      "averageRating": 4.7,
+      "totalTripsAsDriver": 79,
+      "co2SavedKg": 252.4,
+      "cancellationRate": 0.02,
+      "punctualityScore": 96,
+      "noShowCount": 1
+    },
+    "passengerProfile": {
+      "averageRating": 4.8,
+      "totalTripsAsPassenger": 15,
+      "co2SavedKg": 38.8,
+      "punctualityScore": 98,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 905,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION"
+    ],
+    "preferencesId": "PREF-2026-00004"
+  },
+  {
+    "id": "USR-2026-00005",
+    "email": "2755148@collegelacite.ca",
+    "firstName": "Nadia",
+    "lastName": "Bouchard",
+    "initials": "NB",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0129",
+    "role": "driver",
+    "createdAt": "2025-09-22T08:00:00.000Z",
+    "updatedAt": "2026-03-16T13:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 860,
+      "averageRating": 4.8,
+      "totalTripsAsDriver": 96,
+      "co2SavedKg": 293.7,
+      "cancellationRate": 0.03,
+      "punctualityScore": 98,
+      "noShowCount": 0
+    },
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 18,
+      "co2SavedKg": 45.6,
+      "punctualityScore": 92,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": false,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 980,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION",
+      "BADGE-SUPER-DRIVER"
+    ],
+    "preferencesId": "PREF-2026-00005"
+  },
+  {
+    "id": "USR-2026-00006",
+    "email": "2755185@collegelacite.ca",
+    "firstName": "Kevin",
+    "lastName": "Roy",
+    "initials": "KR",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0136",
+    "role": "driver",
+    "createdAt": "2025-10-01T09:00:00.000Z",
+    "updatedAt": "2026-03-15T14:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 915,
+      "averageRating": 4.6,
+      "totalTripsAsDriver": 113,
+      "co2SavedKg": 335,
+      "cancellationRate": 0.04,
+      "punctualityScore": 90,
+      "noShowCount": 1
+    },
+    "passengerProfile": {
+      "averageRating": 4.8,
+      "totalTripsAsPassenger": 21,
+      "co2SavedKg": 52.4,
+      "punctualityScore": 94,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 1055,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION"
+    ],
+    "preferencesId": "PREF-2026-00006"
+  },
+  {
+    "id": "USR-2026-00007",
+    "email": "2755222@collegelacite.ca",
+    "firstName": "Fatima",
+    "lastName": "Benali",
+    "initials": "FB",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0143",
+    "role": "driver",
+    "createdAt": "2025-10-10T10:00:00.000Z",
+    "updatedAt": "2026-03-14T09:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 970,
+      "averageRating": 4.7,
+      "totalTripsAsDriver": 130,
+      "co2SavedKg": 376.3,
+      "cancellationRate": 0.02,
+      "punctualityScore": 92,
+      "noShowCount": 0
+    },
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 24,
+      "co2SavedKg": 59.2,
+      "punctualityScore": 96,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 1130,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION",
+      "BADGE-SUPER-DRIVER"
+    ],
+    "preferencesId": "PREF-2026-00007"
+  },
+  {
+    "id": "USR-2026-00008",
+    "email": "2755259@collegelacite.ca",
+    "firstName": "Louis",
+    "lastName": "Pelletier",
+    "initials": "LP",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0150",
+    "role": "driver",
+    "createdAt": "2025-10-19T11:00:00.000Z",
+    "updatedAt": "2026-03-13T10:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 1025,
+      "averageRating": 4.8,
+      "totalTripsAsDriver": 147,
+      "co2SavedKg": 417.6,
+      "cancellationRate": 0.03,
+      "punctualityScore": 94,
+      "noShowCount": 1
+    },
+    "passengerProfile": {
+      "averageRating": 4.8,
+      "totalTripsAsPassenger": 27,
+      "co2SavedKg": 66,
+      "punctualityScore": 98,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": false,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 1205,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION"
+    ],
+    "preferencesId": "PREF-2026-00008"
+  },
+  {
+    "id": "USR-2026-00009",
+    "email": "2755296@collegelacite.ca",
+    "firstName": "Sara",
+    "lastName": "Cote",
+    "initials": "SC",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0157",
+    "role": "driver",
+    "createdAt": "2025-10-28T08:00:00.000Z",
+    "updatedAt": "2026-03-12T11:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 1080,
+      "averageRating": 4.6,
+      "totalTripsAsDriver": 164,
+      "co2SavedKg": 458.9,
+      "cancellationRate": 0.04,
+      "punctualityScore": 96,
+      "noShowCount": 0
+    },
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 30,
+      "co2SavedKg": 72.8,
+      "punctualityScore": 92,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 1280,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION",
+      "BADGE-SUPER-DRIVER"
+    ],
+    "preferencesId": "PREF-2026-00009"
+  },
+  {
+    "id": "USR-2026-00010",
+    "email": "2755333@collegelacite.ca",
+    "firstName": "Olivier",
+    "lastName": "Nguyen",
+    "initials": "ON",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0164",
+    "role": "driver",
+    "createdAt": "2025-11-06T09:00:00.000Z",
+    "updatedAt": "2026-03-11T12:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 1135,
+      "averageRating": 4.7,
+      "totalTripsAsDriver": 181,
+      "co2SavedKg": 500.2,
+      "cancellationRate": 0.02,
+      "punctualityScore": 98,
+      "noShowCount": 1
+    },
+    "passengerProfile": {
+      "averageRating": 4.8,
+      "totalTripsAsPassenger": 33,
+      "co2SavedKg": 79.6,
+      "punctualityScore": 94,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 1355,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION"
+    ],
+    "preferencesId": "PREF-2026-00010"
+  },
+  {
+    "id": "USR-2026-00011",
+    "email": "2755370@collegelacite.ca",
+    "firstName": "Maya",
+    "lastName": "Lavoie",
+    "initials": "ML",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0171",
+    "role": "driver",
+    "createdAt": "2025-11-15T10:00:00.000Z",
+    "updatedAt": "2026-03-10T13:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 1190,
+      "averageRating": 4.8,
+      "totalTripsAsDriver": 198,
+      "co2SavedKg": 541.5,
+      "cancellationRate": 0.03,
+      "punctualityScore": 90,
+      "noShowCount": 0
+    },
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 36,
+      "co2SavedKg": 86.4,
+      "punctualityScore": 96,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": false,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 1430,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION",
+      "BADGE-SUPER-DRIVER"
+    ],
+    "preferencesId": "PREF-2026-00011"
+  },
+  {
+    "id": "USR-2026-00012",
+    "email": "2755407@collegelacite.ca",
+    "firstName": "Karim",
+    "lastName": "Diallo",
+    "initials": "KD",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0178",
+    "role": "driver",
+    "createdAt": "2025-11-24T11:00:00.000Z",
+    "updatedAt": "2026-03-09T14:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": {
+      "validationStatus": "approved",
+      "reputationPoints": 1245,
+      "averageRating": 4.6,
+      "totalTripsAsDriver": 215,
+      "co2SavedKg": 582.8,
+      "cancellationRate": 0.04,
+      "punctualityScore": 92,
+      "noShowCount": 1
+    },
+    "passengerProfile": {
+      "averageRating": 4.8,
+      "totalTripsAsPassenger": 39,
+      "co2SavedKg": 93.2,
+      "punctualityScore": 98,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 1505,
+    "badgeIds": [
+      "BADGE-VETERAN",
+      "BADGE-ECO-CHAMPION"
+    ],
+    "preferencesId": "PREF-2026-00012"
+  },
+  {
+    "id": "USR-2026-00013",
+    "email": "2755444@collegelacite.ca",
+    "firstName": "Camille",
+    "lastName": "Germain",
+    "initials": "CG",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0185",
+    "role": "passenger",
+    "createdAt": "2025-12-03T08:00:00.000Z",
+    "updatedAt": "2026-03-20T09:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.3,
+      "totalTripsAsPassenger": 8,
+      "co2SavedKg": 24.2,
+      "punctualityScore": 82,
+      "noShowCount": 1
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 420,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00013"
+  },
+  {
+    "id": "USR-2026-00014",
+    "email": "2755481@collegelacite.ca",
+    "firstName": "Samir",
+    "lastName": "Moreau",
+    "initials": "SM",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0192",
+    "role": "passenger",
+    "createdAt": "2025-12-12T09:00:00.000Z",
+    "updatedAt": "2026-03-19T10:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.5,
+      "totalTripsAsPassenger": 13,
+      "co2SavedKg": 35.9,
+      "punctualityScore": 85,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": false,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 462,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00014"
+  },
+  {
+    "id": "USR-2026-00015",
+    "email": "2755518@collegelacite.ca",
+    "firstName": "Noemie",
+    "lastName": "Lefebvre",
+    "initials": "NL",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0199",
+    "role": "passenger",
+    "createdAt": "2025-12-21T10:00:00.000Z",
+    "updatedAt": "2026-03-18T11:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 18,
+      "co2SavedKg": 47.6,
+      "punctualityScore": 88,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 504,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00015"
+  },
+  {
+    "id": "USR-2026-00016",
+    "email": "2755555@collegelacite.ca",
+    "firstName": "Youssef",
+    "lastName": "Haddad",
+    "initials": "YH",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0206",
+    "role": "passenger",
+    "createdAt": "2025-12-30T11:00:00.000Z",
+    "updatedAt": "2026-03-17T12:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.9,
+      "totalTripsAsPassenger": 23,
+      "co2SavedKg": 59.3,
+      "punctualityScore": 91,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 546,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00016"
+  },
+  {
+    "id": "USR-2026-00017",
+    "email": "2755592@collegelacite.ca",
+    "firstName": "Sophie",
+    "lastName": "Leclerc",
+    "initials": "SL",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0213",
+    "role": "passenger",
+    "createdAt": "2026-01-08T08:00:00.000Z",
+    "updatedAt": "2026-03-16T13:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": false,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.3,
+      "totalTripsAsPassenger": 28,
+      "co2SavedKg": 71,
+      "punctualityScore": 94,
+      "noShowCount": 1
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 588,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00017"
+  },
+  {
+    "id": "USR-2026-00018",
+    "email": "2755629@collegelacite.ca",
+    "firstName": "Ahmed",
+    "lastName": "Ibrahim",
+    "initials": "AI",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0220",
+    "role": "passenger",
+    "createdAt": "2026-01-17T09:00:00.000Z",
+    "updatedAt": "2026-03-15T14:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.5,
+      "totalTripsAsPassenger": 33,
+      "co2SavedKg": 82.7,
+      "punctualityScore": 97,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": false,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 630,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00018"
+  },
+  {
+    "id": "USR-2026-00019",
+    "email": "2755666@collegelacite.ca",
+    "firstName": "Marie",
+    "lastName": "Tremblay",
+    "initials": "MT",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0227",
+    "role": "passenger",
+    "createdAt": "2026-01-26T10:00:00.000Z",
+    "updatedAt": "2026-03-14T09:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 38,
+      "co2SavedKg": 94.4,
+      "punctualityScore": 82,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 672,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00019"
+  },
+  {
+    "id": "USR-2026-00020",
+    "email": "2755703@collegelacite.ca",
+    "firstName": "Jean-Paul",
+    "lastName": "Gagnon",
+    "initials": "JG",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0234",
+    "role": "passenger",
+    "createdAt": "2026-02-04T11:00:00.000Z",
+    "updatedAt": "2026-03-13T10:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.9,
+      "totalTripsAsPassenger": 43,
+      "co2SavedKg": 106.1,
+      "punctualityScore": 85,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 714,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00020"
+  },
+  {
+    "id": "USR-2026-00021",
+    "email": "2755740@collegelacite.ca",
+    "firstName": "Nadia",
+    "lastName": "Bouchard",
+    "initials": "NB",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0241",
+    "role": "passenger",
+    "createdAt": "2026-02-13T08:00:00.000Z",
+    "updatedAt": "2026-03-12T11:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.3,
+      "totalTripsAsPassenger": 48,
+      "co2SavedKg": 117.8,
+      "punctualityScore": 88,
+      "noShowCount": 1
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 756,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00021"
+  },
+  {
+    "id": "USR-2026-00022",
+    "email": "2755777@collegelacite.ca",
+    "firstName": "Kevin",
+    "lastName": "Roy",
+    "initials": "KR",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0248",
+    "role": "passenger",
+    "createdAt": "2026-02-22T09:00:00.000Z",
+    "updatedAt": "2026-03-11T12:15:00.000Z",
     "canBeDriver": true,
     "profileVerified": false,
     "isActive": true,
     "driverProfile": null,
     "passengerProfile": {
       "averageRating": 4.5,
-      "totalTripsAsPassenger": 18,
-      "co2SavedKg": 45.8,
+      "totalTripsAsPassenger": 53,
+      "co2SavedKg": 129.5,
+      "punctualityScore": 91,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": false,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 798,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00022"
+  },
+  {
+    "id": "USR-2026-00023",
+    "email": "2755814@collegelacite.ca",
+    "firstName": "Fatima",
+    "lastName": "Benali",
+    "initials": "FB",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0255",
+    "role": "passenger",
+    "createdAt": "2026-03-03T10:00:00.000Z",
+    "updatedAt": "2026-03-10T13:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 58,
+      "co2SavedKg": 141.2,
+      "punctualityScore": 94,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 840,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00023"
+  },
+  {
+    "id": "USR-2026-00024",
+    "email": "2755851@collegelacite.ca",
+    "firstName": "Louis",
+    "lastName": "Pelletier",
+    "initials": "LP",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0262",
+    "role": "passenger",
+    "createdAt": "2026-03-12T11:00:00.000Z",
+    "updatedAt": "2026-03-09T14:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.9,
+      "totalTripsAsPassenger": 63,
+      "co2SavedKg": 152.9,
+      "punctualityScore": 97,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 882,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00024"
+  },
+  {
+    "id": "USR-2026-00025",
+    "email": "2755888@collegelacite.ca",
+    "firstName": "Sara",
+    "lastName": "Cote",
+    "initials": "SC",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0269",
+    "role": "passenger",
+    "createdAt": "2026-03-21T08:00:00.000Z",
+    "updatedAt": "2026-03-20T09:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.3,
+      "totalTripsAsPassenger": 68,
+      "co2SavedKg": 164.6,
+      "punctualityScore": 82,
+      "noShowCount": 1
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 924,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00025"
+  },
+  {
+    "id": "USR-2026-00026",
+    "email": "2755925@collegelacite.ca",
+    "firstName": "Olivier",
+    "lastName": "Nguyen",
+    "initials": "ON",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0276",
+    "role": "passenger",
+    "createdAt": "2026-03-30T09:00:00.000Z",
+    "updatedAt": "2026-03-19T10:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.5,
+      "totalTripsAsPassenger": 73,
+      "co2SavedKg": 176.3,
+      "punctualityScore": 85,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": false,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 966,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00026"
+  },
+  {
+    "id": "USR-2026-00027",
+    "email": "2755962@collegelacite.ca",
+    "firstName": "Maya",
+    "lastName": "Lavoie",
+    "initials": "ML",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0283",
+    "role": "passenger",
+    "createdAt": "2026-04-08T10:00:00.000Z",
+    "updatedAt": "2026-03-18T11:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": false,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 78,
+      "co2SavedKg": 188,
+      "punctualityScore": 88,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 1008,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00027"
+  },
+  {
+    "id": "USR-2026-00028",
+    "email": "2755999@collegelacite.ca",
+    "firstName": "Karim",
+    "lastName": "Diallo",
+    "initials": "KD",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0290",
+    "role": "passenger",
+    "createdAt": "2026-04-17T11:00:00.000Z",
+    "updatedAt": "2026-03-17T12:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.9,
+      "totalTripsAsPassenger": 83,
+      "co2SavedKg": 199.7,
+      "punctualityScore": 91,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 1050,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00028"
+  },
+  {
+    "id": "USR-2026-00029",
+    "email": "2756036@collegelacite.ca",
+    "firstName": "Camille",
+    "lastName": "Germain",
+    "initials": "CG",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0297",
+    "role": "passenger",
+    "createdAt": "2026-04-26T08:00:00.000Z",
+    "updatedAt": "2026-03-16T13:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.3,
+      "totalTripsAsPassenger": 88,
+      "co2SavedKg": 211.4,
+      "punctualityScore": 94,
+      "noShowCount": 1
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 1092,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00029"
+  },
+  {
+    "id": "USR-2026-00030",
+    "email": "2756073@collegelacite.ca",
+    "firstName": "Samir",
+    "lastName": "Moreau",
+    "initials": "SM",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0304",
+    "role": "passenger",
+    "createdAt": "2026-05-05T09:00:00.000Z",
+    "updatedAt": "2026-03-15T14:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.5,
+      "totalTripsAsPassenger": 93,
+      "co2SavedKg": 223.1,
+      "punctualityScore": 97,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": false,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 1134,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00030"
+  },
+  {
+    "id": "USR-2026-00031",
+    "email": "2756110@collegelacite.ca",
+    "firstName": "Noemie",
+    "lastName": "Lefebvre",
+    "initials": "NL",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0311",
+    "role": "passenger",
+    "createdAt": "2026-05-14T10:00:00.000Z",
+    "updatedAt": "2026-03-14T09:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": true,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.7,
+      "totalTripsAsPassenger": 98,
+      "co2SavedKg": 234.8,
+      "punctualityScore": 82,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": true,
+      "smokingAccepted": false,
+      "conversationLevel": "moderate"
+    },
+    "goScore": 1176,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP",
+      "BADGE-GREEN-COMMUTER"
+    ],
+    "preferencesId": "PREF-2026-00031"
+  },
+  {
+    "id": "USR-2026-00032",
+    "email": "2756147@collegelacite.ca",
+    "firstName": "Youssef",
+    "lastName": "Haddad",
+    "initials": "YH",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0318",
+    "role": "passenger",
+    "createdAt": "2026-05-23T11:00:00.000Z",
+    "updatedAt": "2026-03-13T10:15:00.000Z",
+    "canBeDriver": false,
+    "profileVerified": false,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.9,
+      "totalTripsAsPassenger": 103,
+      "co2SavedKg": 246.5,
+      "punctualityScore": 85,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "quiet"
+    },
+    "goScore": 1218,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": "PREF-2026-00032"
+  },
+  {
+    "id": "USR-2026-00033",
+    "email": "2756184@collegelacite.ca",
+    "firstName": "Sophie",
+    "lastName": "Leclerc",
+    "initials": "SL",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0325",
+    "role": "admin",
+    "createdAt": "2026-06-01T08:00:00.000Z",
+    "updatedAt": "2026-03-12T11:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": false,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.5,
+      "totalTripsAsPassenger": 12,
+      "co2SavedKg": 38.5,
       "punctualityScore": 80,
       "noShowCount": 0
     },
@@ -149,12 +1251,44 @@
       "smokingAccepted": false,
       "conversationLevel": "chatty"
     },
-    "goScore": 320,
+    "goScore": 300,
     "badgeIds": [
       "BADGE-FIRST-TRIP"
     ],
-    "preferencesId": null,
-    "createdAt": "2025-01-10T14:00:00.000Z",
-    "updatedAt": "2026-03-15T16:45:00.000Z"
+    "preferencesId": null
+  },
+  {
+    "id": "USR-2026-00034",
+    "email": "2756221@collegelacite.ca",
+    "firstName": "Ahmed",
+    "lastName": "Ibrahim",
+    "initials": "AI",
+    "avatarUrl": null,
+    "phone": "+1 (613) 555-0332",
+    "role": "admin",
+    "createdAt": "2026-06-10T09:00:00.000Z",
+    "updatedAt": "2026-03-11T12:15:00.000Z",
+    "canBeDriver": true,
+    "profileVerified": false,
+    "isActive": true,
+    "driverProfile": null,
+    "passengerProfile": {
+      "averageRating": 4.5,
+      "totalTripsAsPassenger": 16,
+      "co2SavedKg": 43.7,
+      "punctualityScore": 82,
+      "noShowCount": 0
+    },
+    "preferences": {
+      "musicAccepted": true,
+      "petsAccepted": false,
+      "smokingAccepted": false,
+      "conversationLevel": "chatty"
+    },
+    "goScore": 315,
+    "badgeIds": [
+      "BADGE-FIRST-TRIP"
+    ],
+    "preferencesId": null
   }
 ]

@@ -26,7 +26,7 @@ import { useState, useRef, useLayoutEffect } from "react";
 import { createPortal }     from "react-dom";
 import { FaLocationDot, FaMagnifyingGlass, FaArrowRight, FaChevronDown, FaChevronUp, FaRotateLeft, FaClock, FaTriangleExclamation } from "react-icons/fa6";
 import { FaSlidersH } from "react-icons/fa";  
-import { SearchRole, SortKey, PassengerSortKey, DriverSortKey, SearchFilters, DEFAULT_SEARCH_FILTERS, getPASSENGER_SORT_OPTIONS, getDRIVER_SORT_OPTIONS, MapCircuit } from "@/features/search/types/search.feature.types";
+import { SearchRole, SortKey, PassengerSortKey, DriverSortKey, SearchFilters, DEFAULT_SEARCH_FILTERS, getPASSENGER_SORT_OPTIONS, getDRIVER_SORT_OPTIONS, MapCircuit, TripWithCoords } from "@/features/search/types/search.feature.types";
 import { useRouteMap, RouteMapInitialValues, LocationSuggestion } from "@/features/search/hooks/useRouteMap";
 import { useDriverSearch }    from "@/features/search/hooks/useDriverSearch";
 import { usePassengerSearch } from "@/features/search/hooks/usePassengerSearch";
@@ -48,8 +48,15 @@ export interface RouteMapSearchProps {
   initialValues?:   RouteMapInitialValues;
   /** Trajets disponibles (passager) */
   availableTrips?:  Trip[];
+  blockedTrips?:    TripWithCoords[];
+  onPassengerSearch?: (params: {
+    departureCoords: [number, number];
+    arrivalCoords: [number, number];
+    departureDate?: string;
+    departureTime?: string;
+  }) => Promise<void>;
   onPublishCircuit?: (circuit: MapCircuit) => void;
-  onReserveTrip?:    (tripId: number) => void;
+  onReserveTrip?:    (tripId: string) => void;
   /** Masque le hero + la barre de recherche (mode compact du planner) */
   hideSearchBar?:   boolean;
   /**
@@ -125,6 +132,8 @@ export function RouteMapSearch({
   role,
   initialValues,
   availableTrips  = [],
+  blockedTrips    = [],
+  onPassengerSearch,
   onPublishCircuit,
   onReserveTrip,
   hideSearchBar   = false,
@@ -187,6 +196,11 @@ export function RouteMapSearch({
     // Sauvegarder le circuit complet en sessionStorage pour la polyline dans CreateTripForm
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('selectedCircuit', JSON.stringify(circuit));
+      sessionStorage.setItem('createTripAccess', JSON.stringify({
+        source: 'tripway-search-selection',
+        userId,
+        createdAt: new Date().toISOString(),
+      }));
       // Si une date/heure de départ a été sélectionnée via TimeCell (variable de transition),
       // on la sauvegarde également pour pré-remplir le formulaire de création
       if (pendingDateTime) {
@@ -206,7 +220,7 @@ export function RouteMapSearch({
     router.push(url);
   }
   // ── Trajet passager sélectionné (clic sur une carte) ──────────────────────
-  const [selectedTripId,    setSelectedTripId]    = useState<number | null>(null);
+  const [selectedTripId,    setSelectedTripId]    = useState<string | null>(null);
   const [selectedTripRoute, setSelectedTripRoute] = useState<[number, number][]>([]);
 
   /**
@@ -266,6 +280,14 @@ export function RouteMapSearch({
       );
       setActiveCircuitIdx(0);
     } else {
+      if (onPassengerSearch) {
+        await onPassengerSearch({
+          departureCoords: routeMap.departureCoords,
+          arrivalCoords: routeMap.arrivalCoords,
+          departureDate: routeMap.departureDate || undefined,
+          departureTime: routeMap.departureTime || undefined,
+        });
+      }
       await routeMap.search();
     }
   }
@@ -664,6 +686,7 @@ export function RouteMapSearch({
             <ListingZone
               role={role}
               trips={role === "passenger" ? filteredTrips : undefined}
+              blockedTrips={role === "passenger" ? blockedTrips : undefined}
               circuits={role === "driver" ? sortedCircuits : undefined}
               activeCircuitIdx={activeCircuitIdx}
               isLoading={isLoading}
@@ -678,6 +701,8 @@ export function RouteMapSearch({
               arrivalLabel={routeMap.arrivalValue}
               departureCoords={routeMap.departureCoords}
               arrivalCoords={routeMap.arrivalCoords}
+              departureRadiusMeters={filters.departureRadiusMeters}
+              arrivalRadiusMeters={filters.arrivalRadiusMeters}
             />
           </div>
         </div>

@@ -28,6 +28,7 @@ export default function PassengerSearchPage() {
   const [, startTransition] = useTransition();
 
   const [availableTrips, setAvailableTrips] = useState<TripWithCoords[]>([]);
+  const [blockedTrips, setBlockedTrips] = useState<TripWithCoords[]>([]);
   // Ref pour éviter les appels en cascade lors du changement de dépendances
   const hasFetchedRef = useRef(false);
 
@@ -36,8 +37,15 @@ export default function PassengerSearchPage() {
   const depLng = searchParams.get("depLng");
   const arrLat = searchParams.get("arrLat");
   const arrLng = searchParams.get("arrLng");
+  const dateParam = searchParams.get("date");
+  const timeParam = searchParams.get("time");
 
-  const fetchTrips = useCallback(async () => {
+  const fetchTrips = useCallback(async (search?: {
+    departureCoords?: [number, number];
+    arrivalCoords?: [number, number];
+    departureDate?: string;
+    departureTime?: string;
+  }) => {
     if (!user?.id) return;
 
     // Mode survey : trips pré-calculés en sessionStorage → on les utilise directement
@@ -47,6 +55,7 @@ export default function PassengerSearchPage() {
         const parsed: TripWithCoords[] = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
           setAvailableTrips(parsed);
+          setBlockedTrips([]);
         }
         sessionStorage.removeItem("surveyMatchingTrips");
         return;
@@ -56,8 +65,23 @@ export default function PassengerSearchPage() {
     // Fetch côté serveur : matching v4, données sensibles masquées côté serveur
     try {
       const body: Record<string, unknown> = { passengerId: user.id };
-      if (depLat && depLng) body.departureCoords = [parseFloat(depLat), parseFloat(depLng)];
-      if (arrLat && arrLng) body.arrivalCoords   = [parseFloat(arrLat), parseFloat(arrLng)];
+      const effectiveDepartureCoords = search?.departureCoords
+        ?? (depLat && depLng ? [parseFloat(depLat), parseFloat(depLng)] as [number, number] : undefined);
+      const effectiveArrivalCoords = search?.arrivalCoords
+        ?? (arrLat && arrLng ? [parseFloat(arrLat), parseFloat(arrLng)] as [number, number] : undefined);
+      const effectiveDate = search?.departureDate ?? dateParam ?? undefined;
+      const effectiveTime = search?.departureTime ?? timeParam ?? undefined;
+
+      if (effectiveDepartureCoords) body.departureCoords = effectiveDepartureCoords;
+      if (effectiveArrivalCoords) body.arrivalCoords   = effectiveArrivalCoords;
+      if (effectiveTime) {
+        const [h, m] = effectiveTime.split(":").map(Number);
+        body.desiredHour = h + (m ?? 0) / 60;
+      }
+      if (effectiveDate) {
+        const day = new Date(effectiveDate).getDay(); // 0=dim … 6=sam
+        body.desiredWeekday = day;
+      }
 
       const res = await fetch('/api/passenger/search', {
         method:  'POST',
@@ -67,10 +91,11 @@ export default function PassengerSearchPage() {
 
       if (!res.ok) return;
 
-      const data = await res.json() as { trips: TripSearchDTO[] };
+      const data = await res.json() as { trips: TripSearchDTO[]; blockedTrips?: TripSearchDTO[] };
       setAvailableTrips(data.trips.map(tripSearchDTOToTripWithCoords));
+      setBlockedTrips((data.blockedTrips ?? []).map(tripSearchDTOToTripWithCoords));
     } catch { /* erreur réseau silencieuse */ }
-  }, [user, depLat, depLng, arrLat, arrLng]);
+  }, [user, depLat, depLng, arrLat, arrLng, dateParam, timeParam]);
 
   // Déclenche le fetch une seule fois au montage du composant
   useEffect(() => {
@@ -118,6 +143,15 @@ export default function PassengerSearchPage() {
       role="passenger"
       initialValues={initialValues}
       availableTrips={availableTrips}
+      blockedTrips={blockedTrips}
+      onPassengerSearch={async ({ departureCoords, arrivalCoords, departureDate, departureTime }) => {
+        await fetchTrips({
+          departureCoords: [departureCoords[1], departureCoords[0]],
+          arrivalCoords: [arrivalCoords[1], arrivalCoords[0]],
+          departureDate,
+          departureTime,
+        });
+      }}
     />
   );
 }

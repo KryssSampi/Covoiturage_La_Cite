@@ -31,6 +31,7 @@ import type {
   Tip,
 } from "@/features/dashboard/types";
 import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
+import { getLieuFavoriIcon } from "@/shared/utils/lieu-favori-icon";
 import { FIXTURE_GO_TASKS } from "@/tests/fixtures/dashboard/goboard.fixtures";
 import { LACITE_TIPS } from "@/tests/fixtures/dashboard/lacite_astuces.fixtures";
 import { FIXTURE_LIEUX_FAVORIS } from "@/shared/fixtures/favoris.fixtures";
@@ -168,10 +169,17 @@ export default function PassengerDashboardPage() {
     return null;
   }
 
+  const favDestinations = favorites.map((fav) => ({
+    label: fav.pseudonyme,
+    value: fav.adresse,
+    icon: getLieuFavoriIcon(fav.iconTag, ""),
+    coordonnees: fav.coordonnees,
+  }));
+
   return (
     <DashboardProvider>
       <div className="flex flex-col mb-10 overflow-x-hidden">
-        <Hero />
+        <Hero favDestinations={favDestinations} />
         {!isBelowLg ? (
           <main className="w-full h-full flex flex-col overflow-x-hidden overflow-y-visible bg-gray-100 px-6 py-5 xl:px-10">
             <div className="flex w-full h-fit items-start gap-6 mb-6">

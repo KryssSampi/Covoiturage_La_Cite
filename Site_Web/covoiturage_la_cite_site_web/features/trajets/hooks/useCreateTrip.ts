@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+
 import {
   CreateTripFormState,
   DEFAULT_CREATE_TRIP_FORM,
@@ -9,101 +10,100 @@ import {
 import { MIN_PRICE, MAX_PRICE, MIN_AVAILABLE_SEATS } from '../constants/trip.constants';
 import type { MockVehicle } from '../constants/trip.constants';
 import { AppState, useAppState } from '@/core/state/app_state';
-import { DEFAULT_TRIP_PREFERENCES } from '@/core/models/TripModel';
+import { getProposals } from '@/core/services/location.suggestion';
+import { buildDateRange, isDateRangeBlockedByIndisponibility } from '@/core/utils/indisponibility.utils';
+import type { IndisponibilityModel } from '@/core/models/IndisponibilityModel';
+import { buildTripPayload, hasGeoPoint, readTripGeoFromSession } from '@/core/utils/create-trip-form.utils';
 
-// ── Erreurs de validation du formulaire ──────────────────────────
 export interface CreateTripFormErrors {
   departureLocation?: string;
-  arrivalLocation?:   string;
-  departureDate?:     string;
-  departureTime?:     string;
-  vehicleId?:         string;
-  availableSeats?:    string;
+  arrivalLocation?: string;
+  departureDate?: string;
+  departureTime?: string;
+  vehicleId?: string;
+  availableSeats?: string;
   pricePerPassenger?: string;
 }
 
-// ── Toast après publication / brouillon ──────────────────────────
 export interface CreateTripToast {
-  isOpen:   boolean;
-  success:  boolean;
-  /** Message affiché dans le toast */
-  message:  string;
+  isOpen: boolean;
+  success: boolean;
+  message: string;
+  title?: string;
+  redirectTripId?: string;
 }
 
-// ── Valeur de retour du hook ─────────────────────────────────────
 export interface UseCreateTripReturn {
-  form:                    CreateTripFormState;
-  errors:                  CreateTripFormErrors;
-  isSubmitting:            boolean;
-  tripToast:               CreateTripToast;
-  setField:                <K extends keyof CreateTripFormState>(key: K, value: CreateTripFormState[K]) => void;
-  setPreference:           (key: keyof CreateTripFormState['preferences'], value: boolean) => void;
-  incrementPrice:          () => void;
-  decrementPrice:          () => void;
+  form: CreateTripFormState;
+  errors: CreateTripFormErrors;
+  isSubmitting: boolean;
+  tripToast: CreateTripToast;
+  showIndispoWarning: boolean;
+  setField: <K extends keyof CreateTripFormState>(key: K, value: CreateTripFormState[K]) => void;
+  setPreference: (key: keyof CreateTripFormState['preferences'], value: boolean) => void;
+  incrementPrice: () => void;
+  decrementPrice: () => void;
   incrementAvailableSeats: () => void;
   decrementAvailableSeats: () => void;
-  onVehicleChange:         (vehicleId: string) => void;
-  handlePublish:           () => Promise<void>;
-  handleSaveDraft:         () => Promise<void>;
-  dismissToast:            () => void;
-  validate:                () => boolean;
+  onVehicleChange: (vehicleId: string) => void;
+  handlePublish: () => Promise<void>;
+  confirmPublishDespiteIndispo: () => Promise<void>;
+  dismissIndispoWarning: () => void;
+  handleSaveDraft: () => Promise<void>;
+  dismissToast: () => void;
+  validate: () => boolean;
 }
 
-// ── Hook principal ────────────────────────────────────────────────
+function createEmptyToast(): CreateTripToast {
+  return { isOpen: false, success: false, message: '' };
+}
+
 export function useCreateTrip(
   vehicles: MockVehicle[],
   initialValues?: Partial<CreateTripFormState>,
 ): UseCreateTripReturn {
-  const router    = useRouter();
-  const appState  = useAppState();
+  const router = useRouter();
+  const appState = useAppState();
 
   const [form, setForm] = useState<CreateTripFormState>({
     ...DEFAULT_CREATE_TRIP_FORM,
-    // Si un seul véhicule, le pré-sélectionner automatiquement
     ...(vehicles.length === 1 ? { vehicleId: vehicles[0].id, maxPassengers: vehicles[0].maxPassengers } : {}),
     ...initialValues,
   });
-  const [errors, setErrors]             = useState<CreateTripFormErrors>({});
+  const [errors, setErrors] = useState<CreateTripFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tripToast, setTripToast]       = useState<CreateTripToast>({ isOpen: false, success: false, message: '' });
+  const [tripToast, setTripToast] = useState<CreateTripToast>(createEmptyToast());
+  const [showIndispoWarning, setShowIndispoWarning] = useState(false);
 
-  // ── Mise a jour generique d'un champ ────────────────────────────
-  function setField<K extends keyof CreateTripFormState>(
-    key: K,
-    value: CreateTripFormState[K],
-  ): void {
+  function setField<K extends keyof CreateTripFormState>(key: K, value: CreateTripFormState[K]): void {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key as keyof CreateTripFormErrors]) {
       setErrors((prev) => ({ ...prev, [key]: undefined }));
     }
   }
 
-  // ── Mise a jour d'une preference passager ───────────────────────
-  function setPreference(
-    key: keyof CreateTripFormState['preferences'],
-    value: boolean,
-  ): void {
+  function setPreference(key: keyof CreateTripFormState['preferences'], value: boolean): void {
     setForm((prev) => ({
       ...prev,
       preferences: { ...prev.preferences, [key]: value },
     }));
   }
 
-  // ── Ajustements prix ────────────────────────────────────────────
   function incrementPrice(): void {
     setForm((prev) => ({ ...prev, pricePerPassenger: Math.min(prev.pricePerPassenger + 1, MAX_PRICE) }));
   }
+
   function decrementPrice(): void {
     setForm((prev) => ({ ...prev, pricePerPassenger: Math.max(prev.pricePerPassenger - 1, MIN_PRICE) }));
   }
 
-  // ── Ajustements places disponibles ──────────────────────────────
   function incrementAvailableSeats(): void {
     setForm((prev) => ({
       ...prev,
       availableSeats: Math.min(prev.availableSeats + 1, prev.maxPassengers - 1),
     }));
   }
+
   function decrementAvailableSeats(): void {
     setForm((prev) => ({
       ...prev,
@@ -111,158 +111,192 @@ export function useCreateTrip(
     }));
   }
 
-  // ── Changement de vehicule → mise a jour du total de sieges ─────
+  useEffect(() => {
+    if (vehicles.length === 1 && !form.vehicleId) {
+      setForm((prev) => ({
+        ...prev,
+        vehicleId: vehicles[0].id,
+        maxPassengers: vehicles[0].maxPassengers,
+        availableSeats: Math.min(prev.availableSeats, vehicles[0].maxPassengers - 1),
+      }));
+    }
+  }, [form.vehicleId, vehicles]);
+
   function onVehicleChange(vehicleId: string): void {
-    const vehicle = vehicles.find((v) => v.id === vehicleId);
+    const vehicle = vehicles.find((item) => item.id === vehicleId);
     if (!vehicle) return;
+
     setForm((prev) => ({
       ...prev,
-      vehicleId:      vehicle.id,
-      maxPassengers:  vehicle.maxPassengers,
+      vehicleId: vehicle.id,
+      maxPassengers: vehicle.maxPassengers,
       availableSeats: Math.min(prev.availableSeats, vehicle.maxPassengers - 1),
     }));
   }
 
-  // ── Validation du formulaire (uniquement à la publication) ──────
   function validate(): boolean {
-    const newErrors: CreateTripFormErrors = {};
+    const nextErrors: CreateTripFormErrors = {};
 
     if (!form.departureLocation.trim()) {
-      newErrors.departureLocation = 'Le lieu de depart est requis.';
+      nextErrors.departureLocation = 'Le lieu de depart est requis.';
     }
     if (!form.arrivalLocation.trim()) {
-      newErrors.arrivalLocation = "Le lieu d'arrivee est requis.";
+      nextErrors.arrivalLocation = "Le lieu d'arrivee est requis.";
     }
     if (!form.departureDate) {
-      newErrors.departureDate = 'La date de depart est requise.';
+      nextErrors.departureDate = 'La date de depart est requise.';
     }
     if (!form.departureTime) {
-      newErrors.departureTime = "L'heure de depart est requise.";
+      nextErrors.departureTime = "L'heure de depart est requise.";
     }
     if (!form.vehicleId) {
-      newErrors.vehicleId = 'Veuillez selectionner un vehicule.';
+      nextErrors.vehicleId = 'Veuillez selectionner un vehicule.';
     }
     if (form.availableSeats < MIN_AVAILABLE_SEATS) {
-      newErrors.availableSeats = `Minimum ${MIN_AVAILABLE_SEATS} place disponible.`;
+      nextErrors.availableSeats = `Minimum ${MIN_AVAILABLE_SEATS} place disponible.`;
     }
     if (form.pricePerPassenger < MIN_PRICE || form.pricePerPassenger > MAX_PRICE) {
-      newErrors.pricePerPassenger = `Le prix doit etre entre ${MIN_PRICE} $ et ${MAX_PRICE} $.`;
+      nextErrors.pricePerPassenger = `Le prix doit etre entre ${MIN_PRICE} $ et ${MAX_PRICE} $.`;
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   }
 
-  // ── Récupération des coordonnées géo depuis sessionStorage ───────
   function readGeoFromSession() {
-    let departureCoords = { lat: 0, lng: 0 };
-    let arrivalCoords   = { lat: 0, lng: 0 };
-    let polyline: [number, number][] = [];
+    return readTripGeoFromSession(typeof window === 'undefined' ? null : sessionStorage);
+  }
 
-    if (typeof window !== 'undefined') {
-      const raw = sessionStorage.getItem('quickPlanDraft');
-      if (raw) {
-        try {
-          const draft = JSON.parse(raw);
-          if (Array.isArray(draft.departureCoords) && draft.departureCoords.length === 2) {
-            departureCoords = { lat: draft.departureCoords[0], lng: draft.departureCoords[1] };
-          }
-          if (Array.isArray(draft.arrivalCoords) && draft.arrivalCoords.length === 2) {
-            arrivalCoords = { lat: draft.arrivalCoords[0], lng: draft.arrivalCoords[1] };
-          }
-          if (Array.isArray(draft.polyline)) {
-            polyline = draft.polyline;
-          }
-        } catch { /* brouillon invalide */ }
+  async function doPublish(): Promise<void> {
+    const currentUser = appState.userConnected;
+    if (!currentUser) return;
+
+    setIsSubmitting(true);
+
+    let { departureCoords, arrivalCoords, polyline } = readGeoFromSession();
+    const { waypoints } = readGeoFromSession();
+
+    if (!hasGeoPoint(departureCoords) && form.departureLocation) {
+      try {
+        const results = await getProposals(form.departureLocation);
+        if (results.length > 0) {
+          departureCoords = { lat: results[0].coordinates[1], lng: results[0].coordinates[0] };
+        }
+      } catch {
+        // geocoding fallback only
       }
     }
 
-    return { departureCoords, arrivalCoords, polyline };
+    if (!hasGeoPoint(arrivalCoords) && form.arrivalLocation) {
+      try {
+        const results = await getProposals(form.arrivalLocation);
+        if (results.length > 0) {
+          arrivalCoords = { lat: results[0].coordinates[1], lng: results[0].coordinates[0] };
+        }
+      } catch {
+        // geocoding fallback only
+      }
+    }
+
+    if (polyline.length < 2 && hasGeoPoint(departureCoords) && hasGeoPoint(arrivalCoords)) {
+      polyline = [
+        [departureCoords.lat, departureCoords.lng],
+        [arrivalCoords.lat, arrivalCoords.lng],
+      ];
+    }
+
+    const tripPayload = buildTripPayload({
+      driverId: currentUser.id,
+      vehicleId: form.vehicleId,
+      departureLocation: form.departureLocation,
+      arrivalLocation: form.arrivalLocation,
+      departureCoords,
+      arrivalCoords,
+      waypoints,
+      polyline,
+      departureDate: form.departureDate,
+      departureTime: form.departureTime,
+      availableSeats: form.availableSeats,
+      pricePerPassenger: form.pricePerPassenger,
+      paymentMethod: form.paymentMethod,
+      tripType: form.tripType,
+      preferences: form.preferences,
+      recurrenceDays: form.recurrenceDays,
+      recurrenceEndDate: form.recurrenceEndDate,
+      estimatedDistance: form.estimatedDistance,
+      estimatedDuration: form.estimatedDuration,
+      notes: form.notes,
+    });
+
+    try {
+      const response = await fetch('/api/trips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(tripPayload),
+      });
+
+      const data = await response.json() as { id?: string; error?: string };
+
+      if (response.ok) {
+        setTripToast({
+          isOpen: true,
+          success: true,
+          title: 'Trajet publie',
+          message: 'Votre trajet a ete publie et sera visible dans votre planificateur.',
+          redirectTripId: data.id,
+        });
+      } else {
+        setTripToast({
+          isOpen: true,
+          success: false,
+          title: 'Publication impossible',
+          message: data.error ?? 'Erreur lors de la publication.',
+        });
+      }
+    } catch {
+      setTripToast({
+        isOpen: true,
+        success: false,
+        title: 'Erreur reseau',
+        message: 'Erreur reseau.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
-  // ── Publication du trajet via POST /api/trips ────────────────────
   async function handlePublish(): Promise<void> {
     if (!validate()) return;
 
     const currentUser = appState.userConnected;
     if (!currentUser) return;
 
-    setIsSubmitting(true);
-
-    const { departureCoords, arrivalCoords, polyline } = readGeoFromSession();
-
-    const tripPayload = {
-      driverId:   currentUser.id,
-      vehicleId:  form.vehicleId,
-      departure: {
-        label:       form.departureLocation,
-        fullAddress: form.departureLocation,
-        coordinates: departureCoords,
-      },
-      arrival: {
-        label:       form.arrivalLocation,
-        fullAddress: form.arrivalLocation,
-        coordinates: arrivalCoords,
-      },
-      waypoints:           [],
-      polyline,
-      departureDate:       form.departureDate,
-      departureTime:       form.departureTime,
-      maxPassengers:       form.maxPassengers,
-      currentPassengers:   0,
-      passengerIds:        [],
-      pricePerPassenger:   form.pricePerPassenger,
-      paymentMethod:       form.paymentMethod,
-      status:              'published',
-      departureType:       'planned',
-      tripType:            form.tripType,
-      preferences: {
-        ...DEFAULT_TRIP_PREFERENCES,
-        baggageAllowed:    form.preferences.baggageAllowed,
-        petsAllowed:       form.preferences.petsAllowed,
-        smokingAllowed:    form.preferences.smokingAllowed,
-        musicAllowed:      form.preferences.musicAllowed,
-        flexibleItinerary: form.preferences.flexibleItinerary,
-      },
-      recurrenceDays:           form.recurrenceDays,
-      recurrenceEndDate:        form.recurrenceEndDate,
-      estimatedDistanceKm:      form.estimatedDistance,
-      estimatedDurationMinutes: form.estimatedDuration,
-      notes:                    form.notes,
-    };
-
     try {
-      const res  = await fetch('/api/trips', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(tripPayload),
-      });
-
-      const data = await res.json() as { id?: string; departureDate?: string; error?: string };
-
-      if (res.ok) {
-        setTripToast({
-          isOpen:  true,
-          success: true,
-          message: data.id ?? '',
-        });
-        // Naviguer vers le planificateur conducteur après fermeture du toast
-        router.push(`/driver/${currentUser.id}/planifier`);
-      } else {
-        setTripToast({
-          isOpen:  true,
-          success: false,
-          message: data.error ?? 'Erreur lors de la publication.',
-        });
+      const response = await fetch(`/api/indisponibilities/${currentUser.id}`);
+      if (response.ok) {
+        const indispo = await response.json() as IndisponibilityModel | null;
+        const range = buildDateRange(form.departureDate, form.departureTime, form.estimatedDuration ?? 60);
+        if (isDateRangeBlockedByIndisponibility(range, indispo)) {
+          setShowIndispoWarning(true);
+          return;
+        }
       }
     } catch {
-      setTripToast({ isOpen: true, success: false, message: 'Erreur réseau.' });
-    } finally {
-      setIsSubmitting(false);
+      // optional preflight check
     }
+
+    await doPublish();
   }
 
-  // ── Sauvegarde en brouillon via POST /api/drafts ─────────────────
+  async function confirmPublishDespiteIndispo(): Promise<void> {
+    setShowIndispoWarning(false);
+    await doPublish();
+  }
+
+  function dismissIndispoWarning(): void {
+    setShowIndispoWarning(false);
+  }
+
   async function handleSaveDraft(): Promise<void> {
     const currentUser = appState.userConnected;
     if (!currentUser) return;
@@ -271,55 +305,76 @@ export function useCreateTrip(
 
     const now = new Date().toISOString();
     const draftPayload = {
-      driverId:          currentUser.id,
+      driverId: currentUser.id,
       departureLocation: form.departureLocation,
-      arrivalLocation:   form.arrivalLocation,
-      departureDate:     form.departureDate,
-      departureTime:     form.departureTime,
-      vehicleId:         form.vehicleId,
-      maxPassengers:     form.maxPassengers,
-      availableSeats:    form.availableSeats,
+      arrivalLocation: form.arrivalLocation,
+      departureDate: form.departureDate,
+      departureTime: form.departureTime,
+      vehicleId: form.vehicleId,
+      maxPassengers: form.maxPassengers,
+      availableSeats: form.availableSeats,
       pricePerPassenger: form.pricePerPassenger,
-      paymentMethod:     form.paymentMethod,
-      preferences:       form.preferences,
-      notes:             form.notes ?? '',
-      updatedAt:         now,
+      paymentMethod: form.paymentMethod,
+      preferences: form.preferences,
+      notes: form.notes ?? '',
+      updatedAt: now,
     };
 
     try {
-      const res  = await fetch('/api/drafts', {
-        method:  'POST',
+      const response = await fetch('/api/drafts', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(draftPayload),
+        body: JSON.stringify(draftPayload),
       });
 
-      const data = await res.json() as { id?: string; error?: string };
+      const data = await response.json() as { id?: string; error?: string };
 
-      if (res.ok) {
+      if (response.ok) {
         setTripToast({
-          isOpen:  true,
+          isOpen: true,
           success: true,
-          message: `Brouillon sauvegardé (${data.id ?? ''})`,
+          title: 'Brouillon sauvegarde',
+          message: `Le brouillon a bien ete sauvegarde${data.id ? ` (${data.id})` : ''}.`,
         });
       } else {
         setTripToast({
-          isOpen:  true,
+          isOpen: true,
           success: false,
+          title: 'Sauvegarde impossible',
           message: data.error ?? 'Erreur lors de la sauvegarde.',
         });
       }
     } catch {
-      setTripToast({ isOpen: true, success: false, message: 'Erreur réseau.' });
+      setTripToast({
+        isOpen: true,
+        success: false,
+        title: 'Erreur reseau',
+        message: 'Erreur reseau.',
+      });
     } finally {
       setIsSubmitting(false);
     }
   }
 
   function dismissToast(): void {
-    const appState = AppState.MainInstance;
+    const currentUser = AppState.MainInstance.userConnected;
+    const newTripId = tripToast.redirectTripId;
 
-    router.push(`/driver/brouillons/${appState.userConnected?.id}`);
     setTripToast((prev) => ({ ...prev, isOpen: false }));
+
+    if (tripToast.success && currentUser && newTripId) {
+      try {
+        sessionStorage.removeItem('selectedCircuit');
+        sessionStorage.removeItem('createTripAccess');
+        sessionStorage.removeItem('pendingTripDateTime');
+      } catch {
+        // sessionStorage optional
+      }
+
+      const params = new URLSearchParams({ showAll: 'true' });
+      params.set('newTripId', newTripId);
+      router.push(`/driver/planifier/${currentUser.id}?${params.toString()}`);
+    }
   }
 
   return {
@@ -327,6 +382,7 @@ export function useCreateTrip(
     errors,
     isSubmitting,
     tripToast,
+    showIndispoWarning,
     setField,
     setPreference,
     incrementPrice,
@@ -335,6 +391,8 @@ export function useCreateTrip(
     decrementAvailableSeats,
     onVehicleChange,
     handlePublish,
+    confirmPublishDespiteIndispo,
+    dismissIndispoWarning,
     handleSaveDraft,
     dismissToast,
     validate,

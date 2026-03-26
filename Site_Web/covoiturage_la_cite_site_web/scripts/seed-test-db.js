@@ -1,244 +1,292 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
+const {
+  LOCATIONS,
+  readJson,
+  writeJson,
+  toDateOnly,
+  toIso,
+  dateAt,
+  timePlusMinutes,
+  approxDistanceKm,
+  buildPolyline,
+  buildUserPreferences,
+  buildDriverFinanceAccounts,
+  buildPassengerFinanceAccounts,
+  buildBankAccounts,
+  buildUserStats,
+} = require("./test-db-utils");
 
-const DB_DIR = path.join(__dirname, "..", "tests", "db");
+// Configuration de seed avec des volumes augmentes de facon coherente
+const SEED_CONFIG = {
+  driverCount: 12,           // 4 → 12 (3x plus de conducteurs)
+  passengerCount: 20,        // 6 → 20 (3x plus de passagers)
+  adminCount: 2,             // 1 → 2 (proportionnel a l'augmentation)
+  tripCount: 80,             // 24 → 80 (3x plus de trajets)
+  draftsPerDriver: 4,        // 3 → 4 (plus de brouillons par conducteur)
+  maxReviewReservationCount: 25,        // 8 → 25 (augmente avec plus de trajets)
+  maxConfirmedReservationNotifications: 15,  // 5 → 15 (proportionnel)
+  maxReviewNotifications: 12,           // 4 → 12 (3x plus)
+  maxMessageReservationThreads: 35,     // 12 → 35 (proportionnel aux reservations)
+  penaltyCount: 6,           // 2 → 6 (3x plus de penalites)
+  indisponibilityRangesPerUser: 2,      // 1 → 2 (plus de plages d'indisponibilite)
+};
 
-const VALID_RESERVATION_STATUSES = new Set([
-  "pending",
-  "confirmed",
-  "refused",
-  "cancelled",
-  "in_progress",
-  "completed",
-  "no_show",
-]);
-
-const VALID_NOTIFICATION_TYPES = new Set([
-  "reservation_received",
-  "reservation_accepted",
-  "reservation_refused",
-  "reservation_cancelled",
-  "trip_starting_soon",
-  "trip_started",
-  "trip_completed",
-  "trip_cancelled",
-  "boarding_requested",
-  "new_review_received",
-  "cancellation_penalty",
-  "security_alert",
-  "system",
-]);
-
-const LOCATIONS = [
-  { label: "Campus La Cite", fullAddress: "801 promenade de l'Aviation, Ottawa, ON", lat: 45.4215, lng: -75.6442, instructions: "Devant l'entree principale" },
-  { label: "Place d'Orleans", fullAddress: "110 Place d'Orleans Dr, Ottawa, ON", lat: 45.4777, lng: -75.5117, instructions: "Entree principale du centre commercial" },
-  { label: "ByWard Market", fullAddress: "55 ByWard Market Sq, Ottawa, ON", lat: 45.4278, lng: -75.6944, instructions: "Coin York et William" },
-  { label: "Kanata Centrum", fullAddress: "130 Earl Grey Dr, Kanata, ON", lat: 45.3099, lng: -75.9136, instructions: "Pres du stationnement principal" },
-  { label: "Barrhaven Centre", fullAddress: "3651 Strandherd Dr, Ottawa, ON", lat: 45.2745, lng: -75.7368, instructions: "Stationnement cote sud" },
-  { label: "South Keys", fullAddress: "2210 Bank St, Ottawa, ON", lat: 45.3648, lng: -75.6706, instructions: "Devant l'entree LRT" },
-  { label: "Rideau Centre", fullAddress: "50 Rideau St, Ottawa, ON", lat: 45.4253, lng: -75.6901, instructions: "Porte principale Rideau" },
-  { label: "Gatineau Centre-Ville", fullAddress: "170 rue de l'Hotel-de-Ville, Gatineau, QC", lat: 45.4768, lng: -75.702, instructions: "Devant l'hotel de ville" },
+const FIRST_NAMES = ["Sophie", "Ahmed", "Marie", "Jean-Paul", "Nadia", "Kevin", "Fatima", "Louis", "Sara", "Olivier", "Maya", "Karim", "Camille", "Samir", "Noemie", "Youssef"];
+const LAST_NAMES = ["Leclerc", "Ibrahim", "Tremblay", "Gagnon", "Bouchard", "Roy", "Benali", "Pelletier", "Cote", "Nguyen", "Lavoie", "Diallo", "Germain", "Moreau", "Lefebvre", "Haddad"];
+const VEHICLE_MAKES = [
+  { make: "Toyota", models: ["Corolla", "Prius", "Camry"] },
+  { make: "Honda", models: ["Civic", "Accord", "CR-V"] },
+  { make: "Hyundai", models: ["Elantra", "Kona", "Tucson"] },
+  { make: "Mazda", models: ["Mazda3", "CX-5"] },
+  { make: "Kia", models: ["Forte", "Seltos", "Sportage"] },
+  { make: "Nissan", models: ["Sentra", "Rogue"] },
 ];
+const VEHICLE_COLORS = ["Gris perle", "Bleu nuit", "Noir", "Blanc glacier", "Rouge bordeaux", "Argent", "Vert foret"];
+const BADGE_SETS = {
+  driverStrong: ["BADGE-VETERAN", "BADGE-ECO-CHAMPION", "BADGE-SUPER-DRIVER"],
+  driverRegular: ["BADGE-VETERAN", "BADGE-ECO-CHAMPION"],
+  passengerRegular: ["BADGE-FIRST-TRIP", "BADGE-GREEN-COMMUTER"],
+  passengerLight: ["BADGE-FIRST-TRIP"],
+};
 
-function dbPath(file) {
-  return path.join(DB_DIR, file);
+function createWaypoint(location) {
+  return {
+    order: 1,
+    location: {
+      label: location.label,
+      fullAddress: location.fullAddress,
+      coordinates: { lat: location.lat, lng: location.lng },
+      instructions: location.instructions,
+    },
+  };
 }
 
-function readJson(file) {
-  return JSON.parse(fs.readFileSync(dbPath(file), "utf8"));
+function pickWaypointLocation(route, index) {
+  const candidateIndexes = [
+    (route[0] + route[1] + index) % LOCATIONS.length,
+    (route[0] + index + 3) % LOCATIONS.length,
+    (route[1] + index + 5) % LOCATIONS.length,
+  ];
+
+  const uniqueCandidates = [...new Set(candidateIndexes)];
+  const selectedIndex = uniqueCandidates.find((candidateIndex) => candidateIndex !== route[0] && candidateIndex !== route[1]);
+  return typeof selectedIndex === "number" ? LOCATIONS[selectedIndex] : null;
 }
 
-function writeJson(file, data) {
-  fs.writeFileSync(dbPath(file), `${JSON.stringify(data, null, 2)}\n`, "utf8");
-}
+function buildUsers(now) {
+  const users = [];
+  let userIndex = 1;
 
-function pad(value) {
-  return String(value).padStart(2, "0");
-}
+  const createCommonUser = (roleIndex, role) => {
+    const firstName = FIRST_NAMES[roleIndex % FIRST_NAMES.length];
+    const lastName = LAST_NAMES[roleIndex % LAST_NAMES.length];
+    const initials = `${firstName[0]}${lastName[0]}`.toUpperCase();
+    const createdAt = toIso(dateAt(now, -(220 - roleIndex * 9), 8 + (roleIndex % 4), 0));
+    const updatedAt = toIso(dateAt(now, -(5 + (roleIndex % 12)), 9 + (roleIndex % 6), 15));
+    const id = `USR-2026-${String(userIndex++).padStart(5, "0")}`;
+    const matricule = 2755000 + roleIndex * 37;
 
-function toDateOnly(date) {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
+    return {
+      id,
+      email: `${matricule}@collegelacite.ca`,
+      firstName,
+      lastName,
+      initials,
+      avatarUrl: null,
+      phone: `+1 (613) 555-${String(101 + roleIndex * 7).padStart(4, "0")}`,
+      role,
+      createdAt,
+      updatedAt,
+    };
+  };
 
-function toIsoLocal(date) {
-  return `${toDateOnly(date)}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.000Z`;
-}
-
-function dateAt(dayOffset, hour, minute) {
-  const date = new Date();
-  date.setHours(hour, minute, 0, 0);
-  date.setDate(date.getDate() + dayOffset);
-  return date;
-}
-
-function dateOnlyOffset(dayOffset) {
-  return toDateOnly(dateAt(dayOffset, 9, 0));
-}
-
-function timePlusMinutes(time, minutesToAdd) {
-  const [hours, minutes] = time.split(":").map(Number);
-  const date = new Date(2026, 0, 1, hours, minutes, 0, 0);
-  date.setMinutes(date.getMinutes() + minutesToAdd);
-  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
-function polyline(from, to, steps = 8) {
-  return Array.from({ length: steps + 1 }, (_, index) => {
-    const ratio = index / steps;
-    return [
-      Number((from.lat + (to.lat - from.lat) * ratio).toFixed(4)),
-      Number((from.lng + (to.lng - from.lng) * ratio).toFixed(4)),
-    ];
-  });
-}
-
-function distanceKm(from, to) {
-  const latKm = Math.abs(from.lat - to.lat) * 111;
-  const lngKm = Math.abs(from.lng - to.lng) * 78;
-  return Number((latKm + lngKm).toFixed(1));
-}
-
-function logIssues(label, issues) {
-  if (issues.length === 0) {
-    console.log(`- ${label}: aucune incoherence detectee`);
-    return;
+  for (let index = 0; index < SEED_CONFIG.driverCount; index += 1) {
+    const common = createCommonUser(index, "driver");
+    users.push({
+      ...common,
+      canBeDriver: true,
+      profileVerified: true,
+      isActive: true,
+      driverProfile: {
+        validationStatus: "approved",
+        reputationPoints: 640 + index * 55,
+        averageRating: Number((4.6 + ((index + 1) % 3) * 0.1).toFixed(1)),
+        totalTripsAsDriver: 28 + index * 17,
+        co2SavedKg: Number((128.5 + index * 41.3).toFixed(1)),
+        cancellationRate: Number((0.02 + (index % 3) * 0.01).toFixed(2)),
+        punctualityScore: 90 + (index % 5) * 2,
+        noShowCount: index % 2,
+      },
+      passengerProfile: {
+        averageRating: Number((4.7 + (index % 2) * 0.1).toFixed(1)),
+        totalTripsAsPassenger: 6 + index * 3,
+        co2SavedKg: Number((18.4 + index * 6.8).toFixed(1)),
+        punctualityScore: 92 + (index % 4) * 2,
+        noShowCount: 0,
+      },
+      preferences: {
+        musicAccepted: index % 3 !== 1,
+        petsAccepted: index % 4 === 2,
+        smokingAccepted: false,
+        conversationLevel: index % 3 === 0 ? "moderate" : index % 3 === 1 ? "quiet" : "chatty",
+      },
+      goScore: 680 + index * 75,
+      badgeIds: index % 2 === 0 ? BADGE_SETS.driverStrong : BADGE_SETS.driverRegular,
+      preferencesId: `PREF-2026-${String(index + 1).padStart(5, "0")}`,
+    });
   }
 
-  console.log(`- ${label}: ${issues.length} incoherence(s)`);
-  issues.slice(0, 5).forEach((issue) => console.log(`  * ${issue}`));
-  if (issues.length > 5) {
-    console.log(`  * ... ${issues.length - 5} autre(s)`);
+  for (let index = 0; index < SEED_CONFIG.passengerCount; index += 1) {
+    const common = createCommonUser(SEED_CONFIG.driverCount + index, "passenger");
+    users.push({
+      ...common,
+      canBeDriver: index % 3 === 0,
+      profileVerified: index % 5 !== 4,
+      isActive: true,
+      driverProfile: null,
+      passengerProfile: {
+        averageRating: Number((4.3 + (index % 4) * 0.2).toFixed(1)),
+        totalTripsAsPassenger: 8 + index * 5,
+        co2SavedKg: Number((24.2 + index * 11.7).toFixed(1)),
+        punctualityScore: 82 + (index % 6) * 3,
+        noShowCount: index % 4 === 0 ? 1 : 0,
+      },
+      preferences: {
+        musicAccepted: index % 4 !== 1,
+        petsAccepted: index % 3 === 0,
+        smokingAccepted: false,
+        conversationLevel: index % 3 === 0 ? "moderate" : index % 3 === 1 ? "quiet" : "chatty",
+      },
+      goScore: 420 + index * 42,
+      badgeIds: index % 2 === 0 ? BADGE_SETS.passengerRegular : BADGE_SETS.passengerLight,
+      preferencesId: `PREF-2026-${String(SEED_CONFIG.driverCount + index + 1).padStart(5, "0")}`,
+    });
   }
+
+  for (let index = 0; index < SEED_CONFIG.adminCount; index += 1) {
+    const common = createCommonUser(SEED_CONFIG.driverCount + SEED_CONFIG.passengerCount + index, "admin");
+    users.push({
+      ...common,
+      canBeDriver: true,
+      profileVerified: false,
+      isActive: true,
+      driverProfile: null,
+      passengerProfile: {
+        averageRating: 4.5,
+        totalTripsAsPassenger: 12 + index * 4,
+        co2SavedKg: Number((38.5 + index * 5.2).toFixed(1)),
+        punctualityScore: 80 + index * 2,
+        noShowCount: 0,
+      },
+      preferences: {
+        musicAccepted: true,
+        petsAccepted: false,
+        smokingAccepted: false,
+        conversationLevel: "chatty",
+      },
+      goScore: 300 + index * 15,
+      badgeIds: BADGE_SETS.passengerLight,
+      preferencesId: null,
+    });
+  }
+
+  return users;
 }
 
-function auditCurrentData() {
-  const users = readJson("users.json");
-  const trips = readJson("trips.json");
-  const reservations = readJson("reservations.json");
-  const notifications = readJson("notifications.json");
-  const reviews = readJson("reviews.json");
-  const vehicles = readJson("vehicles.json");
-  const drafts = readJson("drafts.json");
-
-  const userIds = new Set(users.map((item) => item.id));
-  const tripMap = new Map(trips.map((item) => [item.id, item]));
-  const vehicleMap = new Map(vehicles.map((item) => [item.id, item]));
-  const reservationMap = new Map(reservations.map((item) => [item.id, item]));
-
-  const tripIssues = trips.flatMap((trip) => {
-    const issues = [];
-    if (!userIds.has(trip.driverId)) issues.push(`${trip.id}: conducteur introuvable (${trip.driverId})`);
-    if (!vehicleMap.has(trip.vehicleId)) issues.push(`${trip.id}: vehicule introuvable (${trip.vehicleId})`);
-    if (!Array.isArray(trip.passengerIds)) issues.push(`${trip.id}: passengerIds invalide`);
-    if (typeof trip.currentPassengers !== "number") issues.push(`${trip.id}: currentPassengers invalide`);
-    return issues;
+function buildVehicles(drivers, now) {
+  return drivers.map((driver, index) => {
+    const family = VEHICLE_MAKES[index % VEHICLE_MAKES.length];
+    const model = family.models[index % family.models.length];
+    return {
+      id: `VEH-2026-${String(index + 1).padStart(5, "0")}`,
+      driverId: driver.id,
+      make: family.make,
+      model,
+      year: 2019 + (index % 6),
+      color: VEHICLE_COLORS[index % VEHICLE_COLORS.length],
+      licensePlate: `${driver.lastName.slice(0, 4).toUpperCase()} ${2019 + (index % 6)}`,
+      maxSeats: index % 3 === 0 ? 5 : 4,
+      photoUrl: null,
+      isActive: true,
+      isValidated: true,
+      createdAt: toIso(dateAt(now, -(200 - index * 8), 8, 10)),
+      updatedAt: toIso(dateAt(now, -(10 - (index % 5)), 8, 10)),
+    };
   });
+}
 
-  const reservationIssues = reservations.flatMap((reservation) => {
-    const issues = [];
-    const trip = tripMap.get(reservation.tripId);
-    if (!trip) issues.push(`${reservation.id}: trajet introuvable (${reservation.tripId})`);
-    if (!userIds.has(reservation.passengerId)) issues.push(`${reservation.id}: passager introuvable (${reservation.passengerId})`);
-    if (!userIds.has(reservation.driverId)) issues.push(`${reservation.id}: conducteur introuvable (${reservation.driverId})`);
-    if (trip && reservation.driverId !== trip.driverId) issues.push(`${reservation.id}: driverId incoherent avec ${trip.id}`);
-    if (!VALID_RESERVATION_STATUSES.has(reservation.status)) issues.push(`${reservation.id}: statut invalide (${reservation.status})`);
-    return issues;
+function buildTripPlans(drivers) {
+  const basePlans = [
+    { dayOffset: -12, hour: 7, minute: 45, status: "completed", maxPassengers: 2, price: 6, route: [0, 1], reservationStatuses: ["completed", "completed"], recurrent: true },
+    { dayOffset: -11, hour: 17, minute: 10, status: "completed", maxPassengers: 2, price: 7, route: [1, 0], reservationStatuses: ["completed"], recurrent: true },
+    { dayOffset: -9, hour: 8, minute: 0, status: "completed", maxPassengers: 2, price: 5, route: [0, 6], reservationStatuses: ["completed"], recurrent: false },
+    { dayOffset: -8, hour: 18, minute: 0, status: "cancelled", maxPassengers: 2, price: 8, route: [2, 5], reservationStatuses: ["cancelled"], recurrent: false },
+    { dayOffset: -7, hour: 7, minute: 30, status: "completed", maxPassengers: 2, price: 6, route: [5, 0], reservationStatuses: ["completed", "completed"], recurrent: true },
+    { dayOffset: -6, hour: 16, minute: 50, status: "completed", maxPassengers: 2, price: 7, route: [7, 2], reservationStatuses: ["completed"], recurrent: false },
+    { dayOffset: -5, hour: 8, minute: 15, status: "completed", maxPassengers: 2, price: 5, route: [0, 9], reservationStatuses: ["completed"], recurrent: true },
+    { dayOffset: -4, hour: 17, minute: 25, status: "completed", maxPassengers: 2, price: 7, route: [4, 0], reservationStatuses: ["completed", "completed"], recurrent: false },
+    { dayOffset: -3, hour: 7, minute: 50, status: "completed", maxPassengers: 2, price: 6, route: [0, 7], reservationStatuses: ["completed"], recurrent: true },
+    { dayOffset: -2, hour: 17, minute: 35, status: "completed", maxPassengers: 2, price: 7, route: [3, 5], reservationStatuses: ["completed"], recurrent: false },
+    { dayOffset: -1, hour: 8, minute: 20, status: "completed", maxPassengers: 2, price: 5, route: [9, 0], reservationStatuses: ["completed"], recurrent: true },
+    { dayOffset: 0, hour: 12, minute: 0, status: "in_progress", maxPassengers: 2, price: 6, route: [0, 1], reservationStatuses: ["in_progress"], recurrent: false },
+    { dayOffset: 1, hour: 7, minute: 40, status: "published", maxPassengers: 3, price: 5, route: [0, 1], reservationStatuses: ["pending"], recurrent: true },
+    { dayOffset: 1, hour: 17, minute: 20, status: "published", maxPassengers: 3, price: 8, route: [1, 0], reservationStatuses: [], recurrent: true },
+    { dayOffset: 2, hour: 8, minute: 10, status: "confirmed", maxPassengers: 3, price: 5, route: [0, 6], reservationStatuses: ["confirmed"], recurrent: true },
+    { dayOffset: 2, hour: 17, minute: 45, status: "full", maxPassengers: 2, price: 7, route: [6, 0], reservationStatuses: ["confirmed", "confirmed"], recurrent: false },
+    { dayOffset: 3, hour: 7, minute: 35, status: "published", maxPassengers: 3, price: 5, route: [0, 7], reservationStatuses: ["pending", "refused"], recurrent: true },
+    { dayOffset: 3, hour: 18, minute: 10, status: "published", maxPassengers: 3, price: 8, route: [2, 4], reservationStatuses: [], recurrent: false },
+    { dayOffset: 4, hour: 8, minute: 5, status: "confirmed", maxPassengers: 3, price: 6, route: [0, 9], reservationStatuses: ["confirmed", "confirmed"], recurrent: true },
+    { dayOffset: 5, hour: 17, minute: 5, status: "published", maxPassengers: 3, price: 7, route: [9, 0], reservationStatuses: ["pending"], recurrent: false },
+    { dayOffset: 6, hour: 7, minute: 55, status: "full", maxPassengers: 2, price: 6, route: [0, 1], reservationStatuses: ["confirmed", "confirmed"], recurrent: true },
+    { dayOffset: 7, hour: 17, minute: 30, status: "published", maxPassengers: 3, price: 8, route: [7, 6], reservationStatuses: [], recurrent: false },
+    { dayOffset: 9, hour: 8, minute: 25, status: "cancelled", maxPassengers: 2, price: 6, route: [4, 0], reservationStatuses: ["cancelled"], recurrent: false },
+    { dayOffset: 10, hour: 17, minute: 40, status: "published", maxPassengers: 3, price: 7, route: [3, 8], reservationStatuses: ["pending"], recurrent: false },
+  ];
+
+  return Array.from({ length: SEED_CONFIG.tripCount }, (_, index) => {
+    const template = basePlans[index % basePlans.length];
+    const cycle = Math.floor(index / basePlans.length);
+    return {
+      ...template,
+      id: `TRJ-2026-${String(index + 1).padStart(5, "0")}`,
+      driver: drivers[index % drivers.length],
+      dayOffset: template.dayOffset + cycle * 14,
+    };
   });
-
-  const notificationIssues = notifications.flatMap((notification) => {
-    const issues = [];
-    if (!userIds.has(notification.userId)) issues.push(`${notification.id}: userId introuvable (${notification.userId})`);
-    if (!VALID_NOTIFICATION_TYPES.has(notification.type)) issues.push(`${notification.id}: type invalide (${notification.type})`);
-    if (notification.relatedTripId && !tripMap.has(notification.relatedTripId)) {
-      issues.push(`${notification.id}: relatedTripId introuvable (${notification.relatedTripId})`);
-    }
-    if (notification.relatedReservationId && !reservationMap.has(notification.relatedReservationId)) {
-      issues.push(`${notification.id}: relatedReservationId introuvable (${notification.relatedReservationId})`);
-    }
-    return issues;
-  });
-
-  const reviewIssues = reviews.flatMap((review) => {
-    const issues = [];
-    if (!tripMap.has(review.tripId)) issues.push(`${review.id}: tripId introuvable (${review.tripId})`);
-    if (!reservationMap.has(review.reservationId)) issues.push(`${review.id}: reservationId introuvable (${review.reservationId})`);
-    if (!userIds.has(review.reviewerId)) issues.push(`${review.id}: reviewer introuvable (${review.reviewerId})`);
-    if (!userIds.has(review.revieweeId)) issues.push(`${review.id}: reviewee introuvable (${review.revieweeId})`);
-    return issues;
-  });
-
-  const draftIssues = drafts.flatMap((draft) => {
-    const issues = [];
-    if (!userIds.has(draft.driverId)) issues.push(`${draft.id}: conducteur introuvable (${draft.driverId})`);
-    if (!vehicleMap.has(draft.vehicleId)) issues.push(`${draft.id}: vehicule introuvable (${draft.vehicleId})`);
-    return issues;
-  });
-
-  console.log("Audit des JSON existants");
-  logIssues("trips", tripIssues);
-  logIssues("reservations", reservationIssues);
-  logIssues("notifications", notificationIssues);
-  logIssues("reviews", reviewIssues);
-  logIssues("drafts", draftIssues);
-  console.log("");
 }
 
 function seed() {
-  auditCurrentData();
-
-  const users = readJson("users.json");
-  const vehicles = readJson("vehicles.json");
-  const bankAccounts = readJson("bank_accounts.json");
-  const favoritePlaces = readJson("lieux_favoris.json");
-  const astuces = readJson("astuces.json");
-  const goTasks = readJson("gotasks.json");
-  const affinites = readJson("affinites.json");
+  const now = new Date();
+  const badges = readJson("badges.json");
+  const users = buildUsers(now);
+  const drivers = users.filter((user) => user.role === "driver");
+  const vehicles = buildVehicles(drivers, now);
 
   const vehicleByDriver = new Map(vehicles.map((vehicle) => [vehicle.driverId, vehicle]));
-  const drivers = users.filter((user) => user.role === "driver" && vehicleByDriver.has(user.id));
-  const passengers = users.filter((user) => user.passengerProfile && user.role !== "driver");
+  const passengers = users.filter((user) => user.passengerProfile && user.role !== "admin");
 
   if (drivers.length < 2) {
     throw new Error("Le seed a besoin d'au moins deux conducteurs avec vehicule.");
   }
-  if (passengers.length < 1) {
-    throw new Error("Le seed a besoin d'au moins un passager.");
-  }
 
-  const sophie = drivers[0];
-  const marie = drivers[1];
-  const ahmed = passengers[0];
-  const secondPassenger = passengers[1] ?? passengers[0];
+  const tripPlans = buildTripPlans(drivers);
+  const tripMap = new Map();
 
-  const tripSpecs = [
-    { id: "TRJ-2026-00001", driver: sophie, from: 0, to: 1, dayOffset: 0, time: "08:00", status: "published", maxPassengers: 3, price: 5 },
-    { id: "TRJ-2026-00002", driver: sophie, from: 0, to: 4, dayOffset: 0, time: "17:30", status: "published", maxPassengers: 3, price: 8 },
-    { id: "TRJ-2026-00003", driver: marie, from: 2, to: 3, dayOffset: 0, time: "09:00", status: "published", maxPassengers: 3, price: 7 },
-    { id: "TRJ-2026-00004", driver: sophie, from: 0, to: 6, dayOffset: -1, time: "08:00", status: "completed", maxPassengers: 3, price: 5 },
-    { id: "TRJ-2026-00005", driver: marie, from: 5, to: 0, dayOffset: -2, time: "07:45", status: "completed", maxPassengers: 3, price: 4 },
-    { id: "TRJ-2026-00006", driver: sophie, from: 0, to: 1, dayOffset: 1, time: "07:30", status: "published", maxPassengers: 3, price: 5 },
-    { id: "TRJ-2026-00007", driver: sophie, from: 1, to: 6, dayOffset: 2, time: "08:00", status: "full", maxPassengers: 2, price: 6 },
-    { id: "TRJ-2026-00008", driver: sophie, from: 0, to: 7, dayOffset: 3, time: "07:45", status: "published", maxPassengers: 3, price: 5 },
-    { id: "TRJ-2026-00009", driver: marie, from: 7, to: 2, dayOffset: 4, time: "08:15", status: "published", maxPassengers: 3, price: 7 },
-    { id: "TRJ-2026-00010", driver: sophie, from: 4, to: 0, dayOffset: 6, time: "17:00", status: "published", maxPassengers: 3, price: 6 },
-    { id: "TRJ-2026-00011", driver: sophie, from: 0, to: 1, dayOffset: 8, time: "08:30", status: "published", maxPassengers: 3, price: 5 },
-    { id: "TRJ-2026-00012", driver: marie, from: 3, to: 5, dayOffset: 9, time: "17:30", status: "published", maxPassengers: 3, price: 7 },
-  ];
-
-  const tripById = new Map();
-  const trips = tripSpecs.map((spec) => {
-    const from = LOCATIONS[spec.from];
-    const to = LOCATIONS[spec.to];
-    const departureDate = dateOnlyOffset(spec.dayOffset);
-    const createdAt = toIsoLocal(dateAt(spec.dayOffset - 7, 9, 0));
-    const updatedAt = toIsoLocal(dateAt(spec.dayOffset - 1, 12, 0));
-    const vehicle = vehicleByDriver.get(spec.driver.id);
+  const trips = tripPlans.map((plan, index) => {
+    const from = LOCATIONS[plan.route[0]];
+    const to = LOCATIONS[plan.route[1]];
+    const waypointLocation = index % 4 === 0 ? pickWaypointLocation(plan.route, index) : null;
+    const waypoints = waypointLocation ? [createWaypoint(waypointLocation)] : [];
+    const pathPoints = [from, ...(waypointLocation ? [waypointLocation] : []), to];
+    const distanceKm = approxDistanceKm(pathPoints);
+    const estimatedDurationMinutes = Math.max(20, Math.round(distanceKm * 2.3));
+    const departureDate = toDateOnly(dateAt(now, plan.dayOffset, plan.hour, plan.minute));
+    const departureTime = `${String(plan.hour).padStart(2, "0")}:${String(plan.minute).padStart(2, "0")}`;
     const trip = {
-      id: spec.id,
-      driverId: spec.driver.id,
-      vehicleId: vehicle.id,
+      id: plan.id,
+      driverId: plan.driver.id,
+      vehicleId: vehicleByDriver.get(plan.driver.id).id,
       passengerIds: [],
       departure: {
         label: from.label,
@@ -252,372 +300,372 @@ function seed() {
         coordinates: { lat: to.lat, lng: to.lng },
         instructions: to.instructions,
       },
-      waypoints: [],
-      polyline: polyline(from, to),
+      waypoints,
+      polyline: buildPolyline(from, to, waypointLocation ? [waypointLocation] : []),
       departureDate,
-      departureTime: spec.time,
-      estimatedArrivalTime: timePlusMinutes(spec.time, 35 + (spec.from % 3) * 10),
-      maxPassengers: spec.maxPassengers,
+      departureTime,
+      estimatedArrivalTime: timePlusMinutes(departureTime, estimatedDurationMinutes),
+      maxPassengers: plan.maxPassengers,
       currentPassengers: 0,
-      pricePerPassenger: spec.price,
-      paymentMethod: spec.driver.id === sophie.id ? "interac" : "cash",
-      status: spec.status,
+      pricePerPassenger: plan.price,
+      paymentMethod: index % 2 === 0 ? "interac" : "cash",
+      status: plan.status,
       departureType: "planned",
-      tripType: spec.dayOffset <= 1 ? "recurrent" : "unique",
+      tripType: plan.recurrent ? "recurrent" : "unique",
       preferences: {
         baggageAllowed: true,
-        petsAllowed: false,
+        petsAllowed: index % 5 === 0,
         smokingAllowed: false,
-        musicAllowed: spec.driver.id === sophie.id,
-        flexibleItinerary: spec.driver.id === marie.id,
-        conversationLevel: spec.driver.id === sophie.id ? "moderate" : "quiet",
-        driverNote: spec.driver.id === sophie.id ? "Merci d'etre pret 5 minutes avant le depart." : "Trajet calme privilegie.",
+        musicAllowed: plan.driver.preferences?.musicAccepted ?? true,
+        flexibleItinerary: index % 3 === 0,
+        conversationLevel: plan.driver.preferences?.conversationLevel ?? "moderate",
+        driverNote: index % 2 === 0
+          ? "Merci d'etre pret 5 minutes avant le depart."
+          : "Trajet calme privilegie et communication simple.",
       },
-      recurrenceDays: spec.dayOffset <= 1 ? [1, 2, 3, 4, 5] : undefined,
-      recurrenceEndDate: spec.dayOffset <= 1 ? dateOnlyOffset(30) : undefined,
-      estimatedDistanceKm: distanceKm(from, to),
-      estimatedDurationMinutes: 35 + (spec.from % 3) * 10,
-      co2SavedKg: Number((distanceKm(from, to) * 0.19).toFixed(1)),
-      createdAt,
-      updatedAt,
-      notes: null,
+      recurrenceDays: plan.recurrent ? [1, 2, 3, 4, 5] : undefined,
+      recurrenceEndDate: plan.recurrent ? toDateOnly(dateAt(now, 45, 8, 0)) : undefined,
+      estimatedDistanceKm: distanceKm,
+      estimatedDurationMinutes,
+      co2SavedKg: Number((distanceKm * 0.42).toFixed(1)),
+      createdAt: toIso(dateAt(now, plan.dayOffset - 10, 9, 0)),
+      updatedAt: toIso(dateAt(now, plan.dayOffset - 1, 18, 0)),
+      notes: index % 4 === 0 ? "Trajet seed coherent pour tests." : "",
     };
-    tripById.set(trip.id, trip);
+
+    tripMap.set(trip.id, trip);
     return trip;
   });
 
-  const reservationBlueprints = [
-    { id: "RSV-2026-00001", tripId: "TRJ-2026-00001", passenger: ahmed, status: "confirmed", message: "Bonjour Sophie, ce trajet m'aide beaucoup pour le campus." },
-    { id: "RSV-2026-00002", tripId: "TRJ-2026-00002", passenger: ahmed, status: "pending", message: "Est-ce que vous avez encore une place pour ce soir ?" },
-    { id: "RSV-2026-00003", tripId: "TRJ-2026-00003", passenger: ahmed, status: "pending", message: "Bonjour Marie, je suis ponctuel et leger en bagages." },
-    { id: "RSV-2026-00004", tripId: "TRJ-2026-00004", passenger: ahmed, status: "completed", message: "Merci pour le trajet de ce matin." },
-    { id: "RSV-2026-00005", tripId: "TRJ-2026-00004", passenger: secondPassenger, status: "completed", message: "Je serai au point de rendez-vous a l'heure." },
-    { id: "RSV-2026-00006", tripId: "TRJ-2026-00005", passenger: ahmed, status: "completed", message: "Trajet termine, merci encore." },
-    { id: "RSV-2026-00007", tripId: "TRJ-2026-00006", passenger: ahmed, status: "confirmed", message: "Je confirme ma presence demain matin." },
-    { id: "RSV-2026-00008", tripId: "TRJ-2026-00007", passenger: ahmed, status: "confirmed", message: "Parfait pour moi." },
-    { id: "RSV-2026-00009", tripId: "TRJ-2026-00007", passenger: secondPassenger, status: "confirmed", message: "Merci, a bientot." },
-    { id: "RSV-2026-00010", tripId: "TRJ-2026-00008", passenger: ahmed, status: "refused", message: "Je tente ma chance pour ce trajet." },
-    { id: "RSV-2026-00011", tripId: "TRJ-2026-00009", passenger: ahmed, status: "cancelled", message: "Je devrai peut-etre annuler au besoin." },
-    { id: "RSV-2026-00012", tripId: "TRJ-2026-00011", passenger: ahmed, status: "confirmed", message: "Ce trajet m'interesse pour la semaine prochaine." },
-    { id: "RSV-2026-00013", tripId: "TRJ-2026-00012", passenger: secondPassenger, status: "pending", message: "Je voudrais reserver cette place si possible." },
-  ];
-
-  const reservations = reservationBlueprints.map((blueprint, index) => {
-    const trip = tripById.get(blueprint.tripId);
-    const requestedAt = toIsoLocal(dateAt(-Math.max(1, 5 - index), 10 + (index % 5), 15));
-    const reservation = {
-      id: blueprint.id,
-      tripId: blueprint.tripId,
-      passengerId: blueprint.passenger.id,
-      driverId: trip.driverId,
-      status: blueprint.status,
-      pricePerSeat: trip.pricePerPassenger,
-      totalAmount: trip.pricePerPassenger,
-      requestedAt,
-      expiresAt: toIsoLocal(dateAt(Math.max(1, index % 3), 23, 0)),
-      confirmedAt: ["confirmed", "in_progress", "completed", "no_show"].includes(blueprint.status)
-        ? toIsoLocal(dateAt(-Math.max(1, 4 - index), 11, 0))
-        : null,
-      cancelledAt: blueprint.status === "cancelled" ? toIsoLocal(dateAt(-1, 21, 30)) : null,
-      completedAt: blueprint.status === "completed" ? toIsoLocal(dateAt(-1, 9, 15 + (index % 3) * 10)) : null,
-      passengerMessage: blueprint.message,
-      refusalReason: blueprint.status === "refused" ? "Le trajet est deja complet ou priorise un autre profil." : null,
-      cancellationReason: blueprint.status === "cancelled" ? "Annulee par le passager" : null,
-      boardingConfirmedByDriver: blueprint.status === "in_progress" || blueprint.status === "completed",
-      boardingConfirmedByPassenger: blueprint.status === "in_progress" || blueprint.status === "completed",
-      compatibilityScore: 82 + (index % 17),
-      createdAt: requestedAt,
-      updatedAt: requestedAt,
-    };
-    return reservation;
-  });
-
   const confirmedStatuses = new Set(["confirmed", "in_progress", "completed", "no_show"]);
+  const reservations = [];
+  let reservationIndex = 1;
+
+  tripPlans.forEach((plan, tripIndex) => {
+    const trip = tripMap.get(plan.id);
+    const candidates = passengers.filter((user) => user.id !== trip.driverId);
+
+    plan.reservationStatuses.forEach((status, reservationOffset) => {
+      const passenger = candidates[reservationOffset % candidates.length];
+      const createdAt = toIso(dateAt(now, plan.dayOffset - 2, 9 + reservationOffset, 15));
+      const updatedAt = toIso(dateAt(now, plan.dayOffset - 1, 11 + reservationOffset, 5));
+      const reservation = {
+        id: `RSV-2026-${String(reservationIndex++).padStart(5, "0")}`,
+        tripId: trip.id,
+        passengerId: passenger.id,
+        driverId: trip.driverId,
+        status,
+        pricePerSeat: trip.pricePerPassenger,
+        totalAmount: trip.pricePerPassenger,
+        requestedAt: createdAt,
+        expiresAt: toIso(dateAt(now, plan.dayOffset + 1, 23, 0)),
+        confirmedAt: confirmedStatuses.has(status) ? updatedAt : null,
+        cancelledAt: status === "cancelled" ? updatedAt : null,
+        completedAt: status === "completed" ? toIso(dateAt(now, plan.dayOffset, plan.hour + 1, plan.minute)) : null,
+        passengerMessage: status === "pending"
+          ? "Bonjour, je suis ponctuel et leger en bagages."
+          : status === "confirmed"
+            ? "Je confirme ma presence pour ce trajet."
+            : "Merci pour le trajet.",
+        refusalReason: status === "refused" ? "Le conducteur a retenu un autre profil pour ce trajet." : null,
+        cancellationReason: status === "cancelled" ? "Annulee par le passager" : null,
+        boardingConfirmedByDriver: status === "in_progress" || status === "completed",
+        boardingConfirmedByPassenger: status === "in_progress" || status === "completed",
+        compatibilityScore: 76 + ((tripIndex + reservationOffset) % 18),
+        createdAt,
+        updatedAt,
+      };
+
+      reservations.push(reservation);
+    });
+  });
+
   trips.forEach((trip) => {
-    const confirmedReservations = reservations.filter(
-      (reservation) => reservation.tripId === trip.id && confirmedStatuses.has(reservation.status),
-    );
-    trip.passengerIds = confirmedReservations.map((reservation) => reservation.passengerId);
-    trip.currentPassengers = trip.passengerIds.length;
-    if (trip.status === "full") {
-      trip.maxPassengers = Math.max(1, trip.currentPassengers);
-    }
+    const confirmedPassengers = reservations
+      .filter((reservation) => reservation.tripId === trip.id && confirmedStatuses.has(reservation.status))
+      .map((reservation) => reservation.passengerId);
+    trip.passengerIds = confirmedPassengers;
+    trip.currentPassengers = confirmedPassengers.length;
   });
 
-  const reviews = [
-    {
-      id: "REV-2026-00001",
-      tripId: "TRJ-2026-00005",
-      reservationId: "RSV-2026-00006",
-      reviewerId: ahmed.id,
-      revieweeId: marie.id,
-      revieweeRole: "driver",
-      rating: 4.8,
-      comment: "Trajet fluide, tres bon accueil et conduite rassurante.",
-      tags: ["ponctuelle", "securitaire", "agrable"],
-      createdAt: toIsoLocal(dateAt(-1, 12, 0)),
-    },
-    {
-      id: "REV-2026-00002",
-      tripId: "TRJ-2026-00005",
-      reservationId: "RSV-2026-00006",
-      reviewerId: marie.id,
-      revieweeId: ahmed.id,
-      revieweeRole: "passenger",
-      rating: 4.9,
-      comment: "Passager tres ponctuel et respectueux.",
-      tags: ["ponctuel", "respectueux", "fiable"],
-      createdAt: toIsoLocal(dateAt(-1, 12, 20)),
-    },
-  ];
-
-  const drafts = drivers.map((driver, index) => {
-    const from = LOCATIONS[(index * 2) % LOCATIONS.length];
-    const to = LOCATIONS[(index * 2 + 3) % LOCATIONS.length];
-    const vehicle = vehicleByDriver.get(driver.id);
-    const departureDate = dateOnlyOffset(5 + index);
-    const departureTime = index === 0 ? "08:30" : "17:15";
-    return {
-      id: `DRF-2026-${String(index + 1).padStart(5, "0")}`,
-      driverId: driver.id,
-      departureLocation: `${from.label}, ${from.fullAddress}`,
-      arrivalLocation: `${to.label}, ${to.fullAddress}`,
-      departureDate,
-      departureTime,
-      vehicleId: vehicle.id,
-      maxPassengers: 4,
-      availableSeats: 3,
-      pricePerPassenger: 5 + index,
-      paymentMethod: index === 0 ? "interac" : "cash",
-      preferences: {
-        baggageAllowed: true,
-        petsAllowed: false,
-        smokingAllowed: false,
-        musicAllowed: true,
-        flexibleItinerary: false,
+  const completedReservations = reservations.filter((reservation) => reservation.status === "completed");
+  const reviews = completedReservations.slice(0, SEED_CONFIG.maxReviewReservationCount).flatMap((reservation, reviewIndex) => {
+    const trip = tripMap.get(reservation.tripId);
+    return [
+      {
+        id: `REV-2026-${String(reviewIndex * 2 + 1).padStart(5, "0")}`,
+        tripId: reservation.tripId,
+        reservationId: reservation.id,
+        reviewerId: reservation.passengerId,
+        revieweeId: reservation.driverId,
+        revieweeRole: "driver",
+        rating: 4.3 + ((reviewIndex + 1) % 3) * 0.2,
+        comment: "Trajet fiable, propre et ponctuel.",
+        tags: ["ponctuel", "respectueux", "securitaire"],
+        createdAt: reservation.completedAt || reservation.updatedAt,
       },
-      departureCoords: [from.lat, from.lng],
-      arrivalCoords: [to.lat, to.lng],
-      notes: "Brouillon genere automatiquement pour les tests.",
-      createdAt: toIsoLocal(dateAt(-2, 14, 0)),
-      updatedAt: toIsoLocal(dateAt(-1, 9, 30)),
-    };
+      {
+        id: `REV-2026-${String(reviewIndex * 2 + 2).padStart(5, "0")}`,
+        tripId: reservation.tripId,
+        reservationId: reservation.id,
+        reviewerId: reservation.driverId,
+        revieweeId: reservation.passengerId,
+        revieweeRole: "passenger",
+        rating: 4.4 + (reviewIndex % 2) * 0.3,
+        comment: "Passager ponctuel et agreable a bord.",
+        tags: ["ponctuel", "courtois", "fiable"],
+        createdAt: reservation.completedAt || reservation.updatedAt,
+      },
+    ];
   });
 
+  const drafts = drivers.flatMap((driver, driverIndex) => (
+    Array.from({ length: SEED_CONFIG.draftsPerDriver }, (_, draftIndex) => {
+      const from = LOCATIONS[(driverIndex * 3 + draftIndex) % LOCATIONS.length];
+      const to = LOCATIONS[(driverIndex * 3 + draftIndex + 4) % LOCATIONS.length];
+      return {
+        id: `DRF-2026-${String(driverIndex * 3 + draftIndex + 1).padStart(5, "0")}`,
+        driverId: driver.id,
+        departureLocation: `${from.label}, ${from.fullAddress}`,
+        arrivalLocation: `${to.label}, ${to.fullAddress}`,
+        departureDate: toDateOnly(dateAt(now, 6 + draftIndex + driverIndex, 8 + draftIndex, 0)),
+        departureTime: `${String(8 + draftIndex).padStart(2, "0")}:${draftIndex === 2 ? "30" : "00"}`,
+        vehicleId: vehicleByDriver.get(driver.id).id,
+        maxPassengers: 3,
+        availableSeats: 2 + (draftIndex % 2),
+        pricePerPassenger: 5 + draftIndex + driverIndex,
+        paymentMethod: draftIndex % 2 === 0 ? "interac" : "cash",
+        preferences: {
+          baggageAllowed: true,
+          petsAllowed: false,
+          smokingAllowed: false,
+          musicAllowed: driver.preferences?.musicAccepted ?? true,
+          flexibleItinerary: draftIndex % 2 === 0,
+        },
+        departureCoords: [from.lat, from.lng],
+        arrivalCoords: [to.lat, to.lng],
+        polyline: buildPolyline(from, to),
+        notes: "Brouillon seed coherent pour les tests.",
+        createdAt: toIso(dateAt(now, -1, 14, driverIndex + draftIndex)),
+        updatedAt: toIso(dateAt(now, 0, 9, driverIndex + draftIndex)),
+      };
+    })
+  ));
+
+  const pendingReservations = reservations.filter((reservation) => reservation.status === "pending");
   const notifications = [
-    {
-      id: "NTF-2026-00001",
-      userId: sophie.id,
-      type: "reservation_received",
-      title: "Nouvelle demande de reservation",
-      message: `${ahmed.firstName} ${ahmed.lastName} souhaite rejoindre votre trajet de ce soir.`,
-      isRead: false,
-      isImportant: true,
-      link: `/driver/reservations/${sophie.id}`,
-      relatedTripId: "TRJ-2026-00002",
-      relatedReservationId: "RSV-2026-00002",
-      createdAt: toIsoLocal(dateAt(0, 16, 50)),
-    },
-    {
-      id: "NTF-2026-00002",
-      userId: marie.id,
-      type: "reservation_received",
-      title: "Nouvelle demande de reservation",
-      message: `${ahmed.firstName} ${ahmed.lastName} souhaite rejoindre votre trajet du matin.`,
-      isRead: false,
-      isImportant: true,
-      link: `/driver/reservations/${marie.id}`,
-      relatedTripId: "TRJ-2026-00003",
-      relatedReservationId: "RSV-2026-00003",
-      createdAt: toIsoLocal(dateAt(0, 16, 55)),
-    },
-    {
-      id: "NTF-2026-00003",
-      userId: ahmed.id,
-      type: "reservation_accepted",
-      title: "Reservation confirmee",
-      message: `Votre place pour ${tripById.get("TRJ-2026-00006").departure.label} vers ${tripById.get("TRJ-2026-00006").arrival.label} est confirmee.`,
-      isRead: false,
-      isImportant: true,
-      link: `/passenger/reservations/${ahmed.id}`,
-      relatedTripId: "TRJ-2026-00006",
-      relatedReservationId: "RSV-2026-00007",
-      createdAt: toIsoLocal(dateAt(-1, 18, 0)),
-    },
-    {
-      id: "NTF-2026-00004",
-      userId: ahmed.id,
-      type: "reservation_refused",
-      title: "Reservation refusee",
-      message: "Votre demande pour le trajet vers Gatineau n'a pas ete retenue.",
-      isRead: true,
-      isImportant: false,
-      link: `/passenger/reservations/${ahmed.id}`,
-      relatedTripId: "TRJ-2026-00008",
-      relatedReservationId: "RSV-2026-00010",
-      createdAt: toIsoLocal(dateAt(-1, 19, 0)),
-    },
-    {
-      id: "NTF-2026-00005",
-      userId: ahmed.id,
-      type: "reservation_cancelled",
-      title: "Reservation annulee",
-      message: "Votre reservation vers ByWard Market a ete annulee.",
-      isRead: true,
-      isImportant: false,
-      link: `/passenger/reservations/${ahmed.id}`,
-      relatedTripId: "TRJ-2026-00009",
-      relatedReservationId: "RSV-2026-00011",
-      createdAt: toIsoLocal(dateAt(-1, 20, 0)),
-    },
-    {
-      id: "NTF-2026-00006",
-      userId: sophie.id,
-      type: "trip_completed",
-      title: "Trajet termine",
-      message: "Votre trajet du matin d'hier a ete cloture correctement.",
-      isRead: true,
-      isImportant: false,
-      link: "/trajets/TRJ-2026-00004",
-      relatedTripId: "TRJ-2026-00004",
-      relatedReservationId: "RSV-2026-00004",
-      createdAt: toIsoLocal(dateAt(-1, 8, 5)),
-    },
-    {
-      id: "NTF-2026-00007",
-      userId: marie.id,
-      type: "trip_completed",
-      title: "Trajet termine",
-      message: "Votre trajet recent a ete marque comme termine.",
-      isRead: true,
-      isImportant: false,
-      link: `/trajets/TRJ-2026-00005`,
-      relatedTripId: "TRJ-2026-00005",
-      relatedReservationId: "RSV-2026-00006",
-      createdAt: toIsoLocal(dateAt(-1, 10, 0)),
-    },
-    {
-      id: "NTF-2026-00008",
-      userId: marie.id,
+    ...pendingReservations.map((reservation, index) => {
+      const trip = tripMap.get(reservation.tripId);
+      const passenger = users.find((user) => user.id === reservation.passengerId);
+      return {
+        id: `NTF-2026-${String(index + 1).padStart(5, "0")}`,
+        userId: reservation.driverId,
+        type: "reservation_received",
+        title: "Nouvelle demande de reservation",
+        message: `${passenger.firstName} ${passenger.lastName} souhaite rejoindre votre trajet ${trip.departure.label} -> ${trip.arrival.label}.`,
+        isRead: index % 2 === 1,
+        isImportant: true,
+        link: `/driver/reservations/${reservation.driverId}`,
+        relatedTripId: reservation.tripId,
+        relatedReservationId: reservation.id,
+        createdAt: reservation.createdAt,
+      };
+    }),
+    ...reservations
+      .filter((reservation) => reservation.status === "confirmed")
+      .slice(0, SEED_CONFIG.maxConfirmedReservationNotifications)
+      .map((reservation, index) => ({
+        id: `NTF-2026-${String(pendingReservations.length + index + 1).padStart(5, "0")}`,
+        userId: reservation.passengerId,
+        type: "reservation_accepted",
+        title: "Reservation confirmee",
+        message: "Votre place est confirmee. Merci d'arriver quelques minutes avant le depart.",
+        isRead: false,
+        isImportant: true,
+        link: `/passenger/reservations/${reservation.passengerId}`,
+        relatedTripId: reservation.tripId,
+        relatedReservationId: reservation.id,
+        createdAt: reservation.updatedAt,
+      })),
+    ...reservations
+      .filter((reservation) => reservation.status === "refused")
+      .map((reservation, index) => ({
+        id: `NTF-2026-${String(pendingReservations.length + SEED_CONFIG.maxConfirmedReservationNotifications + 1 + index).padStart(5, "0")}`,
+        userId: reservation.passengerId,
+        type: "reservation_refused",
+        title: "Reservation refusee",
+        message: reservation.refusalReason,
+        isRead: true,
+        isImportant: false,
+        link: `/passenger/reservations/${reservation.passengerId}`,
+        relatedTripId: reservation.tripId,
+        relatedReservationId: reservation.id,
+        createdAt: reservation.updatedAt,
+      })),
+    ...reviews.slice(0, SEED_CONFIG.maxReviewNotifications).map((review, index) => ({
+      id: `NTF-2026-${String(pendingReservations.length + SEED_CONFIG.maxConfirmedReservationNotifications + 1 + reservations.filter((reservation) => reservation.status === "refused").length + index).padStart(5, "0")}`,
+      userId: review.revieweeId,
       type: "new_review_received",
       title: "Nouvel avis recu",
-      message: `${ahmed.firstName} ${ahmed.lastName} vous a laisse un avis apres votre trajet.`,
+      message: "Un nouvel avis a ete ajoute apres votre dernier trajet.",
       isRead: false,
       isImportant: false,
-      link: `/${marie.role}/${marie.id}`,
-      relatedTripId: "TRJ-2026-00005",
-      relatedReservationId: "RSV-2026-00006",
-      createdAt: toIsoLocal(dateAt(-1, 12, 5)),
-    },
+      link: `/${users.find((user) => user.id === review.revieweeId)?.role || "driver"}/${review.revieweeId}`,
+      relatedTripId: review.tripId,
+      relatedReservationId: review.reservationId,
+      createdAt: review.createdAt,
+    })),
     {
-      id: "NTF-2026-00009",
-      userId: sophie.id,
+      id: "NTF-2026-99999",
+      userId: drivers[0].id,
       type: "system",
       title: "Base de test regeneree",
-      message: "Les donnees de demonstration ont ete regenerees avec des dependances coherentes.",
+      message: "Les donnees dynamiques ont ete regenerees avec plus de volume et des dependances coherentes.",
       isRead: true,
       isImportant: false,
       link: null,
       relatedTripId: null,
       relatedReservationId: null,
-      createdAt: toIsoLocal(dateAt(0, 9, 0)),
+      createdAt: toIso(now),
     },
-  ];
+  ].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
 
-  const driverFinanceAccounts = drivers.map((driver, index) => {
-    const driverReservations = reservations.filter((reservation) => reservation.driverId === driver.id);
-    const completed = driverReservations.filter((reservation) => reservation.status === "completed");
-    const inTransit = driverReservations.filter((reservation) => reservation.status === "in_progress");
-    const commission = 0.15;
-    const soldeDisponible = Number(
-      completed.reduce((sum, reservation) => sum + reservation.totalAmount * (1 - commission), 0).toFixed(2),
-    );
-    const soldeEnTransit = Number(
-      inTransit.reduce((sum, reservation) => sum + reservation.totalAmount * (1 - commission), 0).toFixed(2),
-    );
-    const transactions = [
-      ...completed.map((reservation, transactionIndex) => ({
-        id: `DTXN-${driver.id}-${transactionIndex + 1}`,
-        type: "revenu_trajet",
-        montant: Number((reservation.totalAmount * (1 - commission)).toFixed(2)),
-        description: `Trajet ${reservation.tripId} confirme`,
-        trajetId: reservation.tripId,
-        statut: "confirme",
-        createdAt: reservation.completedAt ?? reservation.updatedAt,
-      })),
-      ...inTransit.map((reservation, transactionIndex) => ({
-        id: `DTXN-${driver.id}-TRANSIT-${transactionIndex + 1}`,
-        type: "revenu_trajet",
-        montant: Number((reservation.totalAmount * (1 - commission)).toFixed(2)),
-        description: `Trajet ${reservation.tripId} en transit`,
-        trajetId: reservation.tripId,
-        statut: "en_transit",
-        createdAt: reservation.updatedAt,
-      })),
-    ];
-    return {
-      id: `DFA-${driver.id}`,
-      driverId: driver.id,
-      soldeDisponible,
-      soldeEnTransit,
-      soldePenalites: 0,
-      tauxPrelevement: 0.1,
-      commission,
-      transactions,
-      updatedAt: toIsoLocal(dateAt(0, 9 + index, 0)),
-    };
-  });
-
-  const indisponibilities = [
-    {
-      id: sophie.id,
-      dates: [
+  const messages = reservations
+    .filter((reservation) => ["pending", "confirmed", "in_progress", "completed"].includes(reservation.status))
+    .slice(0, SEED_CONFIG.maxMessageReservationThreads)
+    .flatMap((reservation, index) => {
+      const trip = tripMap.get(reservation.tripId);
+      return [
         {
-          id: `${dateOnlyOffset(12)}-08:30`,
-          startAt: `${dateOnlyOffset(12)}T08:30:00`,
-          endAt: `${dateOnlyOffset(12)}T09:00:00`,
+          id: `MSG-2026-${String(index * 2 + 1).padStart(5, "0")}`,
+          tripId: reservation.tripId,
+          senderId: reservation.passengerId,
+          recipientId: reservation.driverId,
+          content: reservation.passengerMessage,
+          type: "text",
+          isRead: reservation.status !== "pending",
+          readAt: reservation.status !== "pending" ? reservation.updatedAt : undefined,
+          createdAt: reservation.createdAt,
         },
-      ],
-      createdAt: toIsoLocal(dateAt(0, 8, 0)),
-      updatedAt: toIsoLocal(dateAt(0, 8, 0)),
+        {
+          id: `MSG-2026-${String(index * 2 + 2).padStart(5, "0")}`,
+          tripId: reservation.tripId,
+          senderId: reservation.driverId,
+          recipientId: reservation.passengerId,
+          content: reservation.status === "in_progress"
+            ? "Je suis en route. On se rejoint au point de rendez-vous."
+            : `Merci, le trajet ${trip.departure.label} -> ${trip.arrival.label} est bien pris en charge.`,
+          type: "text",
+          isRead: reservation.status === "completed",
+          readAt: reservation.status === "completed" ? reservation.updatedAt : undefined,
+          createdAt: reservation.updatedAt,
+        },
+      ];
+    });
+
+  const penaltyTemplates = [
+    {
+      id: "PEN-2026-00001",
+      userId: drivers[1].id,
+      trajetId: trips.find((trip) => trip.status === "cancelled").id,
+      type: "annulation_tardive",
+      montant: 12.5,
+      raison: "Annulation tardive d'un trajet confirme.",
+      statut: "active",
+      createdAt: toIso(dateAt(now, -1, 19, 0)),
+      updatedAt: toIso(dateAt(now, -1, 19, 0)),
     },
     {
-      id: ahmed.id,
-      dates: [
-        {
-          id: `${dateOnlyOffset(2)}-18:00`,
-          startAt: `${dateOnlyOffset(2)}T18:00:00`,
-          endAt: `${dateOnlyOffset(2)}T19:00:00`,
-        },
-      ],
-      createdAt: toIsoLocal(dateAt(0, 8, 15)),
-      updatedAt: toIsoLocal(dateAt(0, 8, 15)),
+      id: "PEN-2026-00002",
+      userId: drivers[0].id,
+      trajetId: trips.find((trip) => trip.status === "completed").id,
+      type: "retard_depart",
+      montant: 4.5,
+      raison: "Retard signale sur un trajet precedent.",
+      statut: "prelevee",
+      createdAt: toIso(dateAt(now, -6, 8, 0)),
+      updatedAt: toIso(dateAt(now, -5, 9, 0)),
+    },
+    {
+      id: "PEN-2026-00003",
+      userId: drivers[0].id,
+      trajetId: trips.find((trip) => trip.status === "published")?.id || trips[0].id,
+      type: "non_confirmation",
+      montant: 6,
+      raison: "Confirmation tardive du statut du trajet.",
+      statut: "contestee",
+      createdAt: toIso(dateAt(now, 1, 10, 0)),
+      updatedAt: toIso(dateAt(now, 1, 10, 30)),
+    },
+    {
+      id: "PEN-2026-00004",
+      userId: drivers[1].id,
+      trajetId: trips.find((trip) => trip.status === "full")?.id || trips[1].id,
+      type: "litige_service",
+      montant: 8.5,
+      raison: "Litige en verification suite a un signalement passager.",
+      statut: "active",
+      createdAt: toIso(dateAt(now, 2, 14, 0)),
+      updatedAt: toIso(dateAt(now, 2, 14, 0)),
     },
   ];
+  const penalites = penaltyTemplates.slice(0, Math.max(0, SEED_CONFIG.penaltyCount));
+
+  const userPreferences = buildUserPreferences(users, now);
+  const driverFinanceAccounts = buildDriverFinanceAccounts(drivers, reservations, penalites, now);
+  const passengerFinanceAccounts = buildPassengerFinanceAccounts(passengers, reservations, tripMap, now);
+  const bankAccounts = buildBankAccounts(users, driverFinanceAccounts, passengerFinanceAccounts, now);
+  const userStats = buildUserStats(users, trips, reservations, reviews, badges, now);
+
+  const indisponibilities = users
+    .filter((user) => user.role !== "admin")
+    .map((user, index) => ({
+      id: user.id,
+      dates: Array.from({ length: SEED_CONFIG.indisponibilityRangesPerUser }, (_, rangeIndex) => {
+        const dayOffset = 12 + index + rangeIndex * 3;
+        const startHour = 8 + ((index + rangeIndex) % 6);
+        return {
+          id: `${toDateOnly(dateAt(now, dayOffset, 0, 0))}-${String(startHour).padStart(2, "0")}:00`,
+          startAt: `${toDateOnly(dateAt(now, dayOffset, 0, 0))}T${String(startHour).padStart(2, "0")}:00:00`,
+          endAt: `${toDateOnly(dateAt(now, dayOffset, 0, 0))}T${String(startHour + 1).padStart(2, "0")}:15:00`,
+        };
+      }),
+      createdAt: toIso(now),
+      updatedAt: toIso(now),
+    }));
 
   writeJson("trips.json", trips);
+  writeJson("users.json", users);
+  writeJson("vehicles.json", vehicles);
   writeJson("reservations.json", reservations);
   writeJson("notifications.json", notifications);
   writeJson("reviews.json", reviews);
   writeJson("drafts.json", drafts);
   writeJson("driver_finance_accounts.json", driverFinanceAccounts);
+  writeJson("passenger_finance_accounts.json", passengerFinanceAccounts);
+  writeJson("bank_accounts.json", bankAccounts);
+  writeJson("user_preferences.json", userPreferences);
+  writeJson("user_stats.json", userStats);
+  writeJson("messages.json", messages);
+  writeJson("penalites.json", penalites);
   writeJson("indisponibilities.json", indisponibilities);
 
-  console.log("Seed termine");
-  console.log(`- ${users.length} utilisateurs conserves`);
-  console.log(`- ${vehicles.length} vehicules conserves`);
+  console.log("seed-test-db termine");
+  console.log(`- ${users.length} utilisateurs regeneres`);
+  console.log(`- ${vehicles.length} vehicules regeneres`);
   console.log(`- ${trips.length} trajets regeneres`);
   console.log(`- ${reservations.length} reservations regenerees`);
   console.log(`- ${notifications.length} notifications regenerees`);
   console.log(`- ${reviews.length} avis regeneres`);
   console.log(`- ${drafts.length} brouillons regeneres`);
-  console.log(`- ${driverFinanceAccounts.length} comptes finance conducteur regeneres`);
+  console.log(`- ${messages.length} messages regeneres`);
+  console.log(`- ${penalites.length} penalites regenerees`);
+  console.log(`- ${driverFinanceAccounts.length} comptes conducteur regeneres`);
+  console.log(`- ${passengerFinanceAccounts.length} comptes passager regeneres`);
+  console.log(`- ${bankAccounts.length} comptes bancaires regeneres`);
+  console.log(`- ${userPreferences.length} preferences utilisateur regenerees`);
+  console.log(`- ${userStats.length} statistiques utilisateur regenerees`);
   console.log(`- ${indisponibilities.length} indisponibilites regenerees`);
-  console.log(`- ${bankAccounts.length} comptes bancaires conserves`);
-  console.log(`- ${favoritePlaces.length} favoris conserves`);
-  console.log(`- ${astuces.length} astuces conservees`);
-  console.log(`- ${goTasks.length} GoTasks conserves`);
-  console.log(`- ${affinites.length} affinites conservees`);
 }
 
 seed();

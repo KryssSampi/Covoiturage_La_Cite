@@ -1,111 +1,1531 @@
 [
   {
-    "id": "PFA-USR-2026-00002",
-    "passengerId": "USR-2026-00002",
-    "economiesEstimees": 47.80,
-    "fondsEnTransit": 6.00,
-    "totalDepense": 34.50,
-    "nbTrajetsCompletes": 5,
+    "id": "PFA-USR-2026-00001",
+    "passengerId": "USR-2026-00001",
+    "economiesEstimees": 374.73,
+    "fondsEnTransit": 147,
+    "totalDepense": 202,
+    "nbTrajetsCompletes": 33,
     "transactions": [
       {
-        "id": "PTXN-USR-2026-00002-1",
+        "id": "PTXN-USR-2026-00001-65",
         "type": "paiement_trajet",
-        "montant": 6.90,
-        "description": "Trajet TRJ-2026-00001 — paiement capturé",
-        "trajetId": "TRJ-2026-00001",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00080 - paiement capture",
+        "trajetId": "TRJ-2026-00080",
         "statut": "confirme",
-        "createdAt": "2026-03-15T08:45:00.000Z"
+        "createdAt": "2026-05-02T18:25:00.000Z"
       },
       {
-        "id": "PTXN-USR-2026-00002-2",
+        "id": "PTXN-USR-2026-00001-66",
         "type": "economie_trajet",
-        "montant": 9.10,
-        "description": "Économie estimée — TRJ-2026-00001 vs transport individuel",
-        "trajetId": "TRJ-2026-00001",
+        "montant": 12.93,
+        "description": "Economie estimee - TRJ-2026-00080 vs transport individuel",
+        "trajetId": "TRJ-2026-00080",
         "statut": "confirme",
-        "createdAt": "2026-03-15T08:45:00.000Z"
+        "createdAt": "2026-05-02T18:25:00.000Z"
       },
       {
-        "id": "PTXN-USR-2026-00002-3",
+        "id": "PTXN-USR-2026-00001-90",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00084 - mise en attente",
+        "trajetId": "TRJ-2026-00072",
+        "statut": "en_transit",
+        "createdAt": "2026-05-01T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-63",
         "type": "paiement_trajet",
-        "montant": 6.90,
-        "description": "Trajet TRJ-2026-00004 — paiement capturé",
-        "trajetId": "TRJ-2026-00004",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00079 - paiement capture",
+        "trajetId": "TRJ-2026-00079",
         "statut": "confirme",
-        "createdAt": "2026-03-18T09:15:00.000Z"
+        "createdAt": "2026-05-01T09:15:00.000Z"
       },
       {
-        "id": "PTXN-USR-2026-00002-4",
+        "id": "PTXN-USR-2026-00001-64",
         "type": "economie_trajet",
-        "montant": 9.10,
-        "description": "Économie estimée — TRJ-2026-00004 vs transport individuel",
-        "trajetId": "TRJ-2026-00004",
+        "montant": 8.86,
+        "description": "Economie estimee - TRJ-2026-00079 vs transport individuel",
+        "trajetId": "TRJ-2026-00079",
         "statut": "confirme",
-        "createdAt": "2026-03-18T09:15:00.000Z"
+        "createdAt": "2026-05-01T09:15:00.000Z"
       },
       {
-        "id": "PTXN-USR-2026-00002-5",
+        "id": "PTXN-USR-2026-00001-61",
         "type": "paiement_trajet",
-        "montant": 6.90,
-        "description": "Trajet TRJ-2026-00005 — paiement capturé",
-        "trajetId": "TRJ-2026-00005",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00078 - paiement capture",
+        "trajetId": "TRJ-2026-00078",
         "statut": "confirme",
-        "createdAt": "2026-03-20T07:30:00.000Z"
+        "createdAt": "2026-04-30T17:50:00.000Z"
       },
       {
-        "id": "PTXN-USR-2026-00002-6",
+        "id": "PTXN-USR-2026-00001-62",
         "type": "economie_trajet",
-        "montant": 11.20,
-        "description": "Économie estimée — TRJ-2026-00005 vs transport individuel",
-        "trajetId": "TRJ-2026-00005",
+        "montant": 3.3,
+        "description": "Economie estimee - TRJ-2026-00078 vs transport individuel",
+        "trajetId": "TRJ-2026-00078",
         "statut": "confirme",
-        "createdAt": "2026-03-20T07:30:00.000Z"
+        "createdAt": "2026-04-30T17:50:00.000Z"
       },
       {
-        "id": "PTXN-USR-2026-00002-7",
+        "id": "PTXN-USR-2026-00001-59",
         "type": "paiement_trajet",
-        "montant": 6.90,
-        "description": "Trajet TRJ-2026-00006 — paiement capturé",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00077 - paiement capture",
+        "trajetId": "TRJ-2026-00077",
+        "statut": "confirme",
+        "createdAt": "2026-04-29T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-60",
+        "type": "economie_trajet",
+        "montant": 22.83,
+        "description": "Economie estimee - TRJ-2026-00077 vs transport individuel",
+        "trajetId": "TRJ-2026-00077",
+        "statut": "confirme",
+        "createdAt": "2026-04-29T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-89",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00081 - mise en attente",
+        "trajetId": "TRJ-2026-00069",
+        "statut": "en_transit",
+        "createdAt": "2026-04-27T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-57",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00075 - paiement capture",
+        "trajetId": "TRJ-2026-00075",
+        "statut": "confirme",
+        "createdAt": "2026-04-27T09:00:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-58",
+        "type": "economie_trajet",
+        "montant": 2.2,
+        "description": "Economie estimee - TRJ-2026-00075 vs transport individuel",
+        "trajetId": "TRJ-2026-00075",
+        "statut": "confirme",
+        "createdAt": "2026-04-27T09:00:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-88",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00080 - mise en attente",
+        "trajetId": "TRJ-2026-00068",
+        "statut": "en_transit",
+        "createdAt": "2026-04-26T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-55",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00074 - paiement capture",
+        "trajetId": "TRJ-2026-00074",
+        "statut": "confirme",
+        "createdAt": "2026-04-25T18:10:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-56",
+        "type": "economie_trajet",
+        "montant": 9.13,
+        "description": "Economie estimee - TRJ-2026-00074 vs transport individuel",
+        "trajetId": "TRJ-2026-00074",
+        "statut": "confirme",
+        "createdAt": "2026-04-25T18:10:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-87",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00078 - mise en attente",
+        "trajetId": "TRJ-2026-00067",
+        "statut": "en_transit",
+        "createdAt": "2026-04-25T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-86",
+        "type": "holding",
+        "montant": 5,
+        "description": "Reservation RSV-2026-00076 - mise en attente",
+        "trajetId": "TRJ-2026-00065",
+        "statut": "en_transit",
+        "createdAt": "2026-04-24T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-84",
+        "type": "holding",
+        "montant": 5,
+        "description": "Reservation RSV-2026-00073 - mise en attente",
+        "trajetId": "TRJ-2026-00063",
+        "statut": "en_transit",
+        "createdAt": "2026-04-23T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-85",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00074 - mise en attente",
+        "trajetId": "TRJ-2026-00064",
+        "statut": "en_transit",
+        "createdAt": "2026-04-23T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-83",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00071 - mise en attente",
+        "trajetId": "TRJ-2026-00060",
+        "statut": "en_transit",
+        "createdAt": "2026-04-21T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-53",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00059 - paiement capture",
+        "trajetId": "TRJ-2026-00059",
+        "statut": "confirme",
+        "createdAt": "2026-04-21T09:20:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-54",
+        "type": "economie_trajet",
+        "montant": 8.86,
+        "description": "Economie estimee - TRJ-2026-00059 vs transport individuel",
+        "trajetId": "TRJ-2026-00059",
+        "statut": "confirme",
+        "createdAt": "2026-04-21T09:20:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-51",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00058 - paiement capture",
+        "trajetId": "TRJ-2026-00058",
+        "statut": "confirme",
+        "createdAt": "2026-04-20T18:35:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-52",
+        "type": "economie_trajet",
+        "montant": 13.75,
+        "description": "Economie estimee - TRJ-2026-00058 vs transport individuel",
+        "trajetId": "TRJ-2026-00058",
+        "statut": "confirme",
+        "createdAt": "2026-04-20T18:35:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-49",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00057 - paiement capture",
+        "trajetId": "TRJ-2026-00057",
+        "statut": "confirme",
+        "createdAt": "2026-04-19T08:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-50",
+        "type": "economie_trajet",
+        "montant": 37.62,
+        "description": "Economie estimee - TRJ-2026-00057 vs transport individuel",
+        "trajetId": "TRJ-2026-00057",
+        "statut": "confirme",
+        "createdAt": "2026-04-19T08:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-47",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00056 - paiement capture",
+        "trajetId": "TRJ-2026-00056",
+        "statut": "confirme",
+        "createdAt": "2026-04-18T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-48",
+        "type": "economie_trajet",
+        "montant": 12.93,
+        "description": "Economie estimee - TRJ-2026-00056 vs transport individuel",
+        "trajetId": "TRJ-2026-00056",
+        "statut": "confirme",
+        "createdAt": "2026-04-18T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-82",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00056 - mise en attente",
+        "trajetId": "TRJ-2026-00048",
+        "statut": "en_transit",
+        "createdAt": "2026-04-17T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-45",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00055 - paiement capture",
+        "trajetId": "TRJ-2026-00055",
+        "statut": "confirme",
+        "createdAt": "2026-04-17T09:15:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-46",
+        "type": "economie_trajet",
+        "montant": 8.86,
+        "description": "Economie estimee - TRJ-2026-00055 vs transport individuel",
+        "trajetId": "TRJ-2026-00055",
+        "statut": "confirme",
+        "createdAt": "2026-04-17T09:15:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-43",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00054 - paiement capture",
+        "trajetId": "TRJ-2026-00054",
+        "statut": "confirme",
+        "createdAt": "2026-04-16T17:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-44",
+        "type": "economie_trajet",
+        "montant": 3.3,
+        "description": "Economie estimee - TRJ-2026-00054 vs transport individuel",
+        "trajetId": "TRJ-2026-00054",
+        "statut": "confirme",
+        "createdAt": "2026-04-16T17:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-41",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00053 - paiement capture",
+        "trajetId": "TRJ-2026-00053",
+        "statut": "confirme",
+        "createdAt": "2026-04-15T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-42",
+        "type": "economie_trajet",
+        "montant": 14.03,
+        "description": "Economie estimee - TRJ-2026-00053 vs transport individuel",
+        "trajetId": "TRJ-2026-00053",
+        "statut": "confirme",
+        "createdAt": "2026-04-15T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-81",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00053 - mise en attente",
+        "trajetId": "TRJ-2026-00045",
+        "statut": "en_transit",
+        "createdAt": "2026-04-13T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-39",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00051 - paiement capture",
+        "trajetId": "TRJ-2026-00051",
+        "statut": "confirme",
+        "createdAt": "2026-04-13T09:00:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-40",
+        "type": "economie_trajet",
+        "montant": 2.2,
+        "description": "Economie estimee - TRJ-2026-00051 vs transport individuel",
+        "trajetId": "TRJ-2026-00051",
+        "statut": "confirme",
+        "createdAt": "2026-04-13T09:00:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-80",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00052 - mise en attente",
+        "trajetId": "TRJ-2026-00044",
+        "statut": "en_transit",
+        "createdAt": "2026-04-12T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-37",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00050 - paiement capture",
+        "trajetId": "TRJ-2026-00050",
+        "statut": "confirme",
+        "createdAt": "2026-04-11T18:10:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-38",
+        "type": "economie_trajet",
+        "montant": 9.13,
+        "description": "Economie estimee - TRJ-2026-00050 vs transport individuel",
+        "trajetId": "TRJ-2026-00050",
+        "statut": "confirme",
+        "createdAt": "2026-04-11T18:10:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-79",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00050 - mise en attente",
+        "trajetId": "TRJ-2026-00043",
+        "statut": "en_transit",
+        "createdAt": "2026-04-11T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-78",
+        "type": "holding",
+        "montant": 5,
+        "description": "Reservation RSV-2026-00048 - mise en attente",
+        "trajetId": "TRJ-2026-00041",
+        "statut": "en_transit",
+        "createdAt": "2026-04-10T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-76",
+        "type": "holding",
+        "montant": 5,
+        "description": "Reservation RSV-2026-00045 - mise en attente",
+        "trajetId": "TRJ-2026-00039",
+        "statut": "en_transit",
+        "createdAt": "2026-04-09T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-77",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00046 - mise en attente",
+        "trajetId": "TRJ-2026-00040",
+        "statut": "en_transit",
+        "createdAt": "2026-04-09T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-75",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00043 - mise en attente",
+        "trajetId": "TRJ-2026-00036",
+        "statut": "en_transit",
+        "createdAt": "2026-04-07T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-35",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00035 - paiement capture",
+        "trajetId": "TRJ-2026-00035",
+        "statut": "confirme",
+        "createdAt": "2026-04-07T09:20:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-36",
+        "type": "economie_trajet",
+        "montant": 8.86,
+        "description": "Economie estimee - TRJ-2026-00035 vs transport individuel",
+        "trajetId": "TRJ-2026-00035",
+        "statut": "confirme",
+        "createdAt": "2026-04-07T09:20:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-33",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00034 - paiement capture",
+        "trajetId": "TRJ-2026-00034",
+        "statut": "confirme",
+        "createdAt": "2026-04-06T18:35:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-34",
+        "type": "economie_trajet",
+        "montant": 13.75,
+        "description": "Economie estimee - TRJ-2026-00034 vs transport individuel",
+        "trajetId": "TRJ-2026-00034",
+        "statut": "confirme",
+        "createdAt": "2026-04-06T18:35:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-31",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00033 - paiement capture",
+        "trajetId": "TRJ-2026-00033",
+        "statut": "confirme",
+        "createdAt": "2026-04-05T08:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-32",
+        "type": "economie_trajet",
+        "montant": 19.58,
+        "description": "Economie estimee - TRJ-2026-00033 vs transport individuel",
+        "trajetId": "TRJ-2026-00033",
+        "statut": "confirme",
+        "createdAt": "2026-04-05T08:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-29",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00032 - paiement capture",
+        "trajetId": "TRJ-2026-00032",
+        "statut": "confirme",
+        "createdAt": "2026-04-04T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-30",
+        "type": "economie_trajet",
+        "montant": 12.93,
+        "description": "Economie estimee - TRJ-2026-00032 vs transport individuel",
+        "trajetId": "TRJ-2026-00032",
+        "statut": "confirme",
+        "createdAt": "2026-04-04T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-74",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00028 - mise en attente",
+        "trajetId": "TRJ-2026-00024",
+        "statut": "en_transit",
+        "createdAt": "2026-04-03T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-27",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00031 - paiement capture",
+        "trajetId": "TRJ-2026-00031",
+        "statut": "confirme",
+        "createdAt": "2026-04-03T09:15:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-28",
+        "type": "economie_trajet",
+        "montant": 8.86,
+        "description": "Economie estimee - TRJ-2026-00031 vs transport individuel",
+        "trajetId": "TRJ-2026-00031",
+        "statut": "confirme",
+        "createdAt": "2026-04-03T09:15:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-25",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00030 - paiement capture",
+        "trajetId": "TRJ-2026-00030",
+        "statut": "confirme",
+        "createdAt": "2026-04-02T17:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-26",
+        "type": "economie_trajet",
+        "montant": 3.3,
+        "description": "Economie estimee - TRJ-2026-00030 vs transport individuel",
+        "trajetId": "TRJ-2026-00030",
+        "statut": "confirme",
+        "createdAt": "2026-04-02T17:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-23",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00029 - paiement capture",
+        "trajetId": "TRJ-2026-00029",
+        "statut": "confirme",
+        "createdAt": "2026-04-01T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-24",
+        "type": "economie_trajet",
+        "montant": 32.12,
+        "description": "Economie estimee - TRJ-2026-00029 vs transport individuel",
+        "trajetId": "TRJ-2026-00029",
+        "statut": "confirme",
+        "createdAt": "2026-04-01T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-73",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00025 - mise en attente",
+        "trajetId": "TRJ-2026-00021",
+        "statut": "en_transit",
+        "createdAt": "2026-03-30T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-21",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00027 - paiement capture",
+        "trajetId": "TRJ-2026-00027",
+        "statut": "confirme",
+        "createdAt": "2026-03-30T09:00:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-22",
+        "type": "economie_trajet",
+        "montant": 2.2,
+        "description": "Economie estimee - TRJ-2026-00027 vs transport individuel",
+        "trajetId": "TRJ-2026-00027",
+        "statut": "confirme",
+        "createdAt": "2026-03-30T09:00:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-72",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00024 - mise en attente",
+        "trajetId": "TRJ-2026-00020",
+        "statut": "en_transit",
+        "createdAt": "2026-03-29T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-19",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00026 - paiement capture",
+        "trajetId": "TRJ-2026-00026",
+        "statut": "confirme",
+        "createdAt": "2026-03-28T18:10:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-20",
+        "type": "economie_trajet",
+        "montant": 9.13,
+        "description": "Economie estimee - TRJ-2026-00026 vs transport individuel",
+        "trajetId": "TRJ-2026-00026",
+        "statut": "confirme",
+        "createdAt": "2026-03-28T18:10:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-71",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00022 - mise en attente",
+        "trajetId": "TRJ-2026-00019",
+        "statut": "en_transit",
+        "createdAt": "2026-03-28T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-70",
+        "type": "holding",
+        "montant": 5,
+        "description": "Reservation RSV-2026-00020 - mise en attente",
+        "trajetId": "TRJ-2026-00017",
+        "statut": "en_transit",
+        "createdAt": "2026-03-27T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-68",
+        "type": "holding",
+        "montant": 5,
+        "description": "Reservation RSV-2026-00017 - mise en attente",
+        "trajetId": "TRJ-2026-00015",
+        "statut": "en_transit",
+        "createdAt": "2026-03-26T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-69",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00018 - mise en attente",
+        "trajetId": "TRJ-2026-00016",
+        "statut": "en_transit",
+        "createdAt": "2026-03-26T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-67",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00015 - mise en attente",
+        "trajetId": "TRJ-2026-00012",
+        "statut": "en_transit",
+        "createdAt": "2026-03-24T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-17",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00011 - paiement capture",
+        "trajetId": "TRJ-2026-00011",
+        "statut": "confirme",
+        "createdAt": "2026-03-24T09:20:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-18",
+        "type": "economie_trajet",
+        "montant": 8.86,
+        "description": "Economie estimee - TRJ-2026-00011 vs transport individuel",
+        "trajetId": "TRJ-2026-00011",
+        "statut": "confirme",
+        "createdAt": "2026-03-24T09:20:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-15",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00010 - paiement capture",
+        "trajetId": "TRJ-2026-00010",
+        "statut": "confirme",
+        "createdAt": "2026-03-23T18:35:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-16",
+        "type": "economie_trajet",
+        "montant": 13.75,
+        "description": "Economie estimee - TRJ-2026-00010 vs transport individuel",
+        "trajetId": "TRJ-2026-00010",
+        "statut": "confirme",
+        "createdAt": "2026-03-23T18:35:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-13",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00009 - paiement capture",
+        "trajetId": "TRJ-2026-00009",
+        "statut": "confirme",
+        "createdAt": "2026-03-22T08:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-14",
+        "type": "economie_trajet",
+        "montant": 12.76,
+        "description": "Economie estimee - TRJ-2026-00009 vs transport individuel",
+        "trajetId": "TRJ-2026-00009",
+        "statut": "confirme",
+        "createdAt": "2026-03-22T08:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-11",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00008 - paiement capture",
+        "trajetId": "TRJ-2026-00008",
+        "statut": "confirme",
+        "createdAt": "2026-03-21T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-12",
+        "type": "economie_trajet",
+        "montant": 12.93,
+        "description": "Economie estimee - TRJ-2026-00008 vs transport individuel",
+        "trajetId": "TRJ-2026-00008",
+        "statut": "confirme",
+        "createdAt": "2026-03-21T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-9",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00007 - paiement capture",
+        "trajetId": "TRJ-2026-00007",
+        "statut": "confirme",
+        "createdAt": "2026-03-20T09:15:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-10",
+        "type": "economie_trajet",
+        "montant": 8.86,
+        "description": "Economie estimee - TRJ-2026-00007 vs transport individuel",
+        "trajetId": "TRJ-2026-00007",
+        "statut": "confirme",
+        "createdAt": "2026-03-20T09:15:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-7",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00006 - paiement capture",
         "trajetId": "TRJ-2026-00006",
         "statut": "confirme",
-        "createdAt": "2026-03-21T08:00:00.000Z"
+        "createdAt": "2026-03-19T17:50:00.000Z"
       },
       {
-        "id": "PTXN-USR-2026-00002-8",
+        "id": "PTXN-USR-2026-00001-8",
         "type": "economie_trajet",
-        "montant": 9.10,
-        "description": "Économie estimée — TRJ-2026-00006 vs transport individuel",
+        "montant": 3.3,
+        "description": "Economie estimee - TRJ-2026-00006 vs transport individuel",
         "trajetId": "TRJ-2026-00006",
         "statut": "confirme",
-        "createdAt": "2026-03-21T08:00:00.000Z"
+        "createdAt": "2026-03-19T17:50:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-5",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00005 - paiement capture",
+        "trajetId": "TRJ-2026-00005",
+        "statut": "confirme",
+        "createdAt": "2026-03-18T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-6",
+        "type": "economie_trajet",
+        "montant": 22.28,
+        "description": "Economie estimee - TRJ-2026-00005 vs transport individuel",
+        "trajetId": "TRJ-2026-00005",
+        "statut": "confirme",
+        "createdAt": "2026-03-18T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-3",
+        "type": "paiement_trajet",
+        "montant": 5,
+        "description": "Trajet TRJ-2026-00003 - paiement capture",
+        "trajetId": "TRJ-2026-00003",
+        "statut": "confirme",
+        "createdAt": "2026-03-16T09:00:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-4",
+        "type": "economie_trajet",
+        "montant": 2.2,
+        "description": "Economie estimee - TRJ-2026-00003 vs transport individuel",
+        "trajetId": "TRJ-2026-00003",
+        "statut": "confirme",
+        "createdAt": "2026-03-16T09:00:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-1",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00002 - paiement capture",
+        "trajetId": "TRJ-2026-00002",
+        "statut": "confirme",
+        "createdAt": "2026-03-14T18:10:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00001-2",
+        "type": "economie_trajet",
+        "montant": 9.13,
+        "description": "Economie estimee - TRJ-2026-00002 vs transport individuel",
+        "trajetId": "TRJ-2026-00002",
+        "statut": "confirme",
+        "createdAt": "2026-03-14T18:10:00.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00002",
+    "passengerId": "USR-2026-00002",
+    "economiesEstimees": 264.48,
+    "fondsEnTransit": 72,
+    "totalDepense": 76,
+    "nbTrajetsCompletes": 12,
+    "transactions": [
+      {
+        "id": "PTXN-USR-2026-00002-23",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00080 - paiement capture",
+        "trajetId": "TRJ-2026-00080",
+        "statut": "confirme",
+        "createdAt": "2026-05-02T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-24",
+        "type": "economie_trajet",
+        "montant": 12.93,
+        "description": "Economie estimee - TRJ-2026-00080 vs transport individuel",
+        "trajetId": "TRJ-2026-00080",
+        "statut": "confirme",
+        "createdAt": "2026-05-02T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-21",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00077 - paiement capture",
+        "trajetId": "TRJ-2026-00077",
+        "statut": "confirme",
+        "createdAt": "2026-04-29T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-22",
+        "type": "economie_trajet",
+        "montant": 22.83,
+        "description": "Economie estimee - TRJ-2026-00077 vs transport individuel",
+        "trajetId": "TRJ-2026-00077",
+        "statut": "confirme",
+        "createdAt": "2026-04-29T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-36",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00082 - mise en attente",
+        "trajetId": "TRJ-2026-00069",
+        "statut": "en_transit",
+        "createdAt": "2026-04-27T12:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-35",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00079 - mise en attente",
+        "trajetId": "TRJ-2026-00067",
+        "statut": "en_transit",
+        "createdAt": "2026-04-25T12:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-19",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00073 - paiement capture",
+        "trajetId": "TRJ-2026-00073",
+        "statut": "confirme",
+        "createdAt": "2026-04-24T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-20",
+        "type": "economie_trajet",
+        "montant": 45.87,
+        "description": "Economie estimee - TRJ-2026-00073 vs transport individuel",
+        "trajetId": "TRJ-2026-00073",
+        "statut": "confirme",
+        "createdAt": "2026-04-24T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-34",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00075 - mise en attente",
+        "trajetId": "TRJ-2026-00064",
+        "statut": "en_transit",
+        "createdAt": "2026-04-23T12:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-33",
+        "type": "holding",
+        "montant": 5,
+        "description": "Reservation RSV-2026-00072 - mise en attente",
+        "trajetId": "TRJ-2026-00061",
+        "statut": "en_transit",
+        "createdAt": "2026-04-22T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-17",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00056 - paiement capture",
+        "trajetId": "TRJ-2026-00056",
+        "statut": "confirme",
+        "createdAt": "2026-04-18T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-18",
+        "type": "economie_trajet",
+        "montant": 12.93,
+        "description": "Economie estimee - TRJ-2026-00056 vs transport individuel",
+        "trajetId": "TRJ-2026-00056",
+        "statut": "confirme",
+        "createdAt": "2026-04-18T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-15",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00053 - paiement capture",
+        "trajetId": "TRJ-2026-00053",
+        "statut": "confirme",
+        "createdAt": "2026-04-15T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-16",
+        "type": "economie_trajet",
+        "montant": 14.03,
+        "description": "Economie estimee - TRJ-2026-00053 vs transport individuel",
+        "trajetId": "TRJ-2026-00053",
+        "statut": "confirme",
+        "createdAt": "2026-04-15T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-32",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00054 - mise en attente",
+        "trajetId": "TRJ-2026-00045",
+        "statut": "en_transit",
+        "createdAt": "2026-04-13T12:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-31",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00051 - mise en attente",
+        "trajetId": "TRJ-2026-00043",
+        "statut": "en_transit",
+        "createdAt": "2026-04-11T12:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-13",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00049 - paiement capture",
+        "trajetId": "TRJ-2026-00049",
+        "statut": "confirme",
+        "createdAt": "2026-04-10T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-14",
+        "type": "economie_trajet",
+        "montant": 11.44,
+        "description": "Economie estimee - TRJ-2026-00049 vs transport individuel",
+        "trajetId": "TRJ-2026-00049",
+        "statut": "confirme",
+        "createdAt": "2026-04-10T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-30",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00047 - mise en attente",
+        "trajetId": "TRJ-2026-00040",
+        "statut": "en_transit",
+        "createdAt": "2026-04-09T12:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-29",
+        "type": "holding",
+        "montant": 5,
+        "description": "Reservation RSV-2026-00044 - mise en attente",
+        "trajetId": "TRJ-2026-00037",
+        "statut": "en_transit",
+        "createdAt": "2026-04-08T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-11",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00032 - paiement capture",
+        "trajetId": "TRJ-2026-00032",
+        "statut": "confirme",
+        "createdAt": "2026-04-04T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-12",
+        "type": "economie_trajet",
+        "montant": 12.93,
+        "description": "Economie estimee - TRJ-2026-00032 vs transport individuel",
+        "trajetId": "TRJ-2026-00032",
+        "statut": "confirme",
+        "createdAt": "2026-04-04T18:25:00.000Z"
       },
       {
         "id": "PTXN-USR-2026-00002-9",
         "type": "paiement_trajet",
-        "montant": 6.90,
-        "description": "Trajet TRJ-2026-00007 — paiement capturé",
-        "trajetId": "TRJ-2026-00007",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00029 - paiement capture",
+        "trajetId": "TRJ-2026-00029",
         "statut": "confirme",
-        "createdAt": "2026-03-22T08:15:00.000Z"
+        "createdAt": "2026-04-01T08:30:00.000Z"
       },
       {
         "id": "PTXN-USR-2026-00002-10",
         "type": "economie_trajet",
-        "montant": 9.30,
-        "description": "Économie estimée — TRJ-2026-00007 vs transport individuel",
-        "trajetId": "TRJ-2026-00007",
+        "montant": 32.12,
+        "description": "Economie estimee - TRJ-2026-00029 vs transport individuel",
+        "trajetId": "TRJ-2026-00029",
         "statut": "confirme",
-        "createdAt": "2026-03-22T08:15:00.000Z"
+        "createdAt": "2026-04-01T08:30:00.000Z"
       },
       {
-        "id": "PTXN-USR-2026-00002-11",
+        "id": "PTXN-USR-2026-00002-28",
         "type": "holding",
-        "montant": 6.00,
-        "description": "Réservation RES-2026-00012 — mise en attente 6$",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00026 - mise en attente",
+        "trajetId": "TRJ-2026-00021",
         "statut": "en_transit",
-        "createdAt": "2026-03-23T07:00:00.000Z"
+        "createdAt": "2026-03-30T12:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-27",
+        "type": "holding",
+        "montant": 6,
+        "description": "Reservation RSV-2026-00023 - mise en attente",
+        "trajetId": "TRJ-2026-00019",
+        "statut": "en_transit",
+        "createdAt": "2026-03-28T12:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-7",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00025 - paiement capture",
+        "trajetId": "TRJ-2026-00025",
+        "statut": "confirme",
+        "createdAt": "2026-03-27T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-8",
+        "type": "economie_trajet",
+        "montant": 18.32,
+        "description": "Economie estimee - TRJ-2026-00025 vs transport individuel",
+        "trajetId": "TRJ-2026-00025",
+        "statut": "confirme",
+        "createdAt": "2026-03-27T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-26",
+        "type": "holding",
+        "montant": 7,
+        "description": "Reservation RSV-2026-00019 - mise en attente",
+        "trajetId": "TRJ-2026-00016",
+        "statut": "en_transit",
+        "createdAt": "2026-03-26T12:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-25",
+        "type": "holding",
+        "montant": 5,
+        "description": "Reservation RSV-2026-00016 - mise en attente",
+        "trajetId": "TRJ-2026-00013",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T11:05:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-5",
+        "type": "paiement_trajet",
+        "montant": 7,
+        "description": "Trajet TRJ-2026-00008 - paiement capture",
+        "trajetId": "TRJ-2026-00008",
+        "statut": "confirme",
+        "createdAt": "2026-03-21T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-6",
+        "type": "economie_trajet",
+        "montant": 12.93,
+        "description": "Economie estimee - TRJ-2026-00008 vs transport individuel",
+        "trajetId": "TRJ-2026-00008",
+        "statut": "confirme",
+        "createdAt": "2026-03-21T18:25:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-3",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00005 - paiement capture",
+        "trajetId": "TRJ-2026-00005",
+        "statut": "confirme",
+        "createdAt": "2026-03-18T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-4",
+        "type": "economie_trajet",
+        "montant": 22.28,
+        "description": "Economie estimee - TRJ-2026-00005 vs transport individuel",
+        "trajetId": "TRJ-2026-00005",
+        "statut": "confirme",
+        "createdAt": "2026-03-18T08:30:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-1",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00001 - paiement capture",
+        "trajetId": "TRJ-2026-00001",
+        "statut": "confirme",
+        "createdAt": "2026-03-13T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00002-2",
+        "type": "economie_trajet",
+        "montant": 45.87,
+        "description": "Economie estimee - TRJ-2026-00001 vs transport individuel",
+        "trajetId": "TRJ-2026-00001",
+        "statut": "confirme",
+        "createdAt": "2026-03-13T08:45:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-23T07:00:00.000Z"
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00003",
+    "passengerId": "USR-2026-00003",
+    "economiesEstimees": 121.5,
+    "fondsEnTransit": 0,
+    "totalDepense": 24,
+    "nbTrajetsCompletes": 4,
+    "transactions": [
+      {
+        "id": "PTXN-USR-2026-00003-7",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00073 - paiement capture",
+        "trajetId": "TRJ-2026-00073",
+        "statut": "confirme",
+        "createdAt": "2026-04-24T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00003-8",
+        "type": "economie_trajet",
+        "montant": 45.87,
+        "description": "Economie estimee - TRJ-2026-00073 vs transport individuel",
+        "trajetId": "TRJ-2026-00073",
+        "statut": "confirme",
+        "createdAt": "2026-04-24T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00003-5",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00049 - paiement capture",
+        "trajetId": "TRJ-2026-00049",
+        "statut": "confirme",
+        "createdAt": "2026-04-10T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00003-6",
+        "type": "economie_trajet",
+        "montant": 11.44,
+        "description": "Economie estimee - TRJ-2026-00049 vs transport individuel",
+        "trajetId": "TRJ-2026-00049",
+        "statut": "confirme",
+        "createdAt": "2026-04-10T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00003-3",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00025 - paiement capture",
+        "trajetId": "TRJ-2026-00025",
+        "statut": "confirme",
+        "createdAt": "2026-03-27T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00003-4",
+        "type": "economie_trajet",
+        "montant": 18.32,
+        "description": "Economie estimee - TRJ-2026-00025 vs transport individuel",
+        "trajetId": "TRJ-2026-00025",
+        "statut": "confirme",
+        "createdAt": "2026-03-27T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00003-1",
+        "type": "paiement_trajet",
+        "montant": 6,
+        "description": "Trajet TRJ-2026-00001 - paiement capture",
+        "trajetId": "TRJ-2026-00001",
+        "statut": "confirme",
+        "createdAt": "2026-03-13T08:45:00.000Z"
+      },
+      {
+        "id": "PTXN-USR-2026-00003-2",
+        "type": "economie_trajet",
+        "montant": 45.87,
+        "description": "Economie estimee - TRJ-2026-00001 vs transport individuel",
+        "trajetId": "TRJ-2026-00001",
+        "statut": "confirme",
+        "createdAt": "2026-03-13T08:45:00.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00004",
+    "passengerId": "USR-2026-00004",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00005",
+    "passengerId": "USR-2026-00005",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00006",
+    "passengerId": "USR-2026-00006",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00007",
+    "passengerId": "USR-2026-00007",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00008",
+    "passengerId": "USR-2026-00008",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00009",
+    "passengerId": "USR-2026-00009",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00010",
+    "passengerId": "USR-2026-00010",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00011",
+    "passengerId": "USR-2026-00011",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00012",
+    "passengerId": "USR-2026-00012",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00013",
+    "passengerId": "USR-2026-00013",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00014",
+    "passengerId": "USR-2026-00014",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00015",
+    "passengerId": "USR-2026-00015",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00016",
+    "passengerId": "USR-2026-00016",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00017",
+    "passengerId": "USR-2026-00017",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00018",
+    "passengerId": "USR-2026-00018",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00019",
+    "passengerId": "USR-2026-00019",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00020",
+    "passengerId": "USR-2026-00020",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00021",
+    "passengerId": "USR-2026-00021",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00022",
+    "passengerId": "USR-2026-00022",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00023",
+    "passengerId": "USR-2026-00023",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00024",
+    "passengerId": "USR-2026-00024",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00025",
+    "passengerId": "USR-2026-00025",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00026",
+    "passengerId": "USR-2026-00026",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00027",
+    "passengerId": "USR-2026-00027",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00028",
+    "passengerId": "USR-2026-00028",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00029",
+    "passengerId": "USR-2026-00029",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00030",
+    "passengerId": "USR-2026-00030",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00031",
+    "passengerId": "USR-2026-00031",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "PFA-USR-2026-00032",
+    "passengerId": "USR-2026-00032",
+    "economiesEstimees": 0,
+    "fondsEnTransit": 0,
+    "totalDepense": 0,
+    "nbTrajetsCompletes": 0,
+    "transactions": [],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
   }
 ]

@@ -2,109 +2,1516 @@
   {
     "id": "BANK-USR-2026-00001",
     "userId": "USR-2026-00001",
-    "ibanMasque": "***-***-1234",
+    "ibanMasque": "***-***-1000",
     "nomBanque": "Banque TD",
-    "soldeDisponible": 1250.75,
+    "soldeDisponible": 348.86,
     "montantEnTransit": 0,
     "transactions": [
       {
-        "id": "BTXN-001",
+        "id": "BTXN-USR-2026-00001-1",
         "type": "depot",
-        "montant": 500,
-        "description": "Dépôt initial de test",
+        "montant": 250,
+        "description": "Depot initial de test",
         "statut": "complete",
-        "createdAt": "2026-01-15T10:00:00.000Z"
+        "createdAt": "2025-08-17T08:00:00.000Z"
       },
       {
-        "id": "BTXN-002",
+        "id": "BTXN-USR-2026-00001-2",
         "type": "depot",
-        "montant": 800,
-        "description": "Dépôt test #2",
+        "montant": 143.86,
+        "description": "Ajustement seed donnees dynamiques",
         "statut": "complete",
-        "createdAt": "2026-02-10T14:30:00.000Z"
+        "createdAt": "2026-03-25T12:41:19.000Z"
       },
       {
-        "id": "BTXN-003",
+        "id": "BTXN-USR-2026-00001-3",
         "type": "retrait",
-        "montant": 49.25,
-        "description": "Retrait vers Banque TD ***1234",
+        "montant": 45,
+        "description": "Retrait vers Banque TD",
         "statut": "complete",
-        "createdAt": "2026-03-01T09:15:00.000Z"
+        "createdAt": "2026-03-25T12:41:19.000Z"
       }
     ],
-    "updatedAt": "2026-03-20T14:30:00.000Z"
+    "updatedAt": "2026-03-25T12:41:19.000Z"
   },
   {
     "id": "BANK-USR-2026-00002",
     "userId": "USR-2026-00002",
-    "ibanMasque": "***-***-5678",
+    "ibanMasque": "***-***-1137",
     "nomBanque": "Banque RBC",
-    "soldeDisponible": 320.5,
+    "soldeDisponible": 525.9,
     "montantEnTransit": 0,
     "transactions": [
       {
-        "id": "BTXN-004",
+        "id": "BTXN-USR-2026-00002-1",
         "type": "depot",
-        "montant": 400,
-        "description": "Dépôt initial de test",
+        "montant": 425,
+        "description": "Depot initial de test",
         "statut": "complete",
-        "createdAt": "2026-01-20T11:00:00.000Z"
+        "createdAt": "2025-08-26T09:00:00.000Z"
       },
       {
-        "id": "BTXN-005",
-        "type": "retrait",
-        "montant": 79.5,
-        "description": "Retrait vers Banque RBC ***5678",
+        "id": "BTXN-USR-2026-00002-2",
+        "type": "depot",
+        "montant": 100.9,
+        "description": "Ajustement seed donnees dynamiques",
         "statut": "complete",
-        "createdAt": "2026-02-25T16:00:00.000Z"
+        "createdAt": "2026-03-25T12:41:19.000Z"
       }
     ],
-    "updatedAt": "2026-03-20T09:15:00.000Z"
+    "updatedAt": "2026-03-25T12:41:19.000Z"
   },
   {
     "id": "BANK-USR-2026-00003",
     "userId": "USR-2026-00003",
-    "ibanMasque": "***-***-9012",
+    "ibanMasque": "***-***-1274",
     "nomBanque": "Desjardins",
-    "soldeDisponible": 875.2,
+    "soldeDisponible": 588.47,
     "montantEnTransit": 0,
     "transactions": [
       {
-        "id": "BTXN-006",
+        "id": "BTXN-USR-2026-00003-1",
         "type": "depot",
-        "montant": 875.2,
-        "description": "Dépôt initial de test",
+        "montant": 600,
+        "description": "Depot initial de test",
         "statut": "complete",
-        "createdAt": "2026-01-10T08:00:00.000Z"
+        "createdAt": "2025-09-04T10:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00003-2",
+        "type": "depot",
+        "montant": 48.47,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00003-3",
+        "type": "retrait",
+        "montant": 60,
+        "description": "Retrait vers Desjardins",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
       }
     ],
-    "updatedAt": "2026-03-18T11:20:00.000Z"
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00004",
+    "userId": "USR-2026-00004",
+    "ibanMasque": "***-***-1411",
+    "nomBanque": "Banque Scotia",
+    "soldeDisponible": 775,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00004-1",
+        "type": "depot",
+        "montant": 775,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-09-13T11:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00004-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00005",
+    "userId": "USR-2026-00005",
+    "ibanMasque": "***-***-1548",
+    "nomBanque": "Banque TD",
+    "soldeDisponible": 889.28,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00005-1",
+        "type": "depot",
+        "montant": 950,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-09-22T08:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00005-2",
+        "type": "depot",
+        "montant": 14.28,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00005-3",
+        "type": "retrait",
+        "montant": 75,
+        "description": "Retrait vers Banque TD",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00006",
+    "userId": "USR-2026-00006",
+    "ibanMasque": "***-***-1685",
+    "nomBanque": "Banque RBC",
+    "soldeDisponible": 1133.33,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00006-1",
+        "type": "depot",
+        "montant": 1125,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-10-01T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00006-2",
+        "type": "depot",
+        "montant": 8.33,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00007",
+    "userId": "USR-2026-00007",
+    "ibanMasque": "***-***-1822",
+    "nomBanque": "Desjardins",
+    "soldeDisponible": 1215.95,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00007-1",
+        "type": "depot",
+        "montant": 1300,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-10-10T10:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00007-2",
+        "type": "depot",
+        "montant": 5.95,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00007-3",
+        "type": "retrait",
+        "montant": 90,
+        "description": "Retrait vers Desjardins",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00008",
+    "userId": "USR-2026-00008",
+    "ibanMasque": "***-***-1959",
+    "nomBanque": "Banque Scotia",
+    "soldeDisponible": 1491.66,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00008-1",
+        "type": "depot",
+        "montant": 1475,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-10-19T11:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00008-2",
+        "type": "depot",
+        "montant": 16.66,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00009",
+    "userId": "USR-2026-00009",
+    "ibanMasque": "***-***-2096",
+    "nomBanque": "Banque TD",
+    "soldeDisponible": 1550.35,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00009-1",
+        "type": "depot",
+        "montant": 1650,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-10-28T08:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00009-2",
+        "type": "depot",
+        "montant": 5.35,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00009-3",
+        "type": "retrait",
+        "montant": 105,
+        "description": "Retrait vers Banque TD",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00010",
+    "userId": "USR-2026-00010",
+    "ibanMasque": "***-***-2233",
+    "nomBanque": "Banque RBC",
+    "soldeDisponible": 1831.25,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00010-1",
+        "type": "depot",
+        "montant": 1825,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-11-06T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00010-2",
+        "type": "depot",
+        "montant": 6.25,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00011",
+    "userId": "USR-2026-00011",
+    "ibanMasque": "***-***-2370",
+    "nomBanque": "Desjardins",
+    "soldeDisponible": 1884.46,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00011-1",
+        "type": "depot",
+        "montant": 2000,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-11-15T10:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00011-2",
+        "type": "depot",
+        "montant": 4.46,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00011-3",
+        "type": "retrait",
+        "montant": 120,
+        "description": "Retrait vers Desjardins",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00012",
+    "userId": "USR-2026-00012",
+    "ibanMasque": "***-***-2507",
+    "nomBanque": "Banque Scotia",
+    "soldeDisponible": 2175,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00012-1",
+        "type": "depot",
+        "montant": 2175,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-11-24T11:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00012-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00013",
+    "userId": "USR-2026-00013",
+    "ibanMasque": "***-***-2644",
+    "nomBanque": "Banque TD",
+    "soldeDisponible": 2152.9000000000005,
+    "montantEnTransit": 98.1,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00013-1",
+        "type": "depot",
+        "montant": 2350,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-12-03T08:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00013-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00013-3",
+        "type": "retrait",
+        "montant": 135,
+        "description": "Retrait vers Banque TD",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-2026-21525",
+        "type": "transit_sortant",
+        "montant": 6,
+        "description": "Réservation RSV-2026-41632 — mise en attente 6$",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T16:47:49.171Z"
+      },
+      {
+        "id": "BTXN-2026-53601",
+        "type": "transit_sortant",
+        "montant": 4.35,
+        "description": "Trajet TRJ-2026-37028 — solde pré-autorisé (6$ déjà retenus)",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T16:47:51.264Z"
+      },
+      {
+        "id": "BTXN-2026-78634",
+        "type": "transit_sortant",
+        "montant": 6,
+        "description": "Réservation RSV-2026-30933 — mise en attente 6$",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T17:16:45.767Z"
+      },
+      {
+        "id": "BTXN-2026-11321",
+        "type": "transit_sortant",
+        "montant": 4.35,
+        "description": "Trajet TRJ-2026-72577 — solde pré-autorisé (6$ déjà retenus)",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T17:16:46.293Z"
+      },
+      {
+        "id": "BTXN-2026-64218",
+        "type": "transit_sortant",
+        "montant": 6,
+        "description": "Réservation RSV-2026-35013 — mise en attente 6$",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T23:45:18.717Z"
+      },
+      {
+        "id": "BTXN-2026-46622",
+        "type": "transit_sortant",
+        "montant": 4.35,
+        "description": "Trajet TRJ-2026-86630 — solde pré-autorisé (6$ déjà retenus)",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T23:45:20.324Z"
+      },
+      {
+        "id": "BTXN-2026-44380",
+        "type": "transit_sortant",
+        "montant": 6,
+        "description": "Réservation RSV-2026-30950 — mise en attente 6$",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T23:51:51.205Z"
+      },
+      {
+        "id": "BTXN-2026-50302",
+        "type": "transit_sortant",
+        "montant": 4.35,
+        "description": "Trajet TRJ-2026-41835 — solde pré-autorisé (6$ déjà retenus)",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T23:51:56.209Z"
+      },
+      {
+        "id": "BTXN-2026-67002",
+        "type": "transit_sortant",
+        "montant": 6,
+        "description": "Réservation RSV-2026-38432 — mise en attente 6$",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T23:53:04.775Z"
+      },
+      {
+        "id": "BTXN-2026-17211",
+        "type": "transit_sortant",
+        "montant": 4.35,
+        "description": "Trajet TRJ-2026-11332 — solde pré-autorisé (6$ déjà retenus)",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T23:53:04.802Z"
+      },
+      {
+        "id": "BTXN-2026-77754",
+        "type": "transit_sortant",
+        "montant": 6,
+        "description": "Réservation RSV-2026-14522 — mise en attente 6$",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T23:53:53.564Z"
+      },
+      {
+        "id": "BTXN-2026-70518",
+        "type": "transit_sortant",
+        "montant": 4.35,
+        "description": "Trajet TRJ-2026-55270 — solde pré-autorisé (6$ déjà retenus)",
+        "statut": "en_transit",
+        "createdAt": "2026-03-25T23:53:53.598Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T23:53:53.598Z"
+  },
+  {
+    "id": "BANK-USR-2026-00014",
+    "userId": "USR-2026-00014",
+    "ibanMasque": "***-***-2781",
+    "nomBanque": "Banque RBC",
+    "soldeDisponible": 2525,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00014-1",
+        "type": "depot",
+        "montant": 2525,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-12-12T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00014-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00015",
+    "userId": "USR-2026-00015",
+    "ibanMasque": "***-***-2918",
+    "nomBanque": "Desjardins",
+    "soldeDisponible": 2550,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00015-1",
+        "type": "depot",
+        "montant": 2700,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-12-21T10:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00015-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00015-3",
+        "type": "retrait",
+        "montant": 150,
+        "description": "Retrait vers Desjardins",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00016",
+    "userId": "USR-2026-00016",
+    "ibanMasque": "***-***-3055",
+    "nomBanque": "Banque Scotia",
+    "soldeDisponible": 2875,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00016-1",
+        "type": "depot",
+        "montant": 2875,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2025-12-30T11:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00016-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00017",
+    "userId": "USR-2026-00017",
+    "ibanMasque": "***-***-3192",
+    "nomBanque": "Banque TD",
+    "soldeDisponible": 2885,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00017-1",
+        "type": "depot",
+        "montant": 3050,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-01-08T08:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00017-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00017-3",
+        "type": "retrait",
+        "montant": 165,
+        "description": "Retrait vers Banque TD",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00018",
+    "userId": "USR-2026-00018",
+    "ibanMasque": "***-***-3329",
+    "nomBanque": "Banque RBC",
+    "soldeDisponible": 3225,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00018-1",
+        "type": "depot",
+        "montant": 3225,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-01-17T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00018-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00019",
+    "userId": "USR-2026-00019",
+    "ibanMasque": "***-***-3466",
+    "nomBanque": "Desjardins",
+    "soldeDisponible": 3220,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00019-1",
+        "type": "depot",
+        "montant": 3400,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-01-26T10:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00019-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00019-3",
+        "type": "retrait",
+        "montant": 180,
+        "description": "Retrait vers Desjardins",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00020",
+    "userId": "USR-2026-00020",
+    "ibanMasque": "***-***-3603",
+    "nomBanque": "Banque Scotia",
+    "soldeDisponible": 3575,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00020-1",
+        "type": "depot",
+        "montant": 3575,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-02-04T11:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00020-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00021",
+    "userId": "USR-2026-00021",
+    "ibanMasque": "***-***-3740",
+    "nomBanque": "Banque TD",
+    "soldeDisponible": 3555,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00021-1",
+        "type": "depot",
+        "montant": 3750,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-02-13T08:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00021-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00021-3",
+        "type": "retrait",
+        "montant": 195,
+        "description": "Retrait vers Banque TD",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00022",
+    "userId": "USR-2026-00022",
+    "ibanMasque": "***-***-3877",
+    "nomBanque": "Banque RBC",
+    "soldeDisponible": 3925,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00022-1",
+        "type": "depot",
+        "montant": 3925,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-02-22T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00022-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00023",
+    "userId": "USR-2026-00023",
+    "ibanMasque": "***-***-4014",
+    "nomBanque": "Desjardins",
+    "soldeDisponible": 3890,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00023-1",
+        "type": "depot",
+        "montant": 4100,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-03-03T10:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00023-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00023-3",
+        "type": "retrait",
+        "montant": 210,
+        "description": "Retrait vers Desjardins",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00024",
+    "userId": "USR-2026-00024",
+    "ibanMasque": "***-***-4151",
+    "nomBanque": "Banque Scotia",
+    "soldeDisponible": 4275,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00024-1",
+        "type": "depot",
+        "montant": 4275,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-03-12T11:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00024-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00025",
+    "userId": "USR-2026-00025",
+    "ibanMasque": "***-***-4288",
+    "nomBanque": "Banque TD",
+    "soldeDisponible": 4225,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00025-1",
+        "type": "depot",
+        "montant": 4450,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-03-21T08:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00025-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00025-3",
+        "type": "retrait",
+        "montant": 225,
+        "description": "Retrait vers Banque TD",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00026",
+    "userId": "USR-2026-00026",
+    "ibanMasque": "***-***-4425",
+    "nomBanque": "Banque RBC",
+    "soldeDisponible": 4625,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00026-1",
+        "type": "depot",
+        "montant": 4625,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-03-30T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00026-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00027",
+    "userId": "USR-2026-00027",
+    "ibanMasque": "***-***-4562",
+    "nomBanque": "Desjardins",
+    "soldeDisponible": 4560,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00027-1",
+        "type": "depot",
+        "montant": 4800,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-04-08T10:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00027-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00027-3",
+        "type": "retrait",
+        "montant": 240,
+        "description": "Retrait vers Desjardins",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00028",
+    "userId": "USR-2026-00028",
+    "ibanMasque": "***-***-4699",
+    "nomBanque": "Banque Scotia",
+    "soldeDisponible": 4975,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00028-1",
+        "type": "depot",
+        "montant": 4975,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-04-17T11:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00028-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00029",
+    "userId": "USR-2026-00029",
+    "ibanMasque": "***-***-4836",
+    "nomBanque": "Banque TD",
+    "soldeDisponible": 4895,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00029-1",
+        "type": "depot",
+        "montant": 5150,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-04-26T08:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00029-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00029-3",
+        "type": "retrait",
+        "montant": 255,
+        "description": "Retrait vers Banque TD",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00030",
+    "userId": "USR-2026-00030",
+    "ibanMasque": "***-***-4973",
+    "nomBanque": "Banque RBC",
+    "soldeDisponible": 5325,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00030-1",
+        "type": "depot",
+        "montant": 5325,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-05-05T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00030-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00031",
+    "userId": "USR-2026-00031",
+    "ibanMasque": "***-***-5110",
+    "nomBanque": "Desjardins",
+    "soldeDisponible": 5230,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00031-1",
+        "type": "depot",
+        "montant": 5500,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-05-14T10:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00031-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00031-3",
+        "type": "retrait",
+        "montant": 270,
+        "description": "Retrait vers Desjardins",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
+  },
+  {
+    "id": "BANK-USR-2026-00032",
+    "userId": "USR-2026-00032",
+    "ibanMasque": "***-***-5247",
+    "nomBanque": "Banque Scotia",
+    "soldeDisponible": 5675,
+    "montantEnTransit": 0,
+    "transactions": [
+      {
+        "id": "BTXN-USR-2026-00032-1",
+        "type": "depot",
+        "montant": 5675,
+        "description": "Depot initial de test",
+        "statut": "complete",
+        "createdAt": "2026-05-23T11:00:00.000Z"
+      },
+      {
+        "id": "BTXN-USR-2026-00032-2",
+        "type": "depot",
+        "montant": 0,
+        "description": "Ajustement seed donnees dynamiques",
+        "statut": "complete",
+        "createdAt": "2026-03-25T12:41:19.000Z"
+      }
+    ],
+    "updatedAt": "2026-03-25T12:41:19.000Z"
   },
   {
     "id": "BANK-APP-LA-CITE",
     "userId": "ADMIN-SYSTEM",
     "ibanMasque": "***-***-0000",
-    "nomBanque": "Compte Plateforme Cité-Voiturage",
-    "soldeDisponible": 245.8,
-    "montantEnTransit": 0,
+    "nomBanque": "Compte Plateforme Cite-Voiturage",
+    "soldeDisponible": 45.3,
+    "montantEnTransit": 2.7,
     "transactions": [
       {
-        "id": "BTXN-007",
-        "type": "transit_entrant",
-        "montant": 3,
-        "description": "Commission trajet TRJ-2026-00001",
+        "id": "BTXN-APP-USR-2026-00008-1",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00080",
         "statut": "complete",
-        "createdAt": "2026-03-15T08:45:00.000Z"
+        "createdAt": "2026-05-02T18:25:00.000Z"
       },
       {
-        "id": "BTXN-008",
-        "type": "transit_entrant",
-        "montant": 2.25,
-        "description": "Commission trajet TRJ-2026-00002",
+        "id": "BTXN-APP-USR-2026-00008-2",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00080",
         "statut": "complete",
-        "createdAt": "2026-03-18T17:30:00.000Z"
+        "createdAt": "2026-05-02T18:25:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00007-1",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00079",
+        "statut": "complete",
+        "createdAt": "2026-05-01T09:15:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00006-1",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00078",
+        "statut": "complete",
+        "createdAt": "2026-04-30T17:50:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00005-1",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00077",
+        "statut": "complete",
+        "createdAt": "2026-04-29T08:30:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00005-2",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00077",
+        "statut": "complete",
+        "createdAt": "2026-04-29T08:30:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00003-1",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00075",
+        "statut": "complete",
+        "createdAt": "2026-04-27T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00002-1",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00074",
+        "statut": "complete",
+        "createdAt": "2026-04-25T18:10:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00001-1",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00073",
+        "statut": "complete",
+        "createdAt": "2026-04-24T08:45:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00001-2",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00073",
+        "statut": "complete",
+        "createdAt": "2026-04-24T08:45:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00012-1",
+        "type": "transit_entrant",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00060",
+        "statut": "en_transit",
+        "createdAt": "2026-04-21T11:05:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00011-1",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00059",
+        "statut": "complete",
+        "createdAt": "2026-04-21T09:20:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00010-1",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00058",
+        "statut": "complete",
+        "createdAt": "2026-04-20T18:35:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00009-1",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00057",
+        "statut": "complete",
+        "createdAt": "2026-04-19T08:50:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00008-3",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00056",
+        "statut": "complete",
+        "createdAt": "2026-04-18T18:25:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00008-4",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00056",
+        "statut": "complete",
+        "createdAt": "2026-04-18T18:25:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00007-2",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00055",
+        "statut": "complete",
+        "createdAt": "2026-04-17T09:15:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00006-2",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00054",
+        "statut": "complete",
+        "createdAt": "2026-04-16T17:50:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00005-3",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00053",
+        "statut": "complete",
+        "createdAt": "2026-04-15T08:30:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00005-4",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00053",
+        "statut": "complete",
+        "createdAt": "2026-04-15T08:30:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00003-2",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00051",
+        "statut": "complete",
+        "createdAt": "2026-04-13T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00002-2",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00050",
+        "statut": "complete",
+        "createdAt": "2026-04-11T18:10:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00001-3",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00049",
+        "statut": "complete",
+        "createdAt": "2026-04-10T08:45:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00001-4",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00049",
+        "statut": "complete",
+        "createdAt": "2026-04-10T08:45:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00012-2",
+        "type": "transit_entrant",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00036",
+        "statut": "en_transit",
+        "createdAt": "2026-04-07T11:05:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00011-2",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00035",
+        "statut": "complete",
+        "createdAt": "2026-04-07T09:20:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00010-2",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00034",
+        "statut": "complete",
+        "createdAt": "2026-04-06T18:35:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00009-2",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00033",
+        "statut": "complete",
+        "createdAt": "2026-04-05T08:50:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00008-5",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00032",
+        "statut": "complete",
+        "createdAt": "2026-04-04T18:25:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00008-6",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00032",
+        "statut": "complete",
+        "createdAt": "2026-04-04T18:25:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00007-3",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00031",
+        "statut": "complete",
+        "createdAt": "2026-04-03T09:15:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00006-3",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00030",
+        "statut": "complete",
+        "createdAt": "2026-04-02T17:50:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00005-5",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00029",
+        "statut": "complete",
+        "createdAt": "2026-04-01T08:30:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00005-6",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00029",
+        "statut": "complete",
+        "createdAt": "2026-04-01T08:30:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00003-3",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00027",
+        "statut": "complete",
+        "createdAt": "2026-03-30T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00002-3",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00026",
+        "statut": "complete",
+        "createdAt": "2026-03-28T18:10:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00001-5",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00025",
+        "statut": "complete",
+        "createdAt": "2026-03-27T08:45:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00001-6",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00025",
+        "statut": "complete",
+        "createdAt": "2026-03-27T08:45:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00012-3",
+        "type": "transit_entrant",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00012",
+        "statut": "en_transit",
+        "createdAt": "2026-03-24T11:05:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00011-3",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00011",
+        "statut": "complete",
+        "createdAt": "2026-03-24T09:20:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00010-3",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00010",
+        "statut": "complete",
+        "createdAt": "2026-03-23T18:35:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00009-3",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00009",
+        "statut": "complete",
+        "createdAt": "2026-03-22T08:50:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00008-7",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00008",
+        "statut": "complete",
+        "createdAt": "2026-03-21T18:25:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00008-8",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00008",
+        "statut": "complete",
+        "createdAt": "2026-03-21T18:25:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00007-4",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00007",
+        "statut": "complete",
+        "createdAt": "2026-03-20T09:15:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00006-4",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00006",
+        "statut": "complete",
+        "createdAt": "2026-03-19T17:50:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00005-7",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00005",
+        "statut": "complete",
+        "createdAt": "2026-03-18T08:30:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00005-8",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00005",
+        "statut": "complete",
+        "createdAt": "2026-03-18T08:30:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00003-4",
+        "type": "depot",
+        "montant": 0.75,
+        "description": "Commission TRJ-2026-00003",
+        "statut": "complete",
+        "createdAt": "2026-03-16T09:00:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00002-4",
+        "type": "depot",
+        "montant": 1.05,
+        "description": "Commission TRJ-2026-00002",
+        "statut": "complete",
+        "createdAt": "2026-03-14T18:10:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00001-7",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00001",
+        "statut": "complete",
+        "createdAt": "2026-03-13T08:45:00.000Z"
+      },
+      {
+        "id": "BTXN-APP-USR-2026-00001-8",
+        "type": "depot",
+        "montant": 0.9,
+        "description": "Commission TRJ-2026-00001",
+        "statut": "complete",
+        "createdAt": "2026-03-13T08:45:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-20T14:30:00.000Z"
+    "updatedAt": "2026-03-25T12:41:19.000Z"
   }
 ]

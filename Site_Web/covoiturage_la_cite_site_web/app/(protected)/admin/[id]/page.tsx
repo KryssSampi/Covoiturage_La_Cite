@@ -5,8 +5,7 @@ import { useAppState } from "@/core/state/app_state";
 import { useParams, useRouter } from "next/navigation";
 import { useLoader } from "@/core/context/loader.context";
 import UsersList, { type AdminUserRow } from "@/features/admin/components/UsersList";
-import AdminTripsPanel from "@/features/admin/components/AdminTripsPanel";
-import type { AdminTrip, SimulateResult, SimulationEvent } from "@/features/admin/types/adminTrips";
+import SimulationPanel from "@/features/admin/components/SimulationPanel";
 
 export default function AdminDashboardPage() {
   const appState = useAppState();
@@ -19,12 +18,6 @@ export default function AdminDashboardPage() {
   const [users, setUsers] = useState<AdminUserRow[]>([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState<string | null>(null);
-
-  const [trips, setTrips] = useState<AdminTrip[]>([]);
-  const [tripsLoading, setTripsLoading] = useState(false);
-  const [tripsError, setTripsError] = useState<string | null>(null);
-  const [simResult, setSimResult] = useState<SimulateResult | null>(null);
-  const [simBusy, setSimBusy] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -54,54 +47,11 @@ export default function AdminDashboardPage() {
     }
   }, []);
 
-  const loadTrips = useCallback(async () => {
-    setTripsLoading(true);
-    setTripsError(null);
-    try {
-      const res = await fetch("/api/admin/trips");
-      if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
-      setTrips(await res.json());
-    } catch (error) {
-      setTripsError(error instanceof Error ? error.message : "Erreur de chargement");
-    } finally {
-      setTripsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     if (!user || user.role.toString().toLowerCase() !== "admin") return;
     if (user.id !== routeId) return;
-    void Promise.all([loadUsers(), loadTrips()]);
-  }, [loadTrips, loadUsers, routeId, user]);
-
-  const handleSimulate = useCallback(async (tripId: string, event: SimulationEvent) => {
-    setSimBusy(true);
-    setSimResult(null);
-    try {
-      const res = await fetch("/api/admin/simulate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tripId, event }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setSimResult({ success: false, event, tripId, message: data.error ?? "Erreur", affectedReservations: 0 });
-      } else {
-        setSimResult(data);
-        await loadTrips();
-      }
-    } catch (error) {
-      setSimResult({
-        success: false,
-        event,
-        tripId,
-        message: error instanceof Error ? error.message : "Erreur",
-        affectedReservations: 0,
-      });
-    } finally {
-      setSimBusy(false);
-    }
-  }, [loadTrips]);
+    void loadUsers();
+  }, [loadUsers, routeId, user]);
 
   if (!user || user.id !== routeId || user.role.toString().toLowerCase() !== "admin") {
     return null;
@@ -116,9 +66,8 @@ export default function AdminDashboardPage() {
         <p className="text-gray-500 text-sm mt-1">
           Connecte en tant que{" "}
           <span className="font-medium">
-            {user.prenom} {user.nom}
-          </span>{" "}
-          - {user.email}
+            {user.firstName} {user.lastName}
+          </span>
         </p>
       </div>
 
@@ -129,15 +78,7 @@ export default function AdminDashboardPage() {
         <UsersList users={users} loading={usersLoading} error={usersError} />
       </section>
 
-      <AdminTripsPanel
-        trips={trips}
-        loading={tripsLoading}
-        error={tripsError}
-        onRefresh={loadTrips}
-        simResult={simResult}
-        simBusy={simBusy}
-        onSimulate={handleSimulate}
-      />
+      <SimulationPanel />
 
       <div className="mt-8">
         <button

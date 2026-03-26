@@ -47,6 +47,9 @@ const OUTPUT = path.join(ROOT, ".docs", ".architecture-update", "architecture.md
  * Clé = chemin relatif depuis la racine du projet (séparateurs POSIX).
  */
 const EXACT_COMMENTS = {
+  // ── .claude/ ───────────────────────────────────────────────────────────────
+  ".claude/settings.local.json": "Configuration locale Claude Code — permissions shell autorisées (Bash, Node)",
+
   // ── Racine ────────────────────────────────────────────────────────────────
   "convert-script.js":      "Script de migration des imports (anciens paths → nouveaux alias)",
   "eslint.config.mjs":      "Configuration ESLint (règles JS/TS, plugins, ignores)",
@@ -78,6 +81,9 @@ const EXACT_COMMENTS = {
   "app/api/unsplash/route.ts": "Route proxy Unsplash — récupère photos de villes sans exposer la clé API",
 
   // ── core/ ─────────────────────────────────────────────────────────────────
+  "core/config/UserStatAdminConfig.ts":   "Configuration admin — seuils de tendance KPI (CO₂, GoScore, notes, trajets), labels GoScore, facteurs de conversion éco, seuils badges",
+  "core/context/db.context.tsx":          "Context React DB — charge et cache toutes les entités (trips, users, reservations, etc.), expose données filtrées par utilisateur courant",
+  "core/context/trip.context.tsx":        "Context React trajets — actions CRUD (créer, démarrer, compléter, annuler trajet) + réservation (demander, accepter, refuser, embarquement)",
   "core/context/loader.context.tsx":      "Context React du loader global — contrôle l'affichage du spinner",
   "core/lib/unsplash.ts":                 "Client Unsplash — fetch photos de destinations avec cache",
   "core/services/getlocation.current.ts": "Service géolocalisation — récupère position GPS courante",
@@ -140,6 +146,7 @@ const EXACT_COMMENTS = {
   "domain/models/ZonesCampuModel.ts":                "Table zones_campu — zones campus (ex: pavillons La Cité)",
 
   // ── features/auth/ ────────────────────────────────────────────────────────
+  "features/admin/types/adminTrips.ts":  "Types admin — SimulationEvent, AdminTrip, AdminReservation et SimulateResult pour la simulation d'événements trajet",
   "features/auth/components/loginArea.tsx":  "Formulaire de connexion complet (email/password + validation)",
   "features/auth/hooks/useAuth.tsx":         "Hook session — vérifie token, retourne user + rôle courant",
   "features/auth/hooks/useloginForm.tsx":    "Hook formulaire login — gestion champs, validation, submit",
@@ -201,6 +208,21 @@ const EXACT_COMMENTS = {
   "features/dashboard/types/trip.types.ts":               "Types trajet UI simplifié (affiché dans les cartes dashboard)",
   "features/dashboard/types/trips.way.types.ts":          "Types sens/direction de trajet (aller, retour, aller-retour)",
 
+  // ── features/dashboard/converters/ ────────────────────────────────────────
+  "features/dashboard/converters/dashboard.converter.ts":            "Convertisseur dashboard — transforme TripModel/ReservationModel/NotificationModel en types UI dashboard (Trip, Reservation, PublishedTrip, Notification, Review)",
+
+  // ── features/reservations/converters/ ─────────────────────────────────────
+  "features/reservations/converters/reservation.converter.ts":       "Convertisseur réservations — transforme ReservationModel en vue passager (Reservation) et vue conducteur (ReservationRequest)",
+
+  // ── features/search/converters/ ───────────────────────────────────────────
+  "features/search/converters/search.converter.ts":                  "Convertisseur recherche — transforme TripSearchDTO et TripModel en TripWithCoords pour les résultats de recherche cartographiques",
+
+  // ── features/trajet-en-cours/converters/ ──────────────────────────────────
+  "features/trajet-en-cours/converters/trajet-en-cours.converter.ts":"Convertisseur trajet en cours — transforme TripModel + UserModel + VehicleModel en types UI (ConducteurInfo, PassagerInfo, TrajetEnCoursData)",
+
+  // ── features/trajets/converters/ ──────────────────────────────────────────
+  "features/trajets/converters/trip.converter.ts":                   "Convertisseur trajets — transforme TripModel en PublishedTripViewData (TripDriver, TripVehicle, TripPoint, TripPreferencesView, TripStatusInfo)",
+
   // ── features/homepage/ ────────────────────────────────────────────────────
   "features/homepage/component/header.tsx":           "Header navigation page d'accueil (logo, liens, langue, CTA)",
   "features/homepage/component/hero.tsx":             "Section hero — accroche principale + CTA inscription/connexion",
@@ -248,6 +270,7 @@ const EXACT_COMMENTS = {
   "shared/components/NavigationLoader.tsx":"Loader de navigation — barre de progression en haut de page",
   "shared/hooks/usebreakpoint.ts":         "Hook breakpoints — retourne le breakpoint Tailwind actif (sm, md, lg, xl)",
   "shared/hooks/useheader.tsx":            "Hook header — état sticky, scroll, menu mobile ouvert/fermé",
+  "shared/hooks/useheader.tsx.tmp.24528.1774359567541": "Fichier temporaire — copie de travail du hook useheader lors d'un enregistrement partiel (à supprimer)",
   "shared/hooks/useismobileortable.ts":    "Hook device — retourne true si l'écran est mobile ou tablette",
   "shared/hooks/usemobileDetection.ts":    "Hook user-agent — détecte les appareils mobiles via navigator",
   "shared/types/header.types.ts":          "Types du header (liens de navigation, props, état menu)",
@@ -305,6 +328,13 @@ const EXACT_COMMENTS = {
   "scripts/generate-models.js":          "Script — génère les fichiers de modèles domain depuis un schéma DB",
   "scripts/reaorganise-architecture.js": "Script — réorganise l'architecture (déplace fichiers selon convention)",
   "scripts/update-architecture.js":      "Script — met à jour architecture.md avec commentaires automatiques (npm run update-architecture)",
+
+  // ── scripts/auto-commit/ ─────────────────────────────────────────────────
+  "scripts/auto-commit/.env":                   "Variables d'environnement du script auto-commit (clé API Anthropic) — NE PAS COMMITER",
+  "scripts/auto-commit/auto_commit.log":        "Journal des exécutions du script auto-commit (horodatage, modèle IA, résultat)",
+  "scripts/auto-commit/auto_commit.py":         "Script Python — commit automatique avec message généré par IA (Claude/Ollama) et fallback de secours",
+  "scripts/auto-commit/setup_cron.sh":          "Script Bash — installe le cron job quotidien (23h00) pour auto-commit avec choix backend IA (Claude/Ollama)",
+  "scripts/auto-commit/update_architecture.py": "Script Python — génère architecture.md simplifié (chemin | description) avec reconnaissance de patterns par feature",
 
   // ── tests/ ────────────────────────────────────────────────────────────────
   "tests/fixtures/testdata.ts":                                "Données de test génériques partagées entre les fixtures",
@@ -377,6 +407,12 @@ const EXACT_COMMENTS = {
   // ── .docs/updating-files/mapservice/ ────────────────────────────────────
   ".docs/updating-files/mapservice/TrajetMapV2.tsx": "Prototype — carte Leaflet v2 (CARTO Voyager, polyline bicolore, couches campus/Overpass, boutons off-screen, recalcul OSRM)",
 
+  // ── .docs/updating-files/matching-services-models/ ────────────────────────
+  ".docs/updating-files/matching-services-models/AffiniteModel.ts":              "Prototype modèle — relation d'affinité entre deux utilisateurs (score 0–100, favoris, historique trajets communs, notes mutuelles, blocage)",
+  ".docs/updating-files/matching-services-models/SignalementLitigeModel.ts":     "Prototype modèle — signalement comportemental + litige formel (cible, sévérité, preuves, statut traitement, impact affinité)",
+  ".docs/updating-files/matching-services-models/UserModel.v2.additions.ts":     "Guide d'intégration — champs v2 à ajouter au UserModel (punctualityScore, noShowCount, preferencesId)",
+  ".docs/updating-files/matching-services-models/UserPreferencesModel.ts":       "Prototype modèle — préférences utilisateur détaillées (comportement trajet, paiement, langue, seuils matching, notifications, confidentialité)",
+
   // ── .docs/updating-files/ongoing-trip-View/ ───────────────────────────────
   ".docs/updating-files/ongoing-trip-View/index.hooks.ts":              "Prototype — hook useProgression simulant un trajet temps réel avec timer, calcul d'ETA et régénération auto de fixture",
   ".docs/updating-files/ongoing-trip-View/other-components.tsx":        "Prototype — page assemblant ProgressionSection, Messagerie, SignalementOverlay et évaluation post-trajet",
@@ -395,6 +431,38 @@ const EXACT_COMMENTS = {
   // ── Autres ────────────────────────────────────────────────────────────────
   "lib/db.ts":    "Service — pool de connexions PostgreSQL (singleton) avec support SSL pour BD cloud",
   ".env.local":   "Configuration — variables d'environnement sensibles (DATABASE_URL, clés API, SSL)",
+
+  // ── tests/ ────────────────────────────────────────────────────────────────
+  "tests/JsonStorageManager.ts":  "Gestionnaire bas-niveau JSON — lecture/écriture fichiers tests/db/*.json avec fs.watch et EventEmitter pour détection de changements",
+  "tests/PersistenceManager.ts":  "Singleton d'écriture — seul point d'accès autorisé aux fichiers JSON (liste blanche d'entités, anti-traversée de chemin)",
+
+  // ── tests/db/ — Base de données JSON statique (développement + tests) ─────
+  "tests/db/affinites.json":                "Données test — relations d'affinité entre utilisateurs (favoris, score, trajets communs)",
+  "tests/db/astuces.json":                  "Données test — astuces La Cité bilingues (planifier, ponctualité, communication, partage)",
+  "tests/db/badges.json":                   "Données test — catalogue de badges attribuables (Confirmé, Régulier, etc.) avec seuils et icônes",
+  "tests/db/bank_accounts.json":            "Données test — comptes bancaires utilisateurs (solde, transactions dépôt/retrait)",
+  "tests/db/drafts.json":                   "Données test — brouillons de trajets non publiés (formulaire de création sauvegardé)",
+  "tests/db/driver_finance_accounts.json":  "Données test — comptes financiers conducteurs (solde, commission, transactions revenus/pénalités)",
+  "tests/db/eco_challenges.json":           "Données test — défis écologiques (Éco-Débutant, Éco-Conscient, Éco-Warrior) avec cibles CO₂",
+  "tests/db/goboard_classement.json":       "Données test — classement GoBoard des utilisateurs par GoScore",
+  "tests/db/goevents.json":                 "Données test — événements GoBoard générés à la complétion d'une GoTask (titre, points, date)",
+  "tests/db/gotask-to-goevent.ts":          "Convertisseur serveur — écoute les GoTasks complétées et génère automatiquement les GoEvents correspondants",
+  "tests/db/gotasks.json":                  "Données test — missions GoBoard bilingues avec progression par utilisateur (isDone, completeAt)",
+  "tests/db/indisponibilities.json":        "Données test — créneaux d'indisponibilité par utilisateur (dates bloquées dans le calendrier)",
+  "tests/db/lieux_favoris.json":            "Données test — lieux favoris géolocalisés (Campus La Cité, Domicile, etc.) avec icônes et ancrage carte",
+  "tests/db/messages.json":                 "Données test — messages texte entre utilisateurs liés à un trajet (envoyeur, destinataire, lu/non-lu)",
+  "tests/db/notifications.json":            "Données test — notifications système (demande reçue, trajet confirmé, rappel) avec lien et statut lu",
+  "tests/db/nouveautes.json":               "Données test — annonces vidéo YouTube de la plateforme (titre, URL, thumbnail)",
+  "tests/db/passenger_finance_accounts.json":"Données test — comptes financiers passagers (économies estimées, fonds en transit, transactions paiements)",
+  "tests/db/penalites.json":                "Données test — pénalités financières (annulation tardive, retard, no-show) avec montant et statut",
+  "tests/db/reservations.json":             "Données test — réservations passager sur trajets (statut, prix, confirmation embarquement, score compatibilité)",
+  "tests/db/reviews.json":                  "Données test — évaluations post-trajet (note, commentaire, tags, rôle évalué)",
+  "tests/db/StaticDb.ts":                   "Singleton client — accès à la base JSON via API routes /api/db/* avec cache mémoire et invalidation",
+  "tests/db/trips.json":                    "Données test — trajets publiés complets (origine, destination, coordonnées, polyline, passagers, préférences, statut)",
+  "tests/db/user_preferences.json":         "Données test — préférences utilisateur détaillées (conversation, musique, fumeur, animaux, paiement, seuils matching)",
+  "tests/db/user_stats.json":               "Données test — statistiques utilisateur (KPIs, CO₂, trajets, note, GoScore, ponctualité, scatter distances)",
+  "tests/db/users.json":                    "Données test — profils utilisateurs complets (email, rôle, driverProfile, passengerProfile, GoScore, badges)",
+  "tests/db/vehicles.json":                 "Données test — véhicules enregistrés (marque, modèle, année, couleur, immatriculation, places, validation)",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

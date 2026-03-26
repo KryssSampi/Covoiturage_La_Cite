@@ -105,6 +105,24 @@ export interface GoBoardPageModel {
   goEvents: GoEvent[];
 }
 
+/** Défi écologique — format compact utilisé par useGoBoard */
+export interface DefiEcologique {
+  id: string;
+  nom: string;
+  cible: string;
+  progres: number;
+  statut: "actif" | "verrouille" | "complete";
+  recompense: string;
+}
+
+/** Entrée dans l'historique des points — format compact utilisé par useGoBoard */
+export interface EntreeHistoriquePts {
+  label: string;
+  pts: number;
+  signe: "+" | "-";
+  date: Date;
+}
+
 /** Mission (legacy — remplacé par GoTask dans la nouvelle archi) */
 export interface Mission {
   id: string;

@@ -8,17 +8,13 @@
  */
 
 import { useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { FaStar } from "react-icons/fa";
 import {
-  FaMessage,
   FaCalendarDays,
   FaClock,
   FaCircle,
   FaEnvelope,
   FaEnvelopeOpen,
-  FaBell,
   FaArrowRight,
 } from "react-icons/fa6";
 
@@ -31,37 +27,12 @@ import {
   type Notification,
 } from "@/features/dashboard/types/notification.types";
 import { useNotificationsConfig } from "../hooks/useNotificationsList";
+import { NotificationIcon } from "./NotificationItem";
 
 // ─── Props du composant (données fournies par la page route) ──────────────
 
 interface NotificationsPageProps {
   items: Notification[];
-}
-
-// ─── Sous-composant icône (repris de notifications.section.tsx) ──────────────
-
-function NotificationIcon({ type }: { type: NotificationType }) {
-  const iconProps = { width: 40, height: 30 };
-
-  switch (type) {
-    case NotificationType.Confirmation:
-      return <Image src="/assets/notification-icons/check.png" alt="Confirmation" {...iconProps} />;
-    case NotificationType.UrgentRappel:
-    case NotificationType.Retard:
-      return <Image src="/assets/notification-icons/rappel-urgent.png" alt="Urgent" {...iconProps} />;
-    case NotificationType.Annulation:
-      return <Image src="/assets/notification-icons/canceled.png" alt="Annulation" {...iconProps} />;
-    case NotificationType.Infos:
-      return <Image src="/assets/notification-icons/info.png" alt="Info" {...iconProps} />;
-    case NotificationType.Rappel:
-      return <Image src="/assets/notification-icons/rappel.png" alt="Rappel" {...iconProps} />;
-    case NotificationType.NouvelleAvis:
-      return <FaStar className="text-[#08316e] text-xl" />;
-    case NotificationType.AlerteTrajet:
-      return <FaBell className="text-[#08316e] text-xl" />;
-    default:
-      return <FaMessage className="text-[#08316e] text-xl" />;
-  }
 }
 
 // ─── Sous-composant titre (repris de notifications.section.tsx) ──────────────

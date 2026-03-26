@@ -18,7 +18,7 @@
  * @uses SearchParams, SuperSearchSectionProps — types depuis dashboard/types
  */
 
-import { useState, useLayoutEffect } from "react";
+import { JSX, useState, useLayoutEffect } from "react";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
 import { FaLocationDot, FaMagnifyingGlass, FaX } from "react-icons/fa6";
@@ -125,6 +125,20 @@ export function SuperSearchSection({
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
   const isDriver = appState.userConnected?.role === "driver";
+
+  // Icône du bouton arrivée — domicile par défaut, mise à jour au choix d'un favori
+  const domicileIcon = favDestinations?.find((f) => f.label === "Domicile")?.icon
+    ?? <FaHome className="text-2xl text-[#08216e]" />;
+  const [activeFavIcon, setActiveFavIcon] = useState<JSX.Element>(domicileIcon);
+
+  // Resynchronise l'icône domicile quand les vraies données arrivent (après fetch)
+  useLayoutEffect(() => {
+    setActiveFavIcon(
+      favDestinations?.find((f) => f.label === "Domicile")?.icon
+        ?? <FaHome className="text-2xl text-[#08216e]" />
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [favDestinations]);
 
   const {
     departureLocation,   
@@ -259,16 +273,19 @@ export function SuperSearchSection({
                          shadow-[2px_6px_8px_rgba(0,0,0,0.1)] rounded-md
                          hover:shadow-md hover:scale-135 transition-all duration-300"
             >
-              <FaHome
+              <span
                 className="text-2xl text-[#08216e]"
                 onClick={() => {
                   const home = favDestinations?.find((f) => f.label === "Domicile");
                   if (home) {
                     setArrivalLocation(home.value);
                     if (home.coordonnees) setArrivalCoords([home.coordonnees.lng, home.coordonnees.lat]);
+                    setActiveFavIcon(home.icon ?? <FaHome className="text-2xl text-[#08216e]" />);
                   }
                 }}
-              />
+              >
+                {activeFavIcon}
+              </span>
               <FaChevronDown
                 className="ml-1 text-2xs text-[#08216e]"
                 onClick={() => setIsFavMenuOpen(true)}
@@ -296,6 +313,7 @@ export function SuperSearchSection({
                     onClick={() => {
                       setArrivalLocation(fav.value);
                       if (fav.coordonnees) setArrivalCoords([fav.coordonnees.lng, fav.coordonnees.lat]);
+                      setActiveFavIcon(fav.icon);
                       setIsFavMenuOpen(false);
                     }}
                   >

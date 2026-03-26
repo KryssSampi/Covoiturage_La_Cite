@@ -23,8 +23,10 @@ export const VehicleSection: React.FC<VehicleSectionProps> = ({
   incrementAvailableSeats,
   decrementAvailableSeats,
 }) => {
-  const selectedVehicle = vehicles.find((v) => v.id === form.vehicleId) ?? vehicles[0] ?? null;
+  const selectedVehicle = vehicles.find((v) => v.id === form.vehicleId) ?? null;
   const singleVehicle   = vehicles.length === 1 ? vehicles[0] : null;
+  const totalSeats = selectedVehicle?.maxPassengers ?? form.maxPassengers;
+  const maxBookableSeats = Math.max(1, totalSeats - 1);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
@@ -88,17 +90,20 @@ export const VehicleSection: React.FC<VehicleSectionProps> = ({
       {/* Nombre de places disponibles */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Nombre de places disponibles
+          Nombre de places disponibles a la reservation
         </label>
         <StepperInput
           value={form.availableSeats}
           onIncrement={incrementAvailableSeats}
           onDecrement={decrementAvailableSeats}
           min={1}
-          max={(selectedVehicle?.maxPassengers ?? form.maxPassengers) - 1}
+          max={maxBookableSeats}
         />
+        <p className="text-xs text-gray-500 mt-2">
+          {form.availableSeats} place{form.availableSeats > 1 ? 's' : ''} ouverte{form.availableSeats > 1 ? 's' : ''} sur {maxBookableSeats} possible{maxBookableSeats > 1 ? 's' : ''} pour les passagers.
+        </p>
         <p className="text-xs text-gray-400 mt-1">
-          default : <span className="font-medium">places totales - 1</span>
+          Le conducteur occupe 1 place dans le vehicule, donc le maximum reservable suit directement le vehicule selectionne.
         </p>
       </div>
     </div>

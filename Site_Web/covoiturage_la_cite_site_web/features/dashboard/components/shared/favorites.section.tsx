@@ -3,7 +3,7 @@
 import { FaX } from "react-icons/fa6";
 import Link from "next/link";
 import { createPortal } from "react-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { useIsMobileOrTablet } from "@/shared/hooks/useismobileortable";
@@ -26,6 +26,11 @@ export function FavoritesSection({
 
   // Liste locale : initialisée avec les props du parent
   const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>(initialFavorites);
+
+  // Synchronise l'état local quand le parent reçoit les vraies données (après fetch async)
+  useEffect(() => {
+    setFavorites(initialFavorites);
+  }, [initialFavorites]);
 
   const {
     isDeleteModalOpen,
@@ -60,7 +65,7 @@ export function FavoritesSection({
               {isFR ? "Mes Favoris" : "My Favorites"}
             </h2>
             <Link
-              href={`/${appState.userConnected?.id}/favorites?q=modalOpen=true`}
+              href={`/${appState.userConnected?.role}/${appState.userConnected?.id}/favoris`}
               className="text-xl text-blue-500 hover:text-blue-700 font-medium transition-colors"
             >
               {isFR ? "Ajouter +" : "New +"}
