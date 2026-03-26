@@ -15,6 +15,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { MapCircuit, DriverSortKey, SearchFilters } from "@/features/search/types/search.feature.types";
 import { fetchCircuits } from "@/features/search/services/osrm.service";
+import { filterAndSortCircuits } from "@/core/services/driver-circuit.service";
 
 // Paramètres du hook
 interface UseDriverSearchParams {
@@ -90,26 +91,7 @@ export function useDriverSearch({
   // Filtrage par durée/distance, puis tri dynamique des circuits
   const filteredAndSortedCircuits = useCallback(
     (key: DriverSortKey, filters?: Pick<SearchFilters, "maxDurationMinutes" | "maxDistanceKm">): MapCircuit[] => {
-      // Copie puis filtrage par durée / distance max
-      let copy = [...circuits];
-      if (filters?.maxDurationMinutes !== undefined) {
-        // circuit.duration est en secondes — maxDurationMinutes en minutes
-        copy = copy.filter((c) => c.duration / 60 <= filters.maxDurationMinutes!);
-      }
-      if (filters?.maxDistanceKm !== undefined) {
-        // circuit.distance est en mètres — maxDistanceKm en km
-        copy = copy.filter((c) => c.distance / 1000 <= filters.maxDistanceKm!);
-      }
-      switch (key) {
-        case "distance_asc":
-          return copy.sort((a, b) => a.distance - b.distance);
-        case "duration_asc":
-          return copy.sort((a, b) => a.duration - b.duration);
-        case "default":
-        default:
-          // Ordre OSRM original (routeIndex)
-          return copy.sort((a, b) => a.routeIndex - b.routeIndex);
-      }
+      return filterAndSortCircuits(circuits, key, filters);
     },
     [circuits]
   );

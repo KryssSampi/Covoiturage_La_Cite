@@ -55,12 +55,12 @@ export function DestinationCard({ dest, survey }: Props) {
     return url;
   }, [appState.userConnected?.id, dest, survey]);
 
-  // Navigation avec stockage des matching trips en sessionStorage
+  // Navigation avec stockage des tripIds en sessionStorage pour pré-peupler la recherche
   const handleNavigate = useCallback(() => {
-    if (survey?.matchingTrips?.length) {
-      sessionStorage.setItem("surveyMatchingTrips", JSON.stringify(survey.matchingTrips));
+    if (survey?.tripIds?.length) {
+      sessionStorage.setItem("surveyTripIds", JSON.stringify(survey.tripIds));
     } else {
-      sessionStorage.removeItem("surveyMatchingTrips");
+      sessionStorage.removeItem("surveyTripIds");
     }
     router.push(buildSearchUrl());
   }, [survey, router, buildSearchUrl]);
@@ -100,13 +100,13 @@ export function DestinationCard({ dest, survey }: Props) {
         </p>
 
         <p className="text-xl text-[#08316e] font-bold">
-          <span className="font-light text-blue-400">{survey?.matchingTrips?.length ?? dest.disponibility}</span>{" "}
+          <span className="font-light text-blue-400">{survey?.tripIds?.length ?? dest.disponibility}</span>{" "}
           {appState.lang === Language.FR ? "places disponibles" : "available seats"}
         </p>
 
-        {(survey?.favoriteDriverCount ?? dest.favoriteDriverCount) > 0 && (
+        {(survey?.favoriteDriverIds?.length ?? dest.favoriteDriverCount) > 0 && (
           <p className="text-[#08316e] text-xl font-bold">
-            <span className="font-light text-blue-400">{survey?.favoriteDriverCount ?? dest.favoriteDriverCount}</span>{" "}
+            <span className="font-light text-blue-400">{survey?.favoriteDriverIds?.length ?? dest.favoriteDriverCount}</span>{" "}
             {appState.lang === Language.FR ? "Conducteur préféré" : "Favorite Driver"}
           </p>
         )}
@@ -116,8 +116,8 @@ export function DestinationCard({ dest, survey }: Props) {
         href={buildSearchUrl()}
         onClick={(e) => {
           e.stopPropagation();
-          if (survey?.matchingTrips?.length) {
-            sessionStorage.setItem("surveyMatchingTrips", JSON.stringify(survey.matchingTrips));
+          if (survey?.tripIds?.length) {
+            sessionStorage.setItem("surveyTripIds", JSON.stringify(survey.tripIds));
           }
         }}
         className="text-blue-500 hover:text-blue-700 font-medium text-xl hover:underline"

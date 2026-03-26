@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { UserRole } from "@/domain/models/UserModel";
+import type { FavDestination } from "../../types/search.types";
 
 import { SuperSearchSection } from "./supersearch.section";
 
@@ -19,7 +20,7 @@ type HeroUser = {
   can_be_driver?: boolean;
 } | null;
 
-export function Hero() {
+export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }) {
   const appState = useAppState();
   const router = useRouter();
   const isFR = appState.lang === Language.FR;
@@ -127,6 +128,7 @@ export function Hero() {
 
       <div className="relative z-10 mt-10 flex h-1/2 w-1/2 items-center justify-center scale-75 lg:mt-0 lg:mr-30 lg:-mb-25 lg:scale-100">
         <SuperSearchSection
+          favDestinations={favDestinations}
           onSearch={(params) => {
             const base = isDriver
               ? `/driver/search/${appState.userConnected?.id}`
@@ -144,6 +146,15 @@ export function Hero() {
             if (params.arrivalCoords) {
               q.set("arrLng", String(params.arrivalCoords[0]));
               q.set("arrLat", String(params.arrivalCoords[1]));
+            }
+            if (params.departureDate) {
+              const d = params.departureDate instanceof Date
+                ? params.departureDate
+                : new Date(params.departureDate);
+              q.set("date", d.toISOString().slice(0, 10));
+            }
+            if (params.departureTime) {
+              q.set("time", params.departureTime);
             }
 
             router.push(`${base}?${q.toString()}`);

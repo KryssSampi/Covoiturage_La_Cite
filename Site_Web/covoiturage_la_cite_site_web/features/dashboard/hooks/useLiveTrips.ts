@@ -18,33 +18,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { PublishedTrip } from "@/features/dashboard/types";
 import { PublishedTripStatus } from "@/features/dashboard/types";
-
-// ─── Types bruts reçus via SSE ───────────────────────────────────────────────
-
-/** Structure brute d'un trajet reçu via SSE (depuis trips.json) */
-interface RawTrip {
-  id: string;
-  driverId: string;
-  status: string;
-  departure: { label: string; coordinates?: { lat: number; lng: number } };
-  arrival: { label: string; coordinates?: { lat: number; lng: number } };
-  departureDate: string;
-  departureTime: string;
-  maxPassengers: number;
-  currentPassengers: number;
-  pricePerPassenger: number;
-  passengerIds: string[];
-  estimatedDurationMinutes?: number;
-}
-
-/** Structure brute d'une réservation reçue via SSE */
-interface RawReservation {
-  id: string;
-  tripId: string;
-  passengerId: string;
-  driverId: string;
-  status: string;
-}
+import {
+  type RawTrip,
+  type RawReservation,
+  VISIBLE_STATUSES,
+  toPublishedTrip,
+} from "@/core/services/live-trips.service";
 
 interface UseLiveTripsResult {
   /** Trajets publiés du conducteur (sauf complétés) — null avant le premier message SSE */
@@ -55,88 +34,6 @@ interface UseLiveTripsResult {
   error: string | null;
   /** Vrai si au moins un trajet est en cours (in_progress) */
   hasInProgressTrip: boolean;
-}
-
-// ─── Statuts affichés dans la section ────────────────────────────────────────
-const VISIBLE_STATUSES = new Set([
-  "draft", "published", "full", "confirmed", "in_progress", "cancelled",
-]);
-
-/**
- * Détermine si un trajet est imminent (départ dans les 2 prochaines heures).
- */
-function isImminent(trip: RawTrip): boolean {
-  const now = new Date();
-  const departureDateTime = new Date(`${trip.departureDate}T${trip.departureTime}:00`);
-  const diffMs = departureDateTime.getTime() - now.getTime();
-  const diffHours = diffMs / (1000 * 60 * 60);
-  return diffHours >= 0 && diffHours <= 2;
-}
-
-/**
- * Mappe le statut brut du TripModel vers PublishedTripStatus.
- * Logique clé : si le statut est "confirmed" et que toutes les places sont prises → Full.
- */
-function mapStatus(trip: RawTrip, confirmedPassengerCount: number): PublishedTripStatus {
-  const statusMap: Record<string, PublishedTripStatus> = {
-    draft:       PublishedTripStatus.Published,
-    published:   PublishedTripStatus.Published,
-    full:        PublishedTripStatus.Full,
-    confirmed:   PublishedTripStatus.Confirmed,
-    in_progress: PublishedTripStatus.InProgress,
-    completed:   PublishedTripStatus.Completed,
-    cancelled:   PublishedTripStatus.Cancelled,
-    no_show:     PublishedTripStatus.NoShow,
-  };
-
-  let mapped = statusMap[trip.status] ?? PublishedTripStatus.Published;
-
-  // Logique auto-full : si passagers confirmés >= places max
-  if (
-    (trip.status === "confirmed" || trip.status === "published") &&
-    confirmedPassengerCount >= trip.maxPassengers
-  ) {
-    mapped = PublishedTripStatus.Full;
-  }
-
-  return mapped;
-}
-
-/**
- * Convertit un trajet brut en PublishedTrip pour l'affichage.
- */
-function toPublishedTrip(
-  trip: RawTrip,
-  pendingCount: number,
-  confirmedPassengerCount: number,
-): PublishedTrip {
-  return {
-    id: trip.id,
-    driverId: trip.driverId,
-    departure: trip.departure.label,
-    destination: trip.arrival.label,
-    date: trip.departureDate,
-    time: trip.departureTime,
-    duration: trip.estimatedDurationMinutes ?? null,
-    maxPassengers: trip.maxPassengers,
-    passengers: trip.passengerIds.map((pid) => ({
-      id: pid,
-      pictureUrl: "",
-      name: "",
-      rating: 0,
-      tripsCount: 0,
-    })),
-    price: trip.pricePerPassenger,
-    pendingRequests: pendingCount,
-    status: mapStatus(trip, confirmedPassengerCount),
-    departureCoords: trip.departure.coordinates
-      ? [trip.departure.coordinates.lat, trip.departure.coordinates.lng]
-      : undefined,
-    arrivalCoords: trip.arrival.coordinates
-      ? [trip.arrival.coordinates.lat, trip.arrival.coordinates.lng]
-      : undefined,
-    isImminent: isImminent(trip),
-  };
 }
 
 // ─── Hook ────────────────────────────────────────────────────────────────────

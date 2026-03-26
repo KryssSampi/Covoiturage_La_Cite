@@ -79,7 +79,7 @@ interface UseMatchingScoreParams {
 }
 
 interface UseMatchingScoreResult {
-  scores: Map<number, MatchingScore>;
+  scores: Map<string, MatchingScore>;
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ export function useMatchingScore({
   desiredHour,
 }: UseMatchingScoreParams): UseMatchingScoreResult {
   const scores = useMemo(() => {
-    const map = new Map<number, MatchingScore>();
+    const map = new Map<string, MatchingScore>();
 
     for (const trip of trips) {
       const t = trip as TripWithCoords;

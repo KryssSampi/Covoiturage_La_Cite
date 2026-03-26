@@ -2,12 +2,10 @@
  * @file survey-destination.types.ts
  * @description Types pour les destinations surveillées (récentes, habituelles, souhaitées).
  *
- * Un SurveyDestination contient les coordonnées de départ/arrivée,
- * la liste des trajets correspondants trouvés en arrière-plan,
- * et le nombre de conducteurs favoris parmi ces trajets.
+ * Un SurveyDestination stocke les coordonnées de départ/arrivée et les IDs
+ * des trajets retournés par la dernière recherche serveur pour cette destination.
+ * Les objets Trip complets sont résolus côté consommateur via les IDs.
  */
-
-import type { Trip } from "./trip.types";
 
 // ─── Type de surveillance ────────────────────────────────────────────────────
 
@@ -18,8 +16,11 @@ export type SurveyDestinationType = "recent" | "usual" | "wishing";
 
 /**
  * Destination surveillée avec résultats de matching en arrière-plan.
- * Les trajets matchants sont ceux dont le départ et l'arrivée sont
- * dans un rayon de 10-15 min de marche (~1-1.2 km) du point spécifié.
+ * Les trajets matchants sont référencés par ID — le consommateur résout
+ * les objets complets via le store ou un fetch ciblé.
+ *
+ * Règle de matching : départ et arrivée dans un rayon de ~1-1.2 km du point spécifié.
+ * Peuplé par POST /api/passenger/search (réutilisé, pas de route dédiée).
  */
 export interface SurveyDestination {
   /** Identifiant unique */
@@ -32,10 +33,12 @@ export interface SurveyDestination {
   departureCoords: [number, number];
   /** Coordonnées GPS de l'arrivée [lng, lat] */
   arrivalCoords: [number, number];
-  /** Trajets correspondants trouvés par le background matching */
-  matchingTrips: Trip[];
-  /** Nombre de conducteurs favoris parmi les trajets matchants */
-  favoriteDriverCount: number;
+  /** IDs des trajets correspondants retournés par la dernière recherche serveur */
+  tripIds: string[];
+  /** IDs des conducteurs favoris parmi les trajets matchants */
+  favoriteDriverIds: string[];
   /** Type de la surveillance */
   type: SurveyDestinationType;
+  /** ISO date du dernier matching serveur (undefined = jamais rafraîchi) */
+  lastRefreshedAt?: string;
 }

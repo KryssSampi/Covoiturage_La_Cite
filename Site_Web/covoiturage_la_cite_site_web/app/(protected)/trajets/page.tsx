@@ -95,7 +95,7 @@ export default function TrajetsPage() {
 
       {/* Contenu principal */}
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Bienvenue {appState.userConnected?.nom}</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">Bienvenue {appState.userConnected?.firstName}</h1>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Trajets disponibles

@@ -280,7 +280,7 @@ export function TripProvider({ children }: { children: React.ReactNode }) {
             userId: params.driverId,
             type: 'reservation_received',
             title: 'Nouvelle demande de réservation',
-            message: `${currentUser.prenom ?? ''} ${currentUser.nom} demande à rejoindre votre trajet ${trip.departure.label} → ${trip.arrival.label}.`,
+            message: `${currentUser.firstName} ${currentUser.lastName} demande à rejoindre votre trajet ${trip.departure.label} → ${trip.arrival.label}.`,
             link: `/driver/reservations`,
             relatedTripId: params.tripId,
             relatedReservationId: reservation.id,

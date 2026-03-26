@@ -36,7 +36,7 @@ export function useAdminTrips() {
     void loadTrips();
   }, [loadTrips]);
 
-  const simulateEvent = useCallback(async (
+  const triggerSimulation = useCallback(async (
     tripId: string,
     event: SimulationEvent,
     params?: { reservationId?: string },
@@ -69,5 +69,16 @@ export function useAdminTrips() {
     }
   }, [loadTrips]);
 
-  return { trips, loading, error, loadTrips, simResult, simBusy, simulateEvent };
+  const simulateEvent = triggerSimulation;
+
+  return {
+    trips,
+    loading,
+    error,
+    loadTrips,
+    simResult,
+    simBusy,
+    triggerSimulation,
+    simulateEvent,
+  };
 }

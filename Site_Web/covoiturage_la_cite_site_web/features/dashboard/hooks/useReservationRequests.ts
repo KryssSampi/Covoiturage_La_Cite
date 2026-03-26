@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ReservationRequest, ReservationRequestCardModel } from "../types";
+import { organizeRequests } from "../utils/presentation-sort.utils";
 
 // ─── Callbacks injectés par la page parente ──────────────────────────────────
 
@@ -36,21 +37,6 @@ interface UseReservationRequestsReturn {
   rejectRequest: (id: string) => Promise<boolean>;
   /** Indique si une action est en cours */
   isActionLoading: boolean;
-}
-
-// ─── Helper de tri ────────────────────────────────────────────────────────────
-
-/**
- * Trie les demandes selon la règle métier §3.2 :
- * 1. Par note de l'applicant décroissante (les plus fiables d'abord)
- * 2. Par date+heure croissante (les créneaux les plus proches d'abord)
- */
-function organizeRequests(requests: ReservationRequest[]): ReservationRequest[] {
-  return [...requests].sort((a, b) => {
-    const noteDiff = b.applicant.note - a.applicant.note;
-    if (noteDiff !== 0) return noteDiff;
-    return new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime();
-  });
 }
 
 // ─── Hook ────────────────────────────────────────────────────────────────────

@@ -7,8 +7,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   TrajetProgressionFixture,
-  ProgressionCalculee,
-  StatutEtape,
   UseProgressionReturn,
   SignalementData,
   SignalementOptions,
@@ -19,62 +17,19 @@ import {
 } from '../types/progression-signalement.types';
 import {
   Correspondant,
+  Conversation,
   Message,
-  ConversationState,
   UseMessagerieReturn,
+  buildConversationId,
 } from '../types/messagerie.types';
-import { genererNouvelleProgression, messagesInitiauxFixture } from '../fixtures/index.fixtures';
+import { genererNouvelleProgression, conversationsInitialesFixture } from '../fixtures/index.fixtures';
+import { calculer } from '../utils/trajet-progression.utils';
+import { genererRapportPDF } from '../utils/signalement-pdf.utils';
 
 
 // ═══════════════════════════════════════════════════════
 // useProgression — Simule un trajet en temps réel
 // ═══════════════════════════════════════════════════════
-
-function calculer(
-  fixture: TrajetProgressionFixture,
-  sec: number,
-): ProgressionCalculee {
-  const { dureeTotaleSecondes, distanceTotaleKm, etapes } = fixture;
-  const clampedSec = Math.min(sec, dureeTotaleSecondes);
-  const pct = (clampedSec / dureeTotaleSecondes) * 100;
-
-  const distParcourue = parseFloat(((distanceTotaleKm * pct) / 100).toFixed(1));
-  const distRestante  = parseFloat((distanceTotaleKm - distParcourue).toFixed(1));
-  const secRestantes  = Math.max(dureeTotaleSecondes - clampedSec, 0);
-
-  const eta = new Date();
-  eta.setSeconds(eta.getSeconds() + secRestantes);
-  const etaTexte = eta.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' });
-
-  // Statuts des étapes : fait / actif / en_attente
-  const statutsEtapes: StatutEtape[] = etapes.map(() => 'en_attente');
-  let etapeActuelleIndex = 0;
-
-  for (let i = 0; i < etapes.length; i++) {
-    if (clampedSec >= etapes[i].tempsSecondes) {
-      statutsEtapes[i] = 'fait';
-      etapeActuelleIndex = i;
-    }
-  }
-
-  // La prochaine étape non atteinte = active (sauf si trajet terminé)
-  const prochaine = etapes.findIndex((e) => clampedSec < e.tempsSecondes);
-  if (prochaine !== -1 && clampedSec < dureeTotaleSecondes) {
-    statutsEtapes[prochaine] = 'actif';
-    etapeActuelleIndex = prochaine;
-  }
-
-  return {
-    pourcentage:            parseFloat(pct.toFixed(1)),
-    distanceParcourueKm:    distParcourue,
-    distanceRestanteKm:     distRestante,
-    dureeRestanteSecondes:  secRestantes,
-    etaTexte,
-    statutsEtapes,
-    etapeActuelleIndex,
-    estTermine: clampedSec >= dureeTotaleSecondes,
-  };
-}
 
 export function useProgression(
   fixtureInitiale: TrajetProgressionFixture,
@@ -116,131 +71,131 @@ export function useProgression(
 
 // ═══════════════════════════════════════════════════════
 // useMessagerie — Gère les conversations en temps réel
+// Modèle : Conversation { id, participantIds, messages }
+// ID de conversation déterministe via buildConversationId
 // ═══════════════════════════════════════════════════════
 
 export function useMessagerie(
+  moiId: string,
   correspondants: Correspondant[],
-  initialCorrespondantId?: string,
+  initialConversations: Conversation[] = conversationsInitialesFixture,
 ): UseMessagerieReturn {
-  const defaultId = initialCorrespondantId ?? correspondants[0]?.id ?? '';
+  const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
+  const [activeCorrespondantId, setActiveCorrespondantId] = useState<string>(
+    correspondants[0]?.id ?? '',
+  );
 
-  const [state, setState] = useState<ConversationState>({
-    correspondantActifId: defaultId,
-    messages: { ...messagesInitiauxFixture },
-  });
+  const activeConvId = activeCorrespondantId
+    ? buildConversationId(moiId, activeCorrespondantId)
+    : '';
 
-  const messagesActifs: Message[] =
-    state.messages[state.correspondantActifId] ?? [];
+  const activeConversation: Conversation | null =
+    conversations.find((c) => c.id === activeConvId) ?? null;
 
   const correspondantActif: Correspondant | undefined = correspondants.find(
-    (c) => c.id === state.correspondantActifId,
+    (c) => c.id === activeCorrespondantId,
   );
 
-  /** Envoie un message "de moi" dans la conversation active */
-  const envoyerMessage = useCallback(
-    (contenu: string) => {
-      if (!contenu.trim()) return;
+  const messagesActifs: Message[] = activeConversation?.messages ?? [];
+
+  /** Envoie un message dans la conversation active */
+  const sendMessage = useCallback(
+    (content: string) => {
+      if (!content.trim() || !activeCorrespondantId) return;
+      const convId = buildConversationId(moiId, activeCorrespondantId);
+      const now = new Date().toISOString();
       const msg: Message = {
-        id: `msg-${Date.now()}-moi`,
-        contenu: contenu.trim(),
-        role: 'moi',
-        horodatage: new Date(),
-        type: 'texte',
-        correspondantId: state.correspondantActifId,
-        estLu: true,
+        id: `msg-${Date.now()}`,
+        conversationId: convId,
+        senderId: moiId,
+        receiverId: activeCorrespondantId,
+        content: content.trim(),
+        timestamp: now,
+        isRead: true,
+        type: 'text',
       };
-      setState((prev) => ({
-        ...prev,
-        messages: {
-          ...prev.messages,
-          [prev.correspondantActifId]: [
-            ...(prev.messages[prev.correspondantActifId] ?? []),
-            msg,
-          ],
-        },
-      }));
+      setConversations((prev) => prev.map((conv) =>
+        conv.id === convId
+          ? { ...conv, messages: [...conv.messages, msg], updatedAt: now }
+          : conv,
+      ));
     },
-    [state.correspondantActifId],
+    [moiId, activeCorrespondantId],
   );
 
-  /** Simule la réception d'un message depuis le correspondant actif */
-  const simulerReception = useCallback(
-    (contenu: string) => {
-      if (!contenu.trim()) return;
-      const msg: Message = {
-        id: `msg-${Date.now()}-sim`,
-        contenu: contenu.trim(),
-        role: 'autre',
-        horodatage: new Date(),
-        type: 'texte',
-        correspondantId: state.correspondantActifId,
-        estLu: false,
+  /** Change la conversation active par ID de correspondant */
+  const setActiveCorrespondant = useCallback((correspondantId: string) => {
+    setActiveCorrespondantId(correspondantId);
+    // Crée la conversation si elle n'existe pas encore
+    const convId = buildConversationId(moiId, correspondantId);
+    setConversations((prev) => {
+      if (prev.some((c) => c.id === convId)) return prev;
+      const now = new Date().toISOString();
+      const newConv: Conversation = {
+        id: convId,
+        participantIds: [moiId, correspondantId].sort() as [string, string],
+        messages: [],
+        createdAt: now,
+        updatedAt: now,
       };
-      setState((prev) => ({
-        ...prev,
-        messages: {
-          ...prev.messages,
-          [prev.correspondantActifId]: [
-            ...(prev.messages[prev.correspondantActifId] ?? []),
-            msg,
-          ],
-        },
-      }));
-    },
-    [state.correspondantActifId],
-  );
-
-  /** Broadcast : envoie le même message à TOUS les correspondants (conducteur) */
-  const broadcast = useCallback((contenu: string) => {
-    if (!contenu.trim()) return;
-    setState((prev) => {
-      const updated = { ...prev.messages };
-      correspondants.forEach((c) => {
-        const systemeMsg: Message = {
-          id: `msg-${Date.now()}-bc-${c.id}`,
-          contenu: contenu.trim(),
-          role: 'moi',
-          horodatage: new Date(),
-          type: 'texte',
-          correspondantId: c.id,
-          estLu: true,
-        };
-        updated[c.id] = [...(updated[c.id] ?? []), systemeMsg];
-      });
-      return { ...prev, messages: updated };
+      return [...prev, newConv];
     });
-  }, [correspondants]);
+  }, [moiId]);
 
-  const changerCorrespondant = useCallback((id: string) => {
-    setState((prev) => ({
-      ...prev,
-      correspondantActifId: id,
-      messages: {
-        ...prev.messages,
-        [id]: prev.messages[id] ?? [],
-      },
-    }));
-  }, []);
+  /** Broadcast : envoie le même message dans toutes les conversations (conducteur → tous passagers) */
+  const broadcastMessage = useCallback(
+    (content: string) => {
+      if (!content.trim()) return;
+      const now = new Date().toISOString();
+      setConversations((prev) => {
+        const updated = [...prev];
+        correspondants.forEach((c) => {
+          const convId = buildConversationId(moiId, c.id);
+          const msg: Message = {
+            id: `msg-${Date.now()}-bc-${c.id}`,
+            conversationId: convId,
+            senderId: moiId,
+            receiverId: c.id,
+            content: content.trim(),
+            timestamp: now,
+            isRead: true,
+            type: 'text',
+          };
+          const idx = updated.findIndex((cv) => cv.id === convId);
+          if (idx >= 0) {
+            updated[idx] = { ...updated[idx], messages: [...updated[idx].messages, msg], updatedAt: now };
+          } else {
+            updated.push({ id: convId, participantIds: [moiId, c.id].sort() as [string, string], messages: [msg], createdAt: now, updatedAt: now });
+          }
+        });
+        return updated;
+      });
+    },
+    [moiId, correspondants],
+  );
 
   // Nombre de messages non lus par correspondant
-  const nbNonLus: Record<string, number> = correspondants.reduce(
+  const unreadCounts: Record<string, number> = correspondants.reduce(
     (acc, c) => {
-      const msgs = state.messages[c.id] ?? [];
-      acc[c.id] = msgs.filter((m) => !m.estLu && m.role === 'autre').length;
+      const convId = buildConversationId(moiId, c.id);
+      const conv = conversations.find((cv) => cv.id === convId);
+      acc[c.id] = (conv?.messages ?? []).filter(
+        (m: Message) => !m.isRead && m.senderId === c.id,
+      ).length;
       return acc;
     },
     {} as Record<string, number>,
   );
 
   return {
-    conversationState: state,
-    messagesActifs,
+    conversations,
+    activeConversation,
     correspondantActif,
-    envoyerMessage,
-    changerCorrespondant,
-    simulerReception,
-    broadcast,
-    nbNonLus,
+    messagesActifs,
+    sendMessage,
+    setActiveCorrespondant,
+    broadcastMessage,
+    unreadCounts,
   };
 }
 
@@ -346,81 +301,7 @@ export function useSignalement(
 
   /** Génère et ouvre un rapport PDF du signalement */
   const telechargerPDF = useCallback(() => {
-    const sev: Record<string, string> = {
-      danger_immediat: '\u{1F198} Danger immédiat',
-      incident_recent: '\u26A0\uFE0F Incident récent',
-      malaise: '\u{1F61F} Malaise / Inconfort',
-      informatif: '\u{1F4CB} Informatif',
-    };
-    const now = new Date().toLocaleDateString('fr-CA', {
-      year: 'numeric', month: 'long', day: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    });
-
-    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-<title>Signalement #${refNum} — La Cité Covoiturage</title>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Helvetica Neue',Arial,sans-serif;color:#0d1f3c;padding:48px;line-height:1.65;font-size:13px}
-  .logo{font-size:18px;font-weight:800;color:#08316e;margin-bottom:4px}
-  .header{border-bottom:3px solid #08316e;padding-bottom:20px;margin-bottom:32px}
-  .ref{font-size:11px;color:#7a90b8;margin-top:3px}
-  h2{font-size:11px;font-weight:800;color:#08316e;text-transform:uppercase;letter-spacing:.5px;
-     padding-bottom:5px;border-bottom:1px solid rgba(8,49,110,.12);margin:24px 0 12px}
-  .row{display:flex;gap:16px;margin-bottom:8px}
-  .key{min-width:180px;color:#7a90b8;font-size:11px}
-  .val{font-weight:600;color:#0d1f3c;flex:1}
-  .desc{background:#f8f9fc;border:1px solid rgba(8,49,110,.1);border-radius:6px;
-        padding:14px;font-size:12px;line-height:1.75;margin-top:6px;white-space:pre-wrap}
-  .alert{background:rgba(224,48,80,.06);border-left:4px solid #e03050;
-         padding:10px 14px;border-radius:0 6px 6px 0;color:#9a2030;margin:14px 0}
-  .footer{margin-top:48px;padding-top:14px;border-top:1px solid rgba(8,49,110,.1);
-          font-size:10px;color:#7a90b8}
-  @media print{body{padding:20px}}
-</style></head><body>
-<div class="header">
-  <div class="logo">\u{1F697} La Cité Covoiturage</div>
-  <div style="font-size:17px;font-weight:800;margin-top:12px">\u26A0\uFE0F Rapport de Signalement Officiel</div>
-  <div class="ref">Référence : <strong>#${refNum || 'EN COURS'}</strong> &nbsp;·&nbsp; Trajet : <strong>#${trajetId}</strong></div>
-  <div class="ref">Généré le : ${now}</div>
-</div>
-
-<h2>Informations du signalement</h2>
-<div class="row"><span class="key">Cible du signalement</span><span class="val">${data.cibleNom || '\u2014'} (${data.cible || '\u2014'})</span></div>
-<div class="row"><span class="key">Motif retenu</span><span class="val">${data.motifLabel || 'Non spécifié'}</span></div>
-<div class="row"><span class="key">Niveau de sécurité</span><span class="val">${data.niveauSecurite ? sev[data.niveauSecurite] : 'Non spécifié'}</span></div>
-<div class="row"><span class="key">Heure de l'incident</span><span class="val">${data.heureIncident || 'Non précisée'}</span></div>
-<div class="row"><span class="key">Preuves jointes</span><span class="val">${data.preuves.length} fichier(s) + journal GPS automatique</span></div>
-
-${data.niveauSecurite === 'danger_immediat'
-  ? '<div class="alert">\u26A0\uFE0F Ce signalement concerne un danger immédiat. Traitement prioritaire requis.</div>'
-  : ''}
-
-<h2>Description détaillée</h2>
-<div class="desc">${data.description.trim() || 'Aucune description fournie.'}</div>
-
-<h2>Options de traitement</h2>
-<div class="row"><span class="key">Signalement anonyme</span><span class="val">${data.options.anonyme ? 'Oui \u2014 identité confidentielle' : 'Non'}</span></div>
-<div class="row"><span class="key">Contact admin accepté</span><span class="val">${data.options.accepterContact ? 'Oui' : 'Non'}</span></div>
-<div class="row"><span class="key">Blocage utilisateur</span><span class="val">${data.options.bloquerUtilisateur ? 'Demandé' : 'Non demandé'}</span></div>
-<div class="row"><span class="key">Notification résultat</span><span class="val">${data.options.notifierResultat ? 'Oui \u2014 email attendu' : 'Non'}</span></div>
-
-<h2>Processus de traitement</h2>
-<div class="row"><span class="key">Délai de traitement</span><span class="val">48 heures maximum</span></div>
-<div class="row"><span class="key">Preuves GPS</span><span class="val">Journal de position complet joint automatiquement</span></div>
-<div class="row"><span class="key">Conformité</span><span class="val">Traité selon les politiques La Cité Covoiturage et la LPRPDE/PIPEDA</span></div>
-
-<div class="footer">
-  Ce document est généré automatiquement par La Cité Covoiturage.
-  En cas d'urgence immédiate, composez le <strong>911</strong>.
-  Document confidentiel — usage interne uniquement.
-</div>
-</body></html>`;
-
-    const blob = new Blob([html], { type: 'text/html' });
-    const url  = URL.createObjectURL(blob);
-    const win  = window.open(url, '_blank');
-    if (win) setTimeout(() => win.print(), 600);
+    genererRapportPDF(data, trajetId, refNum);
   }, [data, trajetId, refNum]);
 
   return {

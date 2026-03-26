@@ -21,7 +21,7 @@ import {
 interface PassengerTripCardProps {
   trip:          Trip;
   score?:        MatchingScore;
-  onReserve?:    (tripId: number) => void;
+  onReserve?:    (tripId: string) => void;
 }
 
 function formatDate(dateStr: string): string {

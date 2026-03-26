@@ -118,7 +118,7 @@ export const trajetFixture: TrajetEnCoursData = {
 // ─────────────────────────────────────────────
 // Données fictives — messagerie
 // ─────────────────────────────────────────────
-import { Correspondant, Message, MoiInfo } from '../types/messagerie.types';
+import { Correspondant, Conversation, MoiInfo, buildConversationId } from '../types/messagerie.types';
 
 export const moiFixture: MoiInfo = {
   id: 'USR-AI-100',
@@ -176,72 +176,49 @@ export const correspondantsConducteurFixture: Correspondant[] = [
   },
 ];
 
-// Messages pré-remplis par correspondant
-export const messagesInitiauxFixture: Record<string, Message[]> = {
-  'USR-JT-001': [
-    {
-      id: 'msg-001',
-      contenu: 'Salut, je suis devant l\'entrée principale. À tout de suite 😊',
-      role: 'autre',
-      horodatage: new Date('2026-03-20T03:30:00'),
-      type: 'texte',
-    },
-    {
-      id: 'msg-002',
-      contenu: 'Super ! J\'arrive dans 2 minutes 👍',
-      role: 'moi',
-      horodatage: new Date('2026-03-20T03:31:00'),
-      type: 'texte',
-    },
-    {
-      id: 'msg-003',
-      contenu: 'Je suis garée à gauche de l\'entrée, Honda Civic noire 🚗',
-      role: 'autre',
-      horodatage: new Date('2026-03-20T03:32:00'),
-      type: 'texte',
-    },
-    {
-      id: 'msg-004',
-      contenu: 'Je vous vois ! Je sors maintenant.',
-      role: 'moi',
-      horodatage: new Date('2026-03-20T03:33:00'),
-      type: 'texte',
-    },
-    {
-      id: 'msg-005',
-      contenu: 'On est presque arrivés ! Encore ~10 min. 🏁',
-      role: 'autre',
-      horodatage: new Date('2026-03-20T03:45:00'),
-      type: 'texte',
-    },
-  ],
-  'USR-AI-100': [
-    {
-      id: 'msg-ai-001',
-      contenu: 'Je suis en route, j\'arrive dans 5 min !',
-      role: 'autre',
-      horodatage: new Date('2026-03-20T03:25:00'),
-      type: 'texte',
-    },
-  ],
-  'USR-PD-101': [
-    {
-      id: 'msg-pd-001',
-      contenu: 'Bonjour, je serai là à l\'heure 😊',
-      role: 'autre',
-      horodatage: new Date('2026-03-20T03:15:00'),
-      type: 'texte',
-    },
-    {
-      id: 'msg-pd-002',
-      contenu: 'Parfait, à tout à l\'heure !',
-      role: 'moi',
-      horodatage: new Date('2026-03-20T03:16:00'),
-      type: 'texte',
-    },
-  ],
-  'USR-KB-102': [],
-};
+// IDs de référence pour les fixtures
+const ID_DRIVER  = 'USR-JT-001';
+const ID_PAX_AI  = 'USR-AI-100';
+const ID_PAX_PD  = 'USR-PD-101';
+const ID_PAX_KB  = 'USR-KB-102';
+
+const CONV_JT_AI = buildConversationId(ID_DRIVER, ID_PAX_AI); // conv_USR-AI-100_USR-JT-001
+const CONV_JT_PD = buildConversationId(ID_DRIVER, ID_PAX_PD); // conv_USR-JT-001_USR-PD-101
+const CONV_JT_KB = buildConversationId(ID_DRIVER, ID_PAX_KB); // conv_USR-JT-001_USR-KB-102
+
+/** Conversations initiales utilisées par le hook useMessagerie */
+export const conversationsInitialesFixture: Conversation[] = [
+  {
+    id: CONV_JT_AI,
+    participantIds: [ID_DRIVER, ID_PAX_AI],
+    createdAt: '2026-03-20T03:30:00.000Z',
+    updatedAt: '2026-03-20T03:45:00.000Z',
+    messages: [
+      { id: 'msg-001', conversationId: CONV_JT_AI, senderId: ID_DRIVER, receiverId: ID_PAX_AI,  content: "Salut, je suis devant l'entrée principale. À tout de suite 😊", timestamp: '2026-03-20T03:30:00.000Z', isRead: true,  type: 'text' },
+      { id: 'msg-002', conversationId: CONV_JT_AI, senderId: ID_PAX_AI,  receiverId: ID_DRIVER, content: "Super ! J'arrive dans 2 minutes 👍",                            timestamp: '2026-03-20T03:31:00.000Z', isRead: true,  type: 'text' },
+      { id: 'msg-003', conversationId: CONV_JT_AI, senderId: ID_DRIVER, receiverId: ID_PAX_AI,  content: 'Je suis garée à gauche de l\'entrée, Honda Civic noire 🚗',    timestamp: '2026-03-20T03:32:00.000Z', isRead: true,  type: 'text' },
+      { id: 'msg-004', conversationId: CONV_JT_AI, senderId: ID_PAX_AI,  receiverId: ID_DRIVER, content: 'Je vous vois ! Je sors maintenant.',                           timestamp: '2026-03-20T03:33:00.000Z', isRead: true,  type: 'text' },
+      { id: 'msg-005', conversationId: CONV_JT_AI, senderId: ID_DRIVER, receiverId: ID_PAX_AI,  content: 'On est presque arrivés ! Encore ~10 min. 🏁',                  timestamp: '2026-03-20T03:45:00.000Z', isRead: false, type: 'text' },
+    ],
+  },
+  {
+    id: CONV_JT_PD,
+    participantIds: [ID_DRIVER, ID_PAX_PD],
+    createdAt: '2026-03-20T03:15:00.000Z',
+    updatedAt: '2026-03-20T03:16:00.000Z',
+    messages: [
+      { id: 'msg-pd-001', conversationId: CONV_JT_PD, senderId: ID_PAX_PD, receiverId: ID_DRIVER, content: 'Bonjour, je serai là à l\'heure 😊', timestamp: '2026-03-20T03:15:00.000Z', isRead: true, type: 'text' },
+      { id: 'msg-pd-002', conversationId: CONV_JT_PD, senderId: ID_DRIVER, receiverId: ID_PAX_PD, content: 'Parfait, à tout à l\'heure !',       timestamp: '2026-03-20T03:16:00.000Z', isRead: true, type: 'text' },
+    ],
+  },
+  {
+    id: CONV_JT_KB,
+    participantIds: [ID_DRIVER, ID_PAX_KB],
+    createdAt: '2026-03-20T03:00:00.000Z',
+    updatedAt: '2026-03-20T03:00:00.000Z',
+    messages: [],
+  },
+];
 
 
 // ─────────────────────────────────────────────

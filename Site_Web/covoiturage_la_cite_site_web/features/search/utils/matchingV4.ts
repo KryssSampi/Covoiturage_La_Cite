@@ -61,9 +61,6 @@ export type EliminationReason =
   | 'already_passenger'
   | 'geo_departure_too_far'
   | 'geo_arrival_too_far'
-  | 'smoking_conflict'
-  | 'pets_conflict'
-  | 'baggage_conflict'
   | 'payment_incompatible'
   | 'goscore_too_low'
   | 'bad_past_experience'
@@ -75,8 +72,8 @@ export interface PassengerSearchParams {
   passengerPrefs: UserPreferencesModel | null;
   drivers: Map<string, UserModel>;
   affinites: AffiniteRecord[];
-  departureCoords: [number, number] | null;   // [lat, lng]
-  arrivalCoords: [number, number] | null;     // [lat, lng]
+  departureCoords: [number, number] | null;   // [lng, lat]
+  arrivalCoords: [number, number] | null;     // [lng, lat]
   desiredHour?: number;
   desiredWeekday?: number;
   maxPrice?: number;
@@ -130,6 +127,7 @@ export interface TripSearchDTO {
     profileVerified: boolean;
   };
   matchingScore: MatchingScoreV4;
+  blockedReason?: EliminationReason;
 }
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
@@ -269,7 +267,7 @@ export function runPassengerMatchingV4(params: PassengerSearchParams): Passenger
 
     if (departureCoords && trip.departure?.coordinates) {
       const dist = haversine(
-        departureCoords[0], departureCoords[1],
+        departureCoords[1], departureCoords[0],
         trip.departure.coordinates.lat, trip.departure.coordinates.lng
       );
       if (dist > depRadius) { elim('geo_departure_too_far'); continue; }
@@ -277,17 +275,13 @@ export function runPassengerMatchingV4(params: PassengerSearchParams): Passenger
 
     if (arrivalCoords && trip.arrival?.coordinates) {
       const dist = haversine(
-        arrivalCoords[0], arrivalCoords[1],
+        arrivalCoords[1], arrivalCoords[0],
         trip.arrival.coordinates.lat, trip.arrival.coordinates.lng
       );
       if (dist > arrRadius) { elim('geo_arrival_too_far'); continue; }
     }
 
-    if (passengerSmokes && !trip.preferences.smokingAllowed) { elim('smoking_conflict'); continue; }
-    if (passengerHasPets && !trip.preferences.petsAllowed)   { elim('pets_conflict');    continue; }
-
     const tripMaxBaggage = (trip.maxBaggageLevel ?? (trip.preferences.baggageAllowed ? 'heavy' : 'light')) as BaggageLevel;
-    if (BAGGAGE_RANK[passengerBaggage] > BAGGAGE_RANK[tripMaxBaggage]) { elim('baggage_conflict'); continue; }
 
     if (!passengerPayments.includes(trip.paymentMethod as 'cash' | 'interac')) {
       elim('payment_incompatible'); continue;
@@ -313,25 +307,33 @@ export function runPassengerMatchingV4(params: PassengerSearchParams): Passenger
 
     if (departureCoords && trip.departure?.coordinates) {
       const dist = haversine(
-        departureCoords[0], departureCoords[1],
+        departureCoords[1], departureCoords[0],
         trip.departure.coordinates.lat, trip.departure.coordinates.lng
       );
       geoDepart = geoScore(dist, 12, 400);
     }
     if (arrivalCoords && trip.arrival?.coordinates) {
       const dist = haversine(
-        arrivalCoords[0], arrivalCoords[1],
+        arrivalCoords[1], arrivalCoords[0],
         trip.arrival.coordinates.lat, trip.arrival.coordinates.lng
       );
       geoArrivee = geoScore(dist, 8, 400);
     }
 
     // ── BLOC B — Compatibilité comportementale (30 pts) ───────────────────────
-    const compatMusique      = passengerMusic === trip.preferences.musicAllowed ? 8 : 0;
+    const compatMusique      = passengerMusic === trip.preferences.musicAllowed ? 8 : 3;
     const compatConversation = convScore(passengerConv, trip.preferences.conversationLevel);
-    const compatBagages      = baggageScore(passengerBaggage, tripMaxBaggage);
+    const compatBagages      = BAGGAGE_RANK[passengerBaggage] > BAGGAGE_RANK[tripMaxBaggage]
+      ? 0
+      : baggageScore(passengerBaggage, tripMaxBaggage);
     const compatLangue       = langScore(passengerLang, trip.languagePreference ?? 'any');
-    const blocB = compatMusique + compatConversation + compatBagages + compatLangue;
+    const compatAnimaux      = passengerHasPets
+      ? (trip.preferences.petsAllowed ? 3 : 0)
+      : 3;
+    const compatFumeur       = passengerSmokes
+      ? (trip.preferences.smokingAllowed ? 3 : 0)
+      : 3;
+    const blocB = compatMusique + compatConversation + compatBagages + compatLangue + compatAnimaux + compatFumeur;
 
     // ── BLOC C — Fiabilité conducteur (25 pts) ────────────────────────────────
     const driverRating      = driver?.driverProfile?.averageRating ?? 4.0;
@@ -447,7 +449,12 @@ export function runPassengerMatchingV4(params: PassengerSearchParams): Passenger
 
 // ─── Convertisseur TripModel → TripSearchDTO ─────────────────────────────────
 
-export function toTripSearchDTO(trip: TripModel, driver: UserModel | undefined, score: MatchingScoreV4): TripSearchDTO {
+export function toTripSearchDTO(
+  trip: TripModel,
+  driver: UserModel | undefined,
+  score: MatchingScoreV4,
+  blockedReason?: EliminationReason,
+): TripSearchDTO {
   return {
     id:                       trip.id,
     departure:                trip.departure,
@@ -476,5 +483,6 @@ export function toTripSearchDTO(trip: TripModel, driver: UserModel | undefined, 
       profileVerified: driver?.profileVerified ?? false,
     },
     matchingScore: score,
+    blockedReason,
   };
 }

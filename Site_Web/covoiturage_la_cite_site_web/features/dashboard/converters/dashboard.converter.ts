@@ -1,4 +1,5 @@
-﻿import type { TripModel } from '@/core/models/TripModel';
+﻿import { isImminent } from '@/core/utils/trip-time.utils';
+import type { TripModel } from '@/core/models/TripModel';
 import type { UserModel } from '@/core/models/UserModel';
 import type { ReservationModel } from '@/core/models/ReservationModel';
 import type { NotificationModel } from '@/core/models/NotificationModel';
@@ -60,11 +61,11 @@ export function tripModelToTrip(trip: TripModel, driver: UserModel, passengers: 
     doneDate: null,
     departureCoords:
       trip.departure.coordinates
-        ? [trip.departure.coordinates.lat, trip.departure.coordinates.lng]
+        ? [trip.departure.coordinates.lng, trip.departure.coordinates.lat]
         : undefined,
     arrivalCoords:
       trip.arrival.coordinates
-        ? [trip.arrival.coordinates.lat, trip.arrival.coordinates.lng]
+        ? [trip.arrival.coordinates.lng, trip.arrival.coordinates.lat]
         : undefined,
     latLngs: trip.polyline.length > 0 ? trip.polyline : undefined,
     isImminent: isImminent(trip),
@@ -155,11 +156,11 @@ export function tripModelToPublishedTrip(
     status,
     departureCoords:
       trip.departure.coordinates
-        ? [trip.departure.coordinates.lat, trip.departure.coordinates.lng]
+        ? [trip.departure.coordinates.lng, trip.departure.coordinates.lat]
         : undefined,
     arrivalCoords:
       trip.arrival.coordinates
-        ? [trip.arrival.coordinates.lat, trip.arrival.coordinates.lng]
+        ? [trip.arrival.coordinates.lng, trip.arrival.coordinates.lat]
         : undefined,
     isImminent: isImminent(trip),
   };
@@ -205,21 +206,12 @@ export function tripModelToDestination(trip: TripModel, matchingDriversCount: nu
     disponibility: trip.maxPassengers - trip.currentPassengers,
     favoriteDriverCount: matchingDriversCount,
     departureCoords: trip.departure.coordinates
-      ? [trip.departure.coordinates.lat, trip.departure.coordinates.lng]
+      ? [trip.departure.coordinates.lng, trip.departure.coordinates.lat]
       : undefined,
     arrivalCoords: trip.arrival.coordinates
-      ? [trip.arrival.coordinates.lat, trip.arrival.coordinates.lng]
+      ? [trip.arrival.coordinates.lng, trip.arrival.coordinates.lat]
       : undefined,
   };
-}
-
-/** DÃ©termine si un trajet est imminent (dans les 2 prochaines heures) */
-function isImminent(trip: TripModel): boolean {
-  const now = new Date();
-  const departureDateTime = new Date(`${trip.departureDate}T${trip.departureTime}:00`);
-  const diffMs = departureDateTime.getTime() - now.getTime();
-  const diffHours = diffMs / (1000 * 60 * 60);
-  return diffHours >= 0 && diffHours <= 2;
 }
 
 /**

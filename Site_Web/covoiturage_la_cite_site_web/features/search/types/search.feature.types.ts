@@ -14,6 +14,7 @@ export type SearchRole = "passenger" | "driver";
 export interface MapCircuit {
   routeIndex:      number;
   latLngs:         [number, number][];
+  waypointCoords?: [number, number][];
   duration:        number;   // secondes
   distance:        number;   // mètres
   summary:         string;
@@ -44,6 +45,17 @@ export interface MatchingScore {
   places: number;
 }
 
+export type BlockedTripReason =
+  | "trip_not_published"
+  | "trip_full"
+  | "already_passenger"
+  | "geo_departure_too_far"
+  | "geo_arrival_too_far"
+  | "payment_incompatible"
+  | "goscore_too_low"
+  | "bad_past_experience"
+  | "passenger_unreliable";
+
 // ─── FILTRES DE RECHERCHE ─────────────────────────────────────────────────────
 
 export interface SearchFilters {
@@ -64,8 +76,8 @@ export interface SearchFilters {
 }
 
 export const DEFAULT_SEARCH_FILTERS: SearchFilters = {
-  departureRadiusMeters: 500,
-  arrivalRadiusMeters:   500,
+  departureRadiusMeters: 1000,
+  arrivalRadiusMeters:   1000,
 };
 
 // ─── OPTIONS DE TRI ───────────────────────────────────────────────────────────
@@ -104,4 +116,5 @@ export type TripWithCoords = Trip & {
   departureCoords?: [number, number]; // [lng, lat]
   arrivalCoords?:   [number, number]; // [lng, lat]
   status?:          string;           // Champ optionnel pour le filtre statuses
+  blockedReason?:   BlockedTripReason;
 };

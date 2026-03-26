@@ -35,6 +35,7 @@ export function tripSearchDTOToTripWithCoords(dto: TripSearchDTO): TripWithCoord
     arrivalCoords:   [dto.arrival.coordinates.lng,   dto.arrival.coordinates.lat],
     latLngs:         dto.polyline.length > 0 ? dto.polyline : undefined,
     status:          'published',
+    blockedReason:   dto.blockedReason,
   };
 }
 

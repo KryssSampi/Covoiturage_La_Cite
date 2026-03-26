@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createPortal } from "react-dom";
 
 import type {
@@ -60,9 +60,22 @@ export function RidesList({
   onCancelReservation,
   onStartReservation,
 }: RidesListProps) {
-  const router = useRouter();
-  const { lang } = useAppState();
-  const isFR = lang === Language.FR;
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+  const { lang }     = useAppState();
+  const isFR         = lang === Language.FR;
+
+  // Pulse 3.5s sur le trajet nouvellement créé
+  const [pulsingId, setPulsingId] = useState<string | null>(
+    () => searchParams.get("newTripId"),
+  );
+  const newCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!pulsingId) return;
+    const t = setTimeout(() => setPulsingId(null), 3500);
+    return () => clearTimeout(t);
+  }, [pulsingId]);
 
   const driverRides = useMemo(
     () => (isDriver ? (visibleRides as PublishedTrip[]) : []),
@@ -74,18 +87,19 @@ export function RidesList({
   );
 
   const [showBlockToast, setShowBlockToast] = useState(false);
-  const [hiddenTripIds, setHiddenTripIds] = useState<Set<string>>(new Set());
-  const visibleDriverRides = useMemo(
-    () => driverRides.filter((ride) => !hiddenTripIds.has(String(ride.id))),
-    [driverRides, hiddenTripIds],
-  );
 
   const {
     tripModels,
     isPassengerListOpens,
     setIsPassengerListOpens,
     hasInProgressTrip,
-  } = usePublishedTrips(visibleDriverRides);
+  } = usePublishedTrips(driverRides);
+
+  // Scroll vers la carte nouvellement créée dès qu'elle apparaît dans la liste
+  useEffect(() => {
+    if (!newCardRef.current) return;
+    newCardRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [tripModels]);
 
   const {
     reservations,
@@ -110,8 +124,16 @@ export function RidesList({
               isPassengerListOpens[index]?.isPassengerListOpen ?? false,
           };
 
+          const isNew = pulsingId === String(model.trip.id);
+
           return (
-            <div key={String(model.trip.id)} className="w-full transform scale-x-95">
+            <div
+              key={String(model.trip.id)}
+              ref={isNew ? newCardRef : undefined}
+              className={`w-full transform scale-x-95 rounded-xl transition-shadow duration-300 ${
+                isNew ? "ring-2 ring-[#08316e]/50 shadow-[0_0_18px_4px_rgba(8,49,110,0.18)] animate-pulse" : ""
+              }`}
+            >
               <PublishedTripCard
                 model={cardModel}
                 index={index}
@@ -121,17 +143,8 @@ export function RidesList({
                 getStatusColor={getStatusColor}
                 hasInProgressTrip={hasInProgressTrip}
                 onBlockStart={() => setShowBlockToast(true)}
-                onHideTrip={(tripId) =>
-                  setHiddenTripIds((prev) => new Set(prev).add(String(tripId)))
-                }
-                onRestoreTrip={(tripId) =>
-                  setHiddenTripIds((prev) => {
-                    const next = new Set(prev);
-                    next.delete(String(tripId));
-                    return next;
-                  })
-                }
-                onCancelTrip={onCancelTrip}
+                onCancelTrip={async (id) => { await onCancelTrip?.(id); }}
+                onStartTrip={async () => {}}
               />
             </div>
           );

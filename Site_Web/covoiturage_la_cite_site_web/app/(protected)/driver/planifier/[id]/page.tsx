@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import dynamic from "next/dynamic";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import { FaCalendarDays } from "react-icons/fa6";
 
@@ -40,6 +40,18 @@ const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number
 
 function PlannerContent() {
   const { plannerSearchActive, plannerSearchValues, pendingDateTime, exitPlannerSearch } = useHeroSearchBar();
+  const searchParams = useSearchParams();
+  const newTripId    = searchParams.get("newTripId");
+
+  // Scroll vers la ride area quand un nouveau trajet vient d'être créé.
+  // On utilise le param URL (pas sessionStorage) pour être robuste en React Strict Mode.
+  useEffect(() => {
+    if (!newTripId) return;
+    const timer = setTimeout(() => {
+      document.getElementById("planner-rides")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [newTripId]);
 
   return (
     <div className="mb-10 flex h-full flex-col bg-white">
@@ -102,7 +114,9 @@ function PlannerContent() {
         )}
       </AnimatePresence>
 
-      <RideArea />
+      <div id="planner-rides">
+        <RideArea />
+      </div>
     </div>
   );
 }
@@ -110,6 +124,7 @@ function PlannerContent() {
 export default function PlannerPage() {
   const { lang, userConnected } = useAppState();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const params = useParams();
   const { setActiveLoader } = useLoader();
   const routeId = typeof params.id === "string" ? params.id : params.id?.[0];
@@ -123,6 +138,7 @@ export default function PlannerPage() {
     refreshReservations,
     refreshIndisponibilities,
   } = useDb();
+  const newTripId = searchParams.get("newTripId");
 
   useEffect(() => {
     if (!userConnected) {
@@ -140,6 +156,12 @@ export default function PlannerPage() {
     const timer = setTimeout(() => setActiveLoader(false), 300);
     return () => clearTimeout(timer);
   }, [routeId, router, setActiveLoader, userConnected, userRole]);
+
+  useEffect(() => {
+    if (!newTripId || !userConnected?.id) return;
+
+    void Promise.all([refreshTrips(), refreshReservations()]);
+  }, [newTripId, refreshReservations, refreshTrips, userConnected?.id]);
 
   const plannerRides = useMemo<PublishedTrip[]>(() => {
     if (!userConnected) return [];

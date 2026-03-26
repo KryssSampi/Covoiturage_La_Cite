@@ -1,26 +1,18 @@
-/**
- * PATCH /api/notifications/[id]/read
- * Marque une notification comme lue (isRead = true).
- */
 import { NextResponse } from 'next/server';
-import { persistenceManager } from '@/tests/PersistenceManager';
+import { getNotificationById, markNotificationRead } from '@/core/services/notification-api.service';
 
 type Context = { params: Promise<{ id: string }> };
-type NotificationRecord = Record<string, unknown>;
 
 export async function PATCH(_req: Request, { params }: Context) {
   try {
     const { id } = await params;
+    const existing = getNotificationById(id);
 
-    const existing = persistenceManager.readById<NotificationRecord>('notifications', id);
     if (!existing) {
       return NextResponse.json({ error: 'Notification introuvable' }, { status: 404 });
     }
 
-    const updated = persistenceManager.updateItem<NotificationRecord>('notifications', id, {
-      isRead: true,
-    });
-    return NextResponse.json(updated);
+    return NextResponse.json(markNotificationRead(id));
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }

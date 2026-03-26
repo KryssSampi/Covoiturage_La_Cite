@@ -3,14 +3,755 @@
     "id": "DRF-2026-00001",
     "driverId": "USR-2026-00001",
     "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
-    "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
-    "departureDate": "2026-03-27",
-    "departureTime": "08:30",
+    "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "departureDate": "2026-03-31",
+    "departureTime": "08:00",
     "vehicleId": "VEH-2026-00001",
-    "maxPassengers": 4,
-    "availableSeats": 3,
+    "maxPassengers": 3,
+    "availableSeats": 2,
     "pricePerPassenger": 5,
     "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "arrivalCoords": [
+      45.2745,
+      -75.7368
+    ],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.3921,
+        -75.6627
+      ],
+      [
+        45.3627,
+        -75.6812
+      ],
+      [
+        45.3333,
+        -75.6998
+      ],
+      [
+        45.3039,
+        -75.7183
+      ],
+      [
+        45.2745,
+        -75.7368
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:00:00.000Z",
+    "updatedAt": "2026-03-25T09:00:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00002",
+    "driverId": "USR-2026-00001",
+    "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
+    "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "departureDate": "2026-04-01",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00001",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 6,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4777,
+      -75.5117
+    ],
+    "arrivalCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "polyline": [
+      [
+        45.4777,
+        -75.5117
+      ],
+      [
+        45.4551,
+        -75.5435
+      ],
+      [
+        45.4325,
+        -75.5753
+      ],
+      [
+        45.41,
+        -75.607
+      ],
+      [
+        45.3874,
+        -75.6388
+      ],
+      [
+        45.3648,
+        -75.6706
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:01:00.000Z",
+    "updatedAt": "2026-03-25T09:01:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00003",
+    "driverId": "USR-2026-00001",
+    "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "departureDate": "2026-04-02",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00001",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 7,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4278,
+      -75.6944
+    ],
+    "arrivalCoords": [
+      45.4253,
+      -75.6901
+    ],
+    "polyline": [
+      [
+        45.4278,
+        -75.6944
+      ],
+      [
+        45.4273,
+        -75.6935
+      ],
+      [
+        45.4268,
+        -75.6927
+      ],
+      [
+        45.4263,
+        -75.6918
+      ],
+      [
+        45.4258,
+        -75.691
+      ],
+      [
+        45.4253,
+        -75.6901
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:02:00.000Z",
+    "updatedAt": "2026-03-25T09:02:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00004",
+    "driverId": "USR-2026-00001",
+    "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "departureDate": "2026-04-03",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00001",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 8,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "arrivalCoords": [
+      45.4768,
+      -75.702
+    ],
+    "polyline": [
+      [
+        45.3099,
+        -75.9136
+      ],
+      [
+        45.3433,
+        -75.8713
+      ],
+      [
+        45.3767,
+        -75.829
+      ],
+      [
+        45.41,
+        -75.7866
+      ],
+      [
+        45.4434,
+        -75.7443
+      ],
+      [
+        45.4768,
+        -75.702
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:03:00.000Z",
+    "updatedAt": "2026-03-25T09:03:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00004",
+    "driverId": "USR-2026-00002",
+    "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "departureDate": "2026-04-01",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00002",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 6,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "arrivalCoords": [
+      45.4768,
+      -75.702
+    ],
+    "polyline": [
+      [
+        45.3099,
+        -75.9136
+      ],
+      [
+        45.3433,
+        -75.8713
+      ],
+      [
+        45.3767,
+        -75.829
+      ],
+      [
+        45.41,
+        -75.7866
+      ],
+      [
+        45.4434,
+        -75.7443
+      ],
+      [
+        45.4768,
+        -75.702
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:01:00.000Z",
+    "updatedAt": "2026-03-25T09:01:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00005",
+    "driverId": "USR-2026-00002",
+    "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
+    "departureDate": "2026-04-02",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00002",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 7,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.2745,
+      -75.7368
+    ],
+    "arrivalCoords": [
+      45.5017,
+      -73.5673
+    ],
+    "polyline": [
+      [
+        45.2745,
+        -75.7368
+      ],
+      [
+        45.3199,
+        -75.3029
+      ],
+      [
+        45.3654,
+        -74.869
+      ],
+      [
+        45.4108,
+        -74.4351
+      ],
+      [
+        45.4563,
+        -74.0012
+      ],
+      [
+        45.5017,
+        -73.5673
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:02:00.000Z",
+    "updatedAt": "2026-03-25T09:02:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00006",
+    "driverId": "USR-2026-00002",
+    "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
+    "departureDate": "2026-04-03",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00002",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 8,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "arrivalCoords": [
+      45.4543,
+      -75.4845
+    ],
+    "polyline": [
+      [
+        45.3648,
+        -75.6706
+      ],
+      [
+        45.3827,
+        -75.6334
+      ],
+      [
+        45.4006,
+        -75.5962
+      ],
+      [
+        45.4185,
+        -75.5589
+      ],
+      [
+        45.4364,
+        -75.5217
+      ],
+      [
+        45.4543,
+        -75.4845
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:03:00.000Z",
+    "updatedAt": "2026-03-25T09:03:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00007",
+    "driverId": "USR-2026-00002",
+    "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "departureDate": "2026-04-04",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00002",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 9,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4253,
+      -75.6901
+    ],
+    "arrivalCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "polyline": [
+      [
+        45.4253,
+        -75.6901
+      ],
+      [
+        45.4245,
+        -75.6809
+      ],
+      [
+        45.4238,
+        -75.6717
+      ],
+      [
+        45.423,
+        -75.6626
+      ],
+      [
+        45.4223,
+        -75.6534
+      ],
+      [
+        45.4215,
+        -75.6442
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:04:00.000Z",
+    "updatedAt": "2026-03-25T09:04:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00007",
+    "driverId": "USR-2026-00003",
+    "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "departureDate": "2026-04-02",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00003",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 7,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4253,
+      -75.6901
+    ],
+    "arrivalCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "polyline": [
+      [
+        45.4253,
+        -75.6901
+      ],
+      [
+        45.4245,
+        -75.6809
+      ],
+      [
+        45.4238,
+        -75.6717
+      ],
+      [
+        45.423,
+        -75.6626
+      ],
+      [
+        45.4223,
+        -75.6534
+      ],
+      [
+        45.4215,
+        -75.6442
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:02:00.000Z",
+    "updatedAt": "2026-03-25T09:02:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00008",
+    "driverId": "USR-2026-00003",
+    "departureLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "arrivalLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
+    "departureDate": "2026-04-03",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00003",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 8,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4768,
+      -75.702
+    ],
+    "arrivalCoords": [
+      45.4777,
+      -75.5117
+    ],
+    "polyline": [
+      [
+        45.4768,
+        -75.702
+      ],
+      [
+        45.477,
+        -75.6639
+      ],
+      [
+        45.4772,
+        -75.6259
+      ],
+      [
+        45.4773,
+        -75.5878
+      ],
+      [
+        45.4775,
+        -75.5498
+      ],
+      [
+        45.4777,
+        -75.5117
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:03:00.000Z",
+    "updatedAt": "2026-03-25T09:03:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00009",
+    "driverId": "USR-2026-00003",
+    "departureLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
+    "arrivalLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "departureDate": "2026-04-04",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00003",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 9,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.5017,
+      -73.5673
+    ],
+    "arrivalCoords": [
+      45.4278,
+      -75.6944
+    ],
+    "polyline": [
+      [
+        45.5017,
+        -73.5673
+      ],
+      [
+        45.4869,
+        -73.9927
+      ],
+      [
+        45.4721,
+        -74.4181
+      ],
+      [
+        45.4574,
+        -74.8436
+      ],
+      [
+        45.4426,
+        -75.269
+      ],
+      [
+        45.4278,
+        -75.6944
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:04:00.000Z",
+    "updatedAt": "2026-03-25T09:04:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00010",
+    "driverId": "USR-2026-00003",
+    "departureLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
+    "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "departureDate": "2026-04-05",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00003",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 10,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4543,
+      -75.4845
+    ],
+    "arrivalCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "polyline": [
+      [
+        45.4543,
+        -75.4845
+      ],
+      [
+        45.4254,
+        -75.5703
+      ],
+      [
+        45.3965,
+        -75.6561
+      ],
+      [
+        45.3677,
+        -75.742
+      ],
+      [
+        45.3388,
+        -75.8278
+      ],
+      [
+        45.3099,
+        -75.9136
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:05:00.000Z",
+    "updatedAt": "2026-03-25T09:05:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00010",
+    "driverId": "USR-2026-00004",
+    "departureLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
+    "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "departureDate": "2026-04-03",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00004",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 8,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4543,
+      -75.4845
+    ],
+    "arrivalCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "polyline": [
+      [
+        45.4543,
+        -75.4845
+      ],
+      [
+        45.4254,
+        -75.5703
+      ],
+      [
+        45.3965,
+        -75.6561
+      ],
+      [
+        45.3677,
+        -75.742
+      ],
+      [
+        45.3388,
+        -75.8278
+      ],
+      [
+        45.3099,
+        -75.9136
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:03:00.000Z",
+    "updatedAt": "2026-03-25T09:03:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00011",
+    "driverId": "USR-2026-00004",
+    "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "departureDate": "2026-04-04",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00004",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 9,
+    "paymentMethod": "cash",
     "preferences": {
       "baggageAllowed": true,
       "petsAllowed": false,
@@ -23,24 +764,107 @@
       -75.6442
     ],
     "arrivalCoords": [
-      45.3099,
-      -75.9136
+      45.2745,
+      -75.7368
     ],
-    "notes": "Brouillon genere automatiquement pour les tests.",
-    "createdAt": "2026-03-20T14:00:00.000Z",
-    "updatedAt": "2026-03-21T09:30:00.000Z"
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.3921,
+        -75.6627
+      ],
+      [
+        45.3627,
+        -75.6812
+      ],
+      [
+        45.3333,
+        -75.6998
+      ],
+      [
+        45.3039,
+        -75.7183
+      ],
+      [
+        45.2745,
+        -75.7368
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:04:00.000Z",
+    "updatedAt": "2026-03-25T09:04:00.000Z"
   },
   {
-    "id": "DRF-2026-00002",
-    "driverId": "USR-2026-00003",
-    "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "id": "DRF-2026-00012",
+    "driverId": "USR-2026-00004",
+    "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
     "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
-    "departureDate": "2026-03-28",
-    "departureTime": "17:15",
-    "vehicleId": "VEH-2026-00002",
-    "maxPassengers": 4,
+    "departureDate": "2026-04-05",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00004",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 10,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4777,
+      -75.5117
+    ],
+    "arrivalCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "polyline": [
+      [
+        45.4777,
+        -75.5117
+      ],
+      [
+        45.4551,
+        -75.5435
+      ],
+      [
+        45.4325,
+        -75.5753
+      ],
+      [
+        45.41,
+        -75.607
+      ],
+      [
+        45.3874,
+        -75.6388
+      ],
+      [
+        45.3648,
+        -75.6706
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:05:00.000Z",
+    "updatedAt": "2026-03-25T09:05:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00013",
+    "driverId": "USR-2026-00004",
+    "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "departureDate": "2026-04-06",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00004",
+    "maxPassengers": 3,
     "availableSeats": 3,
-    "pricePerPassenger": 6,
+    "pricePerPassenger": 11,
     "paymentMethod": "cash",
     "preferences": {
       "baggageAllowed": true,
@@ -54,80 +878,1861 @@
       -75.6944
     ],
     "arrivalCoords": [
-      45.3648,
-      -75.6706
+      45.4253,
+      -75.6901
     ],
-    "notes": "Brouillon genere automatiquement pour les tests.",
-    "createdAt": "2026-03-20T14:00:00.000Z",
-    "updatedAt": "2026-03-21T09:30:00.000Z"
+    "polyline": [
+      [
+        45.4278,
+        -75.6944
+      ],
+      [
+        45.4273,
+        -75.6935
+      ],
+      [
+        45.4268,
+        -75.6927
+      ],
+      [
+        45.4263,
+        -75.6918
+      ],
+      [
+        45.4258,
+        -75.691
+      ],
+      [
+        45.4253,
+        -75.6901
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:06:00.000Z",
+    "updatedAt": "2026-03-25T09:06:00.000Z"
   },
   {
-    "driverId": "USR-2026-00003",
-    "departureLocation": "avenue Mona, Ottawa",
-    "arrivalLocation": "Collège La Cité 801, Ottawa K1J 7P6 (Ontario)",
-    "departureDate": "2026-03-31",
-    "departureTime": "11:00",
-    "vehicleId": "",
-    "maxPassengers": 4,
+    "id": "DRF-2026-00013",
+    "driverId": "USR-2026-00005",
+    "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "departureDate": "2026-04-04",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00005",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 9,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4278,
+      -75.6944
+    ],
+    "arrivalCoords": [
+      45.4253,
+      -75.6901
+    ],
+    "polyline": [
+      [
+        45.4278,
+        -75.6944
+      ],
+      [
+        45.4273,
+        -75.6935
+      ],
+      [
+        45.4268,
+        -75.6927
+      ],
+      [
+        45.4263,
+        -75.6918
+      ],
+      [
+        45.4258,
+        -75.691
+      ],
+      [
+        45.4253,
+        -75.6901
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:04:00.000Z",
+    "updatedAt": "2026-03-25T09:04:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00014",
+    "driverId": "USR-2026-00005",
+    "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "departureDate": "2026-04-05",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00005",
+    "maxPassengers": 3,
     "availableSeats": 3,
-    "pricePerPassenger": 5,
+    "pricePerPassenger": 10,
     "paymentMethod": "cash",
     "preferences": {
       "baggageAllowed": true,
       "petsAllowed": false,
-      "smokingAllowed": true,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "arrivalCoords": [
+      45.4768,
+      -75.702
+    ],
+    "polyline": [
+      [
+        45.3099,
+        -75.9136
+      ],
+      [
+        45.3433,
+        -75.8713
+      ],
+      [
+        45.3767,
+        -75.829
+      ],
+      [
+        45.41,
+        -75.7866
+      ],
+      [
+        45.4434,
+        -75.7443
+      ],
+      [
+        45.4768,
+        -75.702
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:05:00.000Z",
+    "updatedAt": "2026-03-25T09:05:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00015",
+    "driverId": "USR-2026-00005",
+    "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
+    "departureDate": "2026-04-06",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00005",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 11,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.2745,
+      -75.7368
+    ],
+    "arrivalCoords": [
+      45.5017,
+      -73.5673
+    ],
+    "polyline": [
+      [
+        45.2745,
+        -75.7368
+      ],
+      [
+        45.3199,
+        -75.3029
+      ],
+      [
+        45.3654,
+        -74.869
+      ],
+      [
+        45.4108,
+        -74.4351
+      ],
+      [
+        45.4563,
+        -74.0012
+      ],
+      [
+        45.5017,
+        -73.5673
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:06:00.000Z",
+    "updatedAt": "2026-03-25T09:06:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00016",
+    "driverId": "USR-2026-00005",
+    "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
+    "departureDate": "2026-04-07",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00005",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 12,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "arrivalCoords": [
+      45.4543,
+      -75.4845
+    ],
+    "polyline": [
+      [
+        45.3648,
+        -75.6706
+      ],
+      [
+        45.3827,
+        -75.6334
+      ],
+      [
+        45.4006,
+        -75.5962
+      ],
+      [
+        45.4185,
+        -75.5589
+      ],
+      [
+        45.4364,
+        -75.5217
+      ],
+      [
+        45.4543,
+        -75.4845
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:07:00.000Z",
+    "updatedAt": "2026-03-25T09:07:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00016",
+    "driverId": "USR-2026-00006",
+    "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
+    "departureDate": "2026-04-05",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00006",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 10,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "arrivalCoords": [
+      45.4543,
+      -75.4845
+    ],
+    "polyline": [
+      [
+        45.3648,
+        -75.6706
+      ],
+      [
+        45.3827,
+        -75.6334
+      ],
+      [
+        45.4006,
+        -75.5962
+      ],
+      [
+        45.4185,
+        -75.5589
+      ],
+      [
+        45.4364,
+        -75.5217
+      ],
+      [
+        45.4543,
+        -75.4845
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:05:00.000Z",
+    "updatedAt": "2026-03-25T09:05:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00017",
+    "driverId": "USR-2026-00006",
+    "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "departureDate": "2026-04-06",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00006",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 11,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
       "musicAllowed": true,
       "flexibleItinerary": false
     },
-    "notes": "",
-    "updatedAt": "2026-03-24T06:08:30.550Z",
-    "id": "DRF-2026-64674",
-    "createdAt": "2026-03-24T06:08:30.550Z"
+    "departureCoords": [
+      45.4253,
+      -75.6901
+    ],
+    "arrivalCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "polyline": [
+      [
+        45.4253,
+        -75.6901
+      ],
+      [
+        45.4245,
+        -75.6809
+      ],
+      [
+        45.4238,
+        -75.6717
+      ],
+      [
+        45.423,
+        -75.6626
+      ],
+      [
+        45.4223,
+        -75.6534
+      ],
+      [
+        45.4215,
+        -75.6442
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:06:00.000Z",
+    "updatedAt": "2026-03-25T09:06:00.000Z"
   },
   {
-    "driverId": "USR-2026-00003",
-    "departureLocation": "avenue Mona, Ottawa",
-    "arrivalLocation": "Collège La Cité 801, Ottawa K1J 7P6 (Ontario)",
-    "departureDate": "2026-03-31",
+    "id": "DRF-2026-00018",
+    "driverId": "USR-2026-00006",
+    "departureLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "arrivalLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
+    "departureDate": "2026-04-07",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00006",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 12,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4768,
+      -75.702
+    ],
+    "arrivalCoords": [
+      45.4777,
+      -75.5117
+    ],
+    "polyline": [
+      [
+        45.4768,
+        -75.702
+      ],
+      [
+        45.477,
+        -75.6639
+      ],
+      [
+        45.4772,
+        -75.6259
+      ],
+      [
+        45.4773,
+        -75.5878
+      ],
+      [
+        45.4775,
+        -75.5498
+      ],
+      [
+        45.4777,
+        -75.5117
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:07:00.000Z",
+    "updatedAt": "2026-03-25T09:07:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00019",
+    "driverId": "USR-2026-00006",
+    "departureLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
+    "arrivalLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "departureDate": "2026-04-08",
     "departureTime": "11:00",
-    "vehicleId": "",
-    "maxPassengers": 4,
+    "vehicleId": "VEH-2026-00006",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 13,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.5017,
+      -73.5673
+    ],
+    "arrivalCoords": [
+      45.4278,
+      -75.6944
+    ],
+    "polyline": [
+      [
+        45.5017,
+        -73.5673
+      ],
+      [
+        45.4869,
+        -73.9927
+      ],
+      [
+        45.4721,
+        -74.4181
+      ],
+      [
+        45.4574,
+        -74.8436
+      ],
+      [
+        45.4426,
+        -75.269
+      ],
+      [
+        45.4278,
+        -75.6944
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:08:00.000Z",
+    "updatedAt": "2026-03-25T09:08:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00019",
+    "driverId": "USR-2026-00007",
+    "departureLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
+    "arrivalLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "departureDate": "2026-04-06",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00007",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 11,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.5017,
+      -73.5673
+    ],
+    "arrivalCoords": [
+      45.4278,
+      -75.6944
+    ],
+    "polyline": [
+      [
+        45.5017,
+        -73.5673
+      ],
+      [
+        45.4869,
+        -73.9927
+      ],
+      [
+        45.4721,
+        -74.4181
+      ],
+      [
+        45.4574,
+        -74.8436
+      ],
+      [
+        45.4426,
+        -75.269
+      ],
+      [
+        45.4278,
+        -75.6944
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:06:00.000Z",
+    "updatedAt": "2026-03-25T09:06:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00020",
+    "driverId": "USR-2026-00007",
+    "departureLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
+    "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "departureDate": "2026-04-07",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00007",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 12,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4543,
+      -75.4845
+    ],
+    "arrivalCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "polyline": [
+      [
+        45.4543,
+        -75.4845
+      ],
+      [
+        45.4254,
+        -75.5703
+      ],
+      [
+        45.3965,
+        -75.6561
+      ],
+      [
+        45.3677,
+        -75.742
+      ],
+      [
+        45.3388,
+        -75.8278
+      ],
+      [
+        45.3099,
+        -75.9136
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:07:00.000Z",
+    "updatedAt": "2026-03-25T09:07:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00021",
+    "driverId": "USR-2026-00007",
+    "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "departureDate": "2026-04-08",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00007",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 13,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "arrivalCoords": [
+      45.2745,
+      -75.7368
+    ],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.3921,
+        -75.6627
+      ],
+      [
+        45.3627,
+        -75.6812
+      ],
+      [
+        45.3333,
+        -75.6998
+      ],
+      [
+        45.3039,
+        -75.7183
+      ],
+      [
+        45.2745,
+        -75.7368
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:08:00.000Z",
+    "updatedAt": "2026-03-25T09:08:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00022",
+    "driverId": "USR-2026-00007",
+    "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
+    "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "departureDate": "2026-04-09",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00007",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 14,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4777,
+      -75.5117
+    ],
+    "arrivalCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "polyline": [
+      [
+        45.4777,
+        -75.5117
+      ],
+      [
+        45.4551,
+        -75.5435
+      ],
+      [
+        45.4325,
+        -75.5753
+      ],
+      [
+        45.41,
+        -75.607
+      ],
+      [
+        45.3874,
+        -75.6388
+      ],
+      [
+        45.3648,
+        -75.6706
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:09:00.000Z",
+    "updatedAt": "2026-03-25T09:09:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00022",
+    "driverId": "USR-2026-00008",
+    "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
+    "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "departureDate": "2026-04-07",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00008",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 12,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4777,
+      -75.5117
+    ],
+    "arrivalCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "polyline": [
+      [
+        45.4777,
+        -75.5117
+      ],
+      [
+        45.4551,
+        -75.5435
+      ],
+      [
+        45.4325,
+        -75.5753
+      ],
+      [
+        45.41,
+        -75.607
+      ],
+      [
+        45.3874,
+        -75.6388
+      ],
+      [
+        45.3648,
+        -75.6706
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:07:00.000Z",
+    "updatedAt": "2026-03-25T09:07:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00023",
+    "driverId": "USR-2026-00008",
+    "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "departureDate": "2026-04-08",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00008",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 13,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4278,
+      -75.6944
+    ],
+    "arrivalCoords": [
+      45.4253,
+      -75.6901
+    ],
+    "polyline": [
+      [
+        45.4278,
+        -75.6944
+      ],
+      [
+        45.4273,
+        -75.6935
+      ],
+      [
+        45.4268,
+        -75.6927
+      ],
+      [
+        45.4263,
+        -75.6918
+      ],
+      [
+        45.4258,
+        -75.691
+      ],
+      [
+        45.4253,
+        -75.6901
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:08:00.000Z",
+    "updatedAt": "2026-03-25T09:08:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00024",
+    "driverId": "USR-2026-00008",
+    "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "departureDate": "2026-04-09",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00008",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 14,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "arrivalCoords": [
+      45.4768,
+      -75.702
+    ],
+    "polyline": [
+      [
+        45.3099,
+        -75.9136
+      ],
+      [
+        45.3433,
+        -75.8713
+      ],
+      [
+        45.3767,
+        -75.829
+      ],
+      [
+        45.41,
+        -75.7866
+      ],
+      [
+        45.4434,
+        -75.7443
+      ],
+      [
+        45.4768,
+        -75.702
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:09:00.000Z",
+    "updatedAt": "2026-03-25T09:09:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00025",
+    "driverId": "USR-2026-00008",
+    "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
+    "departureDate": "2026-04-10",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00008",
+    "maxPassengers": 3,
     "availableSeats": 3,
     "pricePerPassenger": 15,
     "paymentMethod": "cash",
     "preferences": {
       "baggageAllowed": true,
       "petsAllowed": false,
-      "smokingAllowed": true,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.2745,
+      -75.7368
+    ],
+    "arrivalCoords": [
+      45.5017,
+      -73.5673
+    ],
+    "polyline": [
+      [
+        45.2745,
+        -75.7368
+      ],
+      [
+        45.3199,
+        -75.3029
+      ],
+      [
+        45.3654,
+        -74.869
+      ],
+      [
+        45.4108,
+        -74.4351
+      ],
+      [
+        45.4563,
+        -74.0012
+      ],
+      [
+        45.5017,
+        -73.5673
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:10:00.000Z",
+    "updatedAt": "2026-03-25T09:10:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00025",
+    "driverId": "USR-2026-00009",
+    "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
+    "departureDate": "2026-04-08",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00009",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 13,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.2745,
+      -75.7368
+    ],
+    "arrivalCoords": [
+      45.5017,
+      -73.5673
+    ],
+    "polyline": [
+      [
+        45.2745,
+        -75.7368
+      ],
+      [
+        45.3199,
+        -75.3029
+      ],
+      [
+        45.3654,
+        -74.869
+      ],
+      [
+        45.4108,
+        -74.4351
+      ],
+      [
+        45.4563,
+        -74.0012
+      ],
+      [
+        45.5017,
+        -73.5673
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:08:00.000Z",
+    "updatedAt": "2026-03-25T09:08:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00026",
+    "driverId": "USR-2026-00009",
+    "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
+    "departureDate": "2026-04-09",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00009",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 14,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
       "musicAllowed": true,
       "flexibleItinerary": false
     },
-    "notes": "",
-    "updatedAt": "2026-03-24T06:08:56.011Z",
-    "id": "DRF-2026-31323",
-    "createdAt": "2026-03-24T06:08:56.011Z"
+    "departureCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "arrivalCoords": [
+      45.4543,
+      -75.4845
+    ],
+    "polyline": [
+      [
+        45.3648,
+        -75.6706
+      ],
+      [
+        45.3827,
+        -75.6334
+      ],
+      [
+        45.4006,
+        -75.5962
+      ],
+      [
+        45.4185,
+        -75.5589
+      ],
+      [
+        45.4364,
+        -75.5217
+      ],
+      [
+        45.4543,
+        -75.4845
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:09:00.000Z",
+    "updatedAt": "2026-03-25T09:09:00.000Z"
   },
   {
-    "driverId": "USR-2026-00003",
-    "departureLocation": "avenue Mona, Ottawa",
-    "arrivalLocation": "Collège La Cité 801, Ottawa K1J 7P6 (Ontario)",
-    "departureDate": "2026-03-30",
+    "id": "DRF-2026-00027",
+    "driverId": "USR-2026-00009",
+    "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "departureDate": "2026-04-10",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00009",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 15,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4253,
+      -75.6901
+    ],
+    "arrivalCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "polyline": [
+      [
+        45.4253,
+        -75.6901
+      ],
+      [
+        45.4245,
+        -75.6809
+      ],
+      [
+        45.4238,
+        -75.6717
+      ],
+      [
+        45.423,
+        -75.6626
+      ],
+      [
+        45.4223,
+        -75.6534
+      ],
+      [
+        45.4215,
+        -75.6442
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:10:00.000Z",
+    "updatedAt": "2026-03-25T09:10:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00028",
+    "driverId": "USR-2026-00009",
+    "departureLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "arrivalLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
+    "departureDate": "2026-04-11",
     "departureTime": "11:00",
-    "vehicleId": "",
-    "maxPassengers": 4,
+    "vehicleId": "VEH-2026-00009",
+    "maxPassengers": 3,
     "availableSeats": 3,
-    "pricePerPassenger": 5,
+    "pricePerPassenger": 16,
     "paymentMethod": "cash",
     "preferences": {
-      "baggageAllowed": false,
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4768,
+      -75.702
+    ],
+    "arrivalCoords": [
+      45.4777,
+      -75.5117
+    ],
+    "polyline": [
+      [
+        45.4768,
+        -75.702
+      ],
+      [
+        45.477,
+        -75.6639
+      ],
+      [
+        45.4772,
+        -75.6259
+      ],
+      [
+        45.4773,
+        -75.5878
+      ],
+      [
+        45.4775,
+        -75.5498
+      ],
+      [
+        45.4777,
+        -75.5117
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:11:00.000Z",
+    "updatedAt": "2026-03-25T09:11:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00028",
+    "driverId": "USR-2026-00010",
+    "departureLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "arrivalLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
+    "departureDate": "2026-04-09",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00010",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 14,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4768,
+      -75.702
+    ],
+    "arrivalCoords": [
+      45.4777,
+      -75.5117
+    ],
+    "polyline": [
+      [
+        45.4768,
+        -75.702
+      ],
+      [
+        45.477,
+        -75.6639
+      ],
+      [
+        45.4772,
+        -75.6259
+      ],
+      [
+        45.4773,
+        -75.5878
+      ],
+      [
+        45.4775,
+        -75.5498
+      ],
+      [
+        45.4777,
+        -75.5117
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:09:00.000Z",
+    "updatedAt": "2026-03-25T09:09:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00029",
+    "driverId": "USR-2026-00010",
+    "departureLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
+    "arrivalLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "departureDate": "2026-04-10",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00010",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 15,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.5017,
+      -73.5673
+    ],
+    "arrivalCoords": [
+      45.4278,
+      -75.6944
+    ],
+    "polyline": [
+      [
+        45.5017,
+        -73.5673
+      ],
+      [
+        45.4869,
+        -73.9927
+      ],
+      [
+        45.4721,
+        -74.4181
+      ],
+      [
+        45.4574,
+        -74.8436
+      ],
+      [
+        45.4426,
+        -75.269
+      ],
+      [
+        45.4278,
+        -75.6944
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:10:00.000Z",
+    "updatedAt": "2026-03-25T09:10:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00030",
+    "driverId": "USR-2026-00010",
+    "departureLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
+    "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "departureDate": "2026-04-11",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00010",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 16,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4543,
+      -75.4845
+    ],
+    "arrivalCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "polyline": [
+      [
+        45.4543,
+        -75.4845
+      ],
+      [
+        45.4254,
+        -75.5703
+      ],
+      [
+        45.3965,
+        -75.6561
+      ],
+      [
+        45.3677,
+        -75.742
+      ],
+      [
+        45.3388,
+        -75.8278
+      ],
+      [
+        45.3099,
+        -75.9136
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:11:00.000Z",
+    "updatedAt": "2026-03-25T09:11:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00031",
+    "driverId": "USR-2026-00010",
+    "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "departureDate": "2026-04-12",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00010",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 17,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "arrivalCoords": [
+      45.2745,
+      -75.7368
+    ],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.3921,
+        -75.6627
+      ],
+      [
+        45.3627,
+        -75.6812
+      ],
+      [
+        45.3333,
+        -75.6998
+      ],
+      [
+        45.3039,
+        -75.7183
+      ],
+      [
+        45.2745,
+        -75.7368
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:12:00.000Z",
+    "updatedAt": "2026-03-25T09:12:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00031",
+    "driverId": "USR-2026-00011",
+    "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "departureDate": "2026-04-10",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00011",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 15,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "arrivalCoords": [
+      45.2745,
+      -75.7368
+    ],
+    "polyline": [
+      [
+        45.4215,
+        -75.6442
+      ],
+      [
+        45.3921,
+        -75.6627
+      ],
+      [
+        45.3627,
+        -75.6812
+      ],
+      [
+        45.3333,
+        -75.6998
+      ],
+      [
+        45.3039,
+        -75.7183
+      ],
+      [
+        45.2745,
+        -75.7368
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:10:00.000Z",
+    "updatedAt": "2026-03-25T09:10:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00032",
+    "driverId": "USR-2026-00011",
+    "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
+    "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "departureDate": "2026-04-11",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00011",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 16,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
       "petsAllowed": false,
       "smokingAllowed": false,
       "musicAllowed": false,
       "flexibleItinerary": false
     },
-    "notes": "",
-    "updatedAt": "2026-03-24T06:15:28.138Z",
-    "id": "DRF-2026-85077",
-    "createdAt": "2026-03-24T06:15:28.138Z"
+    "departureCoords": [
+      45.4777,
+      -75.5117
+    ],
+    "arrivalCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "polyline": [
+      [
+        45.4777,
+        -75.5117
+      ],
+      [
+        45.4551,
+        -75.5435
+      ],
+      [
+        45.4325,
+        -75.5753
+      ],
+      [
+        45.41,
+        -75.607
+      ],
+      [
+        45.3874,
+        -75.6388
+      ],
+      [
+        45.3648,
+        -75.6706
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:11:00.000Z",
+    "updatedAt": "2026-03-25T09:11:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00033",
+    "driverId": "USR-2026-00011",
+    "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
+    "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "departureDate": "2026-04-12",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00011",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 17,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.4278,
+      -75.6944
+    ],
+    "arrivalCoords": [
+      45.4253,
+      -75.6901
+    ],
+    "polyline": [
+      [
+        45.4278,
+        -75.6944
+      ],
+      [
+        45.4273,
+        -75.6935
+      ],
+      [
+        45.4268,
+        -75.6927
+      ],
+      [
+        45.4263,
+        -75.6918
+      ],
+      [
+        45.4258,
+        -75.691
+      ],
+      [
+        45.4253,
+        -75.6901
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:12:00.000Z",
+    "updatedAt": "2026-03-25T09:12:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00034",
+    "driverId": "USR-2026-00011",
+    "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "departureDate": "2026-04-13",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00011",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 18,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": false,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "arrivalCoords": [
+      45.4768,
+      -75.702
+    ],
+    "polyline": [
+      [
+        45.3099,
+        -75.9136
+      ],
+      [
+        45.3433,
+        -75.8713
+      ],
+      [
+        45.3767,
+        -75.829
+      ],
+      [
+        45.41,
+        -75.7866
+      ],
+      [
+        45.4434,
+        -75.7443
+      ],
+      [
+        45.4768,
+        -75.702
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:13:00.000Z",
+    "updatedAt": "2026-03-25T09:13:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00034",
+    "driverId": "USR-2026-00012",
+    "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
+    "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
+    "departureDate": "2026-04-11",
+    "departureTime": "08:00",
+    "vehicleId": "VEH-2026-00012",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 16,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.3099,
+      -75.9136
+    ],
+    "arrivalCoords": [
+      45.4768,
+      -75.702
+    ],
+    "polyline": [
+      [
+        45.3099,
+        -75.9136
+      ],
+      [
+        45.3433,
+        -75.8713
+      ],
+      [
+        45.3767,
+        -75.829
+      ],
+      [
+        45.41,
+        -75.7866
+      ],
+      [
+        45.4434,
+        -75.7443
+      ],
+      [
+        45.4768,
+        -75.702
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:11:00.000Z",
+    "updatedAt": "2026-03-25T09:11:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00035",
+    "driverId": "USR-2026-00012",
+    "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
+    "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
+    "departureDate": "2026-04-12",
+    "departureTime": "09:00",
+    "vehicleId": "VEH-2026-00012",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 17,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.2745,
+      -75.7368
+    ],
+    "arrivalCoords": [
+      45.5017,
+      -73.5673
+    ],
+    "polyline": [
+      [
+        45.2745,
+        -75.7368
+      ],
+      [
+        45.3199,
+        -75.3029
+      ],
+      [
+        45.3654,
+        -74.869
+      ],
+      [
+        45.4108,
+        -74.4351
+      ],
+      [
+        45.4563,
+        -74.0012
+      ],
+      [
+        45.5017,
+        -73.5673
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:12:00.000Z",
+    "updatedAt": "2026-03-25T09:12:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00036",
+    "driverId": "USR-2026-00012",
+    "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
+    "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
+    "departureDate": "2026-04-13",
+    "departureTime": "10:30",
+    "vehicleId": "VEH-2026-00012",
+    "maxPassengers": 3,
+    "availableSeats": 2,
+    "pricePerPassenger": 18,
+    "paymentMethod": "interac",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": true
+    },
+    "departureCoords": [
+      45.3648,
+      -75.6706
+    ],
+    "arrivalCoords": [
+      45.4543,
+      -75.4845
+    ],
+    "polyline": [
+      [
+        45.3648,
+        -75.6706
+      ],
+      [
+        45.3827,
+        -75.6334
+      ],
+      [
+        45.4006,
+        -75.5962
+      ],
+      [
+        45.4185,
+        -75.5589
+      ],
+      [
+        45.4364,
+        -75.5217
+      ],
+      [
+        45.4543,
+        -75.4845
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:13:00.000Z",
+    "updatedAt": "2026-03-25T09:13:00.000Z"
+  },
+  {
+    "id": "DRF-2026-00037",
+    "driverId": "USR-2026-00012",
+    "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
+    "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
+    "departureDate": "2026-04-14",
+    "departureTime": "11:00",
+    "vehicleId": "VEH-2026-00012",
+    "maxPassengers": 3,
+    "availableSeats": 3,
+    "pricePerPassenger": 19,
+    "paymentMethod": "cash",
+    "preferences": {
+      "baggageAllowed": true,
+      "petsAllowed": false,
+      "smokingAllowed": false,
+      "musicAllowed": true,
+      "flexibleItinerary": false
+    },
+    "departureCoords": [
+      45.4253,
+      -75.6901
+    ],
+    "arrivalCoords": [
+      45.4215,
+      -75.6442
+    ],
+    "polyline": [
+      [
+        45.4253,
+        -75.6901
+      ],
+      [
+        45.4245,
+        -75.6809
+      ],
+      [
+        45.4238,
+        -75.6717
+      ],
+      [
+        45.423,
+        -75.6626
+      ],
+      [
+        45.4223,
+        -75.6534
+      ],
+      [
+        45.4215,
+        -75.6442
+      ]
+    ],
+    "notes": "Brouillon seed coherent pour les tests.",
+    "createdAt": "2026-03-24T14:14:00.000Z",
+    "updatedAt": "2026-03-25T09:14:00.000Z"
   }
 ]

@@ -18,6 +18,7 @@ export function DraftDetailView({ draft }: DraftDetailViewProps) {
     <CreateTripForm
       key={draft.id}
       driverName="Conducteur"
+      vehicles={[]}
       initialValues={{
         departureLocation: draft.departureLocation,
         arrivalLocation:   draft.arrivalLocation,

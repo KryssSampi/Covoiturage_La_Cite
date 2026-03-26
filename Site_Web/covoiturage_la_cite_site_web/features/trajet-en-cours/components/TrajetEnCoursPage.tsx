@@ -3,7 +3,7 @@
 // Composant principal « Trajet en cours »
 // Assemble ProgressionSection · Messagerie · SignalementOverlay
 // ═══════════════════════════════════════════════════════════════════════
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   FaStar, FaRegStar, FaPhone, FaBan, FaFlag, FaCheck,
   FaPaperPlane, FaSuitcase, FaPaw,
@@ -13,7 +13,7 @@ import {
   FaCircleXmark,
 } from 'react-icons/fa6';
 import {
-  FiSend, FiAlertTriangle,
+  FiAlertTriangle,
 } from 'react-icons/fi';
 
 // ── Types ────────────────────────────────────────────────────────────
@@ -186,8 +186,8 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
   const isFR = appState.lang === Language.FR;
   const RATING_LABELS = isFR ? RATING_LABELS_FR : RATING_LABELS_EN;
 
-  // ── Messagerie hook ──
-  const messagerie = useMessagerie(correspondants, correspondants[0]?.id);
+  // ── Messagerie hook (nouveau modèle Conversation) ──
+  const messagerie = useMessagerie(moiInfo.id, correspondants);
 
   // ── Hook carte partagé : état unique pour TrajetMap + ProgressionSection ──
   const trajetMap = useTrajetMap(mapFixture);
@@ -195,11 +195,17 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
   // ── Litige ──
   const [showLitige, setShowLitige] = useState(false);
 
+  // ── Annulation (popup avertissement) ──
+  const [showCancelWarning, setShowCancelWarning] = useState(false);
+
+  // ── Fin de trajet détectée (popup évaluation) ──
+  const [showFinDeTrajet, setShowFinDeTrajet] = useState(false);
+
+  // ── Erreur OSRM (popup avertissement réseau) ──
+  const [showOsrmError, setShowOsrmError] = useState(false);
+
   // ── Évaluation ──
   const [eval_, setEval_] = useState<EvaluationState>({ note: 0, commentaire: '', estSoumis: false });
-
-  // ── Simuler réception (outil de dev) ──
-  const [simInput, setSimInput] = useState('');
 
   // ── Toast de notification ──
   const [toast, setToast] = useState<{ msg: string; type?: 'green' | 'red' } | null>(null);
@@ -214,6 +220,15 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
     setEval_((p) => ({ ...p, estSoumis: true }));
     showToast(isFR ? `✓ Évaluation ${eval_.note}★ envoyée — Merci !` : `✓ Rating ${eval_.note}★ submitted — Thank you!`, 'green');
   };
+
+  // Détecte la fin du trajet pour afficher le popup d'évaluation
+  const finDeTrajetDetected = trajetMap.state.estTermine && !eval_.estSoumis;
+  useEffect(() => {
+    if (finDeTrajetDetected) {
+      const timer = setTimeout(() => setShowFinDeTrajet(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [finDeTrajetDetected]);
 
   return (
     <div style={{ background: C.bg, minHeight: '100vh', fontFamily: 'DM Sans, sans-serif', color: C.text }}>
@@ -256,7 +271,7 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
               /* Conducteur : petit bouton Annuler en bas à droite */
               <div className="flex justify-end w-full ">
                 <button
-                  onClick={() => showToast(isFR ? 'Fonctionnalité d\'annulation — ouvrir modale' : 'Cancellation feature — open modal', 'red')}
+                  onClick={() => setShowCancelWarning(true)}
                   className="flex items-center gap-2 py-2 px-4 rounded-lg font-bold text-xl text-center justify-center w-80 h-12 text-white cursor-pointer"
                   style={{ background: '#e03050' }}
                 >
@@ -275,7 +290,7 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
                   <FaPhone size={13} /> {isFR ? 'Appeler le conducteur' : 'Call driver'}
                 </a>
                 <button
-                  onClick={() => showToast(isFR ? 'Fonctionnalité d\'annulation — ouvrir modale' : 'Cancellation feature — open modal', 'red')}
+                  onClick={() => setShowCancelWarning(true)}
                   className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm text-white cursor-pointer"
                   style={{ background: '#e03050' }}
                 >
@@ -487,52 +502,14 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
               roleMoi={role}
               correspondants={correspondants}
               moi={moiInfo}
-              conversationState={messagerie.conversationState}
-              onEnvoyerMessage={messagerie.envoyerMessage}
-              onChangerCorrespondant={messagerie.changerCorrespondant}
-              onBroadcast={messagerie.broadcast}
+              conversations={messagerie.conversations}
+              activeConversation={messagerie.activeConversation}
+              messagesActifs={messagerie.messagesActifs}
+              unreadCounts={messagerie.unreadCounts}
+              onSendMessage={messagerie.sendMessage}
+              onSetActiveCorrespondant={messagerie.setActiveCorrespondant}
+              onBroadcast={messagerie.broadcastMessage}
             />
-
-            {/* Panneau de test : simuler réception */}
-            <div style={{
-              background: C.w, border: `1px dashed ${C.b2}`, borderRadius: 12,
-              padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 12,
-            }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}>
-                <FiAlertTriangle size={12} color={C.gold} /> Test
-              </div>
-              <input
-                value={simInput}
-                onChange={(e) => setSimInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && simInput.trim()) {
-                    messagerie.simulerReception(simInput.trim());
-                    setSimInput('');
-                  }
-                }}
-                placeholder={`${isFR ? 'Simuler un message de' : 'Simulate a message from'} ${messagerie.correspondantActif?.prenom ?? '—'}…`}
-                style={{
-                  flex: 1, padding: '8px 12px', borderRadius: 8,
-                  border: `1.5px solid ${C.b2}`, background: C.bg,
-                  fontSize: 12, fontFamily: 'DM Sans, sans-serif', outline: 'none', color: C.text,
-                }}
-              />
-              <button
-                onClick={() => {
-                  if (simInput.trim()) {
-                    messagerie.simulerReception(simInput.trim());
-                    setSimInput('');
-                  }
-                }}
-                style={{
-                  padding: '8px 16px', background: C.p, border: 'none',
-                  borderRadius: 8, fontSize: 12, fontWeight: 600, color: '#fff', cursor: 'pointer',
-                  whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5,
-                }}
-              >
-                <FiSend size={11} /> {isFR ? 'Recevoir' : 'Receive'}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -688,6 +665,164 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
             showToast(isFR ? `Litige déclaré contre ${passagers.find(p => p.id === data.accuseId)?.prenom ?? 'inconnu'}` : `Dispute filed against ${passagers.find(p => p.id === data.accuseId)?.prenom ?? 'unknown'}`, 'red');
           }}
         />
+      )}
+
+      {/* ── Popup annulation — avertissement ── */}
+      {showCancelWarning && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9000,
+          background: 'rgba(0,0,0,.45)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: C.w, borderRadius: 16, padding: '28px 32px',
+            maxWidth: 420, width: '90%',
+            boxShadow: '0 12px 40px rgba(0,0,0,.2)',
+            display: 'flex', flexDirection: 'column', gap: 16,
+            textAlign: 'center',
+          }}>
+            <FiAlertTriangle size={36} color={C.red} style={{ margin: '0 auto' }} />
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, color: C.p }}>
+              {isFR ? 'Attention — annulation' : 'Warning — cancellation'}
+            </div>
+            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
+              {isFR
+                ? "L'annulation d'un trajet en cours entraîne des pénalités financières et affecte votre score de fiabilité. Cette action est irréversible."
+                : 'Cancelling a trip in progress results in financial penalties and affects your reliability score. This action is irreversible.'}
+            </div>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowCancelWarning(false)}
+                style={{
+                  flex: 1, padding: '10px 0', borderRadius: 10,
+                  border: `1.5px solid ${C.b2}`, background: C.bg,
+                  fontWeight: 700, fontSize: 13, color: C.p, cursor: 'pointer',
+                }}
+              >
+                {isFR ? 'Revenir' : 'Go back'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowCancelWarning(false);
+                  showToast(isFR ? 'Trajet annulé. Des pénalités ont été appliquées.' : 'Trip cancelled. Penalties have been applied.', 'red');
+                }}
+                style={{
+                  flex: 1, padding: '10px 0', borderRadius: 10,
+                  border: 'none', background: C.red,
+                  fontWeight: 700, fontSize: 13, color: '#fff', cursor: 'pointer',
+                }}
+              >
+                {isFR ? 'Confirmer l\'annulation' : 'Confirm cancellation'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Popup fin de trajet — évaluation ── */}
+      {showFinDeTrajet && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9000,
+          background: 'rgba(0,0,0,.45)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: C.w, borderRadius: 16, padding: '28px 32px',
+            maxWidth: 420, width: '90%',
+            boxShadow: '0 12px 40px rgba(0,0,0,.2)',
+            display: 'flex', flexDirection: 'column', gap: 14,
+            textAlign: 'center',
+          }}>
+            <FaCheck size={30} color={C.green} style={{ margin: '0 auto' }} />
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, color: C.p }}>
+              {isFR ? 'Trajet terminé !' : 'Trip completed!'}
+            </div>
+            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
+              {isFR
+                ? 'Vous êtes arrivé à destination. Notez votre expérience pour aider la communauté.'
+                : 'You have arrived at your destination. Rate your experience to help the community.'}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setEval_((p) => ({ ...p, note: n }))}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
+                >
+                  {n <= eval_.note
+                    ? <FaStar size={28} color={C.gold} />
+                    : <FaRegStar size={28} color="rgba(8,49,110,0.15)" />}
+                </button>
+              ))}
+            </div>
+            {eval_.note > 0 && (
+              <span style={{ fontSize: 12, color: C.muted }}>{RATING_LABELS[eval_.note]}</span>
+            )}
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowFinDeTrajet(false)}
+                style={{
+                  flex: 1, padding: '10px 0', borderRadius: 10,
+                  border: `1.5px solid ${C.b2}`, background: C.bg,
+                  fontWeight: 700, fontSize: 13, color: C.p, cursor: 'pointer',
+                }}
+              >
+                {isFR ? 'Plus tard' : 'Later'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowFinDeTrajet(false);
+                  submitEval();
+                }}
+                style={{
+                  flex: 1, padding: '10px 0', borderRadius: 10,
+                  border: 'none', background: C.green,
+                  fontWeight: 700, fontSize: 13, color: '#fff', cursor: 'pointer',
+                }}
+              >
+                <FaPaperPlane size={11} style={{ marginRight: 6 }} />
+                {isFR ? 'Soumettre' : 'Submit'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Popup erreur OSRM — avertissement réseau ── */}
+      {showOsrmError && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9000,
+          background: 'rgba(0,0,0,.45)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: C.w, borderRadius: 16, padding: '28px 32px',
+            maxWidth: 400, width: '90%',
+            boxShadow: '0 12px 40px rgba(0,0,0,.2)',
+            display: 'flex', flexDirection: 'column', gap: 14,
+            textAlign: 'center',
+          }}>
+            <FiAlertTriangle size={36} color={C.gold} style={{ margin: '0 auto' }} />
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, color: C.p }}>
+              {isFR ? 'Erreur de recalcul' : 'Recalculation error'}
+            </div>
+            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
+              {isFR
+                ? "Recalcul de l'itinéraire impossible. L'itinéraire par défaut sera utilisé."
+                : 'Route recalculation failed. The default route will be used.'}
+            </div>
+            <button
+              onClick={() => setShowOsrmError(false)}
+              style={{
+                padding: '10px 0', borderRadius: 10,
+                border: 'none', background: C.p,
+                fontWeight: 700, fontSize: 13, color: '#fff', cursor: 'pointer',
+              }}
+            >
+              {isFR ? 'Compris' : 'OK'}
+            </button>
+          </div>
+        </div>
       )}
 
       {/* ── Toast de notification ── */}

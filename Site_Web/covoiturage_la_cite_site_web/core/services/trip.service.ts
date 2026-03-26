@@ -90,6 +90,7 @@ export const TripService = {
   async addPassenger(tripId: string, passengerId: string): Promise<void> {
     const trip = await TripService.getById(tripId);
     if (!trip) throw new Error(`Trajet ${tripId} introuvable`);
+    if (trip.passengerIds.includes(passengerId)) return;
     if (trip.currentPassengers >= trip.maxPassengers) throw new Error('Aucune place disponible');
 
     const newPassengerIds = [...trip.passengerIds, passengerId];
@@ -111,6 +112,7 @@ export const TripService = {
   async removePassenger(tripId: string, passengerId: string): Promise<void> {
     const trip = await TripService.getById(tripId);
     if (!trip) throw new Error(`Trajet ${tripId} introuvable`);
+    if (!trip.passengerIds.includes(passengerId)) return;
 
     const newPassengerIds = trip.passengerIds.filter((id) => id !== passengerId);
     const newCurrentPassengers = Math.max(trip.currentPassengers - 1, 0);
