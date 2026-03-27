@@ -25,7 +25,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaArrowRight } from "react-icons/fa";
-import { FaLocationDot, FaBan } from "react-icons/fa6";
+import { FaLocationDot, FaBan, FaArrowsRotate } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { formatDate } from "@/core/utils/date.utils";
@@ -101,12 +101,13 @@ function InProgressBlockToast({
  * Composant de présentation — reçoit les données et callbacks du parent.
  * Aucune logique backend (SSE, fetch) : tout est délégué au parent.
  */
-export function PublishedTripSection({trips, onCancelTrip, onStartTrip, isLoading = false, error = null}: {
+export function PublishedTripSection({trips, onCancelTrip, onStartTrip, isLoading = false, error = null, onRefresh}: {
   trips: PublishedTrip[] | null;
   onCancelTrip: (id: string) => Promise<void> | null;
   onStartTrip: (id: string) => Promise<void> | null;
   isLoading?: boolean;
   error?: string | null;
+  onRefresh?: () => Promise<void>;
 })  {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
@@ -132,12 +133,25 @@ export function PublishedTripSection({trips, onCancelTrip, onStartTrip, isLoadin
         <h2 className="text-3xl font-bold">
           {isFR ? "Mes Trajets Publiés" : "My Published Trips"}
         </h2>
-        <Link
-          href="/trajets?view=tous"
-          className="text-lg font-medium text-blue-500 hover:underline hover:text-blue-700"
-        >
-          {isFR ? "Voir plus" : "See more"} {">"}
-        </Link>
+        <div className="flex items-center gap-3">
+          {onRefresh && (
+            <button
+              type="button"
+              onClick={() => void onRefresh()}
+              disabled={isLoading}
+              aria-label={isFR ? "Actualiser" : "Refresh"}
+              className="p-2 text-[#08316e] hover:text-blue-600 disabled:opacity-40 transition-colors"
+            >
+              <FaArrowsRotate className={`text-xl ${isLoading ? "animate-spin" : ""}`} />
+            </button>
+          )}
+          <Link
+            href="/trajets?view=tous"
+            className="text-lg font-medium text-blue-500 hover:underline hover:text-blue-700"
+          >
+            {isFR ? "Voir plus" : "See more"} {">"}
+          </Link>
+        </div>
       </div>
 
       <div className="w-13/15 h-1 bg-[#08316e] rounded-full" />
@@ -252,7 +266,7 @@ export function PublishedTripCard({
   // Navigation vers la vue détaillée du trajet avec contexte URL
   const handleCardClick = () => {
     const status = trip.isImminent ? 'imminent' : trip.status;
-    router.push(`/trajets/${trip.id}?source=publishedtrip&status=${status}`);
+    router.push(`/trajets/${trip.id}?source=publishedtrip&status=${status}&role=driver_owner`);
   };
 
   // Démarrage du trajet — bloque si un autre trajet est déjà en cours
@@ -431,4 +445,3 @@ export function PublishedTripCard({
     </>
   );
 }
-

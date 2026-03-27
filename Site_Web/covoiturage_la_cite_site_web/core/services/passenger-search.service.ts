@@ -15,6 +15,8 @@ export interface PassengerSearchRequest {
   departureCoords?: [number, number];
   arrivalCoords?: [number, number];
   desiredHour?: number;
+  /** Heure d'arrivée souhaitée (heures décimales) — déclasse sans éliminer */
+  desiredArrivalHour?: number;
   desiredWeekday?: number;
   sortKey?: PassengerSortKey;
   maxPrice?: number;
@@ -74,6 +76,7 @@ export function executePassengerSearch(body: PassengerSearchRequest): PassengerS
     departureCoords: body.departureCoords ?? null,
     arrivalCoords: body.arrivalCoords ?? null,
     desiredHour: body.desiredHour,
+    desiredArrivalHour: body.desiredArrivalHour,
     desiredWeekday: body.desiredWeekday,
     sortKey: body.sortKey ?? 'matching_desc',
     maxPrice: body.maxPrice,

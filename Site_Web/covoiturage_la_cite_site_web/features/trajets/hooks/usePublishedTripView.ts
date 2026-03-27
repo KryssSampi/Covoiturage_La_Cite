@@ -156,7 +156,7 @@ export function usePublishedTripView({
     if (wasSuccess && passengerId) {
       // Signaler au planificateur de scroller vers la zone trajets
       try { sessionStorage.setItem('plannerScrollToRides', '1'); } catch { /* sstorage indisponible */ }
-      router.push(`/passenger/${passengerId}/planifier`);
+      router.push(`/passenger/planifier/${passengerId}?showAll=true`);
     }
   }, [reservationToast.success, passengerId, router]);
 

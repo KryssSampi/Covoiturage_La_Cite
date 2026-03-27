@@ -43,7 +43,7 @@ export function ReservationCard({
 
   const handleCardClick = () => {
     const status = reservation.isImminent ? "imminent" : reservation.status;
-    router.push(`/trajets/${reservation.tripId}?source=reservation&status=${status}`);
+    router.push(`/trajets/${reservation.tripId}?source=reservation&status=${status}&role=passenger&alreadyReserved=1`);
   };
 
   const handleCancelConfirm = () => {

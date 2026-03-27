@@ -69,7 +69,9 @@ export default function DriverReservationsRoutePage() {
   const handleAcceptRequest = useCallback(async (id: string) => {
     setIsActionLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/accept`, { method: "POST" });
+      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/accept`, { method: "POST",
+        headers: { "x-caller-id": `${user?.id}` }
+       });
       if (!res.ok) return false;
       await loadData();
       return true;
@@ -78,13 +80,15 @@ export default function DriverReservationsRoutePage() {
     } finally {
       setIsActionLoading(false);
     }
-  }, [loadData]);
+  }, [loadData, user?.id]);
 
   // Refuser une demande de réservation
   const handleRejectRequest = useCallback(async (id: string) => {
     setIsActionLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/reject`, { method: "POST" });
+      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/reject`, { method: "POST",
+        headers: { "x-caller-id": `${user?.id}` }
+      });
       if (!res.ok) return false;
       await loadData();
       return true;
@@ -93,7 +97,7 @@ export default function DriverReservationsRoutePage() {
     } finally {
       setIsActionLoading(false);
     }
-  }, [loadData]);
+  }, [loadData, user?.id]);
 
   if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "driver") return null;
 

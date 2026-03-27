@@ -16,35 +16,16 @@
 //  • Simulation temps réel 50 km/h — enchaînement automatique des trajets
 // ─────────────────────────────────────────────────────────────────────────────
 import { useEffect, useRef, useState, useCallback } from 'react'
-import {
-  FaCrosshairs, FaCar, FaArrowUp, FaSyncAlt,
-  FaFlagCheckered, FaBus, FaGasPump, FaMapMarkerAlt, FaList,
-  FaGraduationCap,
-} from 'react-icons/fa'
+import { FaMapMarkerAlt } from 'react-icons/fa'
 import type { TrajetMapProps } from '../types/map.types'
 import { useTrajetMap } from '../hooks/useTrajetMap'
 import { fixtureMapPrincipale } from '../fixtures/map.fixtures'
-import { FIXTURE_LIEUX_FAVORIS } from '@/shared/fixtures/favoris.fixtures'
 import { Language, useAppState } from '@/core/state/app_state'
-
-// MapService — import depuis le module centralisé
-import {
-  TILE_CONFIGS,
-  POLYLINE_STYLES,
-  MAP_COLORS,
-  injectMapServiceCSS,
-  createCursorIcon,
-  createDepartIcon,
-  createArriveeIcon,
-  createFavoriIcon,
-  conducteurPopup,
-  addCampusLayer,
-  addOverpassLayer,
-  initOffScreenButtons,
-  destroyOffScreenButtons,
-} from '@/features/map-service'
-
+import { MAP_COLORS, createCursorIcon, destroyOffScreenButtons } from '@/features/map-service'
 import type { CursorMode } from '@/features/map-service'
+import { initTrajetMap } from './trajet-map-init'
+import { TrajetMapLegend } from './TrajetMapLegend'
+import { TrajetMapControls } from './TrajetMapControls'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COMPOSANT
@@ -100,200 +81,14 @@ export function TrajetMap({
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
 
-    // Injection CSS une seule fois
-    injectMapServiceCSS()
-
-    import('leaflet').then(async (L) => {
-      // Fix icônes Next.js
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (L.Icon.Default.prototype as any)._getIconUrl
-      L.Icon.Default.mergeOptions({ iconRetinaUrl: '', iconUrl: '', shadowUrl: '' })
-      leafletRef.current = L
-
-      // ── Carte ──────────────────────────────────────────────────────────
-      const map = L.map(mapRef.current!, {
-        zoomControl:      false,
-        attributionControl: true,
-        preferCanvas:     true,
-      }).setView([fixture.depart.lat, fixture.depart.lng], 13)
-
-      // ── Tuiles CARTO Voyager (MapService) ──────────────────────────────
-      const tileConf = TILE_CONFIGS['carto-voyager']
-      L.tileLayer(tileConf.url, {
-        attribution: tileConf.attribution,
-        subdomains:  tileConf.subdomains ?? 'abc',
-        maxZoom:     tileConf.maxZoom,
-      }).addTo(map)
-
-      // ── Zoom control repositionné ──────────────────────────────────────
-      L.control.zoom({ position: 'topright' }).addTo(map)
-
-      // ── Polylines ──────────────────────────────────────────────────────
-      const remainPoly = L.polyline(
-        fixture.polyline.map((p) => [p.lat, p.lng] as [number, number]),
-        POLYLINE_STYLES.remain,
-      ).addTo(map)
-      remainPolyRef.current = remainPoly
-
-      const donePoly = L.polyline(
-        [[fixture.depart.lat, fixture.depart.lng]],
-        POLYLINE_STYLES.done,
-      ).addTo(map)
-      donePolyRef.current = donePoly
-
-      // ── Marqueur départ ────────────────────────────────────────────────
-      const dIcon = await createDepartIcon()
-      const departMarker = L.marker(
-        [fixture.depart.lat, fixture.depart.lng],
-        { icon: dIcon, zIndexOffset: 100 },
-      )
-        .addTo(map)
-        .bindTooltip(
-          `<div style="font-family:'DM Sans',sans-serif;text-align:center">
-             <div style="font-weight:700;font-size:11px;color:#08316e">${fixture.labelDepart}</div>
-             <div style="font-size:9px;color:#7a90b8;margin-top:1px">${isFR ? 'Point de départ' : 'Departure point'}</div>
-           </div>`,
-          { direction: 'top', offset: [0, -11], className: 'ms-tooltip' },
-        )
-        .bindPopup(
-          `<div style="padding:9px 12px;font-family:'DM Sans',sans-serif">
-             <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:#08316e">${fixture.labelDepart}</div>
-             <div style="font-size:10px;color:#7a90b8;margin-top:2px">${isFR ? 'Point de départ' : 'Departure point'}</div>
-           </div>`,
-          { className: 'ms-popup' },
-        )
-      departRef.current = departMarker
-
-      // ── Marqueur arrivée ───────────────────────────────────────────────
-      const aIcon = await createArriveeIcon()
-      const arriveeMarker = L.marker(
-        [fixture.arrivee.lat, fixture.arrivee.lng],
-        { icon: aIcon, zIndexOffset: 100 },
-      )
-        .addTo(map)
-        .bindTooltip(
-          `<div style="font-family:'DM Sans',sans-serif;text-align:center">
-             <div style="font-weight:700;font-size:11px;color:#e03050">${fixture.labelArrivee}</div>
-             <div style="font-size:9px;color:#7a90b8;margin-top:1px">Destination</div>
-           </div>`,
-          { direction: 'top', offset: [0, -11], className: 'ms-tooltip' },
-        )
-        .bindPopup(
-          `<div style="padding:9px 12px;font-family:'DM Sans',sans-serif">
-             <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:#e03050">${fixture.labelArrivee}</div>
-             <div style="font-size:10px;color:#7a90b8;margin-top:2px">Destination</div>
-           </div>`,
-          { className: 'ms-popup' },
-        )
-      arriveeRef.current = arriveeMarker
-
-      // ── Curseur flèche ─────────────────────────────────────────────────
-      const cIcon = await createCursorIcon(0, 'arrow')
-      const cursor = L.marker(
-        [fixture.depart.lat, fixture.depart.lng],
-        { icon: cIcon, zIndexOffset: 1000 },
-      )
-        .addTo(map)
-        .bindTooltip(
-          `<div style="font-family:'DM Sans',sans-serif;text-align:center">
-             <div style="font-weight:700;font-size:11px;color:#08316e">Julie T.</div>
-             <div style="font-size:9px;color:#7a90b8;margin-top:1px">${isFR ? 'Conductrice' : 'Driver'}</div>
-           </div>`,
-          { direction: 'top', offset: [0, -22], className: 'ms-tooltip' },
-        )
-        .bindPopup(
-          conducteurPopup({
-            prenom:    'Julie',
-            nom:       'Tremblay',
-            initiales: 'JT',
-            note:      4.5,
-            nbTrajets: 60,
-            vehicule:  'Honda Civic 2020 Noire',
-          }),
-          { className: 'ms-popup', maxWidth: 220 },
-        )
-      cursorRef.current = cursor
-
-      // ── Couche campus La Cité ──────────────────────────────────────────
-      await addCampusLayer(map, L, { showPerimeter: true, showZones: true })
-
-      // ── Couche Overpass (arrêts bus + stations-service) ────────────────
-      await addOverpassLayer(map, L, { showBusStops: true, showGasStations: true })
-
-      // ── Marqueurs favoris — toujours visibles, quel que soit le zoom ──
-      const favoriColors: Record<string, string> = {
-        campus: MAP_COLORS.brand,
-        domicile: MAP_COLORS.depart,
-        travail: MAP_COLORS.passager,
-        ville: MAP_COLORS.rencontre,
-        autre: MAP_COLORS.routeAlt,
-        ecole: MAP_COLORS.brand,
-      }
-      // Descriptions spéciales pour les favoris connus
-      const favoriDesc: Record<string, string> = {
-        campus: isFR ? 'Collège La Cité — Campus principal' : 'La Cité College — Main campus',
-        domicile: isFR ? 'Mon domicile' : 'My home',
-        travail: isFR ? 'Lieu de travail' : 'Workplace',
-      }
-      for (const fav of FIXTURE_LIEUX_FAVORIS) {
-        const color = favoriColors[fav.iconTag] ?? MAP_COLORS.brand
-        const icon = await createFavoriIcon(fav.pseudonyme, color, fav.iconTag)
-        const desc = favoriDesc[fav.iconTag] ?? ''
-        L.marker(
-          [fav.coordonnees.lat, fav.coordonnees.lng],
-          { icon, zIndexOffset: 200 },
-        )
-          .addTo(map)
-          .bindTooltip(
-            `<div style="font-family:'DM Sans',sans-serif;text-align:center">
-               <div style="font-weight:700;font-size:11px;color:${color}">${fav.pseudonyme}</div>
-               ${desc ? `<div style="font-size:9px;color:#7a90b8;margin-top:1px">${desc}</div>` : ''}
-             </div>`,
-            { direction: 'top', offset: [0, -38], className: 'ms-tooltip' },
-          )
-          .bindPopup(
-            `<div style="padding:9px 12px;font-family:'DM Sans',sans-serif">
-               <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:12px;color:${color}">${fav.pseudonyme}</div>
-               <div style="font-size:10px;color:#7a90b8;margin-top:2px">${fav.adresse}</div>
-             </div>`,
-            { className: 'ms-popup' },
-          )
-      }
-
-      // ── Boutons off-screen (campus + domicile uniquement) ─────────────
-      initOffScreenButtons(
-        mapRef.current!,
-        map,
-        [
-          {
-            id:          'campus',
-            label:       isFR ? 'Campus La Cité' : 'La Cité Campus',
-            icone:       '🎓',  // Rendu en HTML dans le bouton off-screen DOM
-            coordonnees: FIXTURE_LIEUX_FAVORIS.find(f => f.id === 'campus-la-cite')!.coordonnees,
-            color:       MAP_COLORS.brand,
-          },
-          {
-            id:          'domicile',
-            label:       isFR ? 'Mon domicile' : 'My home',
-            icone:       '⌂',
-            coordonnees: FIXTURE_LIEUX_FAVORIS.find(f => f.id === 'domicile')?.coordonnees ?? { lat: 45.4380, lng: -75.7200 },
-            color:       MAP_COLORS.depart,
-          },
-        ],
-        (target) => {
-          console.log('[MapService] Off-screen click →', target.label)
-        },
-      )
-
-      // ── Fit bounds ─────────────────────────────────────────────────────
-      map.fitBounds(
-        L.latLngBounds(
-          fixture.polyline.map((p) => [p.lat, p.lng] as [number, number]),
-        ),
-        { padding: [44, 44] },
-      )
-
-      mapInstanceRef.current = map
+    initTrajetMap(mapRef.current, fixture, isFR).then((result) => {
+      leafletRef.current      = result.leaflet
+      mapInstanceRef.current  = result.map
+      donePolyRef.current     = result.donePoly
+      remainPolyRef.current   = result.remainPoly
+      cursorRef.current       = result.cursor
+      departRef.current       = result.departMarker
+      arriveeRef.current      = result.arriveeMarker
       setMapReady(true)
     })
 
@@ -393,11 +188,9 @@ export function TrajetMap({
   }, [state])
 
   // ── Métriques affichées ────────────────────────────────────────────────────
-  const pct          = state.pourcentageComplete
   const mPerSec      = (state.fixture.vitesseMoyenneKmh * 1000) / 3600
   const secRestants  = Math.max(0, (state.fixture.distanceTotaleM - state.distanceParcourue) / mPerSec)
   const distRestKm   = ((state.fixture.distanceTotaleM - state.distanceParcourue) / 1000).toFixed(1)
-  const distDoneKm   = (state.distanceParcourue / 1000).toFixed(1)
   const minRest      = Math.floor(secRestants / 60)
   const secRest      = Math.floor(secRestants % 60)
   const etaStr       = minRest > 0 ? `${minRest} min ${secRest > 0 ? secRest + ' s' : ''}` : `${Math.floor(secRestants)} s`
@@ -459,154 +252,35 @@ export function TrajetMap({
         </div>
       )}
 
-      {/* ── contrôles  ── */}
-      <div style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 500,
-        background: isDarkMode
-          ? 'linear-gradient(to top, rgba(14,27,46,0.98) 0%, rgba(14,27,46,0.94) 65%, transparent 100%)'
-          : 'linear-gradient(to top, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.94) 65%, transparent 100%)',
-        padding: '10px 16px 14px',
-        backdropFilter: 'blur(2px)',
-      }}>
-
-        {/* Stats + boutons */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-
-      
-
-          {/* Contrôles */}
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-
-            {/* Bouton recentrer — seul moyen de recentrer la carte */}
-            <button
-              title={autoCenter ? (isFR ? 'Désactiver suivi auto' : 'Disable auto follow') : (isFR ? 'Recentrer sur le curseur' : 'Recenter on cursor')}
-              onClick={() => {
-                if (!autoCenter) {
-                  // Recentre immédiatement puis active le suivi
-                  const pos = state.positionActuelle
-                  mapInstanceRef.current?.panTo([pos.lat, pos.lng], { animate: true, duration: 0.8 })
-                }
-                setAutoCenter((v) => !v)
-              }}
-              style={{
-                width: 32, height: 32, borderRadius: 8, cursor: 'pointer',
-                border: `1.5px solid ${autoCenter ? MAP_COLORS.brand : 'rgba(8,49,110,0.18)'}`,
-                background: autoCenter ? 'rgba(8,49,110,0.08)' : '#fff',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15,
-              }}
-            ><FaCrosshairs size={14} color={autoCenter ? MAP_COLORS.brand : '#7a90b8'} /></button>
-
-            {/* Cursor toggle */}
-            <button
-              onClick={() => setCursorMode((m) => m === 'arrow' ? 'car' : 'arrow')}
-              style={{
-                height: 32, padding: '0 10px', borderRadius: 8, cursor: 'pointer',
-                border: '1.5px solid rgba(8,49,110,0.18)', background: '#fff',
-                display: 'flex', alignItems: 'center', gap: 5,
-                fontSize: 11, fontWeight: 600, color: MAP_COLORS.brand,
-                fontFamily: 'DM Sans, sans-serif',
-              }}
-            >
-              {cursorMode === 'arrow'
-                ? <><FaCar size={12} /> {isFR ? 'Voiture' : 'Car'}</>
-                : <><FaArrowUp size={12} /> {isFR ? 'Flèche' : 'Arrow'}</>}
-            </button>
-
-            {/* Recalculer OSRM */}
-            <button
-              onClick={recalculerItineraire}
-              disabled={isRecalculating}
-              title={isFR ? "Recalculer l'itinéraire depuis la position actuelle" : "Recalculate route from current position"}
-              style={{
-                height: 32, padding: '0 10px', borderRadius: 8,
-                border: '1.5px solid rgba(8,49,110,0.18)',
-                background: isRecalculating ? 'rgba(8,49,110,0.05)' : '#fff',
-                cursor: isRecalculating ? 'not-allowed' : 'pointer',
-                display: 'flex', alignItems: 'center', gap: 5,
-                fontSize: 11, fontWeight: 600,
-                color: isRecalculating ? '#7a90b8' : MAP_COLORS.brand,
-                fontFamily: 'DM Sans, sans-serif',
-              }}
-            >
-              {isRecalculating ? <><FaSyncAlt size={10} className="animate-spin" /> …</> : <><FaSyncAlt size={10} /> {isFR ? 'Recalculer' : 'Recalculate'}</>}
-            </button>
-
-            {/* GPS conducteur uniquement */}
-            {role === 'driver' && (
-              <button
-                onClick={handleGPS}
-                style={{
-                  height: 32, padding: '0 14px', borderRadius: 8,
-                  background: `linear-gradient(135deg, ${MAP_COLORS.brand}, ${MAP_COLORS.brandLight})`,
-                  border: 'none', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 6,
-                  fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 12, color: '#fff',
-                  boxShadow: '0 2px 8px rgba(8,49,110,0.25)',
-                }}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-                </svg>
-                {isFR ? 'Continuer sur GPS' : 'Continue on GPS'}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* ── Contrôles (barre inférieure) ── */}
+      <TrajetMapControls
+        autoCenter={autoCenter}
+        onToggleAutoCenter={() => {
+          if (!autoCenter) {
+            const pos = state.positionActuelle
+            mapInstanceRef.current?.panTo([pos.lat, pos.lng], { animate: true, duration: 0.8 })
+          }
+          setAutoCenter((v) => !v)
+        }}
+        cursorMode={cursorMode}
+        onToggleCursorMode={() => setCursorMode((m) => m === 'arrow' ? 'car' : 'arrow')}
+        recalculerItineraire={recalculerItineraire}
+        isRecalculating={isRecalculating}
+        onGPS={handleGPS}
+        role={role}
+        isFR={isFR}
+        isDarkMode={isDarkMode}
+      />
 
       {/* ── Légende ── */}
-      {showLegend && (
-        <div style={{
-          position: 'absolute', bottom: 88, left: 14, zIndex: 500,
-          background: isDarkMode ? 'rgba(14,27,46,0.97)' : 'rgba(255,255,255,0.97)',
-          border: `1px solid ${isDarkMode ? 'rgba(200,214,234,0.12)' : 'rgba(8,49,110,0.1)'}`,
-          borderRadius: 10, padding: '10px 13px',
-          boxShadow: '0 2px 12px rgba(8,49,110,0.1)',
-          backdropFilter: 'blur(4px)',
-          pointerEvents: 'none',
-        }}>
-          <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 9, color: isDarkMode ? '#90b8e8' : MAP_COLORS.brand, marginBottom: 7, textTransform: 'uppercase', letterSpacing: '.6px' }}>
-            {isFR ? 'Légende' : 'Legend'}
-          </div>
-          {[
-            { el: <div style={{ width: 10, height: 10, borderRadius: '50%', background: MAP_COLORS.depart, border: '2px solid white', boxShadow: `0 0 0 1.5px ${MAP_COLORS.depart}`, flexShrink: 0 }} />,       lbl: state.fixture.labelDepart },
-            { el: <div style={{ width: 20, height: 3, background: MAP_COLORS.routeDone, borderRadius: 2, flexShrink: 0 }} />,                                                                                      lbl: isFR ? 'Tronçon parcouru' : 'Completed section' },
-            { el: <div style={{ width: 20, height: 3, background: MAP_COLORS.routeRemain, borderRadius: 2, flexShrink: 0, opacity: .75 }} />,                                                                      lbl: isFR ? 'Tronçon restant' : 'Remaining section' },
-            { el: <FaFlagCheckered size={10} color={MAP_COLORS.arrivee} style={{ flexShrink: 0 }} />,                                                                                          lbl: state.fixture.labelArrivee },
-            { el: <FaBus size={10} color={MAP_COLORS.busStop} style={{ flexShrink: 0 }} />,                                                                                                  lbl: isFR ? 'Arrêts OC Transpo' : 'OC Transpo stops' },
-            { el: <FaGasPump size={10} color={MAP_COLORS.gasStation} style={{ flexShrink: 0 }} />,                                                                                           lbl: isFR ? 'Stations-service' : 'Gas stations' },
-            { el: <FaMapMarkerAlt size={10} color={MAP_COLORS.campusZone} style={{ flexShrink: 0 }} />,                                                                                      lbl: isFR ? 'Zones campus' : 'Campus zones' },
-            { el: <FaGraduationCap size={10} color={MAP_COLORS.brand} style={{ flexShrink: 0 }} />,                                                                                          lbl: isFR ? 'Favoris' : 'Favourites' },
-          ].map((r, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 4 }}>
-              {r.el}
-              <span style={{ fontSize: 10, color: isDarkMode ? '#b0c4e0' : '#0d1f3c', whiteSpace: 'nowrap' }}>{r.lbl}</span>
-            </div>
-          ))}
-          <button
-            onClick={() => setShowLegend(false)}
-            style={{
-              marginTop: 5, fontSize: 9, color: '#7a90b8', background: 'none', border: 'none',
-              cursor: 'pointer', padding: 0, textDecoration: 'underline', pointerEvents: 'all',
-            }}
-          >
-            {isFR ? 'Masquer' : 'Hide'}
-          </button>
-        </div>
-      )}
-      {!showLegend && (
-        <button
-          onClick={() => setShowLegend(true)}
-          style={{
-            position: 'absolute', bottom: 88, left: 14, zIndex: 500,
-            background: isDarkMode ? 'rgba(14,27,46,0.97)' : 'rgba(255,255,255,0.97)',
-            border: `1px solid ${isDarkMode ? 'rgba(200,214,234,0.15)' : 'rgba(8,49,110,0.15)'}`,
-            borderRadius: 8, padding: '5px 10px', fontSize: 10, fontWeight: 600,
-            color: isDarkMode ? '#90b8e8' : MAP_COLORS.brand, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 4,
-          }}
-        ><FaList size={9} /> {isFR ? 'Légende' : 'Legend'}</button>
-      )}
+      <TrajetMapLegend
+        show={showLegend}
+        onToggle={() => setShowLegend((v) => !v)}
+        isDarkMode={isDarkMode}
+        isFR={isFR}
+        labelDepart={state.fixture.labelDepart}
+        labelArrivee={state.fixture.labelArrivee}
+      />
 
       {/* ── Toast GPS ── */}
       {showGpsToast && (

@@ -36,16 +36,16 @@ function blockedReasonLabel(reason: BlockedTripReason | undefined, isFR: boolean
     case "bad_past_experience": return isFR ? "Experience passee negative" : "Past affinity issue";
     case "passenger_unreliable": return isFR ? "Profil passager a risque" : "Passenger risk";
     case "trip_not_published": return isFR ? "Trajet non publie" : "Trip not published";
-    default: return isFR ? "Resultat bloque" : "Blocked result";
+    default: return isFR ? "Suggestion affichee" : "Shown as a suggestion";
   }
 }
-
 export interface RecommendedTripCardProps {
   trip: Trip;
   score?: MatchingScore;
   isSelected?: boolean;
   onSelect?: (trip: Trip) => void;
-  onReserve?: (tripId: string) => void;
+  /** Statut de la réservation active du passager pour ce trip */
+  existingReservationStatus?: string;
   blockedReason?: BlockedTripReason;
 }
 
@@ -54,32 +54,36 @@ export function RecommendedTripCard({
   score,
   isSelected = false,
   onSelect,
-  onReserve,
+  existingReservationStatus,
   blockedReason,
 }: RecommendedTripCardProps) {
   const { lang } = useAppState();
   const isFR = lang === Language.FR;
   const router = useRouter();
+  const { userConnected } = useAppState();
   const [isPassengerListOpen, setIsPassengerListOpen] = useState(false);
 
   const seatsLeft = trip.maxPassengers - trip.passengers.length;
-  const isBlocked = Boolean(blockedReason);
-  const isFull = seatsLeft <= 0 || isBlocked;
+  const isFull = seatsLeft <= 0;
   const mc = score ? matchColor(score.total, isFR) : null;
+
+  // État de réservation existante pour ce trip
+  const hasPending   = existingReservationStatus === "pending";
+  const hasConfirmed = existingReservationStatus === "confirmed" || existingReservationStatus === "in_progress";
+  const isReserveDisabled = isFull || hasPending || hasConfirmed;
 
   function handleReserve(e: React.MouseEvent) {
     e.stopPropagation();
-    if (isBlocked) return;
-    if (onReserve) {
-      onReserve(trip.id);
-    } else {
-      router.push(`/trajets/${trip.id}`);
-    }
+    if (isReserveDisabled) return;
+    const roleParam = userConnected?.role === "driver" ? "driver_owner" : (userConnected?.role ?? "passenger");
+    const isAlreadyReserved = trip.passengers.some(p => p.id === userConnected?.id);
+    const query = new URLSearchParams({ role: roleParam, reserved: isAlreadyReserved ? "true" : "false" });
+    router.push(`/trajets/${trip.id}?${query.toString()}`);
   }
 
   return (
     <div
-      className="w-full flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-2 hover:shadow-2xl hover:scale-[1.01] transition-all active:scale-[0.99] relative overflow-visible"
+      className="w-80vw flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-2 hover:shadow-2xl hover:scale-[1.01] transition-all active:scale-[0.99] relative overflow-visible"
       style={{
         cursor: onSelect ? "pointer" : "default",
         outline: isSelected ? "2.5px solid #08316e" : "none",
@@ -87,7 +91,6 @@ export function RecommendedTripCard({
           ? "0 0 0 3px #08316e33, 0 6px 24px rgba(8,49,110,0.18)"
           : undefined,
         background: isSelected ? "#eef4ff" : undefined,
-        opacity: isBlocked ? 0.92 : 1,
       }}
       onClick={() => onSelect?.(trip)}
     >
@@ -102,17 +105,6 @@ export function RecommendedTripCard({
           </span>
           <span className="text-[9px] font-bold tracking-wide uppercase" style={{ color: mc.text }}>
             {mc.label}
-          </span>
-        </div>
-      )}
-
-      {isBlocked && (
-        <div
-          className="absolute top-3 left-3 rounded-full px-3 py-1 z-10"
-          style={{ background: "#fef3c7", color: "#92400e", border: "1px solid #f59e0b55" }}
-        >
-          <span className="text-[11px] font-extrabold uppercase tracking-wide">
-            {isFR ? "Bloque" : "Blocked"}
           </span>
         </div>
       )}
@@ -162,13 +154,11 @@ export function RecommendedTripCard({
             {trip.destination}
           </span>
         </p>
-
-        {isBlocked && (
+        {blockedReason && (
           <p className="text-xs font-semibold text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mt-1">
             {blockedReasonLabel(blockedReason, isFR)}
           </p>
         )}
-
         <div className="w-full flex justify-between items-center flex-wrap gap-2">
           <PassengerAvatars
             passengers={trip.passengers}
@@ -193,7 +183,7 @@ export function RecommendedTripCard({
               )}
               {isFull && (
                 <span className="text-xs font-bold text-red-700 bg-red-100 rounded-full px-2 py-0.5">
-                  {isBlocked ? (isFR ? "Bloque" : "Blocked") : (isFR ? "Complet" : "Full")}
+                  {isFR ? "Complet" : "Full"}
                 </span>
               )}
             </div>
@@ -212,26 +202,37 @@ export function RecommendedTripCard({
 
       <div className="flex flex-col justify-center items-center shrink-0 w-24">
         <button
-          disabled={isFull}
-          className="w-full font-bold py-2 px-3 rounded-full text-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-1"
+          disabled={isReserveDisabled}
+          className="w-full font-bold py-2 px-3 rounded-full text-sm transition-all disabled:cursor-not-allowed flex items-center justify-center gap-1"
           style={{
-            background: isFull ? "#94a3b8" : "#08316e",
+            background: hasConfirmed
+              ? "#16a34a"
+              : hasPending
+                ? "#d97706"
+                : isFull
+                  ? "#94a3b8"
+                  : "#08316e",
             color: "#fff",
+            opacity: isReserveDisabled ? 0.75 : 1,
           }}
           onMouseEnter={(e) => {
-            if (!isFull) e.currentTarget.style.background = "#06214a";
+            if (!isReserveDisabled) e.currentTarget.style.background = "#06214a";
           }}
           onMouseLeave={(e) => {
-            if (!isFull) e.currentTarget.style.background = "#08316e";
+            if (hasConfirmed) e.currentTarget.style.background = "#16a34a";
+            else if (hasPending) e.currentTarget.style.background = "#d97706";
+            else if (!isFull) e.currentTarget.style.background = "#08316e";
           }}
           onClick={handleReserve}
         >
           <FaPlusCircle />
-          {isBlocked
-            ? (isFR ? "Indisponible" : "Unavailable")
-            : isFull
-            ? (isFR ? "Complet" : "Full")
-            : (isFR ? "Reserver" : "Book")}
+          {hasConfirmed
+            ? (isFR ? "Confirme" : "Confirmed")
+            : hasPending
+              ? (isFR ? "En attente" : "Pending")
+              : isFull
+                ? (isFR ? "Complet" : "Full")
+                : (isFR ? "Reserver" : "Book")}
         </button>
       </div>
     </div>

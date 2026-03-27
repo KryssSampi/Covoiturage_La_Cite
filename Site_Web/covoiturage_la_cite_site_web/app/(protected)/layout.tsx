@@ -9,6 +9,10 @@ import { DbProvider } from "@/core/context/db.context";
 import { TripProvider } from "@/core/context/trip.context";
 import { useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
+import { NotificationAlert } from "@/features/notifications/components/NotificationAlert";
+import { useNotificationPush } from "@/features/notifications/hooks/useNotificationPush";
+import { useUserActivityTracking } from "@/features/notifications/hooks/useUserActivityTracking";
+import { useWebNotifications } from "@/features/notifications/hooks/useWebNotifications";
 
 /**
  * Détecte si le composant est monté côté client.
@@ -35,6 +39,19 @@ export default function RootLayout({
   // false sur le serveur ET lors du premier rendu client → aucun mismatch d'hydratation
   const mounted = useIsMounted();
 
+  // Suivi activité & notifications — actifs uniquement si connecté
+  const userId   = appState.userConnected?.id;
+  const userRole = appState.userConnected?.role?.toString().toLowerCase();
+  useUserActivityTracking(userId, appState.userConnected?.createdAt, userRole);
+  const { current, hasAlert, queueLength, dismissCurrent } = useNotificationPush(userId, userRole);
+  const { showBrowserNotification } = useWebNotifications(userId);
+
+  // Notification bureau synchronisée sur chaque nouveau current
+  useEffect(() => {
+    if (!current || current.id === "__SUMMARY__") return;
+    showBrowserNotification(current.title, current.message, current.link);
+  }, [current?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Redirection vers la page de connexion si l'utilisateur n'est pas connecté
   useEffect(() => {
     if (mounted && !appState.userConnected) {
@@ -52,6 +69,13 @@ export default function RootLayout({
   return (
     <>
       <LoaderManager />
+      <NotificationAlert
+        notification={current}
+        isVisible={hasAlert}
+        queueLength={queueLength}
+        onDismiss={dismissCurrent}
+        notificationsHref={userId && userRole ? `/${userRole}/notifications/${userId}` : undefined}
+      />
       <DbProvider>
         <TripProvider>
           <Header />

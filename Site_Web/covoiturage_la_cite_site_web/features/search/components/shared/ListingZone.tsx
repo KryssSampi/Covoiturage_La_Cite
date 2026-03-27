@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Language, useAppState } from "@/core/state/app_state";
 import { Trip } from "@/features/dashboard/types/trip.types";
 import { MapCircuit, SearchRole, MatchingScore, TripWithCoords } from "@/features/search/types/search.feature.types";
-import { RecommendedTripCard } from "./RecommendedTripCard";
 import { MapCircuitCard } from "./MapCircuitCard";
-import { FaMagnifyingGlass, FaMapLocationDot, FaBell, FaCheck } from "react-icons/fa6";
+import { EmptySearchState } from "./listing-zone/EmptySearchState";
+import { TripCard } from "./listing-zone/TripCard";
+import { TripListHeader } from "./listing-zone/TripListHeader";
 
 interface ListingZoneProps {
   role: SearchRole;
@@ -21,22 +22,14 @@ interface ListingZoneProps {
   onSelectCircuit?: (idx: number) => void;
   onPublishCircuit?: (circuit: MapCircuit) => void;
   onChooseCircuit?: (circuit: MapCircuit) => void;
-  onReserveTrip?: (tripId: string) => void;
+  /** Carte tripId → statut de réservation active du passager connecté */
+  userReservations?: Map<string, string>;
   departureLabel?: string;
   arrivalLabel?: string;
   departureCoords?: [number, number] | null;
   arrivalCoords?: [number, number] | null;
   departureRadiusMeters?: number;
   arrivalRadiusMeters?: number;
-}
-
-interface EmptyStateProps {
-  role: SearchRole;
-  departureLabel?: string;
-  arrivalLabel?: string;
-  departureCoords?: [number, number] | null;
-  arrivalCoords?: [number, number] | null;
-  compact?: boolean;
 }
 
 type PassengerSectionId = "best" | "other" | "blocked";
@@ -54,7 +47,7 @@ export function ListingZone({
   onSelectCircuit,
   onPublishCircuit,
   onChooseCircuit,
-  onReserveTrip,
+  userReservations,
   departureLabel,
   arrivalLabel,
   departureCoords,
@@ -72,7 +65,7 @@ export function ListingZone({
         scores={scores}
         selectedTripId={selectedTripId}
         onSelectTrip={onSelectTrip}
-        onReserveTrip={onReserveTrip}
+        userReservations={userReservations}
         departureLabel={departureLabel}
         arrivalLabel={arrivalLabel}
         departureCoords={departureCoords}
@@ -86,7 +79,7 @@ export function ListingZone({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {circuits.length === 0 ? (
-        <EmptyState role="driver" />
+        <EmptySearchState role="driver" />
       ) : (
         circuits.map((circuit, idx) => (
           <MapCircuitCard
@@ -112,7 +105,7 @@ function PassengerListing({
   scores,
   selectedTripId,
   onSelectTrip,
-  onReserveTrip,
+  userReservations,
   departureLabel,
   arrivalLabel,
   departureCoords,
@@ -125,7 +118,7 @@ function PassengerListing({
   scores?: Map<string, MatchingScore>;
   selectedTripId?: string | null;
   onSelectTrip?: (trip: Trip) => void;
-  onReserveTrip?: (tripId: string) => void;
+  userReservations?: Map<string, string>;
   departureLabel?: string;
   arrivalLabel?: string;
   departureCoords?: [number, number] | null;
@@ -175,11 +168,12 @@ function PassengerListing({
     return next;
   }, [bestTrips, otherTrips, blockedTripsMatchingGeo]);
 
-  const [openedCount, setOpenedCount] = useState(bestTrips.length > 0 ? 1 : 0);
-
-  useEffect(() => {
-    setOpenedCount(bestTrips.length > 0 ? 1 : 0);
-  }, [bestTrips.length, otherTrips.length, blockedTripsMatchingGeo.length]);
+  // Calculer le nombre initial de sections ouvertes basé sur les meilleurs résultats
+  const initialOpenedCount = useMemo(
+    () => (bestTrips.length > 0 ? 1 : 0),
+    [bestTrips.length]
+  );
+  const [openedCount, setOpenedCount] = useState(initialOpenedCount);
 
   const visibleSections = sections.slice(0, openedCount);
   const nextSection = sections[openedCount];
@@ -189,7 +183,7 @@ function PassengerListing({
   const sectionTitle = (id: PassengerSectionId) => {
     if (id === "best") return isFR ? "Meilleurs resultats" : "Best results";
     if (id === "other") return isFR ? "Autres resultats" : "More results";
-    return isFR ? "Resultats bloques" : "Blocked results";
+    return isFR ? "Resultats suggeres" : "Suggested results";
   };
 
   const sectionLead = (id: PassengerSectionId) => {
@@ -200,8 +194,8 @@ function PassengerListing({
     }
     if (id === "blocked") {
       return isFR
-        ? "Des resultats existent encore, mais ils sont actuellement bloques par certaines contraintes."
-        : "More results exist, but they are currently blocked by some constraints.";
+        ? "Des resultats existent encore, affiches en suggestions."
+        : "More results exist and are shown as suggestions.";
     }
     return isFR ? "Des resultats sont disponibles." : "Results are available.";
   };
@@ -211,14 +205,14 @@ function PassengerListing({
       return isFR ? "Voir plus de resultats" : "See more results";
     }
     if (id === "blocked") {
-      return isFR ? "Voir les resultats bloques" : "See blocked results";
+      return isFR ? "Voir les resultats suggeres" : "See suggested results";
     }
     return isFR ? "Voir les meilleurs resultats" : "See best results";
   };
 
   if (visibleSections.length === 0 && !nextSection) {
     return (
-      <EmptyState
+      <EmptySearchState
         role="passenger"
         departureLabel={departureLabel}
         arrivalLabel={arrivalLabel}
@@ -256,27 +250,20 @@ function PassengerListing({
 
       {visibleSections.map((section) => (
         <div key={section.id} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <p
-            style={{
-              margin: section.id === visibleSections[0]?.id ? "0 0 2px" : "12px 0 2px",
-              fontSize: 12,
-              fontWeight: 800,
-              color: section.id === "blocked" ? "#9a3412" : "#08316e",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-            }}
-          >
-            {sectionTitle(section.id)}
-          </p>
+          <TripListHeader
+            title={sectionTitle(section.id)}
+            isFirst={section.id === visibleSections[0]?.id}
+            isBlocked={false}
+          />
 
           {section.trips.map((trip) => (
-            <RecommendedTripCard
+            <TripCard
               key={`${section.id}-${trip.id}`}
               trip={trip}
               score={scores?.get(trip.id)}
               isSelected={selectedTripId === trip.id}
               onSelect={onSelectTrip}
-              onReserve={onReserveTrip}
+              existingReservationStatus={userReservations?.get(trip.id)}
               blockedReason={section.id === "blocked" ? trip.blockedReason : undefined}
             />
           ))}
@@ -306,7 +293,7 @@ function PassengerListing({
 
       {allShown && canCreateAlert && (
         <div style={{ paddingTop: 10 }}>
-          <EmptyState
+          <EmptySearchState
             role="passenger"
             departureLabel={departureLabel}
             arrivalLabel={arrivalLabel}
@@ -336,123 +323,6 @@ function haversineMeters([fromLng, fromLat]: [number, number], [toLng, toLat]: [
 
 function toRadians(value: number) {
   return (value * Math.PI) / 180;
-}
-
-function EmptyState({
-  role,
-  departureLabel,
-  arrivalLabel,
-  departureCoords,
-  arrivalCoords,
-  compact = false,
-}: EmptyStateProps) {
-  const [alertCreated, setAlertCreated] = useState(false);
-  const appState = useAppState();
-  const isFR = appState.lang === Language.FR;
-
-  const handleCreateAlert = () => {
-    if (!departureLabel || !arrivalLabel) return;
-    const wishingAlerts = JSON.parse(sessionStorage.getItem("wishingAlerts") ?? "[]");
-    wishingAlerts.push({
-      id: `wish-${Date.now()}`,
-      departure: departureLabel,
-      destination: arrivalLabel,
-      departureCoords,
-      arrivalCoords,
-      createdAt: new Date().toISOString(),
-    });
-    sessionStorage.setItem("wishingAlerts", JSON.stringify(wishingAlerts));
-    setAlertCreated(true);
-  };
-
-  const canCreateAlert = role === "passenger" && departureLabel && arrivalLabel;
-
-  return (
-    <div
-      style={{
-        padding: compact ? "8px 0" : "40px 16px",
-        textAlign: "center",
-        color: "#90a4c0",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
-      {!compact && (
-        <>
-          <div style={{ fontSize: 36, marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {role === "passenger"
-              ? <FaMagnifyingGlass size={36} color="#90a4c0" />
-              : <FaMapLocationDot size={36} color="#90a4c0" />}
-          </div>
-          <p style={{ fontSize: 14, fontWeight: 700, color: "#5a6a85", marginBottom: 6 }}>
-            {role === "passenger"
-              ? (isFR ? "Aucun trajet trouve dans cette zone." : "No trip found in this area.")
-              : (isFR ? "Lance une recherche pour voir les circuits." : "Start a search to see circuits.")}
-          </p>
-          <p style={{ fontSize: 12, lineHeight: 1.5, marginBottom: canCreateAlert ? 16 : 0 }}>
-            {role === "passenger"
-              ? (isFR ? "Elargis le rayon de recherche ou modifie tes criteres." : "Expand the search radius or change your criteria.")
-              : (isFR ? "Saisis un depart et une destination, puis clique sur Rechercher." : "Enter a departure and destination, then click Search.")}
-          </p>
-        </>
-      )}
-
-      {compact && canCreateAlert && !alertCreated && (
-        <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 600, color: "#5a6a85" }}>
-          {isFR
-            ? "Tous les niveaux de resultats ont ete affiches. Vous pouvez maintenant creer une alerte."
-            : "All result levels have been displayed. You can now create an alert."}
-        </p>
-      )}
-
-      {canCreateAlert && !alertCreated && (
-        <button
-          onClick={handleCreateAlert}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 20px",
-            borderRadius: 10,
-            background: "#08316e",
-            color: "#fff",
-            fontWeight: 600,
-            fontSize: 13,
-            border: "none",
-            cursor: "pointer",
-            transition: "background 0.2s",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#0a4a9e")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#08316e")}
-        >
-          <FaBell size={14} />
-          {isFR ? "Creer une alerte pour ce trajet" : "Create an alert for this trip"}
-        </button>
-      )}
-
-      {canCreateAlert && alertCreated && (
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "10px 20px",
-            borderRadius: 10,
-            background: "#16a34a",
-            color: "#fff",
-            fontWeight: 600,
-            fontSize: 13,
-          }}
-        >
-          <FaCheck size={14} />
-          {isFR
-            ? "Alerte creee. Vous serez notifie quand un trajet correspondra."
-            : "Alert created. You will be notified when a matching trip is found."}
-        </div>
-      )}
-    </div>
-  );
 }
 
 function LoadingPlaceholder({ count }: { count: number }) {

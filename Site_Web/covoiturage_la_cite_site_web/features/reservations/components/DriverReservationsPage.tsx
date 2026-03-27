@@ -7,7 +7,8 @@
  * avec les détails du trajet et les boutons accepter/refuser.
  */
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
+import { ReservationDecisionToast } from "@/features/reservation/components/ReservationDecisionToast";
 import Image from "next/image";
 import Link from "next/link";
 import { FaStar, FaUserFriends, FaArrowRight, FaCheck, FaTimes } from "react-icons/fa";
@@ -123,6 +124,26 @@ function FakeProfileDetail({
   const isFR = lang === Language.FR;
   const { applicant } = request;
   const [isPending, setIsPending] = useState<'accept' | 'refuse' | null>(null);
+  const [decisionToast, setDecisionToast] = useState<{ decision: 'accept' | 'reject' } | null>(null);
+  const [actionResult, setActionResult] = useState<'accepted' | 'rejected' | 'error' | null>(null);
+  // keep ref to avoid stale closure in handleConfirm
+  const requestRef = useRef(request);
+  requestRef.current = request;
+
+  async function handleConfirm() {
+    if (!decisionToast) return;
+    const { decision } = decisionToast;
+    setDecisionToast(null);
+    setIsPending(decision === 'accept' ? 'accept' : 'refuse');
+    try {
+      const ok = decision === 'accept'
+        ? await onAccept(requestRef.current.id)
+        : await onReject(requestRef.current.id);
+      setActionResult(ok ? (decision === 'accept' ? 'accepted' : 'rejected') : 'error');
+    } finally {
+      setIsPending(null);
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-full bg-[#f0f4f8]">
@@ -232,35 +253,55 @@ function FakeProfileDetail({
         </div>
       </div>
 
-      {/* Boutons accepter / refuser */}
-      <div className="mx-4 mt-4 mb-6 flex gap-3">
-        <button
-          disabled={isPending !== null}
-          className="flex-1 py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-60"
-          style={{ backgroundColor: "#16a34a" }}
-          onClick={async () => {
-            setIsPending('accept');
-            try { await onAccept(request.id); }
-            finally { setIsPending(null); }
-          }}
-        >
-          <FaCheck size={12} />
-          {isPending === 'accept' ? '...' : (isFR ? "Accepter" : "Accept")}
-        </button>
-        <button
-          disabled={isPending !== null}
-          className="flex-1 py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-60"
-          style={{ backgroundColor: "#dc2626" }}
-          onClick={async () => {
-            setIsPending('refuse');
-            try { await onReject(request.id); }
-            finally { setIsPending(null); }
-          }}
-        >
-          <FaTimes size={12} />
-          {isPending === 'refuse' ? '...' : (isFR ? "Refuser" : "Refuse")}
-        </button>
-      </div>
+      {/* Boutons accepter / refuser — ou bannière de résultat */}
+      {actionResult ? (
+        <div className={`mx-4 mt-4 mb-6 rounded-xl p-4 text-center text-sm font-bold ${
+          actionResult === 'error'
+            ? 'bg-red-100 text-red-700'
+            : actionResult === 'accepted'
+              ? 'bg-green-100 text-green-700'
+              : 'bg-gray-100 text-gray-700'
+        }`}>
+          {actionResult === 'accepted' && (isFR ? 'Demande acceptée ✓' : 'Request accepted ✓')}
+          {actionResult === 'rejected' && (isFR ? 'Demande refusée ✓' : 'Request declined ✓')}
+          {actionResult === 'error'    && (isFR ? 'Une erreur est survenue' : 'An error occurred')}
+        </div>
+      ) : (
+        <div className="mx-4 mt-4 mb-6 flex gap-3">
+          <button
+            disabled={isPending !== null}
+            className="flex-1 py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-60"
+            style={{ backgroundColor: "#16a34a" }}
+            onClick={() => setDecisionToast({ decision: 'accept' })}
+          >
+            <FaCheck size={12} />
+            {isPending === 'accept' ? '...' : (isFR ? "Accepter" : "Accept")}
+          </button>
+          <button
+            disabled={isPending !== null}
+            className="flex-1 py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-60"
+            style={{ backgroundColor: "#dc2626" }}
+            onClick={() => setDecisionToast({ decision: 'reject' })}
+          >
+            <FaTimes size={12} />
+            {isPending === 'refuse' ? '...' : (isFR ? "Refuser" : "Refuse")}
+          </button>
+        </div>
+      )}
+
+      <ReservationDecisionToast
+        isOpen={decisionToast !== null}
+        decision={decisionToast?.decision ?? 'accept'}
+        details={{
+          applicantName: applicant.name,
+          departure:     request.departure,
+          destination:   request.destination,
+          date:          request.date,
+          time:          request.time,
+        }}
+        onConfirm={handleConfirm}
+        onCancel={() => setDecisionToast(null)}
+      />
     </div>
   );
 }
@@ -273,7 +314,7 @@ export function DriverReservationsPage({
   onRejectRequest,
 }: DriverReservationsPageProps) {
   const { lang } = useAppState();
-  const { sortOptions, searchKeys, emptyMessage } = useDriverReservationRequestsConfig();
+  const { filterGroups, sortOptions, searchKeys, emptyMessage } = useDriverReservationRequestsConfig();
 
   // Rendu de la carte de demande dans le listing
   const renderCard = useCallback(
@@ -301,6 +342,7 @@ export function DriverReservationsPage({
       items={items}
       renderCard={renderCard}
       renderDetail={renderDetail}
+      filterGroups={filterGroups}
       sortOptions={sortOptions}
       searchKeys={searchKeys}
       withOverview={true}

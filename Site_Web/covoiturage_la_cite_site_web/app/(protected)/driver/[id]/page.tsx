@@ -72,6 +72,7 @@ export default function DriverDashboardPage() {
   const [drafts, setDrafts] = useState<DraftTrip[]>(FIXTURE_DRAFTS);
   const [goTasks, setGoTasks] = useState<GoTask[]>(FIXTURE_GO_TASKS);
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const [isTripsLoading, setIsTripsLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -91,7 +92,7 @@ export default function DriverDashboardPage() {
 
   const loadDriverData = useCallback(async () => {
     if (!user) return;
-
+    setIsTripsLoading(true);
     try {
       const [dashboardRes, financeRes, favoritesRes, astucesRes, draftsRes, goTasksRes] = await Promise.all([
         fetch(`/api/dashboard/driver/${user.id}`),
@@ -126,6 +127,8 @@ export default function DriverDashboardPage() {
       }
     } catch (error) {
       console.error("[driver/page] loadDriverData", error);
+    } finally {
+      setIsTripsLoading(false);
     }
   }, [user]);
 
@@ -140,6 +143,7 @@ export default function DriverDashboardPage() {
     try {
       const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/accept`, {
         method: "POST",
+        headers: { "x-caller-id": user?.id ?? "" },
       });
       if (!res.ok) return false;
       await loadDriverData();
@@ -150,13 +154,14 @@ export default function DriverDashboardPage() {
     } finally {
       setIsActionLoading(false);
     }
-  }, [loadDriverData]);
+  }, [loadDriverData, user?.id]);
 
   const handleRejectRequest = useCallback(async (id: string) => {
     setIsActionLoading(true);
     try {
       const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/reject`, {
         method: "POST",
+        headers: { "x-caller-id": user?.id ?? "" },
       });
       if (!res.ok) return false;
       await loadDriverData();
@@ -166,7 +171,7 @@ export default function DriverDashboardPage() {
     } finally {
       setIsActionLoading(false);
     }
-  }, [loadDriverData]);
+  }, [loadDriverData, user?.id]);
 
   const handleCancelTrip = useCallback(async (tripId: string): Promise<void> => {
     try {
@@ -195,15 +200,9 @@ export default function DriverDashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "start" }),
       });
-      if (!res.ok) {
-        console.error(
-          `[driver/page] handleStartTrip - tripId: ${tripId} - response not ok`,
-        );
-      }
-    } catch (error) {
-      console.error(`[driver/page] handleStartTrip - tripId: ${tripId}`, error);
-    }
-  }, []);
+      if (res.ok) await loadDriverData();
+    } catch { /* silencieux */ }
+  }, [loadDriverData]);
 
   const handleDeleteFavorite = useCallback(async (favorite: LieuFavoriUnifie) => {
     await fetch(`/api/lieux-favoris?id=${favorite.id}&userId=${user?.id}`, {
@@ -235,6 +234,8 @@ export default function DriverDashboardPage() {
                   trips={dashData?.publishedTrips ?? []}
                   onCancelTrip={handleCancelTrip}
                   onStartTrip={handleStartTrip}
+                  isLoading={isTripsLoading}
+                  onRefresh={loadDriverData}
                 />
                 <ReservationRequestsSection
                   requests={dashData?.reservationRequests ?? []}

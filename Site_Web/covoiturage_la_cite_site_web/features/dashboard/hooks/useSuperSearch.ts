@@ -24,97 +24,14 @@ import {
   subDays,
   startOfDay,
   isBefore,
-  isToday,
-  isTomorrow,
 } from "date-fns";
-import { fr } from "date-fns/locale";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { getProposals } from "@/core/services/location.suggestion";
 import { getAddressFromCoords } from "@/core/services/getlocation.current";
 
-import { LocationSuggestion, SearchParams } from "../types/search.types";
-
-// ─── Types du hook ───────────────────────────────────────────────────────────
-
-export interface UseSuperSearchReturn {
-  // ── Champs de localisation ──────────────────────────────────────────────
-  departureLocation: string;
-  arrivalLocation: string;
-  setDepartureLocation: (v: string) => void;
-  setArrivalLocation: (v: string) => void;
-
-  // ── Erreur de localisation du départ ────────────────────────────────────
-  departureError: string | null;
-
-  // ── Suggestions d'autocomplétion ────────────────────────────────────────
-  departureSuggestions: LocationSuggestion[];
-  arrivalSuggestions: LocationSuggestion[];
-  /** Déclenche getProposals et met à jour les suggestions de départ */
-  handleDepartureInputChange: (val: string) => Promise<void>;
-  /** Déclenche getProposals et met à jour les suggestions d'arrivée */
-  handleArrivalInputChange: (val: string) => Promise<void>;
-  /** Sélectionne une suggestion de départ et vide la liste */
-  selectDepartureSuggestion: (suggestion: LocationSuggestion) => void;
-  /** Sélectionne une suggestion d'arrivée et vide la liste */
-  selectArrivalSuggestion: (suggestion: LocationSuggestion) => void;
-
-  // ── Géolocalisation ─────────────────────────────────────────────────────
-  isCurrentLocationLoading: boolean;
-  /** Lance la géolocalisation navigateur et remplit le champ départ */
-  handleGetCurrentLocation: () => void;
-
-  // ── Mode "Maintenant" vs "Planifié" ─────────────────────────────────────
-  departIsNotNow: boolean;
-  setDepartIsNotNow: (v: boolean) => void;
-
-  // ── DateTimePicker : date active ────────────────────────────────────────
-  /** true = picker affiche/modifie la date de DÉPART, false = ARRIVÉE */
-  isStartPickerOpen: boolean;
-  /** Bascule vers le picker de départ (reset date/heure d'arrivée) */
-  switchToStartPicker: () => void;
-  /** Bascule vers le picker d'arrivée (reset date/heure de départ) */
-  switchToArrivalPicker: () => void;
-  /** Date active dans le picker courant (départ ou arrivée selon isStartPickerOpen) */
-  activeDate: Date;
-  /** Heure active "HH:mm" dans le picker courant */
-  activeTime: string;
-  /** Label localisé pour la date active (Aujourd'hui / Demain / dd MMMM yyyy) */
-  dateLabel: string;
-  /** Date minimale sélectionnable (aujourd'hui à minuit) */
-  today: Date;
-  /** Avance la date active d'un jour */
-  moveNextDay: () => void;
-  /** Recule la date active d'un jour (bloqué à aujourd'hui) */
-  movePrevDay: () => void;
-  /** Met à jour la date active depuis un input type="date" */
-  handleDateChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-
-  // ── DateTimePicker : heure active ────────────────────────────────────────
-  /** Avance l'heure active de 5 minutes */
-  moveTimeUp: () => void;
-  /** Recule l'heure active de 5 minutes (min : 00:00) */
-  moveTimeDown: () => void;
-  /** Met à jour l'heure active directement */
-  setActiveTime: (time: string) => void;
-
-  // ── Refs DOM ────────────────────────────────────────────────────────────
-  dateInputRef: React.RefObject<HTMLInputElement | null>;
-  timeInputRef: React.RefObject<HTMLInputElement | null>;
-  departureRef: React.RefObject<HTMLTextAreaElement | null>;
-  arrivalRef: React.RefObject<HTMLTextAreaElement | null>;
-
-  // ── Menu favoris (dropdown arrivée) ─────────────────────────────────────
-  isFavMenuOpen: boolean;
-  setIsFavMenuOpen: (v: boolean) => void;
-
-  // ── Coordonnées GPS arrivée (ex: passées par le dropdown favoris) ───────
-  setArrivalCoords: (coords: [number, number] | undefined) => void;
-
-  // ── Soumission ──────────────────────────────────────────────────────────
-  /** Handler de soumission du formulaire : construit SearchParams et appelle onSearch */
-  handleSubmit: (e: React.FormEvent) => void;
-}
+import { LocationSuggestion, SearchParams, UseSuperSearchReturn } from "../types/search.types";
+import { timeToMinutes, minutesToTime, getDateLabel, GEOLOCATION_ERROR_MESSAGES } from "../utils/supersearch.utils";
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
 
@@ -143,6 +60,9 @@ export function useSuperSearch(
   const [isCurrentLocationLoading, setIsCurrentLocationLoading] = useState(false);
   // État pour l'erreur de localisation du départ
   const [departureError, setDepartureError] = useState<string | null>(null);
+
+  // Erreur de validation du formulaire (remplace les alert())
+  const [formError, setFormError] = useState<string | null>(null);
 
   // ── Mode "Maintenant" vs "Planifié" ──────────────────────────────────────
   const [departIsNotNow, setDepartIsNotNow] = useState(false);
@@ -205,13 +125,8 @@ export function useSuperSearch(
     else setArrivalTime(time);
   };
 
-  // ── Label date localisé ───────────────────────────────────────────────────
-  const dateLabel = (() => {
-    if (!activeDate) return "";
-    if (isToday(activeDate)) return isFR ? "Aujourd'hui" : "Today";
-    if (isTomorrow(activeDate)) return isFR ? "Demain" : "Tomorrow";
-    return format(activeDate, "dd MMMM yyyy", { locale: isFR ? fr : undefined });
-  })();
+  // ── Label date localisé (logique pure extraite) ───────────────────────────
+  const dateLabel = activeDate ? getDateLabel(activeDate, isFR) : "";
 
   // ── Navigation date ───────────────────────────────────────────────────────
   const moveNextDay = () => {
@@ -232,18 +147,7 @@ export function useSuperSearch(
     }
   };
 
-  // ── Navigation heure (pas de 5 minutes) ──────────────────────────────────
-  const timeToMinutes = (time: string): number => {
-    const [h, m] = time.split(":").map(Number);
-    return h * 60 + m;
-  };
-
-  const minutesToTime = (minutes: number): string => {
-    const h = Math.floor(minutes / 60) % 24;
-    const m = minutes % 60;
-    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-  };
-
+  // ── Navigation heure (pas de 5 minutes, conversions importées) ────────────
   const moveTimeUp = () => {
     setActiveTime(minutesToTime(timeToMinutes(activeTime) + 5));
   };
@@ -261,8 +165,7 @@ export function useSuperSearch(
 
   const switchToArrivalPicker = () => {
     setIsStartPickerOpen(false);
-    setDepartureTime(null);
-    setDepartureDate(null);
+    // La date et l'heure de départ restent remplies (jamais null) — seule l'arrivée peut être nulle
   };
 
   // ── Autocomplétion ────────────────────────────────────────────────────────
@@ -372,22 +275,7 @@ const handleGetCurrentLocation = useCallback(() => {
 
     // ── Échec géolocalisation (refus ou timeout) ────────────────────────────
     (error) => {
-      const messages: Record<number, { fr: string; en: string }> = {
-        1: { // PERMISSION_DENIED
-          fr: "Accès à la localisation refusé. Vérifiez les permissions de votre navigateur.",
-          en: "Location access denied. Please check your browser permissions.",
-        },
-        2: { // POSITION_UNAVAILABLE
-          fr: "Position indisponible. Vérifiez votre connexion GPS.",
-          en: "Position unavailable. Please check your GPS connection.",
-        },
-        3: { // TIMEOUT
-          fr: "Délai de localisation dépassé. Réessayez ou saisissez l'adresse manuellement.",
-          en: "Location timed out. Please retry or enter the address manually.",
-        },
-      };
-
-      const msg = messages[error.code] ?? {
+      const msg = GEOLOCATION_ERROR_MESSAGES[error.code] ?? {
         fr: "Erreur de localisation inconnue.",
         en: "Unknown location error.",
       };
@@ -413,33 +301,50 @@ const handleGetCurrentLocation = useCallback(() => {
    * Valide les champs obligatoires, construit un objet SearchParams complet
    * et l'envoie au callback onSearch.
    *
-   * TODO: Remplacer alert() par un système de toast ou d'erreur inline.
-   * TODO: Passer les coordonnées GPS dans SearchParams pour le POST /api/trajets/search
+   * Si l'utilisateur n'a pas sélectionné de suggestion (coords absentes), on tente
+   * un appel getProposals au moment du submit et on prend le top-1 comme fallback.
+   * Date et heure de départ sont toujours remplies (jamais null) — Date.now() par défaut.
    */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
 
     if (!departureLocation.trim()) {
-      alert(isFR ? "Veuillez entrer un lieu de départ" : "Please enter a departure location");
+      setFormError(isFR ? "Veuillez entrer un lieu de départ" : "Please enter a departure location");
       return;
     }
     if (!arrivalLocation.trim()) {
-      alert(isFR ? "Veuillez entrer une destination" : "Please enter a destination");
+      setFormError(isFR ? "Veuillez entrer une destination" : "Please enter a destination");
       return;
     }
 
+    // Fallback top-1 : si l'utilisateur n'a pas sélectionné de suggestion pour le départ
+    let resolvedDepartureCoords = departureCoords;
+    if (!resolvedDepartureCoords) {
+      const depResults = await getProposals(departureLocation.trim());
+      if (depResults.length > 0) resolvedDepartureCoords = depResults[0].coordinates as [number, number];
+    }
+
+    // Fallback top-1 : si l'utilisateur n'a pas sélectionné de suggestion pour l'arrivée
+    let resolvedArrivalCoords = arrivalCoords;
+    if (!resolvedArrivalCoords) {
+      const arrResults = await getProposals(arrivalLocation.trim());
+      if (arrResults.length > 0) resolvedArrivalCoords = arrResults[0].coordinates as [number, number];
+    }
+
+    // Date et heure de départ toujours remplies (Date.now si non modifiées)
+    const now = new Date();
     const params: SearchParams = {
       departureLocation: departureLocation.trim(),
       arrivalLocation: arrivalLocation.trim(),
-      departureDate,
-      departureTime: departIsNotNow ? departureTime : format(new Date(), "HH:mm"),
+      departureDate: departureDate ?? now,
+      departureTime: departIsNotNow ? (departureTime ?? format(now, "HH:mm")) : format(now, "HH:mm"),
       arrivalDate,
-      arrivalTime: departIsNotNow ? arrivalTime : format(new Date(), "HH:mm"),
+      arrivalTime: departIsNotNow ? arrivalTime : null,
       isNow: !departIsNotNow,
       searchType: isDriver ? "driver" : "passenger",
-      // Coordonnées GPS — présentes si l'utilisateur a sélectionné une suggestion
-      departureCoords,
-      arrivalCoords,
+      departureCoords: resolvedDepartureCoords,
+      arrivalCoords: resolvedArrivalCoords,
     };
 
     onSearch?.(params);
@@ -461,7 +366,8 @@ const handleGetCurrentLocation = useCallback(() => {
     // Géolocalisation
     isCurrentLocationLoading,
     handleGetCurrentLocation,
-    departureError, // Ajout de l'erreur de localisation du départ
+    departureError,
+    formError,
     // Mode Maintenant / Planifié
     departIsNotNow,
     setDepartIsNotNow,

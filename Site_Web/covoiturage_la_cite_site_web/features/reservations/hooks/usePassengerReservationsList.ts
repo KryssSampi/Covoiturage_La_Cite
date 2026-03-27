@@ -30,7 +30,7 @@ export function usePassengerReservationsConfig() {
     },
   ], [isFR]);
 
-  // Tri par date croissante ou décroissante
+  // Tri par date ou par prix
   const sortOptions: SortOption[] = useMemo(() => [
     {
       value: "date-desc",
@@ -45,6 +45,20 @@ export function usePassengerReservationsConfig() {
       compareFn: <T,>(a: T, b: T) =>
         new Date(String((a as Record<string, unknown>).date)).getTime() -
         new Date(String((b as Record<string, unknown>).date)).getTime(),
+    },
+    {
+      value: "price-asc",
+      label: isFR ? "Prix croissant" : "Price (low to high)",
+      compareFn: <T,>(a: T, b: T) =>
+        ((a as Record<string, number>).price ?? 0) -
+        ((b as Record<string, number>).price ?? 0),
+    },
+    {
+      value: "price-desc",
+      label: isFR ? "Prix décroissant" : "Price (high to low)",
+      compareFn: <T,>(a: T, b: T) =>
+        ((b as Record<string, number>).price ?? 0) -
+        ((a as Record<string, number>).price ?? 0),
     },
   ], [isFR]);
 

@@ -59,6 +59,7 @@ export function RidesList({
   onCancelTrip,
   onCancelReservation,
   onStartReservation,
+  onStartTrip,
 }: RidesListProps) {
   const router       = useRouter();
   const searchParams = useSearchParams();
@@ -144,7 +145,7 @@ export function RidesList({
                 hasInProgressTrip={hasInProgressTrip}
                 onBlockStart={() => setShowBlockToast(true)}
                 onCancelTrip={async (id) => { await onCancelTrip?.(id); }}
-                onStartTrip={async () => {}}
+                onStartTrip={onStartTrip ?? (async () => {})}
               />
             </div>
           );

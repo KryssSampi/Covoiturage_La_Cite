@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { useAppState } from '@/core/state/app_state';
 import { FaCircleCheck, FaCircleXmark } from 'react-icons/fa6';
 import { ReserveButtonState } from '../../../types/published-trip.view.types';
 
@@ -17,6 +18,7 @@ export const ReserveButton: React.FC<ReserveButtonProps> = ({
   onReserveClick,
 }) => {
   const router = useRouter();
+  const { userConnected } = useAppState();
 
   const baseClass =
     'w-full py-3.5 rounded-xl font-bold text-base transition-all duration-200';
@@ -51,7 +53,13 @@ export const ReserveButton: React.FC<ReserveButtonProps> = ({
     case 'confirmed':
       return (
         <button
-          onClick={() => router.push(`/trajets/${tripId}`)}
+          onClick={() => {
+            if (userConnected?.role === 'passenger' && userConnected.id) {
+              router.push(`/passenger/planifier/${userConnected.id}`);
+              return;
+            }
+            router.push(`/trajets/${tripId}`);
+          }}
           className={`${baseClass} text-white hover:opacity-90 active:scale-95`}
           style={{ backgroundColor: '#1a6b3a' }}
         >
@@ -94,7 +102,7 @@ export const ReserveButton: React.FC<ReserveButtonProps> = ({
     case 'manage':
       return (
         <button
-          onClick={() => router.push(`/driver/reservations/${tripId}`)}
+          onClick={() => router.push(`/driver/reservations/${userConnected?.id}`)}
           className={`${baseClass} text-white hover:opacity-90 active:scale-95`}
           style={{ backgroundColor: '#08316e' }}
         >
@@ -146,7 +154,7 @@ export const ReserveButton: React.FC<ReserveButtonProps> = ({
           disabled
           className={`${baseClass} bg-gray-300 text-gray-500 opacity-50 cursor-not-allowed`}
         >
-          En attente
+          En attente de confirmation
         </button>
       );
 

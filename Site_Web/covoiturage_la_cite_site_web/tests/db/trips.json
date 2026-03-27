@@ -85,12 +85,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-03-13",
+    "departureDate": "2026-03-14",
     "departureTime": "07:45",
     "estimatedArrivalTime": "10:57",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -111,12 +112,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 83.4,
     "estimatedDurationMinutes": 192,
     "co2SavedKg": 35,
-    "createdAt": "2026-03-03T09:00:00.000Z",
-    "updatedAt": "2026-03-12T18:00:00.000Z",
+    "createdAt": "2026-03-04T09:00:00.000Z",
+    "updatedAt": "2026-03-13T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -171,12 +172,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-03-14",
+    "departureDate": "2026-03-15",
     "departureTime": "17:10",
     "estimatedArrivalTime": "17:48",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -197,12 +199,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-03-04T09:00:00.000Z",
-    "updatedAt": "2026-03-13T18:00:00.000Z",
+    "createdAt": "2026-03-05T09:00:00.000Z",
+    "updatedAt": "2026-03-14T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -257,12 +259,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-03-16",
+    "departureDate": "2026-03-17",
     "departureTime": "08:00",
     "estimatedArrivalTime": "08:20",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -279,8 +282,8 @@
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-03-06T09:00:00.000Z",
-    "updatedAt": "2026-03-15T18:00:00.000Z",
+    "createdAt": "2026-03-07T09:00:00.000Z",
+    "updatedAt": "2026-03-16T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -333,12 +336,13 @@
         -75.6706
       ]
     ],
-    "departureDate": "2026-03-17",
+    "departureDate": "2026-03-18",
     "departureTime": "18:00",
     "estimatedArrivalTime": "18:20",
     "maxPassengers": 2,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "cancelled",
     "departureType": "planned",
@@ -355,8 +359,8 @@
     "estimatedDistanceKm": 8.8,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 3.7,
-    "createdAt": "2026-03-07T09:00:00.000Z",
-    "updatedAt": "2026-03-16T18:00:00.000Z",
+    "createdAt": "2026-03-08T09:00:00.000Z",
+    "updatedAt": "2026-03-17T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -445,12 +449,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-03-18",
+    "departureDate": "2026-03-19",
     "departureTime": "07:30",
     "estimatedArrivalTime": "09:03",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -471,12 +476,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 40.5,
     "estimatedDurationMinutes": 93,
     "co2SavedKg": 17,
-    "createdAt": "2026-03-08T09:00:00.000Z",
-    "updatedAt": "2026-03-17T18:00:00.000Z",
+    "createdAt": "2026-03-09T09:00:00.000Z",
+    "updatedAt": "2026-03-18T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -531,12 +536,13 @@
         -75.6944
       ]
     ],
-    "departureDate": "2026-03-19",
+    "departureDate": "2026-03-20",
     "departureTime": "16:50",
     "estimatedArrivalTime": "17:10",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -553,8 +559,8 @@
     "estimatedDistanceKm": 6,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 2.5,
-    "createdAt": "2026-03-09T09:00:00.000Z",
-    "updatedAt": "2026-03-18T18:00:00.000Z",
+    "createdAt": "2026-03-10T09:00:00.000Z",
+    "updatedAt": "2026-03-19T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -609,12 +615,13 @@
         -75.4845
       ]
     ],
-    "departureDate": "2026-03-20",
+    "departureDate": "2026-03-21",
     "departureTime": "08:15",
     "estimatedArrivalTime": "08:52",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -635,12 +642,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-03-10T09:00:00.000Z",
-    "updatedAt": "2026-03-19T18:00:00.000Z",
+    "createdAt": "2026-03-11T09:00:00.000Z",
+    "updatedAt": "2026-03-20T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -696,12 +703,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-03-21",
+    "departureDate": "2026-03-22",
     "departureTime": "17:25",
     "estimatedArrivalTime": "18:19",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -718,8 +726,8 @@
     "estimatedDistanceKm": 23.5,
     "estimatedDurationMinutes": 54,
     "co2SavedKg": 9.9,
-    "createdAt": "2026-03-11T09:00:00.000Z",
-    "updatedAt": "2026-03-20T18:00:00.000Z",
+    "createdAt": "2026-03-12T09:00:00.000Z",
+    "updatedAt": "2026-03-21T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -807,12 +815,13 @@
         -75.702
       ]
     ],
-    "departureDate": "2026-03-22",
+    "departureDate": "2026-03-23",
     "departureTime": "07:50",
     "estimatedArrivalTime": "08:43",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -833,12 +842,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 23.2,
     "estimatedDurationMinutes": 53,
     "co2SavedKg": 9.7,
-    "createdAt": "2026-03-12T09:00:00.000Z",
-    "updatedAt": "2026-03-21T18:00:00.000Z",
+    "createdAt": "2026-03-13T09:00:00.000Z",
+    "updatedAt": "2026-03-22T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -893,12 +902,13 @@
         -75.6706
       ]
     ],
-    "departureDate": "2026-03-23",
+    "departureDate": "2026-03-24",
     "departureTime": "17:35",
     "estimatedArrivalTime": "18:32",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -915,8 +925,8 @@
     "estimatedDistanceKm": 25,
     "estimatedDurationMinutes": 57,
     "co2SavedKg": 10.5,
-    "createdAt": "2026-03-13T09:00:00.000Z",
-    "updatedAt": "2026-03-22T18:00:00.000Z",
+    "createdAt": "2026-03-14T09:00:00.000Z",
+    "updatedAt": "2026-03-23T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -971,12 +981,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-03-24",
+    "departureDate": "2026-03-25",
     "departureTime": "08:20",
     "estimatedArrivalTime": "08:57",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -997,12 +1008,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-03-14T09:00:00.000Z",
-    "updatedAt": "2026-03-23T18:00:00.000Z",
+    "createdAt": "2026-03-15T09:00:00.000Z",
+    "updatedAt": "2026-03-24T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -1057,12 +1068,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-03-25",
+    "departureDate": "2026-03-26",
     "departureTime": "12:00",
     "estimatedArrivalTime": "12:38",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "cash",
     "status": "in_progress",
     "departureType": "planned",
@@ -1079,8 +1091,8 @@
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-03-15T09:00:00.000Z",
-    "updatedAt": "2026-03-24T18:00:00.000Z",
+    "createdAt": "2026-03-16T09:00:00.000Z",
+    "updatedAt": "2026-03-25T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -1166,12 +1178,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-03-26",
+    "departureDate": "2026-03-27",
     "departureTime": "07:40",
     "estimatedArrivalTime": "10:52",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "published",
     "departureType": "planned",
@@ -1192,12 +1205,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 83.4,
     "estimatedDurationMinutes": 192,
     "co2SavedKg": 35,
-    "createdAt": "2026-03-16T09:00:00.000Z",
-    "updatedAt": "2026-03-25T18:00:00.000Z",
+    "createdAt": "2026-03-17T09:00:00.000Z",
+    "updatedAt": "2026-03-26T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -1250,12 +1263,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-03-26",
+    "departureDate": "2026-03-27",
     "departureTime": "17:20",
     "estimatedArrivalTime": "17:58",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -1276,12 +1290,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-03-16T09:00:00.000Z",
-    "updatedAt": "2026-03-25T18:00:00.000Z",
+    "createdAt": "2026-03-17T09:00:00.000Z",
+    "updatedAt": "2026-03-26T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -1336,12 +1350,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-03-27",
+    "departureDate": "2026-03-28",
     "departureTime": "08:10",
     "estimatedArrivalTime": "08:30",
     "maxPassengers": 3,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "confirmed",
     "departureType": "planned",
@@ -1362,12 +1377,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-03-17T09:00:00.000Z",
-    "updatedAt": "2026-03-26T18:00:00.000Z",
+    "createdAt": "2026-03-18T09:00:00.000Z",
+    "updatedAt": "2026-03-27T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -1423,12 +1438,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-03-27",
+    "departureDate": "2026-03-28",
     "departureTime": "17:45",
     "estimatedArrivalTime": "18:05",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "full",
     "departureType": "planned",
@@ -1445,8 +1461,8 @@
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-03-17T09:00:00.000Z",
-    "updatedAt": "2026-03-26T18:00:00.000Z",
+    "createdAt": "2026-03-18T09:00:00.000Z",
+    "updatedAt": "2026-03-27T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -1532,12 +1548,13 @@
         -75.702
       ]
     ],
-    "departureDate": "2026-03-28",
+    "departureDate": "2026-03-29",
     "departureTime": "07:35",
     "estimatedArrivalTime": "10:12",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "published",
     "departureType": "planned",
@@ -1558,12 +1575,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 68.4,
     "estimatedDurationMinutes": 157,
     "co2SavedKg": 28.7,
-    "createdAt": "2026-03-18T09:00:00.000Z",
-    "updatedAt": "2026-03-27T18:00:00.000Z",
+    "createdAt": "2026-03-19T09:00:00.000Z",
+    "updatedAt": "2026-03-28T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -1616,12 +1633,13 @@
         -75.7368
       ]
     ],
-    "departureDate": "2026-03-28",
+    "departureDate": "2026-03-29",
     "departureTime": "18:10",
     "estimatedArrivalTime": "18:57",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -1638,8 +1656,8 @@
     "estimatedDistanceKm": 20.3,
     "estimatedDurationMinutes": 47,
     "co2SavedKg": 8.5,
-    "createdAt": "2026-03-18T09:00:00.000Z",
-    "updatedAt": "2026-03-27T18:00:00.000Z",
+    "createdAt": "2026-03-19T09:00:00.000Z",
+    "updatedAt": "2026-03-28T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -1695,12 +1713,13 @@
         -75.4845
       ]
     ],
-    "departureDate": "2026-03-29",
+    "departureDate": "2026-03-30",
     "departureTime": "08:05",
     "estimatedArrivalTime": "08:42",
     "maxPassengers": 3,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "confirmed",
     "departureType": "planned",
@@ -1721,12 +1740,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-03-19T09:00:00.000Z",
-    "updatedAt": "2026-03-28T18:00:00.000Z",
+    "createdAt": "2026-03-20T09:00:00.000Z",
+    "updatedAt": "2026-03-29T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -1779,12 +1798,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-03-30",
+    "departureDate": "2026-03-31",
     "departureTime": "17:05",
     "estimatedArrivalTime": "17:42",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -1801,8 +1821,8 @@
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-03-20T09:00:00.000Z",
-    "updatedAt": "2026-03-29T18:00:00.000Z",
+    "createdAt": "2026-03-21T09:00:00.000Z",
+    "updatedAt": "2026-03-30T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -1891,12 +1911,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-03-31",
+    "departureDate": "2026-04-01",
     "departureTime": "07:55",
     "estimatedArrivalTime": "11:07",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "full",
     "departureType": "planned",
@@ -1917,12 +1938,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 83.4,
     "estimatedDurationMinutes": 192,
     "co2SavedKg": 35,
-    "createdAt": "2026-03-21T09:00:00.000Z",
-    "updatedAt": "2026-03-30T18:00:00.000Z",
+    "createdAt": "2026-03-22T09:00:00.000Z",
+    "updatedAt": "2026-03-31T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -1975,12 +1996,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-04-01",
+    "departureDate": "2026-04-02",
     "departureTime": "17:30",
     "estimatedArrivalTime": "17:50",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -1997,8 +2019,8 @@
     "estimatedDistanceKm": 6.6,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 2.8,
-    "createdAt": "2026-03-22T09:00:00.000Z",
-    "updatedAt": "2026-03-31T18:00:00.000Z",
+    "createdAt": "2026-03-23T09:00:00.000Z",
+    "updatedAt": "2026-04-01T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -2051,12 +2073,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-03",
+    "departureDate": "2026-04-04",
     "departureTime": "08:25",
     "estimatedArrivalTime": "09:19",
     "maxPassengers": 2,
     "currentPassengers": 0,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "cancelled",
     "departureType": "planned",
@@ -2073,8 +2096,8 @@
     "estimatedDistanceKm": 23.5,
     "estimatedDurationMinutes": 54,
     "co2SavedKg": 9.9,
-    "createdAt": "2026-03-24T09:00:00.000Z",
-    "updatedAt": "2026-04-02T18:00:00.000Z",
+    "createdAt": "2026-03-25T09:00:00.000Z",
+    "updatedAt": "2026-04-03T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -2127,12 +2150,13 @@
         -73.5673
       ]
     ],
-    "departureDate": "2026-04-04",
+    "departureDate": "2026-04-05",
     "departureTime": "17:40",
     "estimatedArrivalTime": "01:30",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -2149,8 +2173,8 @@
     "estimatedDistanceKm": 204.3,
     "estimatedDurationMinutes": 470,
     "co2SavedKg": 85.8,
-    "createdAt": "2026-03-25T09:00:00.000Z",
-    "updatedAt": "2026-04-03T18:00:00.000Z",
+    "createdAt": "2026-03-26T09:00:00.000Z",
+    "updatedAt": "2026-04-04T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -2239,12 +2263,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-03-27",
+    "departureDate": "2026-03-28",
     "departureTime": "07:45",
     "estimatedArrivalTime": "09:02",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -2265,12 +2290,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 33.3,
     "estimatedDurationMinutes": 77,
     "co2SavedKg": 14,
-    "createdAt": "2026-03-17T09:00:00.000Z",
-    "updatedAt": "2026-03-26T18:00:00.000Z",
+    "createdAt": "2026-03-18T09:00:00.000Z",
+    "updatedAt": "2026-03-27T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -2325,12 +2350,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-03-28",
+    "departureDate": "2026-03-29",
     "departureTime": "17:10",
     "estimatedArrivalTime": "17:48",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -2351,12 +2377,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-03-18T09:00:00.000Z",
-    "updatedAt": "2026-03-27T18:00:00.000Z",
+    "createdAt": "2026-03-19T09:00:00.000Z",
+    "updatedAt": "2026-03-28T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -2411,12 +2437,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-03-30",
+    "departureDate": "2026-03-31",
     "departureTime": "08:00",
     "estimatedArrivalTime": "08:20",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -2433,8 +2460,8 @@
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-03-20T09:00:00.000Z",
-    "updatedAt": "2026-03-29T18:00:00.000Z",
+    "createdAt": "2026-03-21T09:00:00.000Z",
+    "updatedAt": "2026-03-30T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -2487,12 +2514,13 @@
         -75.6706
       ]
     ],
-    "departureDate": "2026-03-31",
+    "departureDate": "2026-04-01",
     "departureTime": "18:00",
     "estimatedArrivalTime": "18:20",
     "maxPassengers": 2,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "cancelled",
     "departureType": "planned",
@@ -2509,8 +2537,8 @@
     "estimatedDistanceKm": 8.8,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 3.7,
-    "createdAt": "2026-03-21T09:00:00.000Z",
-    "updatedAt": "2026-03-30T18:00:00.000Z",
+    "createdAt": "2026-03-22T09:00:00.000Z",
+    "updatedAt": "2026-03-31T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -2599,12 +2627,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-01",
+    "departureDate": "2026-04-02",
     "departureTime": "07:30",
     "estimatedArrivalTime": "09:44",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -2625,12 +2654,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 58.4,
     "estimatedDurationMinutes": 134,
     "co2SavedKg": 24.5,
-    "createdAt": "2026-03-22T09:00:00.000Z",
-    "updatedAt": "2026-03-31T18:00:00.000Z",
+    "createdAt": "2026-03-23T09:00:00.000Z",
+    "updatedAt": "2026-04-01T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -2685,12 +2714,13 @@
         -75.6944
       ]
     ],
-    "departureDate": "2026-04-02",
+    "departureDate": "2026-04-03",
     "departureTime": "16:50",
     "estimatedArrivalTime": "17:10",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -2707,8 +2737,8 @@
     "estimatedDistanceKm": 6,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 2.5,
-    "createdAt": "2026-03-23T09:00:00.000Z",
-    "updatedAt": "2026-04-01T18:00:00.000Z",
+    "createdAt": "2026-03-24T09:00:00.000Z",
+    "updatedAt": "2026-04-02T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -2763,12 +2793,13 @@
         -75.4845
       ]
     ],
-    "departureDate": "2026-04-03",
+    "departureDate": "2026-04-04",
     "departureTime": "08:15",
     "estimatedArrivalTime": "08:52",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -2789,12 +2820,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-03-24T09:00:00.000Z",
-    "updatedAt": "2026-04-02T18:00:00.000Z",
+    "createdAt": "2026-03-25T09:00:00.000Z",
+    "updatedAt": "2026-04-03T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -2850,12 +2881,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-04",
+    "departureDate": "2026-04-05",
     "departureTime": "17:25",
     "estimatedArrivalTime": "18:19",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -2872,8 +2904,8 @@
     "estimatedDistanceKm": 23.5,
     "estimatedDurationMinutes": 54,
     "co2SavedKg": 9.9,
-    "createdAt": "2026-03-25T09:00:00.000Z",
-    "updatedAt": "2026-04-03T18:00:00.000Z",
+    "createdAt": "2026-03-26T09:00:00.000Z",
+    "updatedAt": "2026-04-04T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -2961,12 +2993,13 @@
         -75.702
       ]
     ],
-    "departureDate": "2026-04-05",
+    "departureDate": "2026-04-06",
     "departureTime": "07:50",
     "estimatedArrivalTime": "09:12",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -2987,12 +3020,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 35.6,
     "estimatedDurationMinutes": 82,
     "co2SavedKg": 15,
-    "createdAt": "2026-03-26T09:00:00.000Z",
-    "updatedAt": "2026-04-04T18:00:00.000Z",
+    "createdAt": "2026-03-27T09:00:00.000Z",
+    "updatedAt": "2026-04-05T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -3047,12 +3080,13 @@
         -75.6706
       ]
     ],
-    "departureDate": "2026-04-06",
+    "departureDate": "2026-04-07",
     "departureTime": "17:35",
     "estimatedArrivalTime": "18:32",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -3069,8 +3103,8 @@
     "estimatedDistanceKm": 25,
     "estimatedDurationMinutes": 57,
     "co2SavedKg": 10.5,
-    "createdAt": "2026-03-27T09:00:00.000Z",
-    "updatedAt": "2026-04-05T18:00:00.000Z",
+    "createdAt": "2026-03-28T09:00:00.000Z",
+    "updatedAt": "2026-04-06T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -3125,12 +3159,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-07",
+    "departureDate": "2026-04-08",
     "departureTime": "08:20",
     "estimatedArrivalTime": "08:57",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -3151,12 +3186,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-03-28T09:00:00.000Z",
-    "updatedAt": "2026-04-06T18:00:00.000Z",
+    "createdAt": "2026-03-29T09:00:00.000Z",
+    "updatedAt": "2026-04-07T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -3211,12 +3246,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-04-08",
+    "departureDate": "2026-04-09",
     "departureTime": "12:00",
     "estimatedArrivalTime": "12:38",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "cash",
     "status": "in_progress",
     "departureType": "planned",
@@ -3233,15 +3269,17 @@
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-03-29T09:00:00.000Z",
-    "updatedAt": "2026-04-07T18:00:00.000Z",
+    "createdAt": "2026-03-30T09:00:00.000Z",
+    "updatedAt": "2026-04-08T18:00:00.000Z",
     "notes": ""
   },
   {
     "id": "TRJ-2026-00037",
     "driverId": "USR-2026-00001",
     "vehicleId": "VEH-2026-00001",
-    "passengerIds": [],
+    "passengerIds": [
+      "USR-2026-00002"
+    ],
     "departure": {
       "label": "Campus La Cite",
       "fullAddress": "801 promenade de l'Aviation, Ottawa, ON",
@@ -3320,14 +3358,15 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-04-09",
+    "departureDate": "2026-04-10",
     "departureTime": "07:40",
     "estimatedArrivalTime": "08:39",
     "maxPassengers": 3,
-    "currentPassengers": 0,
+    "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
-    "status": "published",
+    "status": "cancelled",
     "departureType": "planned",
     "tripType": "recurrent",
     "preferences": {
@@ -3346,12 +3385,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 25.6,
     "estimatedDurationMinutes": 59,
     "co2SavedKg": 10.8,
-    "createdAt": "2026-03-30T09:00:00.000Z",
-    "updatedAt": "2026-04-08T18:00:00.000Z",
+    "createdAt": "2026-03-31T09:00:00.000Z",
+    "updatedAt": "2026-03-27T02:37:12.763Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -3404,12 +3443,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-09",
+    "departureDate": "2026-04-10",
     "departureTime": "17:20",
     "estimatedArrivalTime": "17:58",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -3430,12 +3470,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-03-30T09:00:00.000Z",
-    "updatedAt": "2026-04-08T18:00:00.000Z",
+    "createdAt": "2026-03-31T09:00:00.000Z",
+    "updatedAt": "2026-04-09T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -3490,12 +3530,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-04-10",
+    "departureDate": "2026-04-11",
     "departureTime": "08:10",
     "estimatedArrivalTime": "08:30",
     "maxPassengers": 3,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "confirmed",
     "departureType": "planned",
@@ -3516,12 +3557,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-03-31T09:00:00.000Z",
-    "updatedAt": "2026-04-09T18:00:00.000Z",
+    "createdAt": "2026-04-01T09:00:00.000Z",
+    "updatedAt": "2026-04-10T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -3577,12 +3618,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-10",
+    "departureDate": "2026-04-11",
     "departureTime": "17:45",
     "estimatedArrivalTime": "18:05",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "full",
     "departureType": "planned",
@@ -3599,8 +3641,8 @@
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-03-31T09:00:00.000Z",
-    "updatedAt": "2026-04-09T18:00:00.000Z",
+    "createdAt": "2026-04-01T09:00:00.000Z",
+    "updatedAt": "2026-04-10T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -3686,12 +3728,13 @@
         -75.702
       ]
     ],
-    "departureDate": "2026-04-11",
+    "departureDate": "2026-04-12",
     "departureTime": "07:35",
     "estimatedArrivalTime": "10:12",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "published",
     "departureType": "planned",
@@ -3712,12 +3755,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 68.4,
     "estimatedDurationMinutes": 157,
     "co2SavedKg": 28.7,
-    "createdAt": "2026-04-01T09:00:00.000Z",
-    "updatedAt": "2026-04-10T18:00:00.000Z",
+    "createdAt": "2026-04-02T09:00:00.000Z",
+    "updatedAt": "2026-04-11T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -3770,12 +3813,13 @@
         -75.7368
       ]
     ],
-    "departureDate": "2026-04-11",
+    "departureDate": "2026-04-12",
     "departureTime": "18:10",
     "estimatedArrivalTime": "18:57",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -3792,8 +3836,8 @@
     "estimatedDistanceKm": 20.3,
     "estimatedDurationMinutes": 47,
     "co2SavedKg": 8.5,
-    "createdAt": "2026-04-01T09:00:00.000Z",
-    "updatedAt": "2026-04-10T18:00:00.000Z",
+    "createdAt": "2026-04-02T09:00:00.000Z",
+    "updatedAt": "2026-04-11T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -3849,12 +3893,13 @@
         -75.4845
       ]
     ],
-    "departureDate": "2026-04-12",
+    "departureDate": "2026-04-13",
     "departureTime": "08:05",
     "estimatedArrivalTime": "08:42",
     "maxPassengers": 3,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "confirmed",
     "departureType": "planned",
@@ -3875,12 +3920,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-04-02T09:00:00.000Z",
-    "updatedAt": "2026-04-11T18:00:00.000Z",
+    "createdAt": "2026-04-03T09:00:00.000Z",
+    "updatedAt": "2026-04-12T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -3933,12 +3978,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-13",
+    "departureDate": "2026-04-14",
     "departureTime": "17:05",
     "estimatedArrivalTime": "17:42",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -3955,8 +4001,8 @@
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-04-03T09:00:00.000Z",
-    "updatedAt": "2026-04-12T18:00:00.000Z",
+    "createdAt": "2026-04-04T09:00:00.000Z",
+    "updatedAt": "2026-04-13T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -4045,12 +4091,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-04-14",
+    "departureDate": "2026-04-15",
     "departureTime": "07:55",
     "estimatedArrivalTime": "09:12",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "full",
     "departureType": "planned",
@@ -4071,12 +4118,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 33.3,
     "estimatedDurationMinutes": 77,
     "co2SavedKg": 14,
-    "createdAt": "2026-04-04T09:00:00.000Z",
-    "updatedAt": "2026-04-13T18:00:00.000Z",
+    "createdAt": "2026-04-05T09:00:00.000Z",
+    "updatedAt": "2026-04-14T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -4129,12 +4176,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-04-15",
+    "departureDate": "2026-04-16",
     "departureTime": "17:30",
     "estimatedArrivalTime": "17:50",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -4151,8 +4199,8 @@
     "estimatedDistanceKm": 6.6,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 2.8,
-    "createdAt": "2026-04-05T09:00:00.000Z",
-    "updatedAt": "2026-04-14T18:00:00.000Z",
+    "createdAt": "2026-04-06T09:00:00.000Z",
+    "updatedAt": "2026-04-15T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -4205,12 +4253,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-17",
+    "departureDate": "2026-04-18",
     "departureTime": "08:25",
     "estimatedArrivalTime": "09:19",
     "maxPassengers": 2,
     "currentPassengers": 0,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "cancelled",
     "departureType": "planned",
@@ -4227,8 +4276,8 @@
     "estimatedDistanceKm": 23.5,
     "estimatedDurationMinutes": 54,
     "co2SavedKg": 9.9,
-    "createdAt": "2026-04-07T09:00:00.000Z",
-    "updatedAt": "2026-04-16T18:00:00.000Z",
+    "createdAt": "2026-04-08T09:00:00.000Z",
+    "updatedAt": "2026-04-17T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -4281,12 +4330,13 @@
         -73.5673
       ]
     ],
-    "departureDate": "2026-04-18",
+    "departureDate": "2026-04-19",
     "departureTime": "17:40",
     "estimatedArrivalTime": "01:30",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -4303,8 +4353,8 @@
     "estimatedDistanceKm": 204.3,
     "estimatedDurationMinutes": 470,
     "co2SavedKg": 85.8,
-    "createdAt": "2026-04-08T09:00:00.000Z",
-    "updatedAt": "2026-04-17T18:00:00.000Z",
+    "createdAt": "2026-04-09T09:00:00.000Z",
+    "updatedAt": "2026-04-18T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -4393,12 +4443,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-04-10",
+    "departureDate": "2026-04-11",
     "departureTime": "07:45",
     "estimatedArrivalTime": "08:33",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -4419,12 +4470,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 20.8,
     "estimatedDurationMinutes": 48,
     "co2SavedKg": 8.7,
-    "createdAt": "2026-03-31T09:00:00.000Z",
-    "updatedAt": "2026-04-09T18:00:00.000Z",
+    "createdAt": "2026-04-01T09:00:00.000Z",
+    "updatedAt": "2026-04-10T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -4479,12 +4530,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-11",
+    "departureDate": "2026-04-12",
     "departureTime": "17:10",
     "estimatedArrivalTime": "17:48",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -4505,12 +4557,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-04-01T09:00:00.000Z",
-    "updatedAt": "2026-04-10T18:00:00.000Z",
+    "createdAt": "2026-04-02T09:00:00.000Z",
+    "updatedAt": "2026-04-11T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -4565,12 +4617,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-04-13",
+    "departureDate": "2026-04-14",
     "departureTime": "08:00",
     "estimatedArrivalTime": "08:20",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -4587,8 +4640,8 @@
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-04-03T09:00:00.000Z",
-    "updatedAt": "2026-04-12T18:00:00.000Z",
+    "createdAt": "2026-04-04T09:00:00.000Z",
+    "updatedAt": "2026-04-13T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -4641,12 +4694,13 @@
         -75.6706
       ]
     ],
-    "departureDate": "2026-04-14",
+    "departureDate": "2026-04-15",
     "departureTime": "18:00",
     "estimatedArrivalTime": "18:20",
     "maxPassengers": 2,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "cancelled",
     "departureType": "planned",
@@ -4663,8 +4717,8 @@
     "estimatedDistanceKm": 8.8,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 3.7,
-    "createdAt": "2026-04-04T09:00:00.000Z",
-    "updatedAt": "2026-04-13T18:00:00.000Z",
+    "createdAt": "2026-04-05T09:00:00.000Z",
+    "updatedAt": "2026-04-14T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -4753,12 +4807,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-15",
+    "departureDate": "2026-04-16",
     "departureTime": "07:30",
     "estimatedArrivalTime": "08:29",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -4779,12 +4834,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 25.5,
     "estimatedDurationMinutes": 59,
     "co2SavedKg": 10.7,
-    "createdAt": "2026-04-05T09:00:00.000Z",
-    "updatedAt": "2026-04-14T18:00:00.000Z",
+    "createdAt": "2026-04-06T09:00:00.000Z",
+    "updatedAt": "2026-04-15T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -4839,12 +4894,13 @@
         -75.6944
       ]
     ],
-    "departureDate": "2026-04-16",
+    "departureDate": "2026-04-17",
     "departureTime": "16:50",
     "estimatedArrivalTime": "17:10",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -4861,8 +4917,8 @@
     "estimatedDistanceKm": 6,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 2.5,
-    "createdAt": "2026-04-06T09:00:00.000Z",
-    "updatedAt": "2026-04-15T18:00:00.000Z",
+    "createdAt": "2026-04-07T09:00:00.000Z",
+    "updatedAt": "2026-04-16T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -4917,12 +4973,13 @@
         -75.4845
       ]
     ],
-    "departureDate": "2026-04-17",
+    "departureDate": "2026-04-18",
     "departureTime": "08:15",
     "estimatedArrivalTime": "08:52",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -4943,12 +5000,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-04-07T09:00:00.000Z",
-    "updatedAt": "2026-04-16T18:00:00.000Z",
+    "createdAt": "2026-04-08T09:00:00.000Z",
+    "updatedAt": "2026-04-17T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -5004,12 +5061,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-18",
+    "departureDate": "2026-04-19",
     "departureTime": "17:25",
     "estimatedArrivalTime": "18:19",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -5026,8 +5084,8 @@
     "estimatedDistanceKm": 23.5,
     "estimatedDurationMinutes": 54,
     "co2SavedKg": 9.9,
-    "createdAt": "2026-04-08T09:00:00.000Z",
-    "updatedAt": "2026-04-17T18:00:00.000Z",
+    "createdAt": "2026-04-09T09:00:00.000Z",
+    "updatedAt": "2026-04-18T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -5115,12 +5173,13 @@
         -75.702
       ]
     ],
-    "departureDate": "2026-04-19",
+    "departureDate": "2026-04-20",
     "departureTime": "07:50",
     "estimatedArrivalTime": "10:27",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -5141,12 +5200,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 68.4,
     "estimatedDurationMinutes": 157,
     "co2SavedKg": 28.7,
-    "createdAt": "2026-04-09T09:00:00.000Z",
-    "updatedAt": "2026-04-18T18:00:00.000Z",
+    "createdAt": "2026-04-10T09:00:00.000Z",
+    "updatedAt": "2026-04-19T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -5201,12 +5260,13 @@
         -75.6706
       ]
     ],
-    "departureDate": "2026-04-20",
+    "departureDate": "2026-04-21",
     "departureTime": "17:35",
     "estimatedArrivalTime": "18:32",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -5223,8 +5283,8 @@
     "estimatedDistanceKm": 25,
     "estimatedDurationMinutes": 57,
     "co2SavedKg": 10.5,
-    "createdAt": "2026-04-10T09:00:00.000Z",
-    "updatedAt": "2026-04-19T18:00:00.000Z",
+    "createdAt": "2026-04-11T09:00:00.000Z",
+    "updatedAt": "2026-04-20T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -5279,12 +5339,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-21",
+    "departureDate": "2026-04-22",
     "departureTime": "08:20",
     "estimatedArrivalTime": "08:57",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -5305,12 +5366,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-04-11T09:00:00.000Z",
-    "updatedAt": "2026-04-20T18:00:00.000Z",
+    "createdAt": "2026-04-12T09:00:00.000Z",
+    "updatedAt": "2026-04-21T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -5365,12 +5426,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-04-22",
+    "departureDate": "2026-04-23",
     "departureTime": "12:00",
     "estimatedArrivalTime": "12:38",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "cash",
     "status": "in_progress",
     "departureType": "planned",
@@ -5387,8 +5449,8 @@
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-04-12T09:00:00.000Z",
-    "updatedAt": "2026-04-21T18:00:00.000Z",
+    "createdAt": "2026-04-13T09:00:00.000Z",
+    "updatedAt": "2026-04-22T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -5474,12 +5536,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-04-23",
+    "departureDate": "2026-04-24",
     "departureTime": "07:40",
     "estimatedArrivalTime": "10:52",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "published",
     "departureType": "planned",
@@ -5500,12 +5563,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 83.4,
     "estimatedDurationMinutes": 192,
     "co2SavedKg": 35,
-    "createdAt": "2026-04-13T09:00:00.000Z",
-    "updatedAt": "2026-04-22T18:00:00.000Z",
+    "createdAt": "2026-04-14T09:00:00.000Z",
+    "updatedAt": "2026-04-23T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -5558,12 +5621,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-23",
+    "departureDate": "2026-04-24",
     "departureTime": "17:20",
     "estimatedArrivalTime": "17:58",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -5584,12 +5648,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-04-13T09:00:00.000Z",
-    "updatedAt": "2026-04-22T18:00:00.000Z",
+    "createdAt": "2026-04-14T09:00:00.000Z",
+    "updatedAt": "2026-04-23T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -5644,12 +5708,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-04-24",
+    "departureDate": "2026-04-25",
     "departureTime": "08:10",
     "estimatedArrivalTime": "08:30",
     "maxPassengers": 3,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "confirmed",
     "departureType": "planned",
@@ -5670,12 +5735,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-04-14T09:00:00.000Z",
-    "updatedAt": "2026-04-23T18:00:00.000Z",
+    "createdAt": "2026-04-15T09:00:00.000Z",
+    "updatedAt": "2026-04-24T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -5731,12 +5796,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-24",
+    "departureDate": "2026-04-25",
     "departureTime": "17:45",
     "estimatedArrivalTime": "18:05",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "full",
     "departureType": "planned",
@@ -5753,8 +5819,8 @@
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-04-14T09:00:00.000Z",
-    "updatedAt": "2026-04-23T18:00:00.000Z",
+    "createdAt": "2026-04-15T09:00:00.000Z",
+    "updatedAt": "2026-04-24T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -5840,12 +5906,13 @@
         -75.702
       ]
     ],
-    "departureDate": "2026-04-25",
+    "departureDate": "2026-04-26",
     "departureTime": "07:35",
     "estimatedArrivalTime": "08:47",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "published",
     "departureType": "planned",
@@ -5866,12 +5933,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 31.5,
     "estimatedDurationMinutes": 72,
     "co2SavedKg": 13.2,
-    "createdAt": "2026-04-15T09:00:00.000Z",
-    "updatedAt": "2026-04-24T18:00:00.000Z",
+    "createdAt": "2026-04-16T09:00:00.000Z",
+    "updatedAt": "2026-04-25T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -5924,12 +5991,13 @@
         -75.7368
       ]
     ],
-    "departureDate": "2026-04-25",
+    "departureDate": "2026-04-26",
     "departureTime": "18:10",
     "estimatedArrivalTime": "18:57",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -5946,8 +6014,8 @@
     "estimatedDistanceKm": 20.3,
     "estimatedDurationMinutes": 47,
     "co2SavedKg": 8.5,
-    "createdAt": "2026-04-15T09:00:00.000Z",
-    "updatedAt": "2026-04-24T18:00:00.000Z",
+    "createdAt": "2026-04-16T09:00:00.000Z",
+    "updatedAt": "2026-04-25T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -6003,12 +6071,13 @@
         -75.4845
       ]
     ],
-    "departureDate": "2026-04-26",
+    "departureDate": "2026-04-27",
     "departureTime": "08:05",
     "estimatedArrivalTime": "08:42",
     "maxPassengers": 3,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "confirmed",
     "departureType": "planned",
@@ -6029,12 +6098,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-04-16T09:00:00.000Z",
-    "updatedAt": "2026-04-25T18:00:00.000Z",
+    "createdAt": "2026-04-17T09:00:00.000Z",
+    "updatedAt": "2026-04-26T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -6087,12 +6156,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-27",
+    "departureDate": "2026-04-28",
     "departureTime": "17:05",
     "estimatedArrivalTime": "17:42",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -6109,8 +6179,8 @@
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-04-17T09:00:00.000Z",
-    "updatedAt": "2026-04-26T18:00:00.000Z",
+    "createdAt": "2026-04-18T09:00:00.000Z",
+    "updatedAt": "2026-04-27T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -6199,12 +6269,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-04-28",
+    "departureDate": "2026-04-29",
     "departureTime": "07:55",
     "estimatedArrivalTime": "08:43",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "full",
     "departureType": "planned",
@@ -6225,12 +6296,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 20.8,
     "estimatedDurationMinutes": 48,
     "co2SavedKg": 8.7,
-    "createdAt": "2026-04-18T09:00:00.000Z",
-    "updatedAt": "2026-04-27T18:00:00.000Z",
+    "createdAt": "2026-04-19T09:00:00.000Z",
+    "updatedAt": "2026-04-28T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -6283,12 +6354,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-04-29",
+    "departureDate": "2026-04-30",
     "departureTime": "17:30",
     "estimatedArrivalTime": "17:50",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -6305,8 +6377,8 @@
     "estimatedDistanceKm": 6.6,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 2.8,
-    "createdAt": "2026-04-19T09:00:00.000Z",
-    "updatedAt": "2026-04-28T18:00:00.000Z",
+    "createdAt": "2026-04-20T09:00:00.000Z",
+    "updatedAt": "2026-04-29T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -6359,12 +6431,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-05-01",
+    "departureDate": "2026-05-02",
     "departureTime": "08:25",
     "estimatedArrivalTime": "09:19",
     "maxPassengers": 2,
     "currentPassengers": 0,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "cancelled",
     "departureType": "planned",
@@ -6381,8 +6454,8 @@
     "estimatedDistanceKm": 23.5,
     "estimatedDurationMinutes": 54,
     "co2SavedKg": 9.9,
-    "createdAt": "2026-04-21T09:00:00.000Z",
-    "updatedAt": "2026-04-30T18:00:00.000Z",
+    "createdAt": "2026-04-22T09:00:00.000Z",
+    "updatedAt": "2026-05-01T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -6435,12 +6508,13 @@
         -73.5673
       ]
     ],
-    "departureDate": "2026-05-02",
+    "departureDate": "2026-05-03",
     "departureTime": "17:40",
     "estimatedArrivalTime": "01:30",
     "maxPassengers": 3,
     "currentPassengers": 0,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
@@ -6457,8 +6531,8 @@
     "estimatedDistanceKm": 204.3,
     "estimatedDurationMinutes": 470,
     "co2SavedKg": 85.8,
-    "createdAt": "2026-04-22T09:00:00.000Z",
-    "updatedAt": "2026-05-01T18:00:00.000Z",
+    "createdAt": "2026-04-23T09:00:00.000Z",
+    "updatedAt": "2026-05-02T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -6547,12 +6621,13 @@
         -75.5117
       ]
     ],
-    "departureDate": "2026-04-24",
+    "departureDate": "2026-04-25",
     "departureTime": "07:45",
     "estimatedArrivalTime": "10:57",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -6573,12 +6648,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 83.4,
     "estimatedDurationMinutes": 192,
     "co2SavedKg": 35,
-    "createdAt": "2026-04-14T09:00:00.000Z",
-    "updatedAt": "2026-04-23T18:00:00.000Z",
+    "createdAt": "2026-04-15T09:00:00.000Z",
+    "updatedAt": "2026-04-24T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -6633,12 +6708,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-25",
+    "departureDate": "2026-04-26",
     "departureTime": "17:10",
     "estimatedArrivalTime": "17:48",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -6659,12 +6735,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.6,
     "estimatedDurationMinutes": 38,
     "co2SavedKg": 7,
-    "createdAt": "2026-04-15T09:00:00.000Z",
-    "updatedAt": "2026-04-24T18:00:00.000Z",
+    "createdAt": "2026-04-16T09:00:00.000Z",
+    "updatedAt": "2026-04-25T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -6719,12 +6795,13 @@
         -75.6901
       ]
     ],
-    "departureDate": "2026-04-27",
+    "departureDate": "2026-04-28",
     "departureTime": "08:00",
     "estimatedArrivalTime": "08:20",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -6741,8 +6818,8 @@
     "estimatedDistanceKm": 4,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 1.7,
-    "createdAt": "2026-04-17T09:00:00.000Z",
-    "updatedAt": "2026-04-26T18:00:00.000Z",
+    "createdAt": "2026-04-18T09:00:00.000Z",
+    "updatedAt": "2026-04-27T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -6795,12 +6872,13 @@
         -75.6706
       ]
     ],
-    "departureDate": "2026-04-28",
+    "departureDate": "2026-04-29",
     "departureTime": "18:00",
     "estimatedArrivalTime": "18:20",
     "maxPassengers": 2,
     "currentPassengers": 0,
     "pricePerPassenger": 8,
+    "passengerPrice": 9.2,
     "paymentMethod": "cash",
     "status": "cancelled",
     "departureType": "planned",
@@ -6817,8 +6895,8 @@
     "estimatedDistanceKm": 8.8,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 3.7,
-    "createdAt": "2026-04-18T09:00:00.000Z",
-    "updatedAt": "2026-04-27T18:00:00.000Z",
+    "createdAt": "2026-04-19T09:00:00.000Z",
+    "updatedAt": "2026-04-28T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -6907,12 +6985,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-04-29",
+    "departureDate": "2026-04-30",
     "departureTime": "07:30",
     "estimatedArrivalTime": "09:05",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 6,
+    "passengerPrice": 6.9,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -6933,12 +7012,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 41.5,
     "estimatedDurationMinutes": 95,
     "co2SavedKg": 17.4,
-    "createdAt": "2026-04-19T09:00:00.000Z",
-    "updatedAt": "2026-04-28T18:00:00.000Z",
+    "createdAt": "2026-04-20T09:00:00.000Z",
+    "updatedAt": "2026-04-29T18:00:00.000Z",
     "notes": "Trajet seed coherent pour tests."
   },
   {
@@ -6993,12 +7072,13 @@
         -75.6944
       ]
     ],
-    "departureDate": "2026-04-30",
+    "departureDate": "2026-05-01",
     "departureTime": "16:50",
     "estimatedArrivalTime": "17:10",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -7015,8 +7095,8 @@
     "estimatedDistanceKm": 6,
     "estimatedDurationMinutes": 20,
     "co2SavedKg": 2.5,
-    "createdAt": "2026-04-20T09:00:00.000Z",
-    "updatedAt": "2026-04-29T18:00:00.000Z",
+    "createdAt": "2026-04-21T09:00:00.000Z",
+    "updatedAt": "2026-04-30T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -7071,12 +7151,13 @@
         -75.4845
       ]
     ],
-    "departureDate": "2026-05-01",
+    "departureDate": "2026-05-02",
     "departureTime": "08:15",
     "estimatedArrivalTime": "08:52",
     "maxPassengers": 2,
     "currentPassengers": 1,
     "pricePerPassenger": 5,
+    "passengerPrice": 5.75,
     "paymentMethod": "interac",
     "status": "completed",
     "departureType": "planned",
@@ -7097,12 +7178,12 @@
       4,
       5
     ],
-    "recurrenceEndDate": "2026-05-09",
+    "recurrenceEndDate": "2026-05-10",
     "estimatedDistanceKm": 16.1,
     "estimatedDurationMinutes": 37,
     "co2SavedKg": 6.8,
-    "createdAt": "2026-04-21T09:00:00.000Z",
-    "updatedAt": "2026-04-30T18:00:00.000Z",
+    "createdAt": "2026-04-22T09:00:00.000Z",
+    "updatedAt": "2026-05-01T18:00:00.000Z",
     "notes": ""
   },
   {
@@ -7158,12 +7239,13 @@
         -75.6442
       ]
     ],
-    "departureDate": "2026-05-02",
+    "departureDate": "2026-05-03",
     "departureTime": "17:25",
     "estimatedArrivalTime": "18:19",
     "maxPassengers": 2,
     "currentPassengers": 2,
     "pricePerPassenger": 7,
+    "passengerPrice": 8.05,
     "paymentMethod": "cash",
     "status": "completed",
     "departureType": "planned",
@@ -7180,5428 +7262,1816 @@
     "estimatedDistanceKm": 23.5,
     "estimatedDurationMinutes": 54,
     "co2SavedKg": 9.9,
-    "createdAt": "2026-04-22T09:00:00.000Z",
-    "updatedAt": "2026-05-01T18:00:00.000Z",
+    "createdAt": "2026-04-23T09:00:00.000Z",
+    "updatedAt": "2026-05-02T18:00:00.000Z",
     "notes": ""
   },
   {
     "driverId": "USR-2026-00001",
     "vehicleId": "VEH-2026-00001",
     "departure": {
-      "label": "Campus La Cite",
-      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON",
+      "label": "chemin de Montréal 320, Ottawa K1L 6C0 (Ontario)",
+      "fullAddress": "chemin de Montréal 320, Ottawa K1L 6C0 (Ontario)",
       "coordinates": {
-        "lat": 45.4215,
-        "lng": -75.6442
-      }
+        "lat": 45.4372396,
+        "lng": -75.6569767
+      },
+      "instructions": "Devant le 296 Mona avenue"
     },
     "arrival": {
-      "label": "Place d'Orleans",
-      "fullAddress": "110 Place d'Orleans Dr, Ottawa, ON",
+      "label": "Collège La Cité 801, Ottawa K1J 7P6 (Ontario)",
+      "fullAddress": "Collège La Cité 801, Ottawa K1J 7P6 (Ontario)",
       "coordinates": {
-        "lat": 45.4777,
-        "lng": -75.5117
-      }
+        "lat": 45.4382455,
+        "lng": -75.628971
+      },
+      "instructions": "Devant le batiment C"
     },
     "waypoints": [],
     "polyline": [
       [
-        45.4215,
-        -75.6442
-      ],
-      [
-        45.4777,
-        -75.5117
-      ]
-    ],
-    "departureDate": "2026-03-27",
-    "departureTime": "08:30",
-    "maxPassengers": 2,
-    "currentPassengers": 1,
-    "passengerIds": [
-      "USR-2026-00013"
-    ],
-    "pricePerPassenger": 9,
-    "paymentMethod": "interac",
-    "status": "published",
-    "departureType": "planned",
-    "tripType": "unique",
-    "preferences": {
-      "baggageAllowed": true,
-      "petsAllowed": false,
-      "smokingAllowed": false,
-      "musicAllowed": true,
-      "flexibleItinerary": false,
-      "conversationLevel": "moderate",
-      "driverNote": "Test E2E console"
-    },
-    "estimatedDistanceKm": 16.6,
-    "estimatedDurationMinutes": 28,
-    "notes": "Trip cree depuis le test A-Z console",
-    "id": "TRJ-2026-37028",
-    "createdAt": "2026-03-25T16:47:48.372Z",
-    "updatedAt": "2026-03-25T16:47:51.261Z"
-  },
-  {
-    "driverId": "USR-2026-00001",
-    "vehicleId": "VEH-2026-00001",
-    "departure": {
-      "label": "Campus La Cite",
-      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON",
-      "coordinates": {
-        "lat": 45.4215,
-        "lng": -75.6442
-      }
-    },
-    "arrival": {
-      "label": "Place d'Orleans",
-      "fullAddress": "110 Place d'Orleans Dr, Ottawa, ON",
-      "coordinates": {
-        "lat": 45.4777,
-        "lng": -75.5117
-      }
-    },
-    "waypoints": [],
-    "polyline": [
-      [
-        45.4215,
-        -75.6442
-      ],
-      [
-        45.4777,
-        -75.5117
-      ]
-    ],
-    "departureDate": "2026-03-27",
-    "departureTime": "08:30",
-    "maxPassengers": 2,
-    "currentPassengers": 1,
-    "passengerIds": [
-      "USR-2026-00013"
-    ],
-    "pricePerPassenger": 9,
-    "paymentMethod": "interac",
-    "status": "published",
-    "departureType": "planned",
-    "tripType": "unique",
-    "preferences": {
-      "baggageAllowed": true,
-      "petsAllowed": false,
-      "smokingAllowed": false,
-      "musicAllowed": true,
-      "flexibleItinerary": false,
-      "conversationLevel": "moderate",
-      "driverNote": "Test E2E console"
-    },
-    "estimatedDistanceKm": 16.6,
-    "estimatedDurationMinutes": 28,
-    "notes": "Trip cree depuis le test A-Z console",
-    "id": "TRJ-2026-72577",
-    "createdAt": "2026-03-25T17:16:44.999Z",
-    "updatedAt": "2026-03-25T17:16:46.286Z"
-  },
-  {
-    "driverId": "USR-2026-00001",
-    "vehicleId": "VEH-2026-00001",
-    "departure": {
-      "label": "Campus La Cite",
-      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON",
-      "coordinates": {
-        "lat": 45.4215,
-        "lng": -75.6442
-      }
-    },
-    "arrival": {
-      "label": "Place d'Orleans",
-      "fullAddress": "110 Place d'Orleans Dr, Ottawa, ON",
-      "coordinates": {
-        "lat": 45.4777,
-        "lng": -75.5117
-      }
-    },
-    "waypoints": [],
-    "polyline": [
+        45.437222,
+        -75.657031
+      ],
+      [
+        45.436783,
+        -75.656729
+      ],
+      [
+        45.436848,
+        -75.656527
+      ],
+      [
+        45.436863,
+        -75.656479
+      ],
+      [
+        45.436882,
+        -75.656418
+      ],
+      [
+        45.437438,
+        -75.656785
+      ],
+      [
+        45.437659,
+        -75.656933
+      ],
+      [
+        45.437684,
+        -75.65695
+      ],
+      [
+        45.4377,
+        -75.656961
+      ],
+      [
+        45.437769,
+        -75.657006
+      ],
+      [
+        45.437814,
+        -75.656866
+      ],
+      [
+        45.437907,
+        -75.656577
+      ],
+      [
+        45.438005,
+        -75.656264
+      ],
+      [
+        45.438072,
+        -75.656052
+      ],
+      [
+        45.438128,
+        -75.655881
+      ],
+      [
+        45.438168,
+        -75.655755
+      ],
+      [
+        45.438191,
+        -75.655686
+      ],
+      [
+        45.438343,
+        -75.65524
+      ],
+      [
+        45.438589,
+        -75.654507
+      ],
+      [
+        45.438658,
+        -75.6543
+      ],
+      [
+        45.438699,
+        -75.654177
+      ],
+      [
+        45.438737,
+        -75.654066
+      ],
+      [
+        45.438774,
+        -75.653955
+      ],
+      [
+        45.438825,
+        -75.653806
+      ],
+      [
+        45.438849,
+        -75.653733
+      ],
+      [
+        45.438893,
+        -75.653603
+      ],
+      [
+        45.438956,
+        -75.65341
+      ],
+      [
+        45.438999,
+        -75.653278
+      ],
+      [
+        45.439118,
+        -75.652917
+      ],
+      [
+        45.439208,
+        -75.652643
+      ],
+      [
+        45.439295,
+        -75.652381
+      ],
+      [
+        45.439375,
+        -75.652135
+      ],
+      [
+        45.43942,
+        -75.652001
+      ],
+      [
+        45.439478,
+        -75.651815
+      ],
+      [
+        45.439529,
+        -75.651656
+      ],
+      [
+        45.439577,
+        -75.65151
+      ],
+      [
+        45.439616,
+        -75.651392
+      ],
+      [
+        45.439645,
+        -75.651302
+      ],
+      [
+        45.439681,
+        -75.651191
+      ],
+      [
+        45.439778,
+        -75.650894
+      ],
+      [
+        45.439823,
+        -75.650757
+      ],
+      [
+        45.439929,
+        -75.650444
+      ],
+      [
+        45.439996,
+        -75.650241
+      ],
+      [
+        45.440065,
+        -75.650032
+      ],
+      [
+        45.440206,
+        -75.64961
+      ],
+      [
+        45.440299,
+        -75.649328
+      ],
       [
-        45.421495,
-        -75.64427
+        45.440365,
+        -75.649124
       ],
       [
-        45.421642,
-        -75.644289
+        45.440485,
+        -75.64875
       ],
       [
-        45.421742,
-        -75.644302
+        45.440655,
+        -75.648222
       ],
       [
-        45.421753,
-        -75.644142
+        45.440678,
+        -75.648151
       ],
       [
-        45.421771,
-        -75.643876
+        45.440735,
+        -75.647894
       ],
       [
-        45.421775,
-        -75.643816
+        45.440864,
+        -75.647362
       ],
       [
-        45.421805,
-        -75.643366
+        45.440947,
+        -75.647104
       ],
       [
-        45.421812,
-        -75.643269
+        45.440978,
+        -75.647011
       ],
       [
-        45.42179,
-        -75.643132
+        45.440989,
+        -75.646978
       ],
       [
-        45.421817,
-        -75.642712
+        45.441025,
+        -75.646877
       ],
       [
-        45.421827,
-        -75.642567
+        45.441071,
+        -75.646744
       ],
       [
-        45.42185,
-        -75.642443
+        45.441099,
+        -75.64666
       ],
       [
-        45.421888,
-        -75.642353
+        45.441211,
+        -75.646324
       ],
       [
-        45.421933,
-        -75.642278
+        45.44142,
+        -75.645702
       ],
       [
-        45.421956,
-        -75.642243
+        45.44146,
+        -75.645645
       ],
       [
-        45.422031,
-        -75.642196
+        45.441523,
+        -75.645575
       ],
       [
-        45.422081,
-        -75.642183
+        45.441578,
+        -75.645432
       ],
       [
-        45.422127,
-        -75.642187
+        45.441619,
+        -75.645308
       ],
       [
-        45.42229,
-        -75.642209
+        45.44168,
+        -75.645133
       ],
       [
-        45.422719,
-        -75.642264
+        45.441692,
+        -75.645098
       ],
       [
-        45.422816,
-        -75.642276
+        45.44177,
+        -75.644864
       ],
       [
-        45.422925,
-        -75.642291
+        45.441806,
+        -75.644756
       ],
       [
-        45.4235,
-        -75.642375
+        45.4418,
+        -75.64467
       ],
       [
-        45.423695,
-        -75.642404
+        45.441808,
+        -75.644604
       ],
       [
-        45.423767,
-        -75.642411
+        45.441898,
+        -75.644346
       ],
       [
-        45.423835,
-        -75.64241
+        45.441913,
+        -75.644303
       ],
       [
-        45.423858,
-        -75.642406
+        45.441933,
+        -75.644243
       ],
       [
-        45.423886,
-        -75.642396
+        45.441963,
+        -75.644139
       ],
       [
-        45.423927,
-        -75.64237
+        45.441983,
+        -75.64407
       ],
       [
-        45.423964,
-        -75.642336
+        45.442139,
+        -75.643564
       ],
       [
-        45.423992,
-        -75.642298
+        45.442186,
+        -75.64341
       ],
       [
-        45.424018,
-        -75.642246
+        45.442233,
+        -75.64335
       ],
       [
-        45.424034,
-        -75.642191
+        45.442285,
+        -75.643301
       ],
       [
-        45.424045,
-        -75.642128
+        45.442353,
+        -75.643103
       ],
       [
-        45.42405,
-        -75.642051
+        45.4424,
+        -75.642955
       ],
       [
-        45.424054,
-        -75.64179
+        45.442428,
+        -75.642869
       ],
       [
-        45.424054,
-        -75.641656
+        45.442456,
+        -75.642791
       ],
       [
-        45.424045,
-        -75.640802
+        45.442506,
+        -75.642649
       ],
       [
-        45.424046,
-        -75.640422
+        45.442502,
+        -75.642568
       ],
       [
-        45.424045,
-        -75.640262
+        45.442512,
+        -75.642468
       ],
       [
-        45.424041,
-        -75.640071
+        45.442593,
+        -75.642215
       ],
       [
-        45.424032,
-        -75.639424
+        45.442616,
+        -75.642139
       ],
       [
-        45.424032,
-        -75.638973
+        45.442635,
+        -75.642078
       ],
       [
-        45.424036,
-        -75.638735
+        45.442658,
+        -75.642005
       ],
       [
-        45.424044,
-        -75.638416
+        45.442757,
+        -75.641688
       ],
       [
-        45.424051,
-        -75.638262
+        45.442866,
+        -75.641374
       ],
       [
-        45.424068,
-        -75.638061
+        45.442874,
+        -75.64135
       ],
       [
-        45.424057,
-        -75.637801
+        45.442991,
+        -75.641011
       ],
       [
-        45.424056,
-        -75.637701
+        45.443036,
+        -75.640871
       ],
       [
-        45.424051,
-        -75.637612
+        45.443084,
+        -75.640723
       ],
       [
-        45.424041,
-        -75.63754
+        45.443114,
+        -75.640636
       ],
       [
-        45.424021,
-        -75.637466
+        45.443168,
+        -75.640465
       ],
       [
-        45.424,
-        -75.637413
+        45.4432,
+        -75.640415
       ],
       [
-        45.423972,
-        -75.637369
+        45.44324,
+        -75.640382
       ],
       [
-        45.423923,
-        -75.637311
+        45.443326,
+        -75.640147
       ],
       [
-        45.423814,
-        -75.637194
+        45.443376,
+        -75.639992
       ],
       [
-        45.423271,
-        -75.636887
+        45.443418,
+        -75.639859
       ],
       [
-        45.422917,
-        -75.636688
+        45.443433,
+        -75.639602
       ],
       [
-        45.422677,
-        -75.636552
+        45.443438,
+        -75.639586
       ],
       [
-        45.422432,
-        -75.636414
+        45.443462,
+        -75.639509
       ],
       [
-        45.422371,
-        -75.63638
+        45.443551,
+        -75.63923
       ],
       [
-        45.422307,
-        -75.636343
+        45.443563,
+        -75.639194
       ],
       [
-        45.422229,
-        -75.636297
+        45.443585,
+        -75.639125
       ],
       [
-        45.422062,
-        -75.636207
+        45.443628,
+        -75.638996
       ],
       [
-        45.421842,
-        -75.636078
+        45.443653,
+        -75.638918
       ],
       [
-        45.421434,
-        -75.635849
+        45.443853,
+        -75.638318
       ],
       [
-        45.421176,
-        -75.635694
+        45.44393,
+        -75.638088
       ],
       [
-        45.421123,
-        -75.635663
+        45.444006,
+        -75.637851
       ],
       [
-        45.420998,
-        -75.635592
+        45.444048,
+        -75.637722
       ],
       [
-        45.420709,
-        -75.635418
+        45.444092,
+        -75.637583
       ],
       [
-        45.420518,
-        -75.63531
+        45.444141,
+        -75.637431
       ],
       [
-        45.419961,
-        -75.635149
+        45.444197,
+        -75.637256
       ],
       [
-        45.419845,
-        -75.635122
+        45.444229,
+        -75.637155
       ],
       [
-        45.419775,
-        -75.635105
+        45.444326,
+        -75.636873
       ],
       [
-        45.41971,
-        -75.635097
+        45.444522,
+        -75.636302
       ],
       [
-        45.419647,
-        -75.635098
+        45.444569,
+        -75.636147
       ],
       [
-        45.419577,
-        -75.635107
+        45.444621,
+        -75.63599
       ],
       [
-        45.419516,
-        -75.635123
+        45.444543,
+        -75.635936
       ],
       [
-        45.419455,
-        -75.63516
+        45.444257,
+        -75.63574
       ],
       [
-        45.419402,
-        -75.63521
+        45.444135,
+        -75.635654
       ],
       [
-        45.419356,
-        -75.635274
+        45.443995,
+        -75.635548
       ],
       [
-        45.419317,
+        45.44372,
         -75.635353
       ],
       [
-        45.419288,
-        -75.635443
+        45.443453,
+        -75.635153
       ],
       [
-        45.419267,
-        -75.635538
+        45.443369,
+        -75.635098
       ],
       [
-        45.419261,
-        -75.635627
+        45.442575,
+        -75.634567
       ],
       [
-        45.419265,
-        -75.63573
+        45.44251,
+        -75.634522
       ],
       [
-        45.419282,
-        -75.635825
+        45.442461,
+        -75.634491
       ],
       [
-        45.41931,
-        -75.635907
+        45.441888,
+        -75.634119
       ],
       [
-        45.419344,
-        -75.635984
+        45.44166,
+        -75.633962
       ],
       [
-        45.419391,
-        -75.636054
+        45.441528,
+        -75.633867
       ],
       [
-        45.419443,
-        -75.636105
+        45.441187,
+        -75.633672
       ],
       [
-        45.419505,
-        -75.636154
+        45.441151,
+        -75.633651
       ],
       [
-        45.419562,
-        -75.636178
+        45.440571,
+        -75.633305
       ],
       [
-        45.419626,
-        -75.63619
+        45.440421,
+        -75.633223
       ],
       [
-        45.41969,
-        -75.636183
+        45.440219,
+        -75.633108
       ],
       [
-        45.41975,
-        -75.636166
+        45.440029,
+        -75.632993
       ],
       [
-        45.419807,
-        -75.636133
+        45.439906,
+        -75.632899
       ],
       [
-        45.419859,
-        -75.636085
+        45.439822,
+        -75.632809
       ],
       [
-        45.419905,
-        -75.636026
+        45.439716,
+        -75.632666
       ],
       [
-        45.419939,
-        -75.63597
+        45.439669,
+        -75.63259
       ],
       [
-        45.419967,
-        -75.635908
+        45.439631,
+        -75.632521
       ],
       [
-        45.419994,
-        -75.635842
+        45.439576,
+        -75.632378
       ],
       [
-        45.420025,
-        -75.635731
+        45.439547,
+        -75.632271
       ],
       [
-        45.42005,
-        -75.635604
+        45.439527,
+        -75.632166
       ],
       [
-        45.420093,
-        -75.635279
+        45.439512,
+        -75.632062
       ],
       [
-        45.420143,
-        -75.634765
+        45.439504,
+        -75.631951
       ],
       [
-        45.420313,
-        -75.633353
+        45.439503,
+        -75.631833
       ],
       [
-        45.420392,
-        -75.632246
+        45.439508,
+        -75.631734
       ],
       [
-        45.420443,
-        -75.631702
+        45.439533,
+        -75.631608
       ],
       [
-        45.420495,
-        -75.631212
+        45.439571,
+        -75.631496
       ],
       [
-        45.420501,
-        -75.631169
+        45.439624,
+        -75.631345
       ],
       [
-        45.420542,
-        -75.63084
+        45.43968,
+        -75.631211
       ],
       [
-        45.420653,
-        -75.630093
+        45.439795,
+        -75.630934
       ],
       [
-        45.420688,
-        -75.629849
+        45.440051,
+        -75.630318
       ],
       [
-        45.420748,
-        -75.629456
+        45.440168,
+        -75.630026
       ],
       [
-        45.420819,
-        -75.629055
+        45.440222,
+        -75.629897
       ],
       [
-        45.420868,
-        -75.628787
+        45.440256,
+        -75.629806
       ],
       [
-        45.421044,
-        -75.627968
+        45.440284,
+        -75.629725
       ],
       [
-        45.42114,
-        -75.627541
+        45.44041,
+        -75.629344
       ],
       [
-        45.421373,
-        -75.626687
+        45.440336,
+        -75.629304
       ],
       [
-        45.421476,
-        -75.626349
+        45.440223,
+        -75.629243
       ],
       [
-        45.421554,
-        -75.626074
+        45.440175,
+        -75.629216
       ],
       [
-        45.42182,
-        -75.625243
+        45.440137,
+        -75.62919
       ],
       [
-        45.422133,
-        -75.624485
+        45.440094,
+        -75.62916
       ],
       [
-        45.422314,
-        -75.623949
+        45.440056,
+        -75.629132
       ],
       [
-        45.422383,
-        -75.623728
+        45.44002,
+        -75.629108
       ],
       [
-        45.422436,
-        -75.623568
+        45.43996,
+        -75.62907
       ],
       [
-        45.42248,
-        -75.623436
+        45.439876,
+        -75.629021
       ],
       [
-        45.422521,
-        -75.623285
+        45.439808,
+        -75.628982
       ],
       [
-        45.422562,
-        -75.623126
+        45.439774,
+        -75.628967
       ],
       [
-        45.422625,
-        -75.622897
+        45.439753,
+        -75.628958
       ],
       [
-        45.422673,
-        -75.622696
+        45.439727,
+        -75.628949
       ],
       [
-        45.422718,
-        -75.622475
+        45.439704,
+        -75.628942
       ],
       [
-        45.42276,
-        -75.622263
+        45.439672,
+        -75.628937
       ],
       [
-        45.422816,
-        -75.62195
+        45.439643,
+        -75.628934
       ],
       [
-        45.422943,
-        -75.621137
+        45.439617,
+        -75.628932
       ],
       [
-        45.423049,
-        -75.620396
+        45.439592,
+        -75.628925
       ],
       [
-        45.423086,
-        -75.620194
+        45.439568,
+        -75.628919
       ],
       [
-        45.423132,
-        -75.619977
+        45.439531,
+        -75.628903
       ],
       [
-        45.423172,
-        -75.619803
+        45.439486,
+        -75.628878
       ],
       [
-        45.423232,
-        -75.619574
+        45.439432,
+        -75.628845
       ],
       [
-        45.423316,
-        -75.619278
+        45.439386,
+        -75.628813
       ],
       [
-        45.423383,
-        -75.619089
+        45.43933,
+        -75.628771
       ],
       [
-        45.423418,
-        -75.618987
+        45.439282,
+        -75.628729
       ],
       [
-        45.423484,
-        -75.618809
+        45.439223,
+        -75.628679
       ],
       [
-        45.423558,
-        -75.618623
+        45.439175,
+        -75.628632
       ],
       [
-        45.423704,
-        -75.618299
+        45.439126,
+        -75.628576
       ],
       [
-        45.423773,
-        -75.618151
+        45.439074,
+        -75.628515
       ],
       [
-        45.423843,
-        -75.618017
+        45.439018,
+        -75.628437
       ],
       [
-        45.423916,
-        -75.617886
+        45.43899,
+        -75.628391
       ],
       [
-        45.423987,
-        -75.617758
+        45.438957,
+        -75.62833
       ],
       [
-        45.424059,
-        -75.617643
+        45.438932,
+        -75.62836
       ],
       [
-        45.424138,
-        -75.617525
+        45.438589,
+        -75.628769
       ],
       [
-        45.424213,
-        -75.617412
+        45.438414,
+        -75.628936
       ],
       [
-        45.424321,
-        -75.617264
-      ],
-      [
-        45.424426,
-        -75.617125
-      ],
-      [
-        45.424532,
-        -75.617001
-      ],
-      [
-        45.424652,
-        -75.616856
-      ],
-      [
-        45.424774,
-        -75.616716
-      ],
-      [
-        45.424921,
-        -75.61656
-      ],
-      [
-        45.425171,
-        -75.616309
-      ],
-      [
-        45.42575,
-        -75.615804
-      ],
-      [
-        45.426434,
-        -75.615149
-      ],
-      [
-        45.426676,
-        -75.614883
-      ],
-      [
-        45.426807,
-        -75.614732
-      ],
-      [
-        45.42691,
-        -75.614601
-      ],
-      [
-        45.427169,
-        -75.614242
-      ],
-      [
-        45.427254,
-        -75.614107
-      ],
-      [
-        45.427391,
-        -75.61388
-      ],
-      [
-        45.427451,
-        -75.613779
-      ],
-      [
-        45.427568,
-        -75.613579
-      ],
-      [
-        45.428834,
-        -75.611143
-      ],
-      [
-        45.430698,
-        -75.607575
-      ],
-      [
-        45.431951,
-        -75.605127
-      ],
-      [
-        45.432753,
-        -75.603627
-      ],
-      [
-        45.433172,
-        -75.602814
-      ],
-      [
-        45.433494,
-        -75.602165
-      ],
-      [
-        45.433973,
-        -75.601234
-      ],
-      [
-        45.434641,
-        -75.599956
-      ],
-      [
-        45.435086,
-        -75.59909
-      ],
-      [
-        45.435467,
-        -75.59834
-      ],
-      [
-        45.435826,
-        -75.597632
-      ],
-      [
-        45.436483,
-        -75.596337
-      ],
-      [
-        45.436828,
-        -75.595694
-      ],
-      [
-        45.437132,
-        -75.59514
-      ],
-      [
-        45.437357,
-        -75.594767
-      ],
-      [
-        45.437573,
-        -75.594426
-      ],
-      [
-        45.437759,
-        -75.594138
-      ],
-      [
-        45.437952,
-        -75.593851
-      ],
-      [
-        45.438134,
-        -75.59359
-      ],
-      [
-        45.438409,
-        -75.593213
-      ],
-      [
-        45.438716,
-        -75.592808
-      ],
-      [
-        45.438977,
-        -75.592481
-      ],
-      [
-        45.439186,
-        -75.592212
-      ],
-      [
-        45.439454,
-        -75.591885
-      ],
-      [
-        45.439581,
-        -75.591732
-      ],
-      [
-        45.43971,
-        -75.59158
-      ],
-      [
-        45.4399,
-        -75.591378
-      ],
-      [
-        45.440157,
-        -75.591108
-      ],
-      [
-        45.440401,
-        -75.590866
-      ],
-      [
-        45.440654,
-        -75.590621
-      ],
-      [
-        45.440887,
-        -75.590411
-      ],
-      [
-        45.441128,
-        -75.590196
-      ],
-      [
-        45.441335,
-        -75.590021
-      ],
-      [
-        45.441533,
-        -75.589855
-      ],
-      [
-        45.441934,
-        -75.589532
-      ],
-      [
-        45.442398,
-        -75.589182
-      ],
-      [
-        45.442916,
-        -75.588825
-      ],
-      [
-        45.443957,
-        -75.588159
-      ],
-      [
-        45.444984,
-        -75.587493
-      ],
-      [
-        45.445994,
-        -75.586832
-      ],
-      [
-        45.44712,
-        -75.586078
-      ],
-      [
-        45.448178,
-        -75.585388
-      ],
-      [
-        45.449475,
-        -75.584548
-      ],
-      [
-        45.450537,
-        -75.583863
-      ],
-      [
-        45.451247,
-        -75.583403
-      ],
-      [
-        45.451872,
-        -75.58299
-      ],
-      [
-        45.452184,
-        -75.582792
-      ],
-      [
-        45.452624,
-        -75.58251
-      ],
-      [
-        45.4531,
-        -75.582201
-      ],
-      [
-        45.453495,
-        -75.58191
-      ],
-      [
-        45.453744,
-        -75.581704
-      ],
-      [
-        45.453936,
-        -75.581538
-      ],
-      [
-        45.454163,
-        -75.581323
-      ],
-      [
-        45.454409,
-        -75.581071
-      ],
-      [
-        45.454622,
-        -75.580832
-      ],
-      [
-        45.454771,
-        -75.580659
-      ],
-      [
-        45.454957,
-        -75.580428
-      ],
-      [
-        45.455114,
-        -75.580217
-      ],
-      [
-        45.455232,
-        -75.58005
-      ],
-      [
-        45.455373,
-        -75.579844
-      ],
-      [
-        45.455606,
-        -75.579476
-      ],
-      [
-        45.455783,
-        -75.579181
-      ],
-      [
-        45.455937,
-        -75.578899
-      ],
-      [
-        45.456099,
-        -75.578591
-      ],
-      [
-        45.456325,
-        -75.578111
-      ],
-      [
-        45.456655,
-        -75.577325
-      ],
-      [
-        45.456813,
-        -75.576952
-      ],
-      [
-        45.457497,
-        -75.57534
-      ],
-      [
-        45.457877,
-        -75.574433
-      ],
-      [
-        45.458224,
-        -75.573578
-      ],
-      [
-        45.459601,
-        -75.570015
-      ],
-      [
-        45.461858,
-        -75.564184
-      ],
-      [
-        45.462582,
-        -75.562295
-      ],
-      [
-        45.462854,
-        -75.561607
-      ],
-      [
-        45.465018,
-        -75.555993
-      ],
-      [
-        45.466104,
-        -75.553183
-      ],
-      [
-        45.466178,
-        -75.552992
-      ],
-      [
-        45.466785,
-        -75.551417
-      ],
-      [
-        45.467104,
-        -75.55059
-      ],
-      [
-        45.467943,
-        -75.548419
-      ],
-      [
-        45.468357,
-        -75.547335
-      ],
-      [
-        45.468711,
-        -75.546403
-      ],
-      [
-        45.468929,
-        -75.545829
-      ],
-      [
-        45.469443,
-        -75.544477
-      ],
-      [
-        45.471152,
-        -75.54011
-      ],
-      [
-        45.472967,
-        -75.53545
-      ],
-      [
-        45.473268,
-        -75.534686
-      ],
-      [
-        45.47337,
-        -75.534428
-      ],
-      [
-        45.473526,
-        -75.534028
-      ],
-      [
-        45.475033,
-        -75.530137
-      ],
-      [
-        45.475371,
-        -75.529264
-      ],
-      [
-        45.475973,
-        -75.527665
-      ],
-      [
-        45.476279,
-        -75.526838
-      ],
-      [
-        45.47685,
-        -75.525284
-      ],
-      [
-        45.477239,
-        -75.524057
-      ],
-      [
-        45.47742,
-        -75.523498
-      ],
-      [
-        45.477554,
-        -75.523003
-      ],
-      [
-        45.477641,
-        -75.522618
-      ],
-      [
-        45.477714,
-        -75.522188
-      ],
-      [
-        45.478,
-        -75.520931
-      ],
-      [
-        45.47803,
-        -75.520708
-      ],
-      [
-        45.478044,
-        -75.52053
-      ],
-      [
-        45.478046,
-        -75.520396
-      ],
-      [
-        45.478059,
-        -75.520312
-      ],
-      [
-        45.478098,
-        -75.520231
-      ],
-      [
-        45.478192,
-        -75.520194
-      ],
-      [
-        45.478266,
-        -75.520137
-      ],
-      [
-        45.478343,
-        -75.520059
-      ],
-      [
-        45.478421,
-        -75.519938
-      ],
-      [
-        45.47853,
-        -75.5197
-      ],
-      [
-        45.478939,
-        -75.518532
-      ],
-      [
-        45.479207,
-        -75.517789
-      ],
-      [
-        45.479246,
-        -75.517681
-      ],
-      [
-        45.47929,
-        -75.517562
-      ],
-      [
-        45.479346,
-        -75.517426
-      ],
-      [
-        45.479997,
-        -75.515855
-      ],
-      [
-        45.48025,
-        -75.515238
-      ],
-      [
-        45.480445,
-        -75.514764
-      ],
-      [
-        45.480498,
-        -75.514596
-      ],
-      [
-        45.480537,
-        -75.514414
-      ],
-      [
-        45.480545,
-        -75.514276
-      ],
-      [
-        45.480532,
-        -75.514139
-      ],
-      [
-        45.480495,
-        -75.513997
-      ],
-      [
-        45.480457,
-        -75.513889
-      ],
-      [
-        45.480393,
-        -75.513781
-      ],
-      [
-        45.480326,
-        -75.513713
-      ],
-      [
-        45.480074,
-        -75.513505
-      ],
-      [
-        45.479507,
-        -75.513193
-      ],
-      [
-        45.479353,
-        -75.513117
-      ],
-      [
-        45.479194,
-        -75.513055
-      ],
-      [
-        45.479172,
-        -75.513047
-      ],
-      [
-        45.479052,
-        -75.513016
-      ],
-      [
-        45.479026,
-        -75.513014
-      ],
-      [
-        45.478962,
-        -75.513008
-      ],
-      [
-        45.47885,
-        -75.512996
-      ],
-      [
-        45.478813,
-        -75.512991
-      ],
-      [
-        45.478684,
-        -75.512976
-      ],
-      [
-        45.47851,
-        -75.512941
-      ],
-      [
-        45.478326,
-        -75.512952
-      ],
-      [
-        45.478158,
-        -75.512909
-      ],
-      [
-        45.477806,
-        -75.512738
-      ],
-      [
-        45.477766,
-        -75.512719
-      ],
-      [
-        45.477673,
-        -75.512674
-      ],
-      [
-        45.477548,
-        -75.512622
-      ],
-      [
-        45.477621,
-        -75.512521
-      ],
-      [
-        45.477666,
-        -75.512462
-      ],
-      [
-        45.477768,
-        -75.512327
-      ],
-      [
-        45.477948,
-        -75.512102
+        45.438308,
+        -75.62907
       ]
     ],
-    "departureDate": "2026-03-27",
-    "departureTime": "08:30",
-    "maxPassengers": 2,
+    "departureDate": "2026-03-26",
+    "departureTime": "22:00",
+    "maxPassengers": 3,
     "currentPassengers": 1,
     "passengerIds": [
-      "USR-2026-00013"
+      "USR-2026-00014"
     ],
-    "pricePerPassenger": 9,
-    "paymentMethod": "interac",
-    "status": "published",
+    "pricePerPassenger": 5,
+    "paymentMethod": "cash",
+    "status": "cancelled",
     "departureType": "planned",
     "tripType": "unique",
     "preferences": {
       "baggageAllowed": true,
       "petsAllowed": false,
-      "smokingAllowed": false,
+      "smokingAllowed": true,
       "musicAllowed": true,
       "flexibleItinerary": false,
       "conversationLevel": "moderate",
-      "driverNote": "Test E2E console"
+      "driverNote": "Soyez à l'heure s'il vous plaît , Merci ;)"
     },
-    "estimatedDistanceKm": 14,
-    "estimatedDurationMinutes": 13,
-    "notes": "Trip cree depuis le test A-Z console",
-    "id": "TRJ-2026-86630",
-    "createdAt": "2026-03-25T23:45:10.981Z",
-    "updatedAt": "2026-03-25T23:45:20.321Z"
+    "id": "TRJ-2026-82744",
+    "passengerPrice": 5.75,
+    "createdAt": "2026-03-27T01:23:27.189Z",
+    "updatedAt": "2026-03-27T02:36:58.980Z"
   },
   {
     "driverId": "USR-2026-00001",
     "vehicleId": "VEH-2026-00001",
     "departure": {
-      "label": "Campus La Cite",
-      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON",
+      "label": "avenue Mona, Ottawa",
+      "fullAddress": "avenue Mona, Ottawa",
       "coordinates": {
-        "lat": 45.4215,
-        "lng": -75.6442
-      }
+        "lat": 45.43722370044291,
+        "lng": -75.65698358272493
+      },
+      "instructions": "Devant le 296 Mona avenue"
     },
     "arrival": {
-      "label": "Place d'Orleans",
-      "fullAddress": "110 Place d'Orleans Dr, Ottawa, ON",
+      "label": "801, promenade de l'Aviation K1K 4R3, Ontario, Ottawa, Canada",
+      "fullAddress": "801, promenade de l'Aviation K1K 4R3, Ontario, Ottawa, Canada",
       "coordinates": {
-        "lat": 45.4777,
-        "lng": -75.5117
-      }
+        "lat": 45.439453490367846,
+        "lng": -75.62678911601688
+      },
+      "instructions": "Devant le Batiment H au parking blanc"
     },
     "waypoints": [],
     "polyline": [
       [
-        45.421495,
-        -75.64427
+        45.437211,
+        -75.657024
       ],
       [
-        45.421642,
-        -75.644289
+        45.436783,
+        -75.656729
       ],
       [
-        45.421742,
-        -75.644302
+        45.436848,
+        -75.656527
       ],
       [
-        45.421753,
-        -75.644142
+        45.436863,
+        -75.656479
       ],
       [
-        45.421771,
-        -75.643876
+        45.436882,
+        -75.656418
       ],
       [
-        45.421775,
-        -75.643816
+        45.437438,
+        -75.656785
       ],
       [
-        45.421805,
-        -75.643366
+        45.437659,
+        -75.656933
       ],
       [
-        45.421812,
-        -75.643269
+        45.437684,
+        -75.65695
       ],
       [
-        45.42179,
-        -75.643132
+        45.4377,
+        -75.656961
       ],
       [
-        45.421817,
-        -75.642712
+        45.437769,
+        -75.657006
       ],
       [
-        45.421827,
-        -75.642567
+        45.437814,
+        -75.656866
       ],
       [
-        45.42185,
-        -75.642443
+        45.437907,
+        -75.656577
       ],
       [
-        45.421888,
-        -75.642353
+        45.438005,
+        -75.656264
       ],
       [
-        45.421933,
-        -75.642278
+        45.438072,
+        -75.656052
       ],
       [
-        45.421956,
-        -75.642243
+        45.438128,
+        -75.655881
       ],
       [
-        45.422031,
-        -75.642196
+        45.438168,
+        -75.655755
       ],
       [
-        45.422081,
-        -75.642183
+        45.438191,
+        -75.655686
       ],
       [
-        45.422127,
-        -75.642187
+        45.438343,
+        -75.65524
       ],
       [
-        45.42229,
-        -75.642209
+        45.438589,
+        -75.654507
       ],
       [
-        45.422719,
-        -75.642264
+        45.438658,
+        -75.6543
       ],
       [
-        45.422816,
-        -75.642276
+        45.438699,
+        -75.654177
       ],
       [
-        45.422925,
-        -75.642291
+        45.438737,
+        -75.654066
       ],
       [
-        45.4235,
-        -75.642375
+        45.438774,
+        -75.653955
       ],
       [
-        45.423695,
-        -75.642404
+        45.438825,
+        -75.653806
       ],
       [
-        45.423767,
-        -75.642411
+        45.438849,
+        -75.653733
       ],
       [
-        45.423835,
-        -75.64241
+        45.438893,
+        -75.653603
       ],
       [
-        45.423858,
-        -75.642406
+        45.438956,
+        -75.65341
       ],
       [
-        45.423886,
-        -75.642396
+        45.438999,
+        -75.653278
       ],
       [
-        45.423927,
-        -75.64237
+        45.439118,
+        -75.652917
       ],
       [
-        45.423964,
-        -75.642336
+        45.439208,
+        -75.652643
       ],
       [
-        45.423992,
-        -75.642298
+        45.439295,
+        -75.652381
       ],
       [
-        45.424018,
-        -75.642246
+        45.439375,
+        -75.652135
       ],
       [
-        45.424034,
-        -75.642191
+        45.43942,
+        -75.652001
       ],
       [
-        45.424045,
-        -75.642128
+        45.439478,
+        -75.651815
       ],
       [
-        45.42405,
-        -75.642051
+        45.439529,
+        -75.651656
       ],
       [
-        45.424054,
-        -75.64179
+        45.439577,
+        -75.65151
       ],
       [
-        45.424054,
-        -75.641656
+        45.439616,
+        -75.651392
       ],
       [
-        45.424045,
-        -75.640802
+        45.439645,
+        -75.651302
       ],
       [
-        45.424046,
-        -75.640422
+        45.439681,
+        -75.651191
       ],
       [
-        45.424045,
-        -75.640262
+        45.439778,
+        -75.650894
       ],
       [
-        45.424041,
-        -75.640071
+        45.439823,
+        -75.650757
       ],
       [
-        45.424032,
-        -75.639424
+        45.439929,
+        -75.650444
       ],
       [
-        45.424032,
-        -75.638973
+        45.439996,
+        -75.650241
       ],
       [
-        45.424036,
-        -75.638735
+        45.440065,
+        -75.650032
       ],
       [
-        45.424044,
-        -75.638416
+        45.440206,
+        -75.64961
       ],
       [
-        45.424051,
-        -75.638262
+        45.440299,
+        -75.649328
       ],
       [
-        45.424068,
-        -75.638061
+        45.440365,
+        -75.649124
       ],
       [
-        45.424057,
-        -75.637801
+        45.440485,
+        -75.64875
       ],
       [
-        45.424056,
-        -75.637701
+        45.440655,
+        -75.648222
       ],
       [
-        45.424051,
-        -75.637612
+        45.440678,
+        -75.648151
       ],
       [
-        45.424041,
-        -75.63754
+        45.440735,
+        -75.647894
       ],
       [
-        45.424021,
-        -75.637466
+        45.440864,
+        -75.647362
       ],
       [
-        45.424,
-        -75.637413
+        45.440947,
+        -75.647104
       ],
       [
-        45.423972,
-        -75.637369
+        45.440978,
+        -75.647011
       ],
       [
-        45.423923,
-        -75.637311
+        45.440989,
+        -75.646978
       ],
       [
-        45.423814,
-        -75.637194
+        45.441025,
+        -75.646877
       ],
       [
-        45.423271,
-        -75.636887
+        45.441071,
+        -75.646744
       ],
       [
-        45.422917,
-        -75.636688
+        45.441099,
+        -75.64666
       ],
       [
-        45.422677,
-        -75.636552
+        45.441211,
+        -75.646324
       ],
       [
-        45.422432,
-        -75.636414
+        45.44142,
+        -75.645702
       ],
       [
-        45.422371,
-        -75.63638
+        45.44146,
+        -75.645645
       ],
       [
-        45.422307,
-        -75.636343
+        45.441523,
+        -75.645575
       ],
       [
-        45.422229,
-        -75.636297
+        45.441578,
+        -75.645432
       ],
       [
-        45.422062,
-        -75.636207
+        45.441619,
+        -75.645308
       ],
       [
-        45.421842,
-        -75.636078
+        45.44168,
+        -75.645133
       ],
       [
-        45.421434,
-        -75.635849
+        45.441692,
+        -75.645098
       ],
       [
-        45.421176,
-        -75.635694
+        45.44177,
+        -75.644864
       ],
       [
-        45.421123,
-        -75.635663
+        45.441806,
+        -75.644756
       ],
       [
-        45.420998,
-        -75.635592
+        45.4418,
+        -75.64467
       ],
       [
-        45.420709,
-        -75.635418
+        45.441808,
+        -75.644604
       ],
       [
-        45.420518,
-        -75.63531
+        45.441898,
+        -75.644346
       ],
       [
-        45.419961,
-        -75.635149
+        45.441913,
+        -75.644303
       ],
       [
-        45.419845,
-        -75.635122
+        45.441933,
+        -75.644243
       ],
       [
-        45.419775,
-        -75.635105
+        45.441963,
+        -75.644139
       ],
       [
-        45.41971,
-        -75.635097
+        45.441983,
+        -75.64407
       ],
       [
-        45.419647,
-        -75.635098
+        45.442139,
+        -75.643564
       ],
       [
-        45.419577,
-        -75.635107
+        45.442186,
+        -75.64341
       ],
       [
-        45.419516,
-        -75.635123
+        45.442233,
+        -75.64335
       ],
       [
-        45.419455,
-        -75.63516
+        45.442285,
+        -75.643301
       ],
       [
-        45.419402,
-        -75.63521
+        45.442353,
+        -75.643103
       ],
       [
-        45.419356,
-        -75.635274
+        45.4424,
+        -75.642955
       ],
       [
-        45.419317,
+        45.442428,
+        -75.642869
+      ],
+      [
+        45.442456,
+        -75.642791
+      ],
+      [
+        45.442506,
+        -75.642649
+      ],
+      [
+        45.442502,
+        -75.642568
+      ],
+      [
+        45.442512,
+        -75.642468
+      ],
+      [
+        45.442593,
+        -75.642215
+      ],
+      [
+        45.442616,
+        -75.642139
+      ],
+      [
+        45.442635,
+        -75.642078
+      ],
+      [
+        45.442658,
+        -75.642005
+      ],
+      [
+        45.442757,
+        -75.641688
+      ],
+      [
+        45.442866,
+        -75.641374
+      ],
+      [
+        45.442874,
+        -75.64135
+      ],
+      [
+        45.442991,
+        -75.641011
+      ],
+      [
+        45.443036,
+        -75.640871
+      ],
+      [
+        45.443084,
+        -75.640723
+      ],
+      [
+        45.443114,
+        -75.640636
+      ],
+      [
+        45.443168,
+        -75.640465
+      ],
+      [
+        45.4432,
+        -75.640415
+      ],
+      [
+        45.44324,
+        -75.640382
+      ],
+      [
+        45.443326,
+        -75.640147
+      ],
+      [
+        45.443376,
+        -75.639992
+      ],
+      [
+        45.443418,
+        -75.639859
+      ],
+      [
+        45.443433,
+        -75.639602
+      ],
+      [
+        45.443438,
+        -75.639586
+      ],
+      [
+        45.443462,
+        -75.639509
+      ],
+      [
+        45.443551,
+        -75.63923
+      ],
+      [
+        45.443563,
+        -75.639194
+      ],
+      [
+        45.443585,
+        -75.639125
+      ],
+      [
+        45.443628,
+        -75.638996
+      ],
+      [
+        45.443653,
+        -75.638918
+      ],
+      [
+        45.443853,
+        -75.638318
+      ],
+      [
+        45.44393,
+        -75.638088
+      ],
+      [
+        45.444006,
+        -75.637851
+      ],
+      [
+        45.444048,
+        -75.637722
+      ],
+      [
+        45.444092,
+        -75.637583
+      ],
+      [
+        45.444141,
+        -75.637431
+      ],
+      [
+        45.444197,
+        -75.637256
+      ],
+      [
+        45.444229,
+        -75.637155
+      ],
+      [
+        45.444326,
+        -75.636873
+      ],
+      [
+        45.444522,
+        -75.636302
+      ],
+      [
+        45.444569,
+        -75.636147
+      ],
+      [
+        45.444621,
+        -75.63599
+      ],
+      [
+        45.444543,
+        -75.635936
+      ],
+      [
+        45.444257,
+        -75.63574
+      ],
+      [
+        45.444135,
+        -75.635654
+      ],
+      [
+        45.443995,
+        -75.635548
+      ],
+      [
+        45.44372,
         -75.635353
       ],
       [
-        45.419288,
-        -75.635443
+        45.443453,
+        -75.635153
       ],
       [
-        45.419267,
-        -75.635538
+        45.443369,
+        -75.635098
       ],
       [
-        45.419261,
-        -75.635627
+        45.442575,
+        -75.634567
       ],
       [
-        45.419265,
-        -75.63573
+        45.44251,
+        -75.634522
       ],
       [
-        45.419282,
-        -75.635825
+        45.442461,
+        -75.634491
       ],
       [
-        45.41931,
-        -75.635907
+        45.441888,
+        -75.634119
       ],
       [
-        45.419344,
-        -75.635984
+        45.44166,
+        -75.633962
       ],
       [
-        45.419391,
-        -75.636054
+        45.441528,
+        -75.633867
       ],
       [
-        45.419443,
-        -75.636105
+        45.441187,
+        -75.633672
       ],
       [
-        45.419505,
-        -75.636154
+        45.441151,
+        -75.633651
       ],
       [
-        45.419562,
-        -75.636178
+        45.440571,
+        -75.633305
       ],
       [
-        45.419626,
-        -75.63619
+        45.440421,
+        -75.633223
       ],
       [
-        45.41969,
-        -75.636183
+        45.440219,
+        -75.633108
       ],
       [
-        45.41975,
-        -75.636166
+        45.440029,
+        -75.632993
       ],
       [
-        45.419807,
-        -75.636133
+        45.439906,
+        -75.632899
       ],
       [
-        45.419859,
-        -75.636085
+        45.439822,
+        -75.632809
       ],
       [
-        45.419905,
-        -75.636026
+        45.439716,
+        -75.632666
       ],
       [
-        45.419939,
-        -75.63597
+        45.439669,
+        -75.63259
       ],
       [
-        45.419967,
-        -75.635908
+        45.439631,
+        -75.632521
       ],
       [
-        45.419994,
-        -75.635842
+        45.439576,
+        -75.632378
       ],
       [
-        45.420025,
-        -75.635731
+        45.439547,
+        -75.632271
       ],
       [
-        45.42005,
-        -75.635604
+        45.439527,
+        -75.632166
       ],
       [
-        45.420093,
-        -75.635279
+        45.439512,
+        -75.632062
       ],
       [
-        45.420143,
-        -75.634765
+        45.439504,
+        -75.631951
       ],
       [
-        45.420313,
-        -75.633353
+        45.439503,
+        -75.631833
       ],
       [
-        45.420392,
-        -75.632246
+        45.439508,
+        -75.631734
       ],
       [
-        45.420443,
-        -75.631702
+        45.439533,
+        -75.631608
       ],
       [
-        45.420495,
-        -75.631212
+        45.439571,
+        -75.631496
       ],
       [
-        45.420501,
-        -75.631169
+        45.439624,
+        -75.631345
       ],
       [
-        45.420542,
-        -75.63084
+        45.43968,
+        -75.631211
       ],
       [
-        45.420653,
-        -75.630093
+        45.439795,
+        -75.630934
       ],
       [
-        45.420688,
-        -75.629849
+        45.440051,
+        -75.630318
       ],
       [
-        45.420748,
-        -75.629456
+        45.440168,
+        -75.630026
       ],
       [
-        45.420819,
-        -75.629055
+        45.440222,
+        -75.629897
       ],
       [
-        45.420868,
-        -75.628787
+        45.440256,
+        -75.629806
       ],
       [
-        45.421044,
-        -75.627968
+        45.440284,
+        -75.629725
       ],
       [
-        45.42114,
-        -75.627541
+        45.44041,
+        -75.629344
       ],
       [
-        45.421373,
-        -75.626687
+        45.440336,
+        -75.629304
       ],
       [
-        45.421476,
-        -75.626349
+        45.440223,
+        -75.629243
       ],
       [
-        45.421554,
-        -75.626074
+        45.440175,
+        -75.629216
       ],
       [
-        45.42182,
-        -75.625243
+        45.440137,
+        -75.62919
       ],
       [
-        45.422133,
-        -75.624485
+        45.440094,
+        -75.62916
       ],
       [
-        45.422314,
-        -75.623949
+        45.440056,
+        -75.629132
       ],
       [
-        45.422383,
-        -75.623728
+        45.44002,
+        -75.629108
       ],
       [
-        45.422436,
-        -75.623568
+        45.43996,
+        -75.62907
       ],
       [
-        45.42248,
-        -75.623436
+        45.439876,
+        -75.629021
       ],
       [
-        45.422521,
-        -75.623285
+        45.439808,
+        -75.628982
       ],
       [
-        45.422562,
-        -75.623126
+        45.439774,
+        -75.628967
       ],
       [
-        45.422625,
-        -75.622897
+        45.439753,
+        -75.628958
       ],
       [
-        45.422673,
-        -75.622696
+        45.439727,
+        -75.628949
       ],
       [
-        45.422718,
-        -75.622475
+        45.439704,
+        -75.628942
       ],
       [
-        45.42276,
-        -75.622263
+        45.439672,
+        -75.628937
       ],
       [
-        45.422816,
-        -75.62195
+        45.439643,
+        -75.628934
       ],
       [
-        45.422943,
-        -75.621137
+        45.439617,
+        -75.628932
       ],
       [
-        45.423049,
-        -75.620396
+        45.439592,
+        -75.628925
       ],
       [
-        45.423086,
-        -75.620194
+        45.439568,
+        -75.628919
       ],
       [
-        45.423132,
-        -75.619977
+        45.439531,
+        -75.628903
       ],
       [
-        45.423172,
-        -75.619803
+        45.439486,
+        -75.628878
       ],
       [
-        45.423232,
-        -75.619574
+        45.439432,
+        -75.628845
       ],
       [
-        45.423316,
-        -75.619278
+        45.439386,
+        -75.628813
       ],
       [
-        45.423383,
-        -75.619089
+        45.43933,
+        -75.628771
       ],
       [
-        45.423418,
-        -75.618987
+        45.439282,
+        -75.628729
       ],
       [
-        45.423484,
-        -75.618809
+        45.439223,
+        -75.628679
       ],
       [
-        45.423558,
-        -75.618623
+        45.439175,
+        -75.628632
       ],
       [
-        45.423704,
-        -75.618299
+        45.439126,
+        -75.628576
       ],
       [
-        45.423773,
-        -75.618151
+        45.439074,
+        -75.628515
       ],
       [
-        45.423843,
-        -75.618017
+        45.439018,
+        -75.628437
       ],
       [
-        45.423916,
-        -75.617886
+        45.43899,
+        -75.628391
       ],
       [
-        45.423987,
-        -75.617758
+        45.438957,
+        -75.62833
       ],
       [
-        45.424059,
-        -75.617643
+        45.438923,
+        -75.628271
       ],
       [
-        45.424138,
-        -75.617525
+        45.438895,
+        -75.628221
       ],
       [
-        45.424213,
-        -75.617412
+        45.438855,
+        -75.628142
       ],
       [
-        45.424321,
-        -75.617264
+        45.438829,
+        -75.628084
       ],
       [
-        45.424426,
-        -75.617125
+        45.438799,
+        -75.628002
       ],
       [
-        45.424532,
-        -75.617001
+        45.438766,
+        -75.627903
       ],
       [
-        45.424652,
-        -75.616856
+        45.438744,
+        -75.627834
       ],
       [
-        45.424774,
-        -75.616716
+        45.438715,
+        -75.627721
       ],
       [
-        45.424921,
-        -75.61656
+        45.438685,
+        -75.627581
       ],
       [
-        45.425171,
-        -75.616309
+        45.438665,
+        -75.627457
       ],
       [
-        45.42575,
-        -75.615804
+        45.438652,
+        -75.62733
       ],
       [
-        45.426434,
-        -75.615149
+        45.438647,
+        -75.627204
       ],
       [
-        45.426676,
-        -75.614883
+        45.438644,
+        -75.627079
       ],
       [
-        45.426807,
-        -75.614732
+        45.438644,
+        -75.627004
       ],
       [
-        45.42691,
-        -75.614601
+        45.438647,
+        -75.62692
       ],
       [
-        45.427169,
-        -75.614242
+        45.438654,
+        -75.626819
       ],
       [
-        45.427254,
-        -75.614107
+        45.438666,
+        -75.626721
       ],
       [
-        45.427391,
-        -75.61388
+        45.438685,
+        -75.626622
       ],
       [
-        45.427451,
-        -75.613779
+        45.43871,
+        -75.626522
       ],
       [
-        45.427568,
-        -75.613579
+        45.438734,
+        -75.626442
       ],
       [
-        45.428834,
-        -75.611143
+        45.43876,
+        -75.626366
       ],
       [
-        45.430698,
-        -75.607575
+        45.438783,
+        -75.62631
       ],
       [
-        45.431951,
-        -75.605127
+        45.438803,
+        -75.626266
       ],
       [
-        45.432753,
-        -75.603627
+        45.438867,
+        -75.626155
       ],
       [
-        45.433172,
-        -75.602814
+        45.438924,
+        -75.626063
       ],
       [
-        45.433494,
-        -75.602165
+        45.438979,
+        -75.62597
       ],
       [
-        45.433973,
-        -75.601234
+        45.439034,
+        -75.626005
       ],
       [
-        45.434641,
-        -75.599956
+        45.439047,
+        -75.626013
       ],
       [
-        45.435086,
-        -75.59909
-      ],
-      [
-        45.435467,
-        -75.59834
-      ],
-      [
-        45.435826,
-        -75.597632
-      ],
-      [
-        45.436483,
-        -75.596337
-      ],
-      [
-        45.436828,
-        -75.595694
-      ],
-      [
-        45.437132,
-        -75.59514
-      ],
-      [
-        45.437357,
-        -75.594767
-      ],
-      [
-        45.437573,
-        -75.594426
-      ],
-      [
-        45.437759,
-        -75.594138
-      ],
-      [
-        45.437952,
-        -75.593851
-      ],
-      [
-        45.438134,
-        -75.59359
-      ],
-      [
-        45.438409,
-        -75.593213
-      ],
-      [
-        45.438716,
-        -75.592808
-      ],
-      [
-        45.438977,
-        -75.592481
-      ],
-      [
-        45.439186,
-        -75.592212
-      ],
-      [
-        45.439454,
-        -75.591885
-      ],
-      [
-        45.439581,
-        -75.591732
-      ],
-      [
-        45.43971,
-        -75.59158
-      ],
-      [
-        45.4399,
-        -75.591378
-      ],
-      [
-        45.440157,
-        -75.591108
-      ],
-      [
-        45.440401,
-        -75.590866
-      ],
-      [
-        45.440654,
-        -75.590621
-      ],
-      [
-        45.440887,
-        -75.590411
-      ],
-      [
-        45.441128,
-        -75.590196
-      ],
-      [
-        45.441335,
-        -75.590021
-      ],
-      [
-        45.441533,
-        -75.589855
-      ],
-      [
-        45.441934,
-        -75.589532
-      ],
-      [
-        45.442398,
-        -75.589182
-      ],
-      [
-        45.442916,
-        -75.588825
-      ],
-      [
-        45.443957,
-        -75.588159
-      ],
-      [
-        45.444984,
-        -75.587493
-      ],
-      [
-        45.445994,
-        -75.586832
-      ],
-      [
-        45.44712,
-        -75.586078
-      ],
-      [
-        45.448178,
-        -75.585388
-      ],
-      [
-        45.449475,
-        -75.584548
-      ],
-      [
-        45.450537,
-        -75.583863
-      ],
-      [
-        45.451247,
-        -75.583403
-      ],
-      [
-        45.451872,
-        -75.58299
-      ],
-      [
-        45.452184,
-        -75.582792
-      ],
-      [
-        45.452624,
-        -75.58251
-      ],
-      [
-        45.4531,
-        -75.582201
-      ],
-      [
-        45.453495,
-        -75.58191
-      ],
-      [
-        45.453744,
-        -75.581704
-      ],
-      [
-        45.453936,
-        -75.581538
-      ],
-      [
-        45.454163,
-        -75.581323
-      ],
-      [
-        45.454409,
-        -75.581071
-      ],
-      [
-        45.454622,
-        -75.580832
-      ],
-      [
-        45.454771,
-        -75.580659
-      ],
-      [
-        45.454957,
-        -75.580428
-      ],
-      [
-        45.455114,
-        -75.580217
-      ],
-      [
-        45.455232,
-        -75.58005
-      ],
-      [
-        45.455373,
-        -75.579844
-      ],
-      [
-        45.455606,
-        -75.579476
-      ],
-      [
-        45.455783,
-        -75.579181
-      ],
-      [
-        45.455937,
-        -75.578899
-      ],
-      [
-        45.456099,
-        -75.578591
-      ],
-      [
-        45.456325,
-        -75.578111
-      ],
-      [
-        45.456655,
-        -75.577325
-      ],
-      [
-        45.456813,
-        -75.576952
-      ],
-      [
-        45.457497,
-        -75.57534
-      ],
-      [
-        45.457877,
-        -75.574433
-      ],
-      [
-        45.458224,
-        -75.573578
-      ],
-      [
-        45.459601,
-        -75.570015
-      ],
-      [
-        45.461858,
-        -75.564184
-      ],
-      [
-        45.462582,
-        -75.562295
-      ],
-      [
-        45.462854,
-        -75.561607
-      ],
-      [
-        45.465018,
-        -75.555993
-      ],
-      [
-        45.466104,
-        -75.553183
-      ],
-      [
-        45.466178,
-        -75.552992
-      ],
-      [
-        45.466785,
-        -75.551417
-      ],
-      [
-        45.467104,
-        -75.55059
-      ],
-      [
-        45.467943,
-        -75.548419
-      ],
-      [
-        45.468357,
-        -75.547335
-      ],
-      [
-        45.468711,
-        -75.546403
-      ],
-      [
-        45.468929,
-        -75.545829
-      ],
-      [
-        45.469443,
-        -75.544477
-      ],
-      [
-        45.471152,
-        -75.54011
-      ],
-      [
-        45.472967,
-        -75.53545
-      ],
-      [
-        45.473268,
-        -75.534686
-      ],
-      [
-        45.47337,
-        -75.534428
-      ],
-      [
-        45.473526,
-        -75.534028
-      ],
-      [
-        45.475033,
-        -75.530137
-      ],
-      [
-        45.475371,
-        -75.529264
-      ],
-      [
-        45.475973,
-        -75.527665
-      ],
-      [
-        45.476279,
-        -75.526838
-      ],
-      [
-        45.47685,
-        -75.525284
-      ],
-      [
-        45.477239,
-        -75.524057
-      ],
-      [
-        45.47742,
-        -75.523498
-      ],
-      [
-        45.477554,
-        -75.523003
-      ],
-      [
-        45.477641,
-        -75.522618
-      ],
-      [
-        45.477714,
-        -75.522188
-      ],
-      [
-        45.478,
-        -75.520931
-      ],
-      [
-        45.47803,
-        -75.520708
-      ],
-      [
-        45.478044,
-        -75.52053
-      ],
-      [
-        45.478046,
-        -75.520396
-      ],
-      [
-        45.478059,
-        -75.520312
-      ],
-      [
-        45.478098,
-        -75.520231
-      ],
-      [
-        45.478192,
-        -75.520194
-      ],
-      [
-        45.478266,
-        -75.520137
-      ],
-      [
-        45.478343,
-        -75.520059
-      ],
-      [
-        45.478421,
-        -75.519938
-      ],
-      [
-        45.47853,
-        -75.5197
-      ],
-      [
-        45.478939,
-        -75.518532
-      ],
-      [
-        45.479207,
-        -75.517789
-      ],
-      [
-        45.479246,
-        -75.517681
-      ],
-      [
-        45.47929,
-        -75.517562
-      ],
-      [
-        45.479346,
-        -75.517426
-      ],
-      [
-        45.479997,
-        -75.515855
-      ],
-      [
-        45.48025,
-        -75.515238
-      ],
-      [
-        45.480445,
-        -75.514764
-      ],
-      [
-        45.480498,
-        -75.514596
-      ],
-      [
-        45.480537,
-        -75.514414
-      ],
-      [
-        45.480545,
-        -75.514276
-      ],
-      [
-        45.480532,
-        -75.514139
-      ],
-      [
-        45.480495,
-        -75.513997
-      ],
-      [
-        45.480457,
-        -75.513889
-      ],
-      [
-        45.480393,
-        -75.513781
-      ],
-      [
-        45.480326,
-        -75.513713
-      ],
-      [
-        45.480074,
-        -75.513505
-      ],
-      [
-        45.479507,
-        -75.513193
-      ],
-      [
-        45.479353,
-        -75.513117
-      ],
-      [
-        45.479194,
-        -75.513055
-      ],
-      [
-        45.479172,
-        -75.513047
-      ],
-      [
-        45.479052,
-        -75.513016
-      ],
-      [
-        45.479026,
-        -75.513014
-      ],
-      [
-        45.478962,
-        -75.513008
-      ],
-      [
-        45.47885,
-        -75.512996
-      ],
-      [
-        45.478813,
-        -75.512991
-      ],
-      [
-        45.478684,
-        -75.512976
-      ],
-      [
-        45.47851,
-        -75.512941
-      ],
-      [
-        45.478326,
-        -75.512952
-      ],
-      [
-        45.478158,
-        -75.512909
-      ],
-      [
-        45.477806,
-        -75.512738
-      ],
-      [
-        45.477766,
-        -75.512719
-      ],
-      [
-        45.477673,
-        -75.512674
-      ],
-      [
-        45.477548,
-        -75.512622
-      ],
-      [
-        45.477621,
-        -75.512521
-      ],
-      [
-        45.477666,
-        -75.512462
-      ],
-      [
-        45.477768,
-        -75.512327
-      ],
-      [
-        45.477948,
-        -75.512102
+        45.439323,
+        -75.626189
       ]
     ],
-    "departureDate": "2026-03-27",
-    "departureTime": "08:30",
-    "maxPassengers": 2,
+    "departureDate": "2026-03-26",
+    "departureTime": "23:30",
+    "maxPassengers": 4,
     "currentPassengers": 1,
     "passengerIds": [
-      "USR-2026-00013"
+      "USR-2026-00014"
     ],
-    "pricePerPassenger": 9,
-    "paymentMethod": "interac",
+    "pricePerPassenger": 7,
+    "paymentMethod": "cash",
     "status": "published",
     "departureType": "planned",
     "tripType": "unique",
     "preferences": {
       "baggageAllowed": true,
       "petsAllowed": false,
-      "smokingAllowed": false,
+      "smokingAllowed": true,
       "musicAllowed": true,
       "flexibleItinerary": false,
       "conversationLevel": "moderate",
-      "driverNote": "Test E2E console"
+      "driverNote": "Soyez à l'heure s'il vous plait , Merci ;)"
     },
-    "estimatedDistanceKm": 14,
-    "estimatedDurationMinutes": 13,
-    "notes": "Trip cree depuis le test A-Z console",
-    "id": "TRJ-2026-41835",
-    "createdAt": "2026-03-25T23:51:51.114Z",
-    "updatedAt": "2026-03-25T23:51:56.207Z"
-  },
-  {
-    "driverId": "USR-2026-00001",
-    "vehicleId": "VEH-2026-00001",
-    "departure": {
-      "label": "Campus La Cite",
-      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON",
-      "coordinates": {
-        "lat": 45.4215,
-        "lng": -75.6442
-      }
-    },
-    "arrival": {
-      "label": "Place d'Orleans",
-      "fullAddress": "110 Place d'Orleans Dr, Ottawa, ON",
-      "coordinates": {
-        "lat": 45.4777,
-        "lng": -75.5117
-      }
-    },
-    "waypoints": [],
-    "polyline": [
-      [
-        45.421495,
-        -75.64427
-      ],
-      [
-        45.421642,
-        -75.644289
-      ],
-      [
-        45.421742,
-        -75.644302
-      ],
-      [
-        45.421753,
-        -75.644142
-      ],
-      [
-        45.421771,
-        -75.643876
-      ],
-      [
-        45.421775,
-        -75.643816
-      ],
-      [
-        45.421805,
-        -75.643366
-      ],
-      [
-        45.421812,
-        -75.643269
-      ],
-      [
-        45.42179,
-        -75.643132
-      ],
-      [
-        45.421817,
-        -75.642712
-      ],
-      [
-        45.421827,
-        -75.642567
-      ],
-      [
-        45.42185,
-        -75.642443
-      ],
-      [
-        45.421888,
-        -75.642353
-      ],
-      [
-        45.421933,
-        -75.642278
-      ],
-      [
-        45.421956,
-        -75.642243
-      ],
-      [
-        45.422031,
-        -75.642196
-      ],
-      [
-        45.422081,
-        -75.642183
-      ],
-      [
-        45.422127,
-        -75.642187
-      ],
-      [
-        45.42229,
-        -75.642209
-      ],
-      [
-        45.422719,
-        -75.642264
-      ],
-      [
-        45.422816,
-        -75.642276
-      ],
-      [
-        45.422925,
-        -75.642291
-      ],
-      [
-        45.4235,
-        -75.642375
-      ],
-      [
-        45.423695,
-        -75.642404
-      ],
-      [
-        45.423767,
-        -75.642411
-      ],
-      [
-        45.423835,
-        -75.64241
-      ],
-      [
-        45.423858,
-        -75.642406
-      ],
-      [
-        45.423886,
-        -75.642396
-      ],
-      [
-        45.423927,
-        -75.64237
-      ],
-      [
-        45.423964,
-        -75.642336
-      ],
-      [
-        45.423992,
-        -75.642298
-      ],
-      [
-        45.424018,
-        -75.642246
-      ],
-      [
-        45.424034,
-        -75.642191
-      ],
-      [
-        45.424045,
-        -75.642128
-      ],
-      [
-        45.42405,
-        -75.642051
-      ],
-      [
-        45.424054,
-        -75.64179
-      ],
-      [
-        45.424054,
-        -75.641656
-      ],
-      [
-        45.424045,
-        -75.640802
-      ],
-      [
-        45.424046,
-        -75.640422
-      ],
-      [
-        45.424045,
-        -75.640262
-      ],
-      [
-        45.424041,
-        -75.640071
-      ],
-      [
-        45.424032,
-        -75.639424
-      ],
-      [
-        45.424032,
-        -75.638973
-      ],
-      [
-        45.424036,
-        -75.638735
-      ],
-      [
-        45.424044,
-        -75.638416
-      ],
-      [
-        45.424051,
-        -75.638262
-      ],
-      [
-        45.424068,
-        -75.638061
-      ],
-      [
-        45.424057,
-        -75.637801
-      ],
-      [
-        45.424056,
-        -75.637701
-      ],
-      [
-        45.424051,
-        -75.637612
-      ],
-      [
-        45.424041,
-        -75.63754
-      ],
-      [
-        45.424021,
-        -75.637466
-      ],
-      [
-        45.424,
-        -75.637413
-      ],
-      [
-        45.423972,
-        -75.637369
-      ],
-      [
-        45.423923,
-        -75.637311
-      ],
-      [
-        45.423814,
-        -75.637194
-      ],
-      [
-        45.423271,
-        -75.636887
-      ],
-      [
-        45.422917,
-        -75.636688
-      ],
-      [
-        45.422677,
-        -75.636552
-      ],
-      [
-        45.422432,
-        -75.636414
-      ],
-      [
-        45.422371,
-        -75.63638
-      ],
-      [
-        45.422307,
-        -75.636343
-      ],
-      [
-        45.422229,
-        -75.636297
-      ],
-      [
-        45.422062,
-        -75.636207
-      ],
-      [
-        45.421842,
-        -75.636078
-      ],
-      [
-        45.421434,
-        -75.635849
-      ],
-      [
-        45.421176,
-        -75.635694
-      ],
-      [
-        45.421123,
-        -75.635663
-      ],
-      [
-        45.420998,
-        -75.635592
-      ],
-      [
-        45.420709,
-        -75.635418
-      ],
-      [
-        45.420518,
-        -75.63531
-      ],
-      [
-        45.419961,
-        -75.635149
-      ],
-      [
-        45.419845,
-        -75.635122
-      ],
-      [
-        45.419775,
-        -75.635105
-      ],
-      [
-        45.41971,
-        -75.635097
-      ],
-      [
-        45.419647,
-        -75.635098
-      ],
-      [
-        45.419577,
-        -75.635107
-      ],
-      [
-        45.419516,
-        -75.635123
-      ],
-      [
-        45.419455,
-        -75.63516
-      ],
-      [
-        45.419402,
-        -75.63521
-      ],
-      [
-        45.419356,
-        -75.635274
-      ],
-      [
-        45.419317,
-        -75.635353
-      ],
-      [
-        45.419288,
-        -75.635443
-      ],
-      [
-        45.419267,
-        -75.635538
-      ],
-      [
-        45.419261,
-        -75.635627
-      ],
-      [
-        45.419265,
-        -75.63573
-      ],
-      [
-        45.419282,
-        -75.635825
-      ],
-      [
-        45.41931,
-        -75.635907
-      ],
-      [
-        45.419344,
-        -75.635984
-      ],
-      [
-        45.419391,
-        -75.636054
-      ],
-      [
-        45.419443,
-        -75.636105
-      ],
-      [
-        45.419505,
-        -75.636154
-      ],
-      [
-        45.419562,
-        -75.636178
-      ],
-      [
-        45.419626,
-        -75.63619
-      ],
-      [
-        45.41969,
-        -75.636183
-      ],
-      [
-        45.41975,
-        -75.636166
-      ],
-      [
-        45.419807,
-        -75.636133
-      ],
-      [
-        45.419859,
-        -75.636085
-      ],
-      [
-        45.419905,
-        -75.636026
-      ],
-      [
-        45.419939,
-        -75.63597
-      ],
-      [
-        45.419967,
-        -75.635908
-      ],
-      [
-        45.419994,
-        -75.635842
-      ],
-      [
-        45.420025,
-        -75.635731
-      ],
-      [
-        45.42005,
-        -75.635604
-      ],
-      [
-        45.420093,
-        -75.635279
-      ],
-      [
-        45.420143,
-        -75.634765
-      ],
-      [
-        45.420313,
-        -75.633353
-      ],
-      [
-        45.420392,
-        -75.632246
-      ],
-      [
-        45.420443,
-        -75.631702
-      ],
-      [
-        45.420495,
-        -75.631212
-      ],
-      [
-        45.420501,
-        -75.631169
-      ],
-      [
-        45.420542,
-        -75.63084
-      ],
-      [
-        45.420653,
-        -75.630093
-      ],
-      [
-        45.420688,
-        -75.629849
-      ],
-      [
-        45.420748,
-        -75.629456
-      ],
-      [
-        45.420819,
-        -75.629055
-      ],
-      [
-        45.420868,
-        -75.628787
-      ],
-      [
-        45.421044,
-        -75.627968
-      ],
-      [
-        45.42114,
-        -75.627541
-      ],
-      [
-        45.421373,
-        -75.626687
-      ],
-      [
-        45.421476,
-        -75.626349
-      ],
-      [
-        45.421554,
-        -75.626074
-      ],
-      [
-        45.42182,
-        -75.625243
-      ],
-      [
-        45.422133,
-        -75.624485
-      ],
-      [
-        45.422314,
-        -75.623949
-      ],
-      [
-        45.422383,
-        -75.623728
-      ],
-      [
-        45.422436,
-        -75.623568
-      ],
-      [
-        45.42248,
-        -75.623436
-      ],
-      [
-        45.422521,
-        -75.623285
-      ],
-      [
-        45.422562,
-        -75.623126
-      ],
-      [
-        45.422625,
-        -75.622897
-      ],
-      [
-        45.422673,
-        -75.622696
-      ],
-      [
-        45.422718,
-        -75.622475
-      ],
-      [
-        45.42276,
-        -75.622263
-      ],
-      [
-        45.422816,
-        -75.62195
-      ],
-      [
-        45.422943,
-        -75.621137
-      ],
-      [
-        45.423049,
-        -75.620396
-      ],
-      [
-        45.423086,
-        -75.620194
-      ],
-      [
-        45.423132,
-        -75.619977
-      ],
-      [
-        45.423172,
-        -75.619803
-      ],
-      [
-        45.423232,
-        -75.619574
-      ],
-      [
-        45.423316,
-        -75.619278
-      ],
-      [
-        45.423383,
-        -75.619089
-      ],
-      [
-        45.423418,
-        -75.618987
-      ],
-      [
-        45.423484,
-        -75.618809
-      ],
-      [
-        45.423558,
-        -75.618623
-      ],
-      [
-        45.423704,
-        -75.618299
-      ],
-      [
-        45.423773,
-        -75.618151
-      ],
-      [
-        45.423843,
-        -75.618017
-      ],
-      [
-        45.423916,
-        -75.617886
-      ],
-      [
-        45.423987,
-        -75.617758
-      ],
-      [
-        45.424059,
-        -75.617643
-      ],
-      [
-        45.424138,
-        -75.617525
-      ],
-      [
-        45.424213,
-        -75.617412
-      ],
-      [
-        45.424321,
-        -75.617264
-      ],
-      [
-        45.424426,
-        -75.617125
-      ],
-      [
-        45.424532,
-        -75.617001
-      ],
-      [
-        45.424652,
-        -75.616856
-      ],
-      [
-        45.424774,
-        -75.616716
-      ],
-      [
-        45.424921,
-        -75.61656
-      ],
-      [
-        45.425171,
-        -75.616309
-      ],
-      [
-        45.42575,
-        -75.615804
-      ],
-      [
-        45.426434,
-        -75.615149
-      ],
-      [
-        45.426676,
-        -75.614883
-      ],
-      [
-        45.426807,
-        -75.614732
-      ],
-      [
-        45.42691,
-        -75.614601
-      ],
-      [
-        45.427169,
-        -75.614242
-      ],
-      [
-        45.427254,
-        -75.614107
-      ],
-      [
-        45.427391,
-        -75.61388
-      ],
-      [
-        45.427451,
-        -75.613779
-      ],
-      [
-        45.427568,
-        -75.613579
-      ],
-      [
-        45.428834,
-        -75.611143
-      ],
-      [
-        45.430698,
-        -75.607575
-      ],
-      [
-        45.431951,
-        -75.605127
-      ],
-      [
-        45.432753,
-        -75.603627
-      ],
-      [
-        45.433172,
-        -75.602814
-      ],
-      [
-        45.433494,
-        -75.602165
-      ],
-      [
-        45.433973,
-        -75.601234
-      ],
-      [
-        45.434641,
-        -75.599956
-      ],
-      [
-        45.435086,
-        -75.59909
-      ],
-      [
-        45.435467,
-        -75.59834
-      ],
-      [
-        45.435826,
-        -75.597632
-      ],
-      [
-        45.436483,
-        -75.596337
-      ],
-      [
-        45.436828,
-        -75.595694
-      ],
-      [
-        45.437132,
-        -75.59514
-      ],
-      [
-        45.437357,
-        -75.594767
-      ],
-      [
-        45.437573,
-        -75.594426
-      ],
-      [
-        45.437759,
-        -75.594138
-      ],
-      [
-        45.437952,
-        -75.593851
-      ],
-      [
-        45.438134,
-        -75.59359
-      ],
-      [
-        45.438409,
-        -75.593213
-      ],
-      [
-        45.438716,
-        -75.592808
-      ],
-      [
-        45.438977,
-        -75.592481
-      ],
-      [
-        45.439186,
-        -75.592212
-      ],
-      [
-        45.439454,
-        -75.591885
-      ],
-      [
-        45.439581,
-        -75.591732
-      ],
-      [
-        45.43971,
-        -75.59158
-      ],
-      [
-        45.4399,
-        -75.591378
-      ],
-      [
-        45.440157,
-        -75.591108
-      ],
-      [
-        45.440401,
-        -75.590866
-      ],
-      [
-        45.440654,
-        -75.590621
-      ],
-      [
-        45.440887,
-        -75.590411
-      ],
-      [
-        45.441128,
-        -75.590196
-      ],
-      [
-        45.441335,
-        -75.590021
-      ],
-      [
-        45.441533,
-        -75.589855
-      ],
-      [
-        45.441934,
-        -75.589532
-      ],
-      [
-        45.442398,
-        -75.589182
-      ],
-      [
-        45.442916,
-        -75.588825
-      ],
-      [
-        45.443957,
-        -75.588159
-      ],
-      [
-        45.444984,
-        -75.587493
-      ],
-      [
-        45.445994,
-        -75.586832
-      ],
-      [
-        45.44712,
-        -75.586078
-      ],
-      [
-        45.448178,
-        -75.585388
-      ],
-      [
-        45.449475,
-        -75.584548
-      ],
-      [
-        45.450537,
-        -75.583863
-      ],
-      [
-        45.451247,
-        -75.583403
-      ],
-      [
-        45.451872,
-        -75.58299
-      ],
-      [
-        45.452184,
-        -75.582792
-      ],
-      [
-        45.452624,
-        -75.58251
-      ],
-      [
-        45.4531,
-        -75.582201
-      ],
-      [
-        45.453495,
-        -75.58191
-      ],
-      [
-        45.453744,
-        -75.581704
-      ],
-      [
-        45.453936,
-        -75.581538
-      ],
-      [
-        45.454163,
-        -75.581323
-      ],
-      [
-        45.454409,
-        -75.581071
-      ],
-      [
-        45.454622,
-        -75.580832
-      ],
-      [
-        45.454771,
-        -75.580659
-      ],
-      [
-        45.454957,
-        -75.580428
-      ],
-      [
-        45.455114,
-        -75.580217
-      ],
-      [
-        45.455232,
-        -75.58005
-      ],
-      [
-        45.455373,
-        -75.579844
-      ],
-      [
-        45.455606,
-        -75.579476
-      ],
-      [
-        45.455783,
-        -75.579181
-      ],
-      [
-        45.455937,
-        -75.578899
-      ],
-      [
-        45.456099,
-        -75.578591
-      ],
-      [
-        45.456325,
-        -75.578111
-      ],
-      [
-        45.456655,
-        -75.577325
-      ],
-      [
-        45.456813,
-        -75.576952
-      ],
-      [
-        45.457497,
-        -75.57534
-      ],
-      [
-        45.457877,
-        -75.574433
-      ],
-      [
-        45.458224,
-        -75.573578
-      ],
-      [
-        45.459601,
-        -75.570015
-      ],
-      [
-        45.461858,
-        -75.564184
-      ],
-      [
-        45.462582,
-        -75.562295
-      ],
-      [
-        45.462854,
-        -75.561607
-      ],
-      [
-        45.465018,
-        -75.555993
-      ],
-      [
-        45.466104,
-        -75.553183
-      ],
-      [
-        45.466178,
-        -75.552992
-      ],
-      [
-        45.466785,
-        -75.551417
-      ],
-      [
-        45.467104,
-        -75.55059
-      ],
-      [
-        45.467943,
-        -75.548419
-      ],
-      [
-        45.468357,
-        -75.547335
-      ],
-      [
-        45.468711,
-        -75.546403
-      ],
-      [
-        45.468929,
-        -75.545829
-      ],
-      [
-        45.469443,
-        -75.544477
-      ],
-      [
-        45.471152,
-        -75.54011
-      ],
-      [
-        45.472967,
-        -75.53545
-      ],
-      [
-        45.473268,
-        -75.534686
-      ],
-      [
-        45.47337,
-        -75.534428
-      ],
-      [
-        45.473526,
-        -75.534028
-      ],
-      [
-        45.475033,
-        -75.530137
-      ],
-      [
-        45.475371,
-        -75.529264
-      ],
-      [
-        45.475973,
-        -75.527665
-      ],
-      [
-        45.476279,
-        -75.526838
-      ],
-      [
-        45.47685,
-        -75.525284
-      ],
-      [
-        45.477239,
-        -75.524057
-      ],
-      [
-        45.47742,
-        -75.523498
-      ],
-      [
-        45.477554,
-        -75.523003
-      ],
-      [
-        45.477641,
-        -75.522618
-      ],
-      [
-        45.477714,
-        -75.522188
-      ],
-      [
-        45.478,
-        -75.520931
-      ],
-      [
-        45.47803,
-        -75.520708
-      ],
-      [
-        45.478044,
-        -75.52053
-      ],
-      [
-        45.478046,
-        -75.520396
-      ],
-      [
-        45.478059,
-        -75.520312
-      ],
-      [
-        45.478098,
-        -75.520231
-      ],
-      [
-        45.478192,
-        -75.520194
-      ],
-      [
-        45.478266,
-        -75.520137
-      ],
-      [
-        45.478343,
-        -75.520059
-      ],
-      [
-        45.478421,
-        -75.519938
-      ],
-      [
-        45.47853,
-        -75.5197
-      ],
-      [
-        45.478939,
-        -75.518532
-      ],
-      [
-        45.479207,
-        -75.517789
-      ],
-      [
-        45.479246,
-        -75.517681
-      ],
-      [
-        45.47929,
-        -75.517562
-      ],
-      [
-        45.479346,
-        -75.517426
-      ],
-      [
-        45.479997,
-        -75.515855
-      ],
-      [
-        45.48025,
-        -75.515238
-      ],
-      [
-        45.480445,
-        -75.514764
-      ],
-      [
-        45.480498,
-        -75.514596
-      ],
-      [
-        45.480537,
-        -75.514414
-      ],
-      [
-        45.480545,
-        -75.514276
-      ],
-      [
-        45.480532,
-        -75.514139
-      ],
-      [
-        45.480495,
-        -75.513997
-      ],
-      [
-        45.480457,
-        -75.513889
-      ],
-      [
-        45.480393,
-        -75.513781
-      ],
-      [
-        45.480326,
-        -75.513713
-      ],
-      [
-        45.480074,
-        -75.513505
-      ],
-      [
-        45.479507,
-        -75.513193
-      ],
-      [
-        45.479353,
-        -75.513117
-      ],
-      [
-        45.479194,
-        -75.513055
-      ],
-      [
-        45.479172,
-        -75.513047
-      ],
-      [
-        45.479052,
-        -75.513016
-      ],
-      [
-        45.479026,
-        -75.513014
-      ],
-      [
-        45.478962,
-        -75.513008
-      ],
-      [
-        45.47885,
-        -75.512996
-      ],
-      [
-        45.478813,
-        -75.512991
-      ],
-      [
-        45.478684,
-        -75.512976
-      ],
-      [
-        45.47851,
-        -75.512941
-      ],
-      [
-        45.478326,
-        -75.512952
-      ],
-      [
-        45.478158,
-        -75.512909
-      ],
-      [
-        45.477806,
-        -75.512738
-      ],
-      [
-        45.477766,
-        -75.512719
-      ],
-      [
-        45.477673,
-        -75.512674
-      ],
-      [
-        45.477548,
-        -75.512622
-      ],
-      [
-        45.477621,
-        -75.512521
-      ],
-      [
-        45.477666,
-        -75.512462
-      ],
-      [
-        45.477768,
-        -75.512327
-      ],
-      [
-        45.477948,
-        -75.512102
-      ]
-    ],
-    "departureDate": "2026-03-27",
-    "departureTime": "08:30",
-    "maxPassengers": 2,
-    "currentPassengers": 1,
-    "passengerIds": [
-      "USR-2026-00013"
-    ],
-    "pricePerPassenger": 9,
-    "paymentMethod": "interac",
-    "status": "published",
-    "departureType": "planned",
-    "tripType": "unique",
-    "preferences": {
-      "baggageAllowed": true,
-      "petsAllowed": false,
-      "smokingAllowed": false,
-      "musicAllowed": true,
-      "flexibleItinerary": false,
-      "conversationLevel": "moderate",
-      "driverNote": "Test E2E console"
-    },
-    "estimatedDistanceKm": 14,
-    "estimatedDurationMinutes": 13,
-    "notes": "Trip cree depuis le test A-Z console",
-    "id": "TRJ-2026-11332",
-    "createdAt": "2026-03-25T23:53:04.738Z",
-    "updatedAt": "2026-03-25T23:53:04.801Z"
-  },
-  {
-    "driverId": "USR-2026-00001",
-    "vehicleId": "VEH-2026-00001",
-    "departure": {
-      "label": "Campus La Cite",
-      "fullAddress": "801 promenade de l'Aviation, Ottawa, ON",
-      "coordinates": {
-        "lat": 45.4215,
-        "lng": -75.6442
-      }
-    },
-    "arrival": {
-      "label": "Place d'Orleans",
-      "fullAddress": "110 Place d'Orleans Dr, Ottawa, ON",
-      "coordinates": {
-        "lat": 45.4777,
-        "lng": -75.5117
-      }
-    },
-    "waypoints": [],
-    "polyline": [
-      [
-        45.421495,
-        -75.64427
-      ],
-      [
-        45.421642,
-        -75.644289
-      ],
-      [
-        45.421742,
-        -75.644302
-      ],
-      [
-        45.421753,
-        -75.644142
-      ],
-      [
-        45.421771,
-        -75.643876
-      ],
-      [
-        45.421775,
-        -75.643816
-      ],
-      [
-        45.421805,
-        -75.643366
-      ],
-      [
-        45.421812,
-        -75.643269
-      ],
-      [
-        45.42179,
-        -75.643132
-      ],
-      [
-        45.421817,
-        -75.642712
-      ],
-      [
-        45.421827,
-        -75.642567
-      ],
-      [
-        45.42185,
-        -75.642443
-      ],
-      [
-        45.421888,
-        -75.642353
-      ],
-      [
-        45.421933,
-        -75.642278
-      ],
-      [
-        45.421956,
-        -75.642243
-      ],
-      [
-        45.422031,
-        -75.642196
-      ],
-      [
-        45.422081,
-        -75.642183
-      ],
-      [
-        45.422127,
-        -75.642187
-      ],
-      [
-        45.42229,
-        -75.642209
-      ],
-      [
-        45.422719,
-        -75.642264
-      ],
-      [
-        45.422816,
-        -75.642276
-      ],
-      [
-        45.422925,
-        -75.642291
-      ],
-      [
-        45.4235,
-        -75.642375
-      ],
-      [
-        45.423695,
-        -75.642404
-      ],
-      [
-        45.423767,
-        -75.642411
-      ],
-      [
-        45.423835,
-        -75.64241
-      ],
-      [
-        45.423858,
-        -75.642406
-      ],
-      [
-        45.423886,
-        -75.642396
-      ],
-      [
-        45.423927,
-        -75.64237
-      ],
-      [
-        45.423964,
-        -75.642336
-      ],
-      [
-        45.423992,
-        -75.642298
-      ],
-      [
-        45.424018,
-        -75.642246
-      ],
-      [
-        45.424034,
-        -75.642191
-      ],
-      [
-        45.424045,
-        -75.642128
-      ],
-      [
-        45.42405,
-        -75.642051
-      ],
-      [
-        45.424054,
-        -75.64179
-      ],
-      [
-        45.424054,
-        -75.641656
-      ],
-      [
-        45.424045,
-        -75.640802
-      ],
-      [
-        45.424046,
-        -75.640422
-      ],
-      [
-        45.424045,
-        -75.640262
-      ],
-      [
-        45.424041,
-        -75.640071
-      ],
-      [
-        45.424032,
-        -75.639424
-      ],
-      [
-        45.424032,
-        -75.638973
-      ],
-      [
-        45.424036,
-        -75.638735
-      ],
-      [
-        45.424044,
-        -75.638416
-      ],
-      [
-        45.424051,
-        -75.638262
-      ],
-      [
-        45.424068,
-        -75.638061
-      ],
-      [
-        45.424057,
-        -75.637801
-      ],
-      [
-        45.424056,
-        -75.637701
-      ],
-      [
-        45.424051,
-        -75.637612
-      ],
-      [
-        45.424041,
-        -75.63754
-      ],
-      [
-        45.424021,
-        -75.637466
-      ],
-      [
-        45.424,
-        -75.637413
-      ],
-      [
-        45.423972,
-        -75.637369
-      ],
-      [
-        45.423923,
-        -75.637311
-      ],
-      [
-        45.423814,
-        -75.637194
-      ],
-      [
-        45.423271,
-        -75.636887
-      ],
-      [
-        45.422917,
-        -75.636688
-      ],
-      [
-        45.422677,
-        -75.636552
-      ],
-      [
-        45.422432,
-        -75.636414
-      ],
-      [
-        45.422371,
-        -75.63638
-      ],
-      [
-        45.422307,
-        -75.636343
-      ],
-      [
-        45.422229,
-        -75.636297
-      ],
-      [
-        45.422062,
-        -75.636207
-      ],
-      [
-        45.421842,
-        -75.636078
-      ],
-      [
-        45.421434,
-        -75.635849
-      ],
-      [
-        45.421176,
-        -75.635694
-      ],
-      [
-        45.421123,
-        -75.635663
-      ],
-      [
-        45.420998,
-        -75.635592
-      ],
-      [
-        45.420709,
-        -75.635418
-      ],
-      [
-        45.420518,
-        -75.63531
-      ],
-      [
-        45.419961,
-        -75.635149
-      ],
-      [
-        45.419845,
-        -75.635122
-      ],
-      [
-        45.419775,
-        -75.635105
-      ],
-      [
-        45.41971,
-        -75.635097
-      ],
-      [
-        45.419647,
-        -75.635098
-      ],
-      [
-        45.419577,
-        -75.635107
-      ],
-      [
-        45.419516,
-        -75.635123
-      ],
-      [
-        45.419455,
-        -75.63516
-      ],
-      [
-        45.419402,
-        -75.63521
-      ],
-      [
-        45.419356,
-        -75.635274
-      ],
-      [
-        45.419317,
-        -75.635353
-      ],
-      [
-        45.419288,
-        -75.635443
-      ],
-      [
-        45.419267,
-        -75.635538
-      ],
-      [
-        45.419261,
-        -75.635627
-      ],
-      [
-        45.419265,
-        -75.63573
-      ],
-      [
-        45.419282,
-        -75.635825
-      ],
-      [
-        45.41931,
-        -75.635907
-      ],
-      [
-        45.419344,
-        -75.635984
-      ],
-      [
-        45.419391,
-        -75.636054
-      ],
-      [
-        45.419443,
-        -75.636105
-      ],
-      [
-        45.419505,
-        -75.636154
-      ],
-      [
-        45.419562,
-        -75.636178
-      ],
-      [
-        45.419626,
-        -75.63619
-      ],
-      [
-        45.41969,
-        -75.636183
-      ],
-      [
-        45.41975,
-        -75.636166
-      ],
-      [
-        45.419807,
-        -75.636133
-      ],
-      [
-        45.419859,
-        -75.636085
-      ],
-      [
-        45.419905,
-        -75.636026
-      ],
-      [
-        45.419939,
-        -75.63597
-      ],
-      [
-        45.419967,
-        -75.635908
-      ],
-      [
-        45.419994,
-        -75.635842
-      ],
-      [
-        45.420025,
-        -75.635731
-      ],
-      [
-        45.42005,
-        -75.635604
-      ],
-      [
-        45.420093,
-        -75.635279
-      ],
-      [
-        45.420143,
-        -75.634765
-      ],
-      [
-        45.420313,
-        -75.633353
-      ],
-      [
-        45.420392,
-        -75.632246
-      ],
-      [
-        45.420443,
-        -75.631702
-      ],
-      [
-        45.420495,
-        -75.631212
-      ],
-      [
-        45.420501,
-        -75.631169
-      ],
-      [
-        45.420542,
-        -75.63084
-      ],
-      [
-        45.420653,
-        -75.630093
-      ],
-      [
-        45.420688,
-        -75.629849
-      ],
-      [
-        45.420748,
-        -75.629456
-      ],
-      [
-        45.420819,
-        -75.629055
-      ],
-      [
-        45.420868,
-        -75.628787
-      ],
-      [
-        45.421044,
-        -75.627968
-      ],
-      [
-        45.42114,
-        -75.627541
-      ],
-      [
-        45.421373,
-        -75.626687
-      ],
-      [
-        45.421476,
-        -75.626349
-      ],
-      [
-        45.421554,
-        -75.626074
-      ],
-      [
-        45.42182,
-        -75.625243
-      ],
-      [
-        45.422133,
-        -75.624485
-      ],
-      [
-        45.422314,
-        -75.623949
-      ],
-      [
-        45.422383,
-        -75.623728
-      ],
-      [
-        45.422436,
-        -75.623568
-      ],
-      [
-        45.42248,
-        -75.623436
-      ],
-      [
-        45.422521,
-        -75.623285
-      ],
-      [
-        45.422562,
-        -75.623126
-      ],
-      [
-        45.422625,
-        -75.622897
-      ],
-      [
-        45.422673,
-        -75.622696
-      ],
-      [
-        45.422718,
-        -75.622475
-      ],
-      [
-        45.42276,
-        -75.622263
-      ],
-      [
-        45.422816,
-        -75.62195
-      ],
-      [
-        45.422943,
-        -75.621137
-      ],
-      [
-        45.423049,
-        -75.620396
-      ],
-      [
-        45.423086,
-        -75.620194
-      ],
-      [
-        45.423132,
-        -75.619977
-      ],
-      [
-        45.423172,
-        -75.619803
-      ],
-      [
-        45.423232,
-        -75.619574
-      ],
-      [
-        45.423316,
-        -75.619278
-      ],
-      [
-        45.423383,
-        -75.619089
-      ],
-      [
-        45.423418,
-        -75.618987
-      ],
-      [
-        45.423484,
-        -75.618809
-      ],
-      [
-        45.423558,
-        -75.618623
-      ],
-      [
-        45.423704,
-        -75.618299
-      ],
-      [
-        45.423773,
-        -75.618151
-      ],
-      [
-        45.423843,
-        -75.618017
-      ],
-      [
-        45.423916,
-        -75.617886
-      ],
-      [
-        45.423987,
-        -75.617758
-      ],
-      [
-        45.424059,
-        -75.617643
-      ],
-      [
-        45.424138,
-        -75.617525
-      ],
-      [
-        45.424213,
-        -75.617412
-      ],
-      [
-        45.424321,
-        -75.617264
-      ],
-      [
-        45.424426,
-        -75.617125
-      ],
-      [
-        45.424532,
-        -75.617001
-      ],
-      [
-        45.424652,
-        -75.616856
-      ],
-      [
-        45.424774,
-        -75.616716
-      ],
-      [
-        45.424921,
-        -75.61656
-      ],
-      [
-        45.425171,
-        -75.616309
-      ],
-      [
-        45.42575,
-        -75.615804
-      ],
-      [
-        45.426434,
-        -75.615149
-      ],
-      [
-        45.426676,
-        -75.614883
-      ],
-      [
-        45.426807,
-        -75.614732
-      ],
-      [
-        45.42691,
-        -75.614601
-      ],
-      [
-        45.427169,
-        -75.614242
-      ],
-      [
-        45.427254,
-        -75.614107
-      ],
-      [
-        45.427391,
-        -75.61388
-      ],
-      [
-        45.427451,
-        -75.613779
-      ],
-      [
-        45.427568,
-        -75.613579
-      ],
-      [
-        45.428834,
-        -75.611143
-      ],
-      [
-        45.430698,
-        -75.607575
-      ],
-      [
-        45.431951,
-        -75.605127
-      ],
-      [
-        45.432753,
-        -75.603627
-      ],
-      [
-        45.433172,
-        -75.602814
-      ],
-      [
-        45.433494,
-        -75.602165
-      ],
-      [
-        45.433973,
-        -75.601234
-      ],
-      [
-        45.434641,
-        -75.599956
-      ],
-      [
-        45.435086,
-        -75.59909
-      ],
-      [
-        45.435467,
-        -75.59834
-      ],
-      [
-        45.435826,
-        -75.597632
-      ],
-      [
-        45.436483,
-        -75.596337
-      ],
-      [
-        45.436828,
-        -75.595694
-      ],
-      [
-        45.437132,
-        -75.59514
-      ],
-      [
-        45.437357,
-        -75.594767
-      ],
-      [
-        45.437573,
-        -75.594426
-      ],
-      [
-        45.437759,
-        -75.594138
-      ],
-      [
-        45.437952,
-        -75.593851
-      ],
-      [
-        45.438134,
-        -75.59359
-      ],
-      [
-        45.438409,
-        -75.593213
-      ],
-      [
-        45.438716,
-        -75.592808
-      ],
-      [
-        45.438977,
-        -75.592481
-      ],
-      [
-        45.439186,
-        -75.592212
-      ],
-      [
-        45.439454,
-        -75.591885
-      ],
-      [
-        45.439581,
-        -75.591732
-      ],
-      [
-        45.43971,
-        -75.59158
-      ],
-      [
-        45.4399,
-        -75.591378
-      ],
-      [
-        45.440157,
-        -75.591108
-      ],
-      [
-        45.440401,
-        -75.590866
-      ],
-      [
-        45.440654,
-        -75.590621
-      ],
-      [
-        45.440887,
-        -75.590411
-      ],
-      [
-        45.441128,
-        -75.590196
-      ],
-      [
-        45.441335,
-        -75.590021
-      ],
-      [
-        45.441533,
-        -75.589855
-      ],
-      [
-        45.441934,
-        -75.589532
-      ],
-      [
-        45.442398,
-        -75.589182
-      ],
-      [
-        45.442916,
-        -75.588825
-      ],
-      [
-        45.443957,
-        -75.588159
-      ],
-      [
-        45.444984,
-        -75.587493
-      ],
-      [
-        45.445994,
-        -75.586832
-      ],
-      [
-        45.44712,
-        -75.586078
-      ],
-      [
-        45.448178,
-        -75.585388
-      ],
-      [
-        45.449475,
-        -75.584548
-      ],
-      [
-        45.450537,
-        -75.583863
-      ],
-      [
-        45.451247,
-        -75.583403
-      ],
-      [
-        45.451872,
-        -75.58299
-      ],
-      [
-        45.452184,
-        -75.582792
-      ],
-      [
-        45.452624,
-        -75.58251
-      ],
-      [
-        45.4531,
-        -75.582201
-      ],
-      [
-        45.453495,
-        -75.58191
-      ],
-      [
-        45.453744,
-        -75.581704
-      ],
-      [
-        45.453936,
-        -75.581538
-      ],
-      [
-        45.454163,
-        -75.581323
-      ],
-      [
-        45.454409,
-        -75.581071
-      ],
-      [
-        45.454622,
-        -75.580832
-      ],
-      [
-        45.454771,
-        -75.580659
-      ],
-      [
-        45.454957,
-        -75.580428
-      ],
-      [
-        45.455114,
-        -75.580217
-      ],
-      [
-        45.455232,
-        -75.58005
-      ],
-      [
-        45.455373,
-        -75.579844
-      ],
-      [
-        45.455606,
-        -75.579476
-      ],
-      [
-        45.455783,
-        -75.579181
-      ],
-      [
-        45.455937,
-        -75.578899
-      ],
-      [
-        45.456099,
-        -75.578591
-      ],
-      [
-        45.456325,
-        -75.578111
-      ],
-      [
-        45.456655,
-        -75.577325
-      ],
-      [
-        45.456813,
-        -75.576952
-      ],
-      [
-        45.457497,
-        -75.57534
-      ],
-      [
-        45.457877,
-        -75.574433
-      ],
-      [
-        45.458224,
-        -75.573578
-      ],
-      [
-        45.459601,
-        -75.570015
-      ],
-      [
-        45.461858,
-        -75.564184
-      ],
-      [
-        45.462582,
-        -75.562295
-      ],
-      [
-        45.462854,
-        -75.561607
-      ],
-      [
-        45.465018,
-        -75.555993
-      ],
-      [
-        45.466104,
-        -75.553183
-      ],
-      [
-        45.466178,
-        -75.552992
-      ],
-      [
-        45.466785,
-        -75.551417
-      ],
-      [
-        45.467104,
-        -75.55059
-      ],
-      [
-        45.467943,
-        -75.548419
-      ],
-      [
-        45.468357,
-        -75.547335
-      ],
-      [
-        45.468711,
-        -75.546403
-      ],
-      [
-        45.468929,
-        -75.545829
-      ],
-      [
-        45.469443,
-        -75.544477
-      ],
-      [
-        45.471152,
-        -75.54011
-      ],
-      [
-        45.472967,
-        -75.53545
-      ],
-      [
-        45.473268,
-        -75.534686
-      ],
-      [
-        45.47337,
-        -75.534428
-      ],
-      [
-        45.473526,
-        -75.534028
-      ],
-      [
-        45.475033,
-        -75.530137
-      ],
-      [
-        45.475371,
-        -75.529264
-      ],
-      [
-        45.475973,
-        -75.527665
-      ],
-      [
-        45.476279,
-        -75.526838
-      ],
-      [
-        45.47685,
-        -75.525284
-      ],
-      [
-        45.477239,
-        -75.524057
-      ],
-      [
-        45.47742,
-        -75.523498
-      ],
-      [
-        45.477554,
-        -75.523003
-      ],
-      [
-        45.477641,
-        -75.522618
-      ],
-      [
-        45.477714,
-        -75.522188
-      ],
-      [
-        45.478,
-        -75.520931
-      ],
-      [
-        45.47803,
-        -75.520708
-      ],
-      [
-        45.478044,
-        -75.52053
-      ],
-      [
-        45.478046,
-        -75.520396
-      ],
-      [
-        45.478059,
-        -75.520312
-      ],
-      [
-        45.478098,
-        -75.520231
-      ],
-      [
-        45.478192,
-        -75.520194
-      ],
-      [
-        45.478266,
-        -75.520137
-      ],
-      [
-        45.478343,
-        -75.520059
-      ],
-      [
-        45.478421,
-        -75.519938
-      ],
-      [
-        45.47853,
-        -75.5197
-      ],
-      [
-        45.478939,
-        -75.518532
-      ],
-      [
-        45.479207,
-        -75.517789
-      ],
-      [
-        45.479246,
-        -75.517681
-      ],
-      [
-        45.47929,
-        -75.517562
-      ],
-      [
-        45.479346,
-        -75.517426
-      ],
-      [
-        45.479997,
-        -75.515855
-      ],
-      [
-        45.48025,
-        -75.515238
-      ],
-      [
-        45.480445,
-        -75.514764
-      ],
-      [
-        45.480498,
-        -75.514596
-      ],
-      [
-        45.480537,
-        -75.514414
-      ],
-      [
-        45.480545,
-        -75.514276
-      ],
-      [
-        45.480532,
-        -75.514139
-      ],
-      [
-        45.480495,
-        -75.513997
-      ],
-      [
-        45.480457,
-        -75.513889
-      ],
-      [
-        45.480393,
-        -75.513781
-      ],
-      [
-        45.480326,
-        -75.513713
-      ],
-      [
-        45.480074,
-        -75.513505
-      ],
-      [
-        45.479507,
-        -75.513193
-      ],
-      [
-        45.479353,
-        -75.513117
-      ],
-      [
-        45.479194,
-        -75.513055
-      ],
-      [
-        45.479172,
-        -75.513047
-      ],
-      [
-        45.479052,
-        -75.513016
-      ],
-      [
-        45.479026,
-        -75.513014
-      ],
-      [
-        45.478962,
-        -75.513008
-      ],
-      [
-        45.47885,
-        -75.512996
-      ],
-      [
-        45.478813,
-        -75.512991
-      ],
-      [
-        45.478684,
-        -75.512976
-      ],
-      [
-        45.47851,
-        -75.512941
-      ],
-      [
-        45.478326,
-        -75.512952
-      ],
-      [
-        45.478158,
-        -75.512909
-      ],
-      [
-        45.477806,
-        -75.512738
-      ],
-      [
-        45.477766,
-        -75.512719
-      ],
-      [
-        45.477673,
-        -75.512674
-      ],
-      [
-        45.477548,
-        -75.512622
-      ],
-      [
-        45.477621,
-        -75.512521
-      ],
-      [
-        45.477666,
-        -75.512462
-      ],
-      [
-        45.477768,
-        -75.512327
-      ],
-      [
-        45.477948,
-        -75.512102
-      ]
-    ],
-    "departureDate": "2026-03-27",
-    "departureTime": "08:30",
-    "maxPassengers": 2,
-    "currentPassengers": 1,
-    "passengerIds": [
-      "USR-2026-00013"
-    ],
-    "pricePerPassenger": 9,
-    "paymentMethod": "interac",
-    "status": "published",
-    "departureType": "planned",
-    "tripType": "unique",
-    "preferences": {
-      "baggageAllowed": true,
-      "petsAllowed": false,
-      "smokingAllowed": false,
-      "musicAllowed": true,
-      "flexibleItinerary": false,
-      "conversationLevel": "moderate",
-      "driverNote": "Test E2E console"
-    },
-    "estimatedDistanceKm": 14,
-    "estimatedDurationMinutes": 13,
-    "notes": "Trip cree depuis le test A-Z console",
-    "id": "TRJ-2026-55270",
-    "createdAt": "2026-03-25T23:53:53.523Z",
-    "updatedAt": "2026-03-25T23:53:53.596Z"
+    "id": "TRJ-2026-72434",
+    "passengerPrice": 8.05,
+    "createdAt": "2026-03-27T02:52:30.154Z",
+    "updatedAt": "2026-03-27T02:57:09.061Z"
   }
 ]

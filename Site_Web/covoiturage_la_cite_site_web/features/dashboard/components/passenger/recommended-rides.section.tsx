@@ -113,7 +113,7 @@ function TripCard({ trip, isPassengerListOpen, onTogglePassengerList, onClosePas
       <div className="flex flex-col justify-center w-2/11 items-center shrink-0">
         <button
           className="w-full bg-[#08316e] text-white font-bold py-2 px-4 rounded-full text-xl hover:bg-[#06214a] hover:scale-105 active:scale-95 transition-all"
-          onClick={() => router.push(`/trajets/${trip.id}`)}
+          onClick={() => router.push(`/trajets/${trip.id}?role=passenger`)}
         >
           <FaPlusCircle className="inline-block mr-2" />
           {lang === Language.FR ? "Réserver" : "Book"}

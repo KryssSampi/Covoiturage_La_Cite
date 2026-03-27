@@ -1,52 +1,55 @@
 "use client";
 
-/**
- * Page partagée des notifications — tous rôles confondus.
- * Récupère les données via API, souscrit au SSE pour les mises à jour temps réel,
- * et passe les items à NotificationsPage (composant pur).
- */
-
 import { useEffect, useCallback, useState } from "react";
 import { useAppState } from "@/core/state/app_state";
 import { NotificationsPage } from "@/features/notifications";
-import { notificationModelToNotification } from "@/features/dashboard/converters/dashboard.converter";
 import type { NotificationModel } from "@/core/models/NotificationModel";
-import type { Notification } from "@/features/dashboard/types";
 
 export default function NotificationsRoutePage() {
   const { userConnected } = useAppState();
-  const [items, setItems] = useState<Notification[]>([]);
+  const [items, setItems] = useState<NotificationModel[]>([]);
+  const [version, setVersion] = useState(0);
 
-  // Chargement des données depuis l'API
-  const loadData = useCallback(async () => {
-    if (!userConnected) return;
-    try {
-      const res = await fetch(`/api/notifications?userId=${encodeURIComponent(userConnected.id)}`);
-      if (!res.ok) return;
-      const notifications: NotificationModel[] = await res.json();
-      setItems(notifications.map(notificationModelToNotification));
-    } catch (error) {
-      console.error("[notifications] loadData", error);
-    }
-  }, [userConnected]);
+  const reload = useCallback(() => setVersion((v) => v + 1), []);
 
-  // Chargement initial
+  // Chargement initial + rechargement à chaque `version`
   useEffect(() => {
     if (!userConnected) return;
-     loadData();
-  }, [loadData, userConnected]);
+    let cancelled = false;
+    async function fetchData() {
+      try {
+        const res = await fetch(`/api/notifications?userId=${encodeURIComponent(userConnected!.id)}`);
+        if (!res.ok || cancelled) return;
+        const data: NotificationModel[] = await res.json();
+        if (!cancelled) setItems(data);
+      } catch (err) {
+        console.error("[notifications] fetchData", err);
+      }
+    }
+    void fetchData();
+    return () => { cancelled = true; };
+  }, [userConnected, version]);
 
-  // SSE : mise à jour temps réel lorsque les notifications changent
+  // SSE : rechargement sur changement DB
   useEffect(() => {
     if (!userConnected) return;
     const es = new EventSource("/api/sse/db-watch/notifications");
     let isFirst = true;
     es.addEventListener("update", () => {
       if (isFirst) { isFirst = false; return; }
-      void loadData();
+      reload();
     });
     return () => es.close();
-  }, [userConnected, loadData]);
+  }, [userConnected, reload]);
 
-  return <NotificationsPage items={items} />;
+  const onRead = useCallback(async (id: string) => {
+    try {
+      await fetch(`/api/notifications/${id}/read`, { method: "PATCH" });
+      reload();
+    } catch (err) {
+      console.error("[notifications] onRead", err);
+    }
+  }, [reload]);
+
+  return <NotificationsPage items={items} onRead={onRead} />;
 }

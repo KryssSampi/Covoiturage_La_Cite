@@ -125,9 +125,11 @@ export function NotificationsSection({
                     : `bg-gray-100 ${isDriver ? "border-blue-400" : "border-[#08316e]"}`
                   }`}
                 onClick={() => {
+                  const uid  = appState.userConnected?.id;
+                  if (!uid) return;
                   const role = appState.userConnected?.role?.toString().toLowerCase() ?? 'passenger';
                   router.push(
-                    `/${role}/notifications/${appState.userConnected?.id}?notificationid=${notification.id}`
+                    `/${role}/notifications/${uid}?notificationid=${notification.id}`
                   );
                 }}
               >

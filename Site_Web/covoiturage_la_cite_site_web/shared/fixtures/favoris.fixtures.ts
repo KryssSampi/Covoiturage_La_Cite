@@ -11,7 +11,7 @@ export const CAMPUS_LA_CITE: LieuFavoriUnifie = {
   id: 'campus-la-cite',
   pseudonyme: 'Campus La Cité',
   adresse: '801, promenade de l\'Aviation K1K 4R3, Ontario, Ottawa, Canada',
-  coordonnees: { lat: 45.4215, lng: -75.6830 },
+  coordonnees: { lat: 45.439453490367846, lng: -75.62678911601688 }, // Coordonnées officielles corrigées
   iconTag: 'campus',
   isAnchored: true,
   hasOffScreenButton: true,

@@ -4,6 +4,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import type { CursorMode, MarkerStatus, ZoneCampus } from '../types'
 import { MAP_COLORS } from '../constants'
+// Ajout des icônes React pour les pins
+import { FaHome, FaSchool, FaStar, FaBus, FaLandmark, FaHospital, FaBook, FaGavel, FaFireExtinguisher, FaUsers, FaBuilding, FaBalanceScale, FaShieldAlt } from 'react-icons/fa'
+import { renderToStaticMarkup } from 'react-dom/server'
 
 // ── Import Leaflet (lazy — évite les erreurs SSR) ────────────────────────────
 type LeafletType = typeof import('leaflet')
@@ -143,10 +146,30 @@ export async function createArriveeIcon() {
 // ═══════════════════════════════════════════════════════════════════════════
 // 4. MARQUEUR POINT DE RENCONTRE CAMPUS
 // ═══════════════════════════════════════════════════════════════════════════
+// Mapping des icônes React pour les zones campus (retourne du SVG statique)
+function getCampusIconSVG(type: string): string {
+  switch (type) {
+    case 'maison':
+      return renderToStaticMarkup(FaHome({ color: '#0aad6a', size: 20 }));
+    case 'ecole':
+      return renderToStaticMarkup(FaSchool({ color: '#08316e', size: 20 }));
+    case 'star':
+      return renderToStaticMarkup(FaStar({ color: '#fbbf24', size: 20 }));
+    case 'bus':
+      return renderToStaticMarkup(FaBus({ color: '#e11d48', size: 20 }));
+    case 'autre':
+      return renderToStaticMarkup(FaLandmark({ color: '#2563eb', size: 20 }));
+    default:
+      return renderToStaticMarkup(FaStar({ color: '#fbbf24', size: 20 }));
+  }
+}
+
 export function rencontreSVG(zone: ZoneCampus, selected = false): string {
-  const bg     = selected ? MAP_COLORS.rencontre : 'white'
-  const border = MAP_COLORS.rencontre
-  const iconColor = selected ? 'white' : MAP_COLORS.rencontre
+  const bg     = selected ? MAP_COLORS.rencontre : 'white';
+  const border = MAP_COLORS.rencontre;
+  // Sélectionne l'icône React selon le type de zone, fallback sur FaStar
+  // Récupère le SVG statique de l'icône React
+  const iconSVG = getCampusIconSVG(zone.icone);
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="44" viewBox="0 0 36 44">
   <defs>
@@ -158,8 +181,8 @@ export function rencontreSVG(zone: ZoneCampus, selected = false): string {
         fill="${bg}" stroke="${border}" stroke-width="2" filter="url(#ms-ren)"/>
   <circle cx="18" cy="18" r="10" fill="${selected ? 'rgba(255,255,255,0.2)' : MAP_COLORS.rencontre + '15'}"
           stroke="${border}" stroke-width="1.5"/>
-  <text x="18" y="23" text-anchor="middle" font-size="13" fill="${iconColor}">${zone.icone}</text>
-</svg>`.trim()
+  <g transform="translate(8,8)">${iconSVG}</g>
+</svg>`.trim();
 }
 
 export async function createRencontreIcon(zone: ZoneCampus, selected = false) {
@@ -288,7 +311,25 @@ export async function createClusterIcon(count: number) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Icône étoile par défaut (travail, ville, autre…) */
-export function favoriSVG(label: string, color: string): string {
+// Mapping des icônes React pour les favoris (retourne du SVG statique)
+function getFavoriIconSVG(type?: string): string {
+  switch (type) {
+    case 'domicile':
+      return renderToStaticMarkup(FaHome({ color: '#0aad6a', size: 18 }));
+    case 'campus':
+      return renderToStaticMarkup(FaSchool({ color: '#08316e', size: 18 }));
+    case 'travail':
+      return renderToStaticMarkup(FaLandmark({ color: '#2563eb', size: 18 }));
+    case 'autre':
+      return renderToStaticMarkup(FaStar({ color: '#fbbf24', size: 18 }));
+    default:
+      return renderToStaticMarkup(FaStar({ color: '#fbbf24', size: 18 }));
+  }
+}
+
+export function favoriSVG(label: string, color: string, iconTag?: string): string {
+  // Récupère le SVG statique de l'icône React
+  const iconSVG = getFavoriIconSVG(iconTag);
   return `
 <svg xmlns="http://www.w3.org/2000/svg" width="30" height="38" viewBox="0 0 30 38">
   <defs>
@@ -299,9 +340,8 @@ export function favoriSVG(label: string, color: string): string {
   <path d="M15 2 C8 2 2 8 2 15 C2 24 15 36 15 36 C15 36 28 24 28 15 C28 8 22 2 15 2Z"
         fill="${color}" stroke="white" stroke-width="1.5" filter="url(#ms-fav)"/>
   <circle cx="15" cy="14" r="7" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.5)" stroke-width="0.8"/>
-  <polygon points="15,8 16.6,12.2 21,12.5 17.7,15.3 18.8,19.5 15,17 11.2,19.5 12.3,15.3 9,12.5 13.4,12.2"
-           fill="white"/>
-</svg>`.trim()
+  <g transform="translate(7,7)">${iconSVG}</g>
+</svg>`.trim();
 }
 
 /** Icône maison (domicile) — visible dans le teardrop */
@@ -353,4 +393,80 @@ export async function createFavoriIcon(label: string, color: string = MAP_COLORS
     html = favoriSVG(label, color)
   }
   return createDivIcon(html, [30, 38], [15, 36], [0, -36])
+}
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// 11. MARQUEUR BATIMENT PUBLIC
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+export type PublicServiceType =
+  | 'school'
+  | 'hospital'
+  | 'library'
+  | 'townhall'
+  | 'police'
+  | 'fire_station'
+  | 'community_centre'
+  | 'public_building'
+  | 'courthouse'
+
+
+// Mapping des icônes React pour les lieux publics (retourne du SVG statique)
+function getPublicServiceIconSVG(type: PublicServiceType): string {
+  switch (type) {
+    case 'school':
+      return renderToStaticMarkup(FaSchool({ color: MAP_COLORS.school, size: 16 }));
+    case 'hospital':
+      return renderToStaticMarkup(FaHospital({ color: MAP_COLORS.hospital, size: 16 }));
+    case 'library':
+      return renderToStaticMarkup(FaBook({ color: MAP_COLORS.brand, size: 16 }));
+    case 'townhall':
+      return renderToStaticMarkup(FaLandmark({ color: MAP_COLORS.brandLight, size: 16 }));
+    case 'police':
+      return renderToStaticMarkup(FaShieldAlt({ color: MAP_COLORS.routeAlt, size: 16 }));
+    case 'fire_station':
+      return renderToStaticMarkup(FaFireExtinguisher({ color: MAP_COLORS.urgence, size: 16 }));
+    case 'community_centre':
+      return renderToStaticMarkup(FaUsers({ color: MAP_COLORS.rencontre, size: 16 }));
+    case 'public_building':
+      return renderToStaticMarkup(FaBuilding({ color: MAP_COLORS.brandDark, size: 16 }));
+    case 'courthouse':
+      return renderToStaticMarkup(FaGavel({ color: MAP_COLORS.brandDark, size: 16 }));
+    default:
+      return renderToStaticMarkup(FaBalanceScale({ color: MAP_COLORS.brandDark, size: 16 }));
+  }
+}
+
+export function publicServiceSVG(type: PublicServiceType): string {
+  // Récupère le SVG statique de l'icône React
+  const iconSVG = getPublicServiceIconSVG(type);
+  // Couleur de fond selon le type
+  let color: string = MAP_COLORS.brandDark;
+  switch (type) {
+    case 'school': color = MAP_COLORS.school; break;
+    case 'hospital': color = MAP_COLORS.hospital; break;
+    case 'library': color = MAP_COLORS.brand; break;
+    case 'townhall': color = MAP_COLORS.brandLight; break;
+    case 'police': color = MAP_COLORS.routeAlt; break;
+    case 'fire_station': color = MAP_COLORS.urgence; break;
+    case 'community_centre': color = MAP_COLORS.rencontre; break;
+    case 'public_building': color = MAP_COLORS.brandDark; break;
+    case 'courthouse': color = MAP_COLORS.brandDark; break;
+    default: color = MAP_COLORS.brandDark; break;
+  }
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+  <defs>
+    <filter id="ms-pub" x="-35%" y="-35%" width="170%" height="170%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="rgba(0,0,0,0.18)"/>
+    </filter>
+  </defs>
+  <circle cx="14" cy="14" r="11.5" fill="white" stroke="${color}" stroke-width="2"
+          filter="url(#ms-pub)"/>
+  <circle cx="14" cy="14" r="9.2" fill="${color}" opacity="0.12"/>
+  <g transform="translate(7,7)">${iconSVG}</g>
+</svg>`.trim();
+}
+
+export async function createPublicServiceIcon(type: PublicServiceType) {
+  return createDivIcon(publicServiceSVG(type), [28, 28], [14, 14], [0, -14])
 }

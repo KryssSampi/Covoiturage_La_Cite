@@ -13,6 +13,7 @@
  *   - RidesEmptyState   → état vide
  */
 
+import { useState } from "react";
 import { useRideArea }         from "@/features/planner/hooks/useRideArea";
 import { RidesAreaHeader }     from "@/features/planner/components/shared/rides/RidesAreaHeader";
 import { RidesStatusLegend }   from "@/features/planner/components/shared/rides/RidesStatusLegend";
@@ -28,7 +29,9 @@ import { RidesEmptyState }     from "@/features/planner/components/shared/rides/
  * Orchestrateur léger : délègue toute la logique à useRideArea et assemble
  * les sous-composants indépendants.
  */
-export function RideArea() {
+export function RideArea({ onRefresh }: { onRefresh?: () => Promise<void> }) {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const {
     isFr, isDriver, lang,
     showAll, setShowAll,
@@ -40,8 +43,14 @@ export function RideArea() {
     rawDayRides, visibleRides, statusCounts,
     statusKeys, statusLabels,
     formatStatus, getStatusColor,
-    onCancelTrip, onCancelReservation, onStartReservation,
+    onCancelTrip, onCancelReservation, onStartReservation, onStartTrip,
   } = useRideArea();
+
+  async function handleRefresh() {
+    if (!onRefresh) return;
+    setIsRefreshing(true);
+    try { await onRefresh(); } finally { setIsRefreshing(false); }
+  }
 
   return (
     <section className="w-full h-full bg-gray-50 flex flex-col overflow-hidden">
@@ -57,6 +66,8 @@ export function RideArea() {
         onNextDay={goNextDay}
         onToday={goToday}
         onToggleShowAll={() => setShowAll(!showAll)}
+        onRefresh={onRefresh ? handleRefresh : undefined}
+        isRefreshing={isRefreshing}
       />
 
       {/* ── Légende de statuts (filtre rapide) ─────────────────────────── */}
@@ -101,6 +112,7 @@ export function RideArea() {
             onCancelTrip={onCancelTrip}
             onCancelReservation={onCancelReservation}
             onStartReservation={onStartReservation}
+            onStartTrip={onStartTrip}
           />
         )}
       </div>

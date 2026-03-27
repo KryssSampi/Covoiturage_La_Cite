@@ -241,18 +241,18 @@ export const TripHeaderCard: React.FC<TripHeaderCardProps> = ({
       </div>
 
       {/* ── Prix + véhicule ── */}
-      <div className="flex  items-end justify-between -mt-30 mb-5">
+      <div className="flex  items-end justify-between -mt-25 mb-5">
         <div>
-          <p className="text-3xl font-extrabold" style={{ color: '#08316e' }}>
-            +{price} $
-          </p>
           {(departureDate || departureTime) && (
-            <p className="text-sm flex gap-x-3 text-gray-500 mt-0.5">
+            <p className="text-sm flex  items-baseline  gap-x-3 text-gray-500 mt-1">
               <FaCalendarDays size={16} color="#08316e" />
               {departureDate}{departureDate && departureTime && ', '}{departureTime}
               <span>
                 <span className="font-black"> En </span> {vehicle.label}, {vehicle.color}
               </span>
+           <span className="text-3xl font-extrabold ml-10" style={{ color: '#08316e' }}>
+            +{price} $
+          </span>
             </p>
           )}
           {!departureDate && !departureTime && (
@@ -262,8 +262,8 @@ export const TripHeaderCard: React.FC<TripHeaderCardProps> = ({
               </span>
             </p>
           )}
-      
         </div>
+  
         {/* Photo du véhicule — fallback vers le placeholder */}
         <div className=" flex flex-col items-center justify-center gap-1">
         <div className="w-55 h-35 rounded-xl overflow-hidden bg-gray-100 shrink-0">

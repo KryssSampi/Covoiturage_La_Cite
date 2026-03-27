@@ -4,7 +4,7 @@
     "driverId": "USR-2026-00001",
     "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
     "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
-    "departureDate": "2026-03-31",
+    "departureDate": "2026-04-01",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00001",
     "maxPassengers": 3,
@@ -53,15 +53,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:00:00.000Z",
-    "updatedAt": "2026-03-25T09:00:00.000Z"
+    "createdAt": "2026-03-25T14:00:00.000Z",
+    "updatedAt": "2026-03-26T09:00:00.000Z"
   },
   {
     "id": "DRF-2026-00002",
     "driverId": "USR-2026-00001",
     "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
     "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
-    "departureDate": "2026-04-01",
+    "departureDate": "2026-04-02",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00001",
     "maxPassengers": 3,
@@ -110,15 +110,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:01:00.000Z",
-    "updatedAt": "2026-03-25T09:01:00.000Z"
+    "createdAt": "2026-03-25T14:01:00.000Z",
+    "updatedAt": "2026-03-26T09:01:00.000Z"
   },
   {
     "id": "DRF-2026-00003",
     "driverId": "USR-2026-00001",
     "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
     "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
-    "departureDate": "2026-04-02",
+    "departureDate": "2026-04-03",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00001",
     "maxPassengers": 3,
@@ -167,15 +167,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:02:00.000Z",
-    "updatedAt": "2026-03-25T09:02:00.000Z"
+    "createdAt": "2026-03-25T14:02:00.000Z",
+    "updatedAt": "2026-03-26T09:02:00.000Z"
   },
   {
     "id": "DRF-2026-00004",
     "driverId": "USR-2026-00001",
     "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
     "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
-    "departureDate": "2026-04-03",
+    "departureDate": "2026-04-04",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00001",
     "maxPassengers": 3,
@@ -224,15 +224,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:03:00.000Z",
-    "updatedAt": "2026-03-25T09:03:00.000Z"
+    "createdAt": "2026-03-25T14:03:00.000Z",
+    "updatedAt": "2026-03-26T09:03:00.000Z"
   },
   {
     "id": "DRF-2026-00004",
     "driverId": "USR-2026-00002",
     "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
     "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
-    "departureDate": "2026-04-01",
+    "departureDate": "2026-04-02",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00002",
     "maxPassengers": 3,
@@ -281,15 +281,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:01:00.000Z",
-    "updatedAt": "2026-03-25T09:01:00.000Z"
+    "createdAt": "2026-03-25T14:01:00.000Z",
+    "updatedAt": "2026-03-26T09:01:00.000Z"
   },
   {
     "id": "DRF-2026-00005",
     "driverId": "USR-2026-00002",
     "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
     "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
-    "departureDate": "2026-04-02",
+    "departureDate": "2026-04-03",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00002",
     "maxPassengers": 3,
@@ -338,15 +338,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:02:00.000Z",
-    "updatedAt": "2026-03-25T09:02:00.000Z"
+    "createdAt": "2026-03-25T14:02:00.000Z",
+    "updatedAt": "2026-03-26T09:02:00.000Z"
   },
   {
     "id": "DRF-2026-00006",
     "driverId": "USR-2026-00002",
     "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
     "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
-    "departureDate": "2026-04-03",
+    "departureDate": "2026-04-04",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00002",
     "maxPassengers": 3,
@@ -395,15 +395,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:03:00.000Z",
-    "updatedAt": "2026-03-25T09:03:00.000Z"
+    "createdAt": "2026-03-25T14:03:00.000Z",
+    "updatedAt": "2026-03-26T09:03:00.000Z"
   },
   {
     "id": "DRF-2026-00007",
     "driverId": "USR-2026-00002",
     "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
     "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
-    "departureDate": "2026-04-04",
+    "departureDate": "2026-04-05",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00002",
     "maxPassengers": 3,
@@ -452,15 +452,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:04:00.000Z",
-    "updatedAt": "2026-03-25T09:04:00.000Z"
+    "createdAt": "2026-03-25T14:04:00.000Z",
+    "updatedAt": "2026-03-26T09:04:00.000Z"
   },
   {
     "id": "DRF-2026-00007",
     "driverId": "USR-2026-00003",
     "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
     "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
-    "departureDate": "2026-04-02",
+    "departureDate": "2026-04-03",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00003",
     "maxPassengers": 3,
@@ -509,15 +509,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:02:00.000Z",
-    "updatedAt": "2026-03-25T09:02:00.000Z"
+    "createdAt": "2026-03-25T14:02:00.000Z",
+    "updatedAt": "2026-03-26T09:02:00.000Z"
   },
   {
     "id": "DRF-2026-00008",
     "driverId": "USR-2026-00003",
     "departureLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
     "arrivalLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
-    "departureDate": "2026-04-03",
+    "departureDate": "2026-04-04",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00003",
     "maxPassengers": 3,
@@ -566,15 +566,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:03:00.000Z",
-    "updatedAt": "2026-03-25T09:03:00.000Z"
+    "createdAt": "2026-03-25T14:03:00.000Z",
+    "updatedAt": "2026-03-26T09:03:00.000Z"
   },
   {
     "id": "DRF-2026-00009",
     "driverId": "USR-2026-00003",
     "departureLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
     "arrivalLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
-    "departureDate": "2026-04-04",
+    "departureDate": "2026-04-05",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00003",
     "maxPassengers": 3,
@@ -623,15 +623,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:04:00.000Z",
-    "updatedAt": "2026-03-25T09:04:00.000Z"
+    "createdAt": "2026-03-25T14:04:00.000Z",
+    "updatedAt": "2026-03-26T09:04:00.000Z"
   },
   {
     "id": "DRF-2026-00010",
     "driverId": "USR-2026-00003",
     "departureLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
     "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
-    "departureDate": "2026-04-05",
+    "departureDate": "2026-04-06",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00003",
     "maxPassengers": 3,
@@ -680,15 +680,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:05:00.000Z",
-    "updatedAt": "2026-03-25T09:05:00.000Z"
+    "createdAt": "2026-03-25T14:05:00.000Z",
+    "updatedAt": "2026-03-26T09:05:00.000Z"
   },
   {
     "id": "DRF-2026-00010",
     "driverId": "USR-2026-00004",
     "departureLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
     "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
-    "departureDate": "2026-04-03",
+    "departureDate": "2026-04-04",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00004",
     "maxPassengers": 3,
@@ -737,15 +737,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:03:00.000Z",
-    "updatedAt": "2026-03-25T09:03:00.000Z"
+    "createdAt": "2026-03-25T14:03:00.000Z",
+    "updatedAt": "2026-03-26T09:03:00.000Z"
   },
   {
     "id": "DRF-2026-00011",
     "driverId": "USR-2026-00004",
     "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
     "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
-    "departureDate": "2026-04-04",
+    "departureDate": "2026-04-05",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00004",
     "maxPassengers": 3,
@@ -794,15 +794,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:04:00.000Z",
-    "updatedAt": "2026-03-25T09:04:00.000Z"
+    "createdAt": "2026-03-25T14:04:00.000Z",
+    "updatedAt": "2026-03-26T09:04:00.000Z"
   },
   {
     "id": "DRF-2026-00012",
     "driverId": "USR-2026-00004",
     "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
     "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
-    "departureDate": "2026-04-05",
+    "departureDate": "2026-04-06",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00004",
     "maxPassengers": 3,
@@ -851,15 +851,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:05:00.000Z",
-    "updatedAt": "2026-03-25T09:05:00.000Z"
+    "createdAt": "2026-03-25T14:05:00.000Z",
+    "updatedAt": "2026-03-26T09:05:00.000Z"
   },
   {
     "id": "DRF-2026-00013",
     "driverId": "USR-2026-00004",
     "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
     "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
-    "departureDate": "2026-04-06",
+    "departureDate": "2026-04-07",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00004",
     "maxPassengers": 3,
@@ -908,15 +908,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:06:00.000Z",
-    "updatedAt": "2026-03-25T09:06:00.000Z"
+    "createdAt": "2026-03-25T14:06:00.000Z",
+    "updatedAt": "2026-03-26T09:06:00.000Z"
   },
   {
     "id": "DRF-2026-00013",
     "driverId": "USR-2026-00005",
     "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
     "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
-    "departureDate": "2026-04-04",
+    "departureDate": "2026-04-05",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00005",
     "maxPassengers": 3,
@@ -965,15 +965,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:04:00.000Z",
-    "updatedAt": "2026-03-25T09:04:00.000Z"
+    "createdAt": "2026-03-25T14:04:00.000Z",
+    "updatedAt": "2026-03-26T09:04:00.000Z"
   },
   {
     "id": "DRF-2026-00014",
     "driverId": "USR-2026-00005",
     "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
     "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
-    "departureDate": "2026-04-05",
+    "departureDate": "2026-04-06",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00005",
     "maxPassengers": 3,
@@ -1022,15 +1022,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:05:00.000Z",
-    "updatedAt": "2026-03-25T09:05:00.000Z"
+    "createdAt": "2026-03-25T14:05:00.000Z",
+    "updatedAt": "2026-03-26T09:05:00.000Z"
   },
   {
     "id": "DRF-2026-00015",
     "driverId": "USR-2026-00005",
     "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
     "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
-    "departureDate": "2026-04-06",
+    "departureDate": "2026-04-07",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00005",
     "maxPassengers": 3,
@@ -1079,15 +1079,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:06:00.000Z",
-    "updatedAt": "2026-03-25T09:06:00.000Z"
+    "createdAt": "2026-03-25T14:06:00.000Z",
+    "updatedAt": "2026-03-26T09:06:00.000Z"
   },
   {
     "id": "DRF-2026-00016",
     "driverId": "USR-2026-00005",
     "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
     "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
-    "departureDate": "2026-04-07",
+    "departureDate": "2026-04-08",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00005",
     "maxPassengers": 3,
@@ -1136,15 +1136,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:07:00.000Z",
-    "updatedAt": "2026-03-25T09:07:00.000Z"
+    "createdAt": "2026-03-25T14:07:00.000Z",
+    "updatedAt": "2026-03-26T09:07:00.000Z"
   },
   {
     "id": "DRF-2026-00016",
     "driverId": "USR-2026-00006",
     "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
     "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
-    "departureDate": "2026-04-05",
+    "departureDate": "2026-04-06",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00006",
     "maxPassengers": 3,
@@ -1193,15 +1193,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:05:00.000Z",
-    "updatedAt": "2026-03-25T09:05:00.000Z"
+    "createdAt": "2026-03-25T14:05:00.000Z",
+    "updatedAt": "2026-03-26T09:05:00.000Z"
   },
   {
     "id": "DRF-2026-00017",
     "driverId": "USR-2026-00006",
     "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
     "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
-    "departureDate": "2026-04-06",
+    "departureDate": "2026-04-07",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00006",
     "maxPassengers": 3,
@@ -1250,15 +1250,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:06:00.000Z",
-    "updatedAt": "2026-03-25T09:06:00.000Z"
+    "createdAt": "2026-03-25T14:06:00.000Z",
+    "updatedAt": "2026-03-26T09:06:00.000Z"
   },
   {
     "id": "DRF-2026-00018",
     "driverId": "USR-2026-00006",
     "departureLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
     "arrivalLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
-    "departureDate": "2026-04-07",
+    "departureDate": "2026-04-08",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00006",
     "maxPassengers": 3,
@@ -1307,15 +1307,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:07:00.000Z",
-    "updatedAt": "2026-03-25T09:07:00.000Z"
+    "createdAt": "2026-03-25T14:07:00.000Z",
+    "updatedAt": "2026-03-26T09:07:00.000Z"
   },
   {
     "id": "DRF-2026-00019",
     "driverId": "USR-2026-00006",
     "departureLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
     "arrivalLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
-    "departureDate": "2026-04-08",
+    "departureDate": "2026-04-09",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00006",
     "maxPassengers": 3,
@@ -1364,15 +1364,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:08:00.000Z",
-    "updatedAt": "2026-03-25T09:08:00.000Z"
+    "createdAt": "2026-03-25T14:08:00.000Z",
+    "updatedAt": "2026-03-26T09:08:00.000Z"
   },
   {
     "id": "DRF-2026-00019",
     "driverId": "USR-2026-00007",
     "departureLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
     "arrivalLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
-    "departureDate": "2026-04-06",
+    "departureDate": "2026-04-07",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00007",
     "maxPassengers": 3,
@@ -1421,15 +1421,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:06:00.000Z",
-    "updatedAt": "2026-03-25T09:06:00.000Z"
+    "createdAt": "2026-03-25T14:06:00.000Z",
+    "updatedAt": "2026-03-26T09:06:00.000Z"
   },
   {
     "id": "DRF-2026-00020",
     "driverId": "USR-2026-00007",
     "departureLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
     "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
-    "departureDate": "2026-04-07",
+    "departureDate": "2026-04-08",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00007",
     "maxPassengers": 3,
@@ -1478,15 +1478,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:07:00.000Z",
-    "updatedAt": "2026-03-25T09:07:00.000Z"
+    "createdAt": "2026-03-25T14:07:00.000Z",
+    "updatedAt": "2026-03-26T09:07:00.000Z"
   },
   {
     "id": "DRF-2026-00021",
     "driverId": "USR-2026-00007",
     "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
     "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
-    "departureDate": "2026-04-08",
+    "departureDate": "2026-04-09",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00007",
     "maxPassengers": 3,
@@ -1535,15 +1535,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:08:00.000Z",
-    "updatedAt": "2026-03-25T09:08:00.000Z"
+    "createdAt": "2026-03-25T14:08:00.000Z",
+    "updatedAt": "2026-03-26T09:08:00.000Z"
   },
   {
     "id": "DRF-2026-00022",
     "driverId": "USR-2026-00007",
     "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
     "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
-    "departureDate": "2026-04-09",
+    "departureDate": "2026-04-10",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00007",
     "maxPassengers": 3,
@@ -1592,15 +1592,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:09:00.000Z",
-    "updatedAt": "2026-03-25T09:09:00.000Z"
+    "createdAt": "2026-03-25T14:09:00.000Z",
+    "updatedAt": "2026-03-26T09:09:00.000Z"
   },
   {
     "id": "DRF-2026-00022",
     "driverId": "USR-2026-00008",
     "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
     "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
-    "departureDate": "2026-04-07",
+    "departureDate": "2026-04-08",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00008",
     "maxPassengers": 3,
@@ -1649,15 +1649,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:07:00.000Z",
-    "updatedAt": "2026-03-25T09:07:00.000Z"
+    "createdAt": "2026-03-25T14:07:00.000Z",
+    "updatedAt": "2026-03-26T09:07:00.000Z"
   },
   {
     "id": "DRF-2026-00023",
     "driverId": "USR-2026-00008",
     "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
     "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
-    "departureDate": "2026-04-08",
+    "departureDate": "2026-04-09",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00008",
     "maxPassengers": 3,
@@ -1706,15 +1706,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:08:00.000Z",
-    "updatedAt": "2026-03-25T09:08:00.000Z"
+    "createdAt": "2026-03-25T14:08:00.000Z",
+    "updatedAt": "2026-03-26T09:08:00.000Z"
   },
   {
     "id": "DRF-2026-00024",
     "driverId": "USR-2026-00008",
     "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
     "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
-    "departureDate": "2026-04-09",
+    "departureDate": "2026-04-10",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00008",
     "maxPassengers": 3,
@@ -1763,15 +1763,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:09:00.000Z",
-    "updatedAt": "2026-03-25T09:09:00.000Z"
+    "createdAt": "2026-03-25T14:09:00.000Z",
+    "updatedAt": "2026-03-26T09:09:00.000Z"
   },
   {
     "id": "DRF-2026-00025",
     "driverId": "USR-2026-00008",
     "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
     "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
-    "departureDate": "2026-04-10",
+    "departureDate": "2026-04-11",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00008",
     "maxPassengers": 3,
@@ -1820,15 +1820,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:10:00.000Z",
-    "updatedAt": "2026-03-25T09:10:00.000Z"
+    "createdAt": "2026-03-25T14:10:00.000Z",
+    "updatedAt": "2026-03-26T09:10:00.000Z"
   },
   {
     "id": "DRF-2026-00025",
     "driverId": "USR-2026-00009",
     "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
     "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
-    "departureDate": "2026-04-08",
+    "departureDate": "2026-04-09",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00009",
     "maxPassengers": 3,
@@ -1877,15 +1877,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:08:00.000Z",
-    "updatedAt": "2026-03-25T09:08:00.000Z"
+    "createdAt": "2026-03-25T14:08:00.000Z",
+    "updatedAt": "2026-03-26T09:08:00.000Z"
   },
   {
     "id": "DRF-2026-00026",
     "driverId": "USR-2026-00009",
     "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
     "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
-    "departureDate": "2026-04-09",
+    "departureDate": "2026-04-10",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00009",
     "maxPassengers": 3,
@@ -1934,15 +1934,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:09:00.000Z",
-    "updatedAt": "2026-03-25T09:09:00.000Z"
+    "createdAt": "2026-03-25T14:09:00.000Z",
+    "updatedAt": "2026-03-26T09:09:00.000Z"
   },
   {
     "id": "DRF-2026-00027",
     "driverId": "USR-2026-00009",
     "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
     "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
-    "departureDate": "2026-04-10",
+    "departureDate": "2026-04-11",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00009",
     "maxPassengers": 3,
@@ -1991,15 +1991,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:10:00.000Z",
-    "updatedAt": "2026-03-25T09:10:00.000Z"
+    "createdAt": "2026-03-25T14:10:00.000Z",
+    "updatedAt": "2026-03-26T09:10:00.000Z"
   },
   {
     "id": "DRF-2026-00028",
     "driverId": "USR-2026-00009",
     "departureLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
     "arrivalLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
-    "departureDate": "2026-04-11",
+    "departureDate": "2026-04-12",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00009",
     "maxPassengers": 3,
@@ -2048,15 +2048,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:11:00.000Z",
-    "updatedAt": "2026-03-25T09:11:00.000Z"
+    "createdAt": "2026-03-25T14:11:00.000Z",
+    "updatedAt": "2026-03-26T09:11:00.000Z"
   },
   {
     "id": "DRF-2026-00028",
     "driverId": "USR-2026-00010",
     "departureLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
     "arrivalLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
-    "departureDate": "2026-04-09",
+    "departureDate": "2026-04-10",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00010",
     "maxPassengers": 3,
@@ -2105,15 +2105,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:09:00.000Z",
-    "updatedAt": "2026-03-25T09:09:00.000Z"
+    "createdAt": "2026-03-25T14:09:00.000Z",
+    "updatedAt": "2026-03-26T09:09:00.000Z"
   },
   {
     "id": "DRF-2026-00029",
     "driverId": "USR-2026-00010",
     "departureLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
     "arrivalLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
-    "departureDate": "2026-04-10",
+    "departureDate": "2026-04-11",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00010",
     "maxPassengers": 3,
@@ -2162,15 +2162,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:10:00.000Z",
-    "updatedAt": "2026-03-25T09:10:00.000Z"
+    "createdAt": "2026-03-25T14:10:00.000Z",
+    "updatedAt": "2026-03-26T09:10:00.000Z"
   },
   {
     "id": "DRF-2026-00030",
     "driverId": "USR-2026-00010",
     "departureLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
     "arrivalLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
-    "departureDate": "2026-04-11",
+    "departureDate": "2026-04-12",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00010",
     "maxPassengers": 3,
@@ -2219,15 +2219,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:11:00.000Z",
-    "updatedAt": "2026-03-25T09:11:00.000Z"
+    "createdAt": "2026-03-25T14:11:00.000Z",
+    "updatedAt": "2026-03-26T09:11:00.000Z"
   },
   {
     "id": "DRF-2026-00031",
     "driverId": "USR-2026-00010",
     "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
     "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
-    "departureDate": "2026-04-12",
+    "departureDate": "2026-04-13",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00010",
     "maxPassengers": 3,
@@ -2276,15 +2276,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:12:00.000Z",
-    "updatedAt": "2026-03-25T09:12:00.000Z"
+    "createdAt": "2026-03-25T14:12:00.000Z",
+    "updatedAt": "2026-03-26T09:12:00.000Z"
   },
   {
     "id": "DRF-2026-00031",
     "driverId": "USR-2026-00011",
     "departureLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
     "arrivalLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
-    "departureDate": "2026-04-10",
+    "departureDate": "2026-04-11",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00011",
     "maxPassengers": 3,
@@ -2333,15 +2333,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:10:00.000Z",
-    "updatedAt": "2026-03-25T09:10:00.000Z"
+    "createdAt": "2026-03-25T14:10:00.000Z",
+    "updatedAt": "2026-03-26T09:10:00.000Z"
   },
   {
     "id": "DRF-2026-00032",
     "driverId": "USR-2026-00011",
     "departureLocation": "Place d'Orleans, 110 Place d'Orleans Dr, Ottawa, ON",
     "arrivalLocation": "South Keys, 2210 Bank St, Ottawa, ON",
-    "departureDate": "2026-04-11",
+    "departureDate": "2026-04-12",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00011",
     "maxPassengers": 3,
@@ -2390,15 +2390,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:11:00.000Z",
-    "updatedAt": "2026-03-25T09:11:00.000Z"
+    "createdAt": "2026-03-25T14:11:00.000Z",
+    "updatedAt": "2026-03-26T09:11:00.000Z"
   },
   {
     "id": "DRF-2026-00033",
     "driverId": "USR-2026-00011",
     "departureLocation": "ByWard Market, 55 ByWard Market Sq, Ottawa, ON",
     "arrivalLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
-    "departureDate": "2026-04-12",
+    "departureDate": "2026-04-13",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00011",
     "maxPassengers": 3,
@@ -2447,15 +2447,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:12:00.000Z",
-    "updatedAt": "2026-03-25T09:12:00.000Z"
+    "createdAt": "2026-03-25T14:12:00.000Z",
+    "updatedAt": "2026-03-26T09:12:00.000Z"
   },
   {
     "id": "DRF-2026-00034",
     "driverId": "USR-2026-00011",
     "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
     "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
-    "departureDate": "2026-04-13",
+    "departureDate": "2026-04-14",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00011",
     "maxPassengers": 3,
@@ -2504,15 +2504,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:13:00.000Z",
-    "updatedAt": "2026-03-25T09:13:00.000Z"
+    "createdAt": "2026-03-25T14:13:00.000Z",
+    "updatedAt": "2026-03-26T09:13:00.000Z"
   },
   {
     "id": "DRF-2026-00034",
     "driverId": "USR-2026-00012",
     "departureLocation": "Kanata Centrum, 130 Earl Grey Dr, Kanata, ON",
     "arrivalLocation": "Gatineau Centre-Ville, 170 rue de l'Hotel-de-Ville, Gatineau, QC",
-    "departureDate": "2026-04-11",
+    "departureDate": "2026-04-12",
     "departureTime": "08:00",
     "vehicleId": "VEH-2026-00012",
     "maxPassengers": 3,
@@ -2561,15 +2561,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:11:00.000Z",
-    "updatedAt": "2026-03-25T09:11:00.000Z"
+    "createdAt": "2026-03-25T14:11:00.000Z",
+    "updatedAt": "2026-03-26T09:11:00.000Z"
   },
   {
     "id": "DRF-2026-00035",
     "driverId": "USR-2026-00012",
     "departureLocation": "Barrhaven Centre, 3651 Strandherd Dr, Ottawa, ON",
     "arrivalLocation": "Montreal Centre, 1000 rue Sainte-Catherine O, Montreal, QC",
-    "departureDate": "2026-04-12",
+    "departureDate": "2026-04-13",
     "departureTime": "09:00",
     "vehicleId": "VEH-2026-00012",
     "maxPassengers": 3,
@@ -2618,15 +2618,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:12:00.000Z",
-    "updatedAt": "2026-03-25T09:12:00.000Z"
+    "createdAt": "2026-03-25T14:12:00.000Z",
+    "updatedAt": "2026-03-26T09:12:00.000Z"
   },
   {
     "id": "DRF-2026-00036",
     "driverId": "USR-2026-00012",
     "departureLocation": "South Keys, 2210 Bank St, Ottawa, ON",
     "arrivalLocation": "Orleans Park and Ride, 1675 Tenth Line Rd, Orleans, ON",
-    "departureDate": "2026-04-13",
+    "departureDate": "2026-04-14",
     "departureTime": "10:30",
     "vehicleId": "VEH-2026-00012",
     "maxPassengers": 3,
@@ -2675,15 +2675,15 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:13:00.000Z",
-    "updatedAt": "2026-03-25T09:13:00.000Z"
+    "createdAt": "2026-03-25T14:13:00.000Z",
+    "updatedAt": "2026-03-26T09:13:00.000Z"
   },
   {
     "id": "DRF-2026-00037",
     "driverId": "USR-2026-00012",
     "departureLocation": "Rideau Centre, 50 Rideau St, Ottawa, ON",
     "arrivalLocation": "Campus La Cite, 801 promenade de l'Aviation, Ottawa, ON",
-    "departureDate": "2026-04-14",
+    "departureDate": "2026-04-15",
     "departureTime": "11:00",
     "vehicleId": "VEH-2026-00012",
     "maxPassengers": 3,
@@ -2732,7 +2732,7 @@
       ]
     ],
     "notes": "Brouillon seed coherent pour les tests.",
-    "createdAt": "2026-03-24T14:14:00.000Z",
-    "updatedAt": "2026-03-25T09:14:00.000Z"
+    "createdAt": "2026-03-25T14:14:00.000Z",
+    "updatedAt": "2026-03-26T09:14:00.000Z"
   }
 ]

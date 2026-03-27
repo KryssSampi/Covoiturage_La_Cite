@@ -97,7 +97,7 @@ function ReviewListCard({ review, lang }: { review: Review; lang: Language }) {
 
 export function ReviewsPage({ items }: ReviewsPageProps) {
   const { lang } = useAppState();
-  const { sortOptions, searchKeys, emptyMessage } = useReviewsConfig();
+  const { filterGroups, sortOptions, searchKeys, emptyMessage } = useReviewsConfig();
 
   const renderCard = useCallback(
     (review: Review) => <ReviewListCard review={review} lang={lang} />,
@@ -108,6 +108,7 @@ export function ReviewsPage({ items }: ReviewsPageProps) {
     <ListDetailPage
       items={items}
       renderCard={renderCard}
+      filterGroups={filterGroups}
       sortOptions={sortOptions}
       searchKeys={searchKeys}
       withOverview={false}

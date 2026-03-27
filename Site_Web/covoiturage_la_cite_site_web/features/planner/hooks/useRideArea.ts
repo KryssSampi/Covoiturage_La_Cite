@@ -45,6 +45,7 @@ export interface UseRideAreaReturn {
   onCancelTrip?: (tripId: string) => Promise<boolean>;
   onCancelReservation?: (reservationId: string, raison?: string) => Promise<boolean>;
   onStartReservation?: (reservationId: string) => Promise<string | null>;
+  onStartTrip?: (tripId: string) => Promise<void>;
 }
 
 export function useRideArea(): UseRideAreaReturn {
@@ -59,6 +60,7 @@ export function useRideArea(): UseRideAreaReturn {
     onCancelTrip,
     onCancelReservation,
     onStartReservation,
+    onStartTrip,
   } = usePlannerContext();
   const isFr = lang === Language.FR;
   const isToday = currentDay.toDateString() === new Date().toDateString();
@@ -149,5 +151,6 @@ export function useRideArea(): UseRideAreaReturn {
     onCancelTrip,
     onCancelReservation,
     onStartReservation,
+    onStartTrip,
   };
 }

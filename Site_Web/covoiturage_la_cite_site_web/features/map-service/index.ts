@@ -9,6 +9,7 @@ export * from './constants'
 export * from './markers'
 export * from './popups'
 export { addCampusLayer } from './layers/campus'
+export { addFavoritesLayer } from './layers/favorites'
 export { addOverpassLayer } from './layers/overpass'
 export {
   initOffScreenButtons,

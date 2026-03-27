@@ -62,7 +62,10 @@ export interface PublishedTripViewData {
   vehicle: TripVehicle;
   departure: TripPoint;
   arrival: TripPoint;
+  /** Prix conducteur (frais exclus) */
   pricePerPassenger: number;
+  /** Prix passager = pricePerPassenger × 1.15 — à afficher dans toutes les vues passager */
+  passengerPrice: number;
   departureDate: string;    // ex: "Aujourd'hui"
   departureTime: string;    // ex: "03h30"
   estimatedDuration: number; // minutes

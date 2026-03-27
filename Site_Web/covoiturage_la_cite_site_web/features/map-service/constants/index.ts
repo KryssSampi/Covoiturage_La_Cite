@@ -137,21 +137,23 @@ export const ZONES_CAMPUS: ZoneCampus[] = [
     nom: 'Entrée Principale',
     icone: 'EP',
     instructions: 'Devant les portes vitrées principales, côté promenade de l\'Aviation.',
-    coordonnees: { lat: 45.42168, lng: -75.68295 },
+    // Sud du campus (ajusté)
+    coordonnees: { lat: 45.438900, lng: -75.62678911601688 },
     capacite: 8,
   },
   {
     id: 'stationnement-a',
     nom: 'Stationnement A',
     icone: 'PA',
-    instructions: 'Stationnement étudiants, accès par l\'avenue de la Cité. Rejoignez-nous près de l\'entrée P-A.',
-    coordonnees: { lat: 45.42220, lng: -75.68420 },
+    instructions: 'Stationnement étudiants, accès par l\'avenue de la Cité.',
+    // Ouest du campus (ajusté)
+    coordonnees: { lat: 45.439453490367846, lng: -75.628000 },
     capacite: 40,
     perimetre: [
-      { lat: 45.42195, lng: -75.68380 },
-      { lat: 45.42245, lng: -75.68380 },
-      { lat: 45.42245, lng: -75.68460 },
-      { lat: 45.42195, lng: -75.68460 },
+      { lat: 45.439000, lng: -75.628300 },
+      { lat: 45.439900, lng: -75.628300 },
+      { lat: 45.439900, lng: -75.627700 },
+      { lat: 45.439000, lng: -75.627700 },
     ],
   },
   {
@@ -159,7 +161,8 @@ export const ZONES_CAMPUS: ZoneCampus[] = [
     nom: 'Stationnement B',
     icone: 'PB',
     instructions: 'Stationnement personnel, côté nord du campus.',
-    coordonnees: { lat: 45.42290, lng: -75.68350 },
+    // Nord du campus (ajusté)
+    coordonnees: { lat: 45.440000, lng: -75.62678911601688 },
     capacite: 35,
   },
   {
@@ -167,7 +170,8 @@ export const ZONES_CAMPUS: ZoneCampus[] = [
     nom: 'Stationnement C',
     icone: 'PC',
     instructions: 'Stationnement visiteurs et dépose rapide.',
-    coordonnees: { lat: 45.42150, lng: -75.68180 },
+    // Est du campus (ajusté)
+    coordonnees: { lat: 45.439453490367846, lng: -75.625600 },
     capacite: 20,
   },
   {
@@ -175,30 +179,36 @@ export const ZONES_CAMPUS: ZoneCampus[] = [
     nom: 'Arrêt OC Transpo',
     icone: 'BUS',
     instructions: 'Arrêt bus campus, lignes 11 et 16. Abri couvert disponible.',
-    coordonnees: { lat: 45.42130, lng: -75.68260 },
+    // Sud-Est (ajusté)
+    coordonnees: { lat: 45.438900, lng: -75.625900 },
   },
   {
     id: 'bibliotheque',
     nom: 'Bibliothèque',
     icone: 'BIB',
     instructions: 'Entrée nord de la bibliothèque, sous l\'auvent.',
-    coordonnees: { lat: 45.42200, lng: -75.68220 },
+    // Nord-Est (ajusté)
+    coordonnees: { lat: 45.440000, lng: -75.625900 },
   },
   {
     id: 'centre-sportif',
     nom: 'Centre Sportif',
     icone: 'GYM',
     instructions: 'Entrée principale du centre sportif.',
-    coordonnees: { lat: 45.42250, lng: -75.68150 },
+    // Nord-Ouest (ajusté)
+    coordonnees: { lat: 45.440000, lng: -75.628000 },
   },
 ]
 
 /** Polygone du périmètre global du campus La Cité */
+// Polygone réaliste autour du campus La Cité (6 points, rotation corrigée)
 export const CAMPUS_PERIMETER: LatLng[] = [
-  { lat: 45.42100, lng: -75.68480 },
-  { lat: 45.42100, lng: -75.68100 },
-  { lat: 45.42320, lng: -75.68100 },
-  { lat: 45.42320, lng: -75.68480 },
+  { lat: 45.438700, lng: -75.625300 }, // Sud-Est (anciennement Sud-Ouest)
+  { lat: 45.438700, lng: -75.628300 }, // Sud-Ouest (anciennement Sud-Est)
+  { lat: 45.439700, lng: -75.628300 }, // Angle Ouest
+  { lat: 45.440700, lng: -75.628300 }, // Nord-Ouest
+  { lat: 45.440700, lng: -75.626000 }, // Angle Nord-Est
+  { lat: 45.440200, lng: -75.625300 }, // Nord-Est
 ]
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -206,7 +216,7 @@ export const CAMPUS_PERIMETER: LatLng[] = [
 // ═══════════════════════════════════════════════════════════════════════════
 export const DEFAULT_MAP_SERVICE_CONFIG = {
   tileProvider:         'carto-voyager' as TileProvider,
-  showBusStops:         true,
+  showBusStops:         false,
   showCampusZones:      true,
   showOffScreenButtons: true,
   busStopMinZoom:       14,
@@ -216,7 +226,7 @@ export const DEFAULT_MAP_SERVICE_CONFIG = {
       id: 'campus',
       label: 'Campus La Cité',
       icone: '🎓',  // Sera masqué — le SVG du marqueur campus est utilisé à la place
-      coordonnees: { lat: 45.42168, lng: -75.68295 },
+      coordonnees: { lat: 45.439453490367846, lng: -75.62678911601688 },
       color: MAP_COLORS.brand,
     },
   ],

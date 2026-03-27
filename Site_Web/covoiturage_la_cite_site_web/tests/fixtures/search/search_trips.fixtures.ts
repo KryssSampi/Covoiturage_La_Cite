@@ -51,18 +51,18 @@ const COORDS = {
 // ─── Conducteurs fictifs ──────────────────────────────────────────────────────
 
 const DRIVERS = [
-  { id: 1,  name: "Julie Tremblay",   rating: 4.8, tripsCount: 42, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 2,  name: "Marc Bouchard",    rating: 4.6, tripsCount: 28, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 3,  name: "Amina Diallo",     rating: 4.9, tripsCount: 67, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 4,  name: "Kevin Nguyen",     rating: 4.5, tripsCount: 15, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 5,  name: "Sophie Larivière", rating: 4.7, tripsCount: 34, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 6,  name: "Youssef El-Amin",  rating: 4.4, tripsCount: 19, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 7,  name: "Claire Moreau",    rating: 4.9, tripsCount: 88, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 8,  name: "Patrick Ouellet",  rating: 4.3, tripsCount: 11, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 9,  name: "Nadia Côté",       rating: 4.8, tripsCount: 56, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 10, name: "Thomas Girard",    rating: 4.6, tripsCount: 23, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 11, name: "Fatima Idrissi",   rating: 4.7, tripsCount: 31, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
-  { id: 12, name: "Luc Gagnon",       rating: 4.5, tripsCount: 44, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "1",  name: "Julie Tremblay",   rating: 4.8, tripsCount: 42, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "2",  name: "Marc Bouchard",    rating: 4.6, tripsCount: 28, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "3",  name: "Amina Diallo",     rating: 4.9, tripsCount: 67, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "4",  name: "Kevin Nguyen",     rating: 4.5, tripsCount: 15, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "5",  name: "Sophie Larivière", rating: 4.7, tripsCount: 34, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "6",  name: "Youssef El-Amin",  rating: 4.4, tripsCount: 19, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "7",  name: "Claire Moreau",    rating: 4.9, tripsCount: 88, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "8",  name: "Patrick Ouellet",  rating: 4.3, tripsCount: 11, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "9",  name: "Nadia Côté",       rating: 4.8, tripsCount: 56, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "10", name: "Thomas Girard",    rating: 4.6, tripsCount: 23, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "11", name: "Fatima Idrissi",   rating: 4.7, tripsCount: 31, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
+  { id: "12", name: "Luc Gagnon",       rating: 4.5, tripsCount: 44, pictureUrl: "/assets/placeholder/placeholer-profile-picture.png" },
 ];
 
 // ─── Helper ───────────────────────────────────────────────────────────────────
@@ -83,7 +83,7 @@ function makeTrip(
 ): TripWithCoords {
   const driver = DRIVERS[driverIdx % DRIVERS.length];
   const passengers = Array.from({ length: passengerCount }, (_, i) => ({
-    id:         idCounter * 100 + i,
+    id:         String(idCounter * 100 + i),
     name:       `Passager ${i + 1}`,
     pictureUrl: "/assets/placeholder/placeholer-profile-picture.png",
     rating:     0,
@@ -91,7 +91,7 @@ function makeTrip(
   }));
 
   return {
-    id:               idCounter++,
+    id:               String(idCounter++),
     departure,
     destination,
     date,

@@ -6,7 +6,7 @@ import { usePublishedTripView } from '../../hooks/usePublishedTripView';
 import { TripMapArea, TripSummaryCard, TripPointSection, TripPreferencesSection, TripStatusSection } from './sections';
 import { MapOverlay, ReservationConfirmModal } from './ui';
 import { CancelConfirmToast } from '@/shared/components/CancelConfirmToast';
-import { ReservationRequestToast } from '@/shared/components/ReservationRequestToast';
+import { ReservationRequestToast } from '@/features/reservation';
 import { Language, useAppState } from '@/core/state/app_state';
 
 // Polyline placeholder — ligne droite entre départ et arrivée quand pas de données OSRM
@@ -95,14 +95,28 @@ export const PublishedTripView: React.FC<PublishedTripViewProps> = ({
       ? [trip.arrival.lat, trip.arrival.lng]
       : undefined;
 
-  // Détermine si le bouton annuler doit être affiché (masqué si annulé ou terminé)
-  const hiddenStatuses = ['cancelled', 'completed'];
-  const showCancelButton = source != null && !hiddenStatuses.includes(sourceStatus ?? '');
+  const isPassenger = viewerRole === 'passenger';
+  const isDriver = viewerRole === 'driver_owner';
 
-  // Label du toast d'annulation adapté à la source
-  const cancelLabel = source === 'reservation'
-    ? (isFR ? 'cette réservation' : 'this reservation')
-    : (isFR ? 'ce trajet' : 'this trip');
+  const passengerCancelableStatuses = new Set(['pending', 'confirmed']);
+  const sourceCancelableStatuses = new Set(['pending', 'confirmed', 'imminent', 'in-progress']);
+
+  const canCancelReservation = isPassenger && (
+    (existingReservation?.status && passengerCancelableStatuses.has(existingReservation.status))
+    || (source === 'reservation' && sourceStatus && sourceCancelableStatuses.has(sourceStatus))
+  );
+
+  const nonCancelableTripStatuses = new Set(['cancelled', 'completed', 'no-show']);
+  const canCancelTrip = isDriver && (
+    source !== 'reservation' &&
+    !nonCancelableTripStatuses.has(sourceStatus ?? '')
+  );
+
+  const showCancelButton = canCancelReservation || canCancelTrip;
+
+  const cancelLabel = isPassenger
+    ? (isFR ? ' Annuler cette réservation' : 'Cancel this reservation')
+    : (isFR ? 'Annuler ce trajet' : 'Cancel this trip');
 
   return (
     <>
@@ -122,10 +136,12 @@ export const PublishedTripView: React.FC<PublishedTripViewProps> = ({
         {/* 2. Carte résumé (chevauche le bas de la carte) */}
         <TripSummaryCard
           trip={trip}
+          viewerRole={viewerRole}
           buttonState={buttonState}
           onReserveClick={openConfirmModal}
           showCancelButton={showCancelButton}
           onCancelClick={() => setShowCancelToast(true)}
+          cancelLabel={cancelLabel}
         />
 
         {/* 3. Sections détails */}

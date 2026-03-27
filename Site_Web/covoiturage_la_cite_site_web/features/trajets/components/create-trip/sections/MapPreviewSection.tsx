@@ -16,12 +16,14 @@ interface MapPreviewSectionProps {
   departureLocation: string;
   arrivalLocation:   string;
   latLngs?:          [number, number][];
+  isLoading?:        boolean;
 }
 
 export const MapPreviewSection: React.FC<MapPreviewSectionProps> = ({
   departureLocation,
   arrivalLocation,
   latLngs,
+  isLoading = false,
 }) => {
   // Controle de l'overlay plein écran
   const [overlayOpen, setOverlayOpen] = useState(false);
@@ -50,7 +52,7 @@ export const MapPreviewSection: React.FC<MapPreviewSectionProps> = ({
         </div>
 
         {/* Carte Leaflet avec fond OpenStreetMap et polyline du circuit selectionne */}
-        <div className="overflow-hidden rounded-xl">
+        <div className="overflow-hidden rounded-xl relative">
           <LeafletStaticMap
             mode="route"
             latLngs={latLngs ?? []}
@@ -59,6 +61,17 @@ export const MapPreviewSection: React.FC<MapPreviewSectionProps> = ({
             height={220}
             interactive={false}
           />
+          {isLoading && (
+            <div
+              className="absolute inset-0 flex items-center justify-center"
+              style={{ background: "rgba(255,255,255,0.7)" }}
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold text-[#08316e]">
+                <span className="w-4 h-4 border-2 border-[#08316e] border-t-transparent rounded-full animate-spin" />
+                Calcul du trajet...
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

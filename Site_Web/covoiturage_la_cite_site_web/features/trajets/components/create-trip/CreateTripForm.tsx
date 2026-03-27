@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import { useCreateTrip } from '../../hooks';
 import { TripWayPrefill } from '../../types';
@@ -15,7 +16,7 @@ import {
 import { useAppState } from '@/core/state/app_state';
 import { getProposals } from '@/core/services/location.suggestion';
 import { fetchRoute } from '@/features/search/services/osrm.service';
-import { ReservationRequestToast } from '@/shared/components/ReservationRequestToast';
+import { ReservationRequestToast } from '@/features/reservation';
 
 interface CreateTripFormProps {
   // Prenom + nom du conducteur pour le titre personnalise
@@ -32,6 +33,7 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
   vehicles,
 }) => {
   const appState = useAppState();
+  const router = useRouter();
   // Récupère le prénom du conducteur connecté, sinon utilise la valeur par défaut
   driverName = appState.userConnected?.firstName || driverName;
 
@@ -59,6 +61,7 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
 
     return null;
   });
+  const [isMapLoading, setIsMapLoading] = useState(false);
 
   const {
     form,
@@ -90,6 +93,7 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
     let cancelled = false;
 
     (async () => {
+      setIsMapLoading(true);
       try {
         const [depResults, arrResults] = await Promise.all([
           getProposals(dep),
@@ -118,6 +122,9 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
           }
         }
       } catch { /* Échec silencieux */ }
+      finally {
+        if (!cancelled) setIsMapLoading(false);
+      }
     })();
 
     return () => { cancelled = true; };
@@ -183,12 +190,27 @@ export const CreateTripForm: React.FC<CreateTripFormProps> = ({
               departureLocation={form.departureLocation}
               arrivalLocation={form.arrivalLocation}
               latLngs={circuitLatLngs ?? undefined}
+              isLoading={isMapLoading}
             />
           </div>
         </div>
 
         {/* Boutons d'action */}
         <div className="flex flex-col sm:flex-row gap-3 mt-8">
+          <button
+            type="button"
+            onClick={() => {
+              const userId = appState.userConnected?.id;
+              if (userId) {
+                router.push(`/driver/search/${userId}`);
+              } else {
+                router.push('/driver/search/unknown');
+              }
+            }}
+            className="sm:ml-auto px-6 py-3 rounded-lg font-semibold text-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition-colors"
+          >
+            Retour à la recherche
+          </button>
           <button
             type="button"
             onClick={handlePublish}

@@ -19,6 +19,7 @@ interface PlannerFeatureProviderProps {
   onCancelTrip?: (tripId: string) => Promise<boolean>;
   onCancelReservation?: (reservationId: string, raison?: string) => Promise<boolean>;
   onStartReservation?: (reservationId: string) => Promise<string | null>;
+  onStartTrip?: (tripId: string) => Promise<void>;
 }
 
 export function PlannerFeatureProvider({
@@ -31,6 +32,7 @@ export function PlannerFeatureProvider({
   onCancelTrip,
   onCancelReservation,
   onStartReservation,
+  onStartTrip,
 }: PlannerFeatureProviderProps) {
   return (
     <PlannerProvider
@@ -40,6 +42,7 @@ export function PlannerFeatureProvider({
       onCancelTrip={onCancelTrip}
       onCancelReservation={onCancelReservation}
       onStartReservation={onStartReservation}
+      onStartTrip={onStartTrip}
     >
       <IndisponibilityProvider
         initialDates={indisponibilities}

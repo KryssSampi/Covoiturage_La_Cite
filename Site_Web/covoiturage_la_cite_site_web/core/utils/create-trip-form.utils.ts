@@ -91,6 +91,8 @@ export function buildTripPayload(params: {
   vehicleId: string;
   departureLocation: string;
   arrivalLocation: string;
+  departureInstructions?: string;
+  arrivalInstructions?: string;
   departureCoords: { lat: number; lng: number };
   arrivalCoords: { lat: number; lng: number };
   waypoints: TripWaypointPayload[];
@@ -107,6 +109,7 @@ export function buildTripPayload(params: {
     smokingAllowed: boolean;
     musicAllowed: boolean;
     flexibleItinerary: boolean;
+    driverNote?: string;
   };
   recurrenceDays?: number[];
   recurrenceEndDate?: string;
@@ -121,11 +124,13 @@ export function buildTripPayload(params: {
       label: params.departureLocation,
       fullAddress: params.departureLocation,
       coordinates: params.departureCoords,
+      instructions: params.departureInstructions || undefined,
     },
     arrival: {
       label: params.arrivalLocation,
       fullAddress: params.arrivalLocation,
       coordinates: params.arrivalCoords,
+      instructions: params.arrivalInstructions || undefined,
     },
     waypoints: params.waypoints,
     polyline: params.polyline,
@@ -146,6 +151,7 @@ export function buildTripPayload(params: {
       smokingAllowed: params.preferences.smokingAllowed,
       musicAllowed: params.preferences.musicAllowed,
       flexibleItinerary: params.preferences.flexibleItinerary,
+      driverNote: params.preferences.driverNote || undefined,
     },
     recurrenceDays: params.recurrenceDays,
     recurrenceEndDate: params.recurrenceEndDate,

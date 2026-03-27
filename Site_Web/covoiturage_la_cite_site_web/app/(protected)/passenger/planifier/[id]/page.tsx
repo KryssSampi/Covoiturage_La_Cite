@@ -39,20 +39,21 @@ const mapVariants = {
 
 const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
 
-function PlannerContent() {
+function PlannerContent({ onRefresh }: { onRefresh?: () => Promise<void> }) {
   const { plannerSearchActive, plannerSearchValues, exitPlannerSearch } = useHeroSearchBar();
   const { trips, users, myIndisponibility } = useDb();
 
-  // Scroll automatique vers la zone trajets si demandé par la page réservation
+  // Scroll + refresh automatique vers la zone trajets si demandé par la page réservation
   useEffect(() => {
     const flag = sessionStorage.getItem('plannerScrollToRides');
     if (!flag) return;
     sessionStorage.removeItem('plannerScrollToRides');
+    if (onRefresh) void onRefresh();
     const timer = setTimeout(() => {
       document.getElementById('planner-rides')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 600);
+    }, 700);
     return () => clearTimeout(timer);
-  }, []);
+  }, [onRefresh]);
   const usersMap = useMemo(() => new Map(users.map((u) => [u.id, u])), [users]);
   const availableTrips = useMemo(
     () =>
@@ -125,7 +126,7 @@ function PlannerContent() {
       </AnimatePresence>
 
       <div id="planner-rides">
-        <RideArea />
+        <RideArea onRefresh={onRefresh} />
       </div>
     </div>
   );
@@ -185,7 +186,9 @@ export default function PlannerPage() {
     try {
       const response = await fetch(`/api/reservations/${encodeURIComponent(reservationId)}/cancel`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" 
+          , "x-caller-id": `${userConnected?.id}`
+        },
         body: JSON.stringify({ raison }),
       });
 
@@ -196,12 +199,15 @@ export default function PlannerPage() {
     } catch {
       return false;
     }
-  }, [refreshReservations, refreshTrips]);
+  }, [refreshReservations, refreshTrips, userConnected]);
 
   const handleStartReservation = useCallback(async (reservationId: string) => {
     try {
       const response = await fetch(`/api/reservations/${encodeURIComponent(reservationId)}/start`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" ,
+           "x-caller-id": `${userConnected?.id}`
+        },
       });
 
       if (!response.ok) return null;
@@ -212,7 +218,7 @@ export default function PlannerPage() {
     } catch {
       return null;
     }
-  }, [refreshReservations, refreshTrips]);
+  }, [refreshReservations, refreshTrips, userConnected]);
 
   const handleSaveIndisponibilities = useCallback(async (dates: IndisponibilityDateRange[]) => {
     if (!userConnected?.id) return;
@@ -224,7 +230,12 @@ export default function PlannerPage() {
     });
 
     await refreshIndisponibilities();
-  }, [refreshIndisponibilities, userConnected?.id]);
+  }, [refreshIndisponibilities, userConnected]);
+
+  // Rafraîchit trips + réservations depuis la page (respecte la règle : aucun composant ne fetch)
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refreshTrips(), refreshReservations()]);
+  }, [refreshTrips, refreshReservations]);
 
   if (userConnected?.id !== routeId || userRole !== "passenger") {
     return null;
@@ -240,7 +251,7 @@ export default function PlannerPage() {
       onCancelReservation={handleCancelReservation}
       onStartReservation={handleStartReservation}
     >
-      <PlannerContent />
+      <PlannerContent onRefresh={handleRefresh} />
     </PlannerFeatureProvider>
   );
 }

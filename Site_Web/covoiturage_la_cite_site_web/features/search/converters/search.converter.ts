@@ -20,7 +20,7 @@ export function tripSearchDTOToTripWithCoords(dto: TripSearchDTO): TripWithCoord
     destination:  dto.arrival.label,
     date:         dto.departureDate,
     time:         dto.departureTime,
-    price:        dto.pricePerPassenger,
+    price:        dto.passengerPrice,
     maxPassengers: dto.maxPassengers,
     passengers:   [], // non exposé dans le DTO (confidentialité)
     driver: {
@@ -59,7 +59,7 @@ export function tripModelToTripWithCoords(
     destination: trip.arrival.label,
     date: trip.departureDate,
     time: trip.departureTime,
-    price: trip.pricePerPassenger,
+    price: trip.passengerPrice ?? Math.round(trip.pricePerPassenger * 1.15 * 100) / 100,
     maxPassengers: trip.maxPassengers,
     passengers: passengers.map((p) => ({
       id: p.id,

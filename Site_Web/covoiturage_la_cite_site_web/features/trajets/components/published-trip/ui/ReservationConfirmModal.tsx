@@ -86,7 +86,7 @@ export const ReservationConfirmModal: React.FC<ReservationConfirmModalProps> = (
             <Row icon={<FaCalendarDays size={11} color="#08316e" />} label="Départ" value={`${trip.departureDate} à ${trip.departureTime}`} />
             <Row icon={<FaLocationDot size={11} color="#08316e" />} label="De" value={trip.departure.label} />
             <Row icon={<FaLocationDot size={11} color="#08316e" />} label="À" value={trip.arrival.label} />
-            <Row icon={<FaDollarSign size={11} color="#08316e" />} label="Prix" value={`+${trip.pricePerPassenger} $`} />
+            <Row icon={<FaDollarSign size={11} color="#08316e" />} label="Prix" value={`${trip.passengerPrice.toFixed(2)} $ (frais inclus)`} />
             <Row
               icon={<FaCreditCard size={11} color="#08316e" />}
               label="Paiement"

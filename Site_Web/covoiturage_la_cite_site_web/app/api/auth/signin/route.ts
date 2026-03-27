@@ -4,6 +4,7 @@ import {
   normalizeInstitutionalEmail,
   validateInstitutionalEmail,
 } from '@/core/services/auth-api.service';
+import { recordWebConnect } from '@/core/services/user-activity-api.service';
 
 export async function POST(req: Request) {
   try {
@@ -27,6 +28,12 @@ export async function POST(req: Request) {
     if (!user.isActive) {
       return NextResponse.json({ error: 'Compte desactive' }, { status: 403 });
     }
+
+    recordWebConnect({
+      userId: user.id,
+      accountCreatedAt: user.createdAt ?? new Date().toISOString(),
+      role: user.role?.toString().toLowerCase(),
+    });
 
     return NextResponse.json(user);
   } catch {
