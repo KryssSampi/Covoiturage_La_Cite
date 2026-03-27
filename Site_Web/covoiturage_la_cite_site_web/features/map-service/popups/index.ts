@@ -101,3 +101,28 @@ export function gasStationPopup(nom: string): string {
   <span style="${S.badge}" style="background:rgba(212,96,10,0.1);color:#8a3000">Carburant</span>
 </div>`.trim()
 }
+
+/** Popup bâtiment public */
+export function publicServicePopup(type: string, nom?: string): string {
+  const typeLabel: Record<string, string> = {
+    school:           'École',
+    college:          'Collège',
+    university:       'Université',
+    hospital:         'Hôpital',
+    clinic:           'Clinique',
+    library:          'Bibliothèque',
+    townhall:         'Hôtel de ville',
+    police:           'Police',
+    fire_station:     'Caserne',
+    community_centre: 'Centre communautaire',
+    courthouse:       'Palais de justice',
+    public_building:  'Bâtiment public',
+  }
+  const label = typeLabel[type] ?? 'Bâtiment public'
+  return `
+<div style="${S.wrap}">
+  <div style="${S.title}">${label}</div>
+  ${nom ? `<div style="${S.sub}">${nom}</div>` : ''}
+  <span style="${S.badge} ${S.badgeBl}">Service public</span>
+</div>`.trim()
+}

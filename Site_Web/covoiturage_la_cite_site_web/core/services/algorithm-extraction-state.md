@@ -264,3 +264,41 @@ Algorithms should move to `core/services` or `core/utils`.
 - Call sites were intentionally kept in place in this pass.
 - The next pass should continue without moving components/pages yet.
 - Once extraction is stable, a later pass can centralize call sites and remove duplicate algorithms.
+
+---
+
+## C-5 Audit — core/services/ naming convention [2026-03-26]
+
+### Convention réelle (deux couches distinctes)
+
+| Suffixe | Usage | Source de données |
+|---------|-------|-------------------|
+| `*-api.service.ts` | Utilisé par `app/api/` routes (server-side) | `persistenceManager` |
+| `*.service.ts` (business) | Logique métier extraite (extraction algorithmes) | Calcul pur ou composition d'autres services |
+| `*.service.ts` (legacy) | Ancienne couche staticDb — accès direct JSON | `staticDb` |
+
+### Fichiers `-api.service.ts` (13 fichiers) — server-side, app/api/
+- `trip-api.service.ts`, `trip-lifecycle-api.service.ts`
+- `reservation-api.service.ts`, `reservation-lifecycle-api.service.ts`
+- `vehicle-api.service.ts`, `draft-api.service.ts`
+- `notification-api.service.ts`, `review-api.service.ts`
+- `auth-api.service.ts`, `lieux-favoris-api.service.ts`, `favoris-api.service.ts`
+- `indisponibility-api.service.ts`, `admin-api.service.ts`
+
+### Fichiers `.service.ts` — business logic extraits (phases 1–7 + Chantier B)
+- `dashboard-driver.service.ts`, `dashboard-passenger.service.ts`, `historique.service.ts`
+- `simulation.service.ts`, `routing.service.ts`, `live-trips.service.ts`
+- `trajet-en-cours.service.ts`, `reservation-acceptance.service.ts`
+- `dashboard-selector.service.ts`, `list-detail-config.service.ts`
+- `homepage-content.service.ts`, `nouveautes-slider.service.ts`
+- `driver-circuit.service.ts`, `passenger-search.service.ts`, `passenger-search-client.service.ts`
+
+### Fichiers `.service.ts` — legacy staticDb (6 fichiers, antérieurs à l'extraction)
+- `trip.service.ts`, `reservation.service.ts`, `vehicle.service.ts`
+- `review.service.ts`, `notification.service.ts`, `user.service.ts`
+- **Note :** Coexistent avec leur équivalent `-api.service.ts`. Pas de doublon logique — couches différentes.
+
+### Nommage non-standard (2 fichiers)
+- `location.suggestion.ts` — devrait être `location-suggestion.service.ts`
+- `getlocation.current.ts` — devrait être `geolocation.service.ts`
+- **Action :** Renommage reporté — imports à mettre à jour partout, risque de régression élevé sans test.

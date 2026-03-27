@@ -8,7 +8,7 @@
  */
 
 import { FaChevronLeft, FaChevronRight, FaCalendarDay } from "react-icons/fa";
-import { FaListUl } from "react-icons/fa6";
+import { FaListUl, FaArrowsRotate } from "react-icons/fa6";
 
 import { formatDate }                   from "@/core/utils/date.utils";
 import type { RidesAreaHeaderProps }    from "@/features/planner/types/rides.area.types";
@@ -30,6 +30,8 @@ export function RidesAreaHeader({
   onNextDay,
   onToday,
   onToggleShowAll,
+  onRefresh,
+  isRefreshing = false,
 }: RidesAreaHeaderProps) {
   return (
     <div className="shrink-0 w-full bg-white shadow-sm px-6 py-4 flex items-center justify-between border-b border-gray-100">
@@ -93,6 +95,23 @@ export function RidesAreaHeader({
               ? (isFr ? "Vue par jour" : "Day view")
               : (isFr ? "Voir tout" : "View all")}
           </button>
+
+          {/* Bouton actualiser */}
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              aria-label={isFr ? "Actualiser" : "Refresh"}
+              title={isFr ? "Actualiser les trajets" : "Refresh rides"}
+              className="flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-gray-100 text-[#08316e] hover:bg-gray-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <FaArrowsRotate
+                size={10}
+                style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }}
+              />
+              {isFr ? "Actualiser" : "Refresh"}
+            </button>
+          )}
         </div>
       </div>
 

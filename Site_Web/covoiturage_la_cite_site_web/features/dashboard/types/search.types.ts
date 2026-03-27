@@ -4,7 +4,8 @@
  * Utilisé par SuperSearchSection, useSuperSearch et les pages de recherche/création de trajet.
  */
 
-import { JSX } from "react";
+import type React from "react";
+import { type JSX, type RefObject, type ChangeEvent } from "react";
 
 // ─── Types géolocalisation ───────────────────────────────────────────────────
 
@@ -83,4 +84,69 @@ export interface SuperSearchSectionProps {
    * TODO: Brancher sur GET /api/users/{userId}/favorites → mapper en FavDestination[]
    */
   favDestinations?: FavDestination[];
+}
+
+// ─── Retour du hook useSuperSearch ───────────────────────────────────────────
+
+export interface UseSuperSearchReturn {
+  // ── Champs de localisation ──────────────────────────────────────────────
+  departureLocation: string;
+  arrivalLocation: string;
+  setDepartureLocation: (v: string) => void;
+  setArrivalLocation: (v: string) => void;
+
+  // ── Erreur de localisation du départ ────────────────────────────────────
+  departureError: string | null;
+
+  // ── Erreur de validation du formulaire (inline, remplace les alert()) ───
+  formError: string | null;
+
+  // ── Suggestions d'autocomplétion ────────────────────────────────────────
+  departureSuggestions: LocationSuggestion[];
+  arrivalSuggestions: LocationSuggestion[];
+  handleDepartureInputChange: (val: string) => Promise<void>;
+  handleArrivalInputChange: (val: string) => Promise<void>;
+  selectDepartureSuggestion: (suggestion: LocationSuggestion) => void;
+  selectArrivalSuggestion: (suggestion: LocationSuggestion) => void;
+
+  // ── Géolocalisation ─────────────────────────────────────────────────────
+  isCurrentLocationLoading: boolean;
+  handleGetCurrentLocation: () => void;
+
+  // ── Mode "Maintenant" vs "Planifié" ─────────────────────────────────────
+  departIsNotNow: boolean;
+  setDepartIsNotNow: (v: boolean) => void;
+
+  // ── DateTimePicker : date active ────────────────────────────────────────
+  isStartPickerOpen: boolean;
+  switchToStartPicker: () => void;
+  switchToArrivalPicker: () => void;
+  activeDate: Date;
+  activeTime: string;
+  dateLabel: string;
+  today: Date;
+  moveNextDay: () => void;
+  movePrevDay: () => void;
+  handleDateChange: (e: ChangeEvent<HTMLInputElement>) => void;
+
+  // ── DateTimePicker : heure active ────────────────────────────────────────
+  moveTimeUp: () => void;
+  moveTimeDown: () => void;
+  setActiveTime: (time: string) => void;
+
+  // ── Refs DOM ────────────────────────────────────────────────────────────
+  dateInputRef: RefObject<HTMLInputElement | null>;
+  timeInputRef: RefObject<HTMLInputElement | null>;
+  departureRef: RefObject<HTMLTextAreaElement | null>;
+  arrivalRef: RefObject<HTMLTextAreaElement | null>;
+
+  // ── Menu favoris (dropdown arrivée) ─────────────────────────────────────
+  isFavMenuOpen: boolean;
+  setIsFavMenuOpen: (v: boolean) => void;
+
+  // ── Coordonnées GPS arrivée ─────────────────────────────────────────────
+  setArrivalCoords: (coords: [number, number] | undefined) => void;
+
+  // ── Soumission ──────────────────────────────────────────────────────────
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>;
 }

@@ -59,14 +59,34 @@ export function buildNotificationsListDetailConfig(lang: Language) {
 export function buildReviewsListDetailConfig(lang: Language) {
   const isFR = lang === Language.FR;
 
+  const filterGroups: FilterGroup[] = [
+    {
+      title: isFR ? 'Note' : 'Rating',
+      field: 'ratingBand',
+      options: [
+        { value: '5stars', label: '5 ★'       },
+        { value: '4plus',  label: '≥ 4 ★'     },
+        { value: '3plus',  label: '≥ 3 ★'     },
+      ],
+      filterFn: (item, value) => {
+        const rating = ((item as Record<string, unknown>).rating as number) ?? 0;
+        if (value === '5stars') return rating >= 4.8;
+        if (value === '4plus')  return rating >= 4.0;
+        if (value === '3plus')  return rating >= 3.0;
+        return false;
+      },
+    },
+  ];
+
   const sortOptions: SortOption[] = [
-    { value: 'date-desc', label: isFR ? 'Plus recent' : 'Newest', compareFn: compareDateDesc },
-    { value: 'date-asc', label: isFR ? 'Plus ancien' : 'Oldest', compareFn: compareDateAsc },
-    { value: 'rating-desc', label: isFR ? 'Meilleure note' : 'Highest rating', compareFn: compareRatingDesc },
-    { value: 'rating-asc', label: isFR ? 'Note la plus basse' : 'Lowest rating', compareFn: compareRatingAsc },
+    { value: 'date-desc',   label: isFR ? 'Plus récent'       : 'Newest',         compareFn: compareDateDesc   },
+    { value: 'date-asc',    label: isFR ? 'Plus ancien'        : 'Oldest',         compareFn: compareDateAsc    },
+    { value: 'rating-desc', label: isFR ? 'Meilleure note'     : 'Highest rating', compareFn: compareRatingDesc },
+    { value: 'rating-asc',  label: isFR ? 'Note la plus basse' : 'Lowest rating',  compareFn: compareRatingAsc  },
   ];
 
   return {
+    filterGroups,
     sortOptions,
     searchKeys: ['reviewer', 'comment'],
     emptyMessage: isFR ? 'Aucun avis pour le moment.' : 'No reviews yet.',
@@ -76,8 +96,28 @@ export function buildReviewsListDetailConfig(lang: Language) {
 export function buildNouveautesListDetailConfig(lang: Language) {
   const isFR = lang === Language.FR;
 
+  const sortOptions: SortOption[] = [
+    {
+      value: 'title-asc',
+      label: isFR ? 'Titre (A → Z)' : 'Title (A → Z)',
+      compareFn: <T,>(a: T, b: T) =>
+        String((a as Record<string, unknown>).title ?? '').localeCompare(
+          String((b as Record<string, unknown>).title ?? ''),
+        ),
+    },
+    {
+      value: 'title-desc',
+      label: isFR ? 'Titre (Z → A)' : 'Title (Z → A)',
+      compareFn: <T,>(a: T, b: T) =>
+        String((b as Record<string, unknown>).title ?? '').localeCompare(
+          String((a as Record<string, unknown>).title ?? ''),
+        ),
+    },
+  ];
+
   return {
+    sortOptions,
     searchKeys: ['title'],
-    emptyMessage: isFR ? 'Aucune nouveaute pour le moment.' : 'No new features yet.',
+    emptyMessage: isFR ? 'Aucune nouveauté pour le moment.' : 'No new features yet.',
   };
 }

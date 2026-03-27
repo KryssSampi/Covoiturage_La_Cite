@@ -13,6 +13,7 @@ export interface TripPreferences {
   smokingAllowed: boolean;
   musicAllowed: boolean;
   flexibleItinerary: boolean;
+  driverNote?: string;
 }
 
 // ── Modele Trip complet ───────────────────────────────────────
@@ -20,6 +21,8 @@ export interface Trip {
   // Champs obligatoires
   departureLocation: string;
   arrivalLocation: string;
+  departureInstructions?: string;
+  arrivalInstructions?: string;
   departureDate: string;   // YYYY-MM-DD
   departureTime: string;   // HH:mm
   vehicleId: string;
@@ -52,6 +55,7 @@ export const DEFAULT_TRIP_PREFERENCES: TripPreferences = {
   smokingAllowed: false,
   musicAllowed: false,
   flexibleItinerary: false,
+  driverNote: '',
 };
 
 export type CreateTripFormState = Omit<Trip, 'id' | 'conductorId' | 'createdAt' | 'updatedAt'>;
@@ -60,6 +64,8 @@ export type CreateTripFormState = Omit<Trip, 'id' | 'conductorId' | 'createdAt' 
 export const DEFAULT_CREATE_TRIP_FORM: CreateTripFormState = {
   departureLocation: '',
   arrivalLocation: '',
+  departureInstructions: '',
+  arrivalInstructions: '',
   departureDate: '',
   departureTime: '',
   vehicleId: '',

@@ -21,7 +21,7 @@ export interface BrouillonsPageProps {
 }
 
 export function BrouillonsPage({ items, onRemove }: BrouillonsPageProps) {
-  const { sortOptions, searchKeys, emptyMessage } = useDraftsConfig();
+  const { filterGroups, sortOptions, searchKeys, emptyMessage } = useDraftsConfig();
 
   // Rendu d'une carte dans la liste
   const renderCard = useCallback(
@@ -42,6 +42,7 @@ export function BrouillonsPage({ items, onRemove }: BrouillonsPageProps) {
       items={items}
       renderCard={renderCard}
       renderDetail={renderDetail}
+      filterGroups={filterGroups}
       sortOptions={sortOptions}
       searchKeys={searchKeys}
       emptyMessage={emptyMessage}

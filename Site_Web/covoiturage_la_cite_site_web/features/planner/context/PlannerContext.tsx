@@ -17,6 +17,7 @@ interface PlannerContextType {
   onCancelTrip?: (tripId: string) => Promise<boolean>;
   onCancelReservation?: (reservationId: string, raison?: string) => Promise<boolean>;
   onStartReservation?: (reservationId: string) => Promise<string | null>;
+  onStartTrip?: (tripId: string) => Promise<void>;
 }
 
 interface PlannerProviderProps {
@@ -27,6 +28,7 @@ interface PlannerProviderProps {
   onCancelTrip?: (tripId: string) => Promise<boolean>;
   onCancelReservation?: (reservationId: string, raison?: string) => Promise<boolean>;
   onStartReservation?: (reservationId: string) => Promise<string | null>;
+  onStartTrip?: (tripId: string) => Promise<void>;
 }
 
 const PlannerContext = createContext<PlannerContextType | undefined>(undefined);
@@ -39,6 +41,7 @@ export function PlannerProvider({
   onCancelTrip,
   onCancelReservation,
   onStartReservation,
+  onStartTrip,
 }: PlannerProviderProps) {
   const searchParams = useSearchParams();
   const [currentDay, setCurrentDay] = useState<Date>(new Date());
@@ -61,6 +64,7 @@ export function PlannerProvider({
         onCancelTrip,
         onCancelReservation,
         onStartReservation,
+        onStartTrip,
       }}
     >
       {children}

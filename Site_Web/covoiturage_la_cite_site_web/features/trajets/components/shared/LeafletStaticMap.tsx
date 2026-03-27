@@ -25,6 +25,15 @@ import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { FaMap } from 'react-icons/fa6';
+import { FIXTURE_LIEUX_FAVORIS } from '@/shared/fixtures/favoris.fixtures';
+import type { LieuFavoriUnifie } from '@/shared/types/lieu-favori.types';
+import {
+  TILE_CONFIGS,
+  injectMapServiceCSS,
+  addCampusLayer,
+  addOverpassLayer,
+  addFavoritesLayer,
+} from '@/features/map-service';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -116,6 +125,30 @@ function FitBounds({
   return null;
 }
 
+function MapServiceLayers({ isFR, favorites }: { isFR: boolean; favorites: LieuFavoriUnifie[] }) {
+  const map = useMap();
+  const initRef = useRef(false);
+
+  useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
+
+    const mapAny = map as unknown as { _msOverlays?: boolean };
+    if (mapAny._msOverlays) return;
+    mapAny._msOverlays = true;
+
+    injectMapServiceCSS();
+
+    void (async () => {
+      await addCampusLayer(map, L, { showPerimeter: true, showZones: true, showBusStopZone: false });
+      await addOverpassLayer(map, L, { showBusStops: false, showGasStations: true, showPublicServices: true });
+      await addFavoritesLayer(map, L, favorites, { isFR });
+    })();
+  }, [map, isFR, favorites]);
+
+  return null;
+}
+
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
@@ -185,15 +218,17 @@ export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
       style={{ height, width: '100%' }}
       {...mapProps}
     >
-      {/* Tuiles OpenStreetMap */}
+      {/* Tuiles CARTO Voyager */}
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        maxZoom={19}
+        url={TILE_CONFIGS['carto-voyager'].url}
+        attribution={TILE_CONFIGS['carto-voyager'].attribution}
+        subdomains={TILE_CONFIGS['carto-voyager'].subdomains ?? 'abc'}
+        maxZoom={TILE_CONFIGS['carto-voyager'].maxZoom}
       />
 
       {/* Ajustement automatique du viewport */}
       <FitBounds latLngs={latLngs} centerPoint={centerPoint} />
+      <MapServiceLayers isFR favorites={FIXTURE_LIEUX_FAVORIS} />
 
       {/* ── Mode ROUTE : polyline + marqueurs départ/arrivée ─────────────── */}
       {mode === 'route' && latLngs && latLngs.length >= 2 && (

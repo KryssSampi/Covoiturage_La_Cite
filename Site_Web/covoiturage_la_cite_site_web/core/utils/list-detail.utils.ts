@@ -32,8 +32,13 @@ export function matchesFilters<T>(
     const active = activeFilters[group.field];
     if (!active || active.size === 0) continue;
 
-    const value = String(getNestedValue(item, group.field) ?? '');
-    if (!active.has(value)) return false;
+    if (group.filterFn) {
+      // Custom filter: item passes if at least one active value matches
+      if (![...active].some((v) => group.filterFn!(item, v))) return false;
+    } else {
+      const value = String(getNestedValue(item, group.field) ?? '');
+      if (!active.has(value)) return false;
+    }
   }
 
   return true;

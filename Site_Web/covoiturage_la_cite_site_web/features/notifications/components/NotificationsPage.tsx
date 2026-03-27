@@ -1,237 +1,285 @@
 "use client";
 
 /**
- * Page de listing des notifications.
- * Commun aux deux rôles. Utilise ListDetailPage avec le hook useNotificationsList.
- * Le panneau détail affiche une notification au format mail professionnel
- * (objet, date de réception, contenu).
+ * NotificationsPage — Liste + détail des notifications (NotificationModel)
+ *
+ * Panneau détail contextuel par type :
+ * - Bouton d'action avec libellé et lien adaptés à la catégorie
+ * - Payloads enrichis (tripDetails, reservationDetails, reviewDetails, securityDetails) affichés
  */
 
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import Link from "next/link";
 import {
-  FaCalendarDays,
-  FaClock,
-  FaCircle,
-  FaEnvelope,
-  FaEnvelopeOpen,
-  FaArrowRight,
+  FaCalendarDays, FaClock, FaCircle, FaEnvelope, FaEnvelopeOpen,
+  FaArrowRight, FaBell, FaStar, FaTriangleExclamation,
+  FaCircleCheck, FaCircleXmark, FaShield, FaLocationDot, FaDollarSign, FaUser,
 } from "react-icons/fa6";
-
 import { Language, useAppState } from "@/core/state/app_state";
-import { formatDate } from "@/core/utils/date.utils";
 import { ListDetailPage } from "@/shared/components/list-detail-page";
-import {
-  NotificationType,
-  IMPORTANT_NOTIFICATION_TYPES,
-  type Notification,
-} from "@/features/dashboard/types/notification.types";
+import type { NotificationModel, NotificationType } from "@/core/models/NotificationModel";
+import { IMPORTANT_NOTIFICATION_TYPES } from "@/core/models/NotificationModel";
 import { useNotificationsConfig } from "../hooks/useNotificationsList";
-import { NotificationIcon } from "./NotificationItem";
 
-// ─── Props du composant (données fournies par la page route) ──────────────
+// ─── Icône par type ───────────────────────────────────────────────────────────
 
-interface NotificationsPageProps {
-  items: Notification[];
-}
-
-// ─── Sous-composant titre (repris de notifications.section.tsx) ──────────────
-
-function getNotificationSubject(type: NotificationType, lang: Language): string {
-  const isFR = lang === Language.FR;
+function NotifIcon({ type }: { type: NotificationType }) {
+  const urgent = IMPORTANT_NOTIFICATION_TYPES.includes(type);
+  const cls = `w-5 h-5 ${urgent ? "text-red-500" : "text-[#08316e]"}`;
   switch (type) {
-    case NotificationType.Confirmation:  return "Confirmation";
-    case NotificationType.UrgentRappel:  return isFR ? "Rappel Urgent" : "Urgent Reminder";
-    case NotificationType.Annulation:    return isFR ? "Annulation" : "Cancellation";
-    case NotificationType.Retard:        return isFR ? "Retard" : "Delay";
-    case NotificationType.Infos:         return "Information";
-    case NotificationType.Rappel:        return isFR ? "Rappel" : "Reminder";
-    case NotificationType.NouvelleAvis:  return isFR ? "Nouvel Avis" : "New Review";
-    case NotificationType.AlerteTrajet:  return isFR ? "Alerte Trajet" : "Trip Alert";
-    default:                             return "Notification";
+    case "reservation_received":   return <FaBell className={cls} />;
+    case "reservation_sent":       return <FaCircleCheck className="w-5 h-5 text-blue-500" />;
+    case "reservation_accepted":   return <FaCircleCheck className={cls} />;
+    case "reservation_refused":
+    case "reservation_cancelled":
+    case "trip_cancelled":         return <FaCircleXmark className="w-5 h-5 text-red-500" />;
+    case "trip_created":
+    case "trip_completed":         return <FaCircleCheck className={cls} />;
+    case "trip_starting_soon":
+    case "trip_started":           return <FaCalendarDays className={cls} />;
+    case "new_review_received":    return <FaStar className="w-5 h-5 text-yellow-500" />;
+    case "cancellation_penalty":   return <FaTriangleExclamation className={cls} />;
+    case "security_alert":         return <FaShield className={cls} />;
+    default:                       return <FaBell className={cls} />;
   }
 }
 
-function NotificationTitle({ type, lang }: { type: NotificationType; lang: Language }) {
-  const isFR = lang === Language.FR;
+// ─── Libellé du type ─────────────────────────────────────────────────────────
 
-  switch (type) {
-    case NotificationType.Confirmation:
-      return <span className="text-black font-bold text-xs">Confirmation</span>;
-    case NotificationType.UrgentRappel:
-      return (
-        <span className="text-black font-bold text-xs">
-          {isFR ? "Rappel Urgent" : "Urgent Reminder"}
-          <span className="text-red-500 ml-1">!!!</span>
-        </span>
-      );
-    case NotificationType.Annulation:
-      return (
-        <span className="text-black font-bold text-xs">
-          {isFR ? "Annulation" : "Cancellation"}
-          <span className="text-red-500 ml-1">!!!</span>
-        </span>
-      );
-    case NotificationType.Retard:
-      return <span className="text-red-500 font-bold text-xs">{isFR ? "Retard" : "Delay"} !!!</span>;
-    case NotificationType.Infos:
-      return <span className="text-black font-bold text-xs">Information</span>;
-    case NotificationType.Rappel:
-      return <span className="text-black font-bold text-xs">{isFR ? "Rappel" : "Reminder"}</span>;
-    case NotificationType.NouvelleAvis:
-      return <span className="text-black font-bold text-xs">{isFR ? "Nouvel Avis" : "New Review"}</span>;
-    case NotificationType.AlerteTrajet:
-      return (
-        <span className="text-[#08316e] font-bold text-xs">
-          {isFR ? "Alerte Trajet" : "Trip Alert"}
-        </span>
-      );
-    default:
-      return <span className="text-black font-bold text-xs">Notification</span>;
-  }
+function typeLabel(type: NotificationType, isFR: boolean): string {
+  const t: Record<NotificationType, string> = {
+    reservation_received:  isFR ? "Nouvelle demande"       : "New Request",
+    reservation_sent:      isFR ? "Demande envoyée"        : "Request Sent",
+    reservation_accepted:  isFR ? "Réservation confirmée"  : "Reservation Confirmed",
+    reservation_refused:   isFR ? "Demande non retenue"    : "Request Declined",
+    reservation_cancelled: isFR ? "Réservation annulée"    : "Reservation Cancelled",
+    trip_created:          isFR ? "Trajet publié"          : "Trip Published",
+    trip_starting_soon:    isFR ? "Départ imminent"        : "Departure Imminent",
+    trip_started:          isFR ? "Trajet démarré"         : "Trip Started",
+    trip_completed:        isFR ? "Trajet terminé"         : "Trip Completed",
+    trip_cancelled:        isFR ? "Trajet annulé"          : "Trip Cancelled",
+    new_review_received:   isFR ? "Nouvel avis"            : "New Review",
+    cancellation_penalty:  isFR ? "Pénalité appliquée"     : "Penalty Applied",
+    security_alert:        isFR ? "Alerte de sécurité"     : "Security Alert",
+    system:                isFR ? "Information"            : "Information",
+  };
+  return t[type] ?? "Notification";
 }
 
-// ─── Carte de notification pour le listing ───────────────────────────────────
+// ─── Label de bouton par défaut ───────────────────────────────────────────────
 
-function NotificationListCard({
-  notification,
-  lang,
-}: {
-  notification: Notification;
-  lang: Language;
-}) {
-  const isUrgent = IMPORTANT_NOTIFICATION_TYPES.includes(notification.type);
+function defaultLinkLabel(type: NotificationType, isFR: boolean): string {
+  const l: Partial<Record<NotificationType, string>> = {
+    reservation_received:  isFR ? "Voir les demandes"        : "See Requests",
+    reservation_sent:      isFR ? "Voir ma demande"          : "See My Request",
+    reservation_accepted:  isFR ? "Voir le trajet"           : "See Trip",
+    reservation_refused:   isFR ? "Chercher un autre trajet" : "Find Another Trip",
+    reservation_cancelled: isFR ? "Voir mes réservations"    : "See Reservations",
+    trip_created:          isFR ? "Voir le trajet"           : "See Trip",
+    trip_starting_soon:    isFR ? "Suivre le trajet"         : "Track Trip",
+    trip_started:          isFR ? "Suivre le trajet"         : "Track Trip",
+    trip_completed:        isFR ? "Voir le résumé"           : "See Summary",
+    trip_cancelled:        isFR ? "Chercher un autre trajet" : "Find Another Trip",
+    new_review_received:   isFR ? "Voir l'avis"              : "See Review",
+    cancellation_penalty:  isFR ? "Voir les pénalités"       : "See Penalties",
+    security_alert:        isFR ? "Voir l'activité récente"  : "See Activity",
+    system:                isFR ? "Suivre le lien attaché"   : "Follow Link",
+  };
+  return l[type] ?? (isFR ? "En savoir plus" : "Learn More");
+}
+
+// ─── Carte de listing ─────────────────────────────────────────────────────────
+
+function NotificationListCard({ notification, isFR }: { notification: NotificationModel; isFR: boolean }) {
+  const urgent  = IMPORTANT_NOTIFICATION_TYPES.includes(notification.type);
+  const date    = new Date(notification.createdAt);
+  const dateStr = date.toLocaleDateString(isFR ? "fr-CA" : "en-CA", { day: "numeric", month: "short" });
+  const timeStr = date.toLocaleTimeString(isFR ? "fr-CA" : "en-CA", { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-lg ${isUrgent ? "bg-red-50" : ""}`}>
-      {/* Icone */}
-      <div className="shrink-0">
-        <NotificationIcon type={notification.type} />
-      </div>
-
-      {/* Contenu */}
+    <div className={`flex items-center gap-3 p-3 rounded-lg ${urgent ? "bg-red-50" : ""}`}>
+      <div className="shrink-0"><NotifIcon type={notification.type} /></div>
       <div className="flex flex-col flex-1 min-w-0">
-        <div className="flex items-center gap-1">
-          <NotificationTitle type={notification.type} lang={lang} />
-          {/* Point non-lu */}
-          {!notification.isRead && (
-            <div className="w-2 h-2 rounded-full bg-[#08316e] shrink-0" />
-          )}
+        <div className="flex items-center gap-1.5">
+          <span className={`text-xs font-bold truncate ${urgent ? "text-red-600" : "text-[#08316e]"}`}>
+            {notification.title}
+          </span>
+          {!notification.isRead && <div className="w-2 h-2 rounded-full bg-[#08316e] shrink-0" />}
         </div>
-        <p className="text-[10px] text-gray-500">
-          {formatDate(notification.date, lang)} — {notification.time}
-        </p>
+        <p className="text-[10px] text-gray-500">{dateStr} — {timeStr}</p>
         <p className="text-xs text-gray-700 truncate">{notification.message}</p>
       </div>
     </div>
   );
 }
 
-// ─── Panneau détail : notification au format mail professionnel ──────────────
+// ─── Ligne de détail ──────────────────────────────────────────────────────────
 
-function NotificationMailDetail({
-  notification,
-  lang,
+function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <span className="flex items-center">{icon}</span>
+      <span className="text-gray-500 w-16 shrink-0">{label}</span>
+      <span className="font-medium text-gray-800 truncate">{value}</span>
+    </div>
+  );
+}
+
+// ─── Panneau détail ───────────────────────────────────────────────────────────
+
+function NotificationDetail({
+  notification, userId, role, isFR, onRead,
 }: {
-  notification: Notification;
-  lang: Language;
+  notification: NotificationModel;
+  userId: string;
+  role: string;
+  isFR: boolean;
+  onRead?: (id: string) => void;
 }) {
-  const isFR = lang === Language.FR;
-  const isUrgent = IMPORTANT_NOTIFICATION_TYPES.includes(notification.type);
-  const subject = getNotificationSubject(notification.type, lang);
+  // Marquer comme lu au premier affichage du détail
+  React.useEffect(() => { onRead?.(notification.id); }, [notification.id, onRead]);
 
-  // Résoudre le lien dynamique en remplaçant les placeholders par les vraies valeurs
-  const appState = useAppState();
-  const resolvedLink = notification.link
-    ? notification.link.replace(
-        /\/(passenger|driver)\/search\/me/,
-        `/${appState.userConnected?.role?.toString().toLowerCase() ?? 'passenger'}/search/${appState.userConnected?.id ?? 'me'}`,
-      )
-    : undefined;
+  const urgent  = IMPORTANT_NOTIFICATION_TYPES.includes(notification.type);
+  const subject = typeLabel(notification.type, isFR);
+  const date    = new Date(notification.createdAt);
+  const dateStr = date.toLocaleDateString(isFR ? "fr-CA" : "en-CA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const timeStr = date.toLocaleTimeString(isFR ? "fr-CA" : "en-CA", { hour: "2-digit", minute: "2-digit" });
+
+  const href  = notification.link;
+  const label = notification.linkLabel ?? defaultLinkLabel(notification.type, isFR);
 
   return (
     <div className="flex flex-col h-full bg-white">
-      {/* En-tête du mail */}
-      <div
-        className="px-5 pt-5 pb-4 border-b"
-        style={{ borderColor: "#e5e7eb" }}
-      >
-        {/* Objet */}
+      {/* En-tête */}
+      <div className="px-5 pt-5 pb-4 border-b" style={{ borderColor: "#e5e7eb" }}>
         <div className="flex items-start gap-3">
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-            style={{ backgroundColor: isUrgent ? "#fef2f2" : "#e8eef7" }}
+            style={{ backgroundColor: urgent ? "#fef2f2" : "#e8eef7" }}
           >
-            <NotificationIcon type={notification.type} />
+            <NotifIcon type={notification.type} />
           </div>
           <div className="flex-1 min-w-0">
-            <h2
-              className="text-base font-bold leading-tight"
-              style={{ color: isUrgent ? "#dc2626" : "#08316e" }}
-            >
+            <h2 className="text-base font-bold leading-tight" style={{ color: urgent ? "#dc2626" : "#08316e" }}>
               {subject}
             </h2>
             <p className="text-xs text-gray-400 mt-0.5">
-              {isFR ? "De" : "From"} : La Cite Covoiturage
+              {isFR ? "De" : "From"} : La Cité Covoiturage
             </p>
           </div>
         </div>
-
-        {/* Métadonnées */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3">
           <div className="flex items-center gap-1.5 text-xs text-gray-500">
-            <FaCalendarDays size={11} color="#08316e" />
-            <span>{formatDate(notification.date, lang)}</span>
+            <FaCalendarDays size={11} color="#08316e" /><span>{dateStr}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs text-gray-500">
-            <FaClock size={11} color="#08316e" />
-            <span>{notification.time}</span>
+            <FaClock size={11} color="#08316e" /><span>{timeStr}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs">
-            {notification.isRead ? (
-              <>
-                <FaEnvelopeOpen size={11} color="#6b7280" />
-                <span className="text-gray-400">{isFR ? "Lu" : "Read"}</span>
-              </>
-            ) : (
-              <>
-                <FaEnvelope size={11} color="#08316e" />
-                <span className="text-[#08316e] font-semibold">
-                  {isFR ? "Non lu" : "Unread"}
-                </span>
-              </>
-            )}
+            {notification.isRead
+              ? <><FaEnvelopeOpen size={11} color="#6b7280" /><span className="text-gray-400">{isFR ? "Lu" : "Read"}</span></>
+              : <><FaEnvelope size={11} color="#08316e" /><span className="text-[#08316e] font-semibold">{isFR ? "Non lu" : "Unread"}</span></>
+            }
           </div>
         </div>
       </div>
 
-      {/* Corps du message */}
-      <div className="flex-1 px-5 py-5">
-        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-          {notification.message}
-        </p>
+      {/* Corps */}
+      <div className="px-5 py-4 flex flex-col gap-4 flex-1 overflow-y-auto">
+        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{notification.message}</p>
+
+        {/* Détails trajet */}
+        {notification.tripDetails && (
+          <div className="bg-gray-50 rounded-xl p-3 flex flex-col gap-1.5">
+            <p className="text-[11px] font-semibold text-[#08316e] uppercase tracking-wide mb-1">
+              {isFR ? "Trajet concerné" : "Trip Details"}
+            </p>
+            <DetailRow icon={<FaLocationDot size={11} color="#08316e" />} label={isFR ? "De" : "From"} value={notification.tripDetails.departure} />
+            <DetailRow icon={<FaArrowRight size={11} color="#08316e" />} label={isFR ? "Vers" : "To"} value={notification.tripDetails.arrival} />
+            <DetailRow icon={<FaCalendarDays size={11} color="#08316e" />} label={isFR ? "Date" : "Date"} value={`${notification.tripDetails.date} à ${notification.tripDetails.time}`} />
+            <DetailRow icon={<FaDollarSign size={11} color="#08316e" />} label={isFR ? "Tarif" : "Price"} value={`${notification.tripDetails.price.toFixed(2)} $`} />
+            {notification.tripDetails.estimatedDurationMinutes && (
+              <DetailRow icon={<FaClock size={11} color="#08316e" />} label={isFR ? "Durée" : "Duration"} value={`${notification.tripDetails.estimatedDurationMinutes} min`} />
+            )}
+            {notification.tripDetails.availableSeats !== undefined && (
+              <DetailRow icon={<FaUser size={11} color="#08316e" />} label={isFR ? "Places" : "Seats"} value={`${notification.tripDetails.availableSeats} disponible${notification.tripDetails.availableSeats > 1 ? "s" : ""}`} />
+            )}
+          </div>
+        )}
+
+        {/* Détails réservation */}
+        {notification.reservationDetails && (
+          <div className="bg-gray-50 rounded-xl p-3 flex flex-col gap-1.5">
+            <p className="text-[11px] font-semibold text-[#08316e] uppercase tracking-wide mb-1">
+              {isFR ? "Parties concernées" : "People Involved"}
+            </p>
+            {notification.reservationDetails.passengerName && (
+              <DetailRow icon={<FaUser size={11} color="#08316e" />} label={isFR ? "Passager" : "Passenger"} value={
+                notification.reservationDetails.passengerName +
+                (notification.reservationDetails.passengerRating ? ` — ${notification.reservationDetails.passengerRating}★` : "")
+              } />
+            )}
+            {notification.reservationDetails.driverName && (
+              <DetailRow icon={<FaUser size={11} color="#08316e" />} label={isFR ? "Conducteur" : "Driver"} value={notification.reservationDetails.driverName} />
+            )}
+          </div>
+        )}
+
+        {/* Détails avis */}
+        {notification.reviewDetails && (
+          <div className="bg-yellow-50 rounded-xl p-3 flex flex-col gap-1.5">
+            <p className="text-[11px] font-semibold text-yellow-700 uppercase tracking-wide mb-1">
+              {isFR ? "Avis reçu" : "Review Received"}
+            </p>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: 5 }, (_, i) => (
+                <FaStar key={i} size={14} color={i < Math.round(notification.reviewDetails!.rating) ? "#f59e0b" : "#d1d5db"} />
+              ))}
+              <span className="text-xs font-semibold text-gray-700 ml-1">{notification.reviewDetails.rating}/5</span>
+            </div>
+            {notification.reviewDetails.comment && (
+              <p className="text-xs text-gray-600 italic mt-1">&ldquo;{notification.reviewDetails.comment}&rdquo;</p>
+            )}
+            <p className="text-[10px] text-gray-400">{isFR ? "Par" : "By"} {notification.reviewDetails.reviewerName}</p>
+          </div>
+        )}
+
+        {/* Détails sécurité */}
+        {notification.securityDetails && (
+          <div className="bg-red-50 rounded-xl p-3 flex flex-col gap-1">
+            <p className="text-[11px] font-semibold text-red-600 uppercase tracking-wide mb-1">
+              {isFR ? "Détails de connexion" : "Connection Details"}
+            </p>
+            <p className="text-xs text-gray-600">
+              {isFR ? "Type" : "Type"} : {notification.securityDetails.clientType === "web" ? "Navigateur web" : "Application mobile"}
+            </p>
+            {notification.securityDetails.location && (
+              <p className="text-xs text-gray-600">{isFR ? "Lieu" : "Location"} : {notification.securityDetails.location}</p>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Lien vers la page de recherche (AlerteTrajet) */}
-      {resolvedLink && (
+      {/* Bouton d'action contextuel */}
+      {href && (
         <div className="px-5 pb-3">
           <Link
-            href={resolvedLink}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors"
+            href={href}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
             style={{ background: "#08316e" }}
           >
-            {isFR ? "Voir les trajets disponibles" : "See available trips"}
+            {label}
             <FaArrowRight size={12} />
           </Link>
         </div>
       )}
 
-      {/* Pied de page */}
+      {/* Pied */}
       <div className="px-5 py-4 border-t" style={{ borderColor: "#e5e7eb" }}>
         <div className="flex items-center gap-2">
           <FaCircle size={6} color={notification.isRead ? "#d1d5db" : "#08316e"} />
           <span className="text-[10px] text-gray-400">
-            {isFR ? "Notification automatique" : "Automatic notification"} — La Cite Covoiturage
+            {isFR ? "Notification automatique" : "Automatic notification"} — La Cité Covoiturage
           </span>
         </div>
       </div>
@@ -239,25 +287,31 @@ function NotificationMailDetail({
   );
 }
 
-// ─── Page principale ─────────────────────────────────────────────────────────
+// ─── Page principale ──────────────────────────────────────────────────────────
 
-export function NotificationsPage({ items }: NotificationsPageProps) {
-  const { lang } = useAppState();
+interface NotificationsPageProps {
+  items: NotificationModel[];
+  onRead?: (id: string) => void;
+}
+
+export function NotificationsPage({ items, onRead }: NotificationsPageProps) {
+  const { lang, userConnected } = useAppState();
+  const isFR   = lang === Language.FR;
+  const userId = userConnected?.id ?? "";
+  const role   = userConnected?.role ?? "passenger";
+
   const { filterGroups, sortOptions, searchKeys, emptyMessage } = useNotificationsConfig();
 
   const renderCard = useCallback(
-    (notification: Notification) => (
-      <NotificationListCard notification={notification} lang={lang} />
-    ),
-    [lang],
+    (n: NotificationModel) => <NotificationListCard notification={n} isFR={isFR} />,
+    [isFR],
   );
 
-  // Rendu détail : notification au format mail professionnel
   const renderDetail = useCallback(
-    (notification: Notification) => (
-      <NotificationMailDetail notification={notification} lang={lang} />
+    (n: NotificationModel) => (
+      <NotificationDetail notification={n} userId={userId} role={role} isFR={isFR} onRead={onRead} />
     ),
-    [lang],
+    [isFR, userId, role, onRead],
   );
 
   return (

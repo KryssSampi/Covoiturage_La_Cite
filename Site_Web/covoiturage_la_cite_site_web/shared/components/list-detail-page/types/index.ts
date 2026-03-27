@@ -15,6 +15,12 @@ export interface FilterGroup {
   /** Clé de la propriété de l'item sur laquelle filtrer */
   field: string;
   options: FilterOption[];
+  /**
+   * Fonction de filtrage personnalisée (remplace l'égalité string par défaut).
+   * Reçoit l'item et la valeur active sélectionnée.
+   * Retourne true si l'item correspond à cette valeur.
+   */
+  filterFn?: (item: unknown, value: string) => boolean;
 }
 
 /** Une option de tri */

@@ -11,17 +11,17 @@
  */
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Trip } from "@/features/dashboard/types/trip.types";
 import { MatchingScore } from "@/features/search/types/search.feature.types";
 import {
   FaLocationDot, FaFlag, FaCalendarDays, FaClock, FaStar,
-  FaUserGroup, FaArrowRight, FaMagnifyingGlass,
+  FaUserGroup, FaArrowRight,
 } from "react-icons/fa6";
 
 interface PassengerTripCardProps {
-  trip:          Trip;
-  score?:        MatchingScore;
-  onReserve?:    (tripId: string) => void;
+  trip:   Trip;
+  score?: MatchingScore;
 }
 
 function formatDate(dateStr: string): string {
@@ -39,7 +39,8 @@ function matchColor(score: number): { bg: string; color: string; label: string }
   return { bg: "#fce4ec", color: "#b71c1c", label: "Faible" };
 }
 
-export function PassengerTripCard({ trip, score, onReserve }: PassengerTripCardProps) {
+export function PassengerTripCard({ trip, score }: PassengerTripCardProps) {
+  const router = useRouter();
   const seatsLeft = trip.maxPassengers - trip.passengers.length;
   const mc = score ? matchColor(score.total) : null;
 
@@ -169,7 +170,7 @@ export function PassengerTripCard({ trip, score, onReserve }: PassengerTripCardP
 
         <button
           disabled={seatsLeft <= 0}
-          onClick={() => onReserve?.(trip.id)}
+          onClick={() => router.push(`/trajets/${trip.id}`)}
           style={{
             display: "flex", alignItems: "center", gap: 6,
             background: seatsLeft > 0 ? "#08316e" : "#b0bcd4",
@@ -188,11 +189,7 @@ export function PassengerTripCard({ trip, score, onReserve }: PassengerTripCardP
             if (seatsLeft > 0) (e.currentTarget as HTMLButtonElement).style.background = "#08316e";
           }}
         >
-          {seatsLeft > 0 ? (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <FaMagnifyingGlass size={11} /> Réserver
-            </span>
-          ) : "Complet"}
+          {seatsLeft > 0 ? "Voir le trajet" : "Complet"}
         </button>
       </div>
     </div>

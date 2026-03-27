@@ -106,7 +106,7 @@ function NouveauteDetail({ item }: { item: NouveauteModel }) {
 // ─── Page principale ─────────────────────────────────────────────────────────
 
 export function NouveautesPage({ items }: NouveautesPageProps) {
-  const { searchKeys, emptyMessage } = useNouveautesConfig();
+  const { sortOptions, searchKeys, emptyMessage } = useNouveautesConfig();
 
   const renderCard = useCallback(
     (item: NouveauteModel) => <NouveauteListCard item={item} />,
@@ -123,6 +123,7 @@ export function NouveautesPage({ items }: NouveautesPageProps) {
       items={items}
       renderCard={renderCard}
       renderDetail={renderDetail}
+      sortOptions={sortOptions}
       searchKeys={searchKeys}
       withOverview={true}
       emptyMessage={emptyMessage}

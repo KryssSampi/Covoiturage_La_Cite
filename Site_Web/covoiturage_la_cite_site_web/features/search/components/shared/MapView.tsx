@@ -23,6 +23,15 @@ import {
 import L from "leaflet";
 import { useEffect, useRef } from "react";
 import { MapCircuit } from "@/features/search/types/search.feature.types";
+import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
+import {
+  TILE_CONFIGS,
+  injectMapServiceCSS,
+  addCampusLayer,
+  addOverpassLayer,
+  addFavoritesLayer,
+} from "@/features/map-service";
+
 
 // Création d'une icône DivIcon lettrée (A ou B)
 function createLabelIcon(label: "A" | "B") {
@@ -76,7 +85,25 @@ function FitBoundsMulti({ allLatLngs }: { allLatLngs: [number, number][][] }) {
   return null;
 }
 
+function MapServiceLayers({ isFR, favorites }: { isFR: boolean; favorites: LieuFavoriUnifie[] }) {
+  const map = useMap();
+  const initRef = useRef(false);
+
+  useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
+    injectMapServiceCSS();
+    void (async () => {
+      await addCampusLayer(map, L, { showPerimeter: true, showZones: true, showBusStopZone: false });
+      await addOverpassLayer(map, L, { showBusStops: false, showGasStations: true, showPublicServices: true });
+      await addFavoritesLayer(map, L, favorites, { isFR });
+    })();
+  }, [map, isFR, favorites]);
+  return null;
+}
+
 export interface MapViewProps {
+  isFR?: boolean;
   /** Coordonnées du départ de la RECHERCHE [lat, lng] — marqueur A + cercle bleu */
   departure: [number, number] | null;
   departureLabel: string;
@@ -109,22 +136,24 @@ export interface MapViewProps {
  * MapView — carte Leaflet unifiée passager/conducteur.
  */
 export function MapView({
+  isFR = true,
   departure,
   departureLabel,
   arrival,
   arrivalLabel,
-  tripDeparture          = null,
-  tripDepartureLabel     = "",
-  tripArrival            = null,
-  tripArrivalLabel       = "",
-  routeLatLngs           = [],
-  circuits               = [],
-  activeCircuitIndex     = 0,
-  showRadiusCircles      = false,
-  departureRadiusMeters  = 300,
-  arrivalRadiusMeters    = 300,
-  height                 = "480px",
-}: MapViewProps) {
+  tripDeparture = null,
+  tripDepartureLabel = "",
+  tripArrival = null,
+  tripArrivalLabel = "",
+  routeLatLngs = [],
+  circuits = [],
+  activeCircuitIndex = 0,
+  showRadiusCircles = false,
+  departureRadiusMeters = 300,
+  arrivalRadiusMeters = 300,
+  height = "480px",
+  favorites = [],
+}: MapViewProps & { favorites?: LieuFavoriUnifie[] }) {
   const center: [number, number] = [45.4189, -75.6720]; // Campus La Cité
 
   const allPolylines: [number, number][][] =
@@ -142,9 +171,13 @@ export function MapView({
       scrollWheelZoom
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution={TILE_CONFIGS["carto-voyager"].attribution}
+        url={TILE_CONFIGS["carto-voyager"].url}
+        subdomains={TILE_CONFIGS["carto-voyager"].subdomains ?? "abc"}
+        maxZoom={TILE_CONFIGS["carto-voyager"].maxZoom}
       />
+
+      <MapServiceLayers isFR={isFR} favorites={favorites} />
 
       {departure && (
         <Marker position={departure} icon={ICON_A}>

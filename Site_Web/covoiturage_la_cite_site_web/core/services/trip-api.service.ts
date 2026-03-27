@@ -44,10 +44,14 @@ export function buildCreatedTripRecord(trip: TripModel): { trip?: TripModel; err
   const year = new Date().getFullYear();
   const rand = String(Math.floor(10000 + Math.random() * 90000)).padStart(5, '0');
 
+  // passengerPrice = pricePerPassenger × 1.15 (frais de service 15 %), arrondi au cent
+  const passengerPrice = Math.round(trip.pricePerPassenger * 1.15 * 100) / 100;
+
   return {
     trip: {
       ...trip,
       id: `TRJ-${year}-${rand}`,
+      passengerPrice,
       createdAt: now,
       updatedAt: now,
     },

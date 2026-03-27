@@ -66,6 +66,65 @@ export function useDriverSearch({
   const [isLoading,   setIsLoading]   = useState<boolean>(false);
   const [error,       setError]       = useState<string | null>(null);
 
+  const TARGET_COUNT = 6;
+  const SHOW_PARTIAL_AFTER_MS = 60_000;
+  const TARGET_COUNT_DEADLINE_MS = 120_000;
+  const MAX_SEARCH_MS = 360_000; // 6 minutes
+  const RETRY_DELAY_MS = 5_000;
+
+  async function runSearchWithTimeout(
+    dep: [number, number],
+    arr: [number, number],
+    depLabel: string,
+    arrLabel: string,
+    onCancel?: () => boolean,
+  ): Promise<void> {
+    const startedAt = Date.now();
+    let lastError: string | null = null;
+    let bestResult: MapCircuit[] = [];
+    let partialShown = false;
+
+    while (Date.now() - startedAt < MAX_SEARCH_MS) {
+      const elapsed = Date.now() - startedAt;
+      if (onCancel?.()) return;
+      try {
+        const result = await fetchCircuits(dep, arr, depLabel, arrLabel);
+        if (onCancel?.()) return;
+        if (result.length > bestResult.length) {
+          bestResult = result;
+          if (bestResult.length > 0) {
+            setCircuits(bestResult);
+          }
+        }
+
+        if (bestResult.length >= TARGET_COUNT && elapsed <= TARGET_COUNT_DEADLINE_MS) {
+          return;
+        }
+
+        if (!partialShown && elapsed >= SHOW_PARTIAL_AFTER_MS && bestResult.length > 0) {
+          partialShown = true;
+          setIsLoading(false);
+        }
+
+        if (elapsed >= TARGET_COUNT_DEADLINE_MS && bestResult.length > 0) {
+          return;
+        }
+        lastError = "Aucun circuit trouvé entre ces deux points.";
+      } catch (err) {
+        lastError = err instanceof Error ? err.message : "Erreur lors de la recherche de circuits.";
+      }
+
+      await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
+    }
+
+    if (bestResult.length > 0) {
+      setCircuits(bestResult);
+      return;
+    }
+    setCircuits([]);
+    setError(lastError ?? "Aucun circuit trouvé entre ces deux points.");
+  }
+
   // Lancement de la recherche OSRM pour les circuits
   const search = useCallback(async (
     dep:      [number, number],
@@ -77,14 +136,11 @@ export function useDriverSearch({
     setError(null);
     setActiveIndex(0);
 
+    let cancelled = false;
     try {
-      const result = await fetchCircuits(dep, arr, depLabel, arrLabel);
-      setCircuits(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la recherche de circuits.");
-      setCircuits([]);
+      await runSearchWithTimeout(dep, arr, depLabel, arrLabel, () => cancelled);
     } finally {
-      setIsLoading(false);
+      if (!cancelled) setIsLoading(false);
     }
   }, []);
 
@@ -104,18 +160,23 @@ export function useDriverSearch({
     setIsLoading(true);
     setError(null);
     setActiveIndex(0);
+    let cancelled = false;
 
-    fetchCircuits(
+    runSearchWithTimeout(
       initialDepartureCoords,
       initialArrivalCoords,
       departureLabel,
-      arrivalLabel
+      arrivalLabel,
+      () => cancelled,
     )
-      .then((result) => setCircuits(result))
       .catch((err) =>
         setError(err instanceof Error ? err.message : "Erreur OSRM circuits.")
       )
-      .finally(() => setIsLoading(false));
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Dépendances vides — lecture directe des props initiales
 

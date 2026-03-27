@@ -5,8 +5,8 @@
     "pseudonyme": "Campus La Cité",
     "adresse": "801, promenade de l'Aviation K1K 4R3, Ontario, Ottawa, Canada",
     "coordonnees": {
-      "lat": 45.4215,
-      "lng": -75.683
+      "lat": 45.439453490367846, 
+      "lng": -75.62678911601688
     },
     "iconTag": "campus",
     "isAnchored": true,
@@ -30,8 +30,8 @@
     "pseudonyme": "Campus La Cité",
     "adresse": "801, promenade de l'Aviation K1K 4R3, Ontario, Ottawa, Canada",
     "coordonnees": {
-      "lat": 45.4215,
-      "lng": -75.683
+       "lat": 45.439453490367846, 
+      "lng": -75.62678911601688
     },
     "iconTag": "campus",
     "isAnchored": true,
@@ -66,8 +66,8 @@
     "pseudonyme": "Campus La Cité",
     "adresse": "801, promenade de l'Aviation K1K 4R3, Ontario, Ottawa, Canada",
     "coordonnees": {
-      "lat": 45.4215,
-      "lng": -75.683
+      "lat": 45.439453490367846, 
+      "lng": -75.62678911601688
     },
     "iconTag": "campus",
     "isAnchored": true,

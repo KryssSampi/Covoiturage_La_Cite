@@ -30,7 +30,7 @@ import type { VehicleModel } from '@/core/models/VehicleModel';
 
 interface PageProps {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ source?: string; status?: string }>;
+  searchParams: Promise<{ source?: string; status?: string; role?: string; alreadyReserved?: string }>;
 }
 
 async function getConnectedUserFromCookie() {
@@ -47,7 +47,7 @@ async function getConnectedUserFromCookie() {
 
 export default async function TripViewPage({ params, searchParams }: PageProps) {
   const { id } = await params;
-  const { source: rawSource, status } = await searchParams;
+  const { source: rawSource, status, role: rawRole, alreadyReserved } = await searchParams;
 
   const trip = persistenceManager.readById<TripModel>('trips', id);
   if (!trip) {
@@ -79,12 +79,18 @@ export default async function TripViewPage({ params, searchParams }: PageProps) 
   const tripView = toPublishedTripViewData(trip, driver, vehicle);
   const connectedUser = await getConnectedUserFromCookie();
 
+  const roleFromParam: ViewerRole | null =
+    rawRole === 'admin' || rawRole === 'driver_owner' || rawRole === 'passenger'
+      ? rawRole
+      : null;
+
   const viewerRole: ViewerRole =
-    connectedUser?.role === 'admin'
+    roleFromParam ??
+    (connectedUser?.role === 'admin'
       ? 'admin'
       : connectedUser?.id === trip.driverId
         ? 'driver_owner'
-        : 'passenger';
+        : 'passenger');
 
   const existingReservationModel =
     connectedUser?.id && connectedUser.id !== trip.driverId
@@ -98,15 +104,29 @@ export default async function TripViewPage({ params, searchParams }: PageProps) 
           )[0]
       : undefined;
 
+  const alreadyReservedBool =
+    alreadyReserved === 'true' || alreadyReserved === '1' ? true
+    : alreadyReserved === 'false' || alreadyReserved === '0' ? false
+    : false;
+
   const existingReservation = existingReservationModel
     ? {
         status: toTrajetsReservationStatus(existingReservationModel.status),
         updatedAt: existingReservationModel.updatedAt ?? existingReservationModel.createdAt,
       }
-    : undefined;
+    : alreadyReservedBool
+      ? {
+          status: 'pending' as import('@/features/trajets/types/published-trip.view.types').ReservationStatus,
+          updatedAt: new Date().toISOString(),
+        }
+      : undefined;
 
   const source: TripViewSource =
-    rawSource === 'reservation' || rawSource === 'publishedtrip' ? rawSource : null;
+    rawSource === 'reservation' || rawSource === 'publishedtrip'
+      ? rawSource
+      : alreadyReservedBool
+        ? 'reservation'
+        : null;
 
   return (
     <PublishedTripView

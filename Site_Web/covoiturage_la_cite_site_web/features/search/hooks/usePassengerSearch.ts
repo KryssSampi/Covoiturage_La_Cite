@@ -46,12 +46,7 @@ export function usePassengerSearch({
       trips,
       departureCoords,
       arrivalCoords,
-      filters.departureRadiusMeters,
-      filters.arrivalRadiusMeters,
-      filters.maxPrice,
-      filters.minSeatsAvailable,
-      filters.driverName,
-      filters.statuses,
+      filters, // On utilise l'objet filters entier comme dépendance pour éviter les problèmes de mémorisation
       sortKey,
       desiredHour,
     ],

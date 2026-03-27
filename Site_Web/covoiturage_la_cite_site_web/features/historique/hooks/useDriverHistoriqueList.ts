@@ -54,6 +54,13 @@ export function useDriverHistoriqueConfig() {
         ((b as Record<string, number>).price ?? 0) -
         ((a as Record<string, number>).price ?? 0),
     },
+    {
+      value: "price-asc",
+      label: isFR ? "Prix croissant" : "Price (low to high)",
+      compareFn: <T,>(a: T, b: T) =>
+        ((a as Record<string, number>).price ?? 0) -
+        ((b as Record<string, number>).price ?? 0),
+    },
   ], [isFR]);
 
   // Recherche sur départ, destination

@@ -8,13 +8,33 @@
 
 import { useMemo } from "react";
 import { Language, useAppState } from "@/core/state/app_state";
-import type { SortOption } from "@/shared/components/list-detail-page";
+import type { FilterGroup, SortOption } from "@/shared/components/list-detail-page";
 
 export function usePassengerHistoriqueConfig() {
   const { lang } = useAppState();
   const isFR = lang === Language.FR;
 
-  // Tri par date
+  // Filtre par fourchette de prix
+  const filterGroups: FilterGroup[] = useMemo(() => [
+    {
+      title: isFR ? "Prix" : "Price",
+      field: "priceRange",
+      options: [
+        { value: "low",    label: "< 10 $"   },
+        { value: "medium", label: "10 – 20 $" },
+        { value: "high",   label: "> 20 $"    },
+      ],
+      filterFn: (item, value) => {
+        const price = ((item as Record<string, unknown>).price as number) ?? 0;
+        if (value === "low")    return price < 10;
+        if (value === "medium") return price >= 10 && price <= 20;
+        if (value === "high")   return price > 20;
+        return false;
+      },
+    },
+  ], [isFR]);
+
+  // Tri par date ou par prix
   const sortOptions: SortOption[] = useMemo(() => [
     {
       value: "date-desc",
@@ -37,6 +57,13 @@ export function usePassengerHistoriqueConfig() {
         ((a as Record<string, number>).price ?? 0) -
         ((b as Record<string, number>).price ?? 0),
     },
+    {
+      value: "price-desc",
+      label: isFR ? "Prix décroissant" : "Price (high to low)",
+      compareFn: <T,>(a: T, b: T) =>
+        ((b as Record<string, number>).price ?? 0) -
+        ((a as Record<string, number>).price ?? 0),
+    },
   ], [isFR]);
 
   // Recherche sur départ, destination, nom du conducteur
@@ -46,5 +73,5 @@ export function usePassengerHistoriqueConfig() {
     ? "Aucun trajet dans l'historique."
     : "No trips in history.";
 
-  return { sortOptions, searchKeys, emptyMessage };
+  return { filterGroups, sortOptions, searchKeys, emptyMessage };
 }

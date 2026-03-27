@@ -11,8 +11,9 @@ import { MIN_PRICE, MAX_PRICE, MIN_AVAILABLE_SEATS } from '../constants/trip.con
 import type { MockVehicle } from '../constants/trip.constants';
 import { AppState, useAppState } from '@/core/state/app_state';
 import { getProposals } from '@/core/services/location.suggestion';
-import { buildDateRange, isDateRangeBlockedByIndisponibility } from '@/core/utils/indisponibility.utils';
+import { buildDateRange, buildTripModelDateRange, doDateRangesOverlap, isDateRangeBlockedByIndisponibility } from '@/core/utils/indisponibility.utils';
 import type { IndisponibilityModel } from '@/core/models/IndisponibilityModel';
+import type { TripModel } from '@/core/models/TripModel';
 import { buildTripPayload, hasGeoPoint, readTripGeoFromSession } from '@/core/utils/create-trip-form.utils';
 
 export interface CreateTripFormErrors {
@@ -40,7 +41,10 @@ export interface UseCreateTripReturn {
   tripToast: CreateTripToast;
   showIndispoWarning: boolean;
   setField: <K extends keyof CreateTripFormState>(key: K, value: CreateTripFormState[K]) => void;
-  setPreference: (key: keyof CreateTripFormState['preferences'], value: boolean) => void;
+  setPreference: <K extends keyof CreateTripFormState['preferences']>(
+    key: K,
+    value: CreateTripFormState['preferences'][K]
+  ) => void;
   incrementPrice: () => void;
   decrementPrice: () => void;
   incrementAvailableSeats: () => void;
@@ -82,7 +86,10 @@ export function useCreateTrip(
     }
   }
 
-  function setPreference(key: keyof CreateTripFormState['preferences'], value: boolean): void {
+  function setPreference<K extends keyof CreateTripFormState['preferences']>(
+    key: K,
+    value: CreateTripFormState['preferences'][K]
+  ): void {
     setForm((prev) => ({
       ...prev,
       preferences: { ...prev.preferences, [key]: value },
@@ -210,6 +217,8 @@ export function useCreateTrip(
       vehicleId: form.vehicleId,
       departureLocation: form.departureLocation,
       arrivalLocation: form.arrivalLocation,
+      departureInstructions: form.departureInstructions,
+      arrivalInstructions: form.arrivalInstructions,
       departureCoords,
       arrivalCoords,
       waypoints,
@@ -271,6 +280,7 @@ export function useCreateTrip(
     const currentUser = appState.userConnected;
     if (!currentUser) return;
 
+    // ── 1. Vérification des indisponibilités ──────────────────────────────
     try {
       const response = await fetch(`/api/indisponibilities/${currentUser.id}`);
       if (response.ok) {
@@ -279,6 +289,39 @@ export function useCreateTrip(
         if (isDateRangeBlockedByIndisponibility(range, indispo)) {
           setShowIndispoWarning(true);
           return;
+        }
+      }
+    } catch {
+      // optional preflight check
+    }
+
+    // ── 2. Vérification de conflit avec les trajets existants ─────────────
+    try {
+      const res = await fetch(`/api/trips?driverId=${encodeURIComponent(currentUser.id)}`);
+      if (res.ok) {
+        const existingTrips = await res.json() as TripModel[];
+        const ACTIVE_STATUSES: string[] = ['published', 'confirmed', 'in_progress', 'imminent'];
+        const newRange = buildDateRange(
+          form.departureDate,
+          form.departureTime,
+          (form.estimatedDuration ?? 60) + 10,
+        );
+        if (newRange) {
+          const hasConflict = existingTrips
+            .filter((t) => ACTIVE_STATUSES.includes(t.status))
+            .some((t) => {
+              const existing = buildTripModelDateRange(t);
+              return existing ? doDateRangesOverlap(newRange, existing) : false;
+            });
+          if (hasConflict) {
+            setTripToast({
+              isOpen: true,
+              success: false,
+              title: 'Impossible de programmer le trajet',
+              message: 'Un trajet existe déjà dans cette plage horaire. Veuillez choisir un autre horaire.',
+            });
+            return;
+          }
         }
       }
     } catch {
@@ -308,6 +351,8 @@ export function useCreateTrip(
       driverId: currentUser.id,
       departureLocation: form.departureLocation,
       arrivalLocation: form.arrivalLocation,
+      departureInstructions: form.departureInstructions,
+      arrivalInstructions: form.arrivalInstructions,
       departureDate: form.departureDate,
       departureTime: form.departureTime,
       vehicleId: form.vehicleId,

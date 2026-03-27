@@ -15,8 +15,12 @@ import { useLoader }                                 from "@/core/context/loader
 import { useAppState }                               from "@/core/state/app_state";
 import { tripSearchDTOToTripWithCoords }             from "@/features/search/converters/search.converter";
 import { RouteMapSearch }                            from "@/features/search/components/shared/RouteMapSearch";
+import { ReservationRequestToast }                   from "@/features/reservation/components/ReservationRequestToast";
 import type { TripWithCoords }                       from "@/features/search/types/search.feature.types";
 import type { TripSearchDTO }                        from "@/features/search/utils/matchingV4";
+
+/** Statuts actifs — une réservation dans ces états bloque une nouvelle demande */
+const ACTIVE_RESERVATION_STATUSES = ["pending", "confirmed", "in_progress"];
 
 export default function PassengerSearchPage() {
   const appState            = useAppState();
@@ -32,6 +36,16 @@ export default function PassengerSearchPage() {
   // Ref pour éviter les appels en cascade lors du changement de dépendances
   const hasFetchedRef = useRef(false);
 
+  // Carte tripId → statut de la réservation active du passager connecté
+  const [userReservations, setUserReservations] = useState<Map<string, string>>(new Map());
+
+  // État du toast de confirmation de réservation
+  const [reservationToast, setReservationToast] = useState<{
+    isOpen: boolean;
+    success: boolean;
+    message: string;
+  }>({ isOpen: false, success: false, message: "" });
+
   // Coordonnées issues des searchParams ([lng, lat] côté UI, [lat, lng] attendu par l'API)
   const depLat = searchParams.get("depLat");
   const depLng = searchParams.get("depLng");
@@ -40,11 +54,46 @@ export default function PassengerSearchPage() {
   const dateParam = searchParams.get("date");
   const timeParam = searchParams.get("time");
 
+  // Charge les réservations actives du passager connecté pour chaque trip
+  const fetchUserReservations = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const res = await fetch(`/api/reservations?passengerId=${encodeURIComponent(user.id)}`);
+      if (!res.ok) return;
+      const data = await res.json() as Array<Record<string, unknown>>;
+      const map = new Map<string, string>();
+      for (const r of data) {
+        if (
+          typeof r.tripId === "string" &&
+          typeof r.status === "string" &&
+          ACTIVE_RESERVATION_STATUSES.includes(r.status)
+        ) {
+          map.set(r.tripId, r.status);
+        }
+      }
+      setUserReservations(map);
+    } catch { /* erreur réseau silencieuse */ }
+  }, [user]);
+
+  // Handler du bouton OK du toast — redirige vers planifier et scrolle vers ride area
+  const handleToastOk = useCallback(() => {
+    const wasSuccess = reservationToast.success;
+    setReservationToast((prev) => ({ ...prev, isOpen: false }));
+    if (wasSuccess && user?.id) {
+      try { sessionStorage.setItem("plannerScrollToRides", "1"); } catch { /* sstorage indisponible */ }
+      router.push(`/passenger/planifier/${user.id}?showAll=true`);
+    }
+  }, [reservationToast.success, user, router]);
+
   const fetchTrips = useCallback(async (search?: {
     departureCoords?: [number, number];
     arrivalCoords?: [number, number];
     departureDate?: string;
     departureTime?: string;
+    maxPrice?: number;
+    minSeatsAvailable?: number;
+    departureRadiusMeters?: number;
+    arrivalRadiusMeters?: number;
   }) => {
     if (!user?.id) return;
 
@@ -83,6 +132,12 @@ export default function PassengerSearchPage() {
         body.desiredWeekday = day;
       }
 
+      // Filtres côté serveur (matching v4)
+      if (search?.maxPrice != null) body.maxPrice = search.maxPrice;
+      if (search?.minSeatsAvailable != null) body.minSeatsAvailable = search.minSeatsAvailable;
+      if (search?.departureRadiusMeters != null) body.departureRadiusMeters = search.departureRadiusMeters;
+      if (search?.arrivalRadiusMeters != null) body.arrivalRadiusMeters = search.arrivalRadiusMeters;
+
       const res = await fetch('/api/passenger/search', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -101,12 +156,15 @@ export default function PassengerSearchPage() {
   useEffect(() => {
     if (!hasFetchedRef.current) {
       hasFetchedRef.current = true;
-      // Wrapper l'appel fetchTrips() dans startTransition pour éviter les rendus en cascade
       startTransition(() => {
         fetchTrips();
       });
+      // On utilise une fonction asynchrone pour éviter un setState synchrone dans l'effet
+      (async () => {
+        await fetchUserReservations();
+      })();
     }
-  }, [startTransition, fetchTrips]);
+  }, [fetchUserReservations, fetchTrips, startTransition]);
 
   // ── Guard : vérification rôle / identité ─────────────────────────────────
   useEffect(() => {
@@ -127,6 +185,7 @@ export default function PassengerSearchPage() {
     user?.role?.toString().toLowerCase() !== "passenger"
   ) return null;
 
+  // On ajoute la date et l'heure pour préremplir les pickers
   const initialValues = {
     departureLabel:  searchParams.get("dep") ?? undefined,
     arrivalLabel:    searchParams.get("arr") ?? undefined,
@@ -136,22 +195,38 @@ export default function PassengerSearchPage() {
     arrivalCoords: arrLng && arrLat
       ? [parseFloat(arrLng), parseFloat(arrLat)] as [number, number]
       : undefined,
+    departureDate: dateParam ?? undefined, // Ajout date
+    departureTime: timeParam ?? undefined, // Ajout heure
   };
 
   return (
-    <RouteMapSearch
-      role="passenger"
-      initialValues={initialValues}
-      availableTrips={availableTrips}
-      blockedTrips={blockedTrips}
-      onPassengerSearch={async ({ departureCoords, arrivalCoords, departureDate, departureTime }) => {
-        await fetchTrips({
-          departureCoords: [departureCoords[1], departureCoords[0]],
-          arrivalCoords: [arrivalCoords[1], arrivalCoords[0]],
-          departureDate,
-          departureTime,
-        });
-      }}
-    />
+    <>
+      <RouteMapSearch
+        role="passenger"
+        initialValues={initialValues}
+        availableTrips={availableTrips}
+        blockedTrips={blockedTrips}
+        userReservations={userReservations}
+        onPassengerSearch={async ({ departureCoords, arrivalCoords, departureDate, departureTime, maxPrice, minSeatsAvailable, departureRadiusMeters, arrivalRadiusMeters }) => {
+          await fetchTrips({
+            departureCoords: [departureCoords[1], departureCoords[0]],
+            arrivalCoords: [arrivalCoords[1], arrivalCoords[0]],
+            departureDate,
+            departureTime,
+            maxPrice,
+            minSeatsAvailable,
+            departureRadiusMeters,
+            arrivalRadiusMeters,
+          });
+        }}
+        onRefresh={() => { fetchTrips(); }}
+      />
+      <ReservationRequestToast
+        isOpen={reservationToast.isOpen}
+        success={reservationToast.success}
+        message={reservationToast.message}
+        onOk={handleToastOk}
+      />
+    </>
   );
 }

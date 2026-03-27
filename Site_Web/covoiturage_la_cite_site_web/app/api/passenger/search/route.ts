@@ -14,6 +14,8 @@ interface SearchBody {
   departureCoords?: [number, number];
   arrivalCoords?: [number, number];
   desiredHour?: number;
+  /** Heure d'arrivée souhaitée (heures décimales) — déclasse sans éliminer */
+  desiredArrivalHour?: number;
   desiredWeekday?: number;
   sortKey?: PassengerSortKey;
   maxPrice?: number;

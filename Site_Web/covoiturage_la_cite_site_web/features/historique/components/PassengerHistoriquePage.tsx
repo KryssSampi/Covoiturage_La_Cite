@@ -73,7 +73,7 @@ function TripListCard({ trip, lang }: { trip: Trip; lang: Language }) {
 
 export function PassengerHistoriquePage({ items }: PassengerHistoriquePageProps) {
   const { lang } = useAppState();
-  const { sortOptions, searchKeys, emptyMessage } = usePassengerHistoriqueConfig();
+  const { filterGroups, sortOptions, searchKeys, emptyMessage } = usePassengerHistoriqueConfig();
 
   const renderCard = useCallback(
     (trip: Trip) => <TripListCard trip={trip} lang={lang} />,
@@ -84,6 +84,7 @@ export function PassengerHistoriquePage({ items }: PassengerHistoriquePageProps)
     <ListDetailPage
       items={items}
       renderCard={renderCard}
+      filterGroups={filterGroups}
       sortOptions={sortOptions}
       searchKeys={searchKeys}
       withOverview={false}

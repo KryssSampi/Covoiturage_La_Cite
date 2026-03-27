@@ -114,7 +114,14 @@ export interface TripModel {
   maxPassengers: number;
   /** Nombre actuel de passagers confirmés */
   currentPassengers: number;
+  /** Prix par passager fixé par le conducteur (en CAD) */
   pricePerPassenger: number;
+  /**
+   * Prix affiché au passager = pricePerPassenger × 1.15 (frais de service 15 %)
+   * Calculé automatiquement à la création du trajet.
+   * Toutes les vues passager doivent afficher ce prix, jamais pricePerPassenger.
+   */
+  passengerPrice: number;
   paymentMethod: PaymentMethod;
 
   // ── Statut & cycle de vie ─────────────────────────────────────────────────
@@ -140,6 +147,8 @@ export interface TripModel {
   // ── Statistiques calculées ─────────────────────────────────────────────────
   estimatedDistanceKm?: number;
   estimatedDurationMinutes?: number;
+  /** Durée estimée du trajet en minutes, issue de la recherche conducteur lors de la création */
+  durationEstimation?: number;
   /** Économie de CO2 estimée en kg */
   co2SavedKg?: number;
 

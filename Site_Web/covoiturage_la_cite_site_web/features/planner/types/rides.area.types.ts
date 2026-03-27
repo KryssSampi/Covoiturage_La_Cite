@@ -34,6 +34,9 @@ export interface RidesAreaHeaderProps {
   onNextDay:  () => void;
   onToday:    () => void;
   onToggleShowAll: () => void;
+  /** Callback pour rafraîchir la liste des trajets */
+  onRefresh?: () => Promise<void>;
+  isRefreshing?: boolean;
 }
 
 /** Props de la légende de statuts cliquable */
@@ -78,4 +81,5 @@ export interface RidesListProps {
   onCancelTrip?:           (tripId: string) => Promise<boolean>;
   onCancelReservation?:    (reservationId: string, raison?: string) => Promise<boolean>;
   onStartReservation?:     (reservationId: string) => Promise<string | null>;
+  onStartTrip?:            (tripId: string) => Promise<void>;
 }

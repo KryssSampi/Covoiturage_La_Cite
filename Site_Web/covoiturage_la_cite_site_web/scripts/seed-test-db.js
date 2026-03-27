@@ -15,7 +15,7 @@ const {
   buildPassengerFinanceAccounts,
   buildBankAccounts,
   buildUserStats,
-} = require("./test-db-utils");
+} = require("./test-db-utils.js");
 
 // Configuration de seed avec des volumes augmentes de facon coherente
 const SEED_CONFIG = {
@@ -30,6 +30,7 @@ const SEED_CONFIG = {
   maxMessageReservationThreads: 35,     // 12 → 35 (proportionnel aux reservations)
   penaltyCount: 6,           // 2 → 6 (3x plus de penalites)
   indisponibilityRangesPerUser: 2,      // 1 → 2 (plus de plages d'indisponibilite)
+  userActivitySessionsPerUser: 3,       // sessions d'historique par utilisateur (UserActivityModel)
 };
 
 const FIRST_NAMES = ["Sophie", "Ahmed", "Marie", "Jean-Paul", "Nadia", "Kevin", "Fatima", "Louis", "Sara", "Olivier", "Maya", "Karim", "Camille", "Samir", "Noemie", "Youssef"];
@@ -256,6 +257,42 @@ function buildTripPlans(drivers) {
   });
 }
 
+function buildUserActivities(users, now) {
+  return users
+    .filter((user) => user.role !== "admin")
+    .map((user, index) => {
+      const sessionCount = SEED_CONFIG.userActivitySessionsPerUser;
+      const connectionHistory = Array.from({ length: sessionCount }, (_, sessionIndex) => {
+        const dayOffset = -(sessionIndex * 2 + (index % 3));
+        const hour = 7 + ((index + sessionIndex) % 10);
+        const connectedAt = toIso(dateAt(now, dayOffset, hour, 10 + (index % 40)));
+        const disconnectedAt = sessionIndex > 0
+          ? toIso(dateAt(now, dayOffset, hour + 1 + (sessionIndex % 3), 5))
+          : undefined;
+        return {
+          type: "web",
+          connectedAt,
+          disconnectedAt,
+          userAgent: "Mozilla/5.0 (seed)",
+          role: user.role,
+        };
+      });
+
+      // Le premier utilisateur non-admin est considere comme connecte (pour les tests SSE)
+      const isConnected = index === 0;
+
+      return {
+        id: `ACT-2026-${String(index + 1).padStart(5, "0")}`,
+        userId: user.id,
+        accountCreatedAt: user.createdAt,
+        lastSeenAt: isConnected ? toIso(now) : connectionHistory[0].connectedAt,
+        isCurrentlyConnectedOnWeb: isConnected,
+        isCurrentlyConnectedOnMobile: false,
+        connectionHistory,
+      };
+    });
+}
+
 function seed() {
   const now = new Date();
   const badges = readJson("badges.json");
@@ -308,6 +345,7 @@ function seed() {
       maxPassengers: plan.maxPassengers,
       currentPassengers: 0,
       pricePerPassenger: plan.price,
+      passengerPrice: Math.round(plan.price * 1.15 * 100) / 100,
       paymentMethod: index % 2 === 0 ? "interac" : "cash",
       status: plan.status,
       departureType: "planned",
@@ -390,7 +428,6 @@ function seed() {
 
   const completedReservations = reservations.filter((reservation) => reservation.status === "completed");
   const reviews = completedReservations.slice(0, SEED_CONFIG.maxReviewReservationCount).flatMap((reservation, reviewIndex) => {
-    const trip = tripMap.get(reservation.tripId);
     return [
       {
         id: `REV-2026-${String(reviewIndex * 2 + 1).padStart(5, "0")}`,
@@ -452,117 +489,6 @@ function seed() {
     })
   ));
 
-  const pendingReservations = reservations.filter((reservation) => reservation.status === "pending");
-  const notifications = [
-    ...pendingReservations.map((reservation, index) => {
-      const trip = tripMap.get(reservation.tripId);
-      const passenger = users.find((user) => user.id === reservation.passengerId);
-      return {
-        id: `NTF-2026-${String(index + 1).padStart(5, "0")}`,
-        userId: reservation.driverId,
-        type: "reservation_received",
-        title: "Nouvelle demande de reservation",
-        message: `${passenger.firstName} ${passenger.lastName} souhaite rejoindre votre trajet ${trip.departure.label} -> ${trip.arrival.label}.`,
-        isRead: index % 2 === 1,
-        isImportant: true,
-        link: `/driver/reservations/${reservation.driverId}`,
-        relatedTripId: reservation.tripId,
-        relatedReservationId: reservation.id,
-        createdAt: reservation.createdAt,
-      };
-    }),
-    ...reservations
-      .filter((reservation) => reservation.status === "confirmed")
-      .slice(0, SEED_CONFIG.maxConfirmedReservationNotifications)
-      .map((reservation, index) => ({
-        id: `NTF-2026-${String(pendingReservations.length + index + 1).padStart(5, "0")}`,
-        userId: reservation.passengerId,
-        type: "reservation_accepted",
-        title: "Reservation confirmee",
-        message: "Votre place est confirmee. Merci d'arriver quelques minutes avant le depart.",
-        isRead: false,
-        isImportant: true,
-        link: `/passenger/reservations/${reservation.passengerId}`,
-        relatedTripId: reservation.tripId,
-        relatedReservationId: reservation.id,
-        createdAt: reservation.updatedAt,
-      })),
-    ...reservations
-      .filter((reservation) => reservation.status === "refused")
-      .map((reservation, index) => ({
-        id: `NTF-2026-${String(pendingReservations.length + SEED_CONFIG.maxConfirmedReservationNotifications + 1 + index).padStart(5, "0")}`,
-        userId: reservation.passengerId,
-        type: "reservation_refused",
-        title: "Reservation refusee",
-        message: reservation.refusalReason,
-        isRead: true,
-        isImportant: false,
-        link: `/passenger/reservations/${reservation.passengerId}`,
-        relatedTripId: reservation.tripId,
-        relatedReservationId: reservation.id,
-        createdAt: reservation.updatedAt,
-      })),
-    ...reviews.slice(0, SEED_CONFIG.maxReviewNotifications).map((review, index) => ({
-      id: `NTF-2026-${String(pendingReservations.length + SEED_CONFIG.maxConfirmedReservationNotifications + 1 + reservations.filter((reservation) => reservation.status === "refused").length + index).padStart(5, "0")}`,
-      userId: review.revieweeId,
-      type: "new_review_received",
-      title: "Nouvel avis recu",
-      message: "Un nouvel avis a ete ajoute apres votre dernier trajet.",
-      isRead: false,
-      isImportant: false,
-      link: `/${users.find((user) => user.id === review.revieweeId)?.role || "driver"}/${review.revieweeId}`,
-      relatedTripId: review.tripId,
-      relatedReservationId: review.reservationId,
-      createdAt: review.createdAt,
-    })),
-    {
-      id: "NTF-2026-99999",
-      userId: drivers[0].id,
-      type: "system",
-      title: "Base de test regeneree",
-      message: "Les donnees dynamiques ont ete regenerees avec plus de volume et des dependances coherentes.",
-      isRead: true,
-      isImportant: false,
-      link: null,
-      relatedTripId: null,
-      relatedReservationId: null,
-      createdAt: toIso(now),
-    },
-  ].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
-
-  const messages = reservations
-    .filter((reservation) => ["pending", "confirmed", "in_progress", "completed"].includes(reservation.status))
-    .slice(0, SEED_CONFIG.maxMessageReservationThreads)
-    .flatMap((reservation, index) => {
-      const trip = tripMap.get(reservation.tripId);
-      return [
-        {
-          id: `MSG-2026-${String(index * 2 + 1).padStart(5, "0")}`,
-          tripId: reservation.tripId,
-          senderId: reservation.passengerId,
-          recipientId: reservation.driverId,
-          content: reservation.passengerMessage,
-          type: "text",
-          isRead: reservation.status !== "pending",
-          readAt: reservation.status !== "pending" ? reservation.updatedAt : undefined,
-          createdAt: reservation.createdAt,
-        },
-        {
-          id: `MSG-2026-${String(index * 2 + 2).padStart(5, "0")}`,
-          tripId: reservation.tripId,
-          senderId: reservation.driverId,
-          recipientId: reservation.passengerId,
-          content: reservation.status === "in_progress"
-            ? "Je suis en route. On se rejoint au point de rendez-vous."
-            : `Merci, le trajet ${trip.departure.label} -> ${trip.arrival.label} est bien pris en charge.`,
-          type: "text",
-          isRead: reservation.status === "completed",
-          readAt: reservation.status === "completed" ? reservation.updatedAt : undefined,
-          createdAt: reservation.updatedAt,
-        },
-      ];
-    });
-
   const penaltyTemplates = [
     {
       id: "PEN-2026-00001",
@@ -611,11 +537,442 @@ function seed() {
   ];
   const penalites = penaltyTemplates.slice(0, Math.max(0, SEED_CONFIG.penaltyCount));
 
+  const pendingReservations   = reservations.filter((r) => r.status === "pending");
+  const confirmedReservations = reservations.filter((r) => r.status === "confirmed").slice(0, SEED_CONFIG.maxConfirmedReservationNotifications);
+  const refusedReservations   = reservations.filter((r) => r.status === "refused");
+  const cancelledReservations = reservations.filter((r) => r.status === "cancelled");
+  const cancelledTrips        = trips.filter((t) => t.status === "cancelled");
+  const upcomingTrips         = trips.filter((t) =>
+    ["published", "confirmed", "full"].includes(t.status) &&
+    t.departureDate >= toDateOnly(dateAt(now, 0, 0, 0)) &&
+    t.departureDate <= toDateOnly(dateAt(now, 2, 0, 0)),
+  );
+  const recentPublishedTrips  = trips
+    .filter((t) => ["published", "confirmed", "full"].includes(t.status))
+    .slice(0, 8);
+
+  let notifCounter = 1;
+  const nextNtfId = () => `NTF-2026-${String(notifCounter++).padStart(5, "0")}`;
+
+  const notifications = [];
+
+  // ── 1. reservation_received — conducteur reçoit chaque demande en attente ──
+  pendingReservations.forEach((reservation) => {
+    const trip      = tripMap.get(reservation.tripId);
+    const passenger = users.find((u) => u.id === reservation.passengerId);
+    const driver    = users.find((u) => u.id === reservation.driverId);
+    notifications.push({
+      id: nextNtfId(),
+      userId: reservation.driverId,
+      type: "reservation_received",
+      title: "Nouvelle demande de reservation",
+      message: `${passenger.firstName} ${passenger.lastName} souhaite rejoindre votre trajet ${trip.departure.label} -> ${trip.arrival.label} le ${trip.departureDate} a ${trip.departureTime}. Consultez son profil et acceptez ou refusez la demande avant expiration.`,
+      isRead: false,
+      isImportant: true,
+      link: `/driver/${reservation.driverId}?tab=reservations&reservationId=${reservation.id}`,
+      linkLabel: "Gerer la demande",
+      relatedTripId: trip.id,
+      relatedReservationId: reservation.id,
+      tripDetails: {
+        tripId: trip.id,
+        departure: trip.departure.label,
+        arrival: trip.arrival.label,
+        date: trip.departureDate,
+        time: trip.departureTime,
+        price: trip.pricePerPassenger,
+        availableSeats: trip.maxPassengers - trip.currentPassengers,
+        estimatedDurationMinutes: trip.estimatedDurationMinutes,
+      },
+      reservationDetails: {
+        reservationId: reservation.id,
+        passengerName: `${passenger.firstName} ${passenger.lastName}`,
+        passengerRating: passenger.passengerProfile?.averageRating ?? 4.5,
+        passengerTripCount: passenger.passengerProfile?.totalTripsAsPassenger ?? 0,
+        driverName: driver ? `${driver.firstName} ${driver.lastName}` : undefined,
+      },
+      createdAt: reservation.createdAt,
+    });
+  });
+
+  // ── 2. reservation_sent — passager reçoit accusé de réception ──────────────
+  pendingReservations.forEach((reservation) => {
+    const trip      = tripMap.get(reservation.tripId);
+    const driver    = users.find((u) => u.id === reservation.driverId);
+    const passenger = users.find((u) => u.id === reservation.passengerId);
+    notifications.push({
+      id: nextNtfId(),
+      userId: reservation.passengerId,
+      type: "reservation_sent",
+      title: "Demande envoyee avec succes",
+      message: `Votre demande pour le trajet ${trip.departure.label} -> ${trip.arrival.label} le ${trip.departureDate} a ${trip.departureTime} a bien ete envoyee a ${driver ? driver.firstName + " " + driver.lastName : "le conducteur"}. Vous recevrez une notification des qu'elle sera traitee.`,
+      isRead: true,
+      isImportant: false,
+      link: `/passenger/${reservation.passengerId}?tab=reservations&reservationId=${reservation.id}`,
+      linkLabel: "Suivre ma demande",
+      relatedTripId: trip.id,
+      relatedReservationId: reservation.id,
+      tripDetails: {
+        tripId: trip.id,
+        departure: trip.departure.label,
+        arrival: trip.arrival.label,
+        date: trip.departureDate,
+        time: trip.departureTime,
+        price: trip.passengerPrice,
+        estimatedDurationMinutes: trip.estimatedDurationMinutes,
+      },
+      reservationDetails: {
+        reservationId: reservation.id,
+        driverName: driver ? `${driver.firstName} ${driver.lastName}` : undefined,
+        passengerName: passenger ? `${passenger.firstName} ${passenger.lastName}` : undefined,
+      },
+      createdAt: reservation.createdAt,
+    });
+  });
+
+  // ── 3. reservation_accepted — passager apprend l'acceptation ───────────────
+  confirmedReservations.forEach((reservation) => {
+    const trip      = tripMap.get(reservation.tripId);
+    const driver    = users.find((u) => u.id === reservation.driverId);
+    const passenger = users.find((u) => u.id === reservation.passengerId);
+    notifications.push({
+      id: nextNtfId(),
+      userId: reservation.passengerId,
+      type: "reservation_accepted",
+      title: "Reservation confirmee !",
+      message: `${driver ? driver.firstName + " " + driver.lastName : "Le conducteur"} a accepte votre demande pour le trajet ${trip.departure.label} -> ${trip.arrival.label} le ${trip.departureDate} a ${trip.departureTime}. Votre place est reservee — soyez ponctuel·le ! Prix : ${trip.passengerPrice} $.`,
+      isRead: false,
+      isImportant: true,
+      link: `/passenger/planner/${reservation.passengerId}?tripId=${trip.id}`,
+      linkLabel: "Voir mon trajet",
+      relatedTripId: trip.id,
+      relatedReservationId: reservation.id,
+      tripDetails: {
+        tripId: trip.id,
+        departure: trip.departure.label,
+        arrival: trip.arrival.label,
+        date: trip.departureDate,
+        time: trip.departureTime,
+        price: trip.passengerPrice,
+        availableSeats: trip.maxPassengers - trip.currentPassengers,
+        estimatedDurationMinutes: trip.estimatedDurationMinutes,
+      },
+      reservationDetails: {
+        reservationId: reservation.id,
+        driverName: driver ? `${driver.firstName} ${driver.lastName}` : undefined,
+        passengerName: passenger ? `${passenger.firstName} ${passenger.lastName}` : undefined,
+      },
+      createdAt: reservation.updatedAt,
+    });
+  });
+
+  // ── 4. reservation_refused — passager apprend le refus ────────────────────
+  refusedReservations.forEach((reservation) => {
+    const trip   = tripMap.get(reservation.tripId);
+    const driver = users.find((u) => u.id === reservation.driverId);
+    notifications.push({
+      id: nextNtfId(),
+      userId: reservation.passengerId,
+      type: "reservation_refused",
+      title: "Demande non retenue",
+      message: `Votre demande pour le trajet ${trip.departure.label} -> ${trip.arrival.label} le ${trip.departureDate} a ${trip.departureTime} n'a pas ete retenue par ${driver ? driver.firstName + " " + driver.lastName : "le conducteur"}. Motif : ${reservation.refusalReason || "Non specifie"}. D'autres trajets similaires sont disponibles.`,
+      isRead: true,
+      isImportant: false,
+      link: `/passenger/search/${reservation.passengerId}`,
+      linkLabel: "Trouver un autre trajet",
+      relatedTripId: trip.id,
+      relatedReservationId: reservation.id,
+      tripDetails: {
+        tripId: trip.id,
+        departure: trip.departure.label,
+        arrival: trip.arrival.label,
+        date: trip.departureDate,
+        time: trip.departureTime,
+        price: trip.passengerPrice,
+      },
+      reservationDetails: {
+        reservationId: reservation.id,
+        driverName: driver ? `${driver.firstName} ${driver.lastName}` : undefined,
+      },
+      createdAt: reservation.updatedAt,
+    });
+  });
+
+  // ── 5. reservation_cancelled — conducteur apprend l'annulation passager ────
+  cancelledReservations.slice(0, 5).forEach((reservation) => {
+    const trip      = tripMap.get(reservation.tripId);
+    const passenger = users.find((u) => u.id === reservation.passengerId);
+    const driver    = users.find((u) => u.id === reservation.driverId);
+    notifications.push({
+      id: nextNtfId(),
+      userId: reservation.driverId,
+      type: "reservation_cancelled",
+      title: "Reservation annulee par le passager",
+      message: `${passenger ? passenger.firstName + " " + passenger.lastName : "Un passager"} a annule sa reservation pour votre trajet ${trip.departure.label} -> ${trip.arrival.label} le ${trip.departureDate} a ${trip.departureTime}. Une place s'est liberee automatiquement.`,
+      isRead: true,
+      isImportant: false,
+      link: `/driver/${reservation.driverId}?tab=trips&tripId=${trip.id}`,
+      linkLabel: "Voir le trajet",
+      relatedTripId: trip.id,
+      relatedReservationId: reservation.id,
+      tripDetails: {
+        tripId: trip.id,
+        departure: trip.departure.label,
+        arrival: trip.arrival.label,
+        date: trip.departureDate,
+        time: trip.departureTime,
+        price: trip.pricePerPassenger,
+        availableSeats: trip.maxPassengers - trip.currentPassengers + 1,
+      },
+      reservationDetails: {
+        reservationId: reservation.id,
+        passengerName: passenger ? `${passenger.firstName} ${passenger.lastName}` : undefined,
+        driverName: driver ? `${driver.firstName} ${driver.lastName}` : undefined,
+      },
+      createdAt: reservation.cancelledAt || reservation.updatedAt,
+    });
+  });
+
+  // ── 6. trip_created — conducteur confirme la publication ──────────────────
+  recentPublishedTrips.forEach((trip) => {
+    notifications.push({
+      id: nextNtfId(),
+      userId: trip.driverId,
+      type: "trip_created",
+      title: "Trajet publie avec succes !",
+      message: `Votre trajet ${trip.departure.label} -> ${trip.arrival.label} le ${trip.departureDate} a ${trip.departureTime} est maintenant visible par les passagers. Prix affiche : ${trip.passengerPrice} $ — ${trip.maxPassengers} place${trip.maxPassengers > 1 ? "s" : ""} disponible${trip.maxPassengers > 1 ? "s" : ""}.`,
+      isRead: true,
+      isImportant: false,
+      link: `/driver/${trip.driverId}?tab=trips&tripId=${trip.id}`,
+      linkLabel: "Voir mon trajet",
+      relatedTripId: trip.id,
+      relatedReservationId: null,
+      tripDetails: {
+        tripId: trip.id,
+        departure: trip.departure.label,
+        arrival: trip.arrival.label,
+        date: trip.departureDate,
+        time: trip.departureTime,
+        price: trip.pricePerPassenger,
+        availableSeats: trip.maxPassengers,
+        estimatedDurationMinutes: trip.estimatedDurationMinutes,
+      },
+      createdAt: trip.createdAt,
+    });
+  });
+
+  // ── 7. trip_starting_soon — conducteur + passagers (J-1) ──────────────────
+  upcomingTrips.slice(0, 6).forEach((trip) => {
+    const driver = users.find((u) => u.id === trip.driverId);
+    notifications.push({
+      id: nextNtfId(),
+      userId: trip.driverId,
+      type: "trip_starting_soon",
+      title: "Votre trajet demarre bientot",
+      message: `Rappel : votre trajet ${trip.departure.label} -> ${trip.arrival.label} est prevu le ${trip.departureDate} a ${trip.departureTime}. ${trip.currentPassengers} passager${trip.currentPassengers > 1 ? "s" : ""} attend${trip.currentPassengers > 1 ? "ent" : ""} votre depart — verifiez l'etat du trajet.`,
+      isRead: false,
+      isImportant: true,
+      link: `/driver/${trip.driverId}?tab=trips&tripId=${trip.id}`,
+      linkLabel: "Voir le trajet",
+      relatedTripId: trip.id,
+      relatedReservationId: null,
+      tripDetails: {
+        tripId: trip.id,
+        departure: trip.departure.label,
+        arrival: trip.arrival.label,
+        date: trip.departureDate,
+        time: trip.departureTime,
+        price: trip.pricePerPassenger,
+        availableSeats: trip.maxPassengers - trip.currentPassengers,
+        estimatedDurationMinutes: trip.estimatedDurationMinutes,
+      },
+      createdAt: toIso(dateAt(now, -1, 18, 0)),
+    });
+
+    const confirmedPassengerIds = reservations
+      .filter((r) => r.tripId === trip.id && ["confirmed", "in_progress"].includes(r.status))
+      .map((r) => r.passengerId);
+
+    confirmedPassengerIds.forEach((passengerId) => {
+      notifications.push({
+        id: nextNtfId(),
+        userId: passengerId,
+        type: "trip_starting_soon",
+        title: "Votre trajet demarre bientot",
+        message: `Rappel : votre trajet ${trip.departure.label} -> ${trip.arrival.label} est prevu le ${trip.departureDate} a ${trip.departureTime} avec ${driver ? driver.firstName + " " + driver.lastName : "votre conducteur"}. Soyez au point de depart quelques minutes avant l'heure.`,
+        isRead: false,
+        isImportant: true,
+        link: `/passenger/planner/${passengerId}?tripId=${trip.id}`,
+        linkLabel: "Voir mon trajet",
+        relatedTripId: trip.id,
+        relatedReservationId: null,
+        tripDetails: {
+          tripId: trip.id,
+          departure: trip.departure.label,
+          arrival: trip.arrival.label,
+          date: trip.departureDate,
+          time: trip.departureTime,
+          price: trip.passengerPrice,
+          estimatedDurationMinutes: trip.estimatedDurationMinutes,
+        },
+        createdAt: toIso(dateAt(now, -1, 18, 0)),
+      });
+    });
+  });
+
+  // ── 8. trip_cancelled — passagers des trajets annules ─────────────────────
+  cancelledTrips.slice(0, 3).forEach((trip) => {
+    const driver               = users.find((u) => u.id === trip.driverId);
+    const affectedReservations = reservations.filter((r) => r.tripId === trip.id && r.status === "cancelled");
+    affectedReservations.forEach((reservation) => {
+      notifications.push({
+        id: nextNtfId(),
+        userId: reservation.passengerId,
+        type: "trip_cancelled",
+        title: "Trajet annule par le conducteur",
+        message: `Le trajet ${trip.departure.label} -> ${trip.arrival.label} prevu le ${trip.departureDate} a ${trip.departureTime} a ete annule par ${driver ? driver.firstName + " " + driver.lastName : "le conducteur"}. Des trajets alternatifs sont disponibles sur la plateforme.`,
+        isRead: true,
+        isImportant: true,
+        link: `/passenger/search/${reservation.passengerId}`,
+        linkLabel: "Trouver un trajet alternatif",
+        relatedTripId: trip.id,
+        relatedReservationId: reservation.id,
+        tripDetails: {
+          tripId: trip.id,
+          departure: trip.departure.label,
+          arrival: trip.arrival.label,
+          date: trip.departureDate,
+          time: trip.departureTime,
+          price: trip.passengerPrice,
+        },
+        createdAt: reservation.cancelledAt || reservation.updatedAt,
+      });
+    });
+  });
+
+  // ── 9. new_review_received — utilisateur reçoit un avis ───────────────────
+  reviews.slice(0, SEED_CONFIG.maxReviewNotifications).forEach((review) => {
+    const reviewer = users.find((u) => u.id === review.reviewerId);
+    const reviewee = users.find((u) => u.id === review.revieweeId);
+    const qualityLabel = review.rating >= 4.7 ? "excellent" : review.rating >= 4.0 ? "tres positif" : "positif";
+    notifications.push({
+      id: nextNtfId(),
+      userId: review.revieweeId,
+      type: "new_review_received",
+      title: `Nouvel avis ${qualityLabel} recu`,
+      message: `${reviewer ? reviewer.firstName + " " + reviewer.lastName : "Un utilisateur"} vous a attribue ${review.rating}/5 — « ${review.comment.slice(0, 80)}${review.comment.length > 80 ? "..." : ""} ». Votre reputation continue de progresser !`,
+      isRead: false,
+      isImportant: false,
+      link: `/${reviewee?.role || "driver"}/${review.revieweeId}?tab=reviews&reviewId=${review.id}`,
+      linkLabel: "Voir l'avis",
+      relatedTripId: review.tripId,
+      relatedReservationId: review.reservationId,
+      reviewDetails: {
+        reviewId: review.id,
+        reviewerName: reviewer ? `${reviewer.firstName} ${reviewer.lastName}` : "Utilisateur",
+        rating: review.rating,
+        comment: review.comment.slice(0, 120),
+      },
+      createdAt: review.createdAt,
+    });
+  });
+
+  // ── 10. cancellation_penalty — conducteur sanctionne ──────────────────────
+  penalites.forEach((penalty) => {
+    const trip = trips.find((t) => t.id === penalty.trajetId);
+    notifications.push({
+      id: nextNtfId(),
+      userId: penalty.userId,
+      type: "cancellation_penalty",
+      title: "Penalite appliquee a votre compte",
+      message: `Une penalite de ${penalty.montant} $ a ete appliquee suite a : ${penalty.raison}${trip ? ` (trajet ${trip.departure.label} -> ${trip.arrival.label})` : ""}. Statut : ${penalty.statut}. Consultez votre historique financier pour contester ou regler.`,
+      isRead: penalty.statut !== "active",
+      isImportant: true,
+      link: `/driver/${penalty.userId}?tab=finances`,
+      linkLabel: "Voir mes finances",
+      relatedTripId: penalty.trajetId,
+      relatedReservationId: null,
+      createdAt: penalty.createdAt,
+    });
+  });
+
+  // ── 11. security_alert — demonstration ────────────────────────────────────
+  notifications.push({
+    id: nextNtfId(),
+    userId: drivers[0].id,
+    type: "security_alert",
+    title: "Nouvelle connexion detectee",
+    message: "Une connexion a votre compte a ete effectuee depuis un nouvel appareil (Mozilla/5.0 — Ottawa, ON). Si ce n'etait pas vous, changez immediatement votre mot de passe et contactez le support.",
+    isRead: false,
+    isImportant: true,
+    link: null,
+    linkLabel: null,
+    relatedTripId: null,
+    relatedReservationId: null,
+    securityDetails: {
+      deviceInfo: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+      location: "Ottawa, ON, Canada",
+      connectedAt: toIso(dateAt(now, -1, 3, 15)),
+    },
+    createdAt: toIso(dateAt(now, -1, 3, 15)),
+  });
+
+  // ── 12. system — notification de seed ─────────────────────────────────────
+  notifications.push({
+    id: "NTF-2026-99999",
+    userId: drivers[0].id,
+    type: "system",
+    title: "Base de test regeneree",
+    message: "Les donnees ont ete regenerees avec un volume augmente, des dependances coherentes et des notifications enrichies pour tous les types.",
+    isRead: true,
+    isImportant: false,
+    link: null,
+    linkLabel: null,
+    relatedTripId: null,
+    relatedReservationId: null,
+    createdAt: toIso(now),
+  });
+
+  notifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const messages = reservations
+    .filter((reservation) => ["pending", "confirmed", "in_progress", "completed"].includes(reservation.status))
+    .slice(0, SEED_CONFIG.maxMessageReservationThreads)
+    .flatMap((reservation, index) => {
+      const trip = tripMap.get(reservation.tripId);
+      return [
+        {
+          id: `MSG-2026-${String(index * 2 + 1).padStart(5, "0")}`,
+          tripId: reservation.tripId,
+          senderId: reservation.passengerId,
+          recipientId: reservation.driverId,
+          content: reservation.passengerMessage,
+          type: "text",
+          isRead: reservation.status !== "pending",
+          readAt: reservation.status !== "pending" ? reservation.updatedAt : undefined,
+          createdAt: reservation.createdAt,
+        },
+        {
+          id: `MSG-2026-${String(index * 2 + 2).padStart(5, "0")}`,
+          tripId: reservation.tripId,
+          senderId: reservation.driverId,
+          recipientId: reservation.passengerId,
+          content: reservation.status === "in_progress"
+            ? "Je suis en route. On se rejoint au point de rendez-vous."
+            : `Merci, le trajet ${trip.departure.label} -> ${trip.arrival.label} est bien pris en charge.`,
+          type: "text",
+          isRead: reservation.status === "completed",
+          readAt: reservation.status === "completed" ? reservation.updatedAt : undefined,
+          createdAt: reservation.updatedAt,
+        },
+      ];
+    });
+
   const userPreferences = buildUserPreferences(users, now);
   const driverFinanceAccounts = buildDriverFinanceAccounts(drivers, reservations, penalites, now);
   const passengerFinanceAccounts = buildPassengerFinanceAccounts(passengers, reservations, tripMap, now);
   const bankAccounts = buildBankAccounts(users, driverFinanceAccounts, passengerFinanceAccounts, now);
   const userStats = buildUserStats(users, trips, reservations, reviews, badges, now);
+  const userActivities = buildUserActivities(users, now);
 
   const indisponibilities = users
     .filter((user) => user.role !== "admin")
@@ -649,6 +1006,7 @@ function seed() {
   writeJson("messages.json", messages);
   writeJson("penalites.json", penalites);
   writeJson("indisponibilities.json", indisponibilities);
+  writeJson("user_activity.json", userActivities);
 
   console.log("seed-test-db termine");
   console.log(`- ${users.length} utilisateurs regeneres`);
@@ -666,6 +1024,7 @@ function seed() {
   console.log(`- ${userPreferences.length} preferences utilisateur regenerees`);
   console.log(`- ${userStats.length} statistiques utilisateur regenerees`);
   console.log(`- ${indisponibilities.length} indisponibilites regenerees`);
+  console.log(`- ${userActivities.length} activites utilisateur regenerees`);
 }
 
 seed();

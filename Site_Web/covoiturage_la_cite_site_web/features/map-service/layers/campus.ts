@@ -17,10 +17,11 @@ type L    = typeof import('leaflet')
 export async function addCampusLayer(
   map: LMap,
   Leaflet: L,
-  opts?: { showPerimeter?: boolean; showZones?: boolean },
+  opts?: { showPerimeter?: boolean; showZones?: boolean; showBusStopZone?: boolean },
 ) {
   const showPerimeter = opts?.showPerimeter ?? true
   const showZones     = opts?.showZones     ?? true
+  const showBusStop   = opts?.showBusStopZone ?? false
 
   // ── Polygone du campus ──────────────────────────────────────────────────
   if (showPerimeter) {
@@ -50,6 +51,7 @@ export async function addCampusLayer(
     const zoneMarkers: import('leaflet').Marker[] = []
 
     for (const zone of ZONES_CAMPUS) {
+      if (!showBusStop && zone.id === 'arret-octranspo') continue
       const icon = await createRencontreIcon(zone)
       const marker = Leaflet.marker(
         [zone.coordonnees.lat, zone.coordonnees.lng],

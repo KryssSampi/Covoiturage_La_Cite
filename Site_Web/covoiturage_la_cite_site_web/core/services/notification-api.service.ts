@@ -3,11 +3,18 @@ import { persistenceManager } from '@/tests/PersistenceManager';
 
 export type NotificationRecord = Record<string, unknown>;
 
-export function queryNotifications(userId?: string | null): NotificationRecord[] {
+export function queryNotifications(
+  userId?: string | null,
+  isRead?: boolean | null,
+): NotificationRecord[] {
   const notifications = persistenceManager.readAll<NotificationRecord>('notifications');
-  const filtered = userId
+  let filtered = userId
     ? notifications.filter((notification) => notification.userId === userId)
     : notifications;
+
+  if (isRead !== null && isRead !== undefined) {
+    filtered = filtered.filter((notification) => notification.isRead === isRead);
+  }
 
   return sortByDateDesc(filtered, (notification) => notification.createdAt as string | undefined);
 }

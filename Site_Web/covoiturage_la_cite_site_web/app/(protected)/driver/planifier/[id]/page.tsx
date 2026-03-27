@@ -38,7 +38,7 @@ const mapVariants = {
 
 const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
 
-function PlannerContent() {
+function PlannerContent({ onRefresh }: { onRefresh?: () => Promise<void> }) {
   const { plannerSearchActive, plannerSearchValues, pendingDateTime, exitPlannerSearch } = useHeroSearchBar();
   const searchParams = useSearchParams();
   const newTripId    = searchParams.get("newTripId");
@@ -115,7 +115,7 @@ function PlannerContent() {
       </AnimatePresence>
 
       <div id="planner-rides">
-        <RideArea />
+        <RideArea onRefresh={onRefresh} />
       </div>
     </div>
   );
@@ -181,6 +181,17 @@ export default function PlannerPage() {
       });
   }, [reservations, trips, userConnected, users]);
 
+  const handleStartTrip = useCallback(async (tripId: string) => {
+    try {
+      const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "start" }),
+      });
+      if (res.ok) await Promise.all([refreshTrips(), refreshReservations()]);
+    } catch { /* silencieux */ }
+  }, [refreshTrips, refreshReservations]);
+
   const handleCancelTrip = useCallback(async (tripId: string) => {
     try {
       const response = await fetch(`/api/trips/${encodeURIComponent(tripId)}/status`, {
@@ -197,6 +208,10 @@ export default function PlannerPage() {
       return false;
     }
   }, [refreshReservations, refreshTrips]);
+
+  const handleRefresh = useCallback(async () => {
+    await Promise.all([refreshTrips(), refreshReservations()]);
+  }, [refreshTrips, refreshReservations]);
 
   // Gère la sauvegarde des périodes d'indisponibilité du conducteur
   const handleSaveIndisponibilities = useCallback(async (dates: IndisponibilityDateRange[]) => {
@@ -223,8 +238,9 @@ export default function PlannerPage() {
       indisponibilities={myIndisponibility?.dates ?? []}
       onSaveIndisponibilities={handleSaveIndisponibilities}
       onCancelTrip={handleCancelTrip}
+      onStartTrip={handleStartTrip}
     >
-      <PlannerContent />
+      <PlannerContent onRefresh={handleRefresh} />
     </PlannerFeatureProvider>
   );
 }

@@ -75,6 +75,8 @@ export interface PassengerSearchParams {
   departureCoords: [number, number] | null;   // [lng, lat]
   arrivalCoords: [number, number] | null;     // [lng, lat]
   desiredHour?: number;
+  /** Heure d'arrivée souhaitée (heures décimales) — déclasse sans éliminer */
+  desiredArrivalHour?: number;
   desiredWeekday?: number;
   maxPrice?: number;
   minSeatsAvailable?: number;
@@ -101,6 +103,8 @@ export interface TripSearchDTO {
   estimatedDistanceKm?: number;
   estimatedDurationMinutes?: number;
   pricePerPassenger: number;
+  /** Prix affiché au passager = pricePerPassenger × 1.15 */
+  passengerPrice: number;
   paymentMethod: string;
   maxPassengers: number;
   availableSeats: number;
@@ -194,6 +198,45 @@ function horaireScore(tripTime: string, desiredHour?: number): number {
   return 0;
 }
 
+/**
+ * Score horaire basé sur l'heure d'ARRIVÉE souhaitée par le passager.
+ *
+ * Formule :
+ *   heureArrivéeEffective = heureDepart.trip + durationEstimation + tempsMarche + marge35%
+ *
+ * Ce score déclasse les trips sans jamais les éliminer (le seul filtre éliminant est géographique).
+ *
+ * @param tripDepartureTime  Heure de départ du trip "HH:mm"
+ * @param durationEstimation Durée estimée du trip en minutes
+ * @param walkingMeters      Distance de marche passager → arrivée trip en mètres
+ * @param desiredArrivalHour Heure d'arrivée souhaitée par le passager (heures décimales)
+ */
+function horaireArrivalScore(
+  tripDepartureTime: string,
+  durationEstimation: number,
+  walkingMeters: number,
+  desiredArrivalHour: number,
+): number {
+  const [h, m] = tripDepartureTime.split(':').map(Number);
+  const departHours = h + m / 60;
+
+  // Temps de marche : vitesse 2 km/h = 33.33 m/min → converti en heures
+  const walkingMinutes = walkingMeters / 33.33;
+  // Marge de 35% de la durée du trip (buffer réaliste)
+  const margeMinutes = 0.35 * durationEstimation;
+  const totalAddedHours = (durationEstimation + walkingMinutes + margeMinutes) / 60;
+
+  const effectiveArrivalHour = departHours + totalAddedHours;
+  const diff = Math.abs(effectiveArrivalHour - desiredArrivalHour);
+
+  if (diff <= 0.25) return 10;
+  if (diff <= 0.5)  return 8;
+  if (diff <= 1.0)  return 6;
+  if (diff <= 2.0)  return 3;
+  if (diff <= 3.0)  return 1;
+  return 0; // déclassé mais jamais éliminé
+}
+
 function cancellationScore(rate: number): number {
   if (rate < 0.05) return 8;
   if (rate < 0.10) return 6;
@@ -228,6 +271,7 @@ export function runPassengerMatchingV4(params: PassengerSearchParams): Passenger
     departureCoords,
     arrivalCoords,
     desiredHour,
+    desiredArrivalHour,
     desiredWeekday,
     maxPrice,
     minSeatsAvailable,
@@ -374,7 +418,30 @@ export function runPassengerMatchingV4(params: PassengerSearchParams): Passenger
     const blocD = Math.min(15, affiniteFavoris + affiniteNoteScore + affiniteTrajetsScore + affinitePassagersBord);
 
     // ── BLOC E — Horaire (10 pts) ──────────────────────────────────────────────
-    const horaire = trip.departureTime ? horaireScore(trip.departureTime, desiredHour) : 5;
+    // Si l'utilisateur cherche par heure d'ARRIVÉE, on calcule l'arrivée effective du trip
+    // en tenant compte de durationEstimation + temps de marche + marge 35%.
+    // Ce score déclasse sans jamais éliminer (seul le filtre géo élimine).
+    let horaire: number;
+    if (
+      desiredArrivalHour !== undefined &&
+      trip.departureTime &&
+      trip.durationEstimation !== undefined &&
+      arrivalCoords &&
+      trip.arrival?.coordinates
+    ) {
+      const walkingMeters = haversine(
+        arrivalCoords[1], arrivalCoords[0],
+        trip.arrival.coordinates.lat, trip.arrival.coordinates.lng,
+      );
+      horaire = horaireArrivalScore(
+        trip.departureTime,
+        trip.durationEstimation,
+        walkingMeters,
+        desiredArrivalHour,
+      );
+    } else {
+      horaire = trip.departureTime ? horaireScore(trip.departureTime, desiredHour) : 5;
+    }
 
     // ── BONUS — Récurrence (+5) ───────────────────────────────────────────────
     let bonusRecurrence = 0;
@@ -465,6 +532,7 @@ export function toTripSearchDTO(
     estimatedDistanceKm:      trip.estimatedDistanceKm,
     estimatedDurationMinutes: trip.estimatedDurationMinutes,
     pricePerPassenger:        trip.pricePerPassenger,
+    passengerPrice:           trip.passengerPrice ?? Math.round(trip.pricePerPassenger * 1.15 * 100) / 100,
     paymentMethod:            trip.paymentMethod,
     maxPassengers:            trip.maxPassengers,
     availableSeats:           trip.maxPassengers - trip.currentPassengers,

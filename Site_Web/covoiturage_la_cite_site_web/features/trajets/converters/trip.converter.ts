@@ -102,6 +102,7 @@ export function toPublishedTripViewData(
     departure: toTripPoint(trip.departure),
     arrival: toTripPoint(trip.arrival),
     pricePerPassenger: trip.pricePerPassenger,
+    passengerPrice: trip.passengerPrice ?? Math.round(trip.pricePerPassenger * 1.15 * 100) / 100,
     departureDate: trip.departureDate,
     departureTime: trip.departureTime,
     estimatedDuration: trip.estimatedDurationMinutes ?? 0,

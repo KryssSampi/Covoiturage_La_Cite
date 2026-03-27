@@ -1,19 +1,11 @@
 "use client";
 
-/**
- * Page des notifications — rôle Passager.
- * Récupère les données via API, souscrit au SSE pour les mises à jour temps réel,
- * et passe les items à NotificationsPage (composant pur).
- */
-
 import { useEffect, useCallback, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useLoader } from "@/core/context/loader.context";
 import { useAppState } from "@/core/state/app_state";
 import { NotificationsPage } from "@/features/notifications";
-import { notificationModelToNotification } from "@/features/dashboard/converters/dashboard.converter";
 import type { NotificationModel } from "@/core/models/NotificationModel";
-import type { Notification } from "@/features/dashboard/types";
 
 export default function PassengerNotificationsRoutePage() {
   const appState            = useAppState();
@@ -21,7 +13,10 @@ export default function PassengerNotificationsRoutePage() {
   const router              = useRouter();
   const { setActiveLoader } = useLoader();
   const user                = appState.userConnected;
-  const [items, setItems]   = useState<Notification[]>([]);
+  const [items, setItems]   = useState<NotificationModel[]>([]);
+  const [version, setVersion] = useState(0);
+
+  const reload = useCallback(() => setVersion((v) => v + 1), []);
 
   // Vérification rôle / identité
   useEffect(() => {
@@ -29,44 +24,51 @@ export default function PassengerNotificationsRoutePage() {
       setActiveLoader(true);
       router.push(`/${user?.role?.toString().toLowerCase()}/${user?.id}`);
     } else {
-      const timer = setTimeout(() => setActiveLoader(false), 300);
-      return () => clearTimeout(timer);
+      const t = setTimeout(() => setActiveLoader(false), 300);
+      return () => clearTimeout(t);
     }
   }, [user, params, router, setActiveLoader]);
 
-  // Chargement des notifications depuis l'API
-  const loadData = useCallback(async () => {
-    if (!user) return;
-    try {
-      const res = await fetch(`/api/notifications?userId=${encodeURIComponent(user.id)}`);
-      if (!res.ok) return;
-      const notifications: NotificationModel[] = await res.json();
-      setItems(notifications.map(notificationModelToNotification));
-    } catch (error) {
-      console.error("[passenger/notifications] loadData", error);
-    }
-  }, [user]);
-
-  // Chargement initial
+  // Chargement initial + rechargement
   useEffect(() => {
-    if (!user || user.role?.toString().toLowerCase() !== "passenger") return;
-    if (user.id !== params.id) return;
-    void loadData();
-  }, [loadData, params.id, user]);
+    if (!user || user.role?.toString().toLowerCase() !== "passenger" || user.id !== params.id) return;
+    let cancelled = false;
+    async function fetchData() {
+      try {
+        const res = await fetch(`/api/notifications?userId=${encodeURIComponent(user!.id)}`);
+        if (!res.ok || cancelled) return;
+        const data: NotificationModel[] = await res.json();
+        if (!cancelled) setItems(data);
+      } catch (err) {
+        console.error("[passenger/notifications] fetchData", err);
+      }
+    }
+    void fetchData();
+    return () => { cancelled = true; };
+  }, [user, params.id, version]);
 
-  // SSE : mise à jour temps réel lorsque les notifications changent
+  // SSE
   useEffect(() => {
     if (!user || user.id !== params.id) return;
     const es = new EventSource("/api/sse/db-watch/notifications");
     let isFirst = true;
     es.addEventListener("update", () => {
       if (isFirst) { isFirst = false; return; }
-      void loadData();
+      reload();
     });
     return () => es.close();
-  }, [user, params.id, loadData]);
+  }, [user, params.id, reload]);
+
+  const onRead = useCallback(async (id: string) => {
+    try {
+      await fetch(`/api/notifications/${id}/read`, { method: "PATCH" });
+      reload();
+    } catch (err) {
+      console.error("[passenger/notifications] onRead", err);
+    }
+  }, [reload]);
 
   if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "passenger") return null;
 
-  return <NotificationsPage items={items} />;
+  return <NotificationsPage items={items} onRead={onRead} />;
 }

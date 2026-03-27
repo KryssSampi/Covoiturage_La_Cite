@@ -28,7 +28,7 @@ export const FIXTURES_FAVORIS: FavorisApiResponse = {
       adresse: "801 prom. de l'Aviation, Ottawa",
       isPrincipal: true,
       icon: "campus",
-      coordonnees: { lat: 45.44, lng: -75.67 },
+      coordonnees: { lat: 45.439453490367846, lng: -75.62678911601688 },
     },
     {
       id: "l2",
@@ -36,7 +36,7 @@ export const FIXTURES_FAVORIS: FavorisApiResponse = {
       adresse: "214 rue Principale, Ottawa, ON",
       isPrincipal: false,
       icon: "domicile",
-      coordonnees: { lat: 45.42, lng: -75.69 },
+      coordonnees: { lat: 45.4215, lng: -75.6972 },
     },
     {
       id: "l3",

@@ -37,7 +37,8 @@ export type AllowedEntity =
   | 'nouveautes'
   | 'indisponibilities'
   | 'badges'
-  | 'user_stats';
+  | 'user_stats'
+  | 'user_activity';
 
 export class PersistenceManager {
   private static _instance: PersistenceManager;
@@ -68,6 +69,7 @@ export class PersistenceManager {
     'indisponibilities',
     'badges',
     'user_stats',
+    'user_activity',
   ];
 
   private constructor() {
