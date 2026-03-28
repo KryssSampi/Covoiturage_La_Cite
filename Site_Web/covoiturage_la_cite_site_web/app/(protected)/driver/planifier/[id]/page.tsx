@@ -188,9 +188,12 @@ export default function PlannerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "start" }),
       });
-      if (res.ok) await Promise.all([refreshTrips(), refreshReservations()]);
+      if (res.ok) {
+        await Promise.all([refreshTrips(), refreshReservations()]);
+        router.push(`/trajet-en-cours/${tripId}`);
+      }
     } catch { /* silencieux */ }
-  }, [refreshTrips, refreshReservations]);
+  }, [refreshTrips, refreshReservations, router]);
 
   const handleCancelTrip = useCallback(async (tripId: string) => {
     try {

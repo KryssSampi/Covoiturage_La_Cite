@@ -1,6 +1,7 @@
 // features/trajet-en-cours/hooks/useTrajetMap.ts
-// Gere la simulation temps-reel de la position, la reconnexion WebSocket
-// (preparee, non connectee) et le recalcul OSRM de l'itineraire.
+// Gère la polyline OSRM et le recalcul d'itinéraire.
+// La simulation est DÉSACTIVÉE par défaut — la carte affiche les positions GPS réelles.
+// Admin uniquement : appeler window.__simulateTrajet?.() dans la console pour activer.
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type {
@@ -20,9 +21,7 @@ import {
   fetchOsrmRoute,
 } from '../utils/trajet-map.utils'
 
-// HOOK WEBSOCKET (pret, non connecte)
-// Pour l'activer : connecter dans TrajetMap et passer les updates a
-// updateFromSocket(payload) au lieu du simulateur.
+// HOOK WEBSOCKET (prêt, non connecté)
 export function useTrajetMapSocket(): TrajetMapSocketHook {
   const wsRef = useRef<WebSocket | null>(null)
   const cbRef = useRef<((p: TrajetMapSocketPayload) => void) | null>(null)
@@ -31,14 +30,14 @@ export function useTrajetMapSocket(): TrajetMapSocketHook {
   const connect = useCallback((tripId: string, url: string) => {
     if (wsRef.current) wsRef.current.close()
     const ws = new WebSocket(`${url}?tripId=${encodeURIComponent(tripId)}`)
-    ws.onopen = () => setIsConnected(true)
+    ws.onopen  = () => setIsConnected(true)
     ws.onclose = () => setIsConnected(false)
     ws.onerror = () => setIsConnected(false)
     ws.onmessage = (e: MessageEvent) => {
       try {
         const payload: TrajetMapSocketPayload = JSON.parse(e.data as string)
         cbRef.current?.(payload)
-      } catch { /* payload invalide ignore */ }
+      } catch { /* payload invalide */ }
     }
     wsRef.current = ws
   }, [])
@@ -86,49 +85,63 @@ export function useTrajetMap(
 
   const socket = useTrajetMapSocket()
 
-  // Lance la simulation
+  // ── Simulation (désactivée par défaut) ────────────────────────────────────
+  // Accès admin : window.__simulateTrajet?.() dans la console du navigateur.
   const startSimulation = useCallback((st: TrajetMapState) => {
     if (simulRef.current) clearInterval(simulRef.current)
-
     const { fixture } = st
     const mPerSec = (fixture.vitesseMoyenneKmh * 1000) / 3600
 
     simulRef.current = setInterval(() => {
       setState((prev) => {
         if (prev.estTermine) return prev
-
         const newDist = prev.distanceParcourue + mPerSec
         const distTotal = prev.fixture.distanceTotaleM
         const done = newDist >= distTotal
-
         const { latlng, heading } = interpolateOnPolyline(
           prev.fixture.polyline,
           Math.min(newDist, distTotal),
         )
-
-        const pct = Math.min((newDist / distTotal) * 100, 100)
-
         return {
           ...prev,
           positionActuelle: latlng,
           headingActuel: heading,
           distanceParcourue: Math.min(newDist, distTotal),
-          pourcentageComplete: pct,
+          pourcentageComplete: Math.min((newDist / distTotal) * 100, 100),
           estTermine: done,
-          prochainFixture: prev.prochainFixture,
         }
       })
     }, 1000)
   }, [])
 
-  // Demarre la simulation au montage
+  // Expose la simulation à la console admin — jamais démarrée automatiquement
   useEffect(() => {
-    startSimulation(state)
-    return () => { if (simulRef.current) clearInterval(simulRef.current) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (typeof window === 'undefined') return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(window as any).__simulateTrajet = () => {
+      console.info('[Admin] Simulation démarrée')
+      startSimulation(stateRef.current)
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(window as any).__stopSimulation = () => {
+      if (simulRef.current) clearInterval(simulRef.current)
+      console.info('[Admin] Simulation arrêtée')
+    }
+    return () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (window as any).__simulateTrajet
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      delete (window as any).__stopSimulation
+    }
+  }, [startSimulation])
 
-  // Remplace la polyline initiale par la route OSRM (suit les vraies routes)
+  // Stoppe la simulation si le trajet est terminé
+  useEffect(() => {
+    if (!state.estTermine) return
+    if (simulRef.current) clearInterval(simulRef.current)
+  }, [state.estTermine])
+
+  // Remplace la polyline initiale par la route OSRM (vraies routes)
   const osrmInitDone = useRef(false)
   useEffect(() => {
     if (osrmInitDone.current) return
@@ -137,44 +150,19 @@ export function useTrajetMap(
     const { depart, arrivee } = fixtureInitiale
     fetchOsrmRoute(depart, arrivee).then((osrmPoly) => {
       if (!osrmPoly || osrmPoly.length < 2) return
-
       setState((prev) => {
-        const ratio = prev.fixture.distanceTotaleM > 0
-          ? prev.distanceParcourue / prev.fixture.distanceTotaleM
-          : 0
         const updatedFixture: TrajetMapFixture = {
           ...prev.fixture,
           polyline: osrmPoly,
           distanceTotaleM: polylineDistanceM(osrmPoly),
         }
-        const newState = buildState(updatedFixture)
-        const newDist = ratio * newState.fixture.distanceTotaleM
-        const { latlng, heading } = interpolateOnPolyline(
-          newState.fixture.polyline,
-          newDist,
-        )
-        const updated: TrajetMapState = {
-          ...newState,
-          positionActuelle: latlng,
-          headingActuel: heading,
-          distanceParcourue: newDist,
-          pourcentageComplete: ratio * 100,
-          prochainFixture: prev.prochainFixture,
-        }
-        startSimulation(updated)
-        return updated
+        return buildState(updatedFixture)
       })
     })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Quand le trajet est termine -> stoppe la simulation (pas de redemarrage auto)
-  useEffect(() => {
-    if (!state.estTermine) return
-    if (simulRef.current) clearInterval(simulRef.current)
-  }, [state.estTermine])
-
-  // Injection WebSocket (future)
+  // Mise à jour depuis position réelle (SSE / socket)
   const updateFromSocket = useCallback((payload: TrajetMapSocketPayload) => {
     if (simulRef.current) clearInterval(simulRef.current)
     setState((prev) => ({
@@ -188,38 +176,32 @@ export function useTrajetMap(
     }))
   }, [])
 
-  // Recalcul OSRM (deviation GPS)
+  // Recalcul OSRM depuis position actuelle (déviation GPS)
   const recalculerItineraire = useCallback(async () => {
     const current = stateRef.current
     if (current.estTermine) return
     setIsRecalculating(true)
     try {
-      const newPoly = await fetchOsrmRoute(
-        current.positionActuelle,
-        current.fixture.arrivee,
-      )
+      const newPoly = await fetchOsrmRoute(current.positionActuelle, current.fixture.arrivee)
       if (!newPoly || newPoly.length < 2) return
-
       const distTotale = polylineDistanceM(newPoly)
       const updatedFixture: TrajetMapFixture = {
         ...current.fixture,
         polyline: newPoly,
         distanceTotaleM: distTotale,
       }
-      const newState: TrajetMapState = {
+      setState({
         ...buildState(updatedFixture),
         positionActuelle: current.positionActuelle,
         headingActuel: current.headingActuel,
         distanceParcourue: 0,
         pourcentageComplete: 0,
         prochainFixture: current.prochainFixture,
-      }
-      setState(newState)
-      startSimulation(newState)
+      })
     } finally {
       setIsRecalculating(false)
     }
-  }, [startSimulation])
+  }, [])
 
   return { state, config, setConfig, updateFromSocket, recalculerItineraire, isRecalculating, socket }
 }

@@ -152,10 +152,10 @@ export function Hero() {
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
-  /** Ouvre RouteMapSearch immédiatement avec un formulaire vide */
+  /** Ouvre la barre de recherche pour saisir départ / arrivée avant de lancer la recherche */
   const handleSearchClick = () => {
     setDisponibilitySetterIsActive(false);
-    triggerPlannerSearch(); // formulaire vide, sans date/heure pré-remplie
+    setSearchbarIsActive(true); // affiche le slide-down pour que l'utilisateur remplisse les champs
   };
 
   /** Bascule le panneau d'indisponibilité et ferme la barre de recherche */

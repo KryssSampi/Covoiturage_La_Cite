@@ -100,7 +100,7 @@ export const MAP_SERVICE_CSS = `
 
 /* ── Mode sombre (19h–6h) — inversion des tuiles ── */
 .ms-dark .leaflet-tile-pane {
-  filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(1.1);
+  filter: invert(1) hue-rotate(180deg) brightness(1.35) contrast(0.92) saturate(1.15);
 }
 .ms-dark .leaflet-control-zoom a {
   background: #1a2a44 !important;

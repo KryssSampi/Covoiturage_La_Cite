@@ -2,7 +2,7 @@
   {
     "id": "stat-USR-2026-00001",
     "userId": "USR-2026-00001",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 37,
       "co2TotalKg": 379.2,
@@ -50,7 +50,7 @@
       },
       {
         "mois": "Mars",
-        "kg": 129.6,
+        "kg": 127.9,
         "isFutur": true
       }
     ],
@@ -118,33 +118,25 @@
     ],
     "notesParSemaine": [
       {
-        "semaine": "S2 mars",
-        "notes": [
-          4.5,
-          4.7
-        ],
-        "mediane": 4.6
-      },
-      {
         "semaine": "S3 mars",
         "notes": [
+          4.5,
+          4.7,
           4.4,
           4.7,
           4.4,
-          4.4,
-          4.7
+          4.4
         ],
-        "mediane": 4.4
+        "mediane": 4.5
       },
       {
         "semaine": "S4 mars",
         "notes": [
+          4.7,
           4.4,
           4.4,
           4.7,
-          4.4,
-          4.7,
-          4.3
+          4.4
         ],
         "mediane": 4.4
       },
@@ -152,21 +144,29 @@
         "semaine": "S5 mars",
         "notes": [
           4.7,
-          4.4
+          4.3,
+          4.7
         ],
-        "mediane": 4.6
+        "mediane": 4.7
       },
       {
         "semaine": "S1 avr",
         "notes": [
+          4.4,
           4.7,
           4.7,
           4.4,
           4.7,
-          4.7,
-          4.4
+          4.7
         ],
         "mediane": 4.7
+      },
+      {
+        "semaine": "S2 avr",
+        "notes": [
+          4.4
+        ],
+        "mediane": 4.4
       }
     ],
     "distributionNotes": {
@@ -215,7 +215,7 @@
         "id": "TRJ-2026-00080",
         "depart": "Barrhaven Centre",
         "arrivee": "Campus La Cite",
-        "date": "2026-05-03 17:25",
+        "date": "2026-05-04 17:25",
         "nbPassagers": 2,
         "distanceKm": 23.5,
         "gainNet": 0,
@@ -227,7 +227,7 @@
         "id": "TRJ-2026-00079",
         "depart": "Campus La Cite",
         "arrivee": "Orleans Park and Ride",
-        "date": "2026-05-02 08:15",
+        "date": "2026-05-03 08:15",
         "nbPassagers": 1,
         "distanceKm": 16.1,
         "gainNet": 0,
@@ -239,7 +239,7 @@
         "id": "TRJ-2026-00078",
         "depart": "Gatineau Centre-Ville",
         "arrivee": "ByWard Market",
-        "date": "2026-05-01 16:50",
+        "date": "2026-05-02 16:50",
         "nbPassagers": 1,
         "distanceKm": 6,
         "gainNet": 0,
@@ -251,7 +251,7 @@
         "id": "TRJ-2026-00077",
         "depart": "South Keys",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-30 07:30",
+        "date": "2026-05-01 07:30",
         "nbPassagers": 2,
         "distanceKm": 41.5,
         "gainNet": 0,
@@ -263,7 +263,7 @@
         "id": "TRJ-2026-00075",
         "depart": "Campus La Cite",
         "arrivee": "Rideau Centre",
-        "date": "2026-04-28 08:00",
+        "date": "2026-04-29 08:00",
         "nbPassagers": 1,
         "distanceKm": 4,
         "gainNet": 0,
@@ -282,8 +282,8 @@
     },
     "kpisParPeriode": {
       "7j": {
-        "nbTrajets": 33,
-        "co2TotalKg": 318.5,
+        "nbTrajets": 34,
+        "co2TotalKg": 335.5,
         "noteMoyenne": 4.5,
         "goScore": 680
       },
@@ -316,28 +316,28 @@
       "7j": [
         {
           "mois": "Mars",
-          "kg": 129.6,
+          "kg": 127.9,
           "isFutur": true
         }
       ],
       "mois": [
         {
           "mois": "Mars",
-          "kg": 129.6,
+          "kg": 127.9,
           "isFutur": true
         }
       ],
       "3mois": [
         {
           "mois": "Mars",
-          "kg": 129.6,
+          "kg": 127.9,
           "isFutur": true
         }
       ],
       "6mois": [
         {
           "mois": "Mars",
-          "kg": 129.6,
+          "kg": 127.9,
           "isFutur": true
         }
       ],
@@ -369,7 +369,7 @@
         },
         {
           "mois": "Mars",
-          "kg": 129.6,
+          "kg": 127.9,
           "isFutur": true
         }
       ]
@@ -377,33 +377,25 @@
     "notesParSemaineParPeriode": {
       "7j": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.5,
-            4.7
-          ],
-          "mediane": 4.6
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.5,
+            4.7,
             4.4,
             4.7,
             4.4,
-            4.4,
-            4.7
+            4.4
           ],
-          "mediane": 4.4
+          "mediane": 4.5
         },
         {
           "semaine": "S4 mars",
           "notes": [
+            4.7,
             4.4,
             4.4,
             4.7,
-            4.4,
-            4.7,
-            4.3
+            4.4
           ],
           "mediane": 4.4
         },
@@ -411,52 +403,52 @@
           "semaine": "S5 mars",
           "notes": [
             4.7,
-            4.4
+            4.3,
+            4.7
           ],
-          "mediane": 4.6
+          "mediane": 4.7
         },
         {
           "semaine": "S1 avr",
           "notes": [
+            4.4,
             4.7,
             4.7,
             4.4,
             4.7,
-            4.7,
-            4.4
+            4.7
           ],
           "mediane": 4.7
+        },
+        {
+          "semaine": "S2 avr",
+          "notes": [
+            4.4
+          ],
+          "mediane": 4.4
         }
       ],
       "mois": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.5,
-            4.7
-          ],
-          "mediane": 4.6
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.5,
+            4.7,
             4.4,
             4.7,
             4.4,
-            4.4,
-            4.7
+            4.4
           ],
-          "mediane": 4.4
+          "mediane": 4.5
         },
         {
           "semaine": "S4 mars",
           "notes": [
+            4.7,
             4.4,
             4.4,
             4.7,
-            4.4,
-            4.7,
-            4.3
+            4.4
           ],
           "mediane": 4.4
         },
@@ -464,52 +456,52 @@
           "semaine": "S5 mars",
           "notes": [
             4.7,
-            4.4
+            4.3,
+            4.7
           ],
-          "mediane": 4.6
+          "mediane": 4.7
         },
         {
           "semaine": "S1 avr",
           "notes": [
+            4.4,
             4.7,
             4.7,
             4.4,
             4.7,
-            4.7,
-            4.4
+            4.7
           ],
           "mediane": 4.7
+        },
+        {
+          "semaine": "S2 avr",
+          "notes": [
+            4.4
+          ],
+          "mediane": 4.4
         }
       ],
       "3mois": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.5,
-            4.7
-          ],
-          "mediane": 4.6
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.5,
+            4.7,
             4.4,
             4.7,
             4.4,
-            4.4,
-            4.7
+            4.4
           ],
-          "mediane": 4.4
+          "mediane": 4.5
         },
         {
           "semaine": "S4 mars",
           "notes": [
+            4.7,
             4.4,
             4.4,
             4.7,
-            4.4,
-            4.7,
-            4.3
+            4.4
           ],
           "mediane": 4.4
         },
@@ -517,52 +509,52 @@
           "semaine": "S5 mars",
           "notes": [
             4.7,
-            4.4
+            4.3,
+            4.7
           ],
-          "mediane": 4.6
+          "mediane": 4.7
         },
         {
           "semaine": "S1 avr",
           "notes": [
+            4.4,
             4.7,
             4.7,
             4.4,
             4.7,
-            4.7,
-            4.4
+            4.7
           ],
           "mediane": 4.7
+        },
+        {
+          "semaine": "S2 avr",
+          "notes": [
+            4.4
+          ],
+          "mediane": 4.4
         }
       ],
       "6mois": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.5,
-            4.7
-          ],
-          "mediane": 4.6
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.5,
+            4.7,
             4.4,
             4.7,
             4.4,
-            4.4,
-            4.7
+            4.4
           ],
-          "mediane": 4.4
+          "mediane": 4.5
         },
         {
           "semaine": "S4 mars",
           "notes": [
+            4.7,
             4.4,
             4.4,
             4.7,
-            4.4,
-            4.7,
-            4.3
+            4.4
           ],
           "mediane": 4.4
         },
@@ -570,52 +562,52 @@
           "semaine": "S5 mars",
           "notes": [
             4.7,
-            4.4
+            4.3,
+            4.7
           ],
-          "mediane": 4.6
+          "mediane": 4.7
         },
         {
           "semaine": "S1 avr",
           "notes": [
+            4.4,
             4.7,
             4.7,
             4.4,
             4.7,
-            4.7,
-            4.4
+            4.7
           ],
           "mediane": 4.7
+        },
+        {
+          "semaine": "S2 avr",
+          "notes": [
+            4.4
+          ],
+          "mediane": 4.4
         }
       ],
       "tout": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.5,
-            4.7
-          ],
-          "mediane": 4.6
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.5,
+            4.7,
             4.4,
             4.7,
             4.4,
-            4.4,
-            4.7
+            4.4
           ],
-          "mediane": 4.4
+          "mediane": 4.5
         },
         {
           "semaine": "S4 mars",
           "notes": [
+            4.7,
             4.4,
             4.4,
             4.7,
-            4.4,
-            4.7,
-            4.3
+            4.4
           ],
           "mediane": 4.4
         },
@@ -623,21 +615,29 @@
           "semaine": "S5 mars",
           "notes": [
             4.7,
-            4.4
+            4.3,
+            4.7
           ],
-          "mediane": 4.6
+          "mediane": 4.7
         },
         {
           "semaine": "S1 avr",
           "notes": [
+            4.4,
             4.7,
             4.7,
             4.4,
             4.7,
-            4.7,
-            4.4
+            4.7
           ],
           "mediane": 4.7
+        },
+        {
+          "semaine": "S2 avr",
+          "notes": [
+            4.4
+          ],
+          "mediane": 4.4
         }
       ]
     },
@@ -656,6 +656,11 @@
         {
           "distanceKm": 83.4,
           "co2Kg": 35,
+          "categorie": "longue"
+        },
+        {
+          "distanceKm": 40.5,
+          "co2Kg": 17,
           "categorie": "longue"
         },
         {
@@ -686,11 +691,6 @@
         {
           "distanceKm": 16.1,
           "co2Kg": 6.8,
-          "categorie": "moyenne"
-        },
-        {
-          "distanceKm": 16.6,
-          "co2Kg": 7,
           "categorie": "moyenne"
         }
       ],
@@ -905,12 +905,12 @@
     },
     "impactEcoParPeriode": {
       "7j": {
-        "co2TotalKg": 318.5,
-        "kmTotaux": 757.6,
-        "carburantLitres": 128.8,
-        "arbresEquivalents": 16,
-        "voituresEvitees": 40,
-        "economiesDollars": 235.7
+        "co2TotalKg": 335.5,
+        "kmTotaux": 798.1,
+        "carburantLitres": 135.7,
+        "arbresEquivalents": 17,
+        "voituresEvitees": 42,
+        "economiesDollars": 248.3
       },
       "mois": {
         "co2TotalKg": 379.2,
@@ -951,7 +951,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -963,7 +963,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 0,
@@ -975,7 +975,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 0,
@@ -987,7 +987,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -999,7 +999,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 0,
@@ -1013,7 +1013,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -1025,7 +1025,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 0,
@@ -1037,7 +1037,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 0,
@@ -1049,7 +1049,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -1061,7 +1061,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 0,
@@ -1075,7 +1075,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -1087,7 +1087,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 0,
@@ -1099,7 +1099,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 0,
@@ -1111,7 +1111,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -1123,7 +1123,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 0,
@@ -1137,7 +1137,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -1149,7 +1149,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 0,
@@ -1161,7 +1161,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 0,
@@ -1173,7 +1173,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -1185,7 +1185,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 0,
@@ -1199,7 +1199,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -1211,7 +1211,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 0,
@@ -1223,7 +1223,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 0,
@@ -1235,7 +1235,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -1247,7 +1247,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 0,
@@ -1261,7 +1261,7 @@
   {
     "id": "stat-USR-2026-00002",
     "userId": "USR-2026-00002",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 16,
       "co2TotalKg": 229.9,
@@ -1377,24 +1377,17 @@
     ],
     "notesParSemaine": [
       {
-        "semaine": "S2 mars",
+        "semaine": "S3 mars",
         "notes": [
-          4.4
+          4.4,
+          4.3,
+          4.7
         ],
         "mediane": 4.4
       },
       {
-        "semaine": "S3 mars",
-        "notes": [
-          4.3,
-          4.7
-        ],
-        "mediane": 4.5
-      },
-      {
         "semaine": "S4 mars",
         "notes": [
-          4.7,
           4.7
         ],
         "mediane": 4.7
@@ -1402,9 +1395,10 @@
       {
         "semaine": "S5 mars",
         "notes": [
+          4.7,
           4.5
         ],
-        "mediane": 4.5
+        "mediane": 4.6
       },
       {
         "semaine": "S1 avr",
@@ -1456,7 +1450,7 @@
         "id": "TRJ-2026-00080",
         "depart": "Barrhaven Centre",
         "arrivee": "Campus La Cite",
-        "date": "2026-05-03 17:25",
+        "date": "2026-05-04 17:25",
         "nbPassagers": 2,
         "distanceKm": 23.5,
         "gainNet": 0,
@@ -1468,7 +1462,7 @@
         "id": "TRJ-2026-00077",
         "depart": "South Keys",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-30 07:30",
+        "date": "2026-05-01 07:30",
         "nbPassagers": 2,
         "distanceKm": 41.5,
         "gainNet": 0,
@@ -1480,7 +1474,7 @@
         "id": "TRJ-2026-00074",
         "depart": "Place d'Orleans",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-26 17:10",
+        "date": "2026-04-27 17:10",
         "nbPassagers": 1,
         "distanceKm": 16.6,
         "gainNet": 5.95,
@@ -1492,7 +1486,7 @@
         "id": "TRJ-2026-00073",
         "depart": "Campus La Cite",
         "arrivee": "Place d'Orleans",
-        "date": "2026-04-25 07:45",
+        "date": "2026-04-26 07:45",
         "nbPassagers": 2,
         "distanceKm": 83.4,
         "gainNet": 0,
@@ -1504,7 +1498,7 @@
         "id": "TRJ-2026-00056",
         "depart": "Barrhaven Centre",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-19 17:25",
+        "date": "2026-04-20 17:25",
         "nbPassagers": 2,
         "distanceKm": 23.5,
         "gainNet": 0,
@@ -1523,9 +1517,9 @@
     },
     "kpisParPeriode": {
       "7j": {
-        "nbTrajets": 13,
-        "co2TotalKg": 170.9,
-        "noteMoyenne": 4.5,
+        "nbTrajets": 14,
+        "co2TotalKg": 187.9,
+        "noteMoyenne": 4.6,
         "goScore": 755
       },
       "mois": {
@@ -1618,24 +1612,17 @@
     "notesParSemaineParPeriode": {
       "7j": [
         {
-          "semaine": "S2 mars",
+          "semaine": "S3 mars",
           "notes": [
-            4.4
+            4.4,
+            4.3,
+            4.7
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S3 mars",
-          "notes": [
-            4.3,
-            4.7
-          ],
-          "mediane": 4.5
-        },
-        {
           "semaine": "S4 mars",
           "notes": [
-            4.7,
             4.7
           ],
           "mediane": 4.7
@@ -1643,9 +1630,10 @@
         {
           "semaine": "S5 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
           "semaine": "S1 avr",
@@ -1658,24 +1646,17 @@
       ],
       "mois": [
         {
-          "semaine": "S2 mars",
+          "semaine": "S3 mars",
           "notes": [
-            4.4
+            4.4,
+            4.3,
+            4.7
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S3 mars",
-          "notes": [
-            4.3,
-            4.7
-          ],
-          "mediane": 4.5
-        },
-        {
           "semaine": "S4 mars",
           "notes": [
-            4.7,
             4.7
           ],
           "mediane": 4.7
@@ -1683,9 +1664,10 @@
         {
           "semaine": "S5 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
           "semaine": "S1 avr",
@@ -1698,24 +1680,17 @@
       ],
       "3mois": [
         {
-          "semaine": "S2 mars",
+          "semaine": "S3 mars",
           "notes": [
-            4.4
+            4.4,
+            4.3,
+            4.7
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S3 mars",
-          "notes": [
-            4.3,
-            4.7
-          ],
-          "mediane": 4.5
-        },
-        {
           "semaine": "S4 mars",
           "notes": [
-            4.7,
             4.7
           ],
           "mediane": 4.7
@@ -1723,9 +1698,10 @@
         {
           "semaine": "S5 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
           "semaine": "S1 avr",
@@ -1738,24 +1714,17 @@
       ],
       "6mois": [
         {
-          "semaine": "S2 mars",
+          "semaine": "S3 mars",
           "notes": [
-            4.4
+            4.4,
+            4.3,
+            4.7
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S3 mars",
-          "notes": [
-            4.3,
-            4.7
-          ],
-          "mediane": 4.5
-        },
-        {
           "semaine": "S4 mars",
           "notes": [
-            4.7,
             4.7
           ],
           "mediane": 4.7
@@ -1763,9 +1732,10 @@
         {
           "semaine": "S5 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
           "semaine": "S1 avr",
@@ -1778,24 +1748,17 @@
       ],
       "tout": [
         {
-          "semaine": "S2 mars",
+          "semaine": "S3 mars",
           "notes": [
-            4.4
+            4.4,
+            4.3,
+            4.7
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S3 mars",
-          "notes": [
-            4.3,
-            4.7
-          ],
-          "mediane": 4.5
-        },
-        {
           "semaine": "S4 mars",
           "notes": [
-            4.7,
             4.7
           ],
           "mediane": 4.7
@@ -1803,9 +1766,10 @@
         {
           "semaine": "S5 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
           "semaine": "S1 avr",
@@ -1835,6 +1799,11 @@
           "categorie": "moyenne"
         },
         {
+          "distanceKm": 40.5,
+          "co2Kg": 17,
+          "categorie": "longue"
+        },
+        {
           "distanceKm": 23.5,
           "co2Kg": 9.9,
           "categorie": "moyenne"
@@ -1862,11 +1831,6 @@
         {
           "distanceKm": 25.5,
           "co2Kg": 10.7,
-          "categorie": "moyenne"
-        },
-        {
-          "distanceKm": 23.5,
-          "co2Kg": 9.9,
           "categorie": "moyenne"
         }
       ],
@@ -2081,12 +2045,12 @@
     },
     "impactEcoParPeriode": {
       "7j": {
-        "co2TotalKg": 170.9,
-        "kmTotaux": 406.7,
-        "carburantLitres": 69.1,
+        "co2TotalKg": 187.9,
+        "kmTotaux": 447.2,
+        "carburantLitres": 76,
         "arbresEquivalents": 9,
-        "voituresEvitees": 21,
-        "economiesDollars": 126.5
+        "voituresEvitees": 23,
+        "economiesDollars": 139
       },
       "mois": {
         "co2TotalKg": 229.9,
@@ -2127,7 +2091,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2139,7 +2103,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -2151,7 +2115,7 @@
           "id": "TRJ-2026-00074",
           "depart": "Place d'Orleans",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-26 17:10",
+          "date": "2026-04-27 17:10",
           "nbPassagers": 1,
           "distanceKm": 16.6,
           "gainNet": 5.95,
@@ -2163,7 +2127,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -2175,7 +2139,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2189,7 +2153,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2201,7 +2165,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -2213,7 +2177,7 @@
           "id": "TRJ-2026-00074",
           "depart": "Place d'Orleans",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-26 17:10",
+          "date": "2026-04-27 17:10",
           "nbPassagers": 1,
           "distanceKm": 16.6,
           "gainNet": 5.95,
@@ -2225,7 +2189,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -2237,7 +2201,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2251,7 +2215,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2263,7 +2227,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -2275,7 +2239,7 @@
           "id": "TRJ-2026-00074",
           "depart": "Place d'Orleans",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-26 17:10",
+          "date": "2026-04-27 17:10",
           "nbPassagers": 1,
           "distanceKm": 16.6,
           "gainNet": 5.95,
@@ -2287,7 +2251,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -2299,7 +2263,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2313,7 +2277,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2325,7 +2289,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -2337,7 +2301,7 @@
           "id": "TRJ-2026-00074",
           "depart": "Place d'Orleans",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-26 17:10",
+          "date": "2026-04-27 17:10",
           "nbPassagers": 1,
           "distanceKm": 16.6,
           "gainNet": 5.95,
@@ -2349,7 +2313,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -2361,7 +2325,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2375,7 +2339,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2387,7 +2351,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 0,
@@ -2399,7 +2363,7 @@
           "id": "TRJ-2026-00074",
           "depart": "Place d'Orleans",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-26 17:10",
+          "date": "2026-04-27 17:10",
           "nbPassagers": 1,
           "distanceKm": 16.6,
           "gainNet": 5.95,
@@ -2411,7 +2375,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -2423,7 +2387,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 0,
@@ -2437,7 +2401,7 @@
   {
     "id": "stat-USR-2026-00003",
     "userId": "USR-2026-00003",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 8,
       "co2TotalKg": 99.5,
@@ -2485,7 +2449,7 @@
       },
       {
         "mois": "Mars",
-        "kg": 52.4,
+        "kg": 50.7,
         "isFutur": true
       }
     ],
@@ -2533,28 +2497,22 @@
     ],
     "notesParSemaine": [
       {
-        "semaine": "S2 mars",
-        "notes": [
-          4.7
-        ],
-        "mediane": 4.7
-      },
-      {
         "semaine": "S3 mars",
         "notes": [
+          4.7,
           4.5
         ],
-        "mediane": 4.5
+        "mediane": 4.6
       },
       {
-        "semaine": "S4 mars",
+        "semaine": "S5 mars",
         "notes": [
           4.4
         ],
         "mediane": 4.4
       },
       {
-        "semaine": "S5 mars",
+        "semaine": "S1 avr",
         "notes": [
           4.7
         ],
@@ -2607,7 +2565,7 @@
         "id": "TRJ-2026-00075",
         "depart": "Campus La Cite",
         "arrivee": "Rideau Centre",
-        "date": "2026-04-28 08:00",
+        "date": "2026-04-29 08:00",
         "nbPassagers": 1,
         "distanceKm": 4,
         "gainNet": 4.25,
@@ -2619,7 +2577,7 @@
         "id": "TRJ-2026-00073",
         "depart": "Campus La Cite",
         "arrivee": "Place d'Orleans",
-        "date": "2026-04-25 07:45",
+        "date": "2026-04-26 07:45",
         "nbPassagers": 2,
         "distanceKm": 83.4,
         "gainNet": 0,
@@ -2631,7 +2589,7 @@
         "id": "TRJ-2026-00051",
         "depart": "Campus La Cite",
         "arrivee": "Rideau Centre",
-        "date": "2026-04-14 08:00",
+        "date": "2026-04-15 08:00",
         "nbPassagers": 1,
         "distanceKm": 4,
         "gainNet": 4.25,
@@ -2643,7 +2601,7 @@
         "id": "TRJ-2026-00049",
         "depart": "Campus La Cite",
         "arrivee": "Place d'Orleans",
-        "date": "2026-04-11 07:45",
+        "date": "2026-04-12 07:45",
         "nbPassagers": 2,
         "distanceKm": 20.8,
         "gainNet": 0,
@@ -2655,7 +2613,7 @@
         "id": "TRJ-2026-00027",
         "depart": "Campus La Cite",
         "arrivee": "Rideau Centre",
-        "date": "2026-03-31 08:00",
+        "date": "2026-04-01 08:00",
         "nbPassagers": 1,
         "distanceKm": 4,
         "gainNet": 4.25,
@@ -2708,28 +2666,28 @@
       "7j": [
         {
           "mois": "Mars",
-          "kg": 52.4,
+          "kg": 50.7,
           "isFutur": true
         }
       ],
       "mois": [
         {
           "mois": "Mars",
-          "kg": 52.4,
+          "kg": 50.7,
           "isFutur": true
         }
       ],
       "3mois": [
         {
           "mois": "Mars",
-          "kg": 52.4,
+          "kg": 50.7,
           "isFutur": true
         }
       ],
       "6mois": [
         {
           "mois": "Mars",
-          "kg": 52.4,
+          "kg": 50.7,
           "isFutur": true
         }
       ],
@@ -2761,7 +2719,7 @@
         },
         {
           "mois": "Mars",
-          "kg": 52.4,
+          "kg": 50.7,
           "isFutur": true
         }
       ]
@@ -2769,28 +2727,22 @@
     "notesParSemaineParPeriode": {
       "7j": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.7
-          ],
-          "mediane": 4.7
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
-          "semaine": "S4 mars",
+          "semaine": "S5 mars",
           "notes": [
             4.4
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S5 mars",
+          "semaine": "S1 avr",
           "notes": [
             4.7
           ],
@@ -2799,28 +2751,22 @@
       ],
       "mois": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.7
-          ],
-          "mediane": 4.7
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
-          "semaine": "S4 mars",
+          "semaine": "S5 mars",
           "notes": [
             4.4
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S5 mars",
+          "semaine": "S1 avr",
           "notes": [
             4.7
           ],
@@ -2829,28 +2775,22 @@
       ],
       "3mois": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.7
-          ],
-          "mediane": 4.7
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
-          "semaine": "S4 mars",
+          "semaine": "S5 mars",
           "notes": [
             4.4
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S5 mars",
+          "semaine": "S1 avr",
           "notes": [
             4.7
           ],
@@ -2859,28 +2799,22 @@
       ],
       "6mois": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.7
-          ],
-          "mediane": 4.7
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
-          "semaine": "S4 mars",
+          "semaine": "S5 mars",
           "notes": [
             4.4
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S5 mars",
+          "semaine": "S1 avr",
           "notes": [
             4.7
           ],
@@ -2889,28 +2823,22 @@
       ],
       "tout": [
         {
-          "semaine": "S2 mars",
-          "notes": [
-            4.7
-          ],
-          "mediane": 4.7
-        },
-        {
           "semaine": "S3 mars",
           "notes": [
+            4.7,
             4.5
           ],
-          "mediane": 4.5
+          "mediane": 4.6
         },
         {
-          "semaine": "S4 mars",
+          "semaine": "S5 mars",
           "notes": [
             4.4
           ],
           "mediane": 4.4
         },
         {
-          "semaine": "S5 mars",
+          "semaine": "S1 avr",
           "notes": [
             4.7
           ],
@@ -3168,7 +3096,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3180,7 +3108,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -3192,7 +3120,7 @@
           "id": "TRJ-2026-00051",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-14 08:00",
+          "date": "2026-04-15 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3204,7 +3132,7 @@
           "id": "TRJ-2026-00049",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-11 07:45",
+          "date": "2026-04-12 07:45",
           "nbPassagers": 2,
           "distanceKm": 20.8,
           "gainNet": 0,
@@ -3216,7 +3144,7 @@
           "id": "TRJ-2026-00027",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-03-31 08:00",
+          "date": "2026-04-01 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3230,7 +3158,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3242,7 +3170,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -3254,7 +3182,7 @@
           "id": "TRJ-2026-00051",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-14 08:00",
+          "date": "2026-04-15 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3266,7 +3194,7 @@
           "id": "TRJ-2026-00049",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-11 07:45",
+          "date": "2026-04-12 07:45",
           "nbPassagers": 2,
           "distanceKm": 20.8,
           "gainNet": 0,
@@ -3278,7 +3206,7 @@
           "id": "TRJ-2026-00027",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-03-31 08:00",
+          "date": "2026-04-01 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3292,7 +3220,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3304,7 +3232,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -3316,7 +3244,7 @@
           "id": "TRJ-2026-00051",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-14 08:00",
+          "date": "2026-04-15 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3328,7 +3256,7 @@
           "id": "TRJ-2026-00049",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-11 07:45",
+          "date": "2026-04-12 07:45",
           "nbPassagers": 2,
           "distanceKm": 20.8,
           "gainNet": 0,
@@ -3340,7 +3268,7 @@
           "id": "TRJ-2026-00027",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-03-31 08:00",
+          "date": "2026-04-01 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3354,7 +3282,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3366,7 +3294,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -3378,7 +3306,7 @@
           "id": "TRJ-2026-00051",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-14 08:00",
+          "date": "2026-04-15 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3390,7 +3318,7 @@
           "id": "TRJ-2026-00049",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-11 07:45",
+          "date": "2026-04-12 07:45",
           "nbPassagers": 2,
           "distanceKm": 20.8,
           "gainNet": 0,
@@ -3402,7 +3330,7 @@
           "id": "TRJ-2026-00027",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-03-31 08:00",
+          "date": "2026-04-01 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3416,7 +3344,7 @@
           "id": "TRJ-2026-00075",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-28 08:00",
+          "date": "2026-04-29 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3428,7 +3356,7 @@
           "id": "TRJ-2026-00073",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-25 07:45",
+          "date": "2026-04-26 07:45",
           "nbPassagers": 2,
           "distanceKm": 83.4,
           "gainNet": 0,
@@ -3440,7 +3368,7 @@
           "id": "TRJ-2026-00051",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-04-14 08:00",
+          "date": "2026-04-15 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3452,7 +3380,7 @@
           "id": "TRJ-2026-00049",
           "depart": "Campus La Cite",
           "arrivee": "Place d'Orleans",
-          "date": "2026-04-11 07:45",
+          "date": "2026-04-12 07:45",
           "nbPassagers": 2,
           "distanceKm": 20.8,
           "gainNet": 0,
@@ -3464,7 +3392,7 @@
           "id": "TRJ-2026-00027",
           "depart": "Campus La Cite",
           "arrivee": "Rideau Centre",
-          "date": "2026-03-31 08:00",
+          "date": "2026-04-01 08:00",
           "nbPassagers": 1,
           "distanceKm": 4,
           "gainNet": 4.25,
@@ -3478,7 +3406,7 @@
   {
     "id": "stat-USR-2026-00004",
     "userId": "USR-2026-00004",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -3714,7 +3642,7 @@
   {
     "id": "stat-USR-2026-00005",
     "userId": "USR-2026-00005",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 4,
       "co2TotalKg": 69.6,
@@ -3852,7 +3780,7 @@
         "id": "TRJ-2026-00077",
         "depart": "South Keys",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-30 07:30",
+        "date": "2026-05-01 07:30",
         "nbPassagers": 2,
         "distanceKm": 41.5,
         "gainNet": 10.2,
@@ -3864,7 +3792,7 @@
         "id": "TRJ-2026-00053",
         "depart": "South Keys",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-16 07:30",
+        "date": "2026-04-17 07:30",
         "nbPassagers": 2,
         "distanceKm": 25.5,
         "gainNet": 10.2,
@@ -3876,7 +3804,7 @@
         "id": "TRJ-2026-00029",
         "depart": "South Keys",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-02 07:30",
+        "date": "2026-04-03 07:30",
         "nbPassagers": 2,
         "distanceKm": 58.4,
         "gainNet": 10.2,
@@ -3888,7 +3816,7 @@
         "id": "TRJ-2026-00005",
         "depart": "South Keys",
         "arrivee": "Campus La Cite",
-        "date": "2026-03-19 07:30",
+        "date": "2026-03-20 07:30",
         "nbPassagers": 2,
         "distanceKm": 40.5,
         "gainNet": 10.2,
@@ -3907,9 +3835,9 @@
     },
     "kpisParPeriode": {
       "7j": {
-        "nbTrajets": 3,
-        "co2TotalKg": 52.6,
-        "noteMoyenne": 4.4,
+        "nbTrajets": 4,
+        "co2TotalKg": 69.6,
+        "noteMoyenne": 4.5,
         "goScore": 980
       },
       "mois": {
@@ -4094,6 +4022,11 @@
     "scatterParPeriode": {
       "7j": [
         {
+          "distanceKm": 40.5,
+          "co2Kg": 17,
+          "categorie": "longue"
+        },
+        {
           "distanceKm": 58.4,
           "co2Kg": 24.5,
           "categorie": "longue"
@@ -4200,12 +4133,12 @@
     },
     "impactEcoParPeriode": {
       "7j": {
-        "co2TotalKg": 52.6,
-        "kmTotaux": 125.4,
-        "carburantLitres": 21.3,
+        "co2TotalKg": 69.6,
+        "kmTotaux": 165.9,
+        "carburantLitres": 28.2,
         "arbresEquivalents": 3,
-        "voituresEvitees": 7,
-        "economiesDollars": 38.9
+        "voituresEvitees": 9,
+        "economiesDollars": 51.5
       },
       "mois": {
         "co2TotalKg": 69.6,
@@ -4246,7 +4179,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 10.2,
@@ -4258,7 +4191,7 @@
           "id": "TRJ-2026-00053",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-16 07:30",
+          "date": "2026-04-17 07:30",
           "nbPassagers": 2,
           "distanceKm": 25.5,
           "gainNet": 10.2,
@@ -4270,7 +4203,7 @@
           "id": "TRJ-2026-00029",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-02 07:30",
+          "date": "2026-04-03 07:30",
           "nbPassagers": 2,
           "distanceKm": 58.4,
           "gainNet": 10.2,
@@ -4282,7 +4215,7 @@
           "id": "TRJ-2026-00005",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-19 07:30",
+          "date": "2026-03-20 07:30",
           "nbPassagers": 2,
           "distanceKm": 40.5,
           "gainNet": 10.2,
@@ -4296,7 +4229,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 10.2,
@@ -4308,7 +4241,7 @@
           "id": "TRJ-2026-00053",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-16 07:30",
+          "date": "2026-04-17 07:30",
           "nbPassagers": 2,
           "distanceKm": 25.5,
           "gainNet": 10.2,
@@ -4320,7 +4253,7 @@
           "id": "TRJ-2026-00029",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-02 07:30",
+          "date": "2026-04-03 07:30",
           "nbPassagers": 2,
           "distanceKm": 58.4,
           "gainNet": 10.2,
@@ -4332,7 +4265,7 @@
           "id": "TRJ-2026-00005",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-19 07:30",
+          "date": "2026-03-20 07:30",
           "nbPassagers": 2,
           "distanceKm": 40.5,
           "gainNet": 10.2,
@@ -4346,7 +4279,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 10.2,
@@ -4358,7 +4291,7 @@
           "id": "TRJ-2026-00053",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-16 07:30",
+          "date": "2026-04-17 07:30",
           "nbPassagers": 2,
           "distanceKm": 25.5,
           "gainNet": 10.2,
@@ -4370,7 +4303,7 @@
           "id": "TRJ-2026-00029",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-02 07:30",
+          "date": "2026-04-03 07:30",
           "nbPassagers": 2,
           "distanceKm": 58.4,
           "gainNet": 10.2,
@@ -4382,7 +4315,7 @@
           "id": "TRJ-2026-00005",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-19 07:30",
+          "date": "2026-03-20 07:30",
           "nbPassagers": 2,
           "distanceKm": 40.5,
           "gainNet": 10.2,
@@ -4396,7 +4329,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 10.2,
@@ -4408,7 +4341,7 @@
           "id": "TRJ-2026-00053",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-16 07:30",
+          "date": "2026-04-17 07:30",
           "nbPassagers": 2,
           "distanceKm": 25.5,
           "gainNet": 10.2,
@@ -4420,7 +4353,7 @@
           "id": "TRJ-2026-00029",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-02 07:30",
+          "date": "2026-04-03 07:30",
           "nbPassagers": 2,
           "distanceKm": 58.4,
           "gainNet": 10.2,
@@ -4432,7 +4365,7 @@
           "id": "TRJ-2026-00005",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-19 07:30",
+          "date": "2026-03-20 07:30",
           "nbPassagers": 2,
           "distanceKm": 40.5,
           "gainNet": 10.2,
@@ -4446,7 +4379,7 @@
           "id": "TRJ-2026-00077",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-30 07:30",
+          "date": "2026-05-01 07:30",
           "nbPassagers": 2,
           "distanceKm": 41.5,
           "gainNet": 10.2,
@@ -4458,7 +4391,7 @@
           "id": "TRJ-2026-00053",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-16 07:30",
+          "date": "2026-04-17 07:30",
           "nbPassagers": 2,
           "distanceKm": 25.5,
           "gainNet": 10.2,
@@ -4470,7 +4403,7 @@
           "id": "TRJ-2026-00029",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-02 07:30",
+          "date": "2026-04-03 07:30",
           "nbPassagers": 2,
           "distanceKm": 58.4,
           "gainNet": 10.2,
@@ -4482,7 +4415,7 @@
           "id": "TRJ-2026-00005",
           "depart": "South Keys",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-19 07:30",
+          "date": "2026-03-20 07:30",
           "nbPassagers": 2,
           "distanceKm": 40.5,
           "gainNet": 10.2,
@@ -4496,7 +4429,7 @@
   {
     "id": "stat-USR-2026-00006",
     "userId": "USR-2026-00006",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 4,
       "co2TotalKg": 10,
@@ -4622,7 +4555,7 @@
         "id": "TRJ-2026-00078",
         "depart": "Gatineau Centre-Ville",
         "arrivee": "ByWard Market",
-        "date": "2026-05-01 16:50",
+        "date": "2026-05-02 16:50",
         "nbPassagers": 1,
         "distanceKm": 6,
         "gainNet": 5.95,
@@ -4634,7 +4567,7 @@
         "id": "TRJ-2026-00054",
         "depart": "Gatineau Centre-Ville",
         "arrivee": "ByWard Market",
-        "date": "2026-04-17 16:50",
+        "date": "2026-04-18 16:50",
         "nbPassagers": 1,
         "distanceKm": 6,
         "gainNet": 5.95,
@@ -4646,7 +4579,7 @@
         "id": "TRJ-2026-00030",
         "depart": "Gatineau Centre-Ville",
         "arrivee": "ByWard Market",
-        "date": "2026-04-03 16:50",
+        "date": "2026-04-04 16:50",
         "nbPassagers": 1,
         "distanceKm": 6,
         "gainNet": 5.95,
@@ -4658,7 +4591,7 @@
         "id": "TRJ-2026-00006",
         "depart": "Gatineau Centre-Ville",
         "arrivee": "ByWard Market",
-        "date": "2026-03-20 16:50",
+        "date": "2026-03-21 16:50",
         "nbPassagers": 1,
         "distanceKm": 6,
         "gainNet": 5.95,
@@ -5011,7 +4944,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5023,7 +4956,7 @@
           "id": "TRJ-2026-00054",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-17 16:50",
+          "date": "2026-04-18 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5035,7 +4968,7 @@
           "id": "TRJ-2026-00030",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-03 16:50",
+          "date": "2026-04-04 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5047,7 +4980,7 @@
           "id": "TRJ-2026-00006",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-03-20 16:50",
+          "date": "2026-03-21 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5061,7 +4994,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5073,7 +5006,7 @@
           "id": "TRJ-2026-00054",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-17 16:50",
+          "date": "2026-04-18 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5085,7 +5018,7 @@
           "id": "TRJ-2026-00030",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-03 16:50",
+          "date": "2026-04-04 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5097,7 +5030,7 @@
           "id": "TRJ-2026-00006",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-03-20 16:50",
+          "date": "2026-03-21 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5111,7 +5044,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5123,7 +5056,7 @@
           "id": "TRJ-2026-00054",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-17 16:50",
+          "date": "2026-04-18 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5135,7 +5068,7 @@
           "id": "TRJ-2026-00030",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-03 16:50",
+          "date": "2026-04-04 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5147,7 +5080,7 @@
           "id": "TRJ-2026-00006",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-03-20 16:50",
+          "date": "2026-03-21 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5161,7 +5094,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5173,7 +5106,7 @@
           "id": "TRJ-2026-00054",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-17 16:50",
+          "date": "2026-04-18 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5185,7 +5118,7 @@
           "id": "TRJ-2026-00030",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-03 16:50",
+          "date": "2026-04-04 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5197,7 +5130,7 @@
           "id": "TRJ-2026-00006",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-03-20 16:50",
+          "date": "2026-03-21 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5211,7 +5144,7 @@
           "id": "TRJ-2026-00078",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-05-01 16:50",
+          "date": "2026-05-02 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5223,7 +5156,7 @@
           "id": "TRJ-2026-00054",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-17 16:50",
+          "date": "2026-04-18 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5235,7 +5168,7 @@
           "id": "TRJ-2026-00030",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-04-03 16:50",
+          "date": "2026-04-04 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5247,7 +5180,7 @@
           "id": "TRJ-2026-00006",
           "depart": "Gatineau Centre-Ville",
           "arrivee": "ByWard Market",
-          "date": "2026-03-20 16:50",
+          "date": "2026-03-21 16:50",
           "nbPassagers": 1,
           "distanceKm": 6,
           "gainNet": 5.95,
@@ -5261,7 +5194,7 @@
   {
     "id": "stat-USR-2026-00007",
     "userId": "USR-2026-00007",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 4,
       "co2TotalKg": 27.2,
@@ -5337,7 +5270,7 @@
     ],
     "notesParSemaine": [
       {
-        "semaine": "S3 mars",
+        "semaine": "S4 mars",
         "notes": [
           4.7
         ],
@@ -5387,7 +5320,7 @@
         "id": "TRJ-2026-00079",
         "depart": "Campus La Cite",
         "arrivee": "Orleans Park and Ride",
-        "date": "2026-05-02 08:15",
+        "date": "2026-05-03 08:15",
         "nbPassagers": 1,
         "distanceKm": 16.1,
         "gainNet": 4.25,
@@ -5399,7 +5332,7 @@
         "id": "TRJ-2026-00055",
         "depart": "Campus La Cite",
         "arrivee": "Orleans Park and Ride",
-        "date": "2026-04-18 08:15",
+        "date": "2026-04-19 08:15",
         "nbPassagers": 1,
         "distanceKm": 16.1,
         "gainNet": 4.25,
@@ -5411,7 +5344,7 @@
         "id": "TRJ-2026-00031",
         "depart": "Campus La Cite",
         "arrivee": "Orleans Park and Ride",
-        "date": "2026-04-04 08:15",
+        "date": "2026-04-05 08:15",
         "nbPassagers": 1,
         "distanceKm": 16.1,
         "gainNet": 4.25,
@@ -5423,7 +5356,7 @@
         "id": "TRJ-2026-00007",
         "depart": "Campus La Cite",
         "arrivee": "Orleans Park and Ride",
-        "date": "2026-03-21 08:15",
+        "date": "2026-03-22 08:15",
         "nbPassagers": 1,
         "distanceKm": 16.1,
         "gainNet": 4.25,
@@ -5537,7 +5470,7 @@
     "notesParSemaineParPeriode": {
       "7j": [
         {
-          "semaine": "S3 mars",
+          "semaine": "S4 mars",
           "notes": [
             4.7
           ],
@@ -5553,7 +5486,7 @@
       ],
       "mois": [
         {
-          "semaine": "S3 mars",
+          "semaine": "S4 mars",
           "notes": [
             4.7
           ],
@@ -5569,7 +5502,7 @@
       ],
       "3mois": [
         {
-          "semaine": "S3 mars",
+          "semaine": "S4 mars",
           "notes": [
             4.7
           ],
@@ -5585,7 +5518,7 @@
       ],
       "6mois": [
         {
-          "semaine": "S3 mars",
+          "semaine": "S4 mars",
           "notes": [
             4.7
           ],
@@ -5601,7 +5534,7 @@
       ],
       "tout": [
         {
-          "semaine": "S3 mars",
+          "semaine": "S4 mars",
           "notes": [
             4.7
           ],
@@ -5776,7 +5709,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5788,7 +5721,7 @@
           "id": "TRJ-2026-00055",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-18 08:15",
+          "date": "2026-04-19 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5800,7 +5733,7 @@
           "id": "TRJ-2026-00031",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-04 08:15",
+          "date": "2026-04-05 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5812,7 +5745,7 @@
           "id": "TRJ-2026-00007",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-03-21 08:15",
+          "date": "2026-03-22 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5826,7 +5759,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5838,7 +5771,7 @@
           "id": "TRJ-2026-00055",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-18 08:15",
+          "date": "2026-04-19 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5850,7 +5783,7 @@
           "id": "TRJ-2026-00031",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-04 08:15",
+          "date": "2026-04-05 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5862,7 +5795,7 @@
           "id": "TRJ-2026-00007",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-03-21 08:15",
+          "date": "2026-03-22 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5876,7 +5809,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5888,7 +5821,7 @@
           "id": "TRJ-2026-00055",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-18 08:15",
+          "date": "2026-04-19 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5900,7 +5833,7 @@
           "id": "TRJ-2026-00031",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-04 08:15",
+          "date": "2026-04-05 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5912,7 +5845,7 @@
           "id": "TRJ-2026-00007",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-03-21 08:15",
+          "date": "2026-03-22 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5926,7 +5859,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5938,7 +5871,7 @@
           "id": "TRJ-2026-00055",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-18 08:15",
+          "date": "2026-04-19 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5950,7 +5883,7 @@
           "id": "TRJ-2026-00031",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-04 08:15",
+          "date": "2026-04-05 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5962,7 +5895,7 @@
           "id": "TRJ-2026-00007",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-03-21 08:15",
+          "date": "2026-03-22 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5976,7 +5909,7 @@
           "id": "TRJ-2026-00079",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-05-02 08:15",
+          "date": "2026-05-03 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -5988,7 +5921,7 @@
           "id": "TRJ-2026-00055",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-18 08:15",
+          "date": "2026-04-19 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -6000,7 +5933,7 @@
           "id": "TRJ-2026-00031",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-04-04 08:15",
+          "date": "2026-04-05 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -6012,7 +5945,7 @@
           "id": "TRJ-2026-00007",
           "depart": "Campus La Cite",
           "arrivee": "Orleans Park and Ride",
-          "date": "2026-03-21 08:15",
+          "date": "2026-03-22 08:15",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -6026,7 +5959,7 @@
   {
     "id": "stat-USR-2026-00008",
     "userId": "USR-2026-00008",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 4,
       "co2TotalKg": 39.6,
@@ -6154,7 +6087,7 @@
         "id": "TRJ-2026-00080",
         "depart": "Barrhaven Centre",
         "arrivee": "Campus La Cite",
-        "date": "2026-05-03 17:25",
+        "date": "2026-05-04 17:25",
         "nbPassagers": 2,
         "distanceKm": 23.5,
         "gainNet": 11.9,
@@ -6166,7 +6099,7 @@
         "id": "TRJ-2026-00056",
         "depart": "Barrhaven Centre",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-19 17:25",
+        "date": "2026-04-20 17:25",
         "nbPassagers": 2,
         "distanceKm": 23.5,
         "gainNet": 11.9,
@@ -6178,7 +6111,7 @@
         "id": "TRJ-2026-00032",
         "depart": "Barrhaven Centre",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-05 17:25",
+        "date": "2026-04-06 17:25",
         "nbPassagers": 2,
         "distanceKm": 23.5,
         "gainNet": 11.9,
@@ -6190,7 +6123,7 @@
         "id": "TRJ-2026-00008",
         "depart": "Barrhaven Centre",
         "arrivee": "Campus La Cite",
-        "date": "2026-03-22 17:25",
+        "date": "2026-03-23 17:25",
         "nbPassagers": 2,
         "distanceKm": 23.5,
         "gainNet": 11.9,
@@ -6553,7 +6486,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6565,7 +6498,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6577,7 +6510,7 @@
           "id": "TRJ-2026-00032",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-05 17:25",
+          "date": "2026-04-06 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6589,7 +6522,7 @@
           "id": "TRJ-2026-00008",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-22 17:25",
+          "date": "2026-03-23 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6603,7 +6536,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6615,7 +6548,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6627,7 +6560,7 @@
           "id": "TRJ-2026-00032",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-05 17:25",
+          "date": "2026-04-06 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6639,7 +6572,7 @@
           "id": "TRJ-2026-00008",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-22 17:25",
+          "date": "2026-03-23 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6653,7 +6586,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6665,7 +6598,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6677,7 +6610,7 @@
           "id": "TRJ-2026-00032",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-05 17:25",
+          "date": "2026-04-06 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6689,7 +6622,7 @@
           "id": "TRJ-2026-00008",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-22 17:25",
+          "date": "2026-03-23 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6703,7 +6636,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6715,7 +6648,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6727,7 +6660,7 @@
           "id": "TRJ-2026-00032",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-05 17:25",
+          "date": "2026-04-06 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6739,7 +6672,7 @@
           "id": "TRJ-2026-00008",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-22 17:25",
+          "date": "2026-03-23 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6753,7 +6686,7 @@
           "id": "TRJ-2026-00080",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-05-03 17:25",
+          "date": "2026-05-04 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6765,7 +6698,7 @@
           "id": "TRJ-2026-00056",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-19 17:25",
+          "date": "2026-04-20 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6777,7 +6710,7 @@
           "id": "TRJ-2026-00032",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-05 17:25",
+          "date": "2026-04-06 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6789,7 +6722,7 @@
           "id": "TRJ-2026-00008",
           "depart": "Barrhaven Centre",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-22 17:25",
+          "date": "2026-03-23 17:25",
           "nbPassagers": 2,
           "distanceKm": 23.5,
           "gainNet": 11.9,
@@ -6803,7 +6736,7 @@
   {
     "id": "stat-USR-2026-00009",
     "userId": "USR-2026-00009",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 3,
       "co2TotalKg": 53.4,
@@ -6934,7 +6867,7 @@
         "id": "TRJ-2026-00057",
         "depart": "Campus La Cite",
         "arrivee": "Gatineau Centre-Ville",
-        "date": "2026-04-20 07:50",
+        "date": "2026-04-21 07:50",
         "nbPassagers": 1,
         "distanceKm": 68.4,
         "gainNet": 5.1,
@@ -6946,7 +6879,7 @@
         "id": "TRJ-2026-00033",
         "depart": "Campus La Cite",
         "arrivee": "Gatineau Centre-Ville",
-        "date": "2026-04-06 07:50",
+        "date": "2026-04-07 07:50",
         "nbPassagers": 1,
         "distanceKm": 35.6,
         "gainNet": 5.1,
@@ -6958,7 +6891,7 @@
         "id": "TRJ-2026-00009",
         "depart": "Campus La Cite",
         "arrivee": "Gatineau Centre-Ville",
-        "date": "2026-03-23 07:50",
+        "date": "2026-03-24 07:50",
         "nbPassagers": 1,
         "distanceKm": 23.2,
         "gainNet": 5.1,
@@ -7286,7 +7219,7 @@
           "id": "TRJ-2026-00057",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-20 07:50",
+          "date": "2026-04-21 07:50",
           "nbPassagers": 1,
           "distanceKm": 68.4,
           "gainNet": 5.1,
@@ -7298,7 +7231,7 @@
           "id": "TRJ-2026-00033",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-06 07:50",
+          "date": "2026-04-07 07:50",
           "nbPassagers": 1,
           "distanceKm": 35.6,
           "gainNet": 5.1,
@@ -7310,7 +7243,7 @@
           "id": "TRJ-2026-00009",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-03-23 07:50",
+          "date": "2026-03-24 07:50",
           "nbPassagers": 1,
           "distanceKm": 23.2,
           "gainNet": 5.1,
@@ -7324,7 +7257,7 @@
           "id": "TRJ-2026-00057",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-20 07:50",
+          "date": "2026-04-21 07:50",
           "nbPassagers": 1,
           "distanceKm": 68.4,
           "gainNet": 5.1,
@@ -7336,7 +7269,7 @@
           "id": "TRJ-2026-00033",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-06 07:50",
+          "date": "2026-04-07 07:50",
           "nbPassagers": 1,
           "distanceKm": 35.6,
           "gainNet": 5.1,
@@ -7348,7 +7281,7 @@
           "id": "TRJ-2026-00009",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-03-23 07:50",
+          "date": "2026-03-24 07:50",
           "nbPassagers": 1,
           "distanceKm": 23.2,
           "gainNet": 5.1,
@@ -7362,7 +7295,7 @@
           "id": "TRJ-2026-00057",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-20 07:50",
+          "date": "2026-04-21 07:50",
           "nbPassagers": 1,
           "distanceKm": 68.4,
           "gainNet": 5.1,
@@ -7374,7 +7307,7 @@
           "id": "TRJ-2026-00033",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-06 07:50",
+          "date": "2026-04-07 07:50",
           "nbPassagers": 1,
           "distanceKm": 35.6,
           "gainNet": 5.1,
@@ -7386,7 +7319,7 @@
           "id": "TRJ-2026-00009",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-03-23 07:50",
+          "date": "2026-03-24 07:50",
           "nbPassagers": 1,
           "distanceKm": 23.2,
           "gainNet": 5.1,
@@ -7400,7 +7333,7 @@
           "id": "TRJ-2026-00057",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-20 07:50",
+          "date": "2026-04-21 07:50",
           "nbPassagers": 1,
           "distanceKm": 68.4,
           "gainNet": 5.1,
@@ -7412,7 +7345,7 @@
           "id": "TRJ-2026-00033",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-06 07:50",
+          "date": "2026-04-07 07:50",
           "nbPassagers": 1,
           "distanceKm": 35.6,
           "gainNet": 5.1,
@@ -7424,7 +7357,7 @@
           "id": "TRJ-2026-00009",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-03-23 07:50",
+          "date": "2026-03-24 07:50",
           "nbPassagers": 1,
           "distanceKm": 23.2,
           "gainNet": 5.1,
@@ -7438,7 +7371,7 @@
           "id": "TRJ-2026-00057",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-20 07:50",
+          "date": "2026-04-21 07:50",
           "nbPassagers": 1,
           "distanceKm": 68.4,
           "gainNet": 5.1,
@@ -7450,7 +7383,7 @@
           "id": "TRJ-2026-00033",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-04-06 07:50",
+          "date": "2026-04-07 07:50",
           "nbPassagers": 1,
           "distanceKm": 35.6,
           "gainNet": 5.1,
@@ -7462,7 +7395,7 @@
           "id": "TRJ-2026-00009",
           "depart": "Campus La Cite",
           "arrivee": "Gatineau Centre-Ville",
-          "date": "2026-03-23 07:50",
+          "date": "2026-03-24 07:50",
           "nbPassagers": 1,
           "distanceKm": 23.2,
           "gainNet": 5.1,
@@ -7476,7 +7409,7 @@
   {
     "id": "stat-USR-2026-00010",
     "userId": "USR-2026-00010",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 3,
       "co2TotalKg": 31.5,
@@ -7554,7 +7487,7 @@
         "mediane": 4.3
       },
       {
-        "semaine": "S1 avr",
+        "semaine": "S2 avr",
         "notes": [
           4.5
         ],
@@ -7602,7 +7535,7 @@
         "id": "TRJ-2026-00058",
         "depart": "Kanata Centrum",
         "arrivee": "South Keys",
-        "date": "2026-04-21 17:35",
+        "date": "2026-04-22 17:35",
         "nbPassagers": 1,
         "distanceKm": 25,
         "gainNet": 5.95,
@@ -7614,7 +7547,7 @@
         "id": "TRJ-2026-00034",
         "depart": "Kanata Centrum",
         "arrivee": "South Keys",
-        "date": "2026-04-07 17:35",
+        "date": "2026-04-08 17:35",
         "nbPassagers": 1,
         "distanceKm": 25,
         "gainNet": 5.95,
@@ -7626,7 +7559,7 @@
         "id": "TRJ-2026-00010",
         "depart": "Kanata Centrum",
         "arrivee": "South Keys",
-        "date": "2026-03-24 17:35",
+        "date": "2026-03-25 17:35",
         "nbPassagers": 1,
         "distanceKm": 25,
         "gainNet": 5.95,
@@ -7747,7 +7680,7 @@
           "mediane": 4.3
         },
         {
-          "semaine": "S1 avr",
+          "semaine": "S2 avr",
           "notes": [
             4.5
           ],
@@ -7763,7 +7696,7 @@
           "mediane": 4.3
         },
         {
-          "semaine": "S1 avr",
+          "semaine": "S2 avr",
           "notes": [
             4.5
           ],
@@ -7779,7 +7712,7 @@
           "mediane": 4.3
         },
         {
-          "semaine": "S1 avr",
+          "semaine": "S2 avr",
           "notes": [
             4.5
           ],
@@ -7795,7 +7728,7 @@
           "mediane": 4.3
         },
         {
-          "semaine": "S1 avr",
+          "semaine": "S2 avr",
           "notes": [
             4.5
           ],
@@ -7811,7 +7744,7 @@
           "mediane": 4.3
         },
         {
-          "semaine": "S1 avr",
+          "semaine": "S2 avr",
           "notes": [
             4.5
           ],
@@ -7954,7 +7887,7 @@
           "id": "TRJ-2026-00058",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-21 17:35",
+          "date": "2026-04-22 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -7966,7 +7899,7 @@
           "id": "TRJ-2026-00034",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-07 17:35",
+          "date": "2026-04-08 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -7978,7 +7911,7 @@
           "id": "TRJ-2026-00010",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-03-24 17:35",
+          "date": "2026-03-25 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -7992,7 +7925,7 @@
           "id": "TRJ-2026-00058",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-21 17:35",
+          "date": "2026-04-22 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8004,7 +7937,7 @@
           "id": "TRJ-2026-00034",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-07 17:35",
+          "date": "2026-04-08 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8016,7 +7949,7 @@
           "id": "TRJ-2026-00010",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-03-24 17:35",
+          "date": "2026-03-25 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8030,7 +7963,7 @@
           "id": "TRJ-2026-00058",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-21 17:35",
+          "date": "2026-04-22 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8042,7 +7975,7 @@
           "id": "TRJ-2026-00034",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-07 17:35",
+          "date": "2026-04-08 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8054,7 +7987,7 @@
           "id": "TRJ-2026-00010",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-03-24 17:35",
+          "date": "2026-03-25 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8068,7 +8001,7 @@
           "id": "TRJ-2026-00058",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-21 17:35",
+          "date": "2026-04-22 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8080,7 +8013,7 @@
           "id": "TRJ-2026-00034",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-07 17:35",
+          "date": "2026-04-08 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8092,7 +8025,7 @@
           "id": "TRJ-2026-00010",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-03-24 17:35",
+          "date": "2026-03-25 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8106,7 +8039,7 @@
           "id": "TRJ-2026-00058",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-21 17:35",
+          "date": "2026-04-22 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8118,7 +8051,7 @@
           "id": "TRJ-2026-00034",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-04-07 17:35",
+          "date": "2026-04-08 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8130,7 +8063,7 @@
           "id": "TRJ-2026-00010",
           "depart": "Kanata Centrum",
           "arrivee": "South Keys",
-          "date": "2026-03-24 17:35",
+          "date": "2026-03-25 17:35",
           "nbPassagers": 1,
           "distanceKm": 25,
           "gainNet": 5.95,
@@ -8144,7 +8077,7 @@
   {
     "id": "stat-USR-2026-00011",
     "userId": "USR-2026-00011",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 3,
       "co2TotalKg": 20.4,
@@ -8258,7 +8191,7 @@
         "id": "TRJ-2026-00059",
         "depart": "Orleans Park and Ride",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-22 08:20",
+        "date": "2026-04-23 08:20",
         "nbPassagers": 1,
         "distanceKm": 16.1,
         "gainNet": 4.25,
@@ -8270,7 +8203,7 @@
         "id": "TRJ-2026-00035",
         "depart": "Orleans Park and Ride",
         "arrivee": "Campus La Cite",
-        "date": "2026-04-08 08:20",
+        "date": "2026-04-09 08:20",
         "nbPassagers": 1,
         "distanceKm": 16.1,
         "gainNet": 4.25,
@@ -8282,7 +8215,7 @@
         "id": "TRJ-2026-00011",
         "depart": "Orleans Park and Ride",
         "arrivee": "Campus La Cite",
-        "date": "2026-03-25 08:20",
+        "date": "2026-03-26 08:20",
         "nbPassagers": 1,
         "distanceKm": 16.1,
         "gainNet": 4.25,
@@ -8575,7 +8508,7 @@
           "id": "TRJ-2026-00059",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-22 08:20",
+          "date": "2026-04-23 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8587,7 +8520,7 @@
           "id": "TRJ-2026-00035",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-08 08:20",
+          "date": "2026-04-09 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8599,7 +8532,7 @@
           "id": "TRJ-2026-00011",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-25 08:20",
+          "date": "2026-03-26 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8613,7 +8546,7 @@
           "id": "TRJ-2026-00059",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-22 08:20",
+          "date": "2026-04-23 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8625,7 +8558,7 @@
           "id": "TRJ-2026-00035",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-08 08:20",
+          "date": "2026-04-09 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8637,7 +8570,7 @@
           "id": "TRJ-2026-00011",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-25 08:20",
+          "date": "2026-03-26 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8651,7 +8584,7 @@
           "id": "TRJ-2026-00059",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-22 08:20",
+          "date": "2026-04-23 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8663,7 +8596,7 @@
           "id": "TRJ-2026-00035",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-08 08:20",
+          "date": "2026-04-09 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8675,7 +8608,7 @@
           "id": "TRJ-2026-00011",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-25 08:20",
+          "date": "2026-03-26 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8689,7 +8622,7 @@
           "id": "TRJ-2026-00059",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-22 08:20",
+          "date": "2026-04-23 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8701,7 +8634,7 @@
           "id": "TRJ-2026-00035",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-08 08:20",
+          "date": "2026-04-09 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8713,7 +8646,7 @@
           "id": "TRJ-2026-00011",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-25 08:20",
+          "date": "2026-03-26 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8727,7 +8660,7 @@
           "id": "TRJ-2026-00059",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-22 08:20",
+          "date": "2026-04-23 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8739,7 +8672,7 @@
           "id": "TRJ-2026-00035",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-04-08 08:20",
+          "date": "2026-04-09 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8751,7 +8684,7 @@
           "id": "TRJ-2026-00011",
           "depart": "Orleans Park and Ride",
           "arrivee": "Campus La Cite",
-          "date": "2026-03-25 08:20",
+          "date": "2026-03-26 08:20",
           "nbPassagers": 1,
           "distanceKm": 16.1,
           "gainNet": 4.25,
@@ -8765,7 +8698,7 @@
   {
     "id": "stat-USR-2026-00012",
     "userId": "USR-2026-00012",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -8996,7 +8929,7 @@
   {
     "id": "stat-USR-2026-00013",
     "userId": "USR-2026-00013",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -9222,7 +9155,7 @@
   {
     "id": "stat-USR-2026-00014",
     "userId": "USR-2026-00014",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -9448,7 +9381,7 @@
   {
     "id": "stat-USR-2026-00015",
     "userId": "USR-2026-00015",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -9674,7 +9607,7 @@
   {
     "id": "stat-USR-2026-00016",
     "userId": "USR-2026-00016",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -9900,7 +9833,7 @@
   {
     "id": "stat-USR-2026-00017",
     "userId": "USR-2026-00017",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -10126,7 +10059,7 @@
   {
     "id": "stat-USR-2026-00018",
     "userId": "USR-2026-00018",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -10357,7 +10290,7 @@
   {
     "id": "stat-USR-2026-00019",
     "userId": "USR-2026-00019",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -10583,7 +10516,7 @@
   {
     "id": "stat-USR-2026-00020",
     "userId": "USR-2026-00020",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -10809,7 +10742,7 @@
   {
     "id": "stat-USR-2026-00021",
     "userId": "USR-2026-00021",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -11035,7 +10968,7 @@
   {
     "id": "stat-USR-2026-00022",
     "userId": "USR-2026-00022",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -11261,7 +11194,7 @@
   {
     "id": "stat-USR-2026-00023",
     "userId": "USR-2026-00023",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -11492,7 +11425,7 @@
   {
     "id": "stat-USR-2026-00024",
     "userId": "USR-2026-00024",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -11728,7 +11661,7 @@
   {
     "id": "stat-USR-2026-00025",
     "userId": "USR-2026-00025",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -11959,7 +11892,7 @@
   {
     "id": "stat-USR-2026-00026",
     "userId": "USR-2026-00026",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -12190,7 +12123,7 @@
   {
     "id": "stat-USR-2026-00027",
     "userId": "USR-2026-00027",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -12421,7 +12354,7 @@
   {
     "id": "stat-USR-2026-00028",
     "userId": "USR-2026-00028",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -12652,7 +12585,7 @@
   {
     "id": "stat-USR-2026-00029",
     "userId": "USR-2026-00029",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -12883,7 +12816,7 @@
   {
     "id": "stat-USR-2026-00030",
     "userId": "USR-2026-00030",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -13119,7 +13052,7 @@
   {
     "id": "stat-USR-2026-00031",
     "userId": "USR-2026-00031",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -13350,7 +13283,7 @@
   {
     "id": "stat-USR-2026-00032",
     "userId": "USR-2026-00032",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -13581,7 +13514,7 @@
   {
     "id": "stat-USR-2026-00033",
     "userId": "USR-2026-00033",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,
@@ -13807,7 +13740,7 @@
   {
     "id": "stat-USR-2026-00034",
     "userId": "USR-2026-00034",
-    "updatedAt": "2026-03-26T21:04:45.000Z",
+    "updatedAt": "2026-03-27T04:00:41.000Z",
     "kpis": {
       "nbTrajets": 0,
       "co2TotalKg": 0,

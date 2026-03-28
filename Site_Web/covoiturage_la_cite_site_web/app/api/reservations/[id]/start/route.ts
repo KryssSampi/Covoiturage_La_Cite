@@ -8,7 +8,8 @@ export async function POST(req: Request, { params }: Context) {
     const { id } = await params;
 
     const callerId = req.headers.get('x-caller-id');
-    if (!callerId) {
+    console.log(`[API] Start reservation ${id} called by ${callerId}`);
+    if (callerId === 'undefined' || typeof callerId !== 'string') {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
     }
 

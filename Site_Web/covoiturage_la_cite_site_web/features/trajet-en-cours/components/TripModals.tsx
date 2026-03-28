@@ -4,13 +4,14 @@
  * Extraites depuis TrajetEnCoursPage pour réduire la taille du composant parent.
  */
 
+import { useState } from 'react';
 import {
-  FaStar, FaRegStar, FaCheck, FaPaperPlane,
+  FaStar, FaRegStar, FaCheck, FaPaperPlane, FaUserFriends, FaFlagCheckered,
 } from 'react-icons/fa';
 import { FiAlertTriangle } from 'react-icons/fi';
 
 import { C } from './trajet-page-styles';
-import type { EvaluationState } from '../types/trajet-en-cours.types';
+import type { EvaluationState, PassagerInfo } from '../types/trajet-en-cours.types';
 
 // ── Overlay partagé par toutes les modales ────────────────────────────
 function ModalOverlay({ children }: { children: React.ReactNode }) {
@@ -88,69 +89,221 @@ export function CancelWarningModal({
 // ═══════════════════════════════════════════════════════════════════════
 // 2. Modale fin de trajet — évaluation avec notation
 // ═══════════════════════════════════════════════════════════════════════
+
+function StarRow({
+  value,
+  onChange,
+  size = 24,
+}: {
+  value: number;
+  onChange: (n: number) => void;
+  size?: number;
+}) {
+  return (
+    <div style={{ display: 'flex', gap: 4, justifyContent: 'center' }}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          onClick={() => onChange(n)}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
+        >
+          {n <= value
+            ? <FaStar size={size} color={C.gold} />
+            : <FaRegStar size={size} color="rgba(8,49,110,0.15)" />}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export function TripEndEvalModal({
   isFR,
+  role,
+  passagers,
+  alreadyReviewedIds = [],
   eval_,
   setEval_,
   ratingLabels,
   onClose,
   onSubmit,
+  canDismiss = true,
 }: {
   isFR: boolean;
+  role: 'driver' | 'passenger';
+  passagers: PassagerInfo[];
+  alreadyReviewedIds?: string[];
   eval_: EvaluationState;
   setEval_: React.Dispatch<React.SetStateAction<EvaluationState>>;
   ratingLabels: Record<number, string>;
   onClose: () => void;
   onSubmit: () => void;
+  canDismiss?: boolean;
 }) {
-  return (
-    <ModalOverlay>
-      <div style={{ ...cardStyle, gap: 14 }}>
-        <FaCheck size={30} color={C.green} style={{ margin: '0 auto' }} />
-        <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, color: C.p }}>
-          {isFR ? 'Trajet terminé !' : 'Trip completed!'}
-        </div>
-        <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
-          {isFR
-            ? 'Vous êtes arrivé à destination. Notez votre expérience pour aider la communauté.'
-            : 'You have arrived at your destination. Rate your experience to help the community.'}
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button
-              key={n}
-              onClick={() => setEval_((p) => ({ ...p, note: n }))}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
-            >
-              {n <= eval_.note
-                ? <FaStar size={28} color={C.gold} />
-                : <FaRegStar size={28} color="rgba(8,49,110,0.15)" />}
-            </button>
-          ))}
-        </div>
-        {eval_.note > 0 && (
-          <span style={{ fontSize: 12, color: C.muted }}>{ratingLabels[eval_.note]}</span>
-        )}
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+  const [showOptional, setShowOptional] = useState(false);
+
+  const canSubmit = eval_.note > 0 && eval_.commentaire.trim().length >= 10;
+  const commentTooShort = eval_.commentaire.trim().length > 0 && eval_.commentaire.trim().length < 10;
+
+  // Écran de remerciement après soumission
+  if (eval_.estSoumis) {
+    return (
+      <ModalOverlay>
+        <div style={{ ...cardStyle, gap: 16 }}>
+          <FaCheck size={36} color={C.green} style={{ margin: '0 auto' }} />
+          <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: C.p }}>
+            {isFR ? 'Merci pour votre évaluation !' : 'Thank you for your review!'}
+          </div>
+          <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
+            {isFR
+              ? 'Votre avis aide la communauté à améliorer le covoiturage.'
+              : 'Your feedback helps improve ridesharing for everyone.'}
+          </div>
           <button
             onClick={onClose}
             style={{
-              flex: 1, padding: '10px 0', borderRadius: 10,
-              border: `1.5px solid ${C.b2}`, background: C.bg,
-              fontWeight: 700, fontSize: 13, color: C.p, cursor: 'pointer',
-            }}
-          >
-            {isFR ? 'Plus tard' : 'Later'}
-          </button>
-          <button
-            onClick={onSubmit}
-            style={{
-              flex: 1, padding: '10px 0', borderRadius: 10,
-              border: 'none', background: C.green,
+              padding: '10px 0', borderRadius: 10,
+              border: 'none', background: C.p,
               fontWeight: 700, fontSize: 13, color: '#fff', cursor: 'pointer',
             }}
           >
-            <FaPaperPlane size={11} style={{ marginRight: 6 }} />
+            {isFR ? 'Fermer' : 'Close'}
+          </button>
+        </div>
+      </ModalOverlay>
+    );
+  }
+
+  return (
+    <ModalOverlay>
+      <div style={{ ...cardStyle, gap: 14, maxWidth: 460, textAlign: 'left' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, color: C.p }}>
+            {isFR ? 'Trajet terminé !' : 'Trip completed!'}
+          </div>
+          <div style={{ fontSize: 12, color: C.muted, marginTop: 4 }}>
+            {role === 'driver'
+              ? (isFR ? 'Évaluez vos passagers' : 'Rate your passengers')
+              : (isFR ? 'Évaluez votre conducteur' : 'Rate your driver')}
+          </div>
+        </div>
+
+        {/* Sélecteur passager — conducteur uniquement */}
+        {role === 'driver' && passagers.length > 0 && (
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 700, color: C.text, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+              <FaUserFriends size={13} color={C.p} />
+              {isFR ? 'Évaluer votre passager :' : 'Rate your passenger:'}
+            </label>
+            <select
+              value={eval_.passagerSelectionne ?? ''}
+              onChange={(e) => setEval_((p) => ({ ...p, passagerSelectionne: e.target.value, note: 0, commentaire: '' }))}
+              style={{
+                width: '100%', padding: '8px 10px', borderRadius: 8,
+                border: `1.5px solid ${C.b2}`, background: C.bg,
+                fontSize: 13, color: C.text, fontFamily: 'DM Sans, sans-serif', outline: 'none',
+              }}
+            >
+              <option value="">{isFR ? '— Choisir un passager —' : '— Select a passenger —'}</option>
+              {passagers.map((p) => (
+                <option key={p.id} value={p.id} disabled={alreadyReviewedIds.includes(p.id)}>
+                  {p.prenom} {p.nom}{alreadyReviewedIds.includes(p.id) ? (isFR ? ' (déjà évalué)' : ' (already rated)') : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Note principale obligatoire */}
+        {(role === 'passenger' || !!eval_.passagerSelectionne) && (
+          <>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 6 }}>
+                {role === 'driver'
+                  ? (isFR ? 'Note du passager *' : 'Passenger rating *')
+                  : (isFR ? 'Note du conducteur *' : 'Driver rating *')}
+              </div>
+              <StarRow value={eval_.note} onChange={(n) => setEval_((p) => ({ ...p, note: n }))} size={28} />
+              {eval_.note > 0 && (
+                <span style={{ fontSize: 11, color: C.muted, marginTop: 4, display: 'block' }}>
+                  {ratingLabels[eval_.note]}
+                </span>
+              )}
+            </div>
+
+            {/* Commentaire obligatoire */}
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 700, color: C.text, display: 'block', marginBottom: 5 }}>
+                {isFR ? 'Commentaire *' : 'Comment *'}
+              </label>
+              <textarea
+                value={eval_.commentaire}
+                onChange={(e) => setEval_((p) => ({ ...p, commentaire: e.target.value }))}
+                placeholder={isFR ? 'Décrivez votre expérience (10 caractères min.)…' : 'Describe your experience (10 chars min.)…'}
+                rows={3}
+                style={{
+                  width: '100%', background: C.bg, border: `1.5px solid ${commentTooShort ? C.red : C.b2}`,
+                  borderRadius: 9, padding: '9px 12px', fontSize: 12,
+                  fontFamily: 'DM Sans, sans-serif', color: C.text, outline: 'none',
+                  resize: 'none', boxSizing: 'border-box',
+                }}
+              />
+              {commentTooShort && (
+                <span style={{ fontSize: 11, color: C.red }}>
+                  {isFR ? 'Minimum 10 caractères.' : 'Minimum 10 characters.'}
+                </span>
+              )}
+            </div>
+
+            {/* Notes optionnelles */}
+            <button
+              onClick={() => setShowOptional((v) => !v)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: C.p, textAlign: 'left', padding: 0, fontWeight: 600 }}
+            >
+              {showOptional
+                ? (isFR ? '▲ Masquer les notes optionnelles' : '▲ Hide optional ratings')
+                : (isFR ? '▼ Ajouter des notes optionnelles' : '▼ Add optional ratings')}
+            </button>
+            {showOptional && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '8px 0', borderTop: `1px solid ${C.b2}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 12, color: C.muted }}>{isFR ? 'Note du trajet' : 'Trip rating'}</span>
+                  <StarRow value={eval_.noteTrajet ?? 0} onChange={(n) => setEval_((p) => ({ ...p, noteTrajet: n }))} size={20} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 12, color: C.muted }}>{isFR ? 'Note de la réservation' : 'Booking rating'}</span>
+                  <StarRow value={eval_.noteReservation ?? 0} onChange={(n) => setEval_((p) => ({ ...p, noteReservation: n }))} size={20} />
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Boutons */}
+        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+          {canDismiss && (
+            <button
+              onClick={onClose}
+              style={{
+                flex: 1, padding: '10px 0', borderRadius: 10,
+                border: `1.5px solid ${C.b2}`, background: C.bg,
+                fontWeight: 700, fontSize: 13, color: C.p, cursor: 'pointer',
+              }}
+            >
+              {isFR ? 'Plus tard' : 'Later'}
+            </button>
+          )}
+          <button
+            onClick={onSubmit}
+            disabled={!canSubmit}
+            style={{
+              flex: 1, padding: '10px 0', borderRadius: 10,
+              border: 'none', background: canSubmit ? C.green : C.b2,
+              fontWeight: 700, fontSize: 13, color: '#fff',
+              cursor: canSubmit ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            }}
+          >
+            <FaPaperPlane size={11} />
             {isFR ? 'Soumettre' : 'Submit'}
           </button>
         </div>
@@ -190,6 +343,55 @@ export function OsrmErrorModal({
           }}
         >
           {isFR ? 'Compris' : 'OK'}
+        </button>
+      </div>
+    </ModalOverlay>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 4. Modale de fin de trajet — annonce que le trajet est terminé
+//    Non-dismissible : l'utilisateur doit cliquer OK — Évaluer pour continuer.
+// ═══════════════════════════════════════════════════════════════════════
+export function TripCompletedModal({
+  isFR,
+  role,
+  onOk,
+}: {
+  isFR: boolean;
+  role: 'driver' | 'passenger';
+  onOk: () => void;
+}) {
+  return (
+    <ModalOverlay>
+      <div style={{ ...cardStyle, gap: 18 }}>
+        <FaFlagCheckered size={40} color={C.green} style={{ margin: '0 auto' }} />
+        <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: C.p }}>
+          {isFR ? 'Trajet terminé !' : 'Trip completed!'}
+        </div>
+        <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
+          {role === 'driver'
+            ? (isFR
+                ? 'Vous avez bien complété votre trajet. Merci pour votre service !'
+                : 'You have completed your trip. Thank you for your service!')
+            : (isFR
+                ? 'Vous êtes arrivé à destination. Bon séjour !'
+                : 'You have arrived at your destination. Enjoy your stay!')}
+        </div>
+        <div style={{ fontSize: 12, color: C.muted }}>
+          {isFR
+            ? 'Veuillez évaluer votre expérience avant de quitter.'
+            : 'Please rate your experience before leaving.'}
+        </div>
+        <button
+          onClick={onOk}
+          style={{
+            padding: '12px 0', borderRadius: 10, width: '100%',
+            border: 'none', background: C.p,
+            fontWeight: 700, fontSize: 14, color: '#fff', cursor: 'pointer',
+          }}
+        >
+          {isFR ? 'OK — Évaluer' : 'OK — Rate'}
         </button>
       </div>
     </ModalOverlay>

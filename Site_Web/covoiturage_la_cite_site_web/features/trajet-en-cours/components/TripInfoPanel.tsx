@@ -95,6 +95,8 @@ export function TripInfoPanel({
             )}
           </div>
         </div>
+        {/* Slot pour contenu additionnel (PassengerList) */}
+        {children}
       </div>
 
       {/* ═ Colonne 2 : Statut du trajet + Véhicule + Tarification ═ */}
@@ -158,9 +160,6 @@ export function TripInfoPanel({
             ))}
           </div>
         </div>
-
-        {/* Slot pour contenu additionnel (PassengerList) */}
-        {children}
       </div>
     </>
   );

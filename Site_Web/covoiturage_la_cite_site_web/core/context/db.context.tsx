@@ -7,6 +7,7 @@ import { NotificationService } from '@/core/services/notification.service';
 import { VehicleService } from '@/core/services/vehicle.service';
 import { UserService } from '@/core/services/user.service';
 import { ReviewService } from '@/core/services/review.service';
+import { staticDb } from '@/tests/db/StaticDb';
 import type { TripModel } from '@/core/models/TripModel';
 import type { ReservationModel } from '@/core/models/ReservationModel';
 import type { NotificationModel } from '@/core/models/NotificationModel';
@@ -80,31 +81,37 @@ export function DbProvider({ children }: { children: React.ReactNode }) {
   const [indisponibilities, setIndisponibilities] = useState<IndisponibilityModel[]>([]);
 
   const refreshTrips = useCallback(async () => {
+    staticDb.invalidate('trips');
     const data = await TripService.getAll();
     setTrips(data);
   }, []);
 
   const refreshReservations = useCallback(async () => {
+    staticDb.invalidate('reservations');
     const data = await ReservationService.getAll();
     setReservations(data);
   }, []);
 
   const refreshNotifications = useCallback(async () => {
+    staticDb.invalidate('notifications');
     const data = await NotificationService.getAll();
     setNotifications(data);
   }, []);
 
   const refreshVehicles = useCallback(async () => {
+    staticDb.invalidate('vehicles');
     const data = await VehicleService.getAll();
     setVehicles(data);
   }, []);
 
   const refreshUsers = useCallback(async () => {
+    staticDb.invalidate('users');
     const data = await UserService.getAll();
     setUsers(data);
   }, []);
 
   const refreshReviews = useCallback(async () => {
+    staticDb.invalidate('reviews');
     const data = await ReviewService.getAll();
     setReviews(data);
   }, []);
@@ -143,6 +150,38 @@ export function DbProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refreshAll();
   }, [refreshAll]);
+
+  // ── Mises à jour temps réel via SSE db-watch ──────────────────────────────
+  // Pour chaque entité surveillée, un EventSource écoute les événements 'update'
+  // et déclenche un refresh ciblé — sans polling manuel.
+  useEffect(() => {
+    if (typeof EventSource === 'undefined') return;
+
+    const handlers: { es: EventSource; entity: string }[] = [];
+
+    function watch(entity: string, onUpdate: () => void) {
+      const es = new EventSource(`/api/sse/db-watch/${entity}`);
+      // L'événement initial 'update' au connect est ignoré (données déjà chargées).
+      // On ne réagit qu'aux suivants (vraies modifications).
+      let firstEvent = true;
+      es.addEventListener('update', () => {
+        if (firstEvent) { firstEvent = false; return; }
+        onUpdate();
+      });
+      es.onerror = () => { /* reconnexion automatique du navigateur */ };
+      handlers.push({ es, entity });
+    }
+
+    watch('trips',         () => void refreshTrips());
+    watch('reservations',  () => void refreshReservations());
+    watch('notifications', () => void refreshNotifications());
+    watch('reviews',       () => void refreshReviews());
+
+    return () => {
+      handlers.forEach(({ es }) => es.close());
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Données filtrées pour l'utilisateur courant
   const userId = currentUser?.id ?? null;

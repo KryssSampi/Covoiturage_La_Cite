@@ -89,6 +89,8 @@ export interface UseMessagerieReturn {
   broadcastMessage: (content: string) => void;
   /** Nombre de messages non lus par ID de correspondant */
   unreadCounts: Record<string, number>;
+  /** Recharge les messages depuis la base de données */
+  refresh: () => Promise<void>;
 }
 
 // ─── Props composant messagerie ───────────────────────────────────────────────
@@ -104,4 +106,5 @@ export interface MessagerieProps {
   onSendMessage: (content: string) => void;
   onSetActiveCorrespondant: (correspondantId: string) => void;
   onBroadcast: (content: string) => void;
+  onRefresh?: () => void;
 }

@@ -16,7 +16,7 @@ export function PassengerList({ passagers, isFR }: PassengerListProps) {
           <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.cyan, display: 'inline-block' }} />
           Passagers à bord ({passagers.length})
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7, maxHeight: 150, overflowY: 'auto', paddingRight: 4 }}>
           {passagers.map((p) => (
             <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', background: C.bg, borderRadius: 9, border: `1px solid ${C.b}` }}>
               <div style={{

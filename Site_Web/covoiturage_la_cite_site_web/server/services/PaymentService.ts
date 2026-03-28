@@ -25,7 +25,7 @@ const COMMISSION = 0.15;
 const MARKUP_PASSAGER = 1.15;
 
 /** Montant bloqué dès l'envoi d'une demande de réservation */
-const HOLDING_PASSAGER = 6.00;
+const HOLDING_PASSAGER = 1.50;
 
 /** Seuil minimum pour un retrait conducteur */
 const RETRAIT_MIN = 20.00;
@@ -64,7 +64,7 @@ function now(): string {
 
 export class PaymentService {
   /**
-   * Étape 1 — Blocage de 6$ sur le compte bancaire du passager
+   * Étape 1 — Blocage de 1.5$ sur le compte bancaire du passager
    * lors de l'envoi d'une demande de réservation.
    * L'argent passe en "montantEnTransit", pas encore débité.
    */
@@ -81,7 +81,7 @@ export class PaymentService {
       id: genId("BTXN"),
       type: "transit_sortant",
       montant: HOLDING_PASSAGER,
-      description: `Réservation ${reservationId} — mise en attente 6$`,
+      description: `Réservation ${reservationId} — mise en attente 1.5$`,
       statut: "en_transit",
       createdAt: now(),
     };
@@ -98,8 +98,8 @@ export class PaymentService {
   }
 
   /**
-   * Annule le blocage de 6$ si toutes les demandes sont refusées ou expirées.
-   * Retour des 6$ vers le solde disponible.
+   * Annule le blocage de 1.5$ si toutes les demandes sont refusées ou expirées.
+   * Retour des 1.5$ vers le solde disponible.
    */
   releaseHoldingAmount(passengerId: string, reservationId: string): void {
     const accounts = persistenceManager.readAll<BankAccountModel>("bank_accounts");
@@ -144,7 +144,7 @@ export class PaymentService {
     reservationId: string
   ): { prixAffiche: number; montantDebite: number } {
     const prixAffiche = parseFloat((pricePerPassenger * MARKUP_PASSAGER).toFixed(2));
-    // Les 6$ déjà en transit sont déduits
+    // Les 1.50$ déjà en transit sont déduits
     const montantRestant = parseFloat((prixAffiche - HOLDING_PASSAGER).toFixed(2));
     const montantDebite = montantRestant > 0 ? montantRestant : 0;
 
@@ -158,7 +158,7 @@ export class PaymentService {
           id: genId("BTXN"),
           type: "transit_sortant",
           montant: montantDebite,
-          description: `Trajet ${tripId} — solde pré-autorisé (6$ déjà retenus)`,
+          description: `Trajet ${tripId} — solde pré-autorisé (1.50$ déjà retenus)`,
           statut: "en_transit",
           createdAt: now(),
         };

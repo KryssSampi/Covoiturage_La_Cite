@@ -21,6 +21,11 @@ import type { NotificationModel } from "@/core/models/NotificationModel";
 
 const NOTIF_SOUND_URL = "/assets/sounds/notification.wav";
 
+// Clé sessionStorage : marquée après le premier push de la session de connexion.
+// sessionStorage est vidé à la fermeture du tab, donc chaque nouvel onglet/connexion
+// repart d'un état propre.
+const initKey = (uid: string) => `notif_init_${uid}`;
+
 // ─── Notification de résumé virtuelle (pas stockée en DB) ────────────────────
 
 function buildSummaryNotif(count: number, userId: string, role: string): NotificationModel {
@@ -101,8 +106,20 @@ export function useNotificationPush(
   }, []);
 
   // ── Fetch initial : non-lues → queue de reconnexion ───────────────────────
+  // Déclenché uniquement à la connexion (pas sur chaque rechargement de page).
+  // Un flag sessionStorage garantit que le push ne s'effectue qu'une seule fois
+  // par session de connexion. sessionStorage est effacé à la fermeture du tab.
   useEffect(() => {
     if (!userId || !userRole) return;
+
+    // Si l'utilisateur se déconnecte (userId → undefined) le flag est nettoyé
+    // au prochain effet via le return ci-dessous — rien à faire ici.
+
+    // Déjà initialisé dans cet onglet depuis la connexion → on saute.
+    // Le flag est posé de façon synchrone (avant le fetch) pour résister
+    // au double-mount de React 18 Strict Mode en développement.
+    if (sessionStorage.getItem(initKey(userId))) return;
+    sessionStorage.setItem(initKey(userId), "1");
 
     async function loadUnread() {
       try {
@@ -132,6 +149,12 @@ export function useNotificationPush(
     }
 
     loadUnread();
+
+    // Nettoyage : si userId change (déconnexion → reconnexion d'un autre compte),
+    // on retire l'ancien flag pour que le prochain utilisateur reçoive bien ses notifs.
+    return () => {
+      if (userId) sessionStorage.removeItem(initKey(userId));
+    };
   }, [userId, userRole, playSound]);
 
   // ── SSE : nouvelles notifications en cours de session ─────────────────────

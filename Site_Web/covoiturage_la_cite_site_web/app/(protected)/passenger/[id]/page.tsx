@@ -133,7 +133,7 @@ export default function PassengerDashboardPage() {
     try {
       const res = await fetch(`/api/reservations/${encodeURIComponent(reservationId)}/cancel`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-caller-id": `${user?.id}` },
         body: JSON.stringify({ raison }),
       });
       if (!res.ok) return false;
@@ -142,12 +142,15 @@ export default function PassengerDashboardPage() {
     } catch {
       return false;
     }
-  }, [loadPassengerData]);
+  }, [loadPassengerData, user]);
 
   const handleStartReservation = useCallback(async (reservationId: string) => {
     try {
       const res = await fetch(`/api/reservations/${encodeURIComponent(reservationId)}/start`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" 
+          , "x-caller-id": `${user?.id}`
+        },
       });
       if (!res.ok) return null;
       const payload = await res.json();
@@ -156,7 +159,7 @@ export default function PassengerDashboardPage() {
     } catch {
       return null;
     }
-  }, [loadPassengerData]);
+  }, [loadPassengerData, user]);
 
   const handleDeleteFavorite = useCallback(async (favorite: LieuFavoriUnifie) => {
     await fetch(`/api/lieux-favoris?id=${favorite.id}&userId=${user?.id}`, {

@@ -4,7 +4,7 @@
 // Messagerie — Composant de messagerie en temps réel
 // ═══════════════════════════════════════════════════════════════════
 import { useRef, useEffect, useMemo } from 'react';
-import { FaMapMarkedAlt, FaCheck } from 'react-icons/fa';
+import { FaMapMarkedAlt, FaCheck, FaSyncAlt } from 'react-icons/fa';
 import { ProgressionSectionProps } from '../types/progression-signalement.types';
 import { MessagerieProps } from '../types/messagerie.types';
 import { useProgression } from '../hooks/index.hooks';
@@ -38,7 +38,8 @@ function fmt(sec: number): string {
 // ═══════════════════════════════════════════════════════════════════
 
 export function ProgressionSection({ fixture, mapState }: ProgressionSectionProps) {
-  const { fixture: activeFixture, progression: internalProg } = useProgression(fixture);
+  // Suspendre la simulation interne quand mapState est fourni (positions GPS réelles)
+  const { fixture: activeFixture, progression: internalProg } = useProgression(fixture, !!mapState);
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
@@ -47,19 +48,25 @@ export function ProgressionSection({ fixture, mapState }: ProgressionSectionProp
     const { pourcentageComplete, distanceParcourue, distanceTotaleM, estTermine, vitesseMoyenneKmh } = mapState;
     const distParcourueKm = parseFloat((distanceParcourue / 1000).toFixed(1));
     const distRestanteKm = parseFloat(((distanceTotaleM - distanceParcourue) / 1000).toFixed(1));
-    // Temps dérivé de la distance et vitesse — identique au calcul de la carte
     const mPerSec = (vitesseMoyenneKmh * 1000) / 3600;
-    const secEcoulees = mPerSec > 0 ? Math.round(distanceParcourue / mPerSec) : 0;
     const secRestantes = mPerSec > 0 ? Math.max(0, Math.round((distanceTotaleM - distanceParcourue) / mPerSec)) : 0;
     const eta = new Date();
     eta.setSeconds(eta.getSeconds() + secRestantes);
     const etaTexte = eta.toLocaleTimeString(isFR ? 'fr-CA' : 'en-CA', { hour: '2-digit', minute: '2-digit' });
-    // Calculer les statuts d'étapes à partir du temps dérivé
+
+    // Statuts des waypoints basés sur la distance réelle GPS (normalisée en %)
+    // On compare le % parcouru vs le % de chaque étape dans la fixture,
+    // ce qui reste exact même si la distance OSRM diffère de la fixture.
+    const fixtureTotal = activeFixture.distanceTotaleKm > 0 ? activeFixture.distanceTotaleKm : 1;
     const statutsEtapes: string[] = activeFixture.etapes.map(() => 'en_attente');
     for (let i = 0; i < activeFixture.etapes.length; i++) {
-      if (secEcoulees >= activeFixture.etapes[i].tempsSecondes) statutsEtapes[i] = 'fait';
+      const etapePct = (activeFixture.etapes[i].distanceKm / fixtureTotal) * 100;
+      if (pourcentageComplete >= etapePct) statutsEtapes[i] = 'fait';
     }
-    const prochaine = activeFixture.etapes.findIndex(e => secEcoulees < e.tempsSecondes);
+    const prochaine = activeFixture.etapes.findIndex((e) => {
+      const etapePct = (e.distanceKm / fixtureTotal) * 100;
+      return pourcentageComplete < etapePct;
+    });
     if (prochaine !== -1 && !estTermine) statutsEtapes[prochaine] = 'actif';
 
     return {
@@ -282,22 +289,27 @@ export function Messagerie({
   onSendMessage,
   onSetActiveCorrespondant,
   onBroadcast,
+  onRefresh,
 }: MessagerieProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
-  // Résoudre le correspondant actif depuis activeConversation
+  // Résoudre le correspondant actif : d'abord depuis activeConversation,
+  // sinon depuis correspondants[0] (fallback quand aucun message n'existe encore)
   const activeCorrespondantId = activeConversation
-    ? activeConversation.participantIds.find((pid) => pid !== moi.id) ?? ''
-    : '';
+    ? (activeConversation.participantIds.find((pid) => pid !== moi.id) ?? (correspondants[0]?.id ?? ''))
+    : (correspondants[0]?.id ?? '');
   const correspondantActif = correspondants.find(
     (c) => c.id === activeCorrespondantId,
   );
   const messages = messagesActifs;
 
+  // Scroll interne au conteneur messages — ne tire plus la page vers le bas
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [messages]);
 
   // Pré-calcule les IDs de messages qui doivent afficher un séparateur de date
@@ -318,6 +330,7 @@ export function Messagerie({
     <div style={{
       display: 'flex', flexDirection: 'column',
       background: '#fff',
+      justifyContent: 'space-between',
       border: '1px solid rgba(8,49,110,0.09)',
       borderRadius: 16,
       boxShadow: '0 2px 18px rgba(8,49,110,0.09)',
@@ -337,13 +350,66 @@ export function Messagerie({
         isFR={isFR}
       />
 
+      {/* ── Barre actualisation ── */}
+      {onRefresh && (
+        <div style={{
+          display: 'flex', justifyContent: 'flex-end',
+          padding: '4px 14px 0',
+          marginTop : -8,
+          background: '#f7f9fc',
+          borderBottom: '1px solid rgba(8,49,110,0.06)',
+        }}>
+          <button
+            onClick={onRefresh}
+            title={isFR ? 'Actualiser les messages' : 'Refresh messages'}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 4,
+              fontSize: 11, fontWeight: 600, color: '#7a90b8',
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: '3px 0 5px', fontFamily: 'DM Sans, sans-serif',
+            }}
+          >
+            <FaSyncAlt size={10} />
+            {isFR ? 'Actualiser' : 'Refresh'}
+          </button>
+        </div>
+      )}
+
       {/* ── Messages ── */}
-      <div style={{
+      <div ref={messagesContainerRef} style={{
         flex: 1, overflowY: 'auto', padding: '12px 14px',
+        marginTop : 0,
         display: 'flex', flexDirection: 'column', gap: 10,
-        background: '#f7f9fc', minHeight: 0,
+        background: '#f7f9fc', minHeight: 0, maxHeight: 400,
       }}>
-        {messages.map((msg) => {
+        {messages.length === 0 ? (
+          /* ── Empty state style WhatsApp ── */
+          <div style={{
+            flex: 1, display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            padding: '32px 20px', gap: 10,
+            pointerEvents: 'none',
+          }}>
+            <div style={{
+              width: 52, height: 52, borderRadius: '50%',
+              background: 'rgba(8,49,110,0.07)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 24,
+            }}>
+              💬
+            </div>
+            <div style={{ fontWeight: 700, fontSize: 13, color: '#0d1f3c', textAlign: 'center' }}>
+              {correspondantActif
+                ? (isFR ? `Aucun message avec ${correspondantActif.prenom}` : `No messages with ${correspondantActif.prenom}`)
+                : (isFR ? 'Aucune conversation' : 'No conversations yet')}
+            </div>
+            <div style={{ fontSize: 11, color: '#7a90b8', textAlign: 'center', lineHeight: 1.5 }}>
+              {isFR
+                ? 'Envoyez le premier message pour démarrer la conversation.'
+                : 'Send the first message to start the conversation.'}
+            </div>
+          </div>
+        ) : messages.map((msg) => {
           const isMoi = msg.senderId === moi.id;
           return (
             <MessageBubble
@@ -357,7 +423,6 @@ export function Messagerie({
             />
           );
         })}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* ── Zone de saisie (composant extrait) ── */}

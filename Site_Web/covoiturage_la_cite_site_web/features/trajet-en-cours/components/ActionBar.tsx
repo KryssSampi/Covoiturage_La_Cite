@@ -4,13 +4,17 @@ import {
   FaStar, FaRegStar, FaPaperPlane, FaCheck,
   FaFlag, FaShieldAlt, FaPhone,
 } from 'react-icons/fa';
-import type { EvaluationState, ConducteurInfo, PointTrajet } from '../types/trajet-en-cours.types';
+import type { EvaluationState, ConducteurInfo, PointTrajet, PassagerInfo } from '../types/trajet-en-cours.types';
 import { C, card } from './trajet-page-styles';
+import { FaUserFriends } from 'react-icons/fa';
 
 interface ActionBarProps {
+  role?: 'driver' | 'passenger';
   conducteur: Pick<ConducteurInfo, 'prenom' | 'nom'>;
   depart: Pick<PointTrajet, 'nom'>;
   arrivee: Pick<PointTrajet, 'nom'>;
+  passagers?: PassagerInfo[];
+  alreadyReviewedIds?: string[];
   eval_: EvaluationState;
   setEval_: Dispatch<SetStateAction<EvaluationState>>;
   onSubmitEval: () => void;
@@ -22,7 +26,8 @@ interface ActionBarProps {
 
 // Section bas-de-page : carte d'évaluation + carte signalement/litige/SOS
 export function ActionBar({
-  conducteur, depart, arrivee,
+  role, conducteur, depart, arrivee,
+  passagers = [], alreadyReviewedIds = [],
   eval_, setEval_, onSubmitEval, ratingLabels,
   isFR,
   onShowSignalement, onShowLitige,
@@ -32,6 +37,29 @@ export function ActionBar({
 
       {/* Carte évaluation */}
       <div className='justify-items-center' style={{ ...card, flex: 1, padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {/* Sélecteur passager — conducteur uniquement */}
+        {role === 'driver' && passagers.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: C.text, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <FaUserFriends size={13} color={C.p} />
+              {isFR ? 'Évaluer :' : 'Rate:'}
+            </span>
+            <select
+              value={eval_.passagerSelectionne ?? ''}
+              onChange={(e) => setEval_((p) => ({ ...p, passagerSelectionne: e.target.value, note: 0, commentaire: '' }))}
+              disabled={eval_.estSoumis}
+              style={{ flex: 1, padding: '5px 8px', borderRadius: 7, border: `1.5px solid ${C.b2}`, background: C.bg, fontSize: 12, color: C.text, fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
+            >
+              <option value="">{isFR ? '— Passager —' : '— Passenger —'}</option>
+              {passagers.map((p) => (
+                <option key={p.id} value={p.id} disabled={alreadyReviewedIds.includes(p.id)}>
+                  {p.prenom} {p.nom}{alreadyReviewedIds.includes(p.id) ? ' ✓' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Ligne du haut : titre + étoiles */}
         <div className='my-5' style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <div>

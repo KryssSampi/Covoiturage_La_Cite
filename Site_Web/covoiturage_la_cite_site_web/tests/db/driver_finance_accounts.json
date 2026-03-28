@@ -3,7 +3,7 @@
     "id": "DFA-USR-2026-00001",
     "driverId": "USR-2026-00001",
     "soldeDisponible": 36.3,
-    "soldeEnTransit": 14.45,
+    "soldeEnTransit": 0,
     "soldePenalites": 6,
     "tauxPrelevement": 0.1,
     "commission": 0.15,
@@ -15,7 +15,7 @@
         "description": "Trajet TRJ-2026-00073 confirme",
         "trajetId": "TRJ-2026-00073",
         "statut": "confirme",
-        "createdAt": "2026-04-25T08:45:00.000Z"
+        "createdAt": "2026-04-26T08:45:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00001-8",
@@ -24,7 +24,7 @@
         "description": "Trajet TRJ-2026-00073 confirme",
         "trajetId": "TRJ-2026-00073",
         "statut": "confirme",
-        "createdAt": "2026-04-25T08:45:00.000Z"
+        "createdAt": "2026-04-26T08:45:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00001-5",
@@ -33,7 +33,7 @@
         "description": "Trajet TRJ-2026-00049 confirme",
         "trajetId": "TRJ-2026-00049",
         "statut": "confirme",
-        "createdAt": "2026-04-11T08:45:00.000Z"
+        "createdAt": "2026-04-12T08:45:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00001-6",
@@ -42,7 +42,7 @@
         "description": "Trajet TRJ-2026-00049 confirme",
         "trajetId": "TRJ-2026-00049",
         "statut": "confirme",
-        "createdAt": "2026-04-11T08:45:00.000Z"
+        "createdAt": "2026-04-12T08:45:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00001-3",
@@ -51,7 +51,7 @@
         "description": "Trajet TRJ-2026-00025 confirme",
         "trajetId": "TRJ-2026-00025",
         "statut": "confirme",
-        "createdAt": "2026-03-28T08:45:00.000Z"
+        "createdAt": "2026-03-29T08:45:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00001-4",
@@ -60,7 +60,7 @@
         "description": "Trajet TRJ-2026-00025 confirme",
         "trajetId": "TRJ-2026-00025",
         "statut": "confirme",
-        "createdAt": "2026-03-28T08:45:00.000Z"
+        "createdAt": "2026-03-29T08:45:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00001-PEN-1",
@@ -69,7 +69,7 @@
         "description": "Retard signale sur un trajet precedent.",
         "trajetId": "TRJ-2026-00001",
         "statut": "penalite",
-        "createdAt": "2026-03-20T08:00:00.000Z"
+        "createdAt": "2026-03-21T08:00:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00001-1",
@@ -78,7 +78,7 @@
         "description": "Trajet TRJ-2026-00001 confirme",
         "trajetId": "TRJ-2026-00001",
         "statut": "confirme",
-        "createdAt": "2026-03-14T08:45:00.000Z"
+        "createdAt": "2026-03-15T08:45:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00001-2",
@@ -87,37 +87,10 @@
         "description": "Trajet TRJ-2026-00001 confirme",
         "trajetId": "TRJ-2026-00001",
         "statut": "confirme",
-        "createdAt": "2026-03-14T08:45:00.000Z"
-      },
-      {
-        "id": "DTXN-2026-75177",
-        "type": "revenu_trajet",
-        "montant": 4.25,
-        "description": "Trajet TRJ-2026-00037 — en transit (réservation RSV-2026-00044)",
-        "trajetId": "TRJ-2026-00037",
-        "statut": "en_transit",
-        "createdAt": "2026-03-27T01:11:34.848Z"
-      },
-      {
-        "id": "DTXN-2026-57272",
-        "type": "revenu_trajet",
-        "montant": 4.25,
-        "description": "Trajet TRJ-2026-82744 — en transit (réservation RSV-2026-26579)",
-        "trajetId": "TRJ-2026-82744",
-        "statut": "en_transit",
-        "createdAt": "2026-03-27T01:50:09.121Z"
-      },
-      {
-        "id": "DTXN-2026-39162",
-        "type": "revenu_trajet",
-        "montant": 5.95,
-        "description": "Trajet TRJ-2026-72434 — en transit (réservation RSV-2026-55133)",
-        "trajetId": "TRJ-2026-72434",
-        "statut": "en_transit",
-        "createdAt": "2026-03-27T02:57:09.066Z"
+        "createdAt": "2026-03-15T08:45:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-27T02:57:09.067Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00002",
@@ -135,7 +108,7 @@
         "description": "Trajet TRJ-2026-00074 confirme",
         "trajetId": "TRJ-2026-00074",
         "statut": "confirme",
-        "createdAt": "2026-04-26T18:10:00.000Z"
+        "createdAt": "2026-04-27T18:10:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00002-3",
@@ -144,7 +117,7 @@
         "description": "Trajet TRJ-2026-00050 confirme",
         "trajetId": "TRJ-2026-00050",
         "statut": "confirme",
-        "createdAt": "2026-04-12T18:10:00.000Z"
+        "createdAt": "2026-04-13T18:10:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00002-2",
@@ -153,7 +126,7 @@
         "description": "Trajet TRJ-2026-00026 confirme",
         "trajetId": "TRJ-2026-00026",
         "statut": "confirme",
-        "createdAt": "2026-03-29T18:10:00.000Z"
+        "createdAt": "2026-03-30T18:10:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00002-1",
@@ -162,10 +135,10 @@
         "description": "Trajet TRJ-2026-00002 confirme",
         "trajetId": "TRJ-2026-00002",
         "statut": "confirme",
-        "createdAt": "2026-03-15T18:10:00.000Z"
+        "createdAt": "2026-03-16T18:10:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00003",
@@ -183,7 +156,7 @@
         "description": "Trajet TRJ-2026-00075 confirme",
         "trajetId": "TRJ-2026-00075",
         "statut": "confirme",
-        "createdAt": "2026-04-28T09:00:00.000Z"
+        "createdAt": "2026-04-29T09:00:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00003-3",
@@ -192,7 +165,7 @@
         "description": "Trajet TRJ-2026-00051 confirme",
         "trajetId": "TRJ-2026-00051",
         "statut": "confirme",
-        "createdAt": "2026-04-14T09:00:00.000Z"
+        "createdAt": "2026-04-15T09:00:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00003-2",
@@ -201,7 +174,7 @@
         "description": "Trajet TRJ-2026-00027 confirme",
         "trajetId": "TRJ-2026-00027",
         "statut": "confirme",
-        "createdAt": "2026-03-31T09:00:00.000Z"
+        "createdAt": "2026-04-01T09:00:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00003-1",
@@ -210,10 +183,10 @@
         "description": "Trajet TRJ-2026-00003 confirme",
         "trajetId": "TRJ-2026-00003",
         "statut": "confirme",
-        "createdAt": "2026-03-17T09:00:00.000Z"
+        "createdAt": "2026-03-18T09:00:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00004",
@@ -224,7 +197,7 @@
     "tauxPrelevement": 0.1,
     "commission": 0.15,
     "transactions": [],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00005",
@@ -242,7 +215,7 @@
         "description": "Trajet TRJ-2026-00077 confirme",
         "trajetId": "TRJ-2026-00077",
         "statut": "confirme",
-        "createdAt": "2026-04-30T08:30:00.000Z"
+        "createdAt": "2026-05-01T08:30:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00005-8",
@@ -251,7 +224,7 @@
         "description": "Trajet TRJ-2026-00077 confirme",
         "trajetId": "TRJ-2026-00077",
         "statut": "confirme",
-        "createdAt": "2026-04-30T08:30:00.000Z"
+        "createdAt": "2026-05-01T08:30:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00005-5",
@@ -260,7 +233,7 @@
         "description": "Trajet TRJ-2026-00053 confirme",
         "trajetId": "TRJ-2026-00053",
         "statut": "confirme",
-        "createdAt": "2026-04-16T08:30:00.000Z"
+        "createdAt": "2026-04-17T08:30:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00005-6",
@@ -269,7 +242,7 @@
         "description": "Trajet TRJ-2026-00053 confirme",
         "trajetId": "TRJ-2026-00053",
         "statut": "confirme",
-        "createdAt": "2026-04-16T08:30:00.000Z"
+        "createdAt": "2026-04-17T08:30:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00005-3",
@@ -278,7 +251,7 @@
         "description": "Trajet TRJ-2026-00029 confirme",
         "trajetId": "TRJ-2026-00029",
         "statut": "confirme",
-        "createdAt": "2026-04-02T08:30:00.000Z"
+        "createdAt": "2026-04-03T08:30:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00005-4",
@@ -287,7 +260,7 @@
         "description": "Trajet TRJ-2026-00029 confirme",
         "trajetId": "TRJ-2026-00029",
         "statut": "confirme",
-        "createdAt": "2026-04-02T08:30:00.000Z"
+        "createdAt": "2026-04-03T08:30:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00005-1",
@@ -296,7 +269,7 @@
         "description": "Trajet TRJ-2026-00005 confirme",
         "trajetId": "TRJ-2026-00005",
         "statut": "confirme",
-        "createdAt": "2026-03-19T08:30:00.000Z"
+        "createdAt": "2026-03-20T08:30:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00005-2",
@@ -305,10 +278,10 @@
         "description": "Trajet TRJ-2026-00005 confirme",
         "trajetId": "TRJ-2026-00005",
         "statut": "confirme",
-        "createdAt": "2026-03-19T08:30:00.000Z"
+        "createdAt": "2026-03-20T08:30:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00006",
@@ -326,7 +299,7 @@
         "description": "Trajet TRJ-2026-00078 confirme",
         "trajetId": "TRJ-2026-00078",
         "statut": "confirme",
-        "createdAt": "2026-05-01T17:50:00.000Z"
+        "createdAt": "2026-05-02T17:50:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00006-3",
@@ -335,7 +308,7 @@
         "description": "Trajet TRJ-2026-00054 confirme",
         "trajetId": "TRJ-2026-00054",
         "statut": "confirme",
-        "createdAt": "2026-04-17T17:50:00.000Z"
+        "createdAt": "2026-04-18T17:50:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00006-2",
@@ -344,7 +317,7 @@
         "description": "Trajet TRJ-2026-00030 confirme",
         "trajetId": "TRJ-2026-00030",
         "statut": "confirme",
-        "createdAt": "2026-04-03T17:50:00.000Z"
+        "createdAt": "2026-04-04T17:50:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00006-1",
@@ -353,10 +326,10 @@
         "description": "Trajet TRJ-2026-00006 confirme",
         "trajetId": "TRJ-2026-00006",
         "statut": "confirme",
-        "createdAt": "2026-03-20T17:50:00.000Z"
+        "createdAt": "2026-03-21T17:50:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00007",
@@ -374,7 +347,7 @@
         "description": "Trajet TRJ-2026-00079 confirme",
         "trajetId": "TRJ-2026-00079",
         "statut": "confirme",
-        "createdAt": "2026-05-02T09:15:00.000Z"
+        "createdAt": "2026-05-03T09:15:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00007-3",
@@ -383,7 +356,7 @@
         "description": "Trajet TRJ-2026-00055 confirme",
         "trajetId": "TRJ-2026-00055",
         "statut": "confirme",
-        "createdAt": "2026-04-18T09:15:00.000Z"
+        "createdAt": "2026-04-19T09:15:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00007-2",
@@ -392,7 +365,7 @@
         "description": "Trajet TRJ-2026-00031 confirme",
         "trajetId": "TRJ-2026-00031",
         "statut": "confirme",
-        "createdAt": "2026-04-04T09:15:00.000Z"
+        "createdAt": "2026-04-05T09:15:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00007-1",
@@ -401,10 +374,10 @@
         "description": "Trajet TRJ-2026-00007 confirme",
         "trajetId": "TRJ-2026-00007",
         "statut": "confirme",
-        "createdAt": "2026-03-21T09:15:00.000Z"
+        "createdAt": "2026-03-22T09:15:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00008",
@@ -422,7 +395,7 @@
         "description": "Trajet TRJ-2026-00080 confirme",
         "trajetId": "TRJ-2026-00080",
         "statut": "confirme",
-        "createdAt": "2026-05-03T18:25:00.000Z"
+        "createdAt": "2026-05-04T18:25:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00008-8",
@@ -431,7 +404,7 @@
         "description": "Trajet TRJ-2026-00080 confirme",
         "trajetId": "TRJ-2026-00080",
         "statut": "confirme",
-        "createdAt": "2026-05-03T18:25:00.000Z"
+        "createdAt": "2026-05-04T18:25:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00008-5",
@@ -440,7 +413,7 @@
         "description": "Trajet TRJ-2026-00056 confirme",
         "trajetId": "TRJ-2026-00056",
         "statut": "confirme",
-        "createdAt": "2026-04-19T18:25:00.000Z"
+        "createdAt": "2026-04-20T18:25:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00008-6",
@@ -449,7 +422,7 @@
         "description": "Trajet TRJ-2026-00056 confirme",
         "trajetId": "TRJ-2026-00056",
         "statut": "confirme",
-        "createdAt": "2026-04-19T18:25:00.000Z"
+        "createdAt": "2026-04-20T18:25:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00008-3",
@@ -458,7 +431,7 @@
         "description": "Trajet TRJ-2026-00032 confirme",
         "trajetId": "TRJ-2026-00032",
         "statut": "confirme",
-        "createdAt": "2026-04-05T18:25:00.000Z"
+        "createdAt": "2026-04-06T18:25:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00008-4",
@@ -467,7 +440,7 @@
         "description": "Trajet TRJ-2026-00032 confirme",
         "trajetId": "TRJ-2026-00032",
         "statut": "confirme",
-        "createdAt": "2026-04-05T18:25:00.000Z"
+        "createdAt": "2026-04-06T18:25:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00008-1",
@@ -476,7 +449,7 @@
         "description": "Trajet TRJ-2026-00008 confirme",
         "trajetId": "TRJ-2026-00008",
         "statut": "confirme",
-        "createdAt": "2026-03-22T18:25:00.000Z"
+        "createdAt": "2026-03-23T18:25:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00008-2",
@@ -485,10 +458,10 @@
         "description": "Trajet TRJ-2026-00008 confirme",
         "trajetId": "TRJ-2026-00008",
         "statut": "confirme",
-        "createdAt": "2026-03-22T18:25:00.000Z"
+        "createdAt": "2026-03-23T18:25:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00009",
@@ -506,7 +479,7 @@
         "description": "Trajet TRJ-2026-00057 confirme",
         "trajetId": "TRJ-2026-00057",
         "statut": "confirme",
-        "createdAt": "2026-04-20T08:50:00.000Z"
+        "createdAt": "2026-04-21T08:50:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00009-2",
@@ -515,7 +488,7 @@
         "description": "Trajet TRJ-2026-00033 confirme",
         "trajetId": "TRJ-2026-00033",
         "statut": "confirme",
-        "createdAt": "2026-04-06T08:50:00.000Z"
+        "createdAt": "2026-04-07T08:50:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00009-1",
@@ -524,10 +497,10 @@
         "description": "Trajet TRJ-2026-00009 confirme",
         "trajetId": "TRJ-2026-00009",
         "statut": "confirme",
-        "createdAt": "2026-03-23T08:50:00.000Z"
+        "createdAt": "2026-03-24T08:50:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00010",
@@ -545,7 +518,7 @@
         "description": "Trajet TRJ-2026-00058 confirme",
         "trajetId": "TRJ-2026-00058",
         "statut": "confirme",
-        "createdAt": "2026-04-21T18:35:00.000Z"
+        "createdAt": "2026-04-22T18:35:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00010-2",
@@ -554,7 +527,7 @@
         "description": "Trajet TRJ-2026-00034 confirme",
         "trajetId": "TRJ-2026-00034",
         "statut": "confirme",
-        "createdAt": "2026-04-07T18:35:00.000Z"
+        "createdAt": "2026-04-08T18:35:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00010-1",
@@ -563,10 +536,10 @@
         "description": "Trajet TRJ-2026-00010 confirme",
         "trajetId": "TRJ-2026-00010",
         "statut": "confirme",
-        "createdAt": "2026-03-24T18:35:00.000Z"
+        "createdAt": "2026-03-25T18:35:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00011",
@@ -584,7 +557,7 @@
         "description": "Trajet TRJ-2026-00059 confirme",
         "trajetId": "TRJ-2026-00059",
         "statut": "confirme",
-        "createdAt": "2026-04-22T09:20:00.000Z"
+        "createdAt": "2026-04-23T09:20:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00011-2",
@@ -593,7 +566,7 @@
         "description": "Trajet TRJ-2026-00035 confirme",
         "trajetId": "TRJ-2026-00035",
         "statut": "confirme",
-        "createdAt": "2026-04-08T09:20:00.000Z"
+        "createdAt": "2026-04-09T09:20:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00011-1",
@@ -602,10 +575,10 @@
         "description": "Trajet TRJ-2026-00011 confirme",
         "trajetId": "TRJ-2026-00011",
         "statut": "confirme",
-        "createdAt": "2026-03-25T09:20:00.000Z"
+        "createdAt": "2026-03-26T09:20:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "DFA-USR-2026-00012",
@@ -623,7 +596,7 @@
         "description": "Trajet TRJ-2026-00060 en transit",
         "trajetId": "TRJ-2026-00060",
         "statut": "en_transit",
-        "createdAt": "2026-04-22T11:05:00.000Z"
+        "createdAt": "2026-04-23T11:05:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00012-TRANSIT-2",
@@ -632,7 +605,7 @@
         "description": "Trajet TRJ-2026-00036 en transit",
         "trajetId": "TRJ-2026-00036",
         "statut": "en_transit",
-        "createdAt": "2026-04-08T11:05:00.000Z"
+        "createdAt": "2026-04-09T11:05:00.000Z"
       },
       {
         "id": "DTXN-USR-2026-00012-TRANSIT-1",
@@ -641,9 +614,9 @@
         "description": "Trajet TRJ-2026-00012 en transit",
         "trajetId": "TRJ-2026-00012",
         "statut": "en_transit",
-        "createdAt": "2026-03-25T11:05:00.000Z"
+        "createdAt": "2026-03-26T11:05:00.000Z"
       }
     ],
-    "updatedAt": "2026-03-26T21:04:45.000Z"
+    "updatedAt": "2026-03-27T04:00:41.000Z"
   }
 ]

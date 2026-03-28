@@ -49,9 +49,10 @@ export async function initTrajetMap(
 
   // ── Carte ──────────────────────────────────────────────────────────────
   const map = L.map(container, {
-    zoomControl:       false,
+    zoomControl:        false,
     attributionControl: true,
-    preferCanvas:      true,
+    preferCanvas:       true,
+    scrollWheelZoom:    true,
   }).setView([fixture.depart.lat, fixture.depart.lng], 13)
 
   // ── Tuiles CARTO Voyager ───────────────────────────────────────────────

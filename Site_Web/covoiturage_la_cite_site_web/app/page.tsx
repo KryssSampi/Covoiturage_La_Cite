@@ -11,26 +11,33 @@
 import Image from "next/image";                                                                      //Liens des images utilisées dans la page d'accueil
 import {WhyUsSection, Header , HowItWorkSection , StatsSection , Hero }  from "@/features/homepage"    //Importation des composants de la page d'accueil
 import { Footer } from "@/shared/components/footer";                                                          //Importation du composant Footer
-import { WarmSentence } from "@/shared/ui/warm-sentence";                                                     //Importation du composant WarmSentence        
-import { Language, useAppState } from "@/core/state/app_state";                                           //Importation du contexte global de l'application pour gérer la langue sélectionnée par l'utilisateur et d'autres états globaux de l'application.                        
+import { WarmSentence } from "@/shared/ui/warm-sentence";                                                     //Importation du composant WarmSentence
+import { Language, useAppState } from "@/core/state/app_state";                                           //Importation du contexte global de l'application pour gérer la langue sélectionnée par l'utilisateur et d'autres états globaux de l'application.
 import { useLoader } from "@/core/context/loader.context";                                                          //Importation du contexte de gestion du loader pour afficher un indicateur de chargement lors de la redirection ou du chargement de données.
 import Link from "next/link";
 import { useIsMobileOrTablet } from "@/shared/hooks/useismobileortable";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const isBellowlg = useIsMobileOrTablet();
-const { setActiveLoader } = useLoader();
-  // Récupération de l'état global de l'application, notamment la langue sélectionnée par l'utilisateur, pour afficher le contenu de manière dynamique en fonction de la langue choisie (français ou anglais).
-  const appState =  useAppState();
+  const { setActiveLoader } = useLoader();
+  const appState = useAppState();
+  const router = useRouter();
 
-  if(appState.userConnected) {
-    // Si l'utilisateur est connecté, redirigez-le vers son tableau de bord en fonction de son rôle (passager ou conducteur).`
-    
-    const userRole = appState.userConnected.role.toString().toLowerCase();
-    const userId = appState.userConnected.id;
-    setActiveLoader(true);
-    window.location.href = `/${userRole}/${userId}`;
-  }
+  // Redirection vers le tableau de bord si l'utilisateur est déjà connecté
+  useEffect(() => {
+    if (appState.userConnected) {
+      const userRole = appState.userConnected.role.toString().toLowerCase();
+      const userId   = appState.userConnected.id;
+      setActiveLoader(true);
+      router.replace(`/${userRole}/${userId}`);
+    }
+  }, [appState.userConnected, router, setActiveLoader]);
+
+  // Ne pas afficher la page d'accueil pendant la redirection
+  if (appState.userConnected) return null;
+
   return (
     /* Nettoyage du Header et du Layout */
     <div className="min-h-screen flex flex-col bg-gray-50">
