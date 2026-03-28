@@ -41,6 +41,11 @@ export function applyTripStatusAction(id: string, action: string): TripRecord | 
     status: mapping.tripStatus,
   });
 
+  // Le démarrage d'un trajet ne cascade pas sur les réservations (seul le passager démarre sa propre réservation).
+  if (action === 'start') {
+    return updatedTrip ?? null;
+  }
+
   const reservations = persistenceManager.readAll<ReservationRecord>('reservations');
   for (const reservation of reservations) {
     if (reservation.tripId !== id || !mapping.fromRes.includes(reservation.status as string)) {

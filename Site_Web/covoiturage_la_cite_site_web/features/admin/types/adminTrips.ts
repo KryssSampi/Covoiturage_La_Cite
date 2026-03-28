@@ -27,8 +27,10 @@ export interface AdminTrip {
   reservations: AdminReservation[];
   departureTime?: string;
   departureDate?: string;
-  departure?: { label: string };
-  arrival?: { label: string };
+  departure?: { label: string; coordinates?: { lat: number; lng: number } };
+  arrival?: { label: string; coordinates?: { lat: number; lng: number } };
+  polyline?: [number, number][];
+  simControlActive?: boolean;
   [key: string]: unknown;
 }
 

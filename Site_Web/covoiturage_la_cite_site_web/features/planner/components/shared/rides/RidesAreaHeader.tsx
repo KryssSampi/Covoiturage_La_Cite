@@ -107,7 +107,7 @@ export function RidesAreaHeader({
             >
               <FaArrowsRotate
                 size={10}
-                style={{ animation: isRefreshing ? "spin 1s linear infinite" : "none" }}
+                className={isRefreshing ? "animate-spin" : ""}
               />
               {isFr ? "Actualiser" : "Refresh"}
             </button>

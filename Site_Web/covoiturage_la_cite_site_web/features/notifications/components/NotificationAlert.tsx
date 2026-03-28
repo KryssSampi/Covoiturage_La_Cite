@@ -228,11 +228,11 @@ export function NotificationAlert({
       {isVisible && notification && (
         <motion.div
           key={notification.id}
-          initial={{ opacity: 0, y: -80, scale: 0.95 }}
+          initial={{ opacity: 0, y: -70, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -60, scale: 0.95 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed top-4 left-1/2 z-[9999] w-[calc(100%-2rem)] max-w-sm"
+          className="fixed top-15 left-4/9 z-9999 w-[calc(100%-2rem)] max-w-sm"
           style={{ transform: "translateX(-50%)" }}
         >
           <div

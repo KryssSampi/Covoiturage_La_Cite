@@ -89,22 +89,23 @@ function DialGoScore({ score, tier, rang }: { score: number; tier: string; rang:
             style={{ transition: isVisible ? "stroke-dashoffset 1.2s ease 0.2s" : "none" }}
           />
 
-          {/* Aiguille — motion.g pivoté autour du centre (100, 110) */}
-          <motion.g
-            initial={{ rotate: -90 }}
-            animate={controls}
-            style={{ transformOrigin: "100px 110px" }}
-          >
-            {/* Aiguille verticale (pointe vers le haut à rotation=0 → score 500) */}
-            <line
-              x1="100" y1="110" x2="100" y2="45"
-              stroke="#08316e" strokeWidth="2.5" strokeLinecap="round" opacity=".9"
-            />
-          </motion.g>
-
-          {/* Pivot central */}
-          <circle cx="100" cy="110" r="6" fill="#fff" stroke="#08316e" strokeWidth="2" />
-        </svg>
+            {/* Aiguille — seule la ligne est animée autour du pivot (100,110) */}
+            <motion.g
+              initial={{ rotate: -90 }}
+              className=""
+              animate={controls}
+              style={{ originX: "5px", originY: "65px" }}
+            >
+              {/* L'aiguille part du centre (100,110) vers le haut (100,45) */}
+              <line
+                x1="100" y1="110" x2="100" y2="45"
+                stroke="#08316e" strokeWidth="2.5" strokeLinecap="round" opacity=".9"
+              />
+                {/* Le cercle central reste fixe et n'est pas animé */}
+                              <circle cx="100" cy="110" r="6" fill="#fff" stroke="#08316e" strokeWidth="2" />
+          
+            </motion.g>
+          </svg>
 
         {/* Tier + Rang sous l'arc */}
         <div className="text-[11px] text-[#7a90b8] mt-1 flex items-center justify-center gap-1">

@@ -84,12 +84,32 @@ export const SEV_COLORS: Record<string, { bg: string; color: string }> = {
 };
 
 // ── Cibles du signalement ────────────────────────────────
-export const getCIBLES = (isFR: boolean): { id: CibleSignalement; label: string; sub: string; icone: ReactNode }[] => [
-  { id: 'conducteur', label: isFR ? 'La conductrice / Le conducteur' : 'The driver', sub: isFR ? 'Conduite, comportement, harcèlement, itinéraire…' : 'Driving, behaviour, harassment, route…', icone: <FaUserTie size={15} color={C.p} /> },
-  { id: 'trajet',     label: isFR ? 'Un problème lié au trajet'      : 'A trip-related issue',   sub: isFR ? 'Paiement, itinéraire, trajet fictif…' : 'Payment, route, fictitious trip…', icone: <FaCar size={15} color={C.p} /> },
-  { id: 'plateforme', label: isFR ? 'Un problème technique'          : 'A technical issue',      sub: isFR ? 'Bug, paiement incorrect, compte…' : 'Bug, incorrect payment, account…', icone: <FaMobileAlt size={15} color={C.p} /> },
-  { id: 'passager',   label: isFR ? 'Un autre passager'              : 'Another passenger',      sub: isFR ? 'Comportement, dégradation…' : 'Behaviour, damage…', icone: <FaUser size={15} color={C.p} /> },
-];
+export const getCIBLES = (
+  isFR: boolean,
+  role?: 'driver' | 'passenger',
+): { id: CibleSignalement; label: string; sub: string; icone: ReactNode }[] => {
+  const all: { id: CibleSignalement; label: string; sub: string; icone: ReactNode }[] = [
+    { id: 'conducteur', label: isFR ? 'La conductrice / Le conducteur' : 'The driver',       sub: isFR ? 'Conduite, comportement, harcèlement, itinéraire…' : 'Driving, behaviour, harassment, route…', icone: <FaUserTie size={15} color={C.p} /> },
+    { id: 'passager',   label: isFR ? 'Un passager du trajet'          : 'A trip passenger', sub: isFR ? 'Comportement, retard, dégradation…' : 'Behaviour, lateness, damage…',                icone: <FaUser    size={15} color={C.p} /> },
+    { id: 'trajet',     label: isFR ? 'Un problème lié au trajet'      : 'A trip-related issue', sub: isFR ? 'Paiement, itinéraire, trajet fictif…' : 'Payment, route, fictitious trip…',        icone: <FaCar     size={15} color={C.p} /> },
+    { id: 'plateforme', label: isFR ? 'Un problème technique'          : 'A technical issue',    sub: isFR ? 'Bug, paiement incorrect, compte…' : 'Bug, incorrect payment, account…',            icone: <FaMobileAlt size={15} color={C.p} /> },
+  ];
+
+  if (role === 'driver') {
+    // Le conducteur ne peut pas se signaler lui-même → retire la cible 'conducteur'
+    return all.filter((c) => c.id !== 'conducteur');
+  }
+  if (role === 'passenger') {
+    // Le passager signale en priorité le conducteur, puis les autres cibles
+    return [
+      all.find((c) => c.id === 'conducteur')!,
+      all.find((c) => c.id === 'trajet')!,
+      all.find((c) => c.id === 'plateforme')!,
+      all.find((c) => c.id === 'passager')!,
+    ];
+  }
+  return all;
+};
 
 // ── Options de niveau de sécurité ────────────────────────
 export const getSEV_OPTIONS = (isFR: boolean): { id: NiveauSecurite; label: string; desc: string; icone: ReactNode; bg: string; color: string; badge: string; badgeBg: string }[] => [

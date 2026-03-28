@@ -4,7 +4,7 @@
     "userId": "USR-2026-00012",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Sophie Leclerc souhaite rejoindre votre trajet Kanata Centrum -> Montreal Centre le 2026-05-03 a 17:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Sophie Leclerc souhaite rejoindre votre trajet Kanata Centrum -> Montreal Centre le 2026-05-04 a 17:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00012?tab=reservations&reservationId=RSV-2026-00084",
@@ -15,7 +15,7 @@
       "tripId": "TRJ-2026-00072",
       "departure": "Kanata Centrum",
       "arrival": "Montreal Centre",
-      "date": "2026-05-03",
+      "date": "2026-05-04",
       "time": "17:40",
       "price": 7,
       "availableSeats": 3,
@@ -28,14 +28,14 @@
       "passengerTripCount": 6,
       "driverName": "Karim Diallo"
     },
-    "createdAt": "2026-05-01T09:15:00.000Z"
+    "createdAt": "2026-05-02T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00024",
     "userId": "USR-2026-00001",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Kanata Centrum -> Montreal Centre le 2026-05-03 a 17:40 a bien ete envoyee a Karim Diallo. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Kanata Centrum -> Montreal Centre le 2026-05-04 a 17:40 a bien ete envoyee a Karim Diallo. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00084",
@@ -46,7 +46,7 @@
       "tripId": "TRJ-2026-00072",
       "departure": "Kanata Centrum",
       "arrival": "Montreal Centre",
-      "date": "2026-05-03",
+      "date": "2026-05-04",
       "time": "17:40",
       "price": 8.05,
       "estimatedDurationMinutes": 470
@@ -56,14 +56,14 @@
       "driverName": "Karim Diallo",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-05-01T09:15:00.000Z"
+    "createdAt": "2026-05-02T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00011",
     "userId": "USR-2026-00008",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Sophie Leclerc souhaite rejoindre votre trajet Orleans Park and Ride -> Campus La Cite le 2026-04-28 a 17:05. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Sophie Leclerc souhaite rejoindre votre trajet Orleans Park and Ride -> Campus La Cite le 2026-04-29 a 17:05. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00008?tab=reservations&reservationId=RSV-2026-00080",
@@ -74,7 +74,7 @@
       "tripId": "TRJ-2026-00068",
       "departure": "Orleans Park and Ride",
       "arrival": "Campus La Cite",
-      "date": "2026-04-28",
+      "date": "2026-04-29",
       "time": "17:05",
       "price": 7,
       "availableSeats": 3,
@@ -87,14 +87,14 @@
       "passengerTripCount": 6,
       "driverName": "Louis Pelletier"
     },
-    "createdAt": "2026-04-26T09:15:00.000Z"
+    "createdAt": "2026-04-27T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00023",
     "userId": "USR-2026-00001",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Orleans Park and Ride -> Campus La Cite le 2026-04-28 a 17:05 a bien ete envoyee a Louis Pelletier. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Orleans Park and Ride -> Campus La Cite le 2026-04-29 a 17:05 a bien ete envoyee a Louis Pelletier. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00080",
@@ -105,7 +105,7 @@
       "tripId": "TRJ-2026-00068",
       "departure": "Orleans Park and Ride",
       "arrival": "Campus La Cite",
-      "date": "2026-04-28",
+      "date": "2026-04-29",
       "time": "17:05",
       "price": 8.05,
       "estimatedDurationMinutes": 37
@@ -115,14 +115,14 @@
       "driverName": "Louis Pelletier",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-26T09:15:00.000Z"
+    "createdAt": "2026-04-27T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00042",
     "userId": "USR-2026-00002",
     "type": "reservation_refused",
     "title": "Demande non retenue",
-    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-26 a 07:35 n'a pas ete retenue par Nadia Bouchard. Motif : Le conducteur a retenu un autre profil pour ce trajet.. D'autres trajets similaires sont disponibles.",
+    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-27 a 07:35 n'a pas ete retenue par Nadia Bouchard. Motif : Le conducteur a retenu un autre profil pour ce trajet.. D'autres trajets similaires sont disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/search/USR-2026-00002",
@@ -133,7 +133,7 @@
       "tripId": "TRJ-2026-00065",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-04-26",
+      "date": "2026-04-27",
       "time": "07:35",
       "price": 5.75
     },
@@ -141,15 +141,15 @@
       "reservationId": "RSV-2026-00077",
       "driverName": "Nadia Bouchard"
     },
-    "createdAt": "2026-04-25T12:05:00.000Z"
+    "createdAt": "2026-04-26T12:05:00.000Z"
   },
   {
     "id": "NTF-2026-00039",
     "userId": "USR-2026-00001",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Marie Tremblay a accepte votre demande pour le trajet Campus La Cite -> Rideau Centre le 2026-04-25 a 08:10. Votre place est reservee — soyez ponctuel·le ! Prix : 5.75 $.",
-    "isRead": true,
+    "message": "Marie Tremblay a accepte votre demande pour le trajet Campus La Cite -> Rideau Centre le 2026-04-26 a 08:10. Votre place est reservee — soyez ponctuel·le ! Prix : 5.75 $.",
+    "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00063",
     "linkLabel": "Voir mon trajet",
@@ -159,7 +159,7 @@
       "tripId": "TRJ-2026-00063",
       "departure": "Campus La Cite",
       "arrival": "Rideau Centre",
-      "date": "2026-04-25",
+      "date": "2026-04-26",
       "time": "08:10",
       "price": 5.75,
       "availableSeats": 2,
@@ -170,15 +170,14 @@
       "driverName": "Marie Tremblay",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-24T11:05:00.000Z",
-    "updatedAt": "2026-03-27T01:09:36.100Z"
+    "createdAt": "2026-04-25T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00010",
     "userId": "USR-2026-00005",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Sophie Leclerc souhaite rejoindre votre trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-26 a 07:35. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Sophie Leclerc souhaite rejoindre votre trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-27 a 07:35. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00005?tab=reservations&reservationId=RSV-2026-00076",
@@ -189,7 +188,7 @@
       "tripId": "TRJ-2026-00065",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-04-26",
+      "date": "2026-04-27",
       "time": "07:35",
       "price": 5,
       "availableSeats": 3,
@@ -202,14 +201,14 @@
       "passengerTripCount": 6,
       "driverName": "Nadia Bouchard"
     },
-    "createdAt": "2026-04-24T09:15:00.000Z"
+    "createdAt": "2026-04-25T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00022",
     "userId": "USR-2026-00001",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-26 a 07:35 a bien ete envoyee a Nadia Bouchard. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-27 a 07:35 a bien ete envoyee a Nadia Bouchard. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00076",
@@ -220,7 +219,7 @@
       "tripId": "TRJ-2026-00065",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-04-26",
+      "date": "2026-04-27",
       "time": "07:35",
       "price": 5.75,
       "estimatedDurationMinutes": 72
@@ -230,14 +229,14 @@
       "driverName": "Nadia Bouchard",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-24T09:15:00.000Z"
+    "createdAt": "2026-04-25T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00009",
     "userId": "USR-2026-00001",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Ahmed Ibrahim souhaite rejoindre votre trajet Campus La Cite -> Place d'Orleans le 2026-04-24 a 07:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Ahmed Ibrahim souhaite rejoindre votre trajet Campus La Cite -> Place d'Orleans le 2026-04-25 a 07:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00072",
@@ -248,7 +247,7 @@
       "tripId": "TRJ-2026-00061",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-04-24",
+      "date": "2026-04-25",
       "time": "07:40",
       "price": 5,
       "availableSeats": 3,
@@ -261,14 +260,14 @@
       "passengerTripCount": 9,
       "driverName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-22T09:15:00.000Z"
+    "createdAt": "2026-04-23T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00021",
     "userId": "USR-2026-00002",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-24 a 07:40 a bien ete envoyee a Sophie Leclerc. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-25 a 07:40 a bien ete envoyee a Sophie Leclerc. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00002?tab=reservations&reservationId=RSV-2026-00072",
@@ -279,7 +278,7 @@
       "tripId": "TRJ-2026-00061",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-04-24",
+      "date": "2026-04-25",
       "time": "07:40",
       "price": 5.75,
       "estimatedDurationMinutes": 192
@@ -289,14 +288,14 @@
       "driverName": "Sophie Leclerc",
       "passengerName": "Ahmed Ibrahim"
     },
-    "createdAt": "2026-04-22T09:15:00.000Z"
+    "createdAt": "2026-04-23T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00046",
     "userId": "USR-2026-00011",
     "type": "reservation_cancelled",
     "title": "Reservation annulee par le passager",
-    "message": "Sophie Leclerc a annule sa reservation pour votre trajet Barrhaven Centre -> Campus La Cite le 2026-04-18 a 08:25. Une place s'est liberee automatiquement.",
+    "message": "Sophie Leclerc a annule sa reservation pour votre trajet Barrhaven Centre -> Campus La Cite le 2026-04-19 a 08:25. Une place s'est liberee automatiquement.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00011?tab=trips&tripId=TRJ-2026-00047",
@@ -307,7 +306,7 @@
       "tripId": "TRJ-2026-00047",
       "departure": "Barrhaven Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-04-18",
+      "date": "2026-04-19",
       "time": "08:25",
       "price": 6,
       "availableSeats": 3
@@ -317,14 +316,14 @@
       "passengerName": "Sophie Leclerc",
       "driverName": "Maya Lavoie"
     },
-    "createdAt": "2026-04-17T11:05:00.000Z"
+    "createdAt": "2026-04-18T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00008",
     "userId": "USR-2026-00012",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Sophie Leclerc souhaite rejoindre votre trajet Kanata Centrum -> Montreal Centre le 2026-04-19 a 17:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Sophie Leclerc souhaite rejoindre votre trajet Kanata Centrum -> Montreal Centre le 2026-04-20 a 17:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00012?tab=reservations&reservationId=RSV-2026-00056",
@@ -335,7 +334,7 @@
       "tripId": "TRJ-2026-00048",
       "departure": "Kanata Centrum",
       "arrival": "Montreal Centre",
-      "date": "2026-04-19",
+      "date": "2026-04-20",
       "time": "17:40",
       "price": 7,
       "availableSeats": 3,
@@ -348,14 +347,14 @@
       "passengerTripCount": 6,
       "driverName": "Karim Diallo"
     },
-    "createdAt": "2026-04-17T09:15:00.000Z"
+    "createdAt": "2026-04-18T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00020",
     "userId": "USR-2026-00001",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Kanata Centrum -> Montreal Centre le 2026-04-19 a 17:40 a bien ete envoyee a Karim Diallo. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Kanata Centrum -> Montreal Centre le 2026-04-20 a 17:40 a bien ete envoyee a Karim Diallo. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00056",
@@ -366,7 +365,7 @@
       "tripId": "TRJ-2026-00048",
       "departure": "Kanata Centrum",
       "arrival": "Montreal Centre",
-      "date": "2026-04-19",
+      "date": "2026-04-20",
       "time": "17:40",
       "price": 8.05,
       "estimatedDurationMinutes": 470
@@ -376,14 +375,14 @@
       "driverName": "Karim Diallo",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-17T09:15:00.000Z"
+    "createdAt": "2026-04-18T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00038",
     "userId": "USR-2026-00002",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Sara Cote a accepte votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-15 a 07:55. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
+    "message": "Sara Cote a accepte votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-16 a 07:55. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00002?tripId=TRJ-2026-00045",
@@ -394,7 +393,7 @@
       "tripId": "TRJ-2026-00045",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-04-15",
+      "date": "2026-04-16",
       "time": "07:55",
       "price": 6.9,
       "availableSeats": 0,
@@ -405,14 +404,14 @@
       "driverName": "Sara Cote",
       "passengerName": "Ahmed Ibrahim"
     },
-    "createdAt": "2026-04-14T12:05:00.000Z"
+    "createdAt": "2026-04-15T12:05:00.000Z"
   },
   {
     "id": "NTF-2026-00037",
     "userId": "USR-2026-00001",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Sara Cote a accepte votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-15 a 07:55. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
+    "message": "Sara Cote a accepte votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-16 a 07:55. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00045",
@@ -423,7 +422,7 @@
       "tripId": "TRJ-2026-00045",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-04-15",
+      "date": "2026-04-16",
       "time": "07:55",
       "price": 6.9,
       "availableSeats": 0,
@@ -434,14 +433,14 @@
       "driverName": "Sara Cote",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-14T11:05:00.000Z"
+    "createdAt": "2026-04-15T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00047",
     "userId": "USR-2026-00004",
     "type": "reservation_cancelled",
     "title": "Reservation annulee par le passager",
-    "message": "Sophie Leclerc a annule sa reservation pour votre trajet ByWard Market -> South Keys le 2026-04-15 a 18:00. Une place s'est liberee automatiquement.",
+    "message": "Sophie Leclerc a annule sa reservation pour votre trajet ByWard Market -> South Keys le 2026-04-16 a 18:00. Une place s'est liberee automatiquement.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00004?tab=trips&tripId=TRJ-2026-00052",
@@ -452,7 +451,7 @@
       "tripId": "TRJ-2026-00052",
       "departure": "ByWard Market",
       "arrival": "South Keys",
-      "date": "2026-04-15",
+      "date": "2026-04-16",
       "time": "18:00",
       "price": 8,
       "availableSeats": 3
@@ -462,14 +461,14 @@
       "passengerName": "Sophie Leclerc",
       "driverName": "Jean-Paul Gagnon"
     },
-    "createdAt": "2026-04-14T11:05:00.000Z"
+    "createdAt": "2026-04-15T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00036",
     "userId": "USR-2026-00002",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Fatima Benali a accepte votre demande pour le trajet Campus La Cite -> Orleans Park and Ride le 2026-04-13 a 08:05. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
+    "message": "Fatima Benali a accepte votre demande pour le trajet Campus La Cite -> Orleans Park and Ride le 2026-04-14 a 08:05. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00002?tripId=TRJ-2026-00043",
@@ -480,7 +479,7 @@
       "tripId": "TRJ-2026-00043",
       "departure": "Campus La Cite",
       "arrival": "Orleans Park and Ride",
-      "date": "2026-04-13",
+      "date": "2026-04-14",
       "time": "08:05",
       "price": 6.9,
       "availableSeats": 1,
@@ -491,14 +490,14 @@
       "driverName": "Fatima Benali",
       "passengerName": "Ahmed Ibrahim"
     },
-    "createdAt": "2026-04-12T12:05:00.000Z"
+    "createdAt": "2026-04-13T12:05:00.000Z"
   },
   {
     "id": "NTF-2026-00035",
     "userId": "USR-2026-00001",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Fatima Benali a accepte votre demande pour le trajet Campus La Cite -> Orleans Park and Ride le 2026-04-13 a 08:05. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
+    "message": "Fatima Benali a accepte votre demande pour le trajet Campus La Cite -> Orleans Park and Ride le 2026-04-14 a 08:05. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00043",
@@ -509,7 +508,7 @@
       "tripId": "TRJ-2026-00043",
       "departure": "Campus La Cite",
       "arrival": "Orleans Park and Ride",
-      "date": "2026-04-13",
+      "date": "2026-04-14",
       "time": "08:05",
       "price": 6.9,
       "availableSeats": 1,
@@ -520,14 +519,14 @@
       "driverName": "Fatima Benali",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-12T11:05:00.000Z"
+    "createdAt": "2026-04-13T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00007",
     "userId": "USR-2026-00008",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Sophie Leclerc souhaite rejoindre votre trajet Orleans Park and Ride -> Campus La Cite le 2026-04-14 a 17:05. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Sophie Leclerc souhaite rejoindre votre trajet Orleans Park and Ride -> Campus La Cite le 2026-04-15 a 17:05. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00008?tab=reservations&reservationId=RSV-2026-00052",
@@ -538,7 +537,7 @@
       "tripId": "TRJ-2026-00044",
       "departure": "Orleans Park and Ride",
       "arrival": "Campus La Cite",
-      "date": "2026-04-14",
+      "date": "2026-04-15",
       "time": "17:05",
       "price": 7,
       "availableSeats": 3,
@@ -551,14 +550,14 @@
       "passengerTripCount": 6,
       "driverName": "Louis Pelletier"
     },
-    "createdAt": "2026-04-12T09:15:00.000Z"
+    "createdAt": "2026-04-13T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00019",
     "userId": "USR-2026-00001",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Orleans Park and Ride -> Campus La Cite le 2026-04-14 a 17:05 a bien ete envoyee a Louis Pelletier. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Orleans Park and Ride -> Campus La Cite le 2026-04-15 a 17:05 a bien ete envoyee a Louis Pelletier. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00052",
@@ -569,7 +568,7 @@
       "tripId": "TRJ-2026-00044",
       "departure": "Orleans Park and Ride",
       "arrival": "Campus La Cite",
-      "date": "2026-04-14",
+      "date": "2026-04-15",
       "time": "17:05",
       "price": 8.05,
       "estimatedDurationMinutes": 37
@@ -579,15 +578,14 @@
       "driverName": "Louis Pelletier",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-12T09:15:00.000Z",
-    "updatedAt": "2026-03-27T01:09:13.900Z"
+    "createdAt": "2026-04-13T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00041",
     "userId": "USR-2026-00002",
     "type": "reservation_refused",
     "title": "Demande non retenue",
-    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-12 a 07:35 n'a pas ete retenue par Nadia Bouchard. Motif : Le conducteur a retenu un autre profil pour ce trajet.. D'autres trajets similaires sont disponibles.",
+    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-13 a 07:35 n'a pas ete retenue par Nadia Bouchard. Motif : Le conducteur a retenu un autre profil pour ce trajet.. D'autres trajets similaires sont disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/search/USR-2026-00002",
@@ -598,7 +596,7 @@
       "tripId": "TRJ-2026-00041",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-04-12",
+      "date": "2026-04-13",
       "time": "07:35",
       "price": 5.75
     },
@@ -606,14 +604,14 @@
       "reservationId": "RSV-2026-00049",
       "driverName": "Nadia Bouchard"
     },
-    "createdAt": "2026-04-11T12:05:00.000Z"
+    "createdAt": "2026-04-12T12:05:00.000Z"
   },
   {
     "id": "NTF-2026-00034",
     "userId": "USR-2026-00002",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Jean-Paul Gagnon a accepte votre demande pour le trajet Rideau Centre -> Campus La Cite le 2026-04-11 a 17:45. Votre place est reservee — soyez ponctuel·le ! Prix : 8.05 $.",
+    "message": "Jean-Paul Gagnon a accepte votre demande pour le trajet Rideau Centre -> Campus La Cite le 2026-04-12 a 17:45. Votre place est reservee — soyez ponctuel·le ! Prix : 8.05 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00002?tripId=TRJ-2026-00040",
@@ -624,7 +622,7 @@
       "tripId": "TRJ-2026-00040",
       "departure": "Rideau Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-04-11",
+      "date": "2026-04-12",
       "time": "17:45",
       "price": 8.05,
       "availableSeats": 0,
@@ -635,14 +633,14 @@
       "driverName": "Jean-Paul Gagnon",
       "passengerName": "Ahmed Ibrahim"
     },
-    "createdAt": "2026-04-10T12:05:00.000Z"
+    "createdAt": "2026-04-11T12:05:00.000Z"
   },
   {
     "id": "NTF-2026-00032",
     "userId": "USR-2026-00001",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Marie Tremblay a accepte votre demande pour le trajet Campus La Cite -> Rideau Centre le 2026-04-11 a 08:10. Votre place est reservee — soyez ponctuel·le ! Prix : 5.75 $.",
+    "message": "Marie Tremblay a accepte votre demande pour le trajet Campus La Cite -> Rideau Centre le 2026-04-12 a 08:10. Votre place est reservee — soyez ponctuel·le ! Prix : 5.75 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00039",
@@ -653,7 +651,7 @@
       "tripId": "TRJ-2026-00039",
       "departure": "Campus La Cite",
       "arrival": "Rideau Centre",
-      "date": "2026-04-11",
+      "date": "2026-04-12",
       "time": "08:10",
       "price": 5.75,
       "availableSeats": 2,
@@ -664,14 +662,14 @@
       "driverName": "Marie Tremblay",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-10T11:05:00.000Z"
+    "createdAt": "2026-04-11T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00033",
     "userId": "USR-2026-00001",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Jean-Paul Gagnon a accepte votre demande pour le trajet Rideau Centre -> Campus La Cite le 2026-04-11 a 17:45. Votre place est reservee — soyez ponctuel·le ! Prix : 8.05 $.",
+    "message": "Jean-Paul Gagnon a accepte votre demande pour le trajet Rideau Centre -> Campus La Cite le 2026-04-12 a 17:45. Votre place est reservee — soyez ponctuel·le ! Prix : 8.05 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00040",
@@ -682,7 +680,7 @@
       "tripId": "TRJ-2026-00040",
       "departure": "Rideau Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-04-11",
+      "date": "2026-04-12",
       "time": "17:45",
       "price": 8.05,
       "availableSeats": 0,
@@ -693,14 +691,14 @@
       "driverName": "Jean-Paul Gagnon",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-10T11:05:00.000Z"
+    "createdAt": "2026-04-11T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00006",
     "userId": "USR-2026-00005",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Sophie Leclerc souhaite rejoindre votre trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-12 a 07:35. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Sophie Leclerc souhaite rejoindre votre trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-13 a 07:35. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00005?tab=reservations&reservationId=RSV-2026-00048",
@@ -711,7 +709,7 @@
       "tripId": "TRJ-2026-00041",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-04-12",
+      "date": "2026-04-13",
       "time": "07:35",
       "price": 5,
       "availableSeats": 3,
@@ -724,14 +722,14 @@
       "passengerTripCount": 6,
       "driverName": "Nadia Bouchard"
     },
-    "createdAt": "2026-04-10T09:15:00.000Z"
+    "createdAt": "2026-04-11T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00018",
     "userId": "USR-2026-00001",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-12 a 07:35 a bien ete envoyee a Nadia Bouchard. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-04-13 a 07:35 a bien ete envoyee a Nadia Bouchard. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00048",
@@ -742,7 +740,7 @@
       "tripId": "TRJ-2026-00041",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-04-12",
+      "date": "2026-04-13",
       "time": "07:35",
       "price": 5.75,
       "estimatedDurationMinutes": 157
@@ -752,14 +750,14 @@
       "driverName": "Nadia Bouchard",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-10T09:15:00.000Z"
+    "createdAt": "2026-04-11T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00005",
     "userId": "USR-2026-00001",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Ahmed Ibrahim souhaite rejoindre votre trajet Campus La Cite -> Place d'Orleans le 2026-04-10 a 07:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Ahmed Ibrahim souhaite rejoindre votre trajet Campus La Cite -> Place d'Orleans le 2026-04-11 a 07:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00044",
@@ -770,7 +768,7 @@
       "tripId": "TRJ-2026-00037",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-04-10",
+      "date": "2026-04-11",
       "time": "07:40",
       "price": 5,
       "availableSeats": 3,
@@ -783,14 +781,14 @@
       "passengerTripCount": 9,
       "driverName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-08T09:15:00.000Z"
+    "createdAt": "2026-04-09T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00017",
     "userId": "USR-2026-00002",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-10 a 07:40 a bien ete envoyee a Sophie Leclerc. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-11 a 07:40 a bien ete envoyee a Sophie Leclerc. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00002?tab=reservations&reservationId=RSV-2026-00044",
@@ -801,7 +799,7 @@
       "tripId": "TRJ-2026-00037",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-04-10",
+      "date": "2026-04-11",
       "time": "07:40",
       "price": 5.75,
       "estimatedDurationMinutes": 59
@@ -811,14 +809,14 @@
       "driverName": "Sophie Leclerc",
       "passengerName": "Ahmed Ibrahim"
     },
-    "createdAt": "2026-04-08T09:15:00.000Z"
+    "createdAt": "2026-04-09T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00044",
     "userId": "USR-2026-00011",
     "type": "reservation_cancelled",
     "title": "Reservation annulee par le passager",
-    "message": "Sophie Leclerc a annule sa reservation pour votre trajet Barrhaven Centre -> Campus La Cite le 2026-04-04 a 08:25. Une place s'est liberee automatiquement.",
+    "message": "Sophie Leclerc a annule sa reservation pour votre trajet Barrhaven Centre -> Campus La Cite le 2026-04-05 a 08:25. Une place s'est liberee automatiquement.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00011?tab=trips&tripId=TRJ-2026-00023",
@@ -829,7 +827,7 @@
       "tripId": "TRJ-2026-00023",
       "departure": "Barrhaven Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-04-04",
+      "date": "2026-04-05",
       "time": "08:25",
       "price": 6,
       "availableSeats": 3
@@ -839,14 +837,14 @@
       "passengerName": "Sophie Leclerc",
       "driverName": "Maya Lavoie"
     },
-    "createdAt": "2026-04-03T11:05:00.000Z"
+    "createdAt": "2026-04-04T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00064",
     "userId": "USR-2026-00001",
     "type": "trip_cancelled",
     "title": "Trajet annule par le conducteur",
-    "message": "Le trajet Barrhaven Centre -> Campus La Cite prevu le 2026-04-04 a 08:25 a ete annule par Maya Lavoie. Des trajets alternatifs sont disponibles sur la plateforme.",
+    "message": "Le trajet Barrhaven Centre -> Campus La Cite prevu le 2026-04-05 a 08:25 a ete annule par Maya Lavoie. Des trajets alternatifs sont disponibles sur la plateforme.",
     "isRead": true,
     "isImportant": true,
     "link": "/passenger/search/USR-2026-00001",
@@ -857,18 +855,18 @@
       "tripId": "TRJ-2026-00023",
       "departure": "Barrhaven Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-04-04",
+      "date": "2026-04-05",
       "time": "08:25",
       "price": 6.9
     },
-    "createdAt": "2026-04-03T11:05:00.000Z"
+    "createdAt": "2026-04-04T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00004",
     "userId": "USR-2026-00012",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Sophie Leclerc souhaite rejoindre votre trajet Kanata Centrum -> Montreal Centre le 2026-04-05 a 17:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Sophie Leclerc souhaite rejoindre votre trajet Kanata Centrum -> Montreal Centre le 2026-04-06 a 17:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00012?tab=reservations&reservationId=RSV-2026-00028",
@@ -879,7 +877,7 @@
       "tripId": "TRJ-2026-00024",
       "departure": "Kanata Centrum",
       "arrival": "Montreal Centre",
-      "date": "2026-04-05",
+      "date": "2026-04-06",
       "time": "17:40",
       "price": 7,
       "availableSeats": 3,
@@ -892,14 +890,14 @@
       "passengerTripCount": 6,
       "driverName": "Karim Diallo"
     },
-    "createdAt": "2026-04-03T09:15:00.000Z"
+    "createdAt": "2026-04-04T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00016",
     "userId": "USR-2026-00001",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Kanata Centrum -> Montreal Centre le 2026-04-05 a 17:40 a bien ete envoyee a Karim Diallo. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Kanata Centrum -> Montreal Centre le 2026-04-06 a 17:40 a bien ete envoyee a Karim Diallo. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00028",
@@ -910,7 +908,7 @@
       "tripId": "TRJ-2026-00024",
       "departure": "Kanata Centrum",
       "arrival": "Montreal Centre",
-      "date": "2026-04-05",
+      "date": "2026-04-06",
       "time": "17:40",
       "price": 8.05,
       "estimatedDurationMinutes": 470
@@ -920,14 +918,14 @@
       "driverName": "Karim Diallo",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-04-03T09:15:00.000Z"
+    "createdAt": "2026-04-04T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00031",
     "userId": "USR-2026-00002",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Sara Cote a accepte votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-01 a 07:55. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
+    "message": "Sara Cote a accepte votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-02 a 07:55. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00002?tripId=TRJ-2026-00021",
@@ -938,7 +936,7 @@
       "tripId": "TRJ-2026-00021",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-04-01",
+      "date": "2026-04-02",
       "time": "07:55",
       "price": 6.9,
       "availableSeats": 0,
@@ -949,14 +947,14 @@
       "driverName": "Sara Cote",
       "passengerName": "Ahmed Ibrahim"
     },
-    "createdAt": "2026-03-31T12:05:00.000Z"
+    "createdAt": "2026-04-01T12:05:00.000Z"
   },
   {
     "id": "NTF-2026-00030",
     "userId": "USR-2026-00001",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Sara Cote a accepte votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-01 a 07:55. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
+    "message": "Sara Cote a accepte votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-04-02 a 07:55. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00021",
@@ -967,7 +965,7 @@
       "tripId": "TRJ-2026-00021",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-04-01",
+      "date": "2026-04-02",
       "time": "07:55",
       "price": 6.9,
       "availableSeats": 0,
@@ -978,14 +976,14 @@
       "driverName": "Sara Cote",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-03-31T11:05:00.000Z"
+    "createdAt": "2026-04-01T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00045",
     "userId": "USR-2026-00004",
     "type": "reservation_cancelled",
     "title": "Reservation annulee par le passager",
-    "message": "Sophie Leclerc a annule sa reservation pour votre trajet ByWard Market -> South Keys le 2026-04-01 a 18:00. Une place s'est liberee automatiquement.",
+    "message": "Sophie Leclerc a annule sa reservation pour votre trajet ByWard Market -> South Keys le 2026-04-02 a 18:00. Une place s'est liberee automatiquement.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00004?tab=trips&tripId=TRJ-2026-00028",
@@ -996,7 +994,7 @@
       "tripId": "TRJ-2026-00028",
       "departure": "ByWard Market",
       "arrival": "South Keys",
-      "date": "2026-04-01",
+      "date": "2026-04-02",
       "time": "18:00",
       "price": 8,
       "availableSeats": 3
@@ -1006,14 +1004,14 @@
       "passengerName": "Sophie Leclerc",
       "driverName": "Jean-Paul Gagnon"
     },
-    "createdAt": "2026-03-31T11:05:00.000Z"
+    "createdAt": "2026-04-01T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00065",
     "userId": "USR-2026-00001",
     "type": "trip_cancelled",
     "title": "Trajet annule par le conducteur",
-    "message": "Le trajet ByWard Market -> South Keys prevu le 2026-04-01 a 18:00 a ete annule par Jean-Paul Gagnon. Des trajets alternatifs sont disponibles sur la plateforme.",
+    "message": "Le trajet ByWard Market -> South Keys prevu le 2026-04-02 a 18:00 a ete annule par Jean-Paul Gagnon. Des trajets alternatifs sont disponibles sur la plateforme.",
     "isRead": true,
     "isImportant": true,
     "link": "/passenger/search/USR-2026-00001",
@@ -1024,18 +1022,18 @@
       "tripId": "TRJ-2026-00028",
       "departure": "ByWard Market",
       "arrival": "South Keys",
-      "date": "2026-04-01",
+      "date": "2026-04-02",
       "time": "18:00",
       "price": 9.2
     },
-    "createdAt": "2026-03-31T11:05:00.000Z"
+    "createdAt": "2026-04-01T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00029",
     "userId": "USR-2026-00002",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Fatima Benali a accepte votre demande pour le trajet Campus La Cite -> Orleans Park and Ride le 2026-03-30 a 08:05. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
+    "message": "Fatima Benali a accepte votre demande pour le trajet Campus La Cite -> Orleans Park and Ride le 2026-03-31 a 08:05. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00002?tripId=TRJ-2026-00019",
@@ -1046,7 +1044,7 @@
       "tripId": "TRJ-2026-00019",
       "departure": "Campus La Cite",
       "arrival": "Orleans Park and Ride",
-      "date": "2026-03-30",
+      "date": "2026-03-31",
       "time": "08:05",
       "price": 6.9,
       "availableSeats": 1,
@@ -1057,14 +1055,14 @@
       "driverName": "Fatima Benali",
       "passengerName": "Ahmed Ibrahim"
     },
-    "createdAt": "2026-03-29T12:05:00.000Z"
+    "createdAt": "2026-03-30T12:05:00.000Z"
   },
   {
     "id": "NTF-2026-00028",
     "userId": "USR-2026-00001",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Fatima Benali a accepte votre demande pour le trajet Campus La Cite -> Orleans Park and Ride le 2026-03-30 a 08:05. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
+    "message": "Fatima Benali a accepte votre demande pour le trajet Campus La Cite -> Orleans Park and Ride le 2026-03-31 a 08:05. Votre place est reservee — soyez ponctuel·le ! Prix : 6.9 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00019",
@@ -1075,7 +1073,7 @@
       "tripId": "TRJ-2026-00019",
       "departure": "Campus La Cite",
       "arrival": "Orleans Park and Ride",
-      "date": "2026-03-30",
+      "date": "2026-03-31",
       "time": "08:05",
       "price": 6.9,
       "availableSeats": 1,
@@ -1086,14 +1084,14 @@
       "driverName": "Fatima Benali",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-03-29T11:05:00.000Z"
+    "createdAt": "2026-03-30T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00003",
     "userId": "USR-2026-00008",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Sophie Leclerc souhaite rejoindre votre trajet Orleans Park and Ride -> Campus La Cite le 2026-03-31 a 17:05. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Sophie Leclerc souhaite rejoindre votre trajet Orleans Park and Ride -> Campus La Cite le 2026-04-01 a 17:05. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00008?tab=reservations&reservationId=RSV-2026-00024",
@@ -1104,7 +1102,7 @@
       "tripId": "TRJ-2026-00020",
       "departure": "Orleans Park and Ride",
       "arrival": "Campus La Cite",
-      "date": "2026-03-31",
+      "date": "2026-04-01",
       "time": "17:05",
       "price": 7,
       "availableSeats": 3,
@@ -1117,14 +1115,14 @@
       "passengerTripCount": 6,
       "driverName": "Louis Pelletier"
     },
-    "createdAt": "2026-03-29T09:15:00.000Z"
+    "createdAt": "2026-03-30T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00015",
     "userId": "USR-2026-00001",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Orleans Park and Ride -> Campus La Cite le 2026-03-31 a 17:05 a bien ete envoyee a Louis Pelletier. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Orleans Park and Ride -> Campus La Cite le 2026-04-01 a 17:05 a bien ete envoyee a Louis Pelletier. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00024",
@@ -1135,7 +1133,7 @@
       "tripId": "TRJ-2026-00020",
       "departure": "Orleans Park and Ride",
       "arrival": "Campus La Cite",
-      "date": "2026-03-31",
+      "date": "2026-04-01",
       "time": "17:05",
       "price": 8.05,
       "estimatedDurationMinutes": 37
@@ -1145,7 +1143,7 @@
       "driverName": "Louis Pelletier",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-03-29T09:15:00.000Z"
+    "createdAt": "2026-03-30T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00081",
@@ -1159,14 +1157,14 @@
     "linkLabel": "Voir mes finances",
     "relatedTripId": "TRJ-2026-00016",
     "relatedReservationId": null,
-    "createdAt": "2026-03-28T14:00:00.000Z"
+    "createdAt": "2026-03-29T14:00:00.000Z"
   },
   {
     "id": "NTF-2026-00040",
     "userId": "USR-2026-00002",
     "type": "reservation_refused",
     "title": "Demande non retenue",
-    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-03-29 a 07:35 n'a pas ete retenue par Nadia Bouchard. Motif : Le conducteur a retenu un autre profil pour ce trajet.. D'autres trajets similaires sont disponibles.",
+    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-03-30 a 07:35 n'a pas ete retenue par Nadia Bouchard. Motif : Le conducteur a retenu un autre profil pour ce trajet.. D'autres trajets similaires sont disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/search/USR-2026-00002",
@@ -1177,7 +1175,7 @@
       "tripId": "TRJ-2026-00017",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-03-29",
+      "date": "2026-03-30",
       "time": "07:35",
       "price": 5.75
     },
@@ -1185,14 +1183,14 @@
       "reservationId": "RSV-2026-00021",
       "driverName": "Nadia Bouchard"
     },
-    "createdAt": "2026-03-28T12:05:00.000Z"
+    "createdAt": "2026-03-29T12:05:00.000Z"
   },
   {
     "id": "NTF-2026-00027",
     "userId": "USR-2026-00002",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Jean-Paul Gagnon a accepte votre demande pour le trajet Rideau Centre -> Campus La Cite le 2026-03-28 a 17:45. Votre place est reservee — soyez ponctuel·le ! Prix : 8.05 $.",
+    "message": "Jean-Paul Gagnon a accepte votre demande pour le trajet Rideau Centre -> Campus La Cite le 2026-03-29 a 17:45. Votre place est reservee — soyez ponctuel·le ! Prix : 8.05 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00002?tripId=TRJ-2026-00016",
@@ -1203,7 +1201,7 @@
       "tripId": "TRJ-2026-00016",
       "departure": "Rideau Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "17:45",
       "price": 8.05,
       "availableSeats": 0,
@@ -1214,14 +1212,14 @@
       "driverName": "Jean-Paul Gagnon",
       "passengerName": "Ahmed Ibrahim"
     },
-    "createdAt": "2026-03-27T12:05:00.000Z"
+    "createdAt": "2026-03-28T12:05:00.000Z"
   },
   {
     "id": "NTF-2026-00025",
     "userId": "USR-2026-00001",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Marie Tremblay a accepte votre demande pour le trajet Campus La Cite -> Rideau Centre le 2026-03-28 a 08:10. Votre place est reservee — soyez ponctuel·le ! Prix : 5.75 $.",
+    "message": "Marie Tremblay a accepte votre demande pour le trajet Campus La Cite -> Rideau Centre le 2026-03-29 a 08:10. Votre place est reservee — soyez ponctuel·le ! Prix : 5.75 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00015",
@@ -1232,7 +1230,7 @@
       "tripId": "TRJ-2026-00015",
       "departure": "Campus La Cite",
       "arrival": "Rideau Centre",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "08:10",
       "price": 5.75,
       "availableSeats": 2,
@@ -1243,14 +1241,14 @@
       "driverName": "Marie Tremblay",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-03-27T11:05:00.000Z"
+    "createdAt": "2026-03-28T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00026",
     "userId": "USR-2026-00001",
     "type": "reservation_accepted",
     "title": "Reservation confirmee !",
-    "message": "Jean-Paul Gagnon a accepte votre demande pour le trajet Rideau Centre -> Campus La Cite le 2026-03-28 a 17:45. Votre place est reservee — soyez ponctuel·le ! Prix : 8.05 $.",
+    "message": "Jean-Paul Gagnon a accepte votre demande pour le trajet Rideau Centre -> Campus La Cite le 2026-03-29 a 17:45. Votre place est reservee — soyez ponctuel·le ! Prix : 8.05 $.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00016",
@@ -1261,7 +1259,7 @@
       "tripId": "TRJ-2026-00016",
       "departure": "Rideau Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "17:45",
       "price": 8.05,
       "availableSeats": 0,
@@ -1272,7 +1270,7 @@
       "driverName": "Jean-Paul Gagnon",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-03-27T11:05:00.000Z"
+    "createdAt": "2026-03-28T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00080",
@@ -1286,15 +1284,14 @@
     "linkLabel": "Voir mes finances",
     "relatedTripId": "TRJ-2026-00013",
     "relatedReservationId": null,
-    "createdAt": "2026-03-27T10:00:00.000Z",
-    "updatedAt": "2026-03-27T01:09:57.244Z"
+    "createdAt": "2026-03-28T10:00:00.000Z"
   },
   {
     "id": "NTF-2026-00002",
     "userId": "USR-2026-00005",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Sophie Leclerc souhaite rejoindre votre trajet Campus La Cite -> Gatineau Centre-Ville le 2026-03-29 a 07:35. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Sophie Leclerc souhaite rejoindre votre trajet Campus La Cite -> Gatineau Centre-Ville le 2026-03-30 a 07:35. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00005?tab=reservations&reservationId=RSV-2026-00020",
@@ -1305,7 +1302,7 @@
       "tripId": "TRJ-2026-00017",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-03-29",
+      "date": "2026-03-30",
       "time": "07:35",
       "price": 5,
       "availableSeats": 3,
@@ -1318,14 +1315,14 @@
       "passengerTripCount": 6,
       "driverName": "Nadia Bouchard"
     },
-    "createdAt": "2026-03-27T09:15:00.000Z"
+    "createdAt": "2026-03-28T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00014",
     "userId": "USR-2026-00001",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-03-29 a 07:35 a bien ete envoyee a Nadia Bouchard. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Campus La Cite -> Gatineau Centre-Ville le 2026-03-30 a 07:35 a bien ete envoyee a Nadia Bouchard. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00020",
@@ -1336,7 +1333,7 @@
       "tripId": "TRJ-2026-00017",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-03-29",
+      "date": "2026-03-30",
       "time": "07:35",
       "price": 5.75,
       "estimatedDurationMinutes": 157
@@ -1346,7 +1343,7 @@
       "driverName": "Nadia Bouchard",
       "passengerName": "Sophie Leclerc"
     },
-    "createdAt": "2026-03-27T09:15:00.000Z"
+    "createdAt": "2026-03-28T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-99999",
@@ -1360,7 +1357,7 @@
     "linkLabel": null,
     "relatedTripId": null,
     "relatedReservationId": null,
-    "createdAt": "2026-03-26T21:04:45.000Z"
+    "createdAt": "2026-03-27T04:00:41.000Z"
   },
   {
     "id": "NTF-2026-00078",
@@ -1374,15 +1371,15 @@
     "linkLabel": "Voir mes finances",
     "relatedTripId": "TRJ-2026-00004",
     "relatedReservationId": null,
-    "createdAt": "2026-03-25T19:00:00.000Z"
+    "createdAt": "2026-03-26T19:00:00.000Z"
   },
   {
     "id": "NTF-2026-00056",
     "userId": "USR-2026-00001",
     "type": "trip_starting_soon",
     "title": "Votre trajet demarre bientot",
-    "message": "Rappel : votre trajet Campus La Cite -> Place d'Orleans est prevu le 2026-03-27 a 07:40. 0 passager attend votre depart — verifiez l'etat du trajet.",
-    "isRead": true,
+    "message": "Rappel : votre trajet Campus La Cite -> Place d'Orleans est prevu le 2026-03-28 a 07:40. 0 passager attend votre depart — verifiez l'etat du trajet.",
+    "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00001?tab=trips&tripId=TRJ-2026-00013",
     "linkLabel": "Voir le trajet",
@@ -1392,21 +1389,20 @@
       "tripId": "TRJ-2026-00013",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-03-27",
+      "date": "2026-03-28",
       "time": "07:40",
       "price": 5,
       "availableSeats": 3,
       "estimatedDurationMinutes": 192
     },
-    "createdAt": "2026-03-25T18:00:00.000Z",
-    "updatedAt": "2026-03-27T01:10:23.876Z"
+    "createdAt": "2026-03-26T18:00:00.000Z"
   },
   {
     "id": "NTF-2026-00057",
     "userId": "USR-2026-00002",
     "type": "trip_starting_soon",
     "title": "Votre trajet demarre bientot",
-    "message": "Rappel : votre trajet Place d'Orleans -> Campus La Cite est prevu le 2026-03-27 a 17:20. 0 passager attend votre depart — verifiez l'etat du trajet.",
+    "message": "Rappel : votre trajet Place d'Orleans -> Campus La Cite est prevu le 2026-03-28 a 17:20. 0 passager attend votre depart — verifiez l'etat du trajet.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00002?tab=trips&tripId=TRJ-2026-00014",
@@ -1417,20 +1413,20 @@
       "tripId": "TRJ-2026-00014",
       "departure": "Place d'Orleans",
       "arrival": "Campus La Cite",
-      "date": "2026-03-27",
+      "date": "2026-03-28",
       "time": "17:20",
       "price": 8,
       "availableSeats": 3,
       "estimatedDurationMinutes": 38
     },
-    "createdAt": "2026-03-25T18:00:00.000Z"
+    "createdAt": "2026-03-26T18:00:00.000Z"
   },
   {
     "id": "NTF-2026-00058",
     "userId": "USR-2026-00003",
     "type": "trip_starting_soon",
     "title": "Votre trajet demarre bientot",
-    "message": "Rappel : votre trajet Campus La Cite -> Rideau Centre est prevu le 2026-03-28 a 08:10. 1 passager attend votre depart — verifiez l'etat du trajet.",
+    "message": "Rappel : votre trajet Campus La Cite -> Rideau Centre est prevu le 2026-03-29 a 08:10. 1 passager attend votre depart — verifiez l'etat du trajet.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00003?tab=trips&tripId=TRJ-2026-00015",
@@ -1441,20 +1437,20 @@
       "tripId": "TRJ-2026-00015",
       "departure": "Campus La Cite",
       "arrival": "Rideau Centre",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "08:10",
       "price": 5,
       "availableSeats": 2,
       "estimatedDurationMinutes": 20
     },
-    "createdAt": "2026-03-25T18:00:00.000Z"
+    "createdAt": "2026-03-26T18:00:00.000Z"
   },
   {
     "id": "NTF-2026-00059",
     "userId": "USR-2026-00001",
     "type": "trip_starting_soon",
     "title": "Votre trajet demarre bientot",
-    "message": "Rappel : votre trajet Campus La Cite -> Rideau Centre est prevu le 2026-03-28 a 08:10 avec Marie Tremblay. Soyez au point de depart quelques minutes avant l'heure.",
+    "message": "Rappel : votre trajet Campus La Cite -> Rideau Centre est prevu le 2026-03-29 a 08:10 avec Marie Tremblay. Soyez au point de depart quelques minutes avant l'heure.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00015",
@@ -1465,19 +1461,19 @@
       "tripId": "TRJ-2026-00015",
       "departure": "Campus La Cite",
       "arrival": "Rideau Centre",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "08:10",
       "price": 5.75,
       "estimatedDurationMinutes": 20
     },
-    "createdAt": "2026-03-25T18:00:00.000Z"
+    "createdAt": "2026-03-26T18:00:00.000Z"
   },
   {
     "id": "NTF-2026-00060",
     "userId": "USR-2026-00004",
     "type": "trip_starting_soon",
     "title": "Votre trajet demarre bientot",
-    "message": "Rappel : votre trajet Rideau Centre -> Campus La Cite est prevu le 2026-03-28 a 17:45. 2 passagers attendent votre depart — verifiez l'etat du trajet.",
+    "message": "Rappel : votre trajet Rideau Centre -> Campus La Cite est prevu le 2026-03-29 a 17:45. 2 passagers attendent votre depart — verifiez l'etat du trajet.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00004?tab=trips&tripId=TRJ-2026-00016",
@@ -1488,20 +1484,20 @@
       "tripId": "TRJ-2026-00016",
       "departure": "Rideau Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "17:45",
       "price": 7,
       "availableSeats": 0,
       "estimatedDurationMinutes": 20
     },
-    "createdAt": "2026-03-25T18:00:00.000Z"
+    "createdAt": "2026-03-26T18:00:00.000Z"
   },
   {
     "id": "NTF-2026-00061",
     "userId": "USR-2026-00001",
     "type": "trip_starting_soon",
     "title": "Votre trajet demarre bientot",
-    "message": "Rappel : votre trajet Rideau Centre -> Campus La Cite est prevu le 2026-03-28 a 17:45 avec Jean-Paul Gagnon. Soyez au point de depart quelques minutes avant l'heure.",
+    "message": "Rappel : votre trajet Rideau Centre -> Campus La Cite est prevu le 2026-03-29 a 17:45 avec Jean-Paul Gagnon. Soyez au point de depart quelques minutes avant l'heure.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00001?tripId=TRJ-2026-00016",
@@ -1512,19 +1508,19 @@
       "tripId": "TRJ-2026-00016",
       "departure": "Rideau Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "17:45",
       "price": 8.05,
       "estimatedDurationMinutes": 20
     },
-    "createdAt": "2026-03-25T18:00:00.000Z"
+    "createdAt": "2026-03-26T18:00:00.000Z"
   },
   {
     "id": "NTF-2026-00062",
     "userId": "USR-2026-00002",
     "type": "trip_starting_soon",
     "title": "Votre trajet demarre bientot",
-    "message": "Rappel : votre trajet Rideau Centre -> Campus La Cite est prevu le 2026-03-28 a 17:45 avec Jean-Paul Gagnon. Soyez au point de depart quelques minutes avant l'heure.",
+    "message": "Rappel : votre trajet Rideau Centre -> Campus La Cite est prevu le 2026-03-29 a 17:45 avec Jean-Paul Gagnon. Soyez au point de depart quelques minutes avant l'heure.",
     "isRead": false,
     "isImportant": true,
     "link": "/passenger/planner/USR-2026-00002?tripId=TRJ-2026-00016",
@@ -1535,19 +1531,19 @@
       "tripId": "TRJ-2026-00016",
       "departure": "Rideau Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "17:45",
       "price": 8.05,
       "estimatedDurationMinutes": 20
     },
-    "createdAt": "2026-03-25T18:00:00.000Z"
+    "createdAt": "2026-03-26T18:00:00.000Z"
   },
   {
     "id": "NTF-2026-00001",
     "userId": "USR-2026-00001",
     "type": "reservation_received",
     "title": "Nouvelle demande de reservation",
-    "message": "Ahmed Ibrahim souhaite rejoindre votre trajet Campus La Cite -> Place d'Orleans le 2026-03-27 a 07:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
+    "message": "Ahmed Ibrahim souhaite rejoindre votre trajet Campus La Cite -> Place d'Orleans le 2026-03-28 a 07:40. Consultez son profil et acceptez ou refusez la demande avant expiration.",
     "isRead": false,
     "isImportant": true,
     "link": "/driver/USR-2026-00001?tab=reservations&reservationId=RSV-2026-00016",
@@ -1558,7 +1554,7 @@
       "tripId": "TRJ-2026-00013",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-03-27",
+      "date": "2026-03-28",
       "time": "07:40",
       "price": 5,
       "availableSeats": 3,
@@ -1571,14 +1567,14 @@
       "passengerTripCount": 9,
       "driverName": "Sophie Leclerc"
     },
-    "createdAt": "2026-03-25T09:15:00.000Z"
+    "createdAt": "2026-03-26T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00013",
     "userId": "USR-2026-00002",
     "type": "reservation_sent",
     "title": "Demande envoyee avec succes",
-    "message": "Votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-03-27 a 07:40 a bien ete envoyee a Sophie Leclerc. Vous recevrez une notification des qu'elle sera traitee.",
+    "message": "Votre demande pour le trajet Campus La Cite -> Place d'Orleans le 2026-03-28 a 07:40 a bien ete envoyee a Sophie Leclerc. Vous recevrez une notification des qu'elle sera traitee.",
     "isRead": true,
     "isImportant": false,
     "link": "/passenger/USR-2026-00002?tab=reservations&reservationId=RSV-2026-00016",
@@ -1589,7 +1585,7 @@
       "tripId": "TRJ-2026-00013",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-03-27",
+      "date": "2026-03-28",
       "time": "07:40",
       "price": 5.75,
       "estimatedDurationMinutes": 192
@@ -1599,7 +1595,7 @@
       "driverName": "Sophie Leclerc",
       "passengerName": "Ahmed Ibrahim"
     },
-    "createdAt": "2026-03-25T09:15:00.000Z"
+    "createdAt": "2026-03-26T09:15:00.000Z"
   },
   {
     "id": "NTF-2026-00082",
@@ -1616,16 +1612,16 @@
     "securityDetails": {
       "deviceInfo": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
       "location": "Ottawa, ON, Canada",
-      "connectedAt": "2026-03-25T03:15:00.000Z"
+      "connectedAt": "2026-03-26T03:15:00.000Z"
     },
-    "createdAt": "2026-03-25T03:15:00.000Z"
+    "createdAt": "2026-03-26T03:15:00.000Z"
   },
   {
     "id": "NTF-2026-00055",
     "userId": "USR-2026-00008",
     "type": "trip_created",
     "title": "Trajet publie avec succes !",
-    "message": "Votre trajet Orleans Park and Ride -> Campus La Cite le 2026-03-31 a 17:05 est maintenant visible par les passagers. Prix affiche : 8.05 $ — 3 places disponibles.",
+    "message": "Votre trajet Orleans Park and Ride -> Campus La Cite le 2026-04-01 a 17:05 est maintenant visible par les passagers. Prix affiche : 8.05 $ — 3 places disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00008?tab=trips&tripId=TRJ-2026-00020",
@@ -1636,20 +1632,20 @@
       "tripId": "TRJ-2026-00020",
       "departure": "Orleans Park and Ride",
       "arrival": "Campus La Cite",
-      "date": "2026-03-31",
+      "date": "2026-04-01",
       "time": "17:05",
       "price": 7,
       "availableSeats": 3,
       "estimatedDurationMinutes": 37
     },
-    "createdAt": "2026-03-21T09:00:00.000Z"
+    "createdAt": "2026-03-22T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00054",
     "userId": "USR-2026-00007",
     "type": "trip_created",
     "title": "Trajet publie avec succes !",
-    "message": "Votre trajet Campus La Cite -> Orleans Park and Ride le 2026-03-30 a 08:05 est maintenant visible par les passagers. Prix affiche : 6.9 $ — 3 places disponibles.",
+    "message": "Votre trajet Campus La Cite -> Orleans Park and Ride le 2026-03-31 a 08:05 est maintenant visible par les passagers. Prix affiche : 6.9 $ — 3 places disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00007?tab=trips&tripId=TRJ-2026-00019",
@@ -1660,13 +1656,13 @@
       "tripId": "TRJ-2026-00019",
       "departure": "Campus La Cite",
       "arrival": "Orleans Park and Ride",
-      "date": "2026-03-30",
+      "date": "2026-03-31",
       "time": "08:05",
       "price": 6,
       "availableSeats": 3,
       "estimatedDurationMinutes": 37
     },
-    "createdAt": "2026-03-20T09:00:00.000Z"
+    "createdAt": "2026-03-21T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00079",
@@ -1680,14 +1676,14 @@
     "linkLabel": "Voir mes finances",
     "relatedTripId": "TRJ-2026-00001",
     "relatedReservationId": null,
-    "createdAt": "2026-03-20T08:00:00.000Z"
+    "createdAt": "2026-03-21T08:00:00.000Z"
   },
   {
     "id": "NTF-2026-00052",
     "userId": "USR-2026-00005",
     "type": "trip_created",
     "title": "Trajet publie avec succes !",
-    "message": "Votre trajet Campus La Cite -> Gatineau Centre-Ville le 2026-03-29 a 07:35 est maintenant visible par les passagers. Prix affiche : 5.75 $ — 3 places disponibles.",
+    "message": "Votre trajet Campus La Cite -> Gatineau Centre-Ville le 2026-03-30 a 07:35 est maintenant visible par les passagers. Prix affiche : 5.75 $ — 3 places disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00005?tab=trips&tripId=TRJ-2026-00017",
@@ -1698,20 +1694,20 @@
       "tripId": "TRJ-2026-00017",
       "departure": "Campus La Cite",
       "arrival": "Gatineau Centre-Ville",
-      "date": "2026-03-29",
+      "date": "2026-03-30",
       "time": "07:35",
       "price": 5,
       "availableSeats": 3,
       "estimatedDurationMinutes": 157
     },
-    "createdAt": "2026-03-19T09:00:00.000Z"
+    "createdAt": "2026-03-20T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00053",
     "userId": "USR-2026-00006",
     "type": "trip_created",
     "title": "Trajet publie avec succes !",
-    "message": "Votre trajet ByWard Market -> Barrhaven Centre le 2026-03-29 a 18:10 est maintenant visible par les passagers. Prix affiche : 9.2 $ — 3 places disponibles.",
+    "message": "Votre trajet ByWard Market -> Barrhaven Centre le 2026-03-30 a 18:10 est maintenant visible par les passagers. Prix affiche : 9.2 $ — 3 places disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00006?tab=trips&tripId=TRJ-2026-00018",
@@ -1722,13 +1718,13 @@
       "tripId": "TRJ-2026-00018",
       "departure": "ByWard Market",
       "arrival": "Barrhaven Centre",
-      "date": "2026-03-29",
+      "date": "2026-03-30",
       "time": "18:10",
       "price": 8,
       "availableSeats": 3,
       "estimatedDurationMinutes": 47
     },
-    "createdAt": "2026-03-19T09:00:00.000Z"
+    "createdAt": "2026-03-20T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00074",
@@ -1748,7 +1744,7 @@
       "rating": 4.7,
       "comment": "Trajet fiable, propre et ponctuel."
     },
-    "createdAt": "2026-03-19T08:30:00.000Z"
+    "createdAt": "2026-03-20T08:30:00.000Z"
   },
   {
     "id": "NTF-2026-00075",
@@ -1768,7 +1764,7 @@
       "rating": 4.4,
       "comment": "Passager ponctuel et agreable a bord."
     },
-    "createdAt": "2026-03-19T08:30:00.000Z"
+    "createdAt": "2026-03-20T08:30:00.000Z"
   },
   {
     "id": "NTF-2026-00076",
@@ -1788,7 +1784,7 @@
       "rating": 4.3,
       "comment": "Trajet fiable, propre et ponctuel."
     },
-    "createdAt": "2026-03-19T08:30:00.000Z"
+    "createdAt": "2026-03-20T08:30:00.000Z"
   },
   {
     "id": "NTF-2026-00077",
@@ -1808,14 +1804,14 @@
       "rating": 4.7,
       "comment": "Passager ponctuel et agreable a bord."
     },
-    "createdAt": "2026-03-19T08:30:00.000Z"
+    "createdAt": "2026-03-20T08:30:00.000Z"
   },
   {
     "id": "NTF-2026-00050",
     "userId": "USR-2026-00003",
     "type": "trip_created",
     "title": "Trajet publie avec succes !",
-    "message": "Votre trajet Campus La Cite -> Rideau Centre le 2026-03-28 a 08:10 est maintenant visible par les passagers. Prix affiche : 5.75 $ — 3 places disponibles.",
+    "message": "Votre trajet Campus La Cite -> Rideau Centre le 2026-03-29 a 08:10 est maintenant visible par les passagers. Prix affiche : 5.75 $ — 3 places disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00003?tab=trips&tripId=TRJ-2026-00015",
@@ -1826,20 +1822,20 @@
       "tripId": "TRJ-2026-00015",
       "departure": "Campus La Cite",
       "arrival": "Rideau Centre",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "08:10",
       "price": 5,
       "availableSeats": 3,
       "estimatedDurationMinutes": 20
     },
-    "createdAt": "2026-03-18T09:00:00.000Z"
+    "createdAt": "2026-03-19T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00051",
     "userId": "USR-2026-00004",
     "type": "trip_created",
     "title": "Trajet publie avec succes !",
-    "message": "Votre trajet Rideau Centre -> Campus La Cite le 2026-03-28 a 17:45 est maintenant visible par les passagers. Prix affiche : 8.05 $ — 2 places disponibles.",
+    "message": "Votre trajet Rideau Centre -> Campus La Cite le 2026-03-29 a 17:45 est maintenant visible par les passagers. Prix affiche : 8.05 $ — 2 places disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00004?tab=trips&tripId=TRJ-2026-00016",
@@ -1850,20 +1846,20 @@
       "tripId": "TRJ-2026-00016",
       "departure": "Rideau Centre",
       "arrival": "Campus La Cite",
-      "date": "2026-03-28",
+      "date": "2026-03-29",
       "time": "17:45",
       "price": 7,
       "availableSeats": 2,
       "estimatedDurationMinutes": 20
     },
-    "createdAt": "2026-03-18T09:00:00.000Z"
+    "createdAt": "2026-03-19T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00043",
     "userId": "USR-2026-00004",
     "type": "reservation_cancelled",
     "title": "Reservation annulee par le passager",
-    "message": "Sophie Leclerc a annule sa reservation pour votre trajet ByWard Market -> South Keys le 2026-03-18 a 18:00. Une place s'est liberee automatiquement.",
+    "message": "Sophie Leclerc a annule sa reservation pour votre trajet ByWard Market -> South Keys le 2026-03-19 a 18:00. Une place s'est liberee automatiquement.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00004?tab=trips&tripId=TRJ-2026-00004",
@@ -1874,7 +1870,7 @@
       "tripId": "TRJ-2026-00004",
       "departure": "ByWard Market",
       "arrival": "South Keys",
-      "date": "2026-03-18",
+      "date": "2026-03-19",
       "time": "18:00",
       "price": 8,
       "availableSeats": 3
@@ -1884,14 +1880,14 @@
       "passengerName": "Sophie Leclerc",
       "driverName": "Jean-Paul Gagnon"
     },
-    "createdAt": "2026-03-17T11:05:00.000Z"
+    "createdAt": "2026-03-18T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00063",
     "userId": "USR-2026-00001",
     "type": "trip_cancelled",
     "title": "Trajet annule par le conducteur",
-    "message": "Le trajet ByWard Market -> South Keys prevu le 2026-03-18 a 18:00 a ete annule par Jean-Paul Gagnon. Des trajets alternatifs sont disponibles sur la plateforme.",
+    "message": "Le trajet ByWard Market -> South Keys prevu le 2026-03-19 a 18:00 a ete annule par Jean-Paul Gagnon. Des trajets alternatifs sont disponibles sur la plateforme.",
     "isRead": true,
     "isImportant": true,
     "link": "/passenger/search/USR-2026-00001",
@@ -1902,18 +1898,18 @@
       "tripId": "TRJ-2026-00004",
       "departure": "ByWard Market",
       "arrival": "South Keys",
-      "date": "2026-03-18",
+      "date": "2026-03-19",
       "time": "18:00",
       "price": 9.2
     },
-    "createdAt": "2026-03-17T11:05:00.000Z"
+    "createdAt": "2026-03-18T11:05:00.000Z"
   },
   {
     "id": "NTF-2026-00048",
     "userId": "USR-2026-00001",
     "type": "trip_created",
     "title": "Trajet publie avec succes !",
-    "message": "Votre trajet Campus La Cite -> Place d'Orleans le 2026-03-27 a 07:40 est maintenant visible par les passagers. Prix affiche : 5.75 $ — 3 places disponibles.",
+    "message": "Votre trajet Campus La Cite -> Place d'Orleans le 2026-03-28 a 07:40 est maintenant visible par les passagers. Prix affiche : 5.75 $ — 3 places disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00001?tab=trips&tripId=TRJ-2026-00013",
@@ -1924,20 +1920,20 @@
       "tripId": "TRJ-2026-00013",
       "departure": "Campus La Cite",
       "arrival": "Place d'Orleans",
-      "date": "2026-03-27",
+      "date": "2026-03-28",
       "time": "07:40",
       "price": 5,
       "availableSeats": 3,
       "estimatedDurationMinutes": 192
     },
-    "createdAt": "2026-03-17T09:00:00.000Z"
+    "createdAt": "2026-03-18T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00049",
     "userId": "USR-2026-00002",
     "type": "trip_created",
     "title": "Trajet publie avec succes !",
-    "message": "Votre trajet Place d'Orleans -> Campus La Cite le 2026-03-27 a 17:20 est maintenant visible par les passagers. Prix affiche : 9.2 $ — 3 places disponibles.",
+    "message": "Votre trajet Place d'Orleans -> Campus La Cite le 2026-03-28 a 17:20 est maintenant visible par les passagers. Prix affiche : 9.2 $ — 3 places disponibles.",
     "isRead": true,
     "isImportant": false,
     "link": "/driver/USR-2026-00002?tab=trips&tripId=TRJ-2026-00014",
@@ -1948,13 +1944,13 @@
       "tripId": "TRJ-2026-00014",
       "departure": "Place d'Orleans",
       "arrival": "Campus La Cite",
-      "date": "2026-03-27",
+      "date": "2026-03-28",
       "time": "17:20",
       "price": 8,
       "availableSeats": 3,
       "estimatedDurationMinutes": 38
     },
-    "createdAt": "2026-03-17T09:00:00.000Z"
+    "createdAt": "2026-03-18T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00072",
@@ -1974,7 +1970,7 @@
       "rating": 4.5,
       "comment": "Trajet fiable, propre et ponctuel."
     },
-    "createdAt": "2026-03-17T09:00:00.000Z"
+    "createdAt": "2026-03-18T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00073",
@@ -1994,7 +1990,7 @@
       "rating": 4.7,
       "comment": "Passager ponctuel et agreable a bord."
     },
-    "createdAt": "2026-03-17T09:00:00.000Z"
+    "createdAt": "2026-03-18T09:00:00.000Z"
   },
   {
     "id": "NTF-2026-00070",
@@ -2014,7 +2010,7 @@
       "rating": 4.3,
       "comment": "Trajet fiable, propre et ponctuel."
     },
-    "createdAt": "2026-03-15T18:10:00.000Z"
+    "createdAt": "2026-03-16T18:10:00.000Z"
   },
   {
     "id": "NTF-2026-00071",
@@ -2034,7 +2030,7 @@
       "rating": 4.4,
       "comment": "Passager ponctuel et agreable a bord."
     },
-    "createdAt": "2026-03-15T18:10:00.000Z"
+    "createdAt": "2026-03-16T18:10:00.000Z"
   },
   {
     "id": "NTF-2026-00066",
@@ -2054,7 +2050,7 @@
       "rating": 4.5,
       "comment": "Trajet fiable, propre et ponctuel."
     },
-    "createdAt": "2026-03-14T08:45:00.000Z"
+    "createdAt": "2026-03-15T08:45:00.000Z"
   },
   {
     "id": "NTF-2026-00067",
@@ -2074,7 +2070,7 @@
       "rating": 4.4,
       "comment": "Passager ponctuel et agreable a bord."
     },
-    "createdAt": "2026-03-14T08:45:00.000Z"
+    "createdAt": "2026-03-15T08:45:00.000Z"
   },
   {
     "id": "NTF-2026-00068",
@@ -2094,7 +2090,7 @@
       "rating": 4.7,
       "comment": "Trajet fiable, propre et ponctuel."
     },
-    "createdAt": "2026-03-14T08:45:00.000Z"
+    "createdAt": "2026-03-15T08:45:00.000Z"
   },
   {
     "id": "NTF-2026-00069",
@@ -2114,66 +2110,6 @@
       "rating": 4.7,
       "comment": "Passager ponctuel et agreable a bord."
     },
-    "createdAt": "2026-03-14T08:45:00.000Z"
-  },
-  {
-    "id": "NTF-2026-92090",
-    "userId": "USR-2026-00002",
-    "type": "reservation_accepted",
-    "title": "Réservation confirmée !",
-    "message": "Votre demande a été acceptée. Prix total : 5.75$ (frais de service inclus).",
-    "isRead": false,
-    "isImportant": true,
-    "relatedTripId": "TRJ-2026-00037",
-    "relatedReservationId": "RSV-2026-00044",
-    "createdAt": "2026-03-27T01:11:34.834Z"
-  },
-  {
-    "id": "NTF-2026-48674",
-    "userId": "USR-2026-00001",
-    "type": "reservation_cancelled_auto",
-    "title": "Demande annulée automatiquement",
-    "message": "Le passager a trouvé un trajet. Sa demande a été annulée automatiquement.",
-    "isRead": false,
-    "isImportant": false,
-    "relatedTripId": "TRJ-2026-00013",
-    "relatedReservationId": "RSV-2026-00016",
-    "createdAt": "2026-03-27T01:11:34.834Z"
-  },
-  {
-    "id": "NTF-2026-98258",
-    "userId": "USR-2026-00001",
-    "type": "reservation_cancelled_auto",
-    "title": "Demande annulée automatiquement",
-    "message": "Le passager a trouvé un trajet. Sa demande a été annulée automatiquement.",
-    "isRead": false,
-    "isImportant": false,
-    "relatedTripId": "TRJ-2026-00061",
-    "relatedReservationId": "RSV-2026-00072",
-    "createdAt": "2026-03-27T01:11:34.834Z"
-  },
-  {
-    "id": "NTF-2026-88041",
-    "userId": "USR-2026-00014",
-    "type": "reservation_accepted",
-    "title": "Réservation confirmée !",
-    "message": "Votre demande a été acceptée. Prix total : 5.75$ (frais de service inclus).",
-    "isRead": false,
-    "isImportant": true,
-    "relatedTripId": "TRJ-2026-82744",
-    "relatedReservationId": "RSV-2026-26579",
-    "createdAt": "2026-03-27T01:50:09.108Z"
-  },
-  {
-    "id": "NTF-2026-29235",
-    "userId": "USR-2026-00014",
-    "type": "reservation_accepted",
-    "title": "Réservation confirmée !",
-    "message": "Votre demande a été acceptée. Prix total : 8.05$ (frais de service inclus).",
-    "isRead": false,
-    "isImportant": true,
-    "relatedTripId": "TRJ-2026-72434",
-    "relatedReservationId": "RSV-2026-55133",
-    "createdAt": "2026-03-27T02:57:09.052Z"
+    "createdAt": "2026-03-15T08:45:00.000Z"
   }
 ]

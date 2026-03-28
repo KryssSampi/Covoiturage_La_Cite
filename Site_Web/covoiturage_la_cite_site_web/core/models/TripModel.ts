@@ -144,6 +144,18 @@ export interface TripModel {
   /** Niveau de bagages maximum accepté dans le véhicule */
   maxBaggageLevel?: 'none' | 'light' | 'heavy';
 
+  // ── Audit temps réel (tracking GPS) ──────────────────────────────────────
+  /**
+   * true une fois que le conducteur a quitté le point de départ et que sa
+   * trajectoire concorde avec la polyline du trajet (~1-2 min de suivi).
+   */
+  alreadyOnTheirWay?: boolean;
+  /**
+   * true une fois que le conducteur a atteint le lieu d'arrivée (alreadyOnTheirWay requis).
+   * Déclenche la completion automatique du trajet.
+   */
+  theyReallyEnd?: boolean;
+
   // ── Statistiques calculées ─────────────────────────────────────────────────
   estimatedDistanceKm?: number;
   estimatedDurationMinutes?: number;
@@ -151,6 +163,8 @@ export interface TripModel {
   durationEstimation?: number;
   /** Économie de CO2 estimée en kg */
   co2SavedKg?: number;
+  /** Note moyenne du trajet calculée à partir des passengerRating des réservations */
+  averageRating?: number;
 
   // ── Metadata ──────────────────────────────────────────────────────────────
   createdAt: string;

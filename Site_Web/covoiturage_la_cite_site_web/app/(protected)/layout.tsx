@@ -42,7 +42,7 @@ export default function RootLayout({
   // Suivi activité & notifications — actifs uniquement si connecté
   const userId   = appState.userConnected?.id;
   const userRole = appState.userConnected?.role?.toString().toLowerCase();
-  useUserActivityTracking(userId, appState.userConnected?.createdAt, userRole);
+  useUserActivityTracking(userId, undefined, userRole);
   const { current, hasAlert, queueLength, dismissCurrent } = useNotificationPush(userId, userRole);
   const { showBrowserNotification } = useWebNotifications(userId);
 

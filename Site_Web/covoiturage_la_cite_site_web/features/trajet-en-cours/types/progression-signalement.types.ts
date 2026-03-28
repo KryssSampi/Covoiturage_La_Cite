@@ -36,7 +36,10 @@ export interface ProgressionCalculee {
 
 export interface ProgressionSectionProps {
   fixture: TrajetProgressionFixture;
-  /** État de la carte temps réel — quand fourni, la progression est synchronisée avec TrajetMap */
+  /**
+   * État de la carte temps réel — quand fourni, la progression est synchronisée avec TrajetMap.
+   * La simulation interne (useProgression) est suspendue.
+   */
   mapState?: {
     pourcentageComplete: number;
     distanceParcourue: number;
@@ -44,7 +47,7 @@ export interface ProgressionSectionProps {
     estTermine: boolean;
     labelDepart: string;
     labelArrivee: string;
-    /** Vitesse moyenne km/h — utilisée pour calculer le temps restant identiquement à la carte */
+    /** Vitesse moyenne km/h — utilisée pour calculer le temps restant */
     vitesseMoyenneKmh: number;
   };
 }
@@ -99,6 +102,8 @@ export interface SignalementOverlayProps {
   trajetTitre: string;
   cibleNomParDefaut?: string;
   cibleRoleParDefaut?: CibleSignalement;
+  /** Rôle de l'utilisateur qui soumet le signalement ('driver' | 'passenger') */
+  role?: 'driver' | 'passenger';
 }
 
 export interface UseSignalementReturn {

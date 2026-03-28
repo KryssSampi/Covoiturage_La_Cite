@@ -9,9 +9,11 @@ import { useActiveNav } from '../hooks/useActiveNav'
 import { useNavLinks } from '../hooks/useNavLinks'
 import { useIsMobileOrTablet } from '@/shared/hooks/useismobileortable'
 import { useLoader } from '@/core/context/loader.context'
+import { useRouter } from 'next/navigation'
 export function Header() {
   const appState = useAppState()
   const { setActiveLoader } = useLoader();
+  const router = useRouter();
  const isbellowlg = useIsMobileOrTablet();
 
   const { activePath, setActive } = useActiveNav()
@@ -74,7 +76,14 @@ export function Header() {
             <ToggleLangButton  />
             </div>
             <button
-            onClick={()=>{if(!appState.userConnected){setActiveLoader(true); window.location.href = '/login'} else {window.location.href = `/${appState.userConnected.role.toString().toLowerCase()}/${appState.userConnected.id}`}}} 
+            onClick={() => {
+              if (!appState.userConnected) {
+                setActiveLoader(true);
+                router.push('/login');
+              } else {
+                router.push(`/${appState.userConnected.role.toString().toLowerCase()}/${appState.userConnected.id}`);
+              }
+            }}
               className={`bg-white text-blue-800 ${isbellowlg ? '-ml-17 w-20' : 'w-full'} py-2 rounded-full text-xs lg:px-6 lg:py-2 lg:text-lg font-semibold 
                          transition-all duration-300 lg:hover:bg-blue-50 lg:hover:shadow-lg lg:hover:scale-105
                          active:scale-95`}

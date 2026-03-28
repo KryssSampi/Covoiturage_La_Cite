@@ -19,10 +19,11 @@ import {
   Correspondant,
   Conversation,
   Message,
+  TypeMessage,
   UseMessagerieReturn,
   buildConversationId,
 } from '../types/messagerie.types';
-import { genererNouvelleProgression, conversationsInitialesFixture } from '../fixtures/index.fixtures';
+import { genererNouvelleProgression } from '../fixtures/index.fixtures';
 import { calculer } from '../utils/trajet-progression.utils';
 import { genererRapportPDF } from '../utils/signalement-pdf.utils';
 
@@ -33,6 +34,7 @@ import { genererRapportPDF } from '../utils/signalement-pdf.utils';
 
 export function useProgression(
   fixtureInitiale: TrajetProgressionFixture,
+  suspended = false,
 ): UseProgressionReturn {
   const [fixture, setFixture] = useState<TrajetProgressionFixture>(fixtureInitiale);
   const [secondes, setSecondes] = useState<number>(0);
@@ -40,7 +42,7 @@ export function useProgression(
   const pauseRef = useRef<boolean>(false);
 
   useEffect(() => {
-    if (!actif) return;
+    if (!actif || suspended) return;
 
     const id = setInterval(() => {
       setSecondes((prev) => {
@@ -61,7 +63,7 @@ export function useProgression(
     }, 1000);
 
     return () => clearInterval(id);
-  }, [actif, fixture]);
+  }, [actif, fixture, suspended]);
 
   const progression = calculer(fixture, secondes);
 
@@ -78,12 +80,76 @@ export function useProgression(
 export function useMessagerie(
   moiId: string,
   correspondants: Correspondant[],
-  initialConversations: Conversation[] = conversationsInitialesFixture,
+  tripId?: string,
 ): UseMessagerieReturn {
-  const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeCorrespondantId, setActiveCorrespondantId] = useState<string>(
     correspondants[0]?.id ?? '',
   );
+
+  // Active le premier correspondant dès que la liste est disponible
+  useEffect(() => {
+    if (correspondants.length > 0 && !activeCorrespondantId) {
+      setActiveCorrespondantId(correspondants[0].id);
+    }
+  }, [correspondants, activeCorrespondantId]);
+
+  /** Construit des Conversation[] depuis les MessageModel[] bruts de la DB */
+  const buildConversationsFromDb = useCallback(
+    (rawMessages: Record<string, unknown>[]): Conversation[] => {
+      const convMap = new Map<string, Conversation>();
+      for (const raw of rawMessages) {
+        const senderId = raw.senderId as string;
+        const recipId  = (raw.recipientId as string | undefined) ?? '';
+        if (!recipId) continue; // ignorer les broadcasts sans destinataire
+        const convId = buildConversationId(senderId, recipId);
+        const msg: Message = {
+          id:             raw.id as string,
+          conversationId: convId,
+          senderId,
+          receiverId:     recipId,
+          content:        raw.content as string,
+          timestamp:      raw.createdAt as string,
+          isRead:         raw.isRead as boolean,
+          type:           (raw.type as TypeMessage) ?? 'text',
+        };
+        if (!convMap.has(convId)) {
+          const now = raw.createdAt as string;
+          convMap.set(convId, {
+            id: convId,
+            participantIds: [senderId, recipId].sort() as [string, string],
+            messages: [],
+            createdAt: now,
+            updatedAt: now,
+          });
+        }
+        convMap.get(convId)!.messages.push(msg);
+      }
+      return Array.from(convMap.values()).map((conv) => ({
+        ...conv,
+        messages: conv.messages.sort((a, b) => a.timestamp.localeCompare(b.timestamp)),
+      }));
+    },
+    [],
+  );
+
+  /** Recharge les messages depuis la DB */
+  const refresh = useCallback(async () => {
+    if (!tripId) return;
+    try {
+      const res = await fetch('/api/db/messages', { cache: 'no-store' });
+      if (!res.ok) return;
+      const all = (await res.json()) as Record<string, unknown>[];
+      const forTrip = all.filter((m) => m.tripId === tripId);
+      const convs = buildConversationsFromDb(forTrip);
+      setConversations(convs);
+    } catch { /* réseau — on garde l'état local */ }
+  }, [tripId, buildConversationsFromDb]);
+
+  // Chargement initial
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
   const activeConvId = activeCorrespondantId
     ? buildConversationId(moiId, activeCorrespondantId)
@@ -98,83 +164,156 @@ export function useMessagerie(
 
   const messagesActifs: Message[] = activeConversation?.messages ?? [];
 
-  /** Envoie un message dans la conversation active */
+  /** Envoie un message dans la conversation active, persiste en DB et crée une notification */
   const sendMessage = useCallback(
     (content: string) => {
       if (!content.trim() || !activeCorrespondantId) return;
       const convId = buildConversationId(moiId, activeCorrespondantId);
-      const now = new Date().toISOString();
+      const now    = new Date().toISOString();
+      const msgId  = `MSG-${Date.now()}`;
       const msg: Message = {
-        id: `msg-${Date.now()}`,
+        id: msgId,
         conversationId: convId,
-        senderId: moiId,
+        senderId:   moiId,
         receiverId: activeCorrespondantId,
-        content: content.trim(),
-        timestamp: now,
-        isRead: true,
-        type: 'text',
+        content:    content.trim(),
+        timestamp:  now,
+        isRead:     true,
+        type:       'text',
       };
-      setConversations((prev) => prev.map((conv) =>
-        conv.id === convId
-          ? { ...conv, messages: [...conv.messages, msg], updatedAt: now }
-          : conv,
-      ));
+
+      // Mise à jour optimiste
+      setConversations((prev) => {
+        const existing = prev.find((c) => c.id === convId);
+        if (existing) {
+          return prev.map((conv) =>
+            conv.id === convId
+              ? { ...conv, messages: [...conv.messages, msg], updatedAt: now }
+              : conv,
+          );
+        }
+        return [...prev, {
+          id: convId,
+          participantIds: [moiId, activeCorrespondantId].sort() as [string, string],
+          messages: [msg],
+          createdAt: now,
+          updatedAt: now,
+        }];
+      });
+
+      if (tripId) {
+        // Persister le message
+        void fetch('/api/db/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: msgId, tripId,
+            senderId: moiId, recipientId: activeCorrespondantId,
+            content: content.trim(), type: 'text',
+            isRead: false, createdAt: now,
+          }),
+        });
+
+        // Créer une notification pour le destinataire
+        const preview = content.trim().length > 60 ? content.trim().slice(0, 60) + '…' : content.trim();
+        void fetch('/api/db/notifications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: `NTF-MSG-${Date.now()}`,
+            userId: activeCorrespondantId,
+            type: 'message', title: 'Nouveau message',
+            message: preview,
+            isRead: false, isImportant: false,
+            relatedTripId: tripId, createdAt: now,
+          }),
+        });
+      }
     },
-    [moiId, activeCorrespondantId],
+    [moiId, activeCorrespondantId, tripId],
   );
 
   /** Change la conversation active par ID de correspondant */
   const setActiveCorrespondant = useCallback((correspondantId: string) => {
     setActiveCorrespondantId(correspondantId);
-    // Crée la conversation si elle n'existe pas encore
     const convId = buildConversationId(moiId, correspondantId);
     setConversations((prev) => {
       if (prev.some((c) => c.id === convId)) return prev;
       const now = new Date().toISOString();
-      const newConv: Conversation = {
+      return [...prev, {
         id: convId,
         participantIds: [moiId, correspondantId].sort() as [string, string],
         messages: [],
         createdAt: now,
         updatedAt: now,
-      };
-      return [...prev, newConv];
+      }];
     });
   }, [moiId]);
 
-  /** Broadcast : envoie le même message dans toutes les conversations (conducteur → tous passagers) */
+  /** Broadcast : envoie le même message dans toutes les conversations */
   const broadcastMessage = useCallback(
     (content: string) => {
       if (!content.trim()) return;
-      const now = new Date().toISOString();
+      const now     = new Date().toISOString();
+      const trimmed = content.trim();
+      const preview = trimmed.length > 60 ? trimmed.slice(0, 60) + '…' : trimmed;
+
+      // Préparer tous les messages AVANT le state updater (évite double-appel StrictMode)
+      const entries = correspondants.map((c) => {
+        const convId = buildConversationId(moiId, c.id);
+        const msgId  = `MSG-${Date.now()}-bc-${c.id}`;
+        const msg: Message = {
+          id: msgId, conversationId: convId,
+          senderId: moiId, receiverId: c.id,
+          content: trimmed, timestamp: now, isRead: true, type: 'text',
+        };
+        return { c, convId, msgId, msg };
+      });
+
+      // Mise à jour optimiste — aucun effet de bord ici
       setConversations((prev) => {
         const updated = [...prev];
-        correspondants.forEach((c) => {
-          const convId = buildConversationId(moiId, c.id);
-          const msg: Message = {
-            id: `msg-${Date.now()}-bc-${c.id}`,
-            conversationId: convId,
-            senderId: moiId,
-            receiverId: c.id,
-            content: content.trim(),
-            timestamp: now,
-            isRead: true,
-            type: 'text',
-          };
+        for (const { c, convId, msg } of entries) {
           const idx = updated.findIndex((cv) => cv.id === convId);
           if (idx >= 0) {
             updated[idx] = { ...updated[idx], messages: [...updated[idx].messages, msg], updatedAt: now };
           } else {
             updated.push({ id: convId, participantIds: [moiId, c.id].sort() as [string, string], messages: [msg], createdAt: now, updatedAt: now });
           }
-        });
+        }
         return updated;
       });
+
+      // Persistance DB — en dehors du state updater
+      if (tripId) {
+        for (const { c, msgId } of entries) {
+          void fetch('/api/db/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: msgId, tripId,
+              senderId: moiId, recipientId: c.id,
+              content: trimmed, type: 'text',
+              isRead: false, createdAt: now,
+            }),
+          });
+          void fetch('/api/db/notifications', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: `NTF-MSG-${Date.now()}-${c.id}`,
+              userId: c.id, type: 'message', title: 'Nouveau message',
+              message: preview,
+              isRead: false, isImportant: false,
+              relatedTripId: tripId, createdAt: now,
+            }),
+          });
+        }
+      }
     },
-    [moiId, correspondants],
+    [moiId, correspondants, tripId],
   );
 
-  // Nombre de messages non lus par correspondant
   const unreadCounts: Record<string, number> = correspondants.reduce(
     (acc, c) => {
       const convId = buildConversationId(moiId, c.id);
@@ -196,6 +335,7 @@ export function useMessagerie(
     setActiveCorrespondant,
     broadcastMessage,
     unreadCounts,
+    refresh,
   };
 }
 

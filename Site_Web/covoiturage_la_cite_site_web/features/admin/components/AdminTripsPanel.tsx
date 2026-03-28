@@ -3,6 +3,7 @@
 import React from "react";
 import { FaRotate, FaTriangleExclamation, FaCircleCheck, FaCircleXmark } from "react-icons/fa6";
 import type { AdminTrip, SimulationEvent, SimulateResult } from "@/features/admin/types/adminTrips";
+import type { AutoplayState } from "@/features/admin/hooks/useAdminTrips";
 import TripSimulationCard from "./TripSimulationCard";
 
 export default function AdminTripsPanel({
@@ -13,6 +14,10 @@ export default function AdminTripsPanel({
   simResult = null,
   simBusy = false,
   onSimulate,
+  onStartAutoplay,
+  onStopAutoplay,
+  autoplayStates = {},
+  autoplayProgress = {},
 }: {
   trips?: AdminTrip[];
   loading?: boolean;
@@ -21,6 +26,10 @@ export default function AdminTripsPanel({
   simResult?: SimulateResult | null;
   simBusy?: boolean;
   onSimulate?: (tripId: string, event: SimulationEvent) => Promise<void>;
+  onStartAutoplay?: (trip: AdminTrip) => Promise<void>;
+  onStopAutoplay?: (tripId: string) => void;
+  autoplayStates?: Record<string, AutoplayState>;
+  autoplayProgress?: Record<string, number>;
 }) {
   async function handleSimulate(tripId: string, event: SimulationEvent) {
     await onSimulate?.(tripId, event);
@@ -56,8 +65,8 @@ export default function AdminTripsPanel({
           }`}
         >
           {simResult.success
-            ? <FaCircleCheck size={16} className="flex-shrink-0 mt-0.5" />
-            : <FaCircleXmark size={16} className="flex-shrink-0 mt-0.5" />
+            ? <FaCircleCheck size={16} className="shrink-0 mt-0.5" />
+            : <FaCircleXmark size={16} className="shrink-0 mt-0.5" />
           }
           <div>
             <div className="font-semibold">{simResult.message}</div>
@@ -100,6 +109,10 @@ export default function AdminTripsPanel({
               trip={trip}
               onSimulate={handleSimulate}
               busy={simBusy}
+              onStartAutoplay={onStartAutoplay}
+              onStopAutoplay={onStopAutoplay}
+              autoplayState={autoplayStates[trip.id]}
+              autoplayProgress={autoplayProgress[trip.id] ?? 0}
             />
           ))}
         </div>

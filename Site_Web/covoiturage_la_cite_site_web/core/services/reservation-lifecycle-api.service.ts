@@ -199,8 +199,8 @@ export function startReservationWorkflow(reservationId: string, callerId: string
     return { error: 'Reservation introuvable', status: 404 };
   }
 
-  // Seul le conducteur du trajet peut démarrer le trajet.
-  if (reservation.driverId !== callerId) {
+  // Seul le passager concerné peut démarrer sa propre réservation.
+  if (reservation.passengerId !== callerId) {
     return { error: 'Non autorisé', status: 403 };
   }
 
@@ -215,16 +215,6 @@ export function startReservationWorkflow(reservationId: string, callerId: string
     status: 'in_progress',
     updatedAt: now,
   });
-
-  if (tripId) {
-    const trip = persistenceManager.readById<TripRecord>('trips', tripId);
-    if (trip && trip.status !== 'in_progress') {
-      persistenceManager.updateItem<TripRecord>('trips', tripId, {
-        status: 'in_progress',
-        updatedAt: now,
-      });
-    }
-  }
 
   return {
     reservation: updatedReservation,

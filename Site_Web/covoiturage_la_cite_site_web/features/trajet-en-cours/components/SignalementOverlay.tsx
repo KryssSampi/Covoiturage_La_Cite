@@ -26,8 +26,9 @@ import { SignalementStepOptions } from './SignalementStepOptions';
 // ── Composant principal ──────────────────────────────────
 export function SignalementOverlay({
   isOpen, onClose, trajetId, trajetTitre,
-  cibleNomParDefaut = 'Julie Tremblay',
+  cibleNomParDefaut = '',
   cibleRoleParDefaut,
+  role,
 }: SignalementOverlayProps) {
   const hook = useSignalement(trajetId, cibleNomParDefaut, cibleRoleParDefaut);
   const {
@@ -44,7 +45,7 @@ export function SignalementOverlay({
   // Constantes bilingues instanciées
   const MOTIFS      = getMOTIFS(isFR);
   const SEV_LABELS  = getSEV_LABELS(isFR);
-  const CIBLES      = getCIBLES(isFR);
+  const CIBLES      = getCIBLES(isFR, role);
   const SEV_OPTIONS = getSEV_OPTIONS(isFR);
   const STEP_LABELS = getSTEP_LABELS(isFR);
 
@@ -169,24 +170,43 @@ export function SignalementOverlay({
             <div style={{ padding: '18px 22px 10px' }}>
 
               {/* Bannière de contexte */}
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 10, padding: '10px 13px',
-                background: C.pg, border: `1px solid ${C.b}`, borderRadius: 10, marginBottom: 16, fontSize: 12,
-              }}>
-                <div style={{
-                  width: 36, height: 36, borderRadius: '50%',
-                  background: 'linear-gradient(135deg,#4a90d9,#a8d8f0)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 800, fontSize: 13, color: '#fff', flexShrink: 0,
-                }}>JT</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: 12 }}>Trajet {trajetTitre}</div>
-                  <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>#{trajetId}</div>
-                </div>
-                <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 5, background: C.gnb, color: C.green }}>
-                  {isFR ? 'EN COURS' : 'IN PROGRESS'}
-                </span>
-              </div>
+              {(() => {
+                const initials = cibleNomParDefaut
+                  ? cibleNomParDefaut.trim().split(/\s+/).map((n) => n[0]?.toUpperCase() ?? '').slice(0, 2).join('')
+                  : (role === 'driver' ? 'P' : role === 'passenger' ? 'C' : '?');
+                const roleLabel = role === 'driver'
+                  ? (isFR ? 'Conducteur' : 'Driver')
+                  : role === 'passenger'
+                    ? (isFR ? 'Passager' : 'Passenger')
+                    : '';
+                return (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 10, padding: '10px 13px',
+                    background: C.pg, border: `1px solid ${C.b}`, borderRadius: 10, marginBottom: 16, fontSize: 12,
+                  }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: '50%',
+                      background: role === 'driver'
+                        ? 'linear-gradient(135deg,#0aad6a,#07855a)'
+                        : 'linear-gradient(135deg,#4a90d9,#a8d8f0)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: 800, fontSize: 13, color: '#fff', flexShrink: 0,
+                    }}>{initials}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 700, fontSize: 12, color: C.text }}>
+                        {cibleNomParDefaut || (isFR ? 'Trajet ' + trajetTitre : 'Trip ' + trajetTitre)}
+                      </div>
+                      <div style={{ fontSize: 10, color: C.muted, marginTop: 1 }}>
+                        {roleLabel && <span style={{ marginRight: 6, fontWeight: 600 }}>{roleLabel}</span>}
+                        #{trajetId}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 5, background: C.gnb, color: C.green }}>
+                      {isFR ? 'EN COURS' : 'IN PROGRESS'}
+                    </span>
+                  </div>
+                );
+              })()}
 
               {/* ═ ÉTAPE 1 : Cible ═ */}
               {etapeActuelle === 1 && (

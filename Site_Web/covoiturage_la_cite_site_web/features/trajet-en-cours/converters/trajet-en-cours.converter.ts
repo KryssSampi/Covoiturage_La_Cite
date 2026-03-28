@@ -12,6 +12,7 @@ import type {
   PreferencesTrajet,
 } from '../types/trajet-en-cours.types';
 import type { TrajetMapFixture, LatLng } from '../types/map.types';
+import type { TrajetProgressionFixture } from '../types/progression-signalement.types';
 import { polylineDistanceM } from '../fixtures/map.fixtures';
 
 /**
@@ -145,7 +146,8 @@ export function toTrajetEnCoursData(
 ): TrajetEnCoursData {
   const conducteur = toConducteurInfo(driver, vehicle);
 
-  const prixParPassager = trip.pricePerPassenger;
+  // Le passager voit passengerPrice (pricePerPassenger × 1.15), le conducteur voit son propre prix
+  const prixParPassager = role === 'passenger' ? (trip.passengerPrice ?? trip.pricePerPassenger * 1.15) : trip.pricePerPassenger;
   const economieVsTaxi = Math.round(prixParPassager * 3.5);
   const co2 = trip.co2SavedKg ?? (trip.estimatedDistanceKm ?? 0) * 0.12;
 
@@ -168,6 +170,49 @@ export function toTrajetEnCoursData(
     tarif,
     dateDepart: trip.departureDate,
     heureDepart: trip.departureTime,
+  };
+}
+
+/**
+ * Construit un TrajetProgressionFixture depuis un TripModel.
+ * Génère des étapes à partir du départ, des waypoints et de l'arrivée.
+ */
+export function tripToProgressionFixture(trip: TripModel): TrajetProgressionFixture {
+  const totalKm =
+    trip.estimatedDistanceKm ??
+    (trip.polyline.length > 1
+      ? polylineDistanceM(trip.polyline.map(([lat, lng]) => ({ lat, lng }))) / 1000
+      : 20);
+  const totalSec = (trip.estimatedDurationMinutes ?? trip.durationEstimation ?? 30) * 60;
+
+  const allPoints: { label: string; distanceKm: number; tempsSecondes: number; icone: string }[] = [
+    { label: trip.departure.label, distanceKm: 0, tempsSecondes: 0, icone: '🏁' },
+    ...trip.waypoints.map((wp, i) => {
+      const ratio = (i + 1) / (trip.waypoints.length + 1);
+      return {
+        label: wp.location.label,
+        distanceKm: parseFloat((totalKm * ratio).toFixed(1)),
+        tempsSecondes: Math.round(totalSec * ratio),
+        icone: '📍',
+      };
+    }),
+    { label: trip.arrival.label, distanceKm: parseFloat(totalKm.toFixed(1)), tempsSecondes: totalSec, icone: '🏁' },
+  ];
+
+  return {
+    id: trip.id,
+    labelDepart: trip.departure.label,
+    labelArrivee: trip.arrival.label,
+    dureeTotaleSecondes: totalSec,
+    distanceTotaleKm: parseFloat(totalKm.toFixed(1)),
+    etapes: allPoints.map((p, i) => ({
+      id: `e${i + 1}`,
+      nom: p.label,
+      ville: '',
+      icone: p.icone,
+      tempsSecondes: p.tempsSecondes,
+      distanceKm: p.distanceKm,
+    })),
   };
 }
 

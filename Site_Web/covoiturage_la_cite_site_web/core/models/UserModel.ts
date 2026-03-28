@@ -107,6 +107,13 @@ export interface UserModel {
   /** FK vers UserPreferencesModel — null = préférences par défaut */
   preferencesId?: string;
 
+  // ── Localisation temps réel ───────────────────────────────────────────────
+  /**
+   * Position GPS actuelle — mise à jour en temps réel pendant un trajet actif.
+   * null si l'utilisateur n'a pas activé le suivi ou n'est pas en trajet.
+   */
+  currentLocation?: { lat: number; lng: number } | null;
+
   // ── Metadata ──────────────────────────────────────────────────────────────
   createdAt: string;
   updatedAt: string;

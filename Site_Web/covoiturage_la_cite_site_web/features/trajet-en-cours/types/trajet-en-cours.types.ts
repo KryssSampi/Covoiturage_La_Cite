@@ -100,7 +100,15 @@ export interface TrajetEnCoursData {
 }
 
 export interface EvaluationState {
+  /** Note principale obligatoire (conducteur ou passager) */
   note: number;
+  /** Commentaire obligatoire (min 10 caractères) */
   commentaire: string;
+  /** Note optionnelle du trajet en lui-même */
+  noteTrajet?: number;
+  /** Note optionnelle de la réservation */
+  noteReservation?: number;
+  /** ID du passager sélectionné (conducteur uniquement) */
+  passagerSelectionne?: string;
   estSoumis: boolean;
 }

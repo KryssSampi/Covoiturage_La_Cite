@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 /**
  * Page Go! Board — GoScore, progression, missions, classement et défis.
@@ -63,14 +63,9 @@ export default function GoBoardPage({ data }: GoBoardPageProps) {
           />
 
           {/* Disposition identique à goboard.section.tsx : dial gauche, score droite */}
-          <div className="flex items-center justify-between w-full px-2">
-            {/* Dial SVG arc — le score est affiché à côté, pas dedans */}
-            <div className="flex-shrink-0">
-              <DialGoScore score={goScore} tier={tier} rang={rang} />
-            </div>
-
-            {/* GoScore + label à droite du dial */}
-            <div className="flex flex-col items-center text-center pr-6 gap-1">
+          <div className="flex-col items-center justify-center  w-full px-2">
+                  {/* GoScore + label à droite du dial */}
+            <div className="flex flex-col items-center text-center -mb-10 mt-2  gap-1">
               <span className="font-[Syne] font-extrabold text-5xl text-[#08316e] leading-none">
                 {goScore}
               </span>
@@ -82,6 +77,11 @@ export default function GoBoardPage({ data }: GoBoardPageProps) {
                 !
               </p>
             </div>
+            {/* Dial SVG arc — le score est affiché à côté, pas dedans */}
+            <div className="shrink-0">
+              <DialGoScore score={goScore} tier={tier} rang={rang} />
+            </div>
+
           </div>
 
           {/* Strip KPI */}

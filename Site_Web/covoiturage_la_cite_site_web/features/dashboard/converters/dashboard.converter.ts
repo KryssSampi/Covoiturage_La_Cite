@@ -48,7 +48,8 @@ export function tripModelToTrip(trip: TripModel, driver: UserModel, passengers: 
     destination: trip.arrival.label,
     date: trip.departureDate,
     time: trip.departureTime,
-    price: trip.pricePerPassenger,
+    // On passe le prix passager (avec frais) pour l'affichage côté passager
+    price: trip.passengerPrice,
     maxPassengers: trip.maxPassengers,
     passengers: passengers.map(toUserProfile),
     driver: {
@@ -219,14 +220,15 @@ export function tripModelToDestination(trip: TripModel, matchingDriversCount: nu
  */
 const NOTIFICATION_TYPE_MAP: Record<NotificationModel['type'], DashboardNotificationType> = {
   reservation_received:  DashboardNotificationType.Confirmation,
+  reservation_sent:      DashboardNotificationType.Confirmation,
   reservation_accepted:  DashboardNotificationType.Confirmation,
   reservation_refused:   DashboardNotificationType.Annulation,
   reservation_cancelled: DashboardNotificationType.Annulation,
+  trip_created:          DashboardNotificationType.Infos,
   trip_starting_soon:    DashboardNotificationType.UrgentRappel,
   trip_started:          DashboardNotificationType.Infos,
   trip_completed:        DashboardNotificationType.Infos,
   trip_cancelled:        DashboardNotificationType.Annulation,
-  boarding_requested:    DashboardNotificationType.UrgentRappel,
   new_review_received:   DashboardNotificationType.NouvelleAvis,
   cancellation_penalty:  DashboardNotificationType.UrgentRappel,
   security_alert:        DashboardNotificationType.UrgentRappel,

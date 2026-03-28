@@ -13,6 +13,10 @@ export default function SimulationPanel() {
     simResult,
     simBusy,
     triggerSimulation,
+    startAutoplay,
+    stopAutoplay,
+    autoplayStates,
+    autoplayProgress,
   } = useAdminTrips();
 
   return (
@@ -24,6 +28,10 @@ export default function SimulationPanel() {
       simResult={simResult}
       simBusy={simBusy}
       onSimulate={triggerSimulation}
+      onStartAutoplay={startAutoplay}
+      onStopAutoplay={stopAutoplay}
+      autoplayStates={autoplayStates}
+      autoplayProgress={autoplayProgress}
     />
   );
 }

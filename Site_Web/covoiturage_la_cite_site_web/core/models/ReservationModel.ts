@@ -83,6 +83,20 @@ export interface ReservationModel {
   /** Passager a confirmé son embarquement */
   boardingConfirmedByPassenger: boolean;
 
+  // ── Audit présence passager ───────────────────────────────────────────────
+  /**
+   * true si le passager s'est présenté au lieu de départ à l'heure prévue
+   * (sa position GPS a concordé avec celle du point de départ ±100 m).
+   */
+  heIsReallyCome?: boolean;
+
+  // ── Évaluation ────────────────────────────────────────────────────────────
+  /**
+   * Note donnée par le conducteur au passager pour cette réservation (1–5).
+   * Stockée ici pour alimenter le trip.averageRating.
+   */
+  passengerRating?: number;
+
   // ── Compatibilité ─────────────────────────────────────────────────────────
   /** Score de compatibilité calculé (0–100) */
   compatibilityScore?: number;

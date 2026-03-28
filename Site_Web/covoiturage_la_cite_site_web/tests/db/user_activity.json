@@ -2,257 +2,206 @@
   {
     "id": "ACT-2026-00001",
     "userId": "USR-2026-00001",
-    "accountCreatedAt": "2025-08-18T08:00:00.000Z",
-    "lastSeenAt": "2026-03-27T02:57:20.483Z",
-    "isCurrentlyConnectedOnWeb": true,
-    "isCurrentlyConnectedOnMobile": false,
-    "connectionHistory": [
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:57:20.483Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:56:37.591Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:57:18.539Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:56:35.680Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:56:36.951Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:52:42.876Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:56:34.244Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:52:41.163Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:52:41.924Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:43:17.315Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:52:39.611Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:12:33.684Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:43:14.794Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:10:39.326Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:12:33.626Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:10:38.206Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:10:38.738Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:10:37.187Z",
-        "role": "driver"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:05:51.668Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:10:31.818Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:05:40.864Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:05:51.599Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:05:30.834Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:05:40.840Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:01:29.597Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:05:30.525Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:00:35.903Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:01:26.031Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:52:46.633Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T02:00:22.163Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:52:41.729Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:52:46.509Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:52:07.549Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:52:41.625Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:51:20.703Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:52:07.432Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:50:51.768Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:51:20.610Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:50:49.942Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:50:51.404Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:49:57.666Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:50:49.010Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:47:33.577Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:49:54.132Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:27:48.280Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:47:32.022Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:27:46.005Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:27:47.402Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:07:03.319Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:27:43.065Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:06:48.600Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:07:01.432Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:06:44.309Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "driver",
-        "disconnectedAt": "2026-03-27T01:06:48.363Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:06:36.743Z",
-        "role": "driver"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-26T07:10:00.000Z",
-        "userAgent": "Mozilla/5.0 (seed)",
-        "role": "driver"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-24T08:10:00.000Z",
-        "disconnectedAt": "2026-03-24T10:05:00.000Z",
-        "userAgent": "Mozilla/5.0 (seed)",
-        "role": "driver"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-22T09:10:00.000Z",
-        "disconnectedAt": "2026-03-22T12:05:00.000Z",
-        "userAgent": "Mozilla/5.0 (seed)",
-        "role": "driver"
-      }
-    ],
-    "updatedAt": "2026-03-27T02:57:20.485Z"
-  },
-  {
-    "id": "ACT-2026-00002",
-    "userId": "USR-2026-00002",
-    "accountCreatedAt": "2025-08-27T09:00:00.000Z",
-    "lastSeenAt": "2026-03-25T08:11:00.000Z",
+    "accountCreatedAt": "2025-08-19T08:00:00.000Z",
+    "lastSeenAt": "2026-03-27T20:47:18.788Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T08:11:00.000Z",
+        "connectedAt": "2026-03-27T20:47:18.772Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T20:47:18.788Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T20:47:16.773Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T20:47:12.509Z",
+        "role": "driver"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T15:22:07.125Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T15:22:24.734Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T14:45:07.880Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T15:22:02.909Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T14:32:56.423Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T14:45:03.954Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T14:27:39.668Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T14:32:54.418Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T14:23:02.354Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T14:27:32.254Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T14:10:42.512Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T14:22:38.626Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T14:09:30.203Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T14:10:39.559Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T14:05:46.357Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T14:09:28.680Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T13:47:45.322Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T14:05:43.389Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T13:35:49.627Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T13:47:42.244Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T13:18:52.471Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T13:35:22.722Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:48:39.355Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T13:18:49.120Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:40:43.401Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T12:48:34.493Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:37:01.616Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T12:40:38.019Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:36:59.592Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T12:37:01.379Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:36:58.231Z",
+        "role": "driver"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:34:13.569Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T12:36:50.281Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:34:12.539Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-27T12:34:13.081Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:34:02.446Z",
+        "role": "driver"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T07:10:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T09:11:00.000Z",
-        "disconnectedAt": "2026-03-23T11:05:00.000Z",
+        "connectedAt": "2026-03-25T08:10:00.000Z",
+        "disconnectedAt": "2026-03-25T10:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T10:11:00.000Z",
-        "disconnectedAt": "2026-03-21T13:05:00.000Z",
+        "connectedAt": "2026-03-23T09:10:00.000Z",
+        "disconnectedAt": "2026-03-23T12:05:00.000Z",
+        "userAgent": "Mozilla/5.0 (seed)",
+        "role": "driver"
+      }
+    ],
+    "updatedAt": "2026-03-27T20:47:18.789Z"
+  },
+  {
+    "id": "ACT-2026-00002",
+    "userId": "USR-2026-00002",
+    "accountCreatedAt": "2025-08-28T09:00:00.000Z",
+    "lastSeenAt": "2026-03-26T08:11:00.000Z",
+    "isCurrentlyConnectedOnWeb": false,
+    "isCurrentlyConnectedOnMobile": false,
+    "connectionHistory": [
+      {
+        "type": "web",
+        "connectedAt": "2026-03-26T08:11:00.000Z",
+        "userAgent": "Mozilla/5.0 (seed)",
+        "role": "driver"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-24T09:11:00.000Z",
+        "disconnectedAt": "2026-03-24T11:05:00.000Z",
+        "userAgent": "Mozilla/5.0 (seed)",
+        "role": "driver"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-22T10:11:00.000Z",
+        "disconnectedAt": "2026-03-22T13:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -261,28 +210,28 @@
   {
     "id": "ACT-2026-00003",
     "userId": "USR-2026-00003",
-    "accountCreatedAt": "2025-09-05T10:00:00.000Z",
-    "lastSeenAt": "2026-03-24T09:12:00.000Z",
+    "accountCreatedAt": "2025-09-06T10:00:00.000Z",
+    "lastSeenAt": "2026-03-25T09:12:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T09:12:00.000Z",
+        "connectedAt": "2026-03-25T09:12:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T10:12:00.000Z",
-        "disconnectedAt": "2026-03-22T12:05:00.000Z",
+        "connectedAt": "2026-03-23T10:12:00.000Z",
+        "disconnectedAt": "2026-03-23T12:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T11:12:00.000Z",
-        "disconnectedAt": "2026-03-20T14:05:00.000Z",
+        "connectedAt": "2026-03-21T11:12:00.000Z",
+        "disconnectedAt": "2026-03-21T14:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -291,28 +240,28 @@
   {
     "id": "ACT-2026-00004",
     "userId": "USR-2026-00004",
-    "accountCreatedAt": "2025-09-14T11:00:00.000Z",
-    "lastSeenAt": "2026-03-26T10:13:00.000Z",
+    "accountCreatedAt": "2025-09-15T11:00:00.000Z",
+    "lastSeenAt": "2026-03-27T10:13:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T10:13:00.000Z",
+        "connectedAt": "2026-03-27T10:13:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T11:13:00.000Z",
-        "disconnectedAt": "2026-03-24T13:05:00.000Z",
+        "connectedAt": "2026-03-25T11:13:00.000Z",
+        "disconnectedAt": "2026-03-25T13:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T12:13:00.000Z",
-        "disconnectedAt": "2026-03-22T15:05:00.000Z",
+        "connectedAt": "2026-03-23T12:13:00.000Z",
+        "disconnectedAt": "2026-03-23T15:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -321,28 +270,28 @@
   {
     "id": "ACT-2026-00005",
     "userId": "USR-2026-00005",
-    "accountCreatedAt": "2025-09-23T08:00:00.000Z",
-    "lastSeenAt": "2026-03-25T11:14:00.000Z",
+    "accountCreatedAt": "2025-09-24T08:00:00.000Z",
+    "lastSeenAt": "2026-03-26T11:14:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T11:14:00.000Z",
+        "connectedAt": "2026-03-26T11:14:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T12:14:00.000Z",
-        "disconnectedAt": "2026-03-23T14:05:00.000Z",
+        "connectedAt": "2026-03-24T12:14:00.000Z",
+        "disconnectedAt": "2026-03-24T14:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T13:14:00.000Z",
-        "disconnectedAt": "2026-03-21T16:05:00.000Z",
+        "connectedAt": "2026-03-22T13:14:00.000Z",
+        "disconnectedAt": "2026-03-22T16:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -351,28 +300,28 @@
   {
     "id": "ACT-2026-00006",
     "userId": "USR-2026-00006",
-    "accountCreatedAt": "2025-10-02T09:00:00.000Z",
-    "lastSeenAt": "2026-03-24T12:15:00.000Z",
+    "accountCreatedAt": "2025-10-03T09:00:00.000Z",
+    "lastSeenAt": "2026-03-25T12:15:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T12:15:00.000Z",
+        "connectedAt": "2026-03-25T12:15:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T13:15:00.000Z",
-        "disconnectedAt": "2026-03-22T15:05:00.000Z",
+        "connectedAt": "2026-03-23T13:15:00.000Z",
+        "disconnectedAt": "2026-03-23T15:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T14:15:00.000Z",
-        "disconnectedAt": "2026-03-20T17:05:00.000Z",
+        "connectedAt": "2026-03-21T14:15:00.000Z",
+        "disconnectedAt": "2026-03-21T17:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -381,28 +330,28 @@
   {
     "id": "ACT-2026-00007",
     "userId": "USR-2026-00007",
-    "accountCreatedAt": "2025-10-11T10:00:00.000Z",
-    "lastSeenAt": "2026-03-26T13:16:00.000Z",
+    "accountCreatedAt": "2025-10-12T10:00:00.000Z",
+    "lastSeenAt": "2026-03-27T13:16:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T13:16:00.000Z",
+        "connectedAt": "2026-03-27T13:16:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T14:16:00.000Z",
-        "disconnectedAt": "2026-03-24T16:05:00.000Z",
+        "connectedAt": "2026-03-25T14:16:00.000Z",
+        "disconnectedAt": "2026-03-25T16:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T15:16:00.000Z",
-        "disconnectedAt": "2026-03-22T18:05:00.000Z",
+        "connectedAt": "2026-03-23T15:16:00.000Z",
+        "disconnectedAt": "2026-03-23T18:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -411,28 +360,28 @@
   {
     "id": "ACT-2026-00008",
     "userId": "USR-2026-00008",
-    "accountCreatedAt": "2025-10-20T11:00:00.000Z",
-    "lastSeenAt": "2026-03-25T14:17:00.000Z",
+    "accountCreatedAt": "2025-10-21T11:00:00.000Z",
+    "lastSeenAt": "2026-03-26T14:17:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T14:17:00.000Z",
+        "connectedAt": "2026-03-26T14:17:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T15:17:00.000Z",
-        "disconnectedAt": "2026-03-23T17:05:00.000Z",
+        "connectedAt": "2026-03-24T15:17:00.000Z",
+        "disconnectedAt": "2026-03-24T17:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T16:17:00.000Z",
-        "disconnectedAt": "2026-03-21T19:05:00.000Z",
+        "connectedAt": "2026-03-22T16:17:00.000Z",
+        "disconnectedAt": "2026-03-22T19:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -441,28 +390,28 @@
   {
     "id": "ACT-2026-00009",
     "userId": "USR-2026-00009",
-    "accountCreatedAt": "2025-10-29T08:00:00.000Z",
-    "lastSeenAt": "2026-03-24T15:18:00.000Z",
+    "accountCreatedAt": "2025-10-30T08:00:00.000Z",
+    "lastSeenAt": "2026-03-25T15:18:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T15:18:00.000Z",
+        "connectedAt": "2026-03-25T15:18:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T16:18:00.000Z",
-        "disconnectedAt": "2026-03-22T18:05:00.000Z",
+        "connectedAt": "2026-03-23T16:18:00.000Z",
+        "disconnectedAt": "2026-03-23T18:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T07:18:00.000Z",
-        "disconnectedAt": "2026-03-20T10:05:00.000Z",
+        "connectedAt": "2026-03-21T07:18:00.000Z",
+        "disconnectedAt": "2026-03-21T10:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -471,28 +420,28 @@
   {
     "id": "ACT-2026-00010",
     "userId": "USR-2026-00010",
-    "accountCreatedAt": "2025-11-07T09:00:00.000Z",
-    "lastSeenAt": "2026-03-26T16:19:00.000Z",
+    "accountCreatedAt": "2025-11-08T09:00:00.000Z",
+    "lastSeenAt": "2026-03-27T16:19:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T16:19:00.000Z",
+        "connectedAt": "2026-03-27T16:19:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T07:19:00.000Z",
-        "disconnectedAt": "2026-03-24T09:05:00.000Z",
+        "connectedAt": "2026-03-25T07:19:00.000Z",
+        "disconnectedAt": "2026-03-25T09:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T08:19:00.000Z",
-        "disconnectedAt": "2026-03-22T11:05:00.000Z",
+        "connectedAt": "2026-03-23T08:19:00.000Z",
+        "disconnectedAt": "2026-03-23T11:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -501,28 +450,28 @@
   {
     "id": "ACT-2026-00011",
     "userId": "USR-2026-00011",
-    "accountCreatedAt": "2025-11-16T10:00:00.000Z",
-    "lastSeenAt": "2026-03-25T07:20:00.000Z",
+    "accountCreatedAt": "2025-11-17T10:00:00.000Z",
+    "lastSeenAt": "2026-03-26T07:20:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T07:20:00.000Z",
+        "connectedAt": "2026-03-26T07:20:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T08:20:00.000Z",
-        "disconnectedAt": "2026-03-23T10:05:00.000Z",
+        "connectedAt": "2026-03-24T08:20:00.000Z",
+        "disconnectedAt": "2026-03-24T10:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T09:20:00.000Z",
-        "disconnectedAt": "2026-03-21T12:05:00.000Z",
+        "connectedAt": "2026-03-22T09:20:00.000Z",
+        "disconnectedAt": "2026-03-22T12:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -531,28 +480,28 @@
   {
     "id": "ACT-2026-00012",
     "userId": "USR-2026-00012",
-    "accountCreatedAt": "2025-11-25T11:00:00.000Z",
-    "lastSeenAt": "2026-03-24T08:21:00.000Z",
+    "accountCreatedAt": "2025-11-26T11:00:00.000Z",
+    "lastSeenAt": "2026-03-25T08:21:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T08:21:00.000Z",
+        "connectedAt": "2026-03-25T08:21:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T09:21:00.000Z",
-        "disconnectedAt": "2026-03-22T11:05:00.000Z",
+        "connectedAt": "2026-03-23T09:21:00.000Z",
+        "disconnectedAt": "2026-03-23T11:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T10:21:00.000Z",
-        "disconnectedAt": "2026-03-20T13:05:00.000Z",
+        "connectedAt": "2026-03-21T10:21:00.000Z",
+        "disconnectedAt": "2026-03-21T13:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "driver"
       }
@@ -561,28 +510,28 @@
   {
     "id": "ACT-2026-00013",
     "userId": "USR-2026-00013",
-    "accountCreatedAt": "2025-12-04T08:00:00.000Z",
-    "lastSeenAt": "2026-03-26T09:22:00.000Z",
+    "accountCreatedAt": "2025-12-05T08:00:00.000Z",
+    "lastSeenAt": "2026-03-27T09:22:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T09:22:00.000Z",
+        "connectedAt": "2026-03-27T09:22:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T10:22:00.000Z",
-        "disconnectedAt": "2026-03-24T12:05:00.000Z",
+        "connectedAt": "2026-03-25T10:22:00.000Z",
+        "disconnectedAt": "2026-03-25T12:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T11:22:00.000Z",
-        "disconnectedAt": "2026-03-22T14:05:00.000Z",
+        "connectedAt": "2026-03-23T11:22:00.000Z",
+        "disconnectedAt": "2026-03-23T14:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -591,233 +540,140 @@
   {
     "id": "ACT-2026-00014",
     "userId": "USR-2026-00014",
-    "accountCreatedAt": "2025-12-13T09:00:00.000Z",
-    "lastSeenAt": "2026-03-27T02:57:30.268Z",
-    "isCurrentlyConnectedOnWeb": true,
-    "isCurrentlyConnectedOnMobile": false,
-    "connectionHistory": [
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:57:30.268Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:57:28.558Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T02:57:29.875Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:56:16.701Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T02:57:27.680Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:38:13.664Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T02:56:15.059Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:12:35.171Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T02:38:10.336Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:05:51.015Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T02:12:35.107Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:05:40.419Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T02:05:50.906Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:05:29.842Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T02:05:40.373Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T02:03:11.815Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T02:05:29.756Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:52:46.976Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T02:03:09.723Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:52:43.492Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:52:46.943Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:52:07.812Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:52:42.742Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:51:21.771Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:52:07.773Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:46:44.082Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:51:21.387Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:44:52.365Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:46:42.358Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:43:57.171Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:44:15.398Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:43:04.307Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:43:48.889Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:40:46.155Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:42:51.607Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:08:13.150Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:40:36.275Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:08:12.777Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-03-27T01:08:13.044Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-27T01:08:08.702Z",
-        "role": "passenger"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-25T10:23:00.000Z",
-        "userAgent": "Mozilla/5.0 (seed)",
-        "role": "passenger"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-23T11:23:00.000Z",
-        "disconnectedAt": "2026-03-23T13:05:00.000Z",
-        "userAgent": "Mozilla/5.0 (seed)",
-        "role": "passenger"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-03-21T12:23:00.000Z",
-        "disconnectedAt": "2026-03-21T15:05:00.000Z",
-        "userAgent": "Mozilla/5.0 (seed)",
-        "role": "passenger"
-      }
-    ],
-    "updatedAt": "2026-03-27T02:57:30.270Z"
-  },
-  {
-    "id": "ACT-2026-00015",
-    "userId": "USR-2026-00015",
-    "accountCreatedAt": "2025-12-22T10:00:00.000Z",
-    "lastSeenAt": "2026-03-24T11:24:00.000Z",
+    "accountCreatedAt": "2025-12-14T09:00:00.000Z",
+    "lastSeenAt": "2026-03-26T10:23:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T11:24:00.000Z",
+        "connectedAt": "2026-03-26T10:23:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T12:24:00.000Z",
-        "disconnectedAt": "2026-03-22T14:05:00.000Z",
+        "connectedAt": "2026-03-24T11:23:00.000Z",
+        "disconnectedAt": "2026-03-24T13:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T13:24:00.000Z",
-        "disconnectedAt": "2026-03-20T16:05:00.000Z",
+        "connectedAt": "2026-03-22T12:23:00.000Z",
+        "disconnectedAt": "2026-03-22T15:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
     ]
   },
   {
+    "id": "ACT-2026-00015",
+    "userId": "USR-2026-00015",
+    "accountCreatedAt": "2025-12-23T10:00:00.000Z",
+    "lastSeenAt": "2026-03-27T16:40:06.429Z",
+    "isCurrentlyConnectedOnWeb": true,
+    "isCurrentlyConnectedOnMobile": false,
+    "connectionHistory": [
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T16:40:06.429Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T16:39:41.722Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-03-27T16:39:52.212Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T15:26:21.311Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-03-27T16:39:17.872Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:32:36.621Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:30:28.883Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-03-27T12:30:29.394Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:21:31.972Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:21:31.879Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-03-27T12:21:31.896Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-27T12:21:00.272Z",
+        "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-25T11:24:00.000Z",
+        "userAgent": "Mozilla/5.0 (seed)",
+        "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-23T12:24:00.000Z",
+        "disconnectedAt": "2026-03-23T14:05:00.000Z",
+        "userAgent": "Mozilla/5.0 (seed)",
+        "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-21T13:24:00.000Z",
+        "disconnectedAt": "2026-03-21T16:05:00.000Z",
+        "userAgent": "Mozilla/5.0 (seed)",
+        "role": "passenger"
+      }
+    ],
+    "updatedAt": "2026-03-27T16:40:06.435Z"
+  },
+  {
     "id": "ACT-2026-00016",
     "userId": "USR-2026-00016",
-    "accountCreatedAt": "2025-12-31T11:00:00.000Z",
-    "lastSeenAt": "2026-03-26T12:25:00.000Z",
+    "accountCreatedAt": "2026-01-01T11:00:00.000Z",
+    "lastSeenAt": "2026-03-27T12:25:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T12:25:00.000Z",
+        "connectedAt": "2026-03-27T12:25:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T13:25:00.000Z",
-        "disconnectedAt": "2026-03-24T15:05:00.000Z",
+        "connectedAt": "2026-03-25T13:25:00.000Z",
+        "disconnectedAt": "2026-03-25T15:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T14:25:00.000Z",
-        "disconnectedAt": "2026-03-22T17:05:00.000Z",
+        "connectedAt": "2026-03-23T14:25:00.000Z",
+        "disconnectedAt": "2026-03-23T17:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -826,28 +682,28 @@
   {
     "id": "ACT-2026-00017",
     "userId": "USR-2026-00017",
-    "accountCreatedAt": "2026-01-09T08:00:00.000Z",
-    "lastSeenAt": "2026-03-25T13:26:00.000Z",
+    "accountCreatedAt": "2026-01-10T08:00:00.000Z",
+    "lastSeenAt": "2026-03-26T13:26:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T13:26:00.000Z",
+        "connectedAt": "2026-03-26T13:26:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T14:26:00.000Z",
-        "disconnectedAt": "2026-03-23T16:05:00.000Z",
+        "connectedAt": "2026-03-24T14:26:00.000Z",
+        "disconnectedAt": "2026-03-24T16:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T15:26:00.000Z",
-        "disconnectedAt": "2026-03-21T18:05:00.000Z",
+        "connectedAt": "2026-03-22T15:26:00.000Z",
+        "disconnectedAt": "2026-03-22T18:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -856,28 +712,28 @@
   {
     "id": "ACT-2026-00018",
     "userId": "USR-2026-00018",
-    "accountCreatedAt": "2026-01-18T09:00:00.000Z",
-    "lastSeenAt": "2026-03-24T14:27:00.000Z",
+    "accountCreatedAt": "2026-01-19T09:00:00.000Z",
+    "lastSeenAt": "2026-03-25T14:27:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T14:27:00.000Z",
+        "connectedAt": "2026-03-25T14:27:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T15:27:00.000Z",
-        "disconnectedAt": "2026-03-22T17:05:00.000Z",
+        "connectedAt": "2026-03-23T15:27:00.000Z",
+        "disconnectedAt": "2026-03-23T17:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T16:27:00.000Z",
-        "disconnectedAt": "2026-03-20T19:05:00.000Z",
+        "connectedAt": "2026-03-21T16:27:00.000Z",
+        "disconnectedAt": "2026-03-21T19:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -886,28 +742,28 @@
   {
     "id": "ACT-2026-00019",
     "userId": "USR-2026-00019",
-    "accountCreatedAt": "2026-01-27T10:00:00.000Z",
-    "lastSeenAt": "2026-03-26T15:28:00.000Z",
+    "accountCreatedAt": "2026-01-28T10:00:00.000Z",
+    "lastSeenAt": "2026-03-27T15:28:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T15:28:00.000Z",
+        "connectedAt": "2026-03-27T15:28:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T16:28:00.000Z",
-        "disconnectedAt": "2026-03-24T18:05:00.000Z",
+        "connectedAt": "2026-03-25T16:28:00.000Z",
+        "disconnectedAt": "2026-03-25T18:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T07:28:00.000Z",
-        "disconnectedAt": "2026-03-22T10:05:00.000Z",
+        "connectedAt": "2026-03-23T07:28:00.000Z",
+        "disconnectedAt": "2026-03-23T10:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -916,28 +772,28 @@
   {
     "id": "ACT-2026-00020",
     "userId": "USR-2026-00020",
-    "accountCreatedAt": "2026-02-05T11:00:00.000Z",
-    "lastSeenAt": "2026-03-25T16:29:00.000Z",
+    "accountCreatedAt": "2026-02-06T11:00:00.000Z",
+    "lastSeenAt": "2026-03-26T16:29:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T16:29:00.000Z",
+        "connectedAt": "2026-03-26T16:29:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T07:29:00.000Z",
-        "disconnectedAt": "2026-03-23T09:05:00.000Z",
+        "connectedAt": "2026-03-24T07:29:00.000Z",
+        "disconnectedAt": "2026-03-24T09:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T08:29:00.000Z",
-        "disconnectedAt": "2026-03-21T11:05:00.000Z",
+        "connectedAt": "2026-03-22T08:29:00.000Z",
+        "disconnectedAt": "2026-03-22T11:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -946,28 +802,28 @@
   {
     "id": "ACT-2026-00021",
     "userId": "USR-2026-00021",
-    "accountCreatedAt": "2026-02-14T08:00:00.000Z",
-    "lastSeenAt": "2026-03-24T07:30:00.000Z",
+    "accountCreatedAt": "2026-02-15T08:00:00.000Z",
+    "lastSeenAt": "2026-03-25T07:30:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T07:30:00.000Z",
+        "connectedAt": "2026-03-25T07:30:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T08:30:00.000Z",
-        "disconnectedAt": "2026-03-22T10:05:00.000Z",
+        "connectedAt": "2026-03-23T08:30:00.000Z",
+        "disconnectedAt": "2026-03-23T10:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T09:30:00.000Z",
-        "disconnectedAt": "2026-03-20T12:05:00.000Z",
+        "connectedAt": "2026-03-21T09:30:00.000Z",
+        "disconnectedAt": "2026-03-21T12:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -976,28 +832,28 @@
   {
     "id": "ACT-2026-00022",
     "userId": "USR-2026-00022",
-    "accountCreatedAt": "2026-02-23T09:00:00.000Z",
-    "lastSeenAt": "2026-03-26T08:31:00.000Z",
+    "accountCreatedAt": "2026-02-24T09:00:00.000Z",
+    "lastSeenAt": "2026-03-27T08:31:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T08:31:00.000Z",
+        "connectedAt": "2026-03-27T08:31:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T09:31:00.000Z",
-        "disconnectedAt": "2026-03-24T11:05:00.000Z",
+        "connectedAt": "2026-03-25T09:31:00.000Z",
+        "disconnectedAt": "2026-03-25T11:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T10:31:00.000Z",
-        "disconnectedAt": "2026-03-22T13:05:00.000Z",
+        "connectedAt": "2026-03-23T10:31:00.000Z",
+        "disconnectedAt": "2026-03-23T13:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1006,28 +862,28 @@
   {
     "id": "ACT-2026-00023",
     "userId": "USR-2026-00023",
-    "accountCreatedAt": "2026-03-04T10:00:00.000Z",
-    "lastSeenAt": "2026-03-25T09:32:00.000Z",
+    "accountCreatedAt": "2026-03-05T10:00:00.000Z",
+    "lastSeenAt": "2026-03-26T09:32:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T09:32:00.000Z",
+        "connectedAt": "2026-03-26T09:32:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T10:32:00.000Z",
-        "disconnectedAt": "2026-03-23T12:05:00.000Z",
+        "connectedAt": "2026-03-24T10:32:00.000Z",
+        "disconnectedAt": "2026-03-24T12:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T11:32:00.000Z",
-        "disconnectedAt": "2026-03-21T14:05:00.000Z",
+        "connectedAt": "2026-03-22T11:32:00.000Z",
+        "disconnectedAt": "2026-03-22T14:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1036,28 +892,28 @@
   {
     "id": "ACT-2026-00024",
     "userId": "USR-2026-00024",
-    "accountCreatedAt": "2026-03-13T11:00:00.000Z",
-    "lastSeenAt": "2026-03-24T10:33:00.000Z",
+    "accountCreatedAt": "2026-03-14T11:00:00.000Z",
+    "lastSeenAt": "2026-03-25T10:33:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T10:33:00.000Z",
+        "connectedAt": "2026-03-25T10:33:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T11:33:00.000Z",
-        "disconnectedAt": "2026-03-22T13:05:00.000Z",
+        "connectedAt": "2026-03-23T11:33:00.000Z",
+        "disconnectedAt": "2026-03-23T13:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T12:33:00.000Z",
-        "disconnectedAt": "2026-03-20T15:05:00.000Z",
+        "connectedAt": "2026-03-21T12:33:00.000Z",
+        "disconnectedAt": "2026-03-21T15:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1066,28 +922,28 @@
   {
     "id": "ACT-2026-00025",
     "userId": "USR-2026-00025",
-    "accountCreatedAt": "2026-03-22T08:00:00.000Z",
-    "lastSeenAt": "2026-03-26T11:34:00.000Z",
+    "accountCreatedAt": "2026-03-23T08:00:00.000Z",
+    "lastSeenAt": "2026-03-27T11:34:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T11:34:00.000Z",
+        "connectedAt": "2026-03-27T11:34:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T12:34:00.000Z",
-        "disconnectedAt": "2026-03-24T14:05:00.000Z",
+        "connectedAt": "2026-03-25T12:34:00.000Z",
+        "disconnectedAt": "2026-03-25T14:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T13:34:00.000Z",
-        "disconnectedAt": "2026-03-22T16:05:00.000Z",
+        "connectedAt": "2026-03-23T13:34:00.000Z",
+        "disconnectedAt": "2026-03-23T16:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1096,28 +952,28 @@
   {
     "id": "ACT-2026-00026",
     "userId": "USR-2026-00026",
-    "accountCreatedAt": "2026-03-31T09:00:00.000Z",
-    "lastSeenAt": "2026-03-25T12:35:00.000Z",
+    "accountCreatedAt": "2026-04-01T09:00:00.000Z",
+    "lastSeenAt": "2026-03-26T12:35:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T12:35:00.000Z",
+        "connectedAt": "2026-03-26T12:35:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T13:35:00.000Z",
-        "disconnectedAt": "2026-03-23T15:05:00.000Z",
+        "connectedAt": "2026-03-24T13:35:00.000Z",
+        "disconnectedAt": "2026-03-24T15:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T14:35:00.000Z",
-        "disconnectedAt": "2026-03-21T17:05:00.000Z",
+        "connectedAt": "2026-03-22T14:35:00.000Z",
+        "disconnectedAt": "2026-03-22T17:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1126,28 +982,28 @@
   {
     "id": "ACT-2026-00027",
     "userId": "USR-2026-00027",
-    "accountCreatedAt": "2026-04-09T10:00:00.000Z",
-    "lastSeenAt": "2026-03-24T13:36:00.000Z",
+    "accountCreatedAt": "2026-04-10T10:00:00.000Z",
+    "lastSeenAt": "2026-03-25T13:36:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T13:36:00.000Z",
+        "connectedAt": "2026-03-25T13:36:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T14:36:00.000Z",
-        "disconnectedAt": "2026-03-22T16:05:00.000Z",
+        "connectedAt": "2026-03-23T14:36:00.000Z",
+        "disconnectedAt": "2026-03-23T16:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T15:36:00.000Z",
-        "disconnectedAt": "2026-03-20T18:05:00.000Z",
+        "connectedAt": "2026-03-21T15:36:00.000Z",
+        "disconnectedAt": "2026-03-21T18:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1156,28 +1012,28 @@
   {
     "id": "ACT-2026-00028",
     "userId": "USR-2026-00028",
-    "accountCreatedAt": "2026-04-18T11:00:00.000Z",
-    "lastSeenAt": "2026-03-26T14:37:00.000Z",
+    "accountCreatedAt": "2026-04-19T11:00:00.000Z",
+    "lastSeenAt": "2026-03-27T14:37:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T14:37:00.000Z",
+        "connectedAt": "2026-03-27T14:37:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T15:37:00.000Z",
-        "disconnectedAt": "2026-03-24T17:05:00.000Z",
+        "connectedAt": "2026-03-25T15:37:00.000Z",
+        "disconnectedAt": "2026-03-25T17:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T16:37:00.000Z",
-        "disconnectedAt": "2026-03-22T19:05:00.000Z",
+        "connectedAt": "2026-03-23T16:37:00.000Z",
+        "disconnectedAt": "2026-03-23T19:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1186,28 +1042,28 @@
   {
     "id": "ACT-2026-00029",
     "userId": "USR-2026-00029",
-    "accountCreatedAt": "2026-04-27T08:00:00.000Z",
-    "lastSeenAt": "2026-03-25T15:38:00.000Z",
+    "accountCreatedAt": "2026-04-28T08:00:00.000Z",
+    "lastSeenAt": "2026-03-26T15:38:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T15:38:00.000Z",
+        "connectedAt": "2026-03-26T15:38:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T16:38:00.000Z",
-        "disconnectedAt": "2026-03-23T18:05:00.000Z",
+        "connectedAt": "2026-03-24T16:38:00.000Z",
+        "disconnectedAt": "2026-03-24T18:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T07:38:00.000Z",
-        "disconnectedAt": "2026-03-21T10:05:00.000Z",
+        "connectedAt": "2026-03-22T07:38:00.000Z",
+        "disconnectedAt": "2026-03-22T10:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1216,28 +1072,28 @@
   {
     "id": "ACT-2026-00030",
     "userId": "USR-2026-00030",
-    "accountCreatedAt": "2026-05-06T09:00:00.000Z",
-    "lastSeenAt": "2026-03-24T16:39:00.000Z",
+    "accountCreatedAt": "2026-05-07T09:00:00.000Z",
+    "lastSeenAt": "2026-03-25T16:39:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-24T16:39:00.000Z",
+        "connectedAt": "2026-03-25T16:39:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T07:39:00.000Z",
-        "disconnectedAt": "2026-03-22T09:05:00.000Z",
+        "connectedAt": "2026-03-23T07:39:00.000Z",
+        "disconnectedAt": "2026-03-23T09:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-20T08:39:00.000Z",
-        "disconnectedAt": "2026-03-20T11:05:00.000Z",
+        "connectedAt": "2026-03-21T08:39:00.000Z",
+        "disconnectedAt": "2026-03-21T11:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1246,28 +1102,28 @@
   {
     "id": "ACT-2026-00031",
     "userId": "USR-2026-00031",
-    "accountCreatedAt": "2026-05-15T10:00:00.000Z",
-    "lastSeenAt": "2026-03-26T07:40:00.000Z",
+    "accountCreatedAt": "2026-05-16T10:00:00.000Z",
+    "lastSeenAt": "2026-03-27T07:40:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-26T07:40:00.000Z",
+        "connectedAt": "2026-03-27T07:40:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-24T08:40:00.000Z",
-        "disconnectedAt": "2026-03-24T10:05:00.000Z",
+        "connectedAt": "2026-03-25T08:40:00.000Z",
+        "disconnectedAt": "2026-03-25T10:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-22T09:40:00.000Z",
-        "disconnectedAt": "2026-03-22T12:05:00.000Z",
+        "connectedAt": "2026-03-23T09:40:00.000Z",
+        "disconnectedAt": "2026-03-23T12:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
@@ -1276,28 +1132,28 @@
   {
     "id": "ACT-2026-00032",
     "userId": "USR-2026-00032",
-    "accountCreatedAt": "2026-05-24T11:00:00.000Z",
-    "lastSeenAt": "2026-03-25T08:41:00.000Z",
+    "accountCreatedAt": "2026-05-25T11:00:00.000Z",
+    "lastSeenAt": "2026-03-26T08:41:00.000Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-03-25T08:41:00.000Z",
+        "connectedAt": "2026-03-26T08:41:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-23T09:41:00.000Z",
-        "disconnectedAt": "2026-03-23T11:05:00.000Z",
+        "connectedAt": "2026-03-24T09:41:00.000Z",
+        "disconnectedAt": "2026-03-24T11:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       },
       {
         "type": "web",
-        "connectedAt": "2026-03-21T10:41:00.000Z",
-        "disconnectedAt": "2026-03-21T13:05:00.000Z",
+        "connectedAt": "2026-03-22T10:41:00.000Z",
+        "disconnectedAt": "2026-03-22T13:05:00.000Z",
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
