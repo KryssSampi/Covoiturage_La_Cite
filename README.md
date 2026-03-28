@@ -1,49 +1,129 @@
-# Projet en construction – Plateforme de covoiturage La Cité
+# Branche : `web/feature/api/frontend-routes-implementation`
 
-Ce dépôt héberge le développement d'une **plateforme de covoiturage** dédiée à la communauté du **Collège La Cité** (Ottawa).
+## Objectif
 
-L'objectif est simple et structurant :  
-**Optimiser les déplacements** des étudiants, enseignants et employés à travers un système de covoiturage **sécurisé, fermé et intelligent**, adapté aux réalités du campus et de la vie urbaine.
-
----
-
-## Vision du projet
-
-- Réduire les coûts de transport
-- Favoriser l'entraide communautaire
-- Diminuer l'empreinte écologique
-- Proposer une solution moderne, fiable et évolutive
+Implémenter l’ensemble des **routes API frontend** et connecter le frontend web à une logique métier complète via le **core backend**, incluant temps réel, tracking, dashboard et gestion des trajets.
 
 ---
 
-## État actuel
+## Ce qui a été construit
 
-Le projet est en **phase active de conception et de développement**.
+### API Frontend (Next.js)
 
-- Architecture, logique métier et fonctionnalités principales sont en cours de structuration selon une approche **agile et progressive**.
-- Certaines parties peuvent être **incomplètes ou temporaires**.
-- Le code évolue vite, mais **toujours avec intention**.
+* Création de nombreuses routes API (`/app/api/...`)
+* Structuration par domaine :
 
----
+  * trajets
+  * réservations
+  * notifications
+  * locations
+  * administration
+* Introduction des **Server-Sent Events (SSE)** :
 
-## Périmètre fonctionnel (aperçu)
-
-- Gestion des utilisateurs (communauté La Cité)
-- Covoiturage régulier et occasionnel
-- Mise en relation conducteur / passager
-- Sécurité, traçabilité et contrôle des accès
-- API REST pensée pour web et mobile
-
----
-
-## À venir
-
-- Implémentation complète des fonctionnalités clés
-- Sécurisation avancée
-- Tests, optimisation et documentation finale
+  * positions en temps réel
+  * notifications
 
 ---
 
-## Merci de votre patience pendant les travaux.
+### Core & Logique métier
 
-**Ici, on construit du solide, pas du jetable.**
+* Implémentation de services métiers :
+
+  * dashboard (driver / passenger)
+  * authentification
+  * favoris
+  * historique
+  * suggestions de localisation
+* Centralisation de la logique dans le `core`
+* Mise en place d’un modèle orienté services
+
+---
+
+### Feature principale : trajet-en-cours
+
+* Suivi temps réel des positions
+* Hooks spécialisés :
+
+  * `useRealtimePositions`
+  * `useLocationEmitter`
+* Synchronisation driver ↔ passenger
+
+---
+
+### Recherche & Matching
+
+* Amélioration de l’algorithme (matchingV4)
+* Suggestions dynamiques de localisation
+* Expérience utilisateur enrichie
+
+---
+
+### Dashboard
+
+* Refactor complet :
+
+  * driver
+  * passenger
+* Composants modulaires
+* Gestion des états via hooks et services
+
+---
+
+### Notifications
+
+* Système temps réel via SSE
+* Composants UI dédiés
+* Factory de notifications côté core
+
+---
+
+### Tests
+
+* Extension massive des tests
+* Couverture des nouvelles features
+* Mise à jour des fixtures
+
+---
+
+### Maintenance & outils
+
+* Suppression des anciens scripts auto-commit
+* Ajout de scripts DB :
+
+  * seed
+  * clean
+* Normalisation du repo (.gitignore)
+
+---
+
+## Breaking Changes
+
+* Toutes les routes protégées nécessitent désormais `[id]`
+* Refactor complet des accès aux données
+* Changement structurel des pages Next.js
+
+---
+
+## Résultat final
+
+Le frontend web est maintenant :
+
+Connecté au backend via API
+Temps réel (positions + notifications)
+Structuré et scalable
+Aligné avec une architecture core propre
+Prêt pour intégration mobile
+
+---
+
+## Prochaine étape
+
+* Intégration Mobile / Frontend
+* Stabilisation backend core
+* Distribution des services
+
+---
+
+## Insight
+
+Cette branche marque le passage d’un frontend isolé à un **système applicatif complet piloté par API et logique métier centralisée**.
