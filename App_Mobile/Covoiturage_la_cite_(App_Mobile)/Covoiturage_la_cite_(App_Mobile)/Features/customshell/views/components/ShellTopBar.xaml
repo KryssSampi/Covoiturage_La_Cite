@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.shell.views.components.ShellTopBar">
+    <Grid
+        HeightRequest="52"
+        BackgroundColor="White"
+        Padding="0">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50"/>
+            <!-- Menu -->
+            <ColumnDefinition Width="*"/>
+            <!-- Titre -->
+            <ColumnDefinition Width="50"/>
+            <!-- Cloche -->
+        </Grid.ColumnDefinitions>
+
+        <!-- ── Bouton Menu (hamburger) ── -->
+        <Grid
+            Grid.Column="0"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            WidthRequest="44"
+            Margin="-30"
+            HeightRequest="44">
+
+            <VerticalStackLayout
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Spacing="5">
+                <!-- Ligne 1 (longue) -->
+                <BoxView
+                    WidthRequest="20"
+                    HeightRequest="2"
+                    CornerRadius="1"
+                    Color="#1A56CC"/>
+                <!-- Ligne 2 (courte) -->
+                <BoxView
+                    WidthRequest="14"
+                    HeightRequest="2"
+                    CornerRadius="1"
+                    Color="#1A56CC"
+                    HorizontalOptions="Start"/>
+                <!-- Ligne 3 (longue) -->
+                <BoxView
+                    WidthRequest="20"
+                    HeightRequest="2"
+                    CornerRadius="1"
+                    Color="#1A56CC"/>
+            </VerticalStackLayout>
+
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer x:Name="MenuTap"/>
+            </Grid.GestureRecognizers>
+        </Grid>
+
+        <!-- ── Titre centré ── -->
+        <Label
+            Grid.Column="1"
+            x:Name="TitleLabel"
+            Text="La Cité Covoiturage"
+            HorizontalTextAlignment="Center"
+            VerticalTextAlignment="Center"
+            FontFamily="OpemSansRegular"
+            FontSize="25"
+            FontAttributes="Bold"
+            TextColor="#1A56CC"
+            LineBreakMode="TailTruncation"/>
+
+        <!-- ── Bouton Notification ── -->
+        <Grid
+            Grid.Column="2"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            WidthRequest="44"
+            HeightRequest="44">
+
+            <!-- Icône cloche Fluent -->
+            <mi:MauiIcon Icon="{mi:FontAwesome Icon=Bell}" IconColor="#08316e"/>
+
+            <!-- Pastille numérotée (masquée si count == 0) -->
+            <Border
+                x:Name="BadgeFrame"
+                WidthRequest="18"
+                HeightRequest="18"
+                StrokeShape="RoundRectangle 9"
+                Padding ="0"
+                BackgroundColor="#E24B4A"
+                Stroke="White"
+                HorizontalOptions="End"
+                VerticalOptions="Start"
+                Margin="0,6,6,0"
+                IsVisible="False">
+                <Label
+                    x:Name="BadgeLabel"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center"
+                    FontFamily="OpenSansSemibold"
+                    FontSize="9"
+                    FontAttributes="Bold"
+                    TextColor="White"/>
+            </Border>
+
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer x:Name="BellTap"/>
+            </Grid.GestureRecognizers>
+        </Grid>
+
+    </Grid>
+</ContentView>

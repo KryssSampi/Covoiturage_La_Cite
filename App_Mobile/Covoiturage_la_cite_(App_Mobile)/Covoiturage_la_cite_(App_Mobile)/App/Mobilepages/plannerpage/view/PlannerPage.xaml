@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/planner/views/ui/PlannerPage.xaml
+  Page agrégat : calendrier + section rides avec ItemList + sheet
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.plannerpage.view.PlannerPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:comp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.planner.views.components"
+    xmlns:cards="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.Views"
+    xmlns:list="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.ItemList.Views"
+    xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.planner.converters"
+    xmlns:sconv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Converters"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.planner.DisplayModels"
+    BackgroundColor="#F2F5FA">
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <!-- Converters statut -->
+            <conv:DriverStatusBackgroundConverter  x:Key="DriverStatusBg"/>
+            <conv:DriverStatusForegroundConverter  x:Key="DriverStatusFg"/>
+            <conv:DriverStatusLabelConverter       x:Key="DriverStatusLabel"/>
+            <conv:PassengerStatusBackgroundConverter x:Key="PassengerStatusBg"/>
+            <conv:PassengerStatusForegroundConverter x:Key="PassengerStatusFg"/>
+            <conv:PassengerStatusLabelConverter    x:Key="PassengerStatusLabel"/>
+            <conv:TripCountToColorConverter        x:Key="CountToColor"/>
+            <conv:TripCountToBoolConverter         x:Key="CountToBool"/>
+            <!-- Shared converters -->
+            <sconv:InverseBoolConverter            x:Key="InverseBoolConverter"/>
+            <sconv:NotNullToBoolConverter          x:Key="NotNullToBool"/>
+            <sconv:StringNotEmptyToBoolConverter   x:Key="StringNotEmptyToBool"/>
+            <sconv:BoolToVisibilityConverter       x:Key="BoolToVis"/>
+
+            <!-- Styles entêtes jours calendrier -->
+            <Style x:Key="DayHeaderStyle" TargetType="Label">
+                <Setter Property="FontFamily"           Value="OpenSansSemibold"/>
+                <Setter Property="FontSize"             Value="11"/>
+                <Setter Property="FontAttributes"       Value="Bold"/>
+                <Setter Property="TextColor"            Value="#7A879A"/>
+                <Setter Property="HorizontalTextAlignment" Value="Center"/>
+                <Setter Property="Padding"              Value="0,4"/>
+            </Style>
+            <Style x:Key="DayHeaderWeekendStyle" TargetType="Label"
+                   BasedOn="{StaticResource DayHeaderStyle}">
+                <Setter Property="TextColor" Value="#E24B4A"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentView.Resources>
+
+    <!-- Grille racine : page + sheet superposée -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══════════════════════════════════════════
+             CONTENU PRINCIPAL
+        ══════════════════════════════════════════ -->
+        <ScrollView VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Spacing="0">
+
+                <!-- ── Header actions ── -->
+                <Grid BackgroundColor="White" Padding="16,14,16,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Mes disponibilités -->
+                    <Frame Grid.Column="0" CornerRadius="16" Padding="12,12"
+                           BackgroundColor="#E1F5EE"
+                           BorderColor="#400F6E56" HasShadow="True">
+                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Frame WidthRequest="44" HeightRequest="44" CornerRadius="12"
+                                   Padding="0" BackgroundColor="#0F6E56"
+                                   BorderColor="Transparent" HasShadow="True">
+                                <Label Text="&#xF274;" FontFamily="FluentFilledIcons"
+                                       FontSize="22" TextColor="White"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center"/>
+                            </Frame>
+                            <Label Text="Mes&#x0a;disponibilités"
+                                   FontFamily="OpenSansSemibold" FontSize="11"
+                                   FontAttributes="Bold" TextColor="#0F6E56"
+                                   HorizontalTextAlignment="Center" LineHeight="1.3"/>
+                        </VerticalStackLayout>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenSheetCommand}"/>
+                        </Frame.GestureRecognizers>
+                    </Frame>
+
+                    <!-- Trouver un trajet -->
+                    <Frame Grid.Column="2" CornerRadius="16" Padding="12,12"
+                           BackgroundColor="#E8F0FE"
+                           BorderColor="#401A56CC" HasShadow="True">
+                        <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                            <Frame WidthRequest="44" HeightRequest="44" CornerRadius="12"
+                                   Padding="0" BackgroundColor="#1A56CC"
+                                   BorderColor="Transparent" HasShadow="True">
+                                <Label Text="&#xF1EB;" FontFamily="FluentFilledIcons"
+                                       FontSize="22" TextColor="White"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center"/>
+                            </Frame>
+                            <Label Text="Trouver&#x0a;un trajet"
+                                   FontFamily="OpenSansSemibold" FontSize="11"
+                                   FontAttributes="Bold" TextColor="#0D3A8C"
+                                   HorizontalTextAlignment="Center" LineHeight="1.3"/>
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- ── Calendrier ── -->
+                <BoxView HeightRequest="8" BackgroundColor="#F2F5FA"/>
+                <comp:PlannerCalendarView BindingContext="{Binding}"/>
+
+                <!-- ── Section Rides ── -->
+                <BoxView HeightRequest="8" BackgroundColor="#F2F5FA"/>
+                <VerticalStackLayout BackgroundColor="White">
+
+                    <!-- Nav jour (mode jour) -->
+                    <Grid Padding="12,11,12,10"
+                          IsVisible="{Binding IsViewAll,
+                              Converter={StaticResource InverseBoolConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="30"/>
+                        </Grid.ColumnDefinitions>
+                        <Frame Grid.Column="0" WidthRequest="30" HeightRequest="30"
+                               CornerRadius="15" BackgroundColor="#F8F9FC"
+                               BorderColor="#D8DBE5" Padding="0" HasShadow="False">
+                            <Label Text="&#xE90C;" FontFamily="FluentRegularIcons"
+                                   FontSize="14" TextColor="#3D4A5C"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding NavigateDayCommand}"
+                                        CommandParameter="-1"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Frame>
+                        <Label Grid.Column="1"
+                               Text="{Binding ActiveDateLabel}"
+                               FontFamily="OpenSansSemibold" FontSize="14"
+                               FontAttributes="Bold" TextColor="#0D1624"
+                               HorizontalTextAlignment="Center"/>
+                        <Frame Grid.Column="2" WidthRequest="30" HeightRequest="30"
+                               CornerRadius="15" BackgroundColor="#F8F9FC"
+                               BorderColor="#D8DBE5" Padding="0" HasShadow="False">
+                            <Label Text="&#xE90F;" FontFamily="FluentRegularIcons"
+                                   FontSize="14" TextColor="#3D4A5C"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding NavigateDayCommand}"
+                                        CommandParameter="1"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Frame>
+                    </Grid>
+
+                    <!-- Label "Vue totale" -->
+                    <Label Padding="16,11,16,10"
+                           Text="Tous les trajets"
+                           FontFamily="OpenSansSemibold" FontSize="12"
+                           TextColor="#7A879A"
+                           IsVisible="{Binding IsViewAll}"/>
+
+                    <!-- Status bar du jour + bouton Voir tout -->
+                    <Grid Padding="12,7,12,7"
+                          BackgroundColor="White">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Column="0" Text="Statut du jour :"
+                               FontSize="12" TextColor="#7A879A"
+                               FontAttributes="Bold" VerticalOptions="Center"/>
+
+                        <!-- Pills statut -->
+                        <CollectionView Grid.Column="1"
+                                        ItemsSource="{Binding StatusPills}"
+                                        SelectionMode="None"
+                                        Margin="8,0">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="6"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="dm:StatusPillDisplayModel">
+                                    <Frame Padding="6,3" CornerRadius="12"
+                                           BackgroundColor="{Binding BackgroundHex}"
+                                           BorderColor="Transparent" HasShadow="False">
+                                        <HorizontalStackLayout Spacing="4">
+                                            <Label Text="{Binding IconGlyph}"
+                                                   FontFamily="FluentFilledIcons"
+                                                   FontSize="10"
+                                                   TextColor="{Binding ForegroundHex}"/>
+                                            <Label Text="{Binding Count}"
+                                                   FontFamily="OpenSansSemibold"
+                                                   FontSize="11" FontAttributes="Bold"
+                                                   TextColor="{Binding ForegroundHex}"/>
+                                        </HorizontalStackLayout>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <!-- Voir tout -->
+                        <Frame Grid.Column="2" CornerRadius="12"
+                               Padding="10,5" HasShadow="False">
+                            <Frame.Triggers>
+                                <DataTrigger TargetType="Frame"
+                                             Binding="{Binding IsViewAll}" Value="False">
+                                    <Setter Property="BackgroundColor" Value="#E8F0FE"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Frame"
+                                             Binding="{Binding IsViewAll}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="#08316e"/>
+                                </DataTrigger>
+                            </Frame.Triggers>
+                            <Label FontFamily="OpenSansSemibold" FontSize="11"
+                                   FontAttributes="Bold">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsViewAll}" Value="False">
+                                        <Setter Property="Text"      Value="Voir tout"/>
+                                        <Setter Property="TextColor" Value="#1A56CC"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsViewAll}" Value="True">
+                                        <Setter Property="Text"      Value="Fermer"/>
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleViewAllCommand}"/>
+                            </Frame.GestureRecognizers>
+                        </Frame>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#0D000000"/>
+
+                    <!-- ── ItemList (mode Voir tout avec recherche/filtre/tri) ── -->
+                    <VerticalStackLayout IsVisible="{Binding IsViewAll}">
+                        <list:ItemListView
+                            x:Name="AllRidesList"
+                            ShowNoInternet="{Binding IsOffline}"
+                            Margin="0,0,0,0">
+                            <list:ItemListView.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- Discriminant : DriverRideItem ou PassengerRideItem -->
+                                    <!-- Géré en code-behind via DataTemplateSelector -->
+                                </DataTemplate>
+                            </list:ItemListView.ItemTemplate>
+                        </list:ItemListView>
+                    </VerticalStackLayout>
+
+                    <!-- ── Liste du jour simple (mode jour) ── -->
+                    <VerticalStackLayout
+                        IsVisible="{Binding IsViewAll,
+                            Converter={StaticResource InverseBoolConverter}}"
+                        Padding="12,8,12,8" Spacing="8">
+
+                        <CollectionView ItemsSource="{Binding DisplayedItems}"
+                                        SelectionMode="None"
+                                        x:Name="DayList">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+                            </CollectionView.ItemsLayout>
+                            <!-- DataTemplateSelector injecté depuis le code-behind -->
+                            <CollectionView.EmptyView>
+                                <VerticalStackLayout Padding="20,30" Spacing="12">
+                                    <Frame WidthRequest="56" HeightRequest="56"
+                                           CornerRadius="28" BackgroundColor="#F8F9FC"
+                                           BorderColor="#D8DBE5"
+                                           HasShadow="False" HorizontalOptions="Center">
+                                        <Label Text="&#xF274;" FontFamily="FluentRegularIcons"
+                                               FontSize="24" TextColor="#8A95A8"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center"/>
+                                    </Frame>
+                                    <Label Text="Aucun trajet ce jour"
+                                           FontFamily="OpenSansSemibold" FontSize="14"
+                                           FontAttributes="Bold" TextColor="#3D4A5C"
+                                           HorizontalTextAlignment="Center"/>
+                                    <Label Text="Aucun trajet planifié pour cette date."
+                                           FontSize="12" TextColor="#7A879A"
+                                           HorizontalTextAlignment="Center"/>
+                                </VerticalStackLayout>
+                            </CollectionView.EmptyView>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="24"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ══════════════════════════════════════════
+             BOTTOM SHEET (superposée)
+        ══════════════════════════════════════════ -->
+        <comp:UnavailabilitySheet
+            BindingContext="{Binding}"
+            IsVisible="{Binding IsSheetOpen}"
+            VerticalOptions="Fill"
+            HorizontalOptions="Fill"/>
+
+    </Grid>
+</ContentView>
+
+
+
+
+
+
+

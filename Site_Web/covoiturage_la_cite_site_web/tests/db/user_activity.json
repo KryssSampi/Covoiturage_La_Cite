@@ -3,10 +3,41 @@
     "id": "ACT-2026-00001",
     "userId": "USR-2026-00001",
     "accountCreatedAt": "2025-08-19T08:00:00.000Z",
-    "lastSeenAt": "2026-03-27T20:47:18.788Z",
-    "isCurrentlyConnectedOnWeb": false,
+    "lastSeenAt": "2026-03-28T19:48:08.921Z",
+    "isCurrentlyConnectedOnWeb": true,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
+      {
+        "type": "web",
+        "connectedAt": "2026-03-28T19:48:08.921Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-28T19:46:05.270Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-28T19:46:05.305Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-28T19:41:47.005Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-28T19:41:46.978Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "driver",
+        "disconnectedAt": "2026-03-28T19:41:46.991Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-28T19:41:33.431Z",
+        "role": "driver"
+      },
       {
         "type": "web",
         "connectedAt": "2026-03-27T20:47:18.772Z",
@@ -175,7 +206,7 @@
         "role": "driver"
       }
     ],
-    "updatedAt": "2026-03-27T20:47:18.789Z"
+    "updatedAt": "2026-03-28T19:48:08.924Z"
   },
   {
     "id": "ACT-2026-00002",
@@ -803,10 +834,29 @@
     "id": "ACT-2026-00021",
     "userId": "USR-2026-00021",
     "accountCreatedAt": "2026-02-15T08:00:00.000Z",
-    "lastSeenAt": "2026-03-25T07:30:00.000Z",
+    "lastSeenAt": "2026-03-28T19:48:05.772Z",
     "isCurrentlyConnectedOnWeb": false,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
+      {
+        "type": "web",
+        "connectedAt": "2026-03-28T19:42:35.199Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-03-28T19:48:05.772Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-28T19:42:34.615Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-03-28T19:42:34.714Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-03-28T19:42:28.802Z",
+        "role": "passenger"
+      },
       {
         "type": "web",
         "connectedAt": "2026-03-25T07:30:00.000Z",
@@ -827,7 +877,8 @@
         "userAgent": "Mozilla/5.0 (seed)",
         "role": "passenger"
       }
-    ]
+    ],
+    "updatedAt": "2026-03-28T19:48:05.781Z"
   },
   {
     "id": "ACT-2026-00022",

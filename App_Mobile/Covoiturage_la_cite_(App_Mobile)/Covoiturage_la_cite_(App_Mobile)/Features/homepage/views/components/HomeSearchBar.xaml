@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- Features/homepage/views/components/HomeSearchBar.xaml -->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.homepage.views.components.HomeSearchBar"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:controllers="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayModels"
+    x:Name="Root"
+    x:DataType="controllers:HomepageDisplayController">
+
+    <Grid RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border BackgroundColor="#F8F9FC"
+                Stroke="#D8DBE5"
+                StrokeThickness="1.5"
+                Padding="12,6"
+                HeightRequest="50">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="999" />
+            </Border.StrokeShape>
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Loupe cliquable → SearchCommand -->
+                <mi:MauiIcon Icon="{mi:Material Icon=Search}" IconSize="18" IconColor="#7A879A" VerticalOptions="Center">
+                    <mi:MauiIcon.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding BindingContext.SearchCommand, Source={x:Reference Root}}"/>
+                    </mi:MauiIcon.GestureRecognizers>
+                </mi:MauiIcon>
+
+                <Entry Grid.Column="1"
+                       Text="{Binding SearchBar.Query}"
+                       Placeholder="{Binding SearchBar.Placeholder}"
+                       PlaceholderColor="#8A95A8"
+                       FontSize="15"
+                       BackgroundColor="Transparent"
+                       ReturnType="Search"
+                       ReturnCommand="{Binding SearchCommand}" />
+
+                <ScrollView Grid.Column="2"
+                            Orientation="Horizontal"
+                            MaximumWidthRequest="80"
+                            
+                            HorizontalScrollBarVisibility="Never">
+                    <HorizontalStackLayout Spacing="6" >
+                        <CollectionView ItemsSource="{Binding SearchBar.Chips}"
+                                        ItemsLayout="HorizontalList"
+                                        SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="dm:HomeSearchChipDisplayModel">
+                                    <Border BackgroundColor="{Binding BackgroundHex}"
+                                            StrokeThickness="0"
+                                            Padding="8,6"
+                                            Margin="0"
+                                            >
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="999" />
+                                        </Border.StrokeShape>
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding BindingContext.SelectChipCommand, Source={x:Reference Root}}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <HorizontalStackLayout Spacing="4">
+                                            <mi:MauiIcon Icon="{Binding IconKey, Converter={StaticResource MaterialIconConverter}}"
+                                                         IconSize="12"
+                                                         IconColor="{Binding ForegroundHex}"
+                                                         VerticalOptions="Center" />
+                                            <Label Text="{Binding Label}"
+                                                   FontAttributes="Bold"
+                                                   FontSize="12"
+                                                   TextColor="{Binding ForegroundHex}" />
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </HorizontalStackLayout>
+                </ScrollView>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

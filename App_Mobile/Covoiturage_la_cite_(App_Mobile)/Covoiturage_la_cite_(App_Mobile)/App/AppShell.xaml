@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+═══════════════════════════════════════════════════════════════════════
+ AppShell.xaml — Gardien du Flyout natif + pages hors-wrapper
+
+ CE QUE FAIT LE SHELL :
+   ✅ Flyout natif (SideNav header/content/footer)
+   ✅ Navigation vers MainPage (point d'entrée unique)
+   ✅ Navigation push vers les pages hors-wrapper :
+        - search          (focus total, pas de chrome)
+        - reservation     (flux étape par étape)
+        - trajet_detail   (page de détail)
+        - payment         (flux paiement)
+        - notifications   (modale)
+        - login           (auth)
+        - onboarding      (premier lancement)
+   ✅ Back natif sur ces pages
+
+ CE QUE NE FAIT PAS LE SHELL :
+   ❌ Navigation entre les 5 onglets principaux → NavigationService
+   ❌ Rendu de la TopBar et TabBar → MainPage
+═══════════════════════════════════════════════════════════════════════
+-->
+<Shell
+    x:Class="Covoiturage_la_cite__App_Mobile_.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.customshell.converter"
+    xmlns:ui="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.ui"
+    xmlns:main="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.customshell.views.components"
+    xmlns:search="clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.searchpage.view"
+    Shell.FlyoutBehavior="Flyout"
+    Shell.FlyoutWidth="300"
+    FlyoutBackgroundColor="White"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    x:Name="AppShellRoot">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         RESSOURCES
+    ═══════════════════════════════════════════════════════════════ -->
+    <Shell.Resources>
+        <ResourceDictionary>
+            <conv:NotificationBadgeConverter x:Key="BadgeConverter"/>
+            <conv:BoolToVisibilityConverter  x:Key="BoolToVis"/>
+            <conv:GreaterThanZeroConverter   x:Key="GreaterThanZero"/>
+            <Color x:Key="PrimaryBlue">#1A56CC</Color>
+            <Color x:Key="PrimaryBlueDark">#08316e</Color>
+            <Color x:Key="SurfaceColor">#FFFFFF</Color>
+            <Color x:Key="BackgroundColor">#F2F5FA</Color>
+            <Color x:Key="Gray400">#8A95A8</Color>
+            <Color x:Key="RedBadge">#E24B4A</Color>
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         FLYOUT — natif, inchangé
+    ═══════════════════════════════════════════════════════════════ -->
+    <Shell.FlyoutHeader>
+        <ui:SideNavHeader/>
+    </Shell.FlyoutHeader>
+
+    <Shell.FlyoutContent>
+        <ui:SideNavContent/>
+    </Shell.FlyoutContent>
+
+    <Shell.FlyoutFooter>
+        <ui:SideNavFooter/>
+    </Shell.FlyoutFooter>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         POINT D'ENTRÉE UNIQUE — MainPage
+         Toute la navigation principale se passe à l'intérieur.
+         Le Shell ne voit qu'une seule "page".
+    ═══════════════════════════════════════════════════════════════ -->
+    <FlyoutItem IsVisible="True" Route="main">
+        <ShellContent
+            ContentTemplate="{DataTemplate main:MainView}"
+            Route="main_page"/>
+    </FlyoutItem>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PAGES HORS-WRAPPER
+         Gérées par le Shell natif — back natif disponible.
+         Pas de TopBar custom, pas de TabBar custom.
+         À déclarer ici + RegisterRoutes() dans AppShell.xaml.cs
+    ═══════════════════════════════════════════════════════════════ -->
+    <FlyoutItem IsVisible="True" Route="search">
+        <ShellContent
+            ContentTemplate="{DataTemplate search:SearchPage}"
+            Route="search_page"/>
+    </FlyoutItem>
+
+    <!--
+    Pages poussées via NavigationService.Push("route") ou Shell.Current.GoToAsync("route").
+    Elles ont leur propre TopBar (ou pas du tout selon le besoin).
+
+    Exemples commentés — décommenter au fur et à mesure :
+
+
+
+    <FlyoutItem IsVisible="False" Route="trajet_detail">
+        <ShellContent
+            ContentTemplate="{DataTemplate detail:TrajetDetailPage}"
+            Route="trajet_detail_page"/>
+    </FlyoutItem>
+
+    <FlyoutItem IsVisible="False" Route="reservation">
+        <ShellContent
+            ContentTemplate="{DataTemplate resa:ReservationPage}"
+            Route="reservation_page"/>
+    </FlyoutItem>
+
+    <FlyoutItem IsVisible="False" Route="notifications">
+        <ShellContent
+            ContentTemplate="{DataTemplate notif:NotificationPage}"
+            Route="notifications_page"/>
+    </FlyoutItem>
+
+    <FlyoutItem IsVisible="False" Route="login">
+        <ShellContent
+            ContentTemplate="{DataTemplate auth:LoginPage}"
+            Route="login_page"/>
+    </FlyoutItem>
+    -->
+
+</Shell>

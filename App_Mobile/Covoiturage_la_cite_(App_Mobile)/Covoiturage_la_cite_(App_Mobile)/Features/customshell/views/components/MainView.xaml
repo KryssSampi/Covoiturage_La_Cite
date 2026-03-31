@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.customshell.views.components.MainView"
+            xmlns:comp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.components"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    BackgroundColor="{StaticResource BackgroundColor}">
+
+    <!--
+    ═══════════════════════════════════════════════════════════════════
+     MAIN PAGE — Singleton visuel du Custom Shell
+     
+     ┌─────────────────────────────────────────┐
+     │  ShellTopBar   (Row 0 — Height Auto)    │  ← jamais recréé
+     ├─────────────────────────────────────────┤
+     │                                         │
+     │  ContentZone   (Row 1 — Height *)       │  ← seul ce ContentView change
+     │                                         │
+     ├─────────────────────────────────────────┤
+     │  CustomTabBar  (Row 2 — Height 68)      │  ← jamais recréé
+     └─────────────────────────────────────────┘
+     
+     TopBar et TabBar sont instanciés UNE SEULE FOIS ici.
+     La navigation entre onglets = swap de ContentZone.Content uniquement.
+    ═══════════════════════════════════════════════════════════════════
+    -->
+
+    <Grid RowSpacing="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="68"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── TopBar custom — ne bouge jamais ── -->
+        <comp:ShellTopBar
+            x:Name="TopBar"
+            Grid.Row="0"
+            HorizontalOptions="Fill"
+            ZIndex="10"/>
+
+        <!-- ── Zone contenu central — seule partie qui change ── -->
+        <ContentView
+            x:Name="ContentZone"
+            Grid.Row="1"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"/>
+
+        <!-- ── TabBar custom — ne bouge jamais ── -->
+        <comp:CustomTabBar
+            x:Name="TabBar"
+            Grid.Row="2"
+            HorizontalOptions="Fill"
+            ZIndex="10"/>
+
+    </Grid>
+
+</ContentPage>

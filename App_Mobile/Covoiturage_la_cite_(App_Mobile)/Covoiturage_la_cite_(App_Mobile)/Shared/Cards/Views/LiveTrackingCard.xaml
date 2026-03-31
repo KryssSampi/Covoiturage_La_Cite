@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!-- Shared/Cards/Views/LiveTrackingCard.xaml -->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Shared.Cards.Views.LiveTrackingCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels"
+    x:DataType="dm:LiveTrackingCardDisplayModel">
+
+    <Frame BackgroundColor="White" CornerRadius="16" BorderColor="#12000000"
+           HasShadow="True" Padding="0" IsClippedToBounds="True">
+        <VerticalStackLayout>
+            <!-- Bandeau ETA -->
+            <Grid BackgroundColor="#1A56CC" Padding="14,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <HorizontalStackLayout Spacing="8">
+                    <Ellipse WidthRequest="8" HeightRequest="8"
+                             Fill="#7EFFD4" VerticalOptions="Center"/>
+                    <Label Text="Trajet en cours"
+                           FontFamily="OpenSansSemibold" FontSize="12"
+                           FontAttributes="Bold" TextColor="White"
+                           CharacterSpacing="0.5"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Grid.Column="1" Spacing="4">
+                    <Label Text="ETA" FontSize="12" TextColor="#B0E0FF"/>
+                    <Label Text="{Binding EtaMinutes, StringFormat='{0} min'}"
+                           FontFamily="OpenSansSemibold" FontSize="20"
+                           FontAttributes="Bold" TextColor="White"/>
+                </HorizontalStackLayout>
+            </Grid>
+
+            <!-- Mini carte -->
+            <Grid HeightRequest="80">
+                <Image x:Name="MapImage" Source="{Binding MapImageSource}" Aspect="AspectFill"/>
+                <BoxView BackgroundColor="#20000000"/>
+            </Grid>
+
+            <!-- Infos conducteur -->
+            <Grid Padding="13,12,13,10" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="44"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Frame Grid.Column="0" WidthRequest="44" HeightRequest="44"
+                       CornerRadius="22" Padding="0" BorderColor="Transparent"
+                       BackgroundColor="{Binding DriverAvatar.BackgroundHex}">
+                    <Label Text="{Binding DriverAvatar.Initials}"
+                           FontFamily="OpenSansSemibold" FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{Binding DriverAvatar.ForegroundHex}"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"/>
+                </Frame>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="2">
+                        <Label Text="{Binding DriverName}"
+                           FontFamily="OpenSansSemibold" FontSize="14"
+                           FontAttributes="Bold" TextColor="#0D1624"/>
+                        <Label Text="&#x2605;" FontFamily="FluentFilledIcons"
+                               FontSize="15" TextColor="#F59E0B" Margin="0,-4,0,0"/>
+                        <Label Text="{Binding DriverRating, StringFormat='{0:F1}'}"
+                               FontSize="12" TextColor="#7A879A"/>
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding VehicleLabel}"
+          FontSize="12" TextColor="#7A879A"/>
+                </VerticalStackLayout>
+
+                <!-- Bouton SOS discret -->
+                <Button Grid.Column="2" Text="SOS"
+                        BackgroundColor="#FCEBEB" TextColor="#A32D2D"
+                        FontFamily="OpenSansSemibold" FontSize="12"
+                        FontAttributes="Bold"
+                        CornerRadius="10" HeightRequest="38" Padding="12,0"
+                        x:Name="SosButton"/>
+            </Grid>
+
+            <!-- Actions -->
+            <BoxView HeightRequest="1" BackgroundColor="#0D000000"/>
+            <Grid Padding="12,9,12,11" ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Text="Message"
+                        BackgroundColor="#EEF0FE" TextColor="#3D4A5C"
+                        FontFamily="OpenSansSemibold" FontSize="12"
+                        CornerRadius="10" HeightRequest="38"
+                        x:Name="ChatButton"/>
+                <Button Grid.Column="1" Text="Suivre sur carte"
+                        BackgroundColor="#1A56CC" TextColor="White"
+                        FontFamily="OpenSansSemibold" FontSize="12"
+                        CornerRadius="10" HeightRequest="38"
+                        x:Name="TrackButton"/>
+            </Grid>
+        </VerticalStackLayout>
+    </Frame>
+</ContentView>

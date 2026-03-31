@@ -1,0 +1,6 @@
+{
+    "claudeCode.allowDangerouslySkipPermissions": true,
+    "claudeCode.initialPermissionMode": "acceptEdits",
+    "claudeCode.respectGitIgnore": false,
+    "claudeCode.useTerminal": false
+}

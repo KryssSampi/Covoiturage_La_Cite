@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.shell.views.ui.SideNavHeader">
+
+    <!-- Gradient d'arrière-plan identique au profil HTML -->
+    <Grid
+        Padding="0,0,0,0"
+        Background="#08316e">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="44"/>
+            <!-- SafeArea top iOS -->
+            <RowDefinition Height="88"/>
+            <!-- Avatar -->
+            <RowDefinition Height="Auto"/>
+            <!-- Nom -->
+            <RowDefinition Height="Auto"/>
+            <!-- Email -->
+        </Grid.RowDefinitions>
+
+        <!-- Fond gradient mesh -->
+        <BoxView
+            Grid.RowSpan="4"
+            Color="#1A56CC"
+            Opacity="0.35"/>
+
+        <!-- ── Avatar ── -->
+        <Grid
+            Grid.Row="1"
+            HorizontalOptions="Center"
+            VerticalOptions="Center">
+
+            <!-- Fond de l'avatar (initiales) -->
+            <Border
+                WidthRequest="80"
+                HeightRequest="80"
+                Stroke="#40FFFFFF"
+                StrokeThickness="1"
+                Background="#30FFFFFF"
+                StrokeShape="RoundRectangle 40">
+                <Label
+                    x:Name="InitialsLabel"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center"
+                    FontFamily="OpenSansSemibold"
+                    FontSize="28"
+                    TextColor="White"/>
+            </Border>
+
+            <!-- Photo par-dessus les initiales si disponible -->
+            <Border
+                x:Name="AvatarImageFrame"
+                WidthRequest="80"
+                HeightRequest="80"
+                Stroke="#40FFFFFF"
+                StrokeThickness="1"
+                Background="Transparent"
+                StrokeShape="RoundRectangle 40"
+                IsVisible="False">
+                <Image
+                    x:Name="AvatarImage"
+                    Aspect="AspectFill"
+                    WidthRequest="80"
+                    HeightRequest="80"/>
+            </Border>
+
+            <!-- Pastille "Vérifié" -->
+            <Border
+                WidthRequest="22"
+                HeightRequest="22"
+                Stroke="White"
+                StrokeThickness="1"
+                Background="#1D9E75"
+                StrokeShape="RoundRectangle 11"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,2,2">
+                <Label
+                    Text="&#xF297;"
+                    FontFamily="FluentFilledIcons"
+                    FontSize="12"
+                    TextColor="White"
+                    HorizontalTextAlignment="Center"
+                    VerticalTextAlignment="Center"/>
+            </Border>
+        </Grid>
+
+        <!-- ── Nom ── -->
+        <Label
+            Grid.Row="2"
+            x:Name="UserNameLabel"
+            HorizontalTextAlignment="Center"
+            Margin="16,8,16,2"
+            FontFamily="OpenSansSemibold"
+            FontSize="17"
+            FontAttributes="Bold"
+            TextColor="White"/>
+
+        <!-- ── Email ── -->
+        <Label
+            Grid.Row="3"
+            x:Name="UserEmailLabel"
+            HorizontalTextAlignment="Center"
+            Margin="16,0,16,20"
+            FontFamily="OpenSansRegular"
+            FontSize="12"
+            TextColor="#B0FFFFFF"/>
+
+    </Grid>
+</ContentView>
