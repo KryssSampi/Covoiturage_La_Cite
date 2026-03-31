@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
@@ -19,6 +19,7 @@
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
 
 		<!-- Display name -->
 		<ApplicationTitle>Covoiturage_la_cite_(App_Mobile)</ApplicationTitle>
@@ -41,6 +42,10 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 	</PropertyGroup>
 
+	<PropertyGroup>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -60,8 +65,214 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="App_Mobile\**" />
+	  <AndroidResource Remove="Core\Config\Shell\NewFolder\**" />
+	  <AndroidResource Remove="Features\customshell\views\components\driver\**" />
+	  <AndroidResource Remove="Features\customshell\views\components\passenger\**" />
+	  <AndroidResource Remove="Features\customshell\views\components\shared\**" />
+	  <Compile Remove="App_Mobile\**" />
+	  <Compile Remove="Core\Config\Shell\NewFolder\**" />
+	  <Compile Remove="Features\customshell\views\components\driver\**" />
+	  <Compile Remove="Features\customshell\views\components\passenger\**" />
+	  <Compile Remove="Features\customshell\views\components\shared\**" />
+	  <EmbeddedResource Remove="App_Mobile\**" />
+	  <EmbeddedResource Remove="Core\Config\Shell\NewFolder\**" />
+	  <EmbeddedResource Remove="Features\customshell\views\components\driver\**" />
+	  <EmbeddedResource Remove="Features\customshell\views\components\passenger\**" />
+	  <EmbeddedResource Remove="Features\customshell\views\components\shared\**" />
+	  <MauiCss Remove="App_Mobile\**" />
+	  <MauiCss Remove="Core\Config\Shell\NewFolder\**" />
+	  <MauiCss Remove="Features\customshell\views\components\driver\**" />
+	  <MauiCss Remove="Features\customshell\views\components\passenger\**" />
+	  <MauiCss Remove="Features\customshell\views\components\shared\**" />
+	  <MauiXaml Remove="App_Mobile\**" />
+	  <MauiXaml Remove="Core\Config\Shell\NewFolder\**" />
+	  <MauiXaml Remove="Features\customshell\views\components\driver\**" />
+	  <MauiXaml Remove="Features\customshell\views\components\passenger\**" />
+	  <MauiXaml Remove="Features\customshell\views\components\shared\**" />
+	  <None Remove="App_Mobile\**" />
+	  <None Remove="Core\Config\Shell\NewFolder\**" />
+	  <None Remove="Features\customshell\views\components\driver\**" />
+	  <None Remove="Features\customshell\views\components\passenger\**" />
+	  <None Remove="Features\customshell\views\components\shared\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="AathifMahir.Maui.MauiIcons.Core" Version="5.0.0" />
+		<PackageReference Include="AathifMahir.Maui.MauiIcons.Cupertino" Version="5.0.0" />
+		<PackageReference Include="AathifMahir.Maui.MauiIcons.Fluent.Filled" Version="5.0.0" />
+		<PackageReference Include="AathifMahir.Maui.MauiIcons.FontAwesome" Version="5.0.0" />
+		<PackageReference Include="AathifMahir.Maui.MauiIcons.Material" Version="5.0.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="9.1.1" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="App\Mobilepages\plannerpage\converter\" />
+	  <Folder Include="App\Mobilepages\plannerpage\DisplayControler\" />
+	  <Folder Include="App\Mobilepages\plannerpage\DisplayConverters\" />
+	  <Folder Include="App\Mobilepages\plannerpage\DisplayModels\" />
+	  <Folder Include="App\Mobilepages\plannerpage\styles\" />
+	  <Folder Include="App\Mobilepages\profilpage\converter\" />
+	  <Folder Include="App\Mobilepages\profilpage\DisplayControler\" />
+	  <Folder Include="App\Mobilepages\profilpage\DisplayConverters\" />
+	  <Folder Include="App\Mobilepages\profilpage\DisplayModels\" />
+	  <Folder Include="App\Mobilepages\profilpage\styles\" />
+	  <Folder Include="App\Mobilepages\statpage\converter\" />
+	  <Folder Include="App\Mobilepages\statpage\DisplayControler\" />
+	  <Folder Include="App\Mobilepages\statpage\DisplayConverters\" />
+	  <Folder Include="App\Mobilepages\statpage\DisplayModels\" />
+	  <Folder Include="App\Mobilepages\statpage\styles\" />
+	  <Folder Include="App\Mobilepages\notificationpage\converter\" />
+	  <Folder Include="App\Mobilepages\notificationpage\DisplayControler\" />
+	  <Folder Include="App\Mobilepages\notificationpage\DisplayConverters\" />
+	  <Folder Include="App\Mobilepages\notificationpage\DisplayModels\" />
+	  <Folder Include="App\Mobilepages\notificationpage\styles\" />
+	  <Folder Include="App\Mobilepages\reservationpage\converter\" />
+	  <Folder Include="App\Mobilepages\reservationpage\DisplayControler\" />
+	  <Folder Include="App\Mobilepages\reservationpage\DisplayConverters\" />
+	  <Folder Include="App\Mobilepages\reservationpage\DisplayModels\" />
+	  <Folder Include="App\Mobilepages\reservationpage\styles\" />
+	  <Folder Include="App\Mobilepages\favorispage\converter\" />
+	  <Folder Include="App\Mobilepages\favorispage\DisplayControler\" />
+	  <Folder Include="App\Mobilepages\favorispage\DisplayConverters\" />
+	  <Folder Include="App\Mobilepages\favorispage\DisplayModels\" />
+	  <Folder Include="App\Mobilepages\favorispage\styles\" />
+	  <Folder Include="App\Mobilepages\searchpage\converter\" />
+	  <Folder Include="App\Mobilepages\searchpage\DisplayControler\" />
+	  <Folder Include="App\Mobilepages\searchpage\DisplayConverters\" />
+	  <Folder Include="App\Mobilepages\searchpage\DisplayModels\" />
+	  <Folder Include="App\Mobilepages\searchpage\styles\" />
+	  <Folder Include="App\Mobilepages\homepage\DisplayControler\" />
+	  <Folder Include="App\Mobilepages\homepage\DisplayConverters\" />
+	  <Folder Include="App\Mobilepages\homepage\DisplayModels\" />
+	  <Folder Include="App\Mobilepages\homepage\converter\" />
+	  <Folder Include="App\Mobilepages\homepage\styles\" />
+	  <Folder Include="App\Pc.pages\page\converter\" />
+	  <Folder Include="App\Pc.pages\page\DisplayControler\" />
+	  <Folder Include="App\Pc.pages\page\DisplayConverters\" />
+	  <Folder Include="App\Pc.pages\page\DisplayModels\" />
+	  <Folder Include="App\Pc.pages\page\styles\" />
+	  <Folder Include="App\Pc.pages\page\view\" />
+	  <Folder Include="Core\Models\" />
+	  <Folder Include="Core\DTOs\" />
+	  <Folder Include="Core\Enums\" />
+	  <Folder Include="Core\Constants\" />
+	  <Folder Include="Core\Interfaces\" />
+	  <Folder Include="Core\Context\" />
+	  <Folder Include="Core\Viewmodels\" />
+	  <Folder Include="Core\State\" />
+	  <Folder Include="Data\db\" />
+	  <Folder Include="Data\Migrations\" />
+	  <Folder Include="Data\log\" />
+	  <Folder Include="Features\customshell\context\" />
+	  <Folder Include="Features\customshell\DisplayConverters\" />
+	  <Folder Include="Features\customshell\styles\" />
+	  <Folder Include="Features\customshell\utilis\" />
+	  <Folder Include="Features\feature\DisplayConverters\" />
+	  <Folder Include="Features\feature\context\" />
+	  <Folder Include="Features\feature\converter\" />
+	  <Folder Include="Features\feature\styles\" />
+	  <Folder Include="Features\feature\utilis\" />
+	  <Folder Include="Features\feature\DisplayModels\" />
+	  <Folder Include="Features\feature\DisplayControler\" />
+	  <Folder Include="Features\feature\views\components\driver\" />
+	  <Folder Include="Features\feature\views\components\passenger\" />
+	  <Folder Include="Features\feature\views\components\shared\" />
+	  <Folder Include="Features\feature\views\ui\" />
+	  <Folder Include="Services\api\" />
+	  <Folder Include="Services\logger\" />
+	  <Folder Include="Services\map\" />
+	  <Folder Include="Services\storage\" />
+	  <Folder Include="Shared\Helpers\" />
+	  <Folder Include="Shared\Converters\" />
+	  <Folder Include="Shared\Controls\" />
+	  <Folder Include="Shared\Behaviors\" />
+	  <Folder Include="Shared\Components\" />
+	  <Folder Include="Shared\UI\" />
+	  <Folder Include="Shared\Styles\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="App\Mobilepages\favorispage\view\FavorisPage.xaml.cs">
+	    <DependentUpon>FavorisPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="App\Mobilepages\homepage\view\HomePage.xaml.cs">
+	    <DependentUpon>HomePage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="App\Mobilepages\notificationpage\view\NotificationPage.xaml.cs">
+	    <DependentUpon>NotificationPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="App\Mobilepages\plannerpage\view\PlannerPage.xaml.cs">
+	    <DependentUpon>PlannerPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="App\Mobilepages\profilpage\view\ProfilPage.xaml.cs">
+	    <DependentUpon>ProfilPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="App\Mobilepages\reservationpage\view\ReservationPage.xaml.cs">
+	    <DependentUpon>ReservationPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="App\Mobilepages\searchpage\view\SearchPage.xaml.cs">
+	    <DependentUpon>SearchPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="App\Mobilepages\statpage\view\StatPage.xaml.cs">
+	    <DependentUpon>StatPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Features\customshell\views\components\ShellTopBar.xaml.cs">
+	    <DependentUpon>ShellTopBar.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="App\App.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="App\Mobilepages\plannerpage\view\PlannerPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="App\Mobilepages\profilpage\view\ProfilPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="App\Mobilepages\statpage\view\StatPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="App\Mobilepages\notificationpage\view\NotificationPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="App\Mobilepages\reservationpage\view\ReservationPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="App\Mobilepages\favorispage\view\FavorisPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="App\Mobilepages\searchpage\view\SearchPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="App\Mobilepages\homepage\view\HomePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\customshell\views\components\CustomTabBar.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\customshell\views\components\MainView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\customshell\views\components\ShellTopBar.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\customshell\views\components\SideNavaBar.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\customshell\views\ui\SideNavContent.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\customshell\views\ui\SideNavFooter.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Features\customshell\views\ui\SideNavHeader.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

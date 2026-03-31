@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/planner/views/components/PlannerCalendarView.xaml
+  Calendrier swipeable (CarouselView), cellules avec dots colorés,
+  navigation mois, légende.
+  BindingContext : PlannerDisplayController
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.planner.views.components.PlannerCalendarView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.planner.DisplayModels"
+    xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.planner.converters"
+    BackgroundColor="White">
+
+    <ContentView.Resources>
+        <conv:TripCountToColorConverter  x:Key="CountToColor"/>
+        <conv:TripCountToBoolConverter   x:Key="CountToBool"/>
+    </ContentView.Resources>
+
+    <VerticalStackLayout Spacing="0">
+
+        <!-- ── Navigation mois ── -->
+        <Grid Padding="16,14,16,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="36"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="36"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Flèche précédent -->
+            <Frame Grid.Column="0" WidthRequest="32" HeightRequest="32"
+                   CornerRadius="16" BackgroundColor="#F8F9FC"
+                   BorderColor="#D8DBE5" Padding="0" HasShadow="False">
+                <Label Text="&#xE90C;" FontFamily="FluentRegularIcons"
+                       FontSize="16" TextColor="#3D4A5C"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding PreviousMonthCommand}"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </Frame>
+
+            <!-- Mois + Année (tapable) -->
+            <Label Grid.Column="1"
+                   Text="{Binding MonthLabel}"
+                   FontFamily="OpenSansSemibold" FontSize="15"
+                   FontAttributes="Bold" TextColor="#0D1624"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"/>
+
+            <!-- Flèche suivant -->
+            <Frame Grid.Column="2" WidthRequest="32" HeightRequest="32"
+                   CornerRadius="16" BackgroundColor="#F8F9FC"
+                   BorderColor="#D8DBE5" Padding="0" HasShadow="False">
+                <Label Text="&#xE90F;" FontFamily="FluentRegularIcons"
+                       FontSize="16" TextColor="#3D4A5C"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NextMonthCommand}"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </Frame>
+        </Grid>
+
+        <!-- ── Entêtes jours (L M M J V S D) ── -->
+        <Grid Padding="12,0,12,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Text="L" Style="{StaticResource DayHeaderStyle}"/>
+            <Label Grid.Column="1" Text="M" Style="{StaticResource DayHeaderStyle}"/>
+            <Label Grid.Column="2" Text="M" Style="{StaticResource DayHeaderStyle}"/>
+            <Label Grid.Column="3" Text="J" Style="{StaticResource DayHeaderStyle}"/>
+            <Label Grid.Column="4" Text="V" Style="{StaticResource DayHeaderStyle}"/>
+            <Label Grid.Column="5" Text="S" Style="{StaticResource DayHeaderWeekendStyle}"/>
+            <Label Grid.Column="6" Text="D" Style="{StaticResource DayHeaderWeekendStyle}"/>
+        </Grid>
+
+        <!-- ── Grille calendrier ── -->
+        <!--
+            Le CarouselView permet le swipe fluide entre mois.
+            Chaque page = un mois (Calendar.Cells).
+            On utilise CollectionView en layout Grid 7 colonnes.
+        -->
+        <CollectionView
+            x:Name="CalendarGrid"
+            ItemsSource="{Binding Calendar.Cells}"
+            SelectionMode="None"
+            HeightRequest="240"
+            Margin="12,0,12,0">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical"
+                                 Span="7"
+                                 HorizontalItemSpacing="3"
+                                 VerticalItemSpacing="3"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="dm:CalendarCellDisplayModel">
+
+                    <!-- Cellule -->
+                    <Grid MinimumHeightRequest="40"
+                          MinimumWidthRequest="40">
+
+                        <!-- Fond cellule active (#08316e) -->
+                        <Frame CornerRadius="10" Padding="0"
+                               BorderColor="Transparent" HasShadow="True">
+                            <Frame.Triggers>
+                                <DataTrigger TargetType="Frame"
+                                             Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="#08316e"/>
+                                    <Setter Property="HasShadow"       Value="True"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Frame"
+                                             Binding="{Binding IsActive}" Value="False">
+                                    <Setter Property="BackgroundColor" Value="Transparent"/>
+                                    <Setter Property="HasShadow"       Value="False"/>
+                                </DataTrigger>
+                                <!-- Aujourd'hui non actif = bord bleu -->
+                                <DataTrigger TargetType="Frame"
+                                             Binding="{Binding IsToday}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="#E8F0FE"/>
+                                    <Setter Property="BorderColor"     Value="#1A56CC"/></DataTrigger>
+                            </Frame.Triggers>
+                        </Frame>
+
+                        <!-- Contenu centré -->
+                        <VerticalStackLayout VerticalOptions="Center"
+                                             HorizontalOptions="Center"
+                                             Spacing="2">
+                            <!-- Numéro du jour -->
+                            <Label Text="{Binding Date.Day}"
+                                   FontFamily="OpenSansSemibold" FontSize="13"
+                                   FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsActive}" Value="True">
+                                        <Setter Property="TextColor" Value="White"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsActive}" Value="False">
+                                        <Setter Property="TextColor" Value="#0D1624"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsOtherMonth}" Value="True">
+                                        <Setter Property="TextColor" Value="#8A95A8"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding IsToday}" Value="True">
+                                        <Setter Property="TextColor" Value="#1A56CC"/>
+                                        <Setter Property="FontAttributes" Value="Bold"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+
+                            <!-- Dot (visible si TripCount > 0 et non indisponible) -->
+                            <Frame WidthRequest="20" HeightRequest="20"
+                                   CornerRadius="10" Padding="0"
+                                   BorderColor="Transparent" HasShadow="False"
+                                   BackgroundColor="{Binding TripCount,
+                                       Converter={StaticResource CountToColor}}"
+                                   IsVisible="{Binding TripCount,
+                                       Converter={StaticResource CountToBool}}">
+                                <Label Text="{Binding TripCount}"
+                                       FontFamily="OpenSansSemibold" FontSize="9"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center">
+                                    <Label.Triggers>
+                                        <!-- Dot sur cellule active = blanc opaque -->
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsActive}" Value="True">
+                                            <Setter Property="TextColor" Value="White"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding IsActive}" Value="False">
+                                            <Setter Property="TextColor" Value="White"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Frame>
+                        </VerticalStackLayout>
+
+                        <!-- Overlay indisponible (opacité 0.45) -->
+                        <BoxView BackgroundColor="White" Opacity="0.55"
+                                 IsVisible="{Binding IsUnavailable}"
+                                 InputTransparent="True"/>
+
+                        <!-- Tap geste -->
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding SelectDateCommand,
+                                    Source={RelativeSource
+                                        AncestorType={x:Type ContentView}}}"
+                                CommandParameter="{Binding Date}"/>
+                        </Grid.GestureRecognizers>
+                    </Grid>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- ── Légende ── -->
+        <Grid Padding="16,6,16,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 1 = vert -->
+            <HorizontalStackLayout Grid.Column="0" Spacing="4">
+                <Ellipse WidthRequest="12" HeightRequest="12" Fill="#2D9D6A"/>
+                <Label Text="1" FontSize="11" TextColor="#7A879A"/>
+            </HorizontalStackLayout>
+
+            <!-- Dégradé 1→7+ -->
+            <BoxView Grid.Column="1" HeightRequest="3" CornerRadius="1.5"
+                     VerticalOptions="Center">
+                <BoxView.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#2D9D6A" Offset="0"/>
+                        <GradientStop Color="#E24B4A" Offset="1"/>
+                    </LinearGradientBrush>
+                </BoxView.Background>
+            </BoxView>
+
+            <!-- 7+ = rouge -->
+            <HorizontalStackLayout Grid.Column="2" Spacing="4">
+                <Ellipse WidthRequest="12" HeightRequest="12" Fill="#E24B4A"/>
+                <Label Text="7+" FontSize="11" TextColor="#7A879A"/>
+            </HorizontalStackLayout>
+
+            <Label Grid.Column="3" Text="trajets / jour"
+                   FontSize="11" TextColor="#7A879A" Margin="6,0,0,0"/>
+
+            <Label Grid.Column="4" Text="⊘ indisponible"
+                   FontSize="11" TextColor="#8A95A8"/>
+        </Grid>
+
+    </VerticalStackLayout>
+</ContentView>
+
+
+

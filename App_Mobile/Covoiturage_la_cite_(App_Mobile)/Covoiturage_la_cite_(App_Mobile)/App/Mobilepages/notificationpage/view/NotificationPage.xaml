@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationpage.view.NotificationPage"
+             xmlns:shellui ="Shell.ui" 
+             xmlns:header="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.components"
+    BackgroundColor="#F2F5FA"
+>
+
+    <!-- ── Contenu de la page ── -->
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <Label
+                Text="Bonjour 👋"
+                FontFamily="OpenSansSemibold"
+                FontSize="22"
+                TextColor="#0D1624"/>
+
+            <!-- Votre contenu ici -->
+            <Label
+                Text="Page Accueil — à implémenter"
+                TextColor="#7A879A"
+                FontSize="14"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

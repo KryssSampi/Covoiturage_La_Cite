@@ -1,16 +1,11 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace Covoiturage_la_cite__App_Mobile_
+namespace Covoiturage_la_cite__App_Mobile_.Platforms.Android
 {
     [Application]
-    public class MainApplication : MauiApplication
+    public class MainApplication(IntPtr handle, JniHandleOwnership ownership) : MauiApplication(handle, ownership)
     {
-        public MainApplication(IntPtr handle, JniHandleOwnership ownership)
-            : base(handle, ownership)
-        {
-        }
-
-        protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+        protected override MauiApp CreateMauiApp() => Covoiturage_la_cite__App_Mobile_.App.MauiProgram.CreateMauiApp();
     }
 }

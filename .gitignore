@@ -1,1 +1,6 @@
 .\docs
+MapServicesExtraction/
+auto-commit.code-workspace
+*.code-workspace
+*.code-search
+*.code-snippets 

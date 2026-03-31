@@ -19,7 +19,7 @@ namespace Covoiturage_la_cite__App_Mobile_.WinUI
             this.InitializeComponent();
         }
 
-        protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+        protected override MauiApp CreateMauiApp() => Covoiturage_la_cite__App_Mobile_.App.MauiProgram.CreateMauiApp();
     }
 
 }

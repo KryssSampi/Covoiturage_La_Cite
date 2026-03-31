@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.shell.views.ui.SideNavFooter">
+
+    <VerticalStackLayout
+        BackgroundColor="#FFFFFF">
+
+        <!-- Séparateur haut -->
+        <BoxView
+            HeightRequest="1"
+            BackgroundColor="#12000000"
+            Margin="0,0,0,4"/>
+
+        <!-- Items générés depuis le code-behind -->
+        <VerticalStackLayout
+            x:Name="FooterItemsContainer"
+            Padding="0,0,0,0"
+            Spacing="0"/>
+
+        <!-- SafeArea bottom iOS -->
+        <BoxView
+            x:Name="BottomSafeArea"
+            HeightRequest="20"
+            Color="Transparent"/>
+
+    </VerticalStackLayout>
+</ContentView>
