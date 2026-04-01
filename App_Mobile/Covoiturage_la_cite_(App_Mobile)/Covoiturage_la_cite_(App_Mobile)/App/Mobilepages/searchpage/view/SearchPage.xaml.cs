@@ -215,4 +215,13 @@ public partial class SearchPage : ContentPage, IQueryAttributable
         await MapWebView.EvaluateJavaScriptAsync(
             $"window.mapBridge && window.mapBridge.send({msg})");
     }
+
+    // ══════════════════════════════════════════════════════════════════
+    // Navigation — Back
+    // ══════════════════════════════════════════════════════════════════
+
+    private async void OnBackClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
+    }
 }

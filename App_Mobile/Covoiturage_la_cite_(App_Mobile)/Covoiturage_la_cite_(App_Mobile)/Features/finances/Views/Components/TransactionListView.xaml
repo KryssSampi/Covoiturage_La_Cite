@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/finances/Views/Components/TransactionListView.xaml
+  BindingContext : TransactionListDisplayModel
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.finances.Views.Components.TransactionListView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.finances.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:TransactionListDisplayModel">
+
+    <VerticalStackLayout Spacing="0">
+        <Grid Padding="16,18,16,10">
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="🧾" FontSize="14" VerticalOptions="Center"/>
+                <Label Text="Dernières transactions" FontFamily="OpenSansSemibold" FontSize="14"
+                       FontAttributes="Bold" TextColor="#0D1624" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <Frame BackgroundColor="White" CornerRadius="16" BorderColor="#12000000"
+               Padding="0" Margin="16,0" HasShadow="True">
+            <CollectionView ItemsSource="{Binding Transactions}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dm:TransactionDisplayModel">
+                        <Grid Padding="14,11" ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Dot couleur -->
+                            <Ellipse Grid.Column="0" WidthRequest="10" HeightRequest="10"
+                                     VerticalOptions="Center">
+                                <Ellipse.Triggers>
+                                    <DataTrigger TargetType="Ellipse" Binding="{Binding Type}" Value="Credit">
+                                        <Setter Property="Fill" Value="#1D9E75"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Ellipse" Binding="{Binding Type}" Value="Debit">
+                                        <Setter Property="Fill" Value="#8A95A8"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Ellipse" Binding="{Binding Type}" Value="Penalty">
+                                        <Setter Property="Fill" Value="#E24B4A"/>
+                                    </DataTrigger>
+                                </Ellipse.Triggers>
+                            </Ellipse>
+
+                            <!-- Label + date -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding Label}"
+                                       FontFamily="OpenSansSemibold" FontSize="13"
+                                       FontAttributes="Bold" TextColor="#0D1624"
+                                       LineBreakMode="TailTruncation">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Type}" Value="Penalty">
+                                            <Setter Property="TextColor" Value="#E24B4A"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding DateLabel}"
+                                       FontFamily="OpenSansRegular" FontSize="11"
+                                       TextColor="#7A879A"/>
+                            </VerticalStackLayout>
+
+                            <!-- Montant signé -->
+                            <Label Grid.Column="2"
+                                   FontFamily="OpenSansSemibold" FontSize="14"
+                                   FontAttributes="Bold" VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Type}" Value="Credit">
+                                        <Setter Property="TextColor" Value="#1D9E75"/>
+                                        <Setter Property="Text" Value="{Binding Amount, StringFormat='+{0:N2} $'}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Type}" Value="Debit">
+                                        <Setter Property="TextColor" Value="#8A95A8"/>
+                                        <Setter Property="Text" Value="{Binding Amount, StringFormat='{0:N2} $'}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Type}" Value="Penalty">
+                                        <Setter Property="TextColor" Value="#E24B4A"/>
+                                        <Setter Property="Text" Value="{Binding Amount, StringFormat='−{0:N2} $'}"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+
+                            <BoxView Grid.ColumnSpan="3" HeightRequest="1"
+                                     BackgroundColor="#0D000000"
+                                     VerticalOptions="End" Margin="-14,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Frame>
+    </VerticalStackLayout>
+</ContentView>

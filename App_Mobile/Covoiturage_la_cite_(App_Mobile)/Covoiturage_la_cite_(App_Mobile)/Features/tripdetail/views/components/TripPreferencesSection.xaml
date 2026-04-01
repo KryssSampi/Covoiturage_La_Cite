@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.tripdetail.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.tripdetail.views.components.TripPreferencesSection"
+    x:DataType="dm:TripPreferencesSectionDisplayModel">
+
+    <Border BackgroundColor="White" Padding="14" StrokeThickness="0">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="12"/>
+        </Border.StrokeShape>
+        <VerticalStackLayout Spacing="8">
+
+            <Label
+                Text="Préférences"
+                FontFamily="OpenSansSemibold"
+                FontSize="12"
+                TextColor="#08316e"
+                Margin="0,0,0,4"/>
+
+            <CollectionView ItemsSource="{Binding Items}" SelectionMode="None">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="2" VerticalItemSpacing="6" HorizontalItemSpacing="8"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dm:TripPreferenceItem">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label
+                                Text="{Binding Value, Converter={StaticResource BoolToCheckmark}}"
+                                FontSize="13"
+                                TextColor="{Binding Value, Converter={StaticResource BoolToColor}}"
+                                VerticalOptions="Center"/>
+                            <Label
+                                Text="{Binding Label}"
+                                FontSize="11"
+                                TextColor="#4b5563"
+                                VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Note conducteur -->
+            <Border
+                IsVisible="{Binding HasDriverNote}"
+                BackgroundColor="#f0f9ff"
+                Padding="8,6"
+                StrokeThickness="0"
+                Margin="0,4,0,0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Note du conducteur" FontSize="10" TextColor="#0369a1" FontFamily="OpenSansSemibold"/>
+                    <Label Text="{Binding DriverNote}" FontSize="11" TextColor="#0369a1" FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

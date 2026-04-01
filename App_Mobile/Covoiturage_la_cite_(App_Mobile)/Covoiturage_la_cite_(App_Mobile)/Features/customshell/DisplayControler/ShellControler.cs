@@ -84,6 +84,34 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler
         }
 
         // ─────────────────────────────────────────────
+        //  Loading global (pour navigation Shell)
+        // ─────────────────────────────────────────────
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => SetField(ref _isLoading, value);
+        }
+
+        private string _loadingMessage = "Chargement...";
+        public string LoadingMessage
+        {
+            get => _loadingMessage;
+            set => SetField(ref _loadingMessage, value);
+        }
+
+        public void ShowLoading(string? message = null)
+        {
+            LoadingMessage = message ?? "Chargement...";
+            IsLoading = true;
+        }
+
+        public void HideLoading()
+        {
+            IsLoading = false;
+        }
+
+        // ─────────────────────────────────────────────
         //  Commandes
         // ─────────────────────────────────────────────
         public ICommand OpenNotificationsCommand { get; }

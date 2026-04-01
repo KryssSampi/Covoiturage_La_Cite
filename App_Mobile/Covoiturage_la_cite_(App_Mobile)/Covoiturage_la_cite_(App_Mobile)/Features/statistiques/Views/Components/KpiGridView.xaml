@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!-- Features/statistiques/Views/Components/KpiGridView.xaml -->
 <ContentView
     x:Class="Covoiturage_la_cite__App_Mobile_.Features.statistiques.Views.Components.KpiGridView"
@@ -20,55 +20,64 @@
             <DataTemplate x:DataType="dm:KpiCardDisplayModel">
                 <Frame BackgroundColor="White" CornerRadius="16"
                        BorderColor="#12000000" HasShadow="True" Padding="14">
-                    <VerticalStackLayout Spacing="6">
+                    <Grid>
+                        <Grid.RowDefinitions >
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                        <!-- Icone -->
-                        <Frame WidthRequest="36" HeightRequest="36"
+                        <HorizontalStackLayout Spacing="12">
+
+                            <!-- Icone -->
+                            <Frame WidthRequest="36" HeightRequest="36"
                                CornerRadius="10" Padding="0"
                                BorderColor="Transparent"
                                BackgroundColor="{Binding IconBgHex}"
                                HorizontalOptions="Start">
-                            <mi:MauiIcon
+                                <mi:MauiIcon
                                 Icon="{Binding MaterialIcon, Converter={StaticResource MaterialIconConverter}}"
                                 IconSize="18"
                                 IconColor="{Binding IconColorHex}"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"/>
-                        </Frame>
+                            </Frame>
 
-                        <!-- Valeur + unite -->
-                        <HorizontalStackLayout Spacing="2" VerticalOptions="Center">
-                            <Label Text="{Binding Value}"
+                            <!-- Valeur + unite -->
+                            <HorizontalStackLayout Spacing="2" VerticalOptions="Center">
+                                <Label Text="{Binding Value}"
                                    FontFamily="OpenSansSemibold" FontSize="22"
                                    FontAttributes="Bold" TextColor="#0D1624"/>
-                            <Label Text="{Binding Unit}"
+                                <Label Text="{Binding Unit}"
                                    FontFamily="OpenSansRegular" FontSize="13"
                                    TextColor="#7A879A" VerticalOptions="End"
                                    Margin="0,0,0,3"
                                    IsVisible="{Binding Unit, Converter={StaticResource StringNotEmptyToBool}}"/>
+                            </HorizontalStackLayout>
                         </HorizontalStackLayout>
 
-                        <!-- Label -->
-                        <Label Text="{Binding Label}"
-                               FontFamily="OpenSansRegular" FontSize="11.5"
+                        <VerticalStackLayout Grid.Row="1" Spacing="4" Margin="0,8,0,0">
+                            <!-- Label -->
+                            <Label Text="{Binding Label}"
+                               FontFamily="OpenSansRegular" FontSize="11"
                                TextColor="#7A879A"/>
 
-                        <!-- Tendance -->
-                        <Label Text="{Binding TrendLabel}"
+                            <!-- Tendance -->
+                            <Label Text="{Binding TrendLabel}"
                                FontFamily="OpenSansSemibold" FontSize="11"
                                FontAttributes="Bold">
-                            <Label.Triggers>
-                                <DataTrigger TargetType="Label"
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
                                              Binding="{Binding TrendIsPositive}" Value="True">
-                                    <Setter Property="TextColor" Value="#1D9E75"/>
-                                </DataTrigger>
-                                <DataTrigger TargetType="Label"
+                                        <Setter Property="TextColor" Value="#1D9E75"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
                                              Binding="{Binding TrendIsPositive}" Value="False">
-                                    <Setter Property="TextColor" Value="#E24B4A"/>
-                                </DataTrigger>
-                            </Label.Triggers>
-                        </Label>
-                    </VerticalStackLayout>
+                                        <Setter Property="TextColor" Value="#E24B4A"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </VerticalStackLayout>
+                    </Grid>
                 </Frame>
             </DataTemplate>
         </CollectionView.ItemTemplate>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/reviews/Views/Components/ReviewCard.xaml
+  BindingContext : ReviewsCardDisplayModel
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.reviews.Views.Components.ReviewCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.reviews.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:ReviewsCardDisplayModel">
+
+    <Border BackgroundColor="White" StrokeThickness="0" Margin="12,6">
+        <Border.StrokeShape><RoundRectangle CornerRadius="14"/></Border.StrokeShape>
+        <Border.Shadow><Shadow Brush="#0D000000" Offset="0,2" Radius="6" Opacity="1"/></Border.Shadow>
+
+        <Grid ColumnDefinitions="48,*" ColumnSpacing="12" Padding="16,14">
+
+            <!-- Avatar -->
+            <Frame Grid.Column="0" WidthRequest="44" HeightRequest="44"
+                   CornerRadius="22" Padding="0"
+                   BackgroundColor="#EEF3FB"
+                   BorderColor="Transparent" HasShadow="False"
+                   VerticalOptions="Start">
+                <Label Text="{Binding PersonInitial}"
+                       FontFamily="OpenSansSemibold" FontSize="16"
+                       TextColor="#1A56CC"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"/>
+            </Frame>
+
+            <!-- Contenu -->
+            <VerticalStackLayout Grid.Column="1" Spacing="5">
+
+                <!-- Nom + étoiles -->
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="{Binding PersonName}"
+                           FontFamily="OpenSansSemibold" FontSize="14"
+                           TextColor="#0D1624" FontAttributes="Bold"/>
+                    <Label Grid.Column="1"
+                           Text="{Binding StarsLabel}"
+                           FontSize="14" TextColor="#D97706"/>
+                </Grid>
+
+                <!-- Trajet + date -->
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="{Binding TripRoute}"
+                           FontSize="11" TextColor="#7A879A"/>
+                    <Label Text="·" FontSize="11" TextColor="#D1D5DB"/>
+                    <Label Text="{Binding DateLabel}"
+                           FontSize="11" TextColor="#9CA3AF"/>
+                </HorizontalStackLayout>
+
+                <!-- Badge direction -->
+                <Border Padding="6,2" StrokeThickness="0" HorizontalOptions="Start">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="6"/></Border.StrokeShape>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding Direction}" Value="Received">
+                            <Setter Property="BackgroundColor" Value="#E8F5EE"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding Direction}" Value="Given">
+                            <Setter Property="BackgroundColor" Value="#EEF0F5"/>
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label FontSize="10" FontFamily="OpenSansSemibold">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label"
+                                         Binding="{Binding Direction}" Value="Received">
+                                <Setter Property="Text" Value="Reçu"/>
+                                <Setter Property="TextColor" Value="#0F6E56"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Label"
+                                         Binding="{Binding Direction}" Value="Given">
+                                <Setter Property="Text" Value="Laissé"/>
+                                <Setter Property="TextColor" Value="#3D4A5C"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+                <!-- Commentaire -->
+                <Label Text="{Binding Comment}"
+                       FontSize="13" TextColor="#374151"
+                       LineBreakMode="WordWrap"/>
+
+            </VerticalStackLayout>
+        </Grid>
+    </Border>
+
+</ContentView>

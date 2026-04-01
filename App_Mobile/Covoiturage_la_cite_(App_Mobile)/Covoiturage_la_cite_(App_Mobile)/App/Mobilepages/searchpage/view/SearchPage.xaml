@@ -44,6 +44,37 @@
         ══════════════════════════════════════════════════════════ -->
         <VerticalStackLayout Grid.Row="0" BackgroundColor="White" Spacing="0">
 
+            <!-- ── Bouton Back ── -->
+            <Grid Padding="8,8,16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Border Grid.Column="0"
+                        WidthRequest="40"
+                        HeightRequest="40"
+                        BackgroundColor="Transparent"
+                        StrokeThickness="0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBackClicked"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="←"
+                           FontSize="24"
+                           TextColor="#1A56CC"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Border>
+                
+                <Label Grid.Column="1"
+                       Text="Rechercher"
+                       FontSize="18"
+                       FontFamily="OpenSansSemibold"
+                       TextColor="#1A1A2E"
+                       VerticalOptions="Center"
+                       Margin="8,0,0,0"/>
+            </Grid>
+
             <Grid Padding="16,14,16,14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

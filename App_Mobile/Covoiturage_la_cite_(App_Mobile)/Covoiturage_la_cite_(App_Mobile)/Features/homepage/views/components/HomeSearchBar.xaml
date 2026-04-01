@@ -42,6 +42,7 @@
                        Placeholder="{Binding SearchBar.Placeholder}"
                        PlaceholderColor="#8A95A8"
                        FontSize="15"
+                       MinimumHeightRequest="80"
                        BackgroundColor="Transparent"
                        ReturnType="Search"
                        ReturnCommand="{Binding SearchCommand}" />
@@ -56,8 +57,8 @@
                                         ItemsLayout="HorizontalList"
                                         SelectionMode="None">
                             <CollectionView.ItemTemplate>
-                                <DataTemplate x:DataType="dm:HomeSearchChipDisplayModel">
-                                    <Border BackgroundColor="{Binding BackgroundHex}"
+                            <DataTemplate x:DataType="dm:HomeSearchChipDisplayModel">
+                                    <Border BackgroundColor="{Binding CurrentBackgroundHex}"
                                             StrokeThickness="0"
                                             Padding="8,6"
                                             Margin="0"

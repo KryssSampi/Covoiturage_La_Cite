@@ -23,15 +23,29 @@
 
     <Grid RowSpacing="0">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>  <!-- Barre onglets (optionnelle) -->
             <RowDefinition Height="Auto"/>  <!-- Barre recherche + boutons -->
             <RowDefinition Height="Auto"/>  <!-- Chips filtres actifs -->
             <RowDefinition Height="*"/>     <!-- Liste / états vide / no-internet -->
         </Grid.RowDefinitions>
 
         <!-- ══════════════════════════════════════════════════════
-             ROW 0 : BARRE DE RECHERCHE + BOUTONS
+             ROW 0 : BARRE D'ONGLETS (visible seulement si HasTabs)
         ══════════════════════════════════════════════════════ -->
-        <Grid Grid.Row="0" Padding="16,10,16,8" ColumnSpacing="8">
+        <Grid Grid.Row="0"
+              IsVisible="{Binding HasTabs}"
+              BackgroundColor="White"
+              Padding="16,0,16,0">
+            <!-- Les onglets sont construits dynamiquement depuis le code-behind -->
+            <HorizontalStackLayout x:Name="TabsBar"
+                                   Spacing="0"
+                                   HorizontalOptions="Start"/>
+        </Grid>
+
+        <!-- ══════════════════════════════════════════════════════
+             ROW 1 : BARRE DE RECHERCHE + BOUTONS
+        ══════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1" Padding="16,10,16,8" ColumnSpacing="8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>  <!-- Btn Filtre -->
                 <ColumnDefinition Width="*"/>     <!-- SearchBar -->
@@ -146,7 +160,7 @@
              MENU CONTEXTUEL FILTRE (superposé)
         ══════════════════════════════════════════════════════ -->
         <Frame x:Name="FilterMenu"
-               Grid.Row="0" Grid.RowSpan="2"
+               Grid.Row="1" Grid.RowSpan="2"
                BackgroundColor="White"
                CornerRadius="16" BorderColor="#D8DBE5"
                Padding="0" Margin="16,52,16,0"
@@ -256,7 +270,7 @@
              MENU CONTEXTUEL TRI (superposé)
         ══════════════════════════════════════════════════════ -->
         <Frame x:Name="SortMenu"
-               Grid.Row="0" Grid.RowSpan="2"
+               Grid.Row="1" Grid.RowSpan="2"
                BackgroundColor="White"
                CornerRadius="16" BorderColor="#D8DBE5"
                Padding="0" Margin="16,52,16,0"
@@ -324,9 +338,9 @@
         </Frame>
 
         <!-- ══════════════════════════════════════════════════════
-             ROW 1 : CHIPS FILTRES / TRI ACTIFS
+             ROW 2 : CHIPS FILTRES / TRI ACTIFS
         ══════════════════════════════════════════════════════ -->
-        <VerticalStackLayout Grid.Row="1" Spacing="0"
+        <VerticalStackLayout Grid.Row="2" Spacing="0"
                              IsVisible="{Binding HasActiveFiltersOrSort}">
             <BoxView HeightRequest="1" BackgroundColor="#0D000000" Margin="16,0"/>
 
@@ -338,12 +352,12 @@
         </VerticalStackLayout>
 
         <!-- ══════════════════════════════════════════════════════
-             ROW 2 : LISTE / ÉTATS
+             ROW 3 : LISTE / ÉTATS
         ══════════════════════════════════════════════════════ -->
 
         <!-- Liste principale -->
         <CollectionView
-            Grid.Row="2"
+            Grid.Row="3"
             x:Name="MainList"
             SelectionMode="None"
             ItemsSource="{Binding DisplayedItems}"
@@ -355,7 +369,7 @@
         </CollectionView>
 
         <!-- État vide -->
-        <VerticalStackLayout Grid.Row="2"
+        <VerticalStackLayout Grid.Row="3"
                              IsVisible="{Binding ShowEmpty}"
                              VerticalOptions="Center"
                              HorizontalOptions="Center"
@@ -381,7 +395,7 @@
         </VerticalStackLayout>
 
         <!-- État no-internet -->
-        <VerticalStackLayout Grid.Row="2"
+        <VerticalStackLayout Grid.Row="3"
                              IsVisible="{Binding ShowNoInternet}"
                              VerticalOptions="Center"
                              HorizontalOptions="Center"

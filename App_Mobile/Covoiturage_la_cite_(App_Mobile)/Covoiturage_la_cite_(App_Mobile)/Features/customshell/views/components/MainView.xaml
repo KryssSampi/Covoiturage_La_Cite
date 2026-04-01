@@ -17,6 +17,7 @@
      ├─────────────────────────────────────────┤
      │                                         │
      │  ContentZone   (Row 1 — Height *)       │  ← seul ce ContentView change
+     │  LoaderOverlay (overlay sur Row 1)      │  ← loader pendant navigation
      │                                         │
      ├─────────────────────────────────────────┤
      │  CustomTabBar  (Row 2 — Height 68)      │  ← jamais recréé
@@ -47,6 +48,31 @@
             Grid.Row="1"
             HorizontalOptions="Fill"
             VerticalOptions="Fill"/>
+
+        <!-- ── Loader overlay pendant navigation ── -->
+        <Grid x:Name="LoaderOverlay"
+              Grid.Row="1"
+              BackgroundColor="#80F2F5FA"
+              IsVisible="False"
+              ZIndex="5">
+            <VerticalStackLayout 
+                VerticalOptions="Center" 
+                HorizontalOptions="Center"
+                Spacing="12">
+                <ActivityIndicator 
+                    x:Name="LoaderSpinner"
+                    IsRunning="False"
+                    Color="#1A56CC"
+                    WidthRequest="40"
+                    HeightRequest="40"/>
+                <Label 
+                    x:Name="LoaderText"
+                    Text="Chargement..."
+                    TextColor="#8A95A8"
+                    FontSize="13"
+                    HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+        </Grid>
 
         <!-- ── TabBar custom — ne bouge jamais ── -->
         <comp:CustomTabBar

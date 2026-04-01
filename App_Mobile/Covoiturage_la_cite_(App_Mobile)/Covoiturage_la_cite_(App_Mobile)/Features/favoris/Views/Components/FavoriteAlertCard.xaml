@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/favoris/Views/Components/FavoriteAlertCard.xaml
+  Carte alerte trajet — BindingContext : FavoriteCardDisplayModel (Type=Alert)
+  Structure : [route+badge] / [chips fréquence] / [toggle actif + CTA + suppr]
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.favoris.Views.Components.FavoriteAlertCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.favoris.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:FavoriteCardDisplayModel">
+
+    <Border BackgroundColor="White" StrokeThickness="1" Margin="12,5">
+        <Border.Stroke><SolidColorBrush Color="#12000000"/></Border.Stroke>
+        <Border.StrokeShape><RoundRectangle CornerRadius="14"/></Border.StrokeShape>
+        <Border.Shadow><Shadow Brush="#0A000000" Offset="0,1" Radius="4" Opacity="1"/></Border.Shadow>
+
+        <VerticalStackLayout Spacing="0">
+
+            <!-- ── Ligne 1 : Route + badge actif/pause ────────────────── -->
+            <Grid ColumnDefinitions="*,Auto" Padding="14,12,14,10">
+
+                <VerticalStackLayout Grid.Column="0" Spacing="5">
+                    <Label Text="{Binding Name}"
+                           FontFamily="OpenSansSemibold" FontSize="13"
+                           TextColor="#0D1624" FontAttributes="Bold"/>
+                    <!-- Points route : départ — — arrivée -->
+                    <HorizontalStackLayout Spacing="6">
+                        <BoxView WidthRequest="8" HeightRequest="8"
+                                 Color="#1A56CC" CornerRadius="4"
+                                 VerticalOptions="Center"/>
+                        <Label Text="{Binding AlertOrigin}"
+                               FontSize="12" TextColor="#3D4A5C"/>
+                        <BoxView WidthRequest="20" HeightRequest="1.5"
+                                 Color="#D8DBE5" VerticalOptions="Center"/>
+                        <BoxView WidthRequest="8" HeightRequest="8"
+                                 Color="#E24B4A" CornerRadius="4"
+                                 VerticalOptions="Center"/>
+                        <Label Text="{Binding AlertDestination}"
+                               FontSize="12" TextColor="#3D4A5C"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Badge active / pause -->
+                <Border Grid.Column="1" Padding="9,3" StrokeThickness="0"
+                        VerticalOptions="Start">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="99"/></Border.StrokeShape>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding AlertIsActive}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#E1F5EE"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding AlertIsActive}" Value="False">
+                            <Setter Property="BackgroundColor" Value="#EEF0F5"/>
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label FontFamily="OpenSansSemibold" FontSize="11">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label"
+                                         Binding="{Binding AlertIsActive}" Value="True">
+                                <Setter Property="Text" Value="Active"/>
+                                <Setter Property="TextColor" Value="#0F6E56"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Label"
+                                         Binding="{Binding AlertIsActive}" Value="False">
+                                <Setter Property="Text" Value="En pause"/>
+                                <Setter Property="TextColor" Value="#545D6E"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+            </Grid>
+
+            <!-- ── Ligne 2 : Chips fréquence ─────────────────────────── -->
+            <BoxView HeightRequest="1" BackgroundColor="#0D000000" Margin="0"/>
+            <HorizontalStackLayout Spacing="6" Padding="14,8">
+                <Border BackgroundColor="#F8F9FC" StrokeThickness="1"
+                        Padding="8,3">
+                    <Border.Stroke><SolidColorBrush Color="#D8DBE5"/></Border.Stroke>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="99"/></Border.StrokeShape>
+                    <Label Text="{Binding AlertFrequency}"
+                           FontSize="11" TextColor="#7A879A"
+                           FontFamily="OpenSansSemibold"/>
+                </Border>
+            </HorizontalStackLayout>
+
+            <!-- ── Ligne 3 : Toggle + "Voir trajets" + supprimer ──────── -->
+            <BoxView HeightRequest="1" BackgroundColor="#0D000000" Margin="0"/>
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto" Padding="14,9"
+                  ColumnSpacing="8">
+
+                <!-- Toggle pill (visuel statique — logique via code-behind) -->
+                <Frame Grid.Column="0"
+                       WidthRequest="44" HeightRequest="24" CornerRadius="12"
+                       Padding="0" HasShadow="False" BorderColor="Transparent">
+                    <Frame.Triggers>
+                        <DataTrigger TargetType="Frame"
+                                     Binding="{Binding AlertIsActive}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#1D9E75"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Frame"
+                                     Binding="{Binding AlertIsActive}" Value="False">
+                            <Setter Property="BackgroundColor" Value="#D8DBE5"/>
+                        </DataTrigger>
+                    </Frame.Triggers>
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnToggleTapped"/>
+                    </Frame.GestureRecognizers>
+                    <!-- Thumb -->
+                    <BoxView WidthRequest="18" HeightRequest="18"
+                             CornerRadius="9" Color="White"
+                             VerticalOptions="Center">
+                        <BoxView.Triggers>
+                            <DataTrigger TargetType="BoxView"
+                                         Binding="{Binding AlertIsActive}" Value="True">
+                                <Setter Property="HorizontalOptions" Value="End"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="BoxView"
+                                         Binding="{Binding AlertIsActive}" Value="False">
+                                <Setter Property="HorizontalOptions" Value="Start"/>
+                            </DataTrigger>
+                        </BoxView.Triggers>
+                    </BoxView>
+                </Frame>
+
+                <!-- Label active/pause -->
+                <Label Grid.Column="1"
+                       FontSize="12" FontFamily="OpenSansSemibold"
+                       TextColor="#3D4A5C" VerticalOptions="Center">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label"
+                                     Binding="{Binding AlertIsActive}" Value="True">
+                            <Setter Property="Text" Value="Active"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label"
+                                     Binding="{Binding AlertIsActive}" Value="False">
+                            <Setter Property="Text" Value="En pause"/>
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+
+                <!-- Voir les trajets (CTA) -->
+                <Label Grid.Column="2"
+                       Text="Voir les trajets →"
+                       FontSize="12" TextColor="#1A56CC"
+                       FontFamily="OpenSansSemibold"
+                       HorizontalOptions="End" VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSearchTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <!-- Supprimer -->
+                <Label Grid.Column="3" Text="✕"
+                       FontSize="13" TextColor="#8A95A8"
+                       VerticalOptions="Center" Padding="4">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnDeleteTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+
+            </Grid>
+
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

@@ -1,6 +1,6 @@
 ﻿using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.favorispage.view;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.messagepage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.plannerpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.profilpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.statpage.view;
@@ -9,19 +9,28 @@ using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
 
 namespace Covoiturage_la_cite__App_Mobile_.Features.customshell.views.components;
 
+/// <summary>
+/// MainView — Custom Shell avec navigation instantanée.
+/// 
+/// Architecture :
+/// - Toutes les vues sont pré-créées au démarrage (eager loading)
+/// - Navigation = simple swap de ContentView (instantané)
+/// - TopBar + TabBar fixes, seul ContentZone change
+/// </summary>
 public partial class MainView : ContentPage
-{ // ─────────────────────────────────────────────────────────────
-  //  Dépendances (injectées via DI)
-  // ─────────────────────────────────────────────────────────────
+{
+    // ─────────────────────────────────────────────────────────────
+    //  Dépendances
+    // ─────────────────────────────────────────────────────────────
     private readonly NavigationService _navService;
     private readonly ShellControler _shellControler;
 
     // ─────────────────────────────────────────────────────────────
-    //  Cache des vues — chaque vue est instanciée UNE SEULE FOIS
-    //  et conservée en mémoire pour toute la durée de l'app.
-    //  Lazy<T> = instanciation au premier accès uniquement.
+    //  Cache des vues — PRÉ-CRÉÉES au démarrage, pas de Lazy
     // ─────────────────────────────────────────────────────────────
-    private readonly Dictionary<string, Lazy<ContentView>> _viewCache;
+    private readonly Dictionary<string, ContentView> _viewCache = new(StringComparer.OrdinalIgnoreCase);
+    private string _currentRoute = string.Empty;
+    private bool _isInitialized;
 
     public MainView(NavigationService navService, ShellControler shellControler)
     {
@@ -30,80 +39,146 @@ public partial class MainView : ContentPage
         _navService = navService;
         _shellControler = shellControler;
 
-        // ── Initialisation du cache de vues ──
-        // Chaque ContentView est résolu via DI pour supporter l'injection
-        // dans les ViewModels des pages principales.
-        _viewCache = new Dictionary<string, Lazy<ContentView>>(
-            StringComparer.OrdinalIgnoreCase)
-        {
-            ["accueil"] = new(() => ResolveView<HomePage>()),
-            ["planifier"] = new(() => ResolveView<PlannerPage>()),
-            ["messages"] = new(() => ResolveView<NotificationPage>()),
-            ["stats"] = new(() => ResolveView<StatPage>()),
-            ["profil"] = new(() => ResolveView<ProfilPage>()),
-            ["favoris"] = new(() => ResolveView<FavorisPage>()),
-        };
-
-        // ── Branchement sur le NavigationService ──
+        // ── S'abonner AVANT d'initialiser les vues ──
         _navService.MainNavigationRequested += OnMainNavigationRequested;
+    }
 
-        // ── Vue initiale (accueil) ──
+    // ─────────────────────────────────────────────────────────────
+    //  Initialisation différée — appelée après que la page est visible
+    // ─────────────────────────────────────────────────────────────
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (_isInitialized) return;
+        _isInitialized = true;
+
+        // ── Affiche le loader d'initialisation ──
+        ShowLoader("Préparation...");
+
+        // ── Pré-crée toutes les vues en background ──
+        await Task.Run(() => PreCreateAllViews());
+
+        // ── Cache le loader et affiche l'accueil ──
+        await HideLoaderAsync(animate: false);
         SwapContent("accueil", animate: false);
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  Réception d'une demande de navigation principale
+    //  Pré-création de toutes les vues (eager loading)
+    // ─────────────────────────────────────────────────────────────
+    private void PreCreateAllViews()
+    {
+        var services = IPlatformApplication.Current?.Services;
+        if (services is null) return;
+
+        // Crée les vues sur le UI thread (obligatoire pour XAML)
+        // mais les données sont chargées en lazy dans OnLoaded de chaque vue
+        MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            try
+            {
+                _viewCache["accueil"] = services.GetRequiredService<HomePage>();
+                _viewCache["planifier"] = services.GetRequiredService<PlannerPage>();
+                _viewCache["messages"] = services.GetRequiredService<MessagePage>();
+                _viewCache["stats"] = services.GetRequiredService<StatPage>();
+                _viewCache["profil"] = services.GetRequiredService<ProfilPage>();
+                _viewCache["favoris"] = services.GetRequiredService<FavorisPage>();
+
+                System.Diagnostics.Debug.WriteLine("[MainView] ✅ Toutes les vues pré-créées");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[MainView] ❌ Erreur pré-création: {ex.Message}");
+            }
+        }).Wait();
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Loader visuel — utilise l'overlay XAML
+    // ─────────────────────────────────────────────────────────────
+    private void ShowLoader(string? message = null)
+    {
+        LoaderText.Text = message ?? "Chargement...";
+        LoaderSpinner.IsRunning = true;
+        LoaderOverlay.IsVisible = true;
+        LoaderOverlay.Opacity = 1;
+    }
+
+    private async Task HideLoaderAsync(bool animate = true)
+    {
+        if (animate)
+        {
+            await LoaderOverlay.FadeTo(0, 150, Easing.CubicOut);
+        }
+        LoaderOverlay.IsVisible = false;
+        LoaderSpinner.IsRunning = false;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    //  Navigation interne — réception des demandes
     // ─────────────────────────────────────────────────────────────
     private void OnMainNavigationRequested(MainNavRequest request)
     {
+        // Déjà sur cette route ? Ignore.
+        if (request.Route == _currentRoute) return;
+
         SwapContent(request.Route, animate: true);
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  Swap du contenu central — seule opération visuelle
+    //  Swap du contenu — avec loader pendant la transition
     // ─────────────────────────────────────────────────────────────
-    private void SwapContent(string route, bool animate)
+    private async void SwapContent(string route, bool animate)
     {
-        if (!_viewCache.TryGetValue(route, out var viewFactory)) return;
-
-        MainThread.BeginInvokeOnMainThread(async () =>
+        if (!_viewCache.TryGetValue(route, out var view))
         {
-            var view = viewFactory.Value; // Instancie si premier accès
+            System.Diagnostics.Debug.WriteLine($"[MainView] ⚠️ Route inconnue: {route}");
+            return;
+        }
 
-            if (animate && ContentZone.Content is not null)
-            {
-                // Transition légère — fondu rapide uniquement sur le contenu
-                await ContentZone.FadeTo(0, 80, Easing.Linear);
-                ContentZone.Content = view;
-                await ContentZone.FadeTo(1, 120, Easing.Linear);
-            }
-            else
-            {
-                ContentZone.Content = view;
-            }
+        // ── Affiche le loader si animation ──
+        if (animate)
+        {
+            ShowLoader(RouteToTitle(route));
+            await Task.Delay(80); // Petit délai pour que le loader s'affiche
+        }
 
-            // Synchronise le titre de la TopBar
-            _shellControler.UpdateTitle(
-                RouteToTitle(route));
-        });
+        // ── Lifecycle : OnDisappearing sur l'ancienne vue ──
+        if (ContentZone.Content is ContentView oldView)
+        {
+            (oldView as IPageLifecycle)?.OnNavigatedFrom();
+        }
+
+        // ── Swap du contenu ──
+        ContentZone.Content = view;
+        _currentRoute = route;
+
+        // ── Lifecycle : OnAppearing sur la nouvelle vue ──
+        (view as IPageLifecycle)?.OnNavigatedTo();
+
+        // ── Activation spéciale pour StatPage ──
+        if (view is StatPage statPage)
+            _ = statPage.OnActivatedAsync();
+
+        // ── Met à jour le titre ──
+        _shellControler.UpdateTitle(RouteToTitle(route));
+
+        // ── Cache le loader avec animation ──
+        if (animate)
+        {
+            await Task.Delay(100); // Laisse le contenu se rendre
+            await HideLoaderAsync();
+        }
     }
 
     // ─────────────────────────────────────────────────────────────
-    //  Résolution DI d'une vue
-    // ─────────────────────────────────────────────────────────────
-    private static T ResolveView<T>() where T : ContentView
-    {
-        return IPlatformApplication.Current!.Services.GetService<T>()
-            ?? Activator.CreateInstance<T>();
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    //  Mapping route → titre affiché dans la TopBar
+    //  Mapping route → titre
     // ─────────────────────────────────────────────────────────────
     private static string RouteToTitle(string route) => route switch
     {
         "accueil" => "La Cité Covoiturage",
-        "trajets" => "Mes Trajets",
+        "planifier" => "Planifier",
         "messages" => "Messages",
         "stats" => "Statistiques",
         "favoris" => "Mes Favoris",
@@ -119,5 +194,14 @@ public partial class MainView : ContentPage
         base.OnDisappearing();
         _navService.MainNavigationRequested -= OnMainNavigationRequested;
     }
+}
+
+/// <summary>
+/// Interface optionnelle pour les vues qui veulent des callbacks de navigation
+/// </summary>
+public interface IPageLifecycle
+{
+    void OnNavigatedTo();
+    void OnNavigatedFrom();
 }
 

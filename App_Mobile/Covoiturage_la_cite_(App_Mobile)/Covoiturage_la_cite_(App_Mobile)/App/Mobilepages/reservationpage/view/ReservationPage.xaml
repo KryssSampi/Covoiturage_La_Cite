@@ -1,26 +1,47 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationpage.view.ReservationPage"
-             xmlns:shellui ="Shell.ui" 
-             xmlns:header="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.components"
+<!--
+  App/Mobilepages/reservationpage/view/ReservationPage.xaml
+  Liste des réservations (onglet MainView).
+  Utilise le composant générique ItemList.
+  Cartes : ReservationCard (passager ET conducteur, discriminé par Role).
+  Tap passager  → tripdetail?tripId={id}&viewerRole=passenger
+  Tap conducteur → reservationrequestdetail?requestId={id}
+  Onglets (2) uniquement si canBeDriver = true.
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationpage.view.ReservationPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:list="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.ItemList.Views;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:rescomp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.views.components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:resdm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
     BackgroundColor="#F2F5FA">
-    <!-- ── Contenu de la page ── -->
-    <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="16">
 
-            <Label
-                Text="Bonjour 👋"
-                FontFamily="OpenSansSemibold"
-                FontSize="22"
-                TextColor="#0D1624"/>
+    <Grid RowDefinitions="Auto,*">
 
-            <!-- Votre contenu ici -->
-            <Label
-                Text="Page liste de Vos Demandes de Réservation— à implémenter"
-                TextColor="#7A879A"
-                FontSize="14"/>
+        <!-- En-tête -->
+        <Label Grid.Row="0"
+               Text="Réservations"
+               FontFamily="OpenSansSemibold"
+               FontSize="22"
+               TextColor="#0D1624"
+               Padding="16,16,16,8"/>
 
-        </VerticalStackLayout>
-    </ScrollView>
+        <!-- Composant liste générique -->
+        <list:ItemListView
+            Grid.Row="1"
+            x:Name="ReservationList">
+            <list:ItemListView.ItemTemplate>
+                <DataTemplate x:DataType="resdm:ReservationListCardDisplayModel">
+                    <rescomp:ReservationCard x:Name="CardView">
+                        <rescomp:ReservationCard.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="OnReservationCardTapped"/>
+                        </rescomp:ReservationCard.GestureRecognizers>
+                    </rescomp:ReservationCard>
+                </DataTemplate>
+            </list:ItemListView.ItemTemplate>
+        </list:ItemListView>
+
+    </Grid>
 </ContentView>

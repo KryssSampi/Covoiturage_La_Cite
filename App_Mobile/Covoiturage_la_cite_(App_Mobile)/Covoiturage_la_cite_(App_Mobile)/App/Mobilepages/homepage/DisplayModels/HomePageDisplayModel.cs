@@ -25,8 +25,29 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayModel
         public IReadOnlyList<IncomingReservationRequestCardDisplayModel> IncomingRequests { get => _incomingRequests; set => SetField(ref _incomingRequests, value); }
         public IReadOnlyList<NotificationCardDisplayModel> Notifications { get => _notifications; set => SetField(ref _notifications, value); }
         public string RequestsSectionTitle { get => _requestsSectionTitle; set => SetField(ref _requestsSectionTitle, value); }
-        public bool ShowIncomingRequests { get => _showIncomingRequests; set => SetField(ref _showIncomingRequests, value); }
-        public bool ShowNotifications { get => _showNotifications; set => SetField(ref _showNotifications, value); }
+        
+        public bool ShowIncomingRequests 
+        { 
+            get => _showIncomingRequests; 
+            set 
+            { 
+                SetField(ref _showIncomingRequests, value); 
+                OnPropertyChanged(nameof(HasRequestsOrNotifications)); 
+            } 
+        }
+        
+        public bool ShowNotifications 
+        { 
+            get => _showNotifications; 
+            set 
+            { 
+                SetField(ref _showNotifications, value); 
+                OnPropertyChanged(nameof(HasRequestsOrNotifications)); 
+            } 
+        }
+
+        /// <summary>True si au moins une des sections (demandes ou notifications) doit être affichée</summary>
+        public bool HasRequestsOrNotifications => ShowIncomingRequests || ShowNotifications;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string? name = null)

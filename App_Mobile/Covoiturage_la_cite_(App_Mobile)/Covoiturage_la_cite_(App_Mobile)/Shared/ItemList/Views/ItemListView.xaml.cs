@@ -91,13 +91,61 @@ public partial class ItemListView : ContentView
             ?? new ObjectAdapterController<T>(controller);
         BindingContext = _controller;
 
-        // Écoute les changements de chips via PropertyChanged
+        // Écoute les changements via PropertyChanged
         _controller.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(ItemListController<object>.ActiveChips))
                 RebuildChips();
+            if (e.PropertyName == nameof(ItemListController<object>.ActiveTabIndex))
+                RebuildTabs();
         };
         RebuildChips();
+        RebuildTabs();
+    }
+
+    // ── Construction de la barre d'onglets ────────────────────────────
+
+    private void RebuildTabs()
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            TabsBar.Children.Clear();
+            if (_controller == null || !_controller.HasTabs) return;
+
+            var labels = _controller.TabLabels;
+            for (int i = 0; i < labels.Count; i++)
+            {
+                var idx = i; // capture
+                var isActive = i == _controller.ActiveTabIndex;
+
+                var lbl = new Label
+                {
+                    Text          = labels[i],
+                    FontFamily    = "OpenSansSemibold",
+                    FontSize      = 14,
+                    TextColor     = isActive ? Color.FromArgb("#08316e") : Color.FromArgb("#7A879A"),
+                    Padding       = new Thickness(16, 12, 16, 10),
+                    VerticalTextAlignment = TextAlignment.Center,
+                };
+
+                var underline = new BoxView
+                {
+                    HeightRequest   = 2,
+                    BackgroundColor = isActive ? Color.FromArgb("#08316e") : Colors.Transparent,
+                    HorizontalOptions = LayoutOptions.Fill,
+                };
+
+                var container = new VerticalStackLayout { Spacing = 0 };
+                container.Children.Add(lbl);
+                container.Children.Add(underline);
+
+                var tap = new TapGestureRecognizer();
+                tap.Tapped += (s, e) => _controller?.SelectTabCommand.Execute(idx);
+                container.GestureRecognizers.Add(tap);
+
+                TabsBar.Children.Add(container);
+            }
+        });
     }
 
     // ── Construction des chips ─────────────────────────────────────────

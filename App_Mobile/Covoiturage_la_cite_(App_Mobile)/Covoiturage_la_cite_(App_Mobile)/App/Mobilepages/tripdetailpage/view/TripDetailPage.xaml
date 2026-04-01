@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    TripDetailPage.xaml
+    Page hors-MainView (Shell) — back arrow natif.
+    Affiche les détails d'un trajet publié (passager, conducteur, admin).
+    Route : //tripdetail?tripId={id}&viewerRole={passenger|driver_owner|admin}&source={source}&sourceStatus={status}
+
+    BindingContext = TripDetailPageDisplayModel
+    Composants :
+      - TripSummaryCard (carte résumé + bouton réserver/gérer)
+      - TripPointSection x2 (départ + arrivée)
+      - TripPreferencesSection (préférences)
+      - TripStatusSection (type trajet, informations)
+-->
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:comp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.tripdetail.views.components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:tripDm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.tripdetail.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.view.TripDetailPage"
+    x:DataType="dm:TripDetailPageDisplayModel"
+    BackgroundColor="#f0f4f8"
+    Shell.NavBarIsVisible="True"
+    Title="{Binding PageTitle}">
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="True" IsEnabled="True"/>
+    </Shell.BackButtonBehavior>
+
+    <!-- Toast d'annulation (overlay) -->
+    <ContentPage.Content>
+        <Grid>
+            <!-- ── Loading ────────────────────────────────────── -->
+            <ActivityIndicator
+                IsRunning="{Binding IsLoading}"
+                IsVisible="{Binding IsLoading}"
+                Color="#08316e"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"/>
+
+            <!-- ── Contenu principal ──────────────────────────── -->
+            <ScrollView IsVisible="{Binding IsLoading, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Spacing="0">
+
+                    <!-- Zone carte (placeholder coloré) -->
+                    <Grid
+                        HeightRequest="180"
+                        BackgroundColor="#08316e">
+                        <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="4">
+                            <Label Text="🗺" FontSize="40" HorizontalOptions="Center"/>
+                            <Label
+                                Text="{Binding SummaryCard.DurationLabel, StringFormat='{0} de trajet'}"
+                                FontSize="13"
+                                TextColor="White"
+                                HorizontalOptions="Center"/>
+                            <Label
+                                Text="{Binding SummaryCard.DistanceLabel}"
+                                FontSize="11"
+                                TextColor="#ffffff99"
+                                HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Carte résumé (chevauche la zone carte via margin négative) -->
+                    <comp:TripSummaryCard
+                        BindingContext="{Binding SummaryCard}"
+                        HorizontalOptions="FillAndExpand"/>
+
+                    <!-- Sections détail -->
+                    <VerticalStackLayout Padding="16,12" Spacing="10">
+
+                        <Label
+                            Text="Détails du trajet"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="13"
+                            TextColor="#08316e"/>
+
+                        <!-- Départ + Arrivée côte à côte en grille -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <comp:TripPointSection
+                                Grid.Column="0"
+                                BindingContext="{Binding DeparturePoint}"/>
+                            <comp:TripPointSection
+                                Grid.Column="1"
+                                BindingContext="{Binding ArrivalPoint}"/>
+                        </Grid>
+
+                        <!-- Préférences + Statut côte à côte -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <comp:TripPreferencesSection
+                                Grid.Column="0"
+                                BindingContext="{Binding PreferencesSection}"/>
+                            <comp:TripStatusSection
+                                Grid.Column="1"
+                                BindingContext="{Binding StatusSection}"/>
+                        </Grid>
+
+                    </VerticalStackLayout>
+
+                    <!-- Bouton "Écrire un message" — visible si trajet en cours -->
+                    <Border
+                        IsVisible="{Binding ShowMessageButton}"
+                        Margin="16,4,16,16"
+                        BackgroundColor="#08316e"
+                        StrokeThickness="0"
+                        Padding="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnWriteMessageTapped"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout
+                            HorizontalOptions="Center"
+                            Spacing="8"
+                            Padding="20,14">
+                            <Label Text="✉"
+                                   FontSize="16"
+                                   TextColor="White"
+                                   VerticalOptions="Center"/>
+                            <Label Text="Écrire / Laisser un message"
+                                   FontFamily="OpenSansSemibold"
+                                   FontSize="14"
+                                   TextColor="White"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- ── Toast confirmation annulation ─────────────── -->
+            <Grid
+                IsVisible="{Binding ShowCancelToast}"
+                BackgroundColor="#80000000"
+                ZIndex="10">
+                <Border
+                    BackgroundColor="White"
+                    Padding="20"
+                    Margin="32"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="340"
+                    StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="{Binding CancelLabel}"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="15"
+                            TextColor="#08316e"
+                            HorizontalOptions="Center"/>
+                        <Label
+                            Text="Êtes-vous sûr de vouloir annuler ?"
+                            FontSize="13"
+                            TextColor="#4b5563"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"/>
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Button
+                                Text="Non, garder"
+                                BackgroundColor="#f3f4f6"
+                                TextColor="#374151"
+                                CornerRadius="10"
+                                FontSize="13"
+                                Command="{Binding DismissCancelToastCommand}"/>
+                            <Button
+                                Text="Oui, annuler"
+                                BackgroundColor="#dc2626"
+                                TextColor="White"
+                                CornerRadius="10"
+                                FontSize="13"
+                                Command="{Binding ConfirmCancelCommand}"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

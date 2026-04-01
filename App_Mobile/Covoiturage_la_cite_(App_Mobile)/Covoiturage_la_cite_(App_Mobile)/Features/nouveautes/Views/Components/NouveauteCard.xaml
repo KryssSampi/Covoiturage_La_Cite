@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/nouveautes/Views/Components/NouveauteCard.xaml
+  BindingContext : NouveauteCardDisplayModel
+  Carte grande avec vidéo YouTube intégrée (WebView iframe).
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.nouveautes.Views.Components.NouveauteCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.nouveautes.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:NouveauteCardDisplayModel">
+
+    <Border BackgroundColor="White" StrokeThickness="0" Margin="12,8">
+        <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+        <Border.Shadow><Shadow Brush="#12000000" Offset="0,3" Radius="10" Opacity="1"/></Border.Shadow>
+
+        <VerticalStackLayout Spacing="0">
+
+            <!-- ── Vidéo YouTube ─────────────────────────────────────────── -->
+            <Border HeightRequest="210" StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16,16,0,0"/>
+                </Border.StrokeShape>
+                <WebView x:Name="VideoView"
+                         HeightRequest="210"
+                         BackgroundColor="Black"/>
+            </Border>
+
+            <!-- ── Corps ─────────────────────────────────────────────────── -->
+            <VerticalStackLayout Spacing="10" Padding="16,14,16,16">
+
+                <!-- Badge + date -->
+                <HorizontalStackLayout Spacing="8">
+                    <Border Padding="8,3" StrokeThickness="0">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                        <Border.BackgroundColor>
+                            <Binding Path="BadgeColorHex" Converter="{StaticResource HexToColor}"/>
+                        </Border.BackgroundColor>
+                        <Label Text="{Binding BadgeLabel}"
+                               FontFamily="OpenSansSemibold" FontSize="11">
+                            <Label.TextColor>
+                                <Binding Path="BadgeTextHex" Converter="{StaticResource HexToColor}"/>
+                            </Label.TextColor>
+                        </Label>
+                    </Border>
+                    <Label Text="{Binding DateLabel}"
+                           FontSize="11" TextColor="#9CA3AF"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <!-- Titre -->
+                <Label Text="{Binding Title}"
+                       FontFamily="OpenSansSemibold" FontSize="16"
+                       TextColor="#0D1624" FontAttributes="Bold"
+                       LineBreakMode="WordWrap"/>
+
+                <!-- Description -->
+                <Label Text="{Binding Description}"
+                       FontSize="13" TextColor="#4B5563"
+                       LineBreakMode="WordWrap"/>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </Border>
+
+</ContentView>

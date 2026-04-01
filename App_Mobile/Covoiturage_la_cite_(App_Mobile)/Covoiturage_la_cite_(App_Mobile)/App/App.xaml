@@ -20,11 +20,25 @@
             <conv:MaterialIconConverter x:Key="MaterialIconConverter"/>
             <conv:NotNullToBoolConverter x:Key="NotNullToBool"/>
             <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <conv:InverseBoolConverter x:Key="InvertBool"/>
             <conv:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
             <conv:ListToStringConverter x:Key="ListToStringConverter" Separator=" - "/>
             <conv:RatioToWidthConverter x:Key="RatioToWidth"/>
+            <conv:RatioToHeightConverter x:Key="RatioToHeight"/>
+            <conv:StarRatingConverter x:Key="StarRatingConverter"/>
             <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
             <searchcomp:IsFavoriteConverter x:Key="IsFavoriteConverter"/>
+
+            <!-- Form / trip converters -->
+            <conv:NullToColorConverter x:Key="NullToColor"/>
+            <conv:StringToDateConverter x:Key="StringToDate"/>
+            <conv:StringToTimeConverter x:Key="StringToTime"/>
+            <conv:BoolToPublishLabelConverter x:Key="BoolToPublishLabel"/>
+            <conv:BoolToSuccessEmojiConverter x:Key="BoolToSuccessEmoji"/>
+            <conv:BoolToBlueConverter x:Key="BoolToBlue"/>
+            <conv:InvertBoolToBlueConverter x:Key="InvertBoolToBlue"/>
+            <conv:BoolToWhiteGrayConverter x:Key="BoolToWhiteGray"/>
+            <conv:BoolToGrayWhiteConverter x:Key="BoolToGrayWhite"/>
 
             <plannerconv:DriverStatusBackgroundConverter x:Key="DriverStatusBgConverter"/>
             <plannerconv:DriverStatusForegroundConverter x:Key="DriverStatusFgConverter"/>

@@ -22,6 +22,7 @@ public class ItemListController<T> : INotifyPropertyChanged where T : class
     private string _searchText = "";
     private bool   _isFilterMenuOpen = false;
     private bool   _isSortMenuOpen   = false;
+    private int    _activeTabIndex   = 0;
 
     // ── Propriétés publiques ────────────────────────────────────────────
 
@@ -61,6 +62,16 @@ public class ItemListController<T> : INotifyPropertyChanged where T : class
     public bool IsFilterMenuOpen { get => _isFilterMenuOpen; set => Set(ref _isFilterMenuOpen, value); }
     public bool IsSortMenuOpen   { get => _isSortMenuOpen;   set => Set(ref _isSortMenuOpen,   value); }
 
+    // ── Onglets ─────────────────────────────────────────────────────────
+    public bool HasTabs           => _config.Tabs.Count > 1;
+    public IReadOnlyList<string> TabLabels => _config.Tabs.Select(t => t.Label).ToList();
+    public int ActiveTabIndex
+    {
+        get => _activeTabIndex;
+        private set { if (Set(ref _activeTabIndex, value)) ApplyAll(); }
+    }
+    public ICommand SelectTabCommand { get; private set; } = null!;
+
     public bool ShowNoInternet  => _config.ShowNoInternet;
     public bool ShowEmpty       => !ShowNoInternet && _displayedItems.Count == 0;
     public bool ShowList        => !ShowNoInternet && _displayedItems.Count > 0;
@@ -89,6 +100,12 @@ public class ItemListController<T> : INotifyPropertyChanged where T : class
     {
         _config = config;
         _sourceItems = _config.Items.ToList();
+
+        SelectTabCommand = new Command<int>(idx =>
+        {
+            if (idx >= 0 && idx < _config.Tabs.Count)
+                ActiveTabIndex = idx;
+        });
 
         ToggleFilterMenuCommand = new Command(() =>
         {
@@ -170,6 +187,10 @@ public class ItemListController<T> : INotifyPropertyChanged where T : class
     private void ApplyAll()
     {
         var query = _sourceItems.AsEnumerable();
+
+        // 0. Filtre par onglet actif (avant recherche et filtres)
+        if (HasTabs && _activeTabIndex < _config.Tabs.Count)
+            query = query.Where(_config.Tabs[_activeTabIndex].Predicate);
 
         // 1. Recherche plein-texte
         var search = SearchText.Trim().ToLowerInvariant();

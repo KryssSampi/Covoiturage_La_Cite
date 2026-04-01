@@ -65,6 +65,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Services.navigation
 
         // ─────────────────────────────────────────────────────────────
         //  Navigation principale (reste dans MainPage)
+        //  PAS de MainThread ici — l'appelant (TabBar, etc.) est déjà sur UI thread
         // ─────────────────────────────────────────────────────────────
         public void GoTo(string route)
         {
@@ -80,8 +81,9 @@ namespace Covoiturage_la_cite__App_Mobile_.Services.navigation
             _history.Push(_currentMainRoute);
             _currentMainRoute = route;
 
-            MainThread.BeginInvokeOnMainThread(() =>
-                MainNavigationRequested?.Invoke(new MainNavRequest(route)));
+            // Invoke direct — pas de BeginInvokeOnMainThread
+            // L'appelant est déjà sur le UI thread (tap gesture)
+            MainNavigationRequested?.Invoke(new MainNavRequest(route));
         }
 
         // ─────────────────────────────────────────────────────────────

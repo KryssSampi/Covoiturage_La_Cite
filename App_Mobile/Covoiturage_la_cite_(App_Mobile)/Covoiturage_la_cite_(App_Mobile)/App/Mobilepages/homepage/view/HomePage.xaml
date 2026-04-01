@@ -128,56 +128,59 @@
                                            BindingContext="{Binding DisplayModel.StatsKpis}"/>
                     </Grid>
 
-                    <Grid RowSpacing="1">
+
+                    <!-- Section Demandes / Notifications -->
+                    <Grid RowSpacing="8"
+                          IsVisible="{Binding DisplayModel.HasRequestsOrNotifications}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <Label Text="{Binding DisplayModel.RequestsSectionTitle}"
+                        
+                        <Label Grid.Row="0"
+                               Text="{Binding DisplayModel.RequestsSectionTitle}"
                                FontFamily="OpenSansSemibold"
                                FontSize="16"
                                FontAttributes="Bold"
                                TextColor="Gray"/>
 
-                        <VerticalStackLayout Grid.Row="1" >
-                            <CollectionView ItemsSource="{Binding DisplayModel.IncomingRequests}"
-                                            HeightRequest="190"
-                                            HorizontalScrollBarVisibility="Never"
-                                            IsVisible="{Binding DisplayModel.ShowIncomingRequests}">
-                                <CollectionView.Triggers>
-                                    <DataTrigger TargetType="CollectionView"
-                                                 Binding="{Binding DisplayModel.ShowIncomingRequests}"
-                                                 Value="False">
-                                        <Setter Property="HeightRequest" Value="0"/>
-                                    </DataTrigger>
-                                </CollectionView.Triggers>
-                                <CollectionView.ItemsLayout>
-                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="14"/>
-                                </CollectionView.ItemsLayout>
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="cardDm:IncomingReservationRequestCardDisplayModel">
-                                        <cards:IncomingReservationRequestCard
-                                            WidthRequest="320"
-                                            Model="{Binding .}"/>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
+                        <!-- Demandes entrantes (conducteur) -->
+                        <CollectionView Grid.Row="1"
+                                        ItemsSource="{Binding DisplayModel.IncomingRequests}"
+                                        HeightRequest="210"
+                                        HorizontalScrollBarVisibility="Never"
+                                        IsVisible="{Binding DisplayModel.ShowIncomingRequests}">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="14"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="cardDm:IncomingReservationRequestCardDisplayModel">
+                                    <cards:IncomingReservationRequestCard
+                                        WidthRequest="320"
+                                        HeightRequest="200"
+                                        Model="{Binding .}"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
 
-                            <CollectionView ItemsSource="{Binding DisplayModel.Notifications}"
-                                            IsVisible="False"
-                                            VerticalScrollBarVisibility="Never">
-           
-                                <CollectionView.ItemsLayout>
-                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12"/>
-                                </CollectionView.ItemsLayout>
-                                <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="cardDm:NotificationCardDisplayModel">
-                                        <cards:NotificationCard
-                                            Model="{Binding .}"/>
-                                    </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                            </CollectionView>
-                        </VerticalStackLayout>
+                        <!-- Notifications (passager) -->
+                        <CollectionView Grid.Row="2"
+                                        ItemsSource="{Binding DisplayModel.Notifications}"
+                                        HeightRequest="160"
+                                        HorizontalScrollBarVisibility="Never"
+                                        IsVisible="{Binding DisplayModel.ShowNotifications}">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="cardDm:NotificationCardDisplayModel">
+                                    <cards:NotificationCard
+                                        HeightRequest="150"
+                                        Model="{Binding .}"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
                     </Grid>
 
                     <Grid RowSpacing="8">

@@ -4,8 +4,17 @@
 
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationpage.view;
 // Pages hors-wrapper — importer au fur et à mesure
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationdetailpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationrequestdetailpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.createtrippage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.searchpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.historiquepage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.brouillonspage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reviewspage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.nouveautespage.view;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.views.components;
 using Covoiturage_la_cite__App_Mobile_.Services.navigation;
@@ -25,8 +34,9 @@ namespace Covoiturage_la_cite__App_Mobile_
             _navService = navService;
 
             BindingContext = shellControler;
-            FlyoutIcon = null;
-            Shell.SetNavBarIsVisible(this, false);
+
+            // Cache l'icône flyout native (on utilise notre TopBar)
+            FlyoutIcon = new FileImageSource(); // Icône vide
 
             RegisterRoutes();
         }
@@ -42,14 +52,24 @@ namespace Covoiturage_la_cite__App_Mobile_
         private static void RegisterRoutes()
         {
             // ── Flux & modales ──
-            Routing.RegisterRoute("reservation",   typeof(ReservationPage));
-            Routing.RegisterRoute("notifications", typeof(NotificationPage));
-            Routing.RegisterRoute("search",        typeof(SearchPage));
-            // Routing.RegisterRoute("trajet_detail", typeof(TrajetDetailPage));
-            // Routing.RegisterRoute("payment",       typeof(PaymentPage));
-            // Routing.RegisterRoute("avis",          typeof(AvisPage));
-            // Routing.RegisterRoute("login",         typeof(LoginPage));
-            // Routing.RegisterRoute("onboarding",    typeof(OnboardingPage));
+            Routing.RegisterRoute("reservation",              typeof(ReservationPage));
+            Routing.RegisterRoute("notifications",            typeof(NotificationPage));
+            Routing.RegisterRoute("search",                   typeof(SearchPage));
+
+            // ── Pages de détail (hors-MainView) ──
+            Routing.RegisterRoute("notificationdetail",       typeof(NotificationDetailPage));
+            Routing.RegisterRoute("reservationrequestdetail", typeof(ReservationRequestDetailPage));
+            Routing.RegisterRoute("tripdetail",               typeof(TripDetailPage));
+            Routing.RegisterRoute("createtrip",               typeof(CreateTripPage));
+            Routing.RegisterRoute("conversation",             typeof(ConversationPage));
+            Routing.RegisterRoute("historique",               typeof(HistoriquePage));
+            Routing.RegisterRoute("brouillons",               typeof(BrouillonsPage));
+            Routing.RegisterRoute("reviews",                  typeof(ReviewsPage));
+            Routing.RegisterRoute("nouveautes",               typeof(NouveautesPage));
+            // Routing.RegisterRoute("payment",                  typeof(PaymentPage));
+            // Routing.RegisterRoute("avis",                     typeof(AvisPage));
+            // Routing.RegisterRoute("login",                    typeof(LoginPage));
+            // Routing.RegisterRoute("onboarding",               typeof(OnboardingPage));
         }
 
         // ─────────────────────────────────────────────────────────────

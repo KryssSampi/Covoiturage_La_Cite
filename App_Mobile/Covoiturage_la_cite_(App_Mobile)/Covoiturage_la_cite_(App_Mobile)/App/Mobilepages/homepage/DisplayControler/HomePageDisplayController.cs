@@ -8,6 +8,7 @@ using Covoiturage_la_cite__App_Mobile_.Features.statistiques.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.statistiques.Fixtures;
 using Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels;
 using Covoiturage_la_cite__App_Mobile_.Test.Fixtures;
+using NotificationType = Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels.NotificationType;
 
 namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayControler
 {

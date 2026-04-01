@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  App/Mobilepages/messagepage/view/MessagePage.xaml
+  Liste de conversations (onglet MainView).
+  Utilise le composant générique ItemList.
+  Les cartes utilisent ConversationCard.
+  Tap sur une carte → Shell.GoToAsync("conversation?conversationId={id}")
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.messagepage.view.MessagePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:list="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.ItemList.Views;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:msgcomp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.messaging.views.components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:msgdm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    BackgroundColor="#F2F5FA">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- En-tête -->
+        <Label Grid.Row="0"
+               Text="Messages"
+               FontFamily="OpenSansSemibold"
+               FontSize="22"
+               TextColor="#0D1624"
+               Padding="16,16,16,8"/>
+
+        <!-- Composant liste générique -->
+        <list:ItemListView
+            Grid.Row="1"
+            x:Name="MsgList">
+            <list:ItemListView.ItemTemplate>
+                <DataTemplate x:DataType="msgdm:ConversationCardDisplayModel">
+                    <msgcomp:ConversationCard x:Name="CardView">
+                        <msgcomp:ConversationCard.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="OnConversationCardTapped"/>
+                        </msgcomp:ConversationCard.GestureRecognizers>
+                    </msgcomp:ConversationCard>
+                </DataTemplate>
+            </list:ItemListView.ItemTemplate>
+        </list:ItemListView>
+
+    </Grid>
+</ContentView>

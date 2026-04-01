@@ -44,6 +44,19 @@ public class ListSort<T>
     public required Func<IEnumerable<T>, IEnumerable<T>> Sorter { get; init; }
 }
 
+// ─── Onglets ─────────────────────────────────────────────────────────────────
+
+/// <summary>
+/// Onglet optionnel du composant ItemList.
+/// Quand la liste en a plusieurs, une barre d'onglets s'affiche en tête.
+/// La propriété Predicate filtre les items selon le rôle / la catégorie.
+/// </summary>
+public class ItemListTab<T>
+{
+    public required string                  Label     { get; init; }
+    public required Func<T, bool>          Predicate { get; init; }
+}
+
 // ─── Configuration globale ───────────────────────────────────────────────────
 
 /// <summary>
@@ -84,5 +97,12 @@ public class ItemListConfig<T> where T : class
     public string NoInternetIconGlyph   { get; init; } = "\uF4CB";  // WiFi off
     public string NoInternetTitle       { get; init; } = "Pas de connexion";
     public string NoInternetSubtitle    { get; init; } = "Vérifiez votre connexion internet.";
+
+    /// <summary>
+    /// Onglets optionnels (max 2). Si vide, aucune barre d'onglets n'est affichée.
+    /// Quand des onglets sont définis, seuls les items correspondant au prédicat de
+    /// l'onglet actif sont affichés (AVANT la recherche/filtres).
+    /// </summary>
+    public IReadOnlyList<ItemListTab<T>> Tabs { get; init; } = Array.Empty<ItemListTab<T>>();
 }
 
