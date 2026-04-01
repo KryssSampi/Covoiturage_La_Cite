@@ -273,6 +273,9 @@
 	  <MauiXaml Update="Features\customshell\views\ui\SideNavHeader.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Features\statistiques\Views\Components\KpiGridView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

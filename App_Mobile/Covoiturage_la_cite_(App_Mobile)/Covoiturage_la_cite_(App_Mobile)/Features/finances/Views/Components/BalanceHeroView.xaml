@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/finances/Views/Components/BalanceHeroView.xaml
+  BindingContext : BalanceHeroDisplayModel
+  Bouton Retirer délégué via TapGestureRecognizer → code-behind
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.finances.Views.Components.BalanceHeroView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.finances.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:BalanceHeroDisplayModel">
+
+    <Grid BackgroundColor="#08316e" Padding="16,20,16,20" RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <BoxView Grid.RowSpan="3" Color="#1A56CC" Opacity="0.25"/>
+
+        <!-- Solde principal -->
+        <VerticalStackLayout Grid.Row="0" Spacing="4">
+            <Label Text="Solde disponible"
+                   FontFamily="OpenSansSemibold" FontSize="12"
+                   TextColor="#99FFFFFF" CharacterSpacing="0.7"/>
+            <Label Text="{Binding AvailableBalance, StringFormat='{0:N2} $'}"
+                   FontFamily="OpenSansSemibold" FontSize="40" FontAttributes="Bold"
+                   TextColor="White" LineHeight="1"/>
+        </VerticalStackLayout>
+
+        <!-- Sous-soldes -->
+        <Grid Grid.Row="1" ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Frame Grid.Column="0" BackgroundColor="#1EFFFFFF" CornerRadius="12"
+                   BorderColor="Transparent" Padding="10">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="En transit" FontSize="11" TextColor="#99FFFFFF"
+                           FontAttributes="Bold" CharacterSpacing="0.3"/>
+                    <Label Text="{Binding PendingBalance, StringFormat='{0:N2} $'}"
+                           FontFamily="OpenSansSemibold" FontSize="16"
+                           FontAttributes="Bold" TextColor="White"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Grid.Column="1" BackgroundColor="#1EFFFFFF" CornerRadius="12"
+                   BorderColor="Transparent" Padding="10">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="Pénalités" FontSize="11" TextColor="#99FFFFFF"
+                           FontAttributes="Bold" CharacterSpacing="0.3"/>
+                    <Label Text="{Binding PenaltyBalance, StringFormat='{0:N2} $'}"
+                           FontFamily="OpenSansSemibold" FontSize="16"
+                           FontAttributes="Bold" TextColor="#FFB3B3"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame Grid.Column="2" BackgroundColor="#1EFFFFFF" CornerRadius="12"
+                   BorderColor="Transparent" Padding="10">
+                <VerticalStackLayout Spacing="3">
+                    <Label Text="IBAN" FontSize="11" TextColor="#99FFFFFF"
+                           FontAttributes="Bold" CharacterSpacing="0.3"/>
+                    <Label Text="{Binding IbanMasked}"
+                           FontFamily="OpenSansRegular" FontSize="12" TextColor="White"/>
+                </VerticalStackLayout>
+            </Frame>
+        </Grid>
+
+        <!-- Boutons -->
+        <Grid Grid.Row="2" ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0"
+                    Text="Retirer"
+                    BackgroundColor="White" TextColor="#08316e"
+                    FontFamily="OpenSansSemibold" FontSize="13" FontAttributes="Bold"
+                    CornerRadius="12" HeightRequest="46"
+                    IsEnabled="{Binding CanWithdraw}"
+                    Clicked="OnWithdrawClicked"/>
+
+            <Button Grid.Column="1"
+                    Text="Historique"
+                    BackgroundColor="#26FFFFFF" TextColor="White"
+                    FontFamily="OpenSansSemibold" FontSize="13" FontAttributes="Bold"
+                    CornerRadius="12" HeightRequest="46"
+                    BorderColor="#4DFFFFFF" BorderWidth="1.5"/>
+        </Grid>
+    </Grid>
+</ContentView>

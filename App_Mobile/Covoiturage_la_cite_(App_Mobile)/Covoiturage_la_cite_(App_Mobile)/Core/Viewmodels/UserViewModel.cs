@@ -11,6 +11,28 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Viewmodels
         private string _initials = "";
         private string _email = "";
         private string _avatarUrl = "";
+        private UserModel _user = new(
+            "", // Id
+            "", // Email
+            "", // FirstName
+            "", // LastName
+            "", // Initials
+            null, // AvatarUrl
+            null, // Phone
+            UserRole.Passenger, // Role
+            false, // CanBeDriver
+            false, // ProfileVerified
+            false, // IsActive
+            null, // DriverProfile
+            null, // PassengerProfile
+            new UserPreferences(false, false, false, ConversationLevel.Moderate), // Preferences
+            0, // GoScore
+            new List<string>(), // BadgeIds
+            null, // PreferencesId
+            null, // CurrentLocation
+            default, // CreatedAt
+            default // UpdatedAt
+        );
         private UserRole _role = UserRole.Passenger;
 
         public string FirstName { get => _firstName; set => SetField(ref _firstName, value); }
@@ -19,6 +41,16 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Viewmodels
         public string Email { get => _email; set => SetField(ref _email, value); }
         public string AvatarUrl { get => _avatarUrl; set => SetField(ref _avatarUrl, value); }
         public UserRole Role { get => _role; set => SetField(ref _role, value); }
+
+        public UserModel User
+        {
+            get => _user;
+            set
+            {
+                if (SetField(ref _user, value))
+                    Load(value);
+            }
+        }
 
         public string DisplayName => string.IsNullOrWhiteSpace(LastName)
             ? FirstName

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    ReservationRequestDetailPage.xaml
+    Page hors-MainView (Shell) — back arrow natif.
+    Affiche la demande de réservation d'un passager (vue conducteur).
+    Route : //reservationrequestdetail?requestId={id}
+
+    BindingContext = ReservationRequestDetailPageDisplayModel
+    Commandes Accepter/Refuser/ConfirmDecision/CancelDecision exposées depuis le PageModel.
+-->
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationrequestdetailpage.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:comp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.views.components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationrequestdetailpage.view.ReservationRequestDetailPage"
+    x:DataType="dm:ReservationRequestDetailPageDisplayModel"
+    BackgroundColor="#f0f4f8"
+    Shell.NavBarIsVisible="True"
+    Title="{Binding PageTitle}">
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="True" IsEnabled="True"/>
+    </Shell.BackButtonBehavior>
+
+    <Grid RowDefinitions="*">
+
+        <!-- Loading -->
+        <ActivityIndicator
+            IsRunning="{Binding IsLoading}"
+            IsVisible="{Binding IsLoading}"
+            Color="#08316e"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"/>
+
+        <!-- Contenu -->
+        <Grid IsVisible="{Binding IsLoading, Converter={StaticResource InvertBool}}">
+            <comp:ReservationRequestDetailPanel
+                BindingContext="{Binding RequestDetail}"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="FillAndExpand"/>
+        </Grid>
+
+    </Grid>
+</ContentPage>

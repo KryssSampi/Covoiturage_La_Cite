@@ -41,11 +41,11 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayConverters
             };
 
             return new HomeSearchChipDisplayModel(
-                Label: place.Pseudonyme,
-                IconKey: icon,
-                BackgroundHex: bg,
-                ForegroundHex: fg,
-                Value: place.Adresse
+                label: place.Pseudonyme,
+                iconKey: icon,
+                backgroundHex: bg,
+                foregroundHex: fg,
+                value: place.Adresse
             );
         }
     }

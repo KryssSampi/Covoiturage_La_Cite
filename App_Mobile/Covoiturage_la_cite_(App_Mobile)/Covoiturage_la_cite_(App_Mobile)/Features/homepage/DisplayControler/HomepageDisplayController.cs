@@ -43,10 +43,19 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler
             _quickNav = new HomeQuickNavGridDisplayModel(Array.Empty<HomeQuickNavItemDisplayModel>());
 
             SearchCommand = new Command(ExecuteSearch);
-            SelectChipCommand = new Command<HomeSearchChipDisplayModel>(chip =>
+            SelectChipCommand = new Command<HomeSearchChipDisplayModel>(async chip =>
             {
                 if (chip is null) return;
-                SearchBar.Query = chip.Value;
+                
+                // Effet visuel de clic
+                chip.IsPressed = true;
+                await Task.Delay(120); // Durée de l'effet pressed
+                chip.IsPressed = false;
+                
+                // Autofill avec l'adresse (Value), pas le label
+                SearchBar.Query = chip.Address;
+                
+                // Lance la recherche
                 ExecuteSearch();
             });
             QuickNavCommand = new Command<HomeQuickNavItemDisplayModel>(item =>

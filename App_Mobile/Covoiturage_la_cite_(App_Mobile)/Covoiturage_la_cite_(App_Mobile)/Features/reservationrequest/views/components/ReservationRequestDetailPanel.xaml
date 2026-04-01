@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    ReservationRequestDetailPanel.xaml
+    Composant pure-view : affiche le profil du demandeur + détails trajet + boutons.
+    BindingContext = ReservationRequestDetailDisplayModel
+    Miroir de FakeProfileDetail (web).
+-->
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.views.components.ReservationRequestDetailPanel"
+    x:DataType="dm:ReservationRequestDetailDisplayModel"
+    BackgroundColor="#f0f4f8">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!-- ── EN-TÊTE PROFIL (fond bleu) ───────────────────────── -->
+            <Grid BackgroundColor="#08316e" Padding="0,0,0,40">
+                <VerticalStackLayout Spacing="4" Padding="16,24,16,0" HorizontalOptions="Center">
+
+                    <!-- Avatar -->
+                    <Border
+                        WidthRequest="80" HeightRequest="80"
+                        HorizontalOptions="Center"
+                        StrokeThickness="3"
+                        Stroke="White">
+                        <Border.StrokeShape>
+                            <Ellipse/>
+                        </Border.StrokeShape>
+                        <Image
+                            Source="{Binding PassengerAvatarUrl}"
+                            Aspect="AspectFill"
+                            HorizontalOptions="FillAndExpand"
+                            VerticalOptions="FillAndExpand"/>
+                    </Border>
+
+                    <!-- Nom -->
+                    <Label
+                        Text="{Binding PassengerName}"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="16"
+                        TextColor="White"
+                        HorizontalOptions="Center"/>
+
+                    <!-- Étoiles (5 étoiles statiques — TODO dynamique si besoin) -->
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="2">
+                        <Label Text="★★★★★" FontSize="13" TextColor="#f59e0b"/>
+                        <Label Text="{Binding PassengerRating}" FontSize="12" TextColor="White" Margin="4,0,0,0" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Nb trajets -->
+                    <Label
+                        Text="{Binding PassengerTripsLabel}"
+                        FontSize="11"
+                        TextColor="#ffffff99"
+                        HorizontalOptions="Center"/>
+
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- ── VÉRIFICATIONS ─────────────────────────────────────── -->
+            <Border
+                BackgroundColor="White"
+                Margin="16,-32,16,0"
+                Padding="14"
+                StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        Text="🛡 Vérifications"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="12"
+                        TextColor="#08316e"
+                        Margin="0,0,0,4"/>
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="6">
+                        <Label Grid.Row="0" Grid.Column="0" Text="✅ Identité vérifiée"   FontSize="11" TextColor="#4b5563"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="🎓 Étudiant La Cité"    FontSize="11" TextColor="#4b5563"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="✉️ Email confirmé"       FontSize="11" TextColor="#4b5563"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="📱 Téléphone vérifié"   FontSize="11" TextColor="#4b5563"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── BIO (fictive) ─────────────────────────────────────── -->
+            <Border
+                BackgroundColor="White"
+                Margin="16,10,16,0"
+                Padding="14"
+                StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="Bio" FontFamily="OpenSansSemibold" FontSize="12" TextColor="#08316e"/>
+                    <Label
+                        Text="Cet utilisateur n'a pas encore ajouté de bio."
+                        FontSize="12"
+                        TextColor="#6b7280"
+                        FontAttributes="Italic"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── TRAJET DEMANDÉ ────────────────────────────────────── -->
+            <Border
+                BackgroundColor="White"
+                Margin="16,10,16,0"
+                Padding="14"
+                StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        Text="🛣 Trajet demandé"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="12"
+                        TextColor="#08316e"
+                        Margin="0,0,0,4"/>
+
+                    <!-- Départ -->
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="📍" FontSize="11" VerticalOptions="Center" WidthRequest="16"/>
+                        <Label Text="Départ" FontSize="11" TextColor="#6b7280" WidthRequest="60"/>
+                        <Label Text="{Binding Departure}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Arrivée -->
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="📍" FontSize="11" VerticalOptions="Center" WidthRequest="16" TextColor="#e04a2f"/>
+                        <Label Text="Arrivée" FontSize="11" TextColor="#6b7280" WidthRequest="60"/>
+                        <Label Text="{Binding Destination}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Date -->
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="📅" FontSize="11" VerticalOptions="Center" WidthRequest="16"/>
+                        <Label Text="Date" FontSize="11" TextColor="#6b7280" WidthRequest="60"/>
+                        <Label Text="{Binding Date}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Heure -->
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="🕐" FontSize="11" VerticalOptions="Center" WidthRequest="16"/>
+                        <Label Text="Heure" FontSize="11" TextColor="#6b7280" WidthRequest="60"/>
+                        <Label Text="{Binding Time}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Places -->
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="👥" FontSize="11" VerticalOptions="Center" WidthRequest="16"/>
+                        <Label Text="Places" FontSize="11" TextColor="#6b7280" WidthRequest="60"/>
+                        <Label Text="{Binding SeatsLabel}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+                    </HorizontalStackLayout>
+
+                    <!-- Prix -->
+                    <HorizontalStackLayout Spacing="8">
+                        <Label Text="💰" FontSize="11" VerticalOptions="Center" WidthRequest="16"/>
+                        <Label Text="Prix" FontSize="11" TextColor="#6b7280" WidthRequest="60"/>
+                        <Label Text="{Binding PriceLabel}" FontSize="11" TextColor="#16a34a" FontFamily="OpenSansSemibold"/>
+                    </HorizontalStackLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── BOUTONS / RÉSULTAT ─────────────────────────────────── -->
+            <Grid Margin="16,12,16,24">
+
+                <!-- Boutons Accepter / Refuser -->
+                <HorizontalStackLayout
+                    Spacing="12"
+                    IsVisible="{Binding ShowButtons}"
+                    HorizontalOptions="FillAndExpand">
+
+                    <Button
+                        Text="Accepter"
+                        BackgroundColor="#16a34a"
+                        TextColor="White"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="14"
+                        CornerRadius="12"
+                        HorizontalOptions="FillAndExpand"
+                        IsEnabled="{Binding IsActionPending, Converter={StaticResource InvertBool}}"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RequestAcceptCommand}"/>
+
+                    <Button
+                        Text="Refuser"
+                        BackgroundColor="#dc2626"
+                        TextColor="White"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="14"
+                        CornerRadius="12"
+                        HorizontalOptions="FillAndExpand"
+                        IsEnabled="{Binding IsActionPending, Converter={StaticResource InvertBool}}"
+                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RequestRejectCommand}"/>
+                </HorizontalStackLayout>
+
+                <!-- Bannière résultat -->
+                <Border
+                    IsVisible="{Binding ShowResult}"
+                    Padding="16"
+                    BackgroundColor="{Binding ResultColorHex}"
+                    StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <Label
+                        Text="{Binding ResultMessage}"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="14"
+                        TextColor="{Binding ResultTextColorHex}"
+                        HorizontalOptions="Center"/>
+                </Border>
+
+            </Grid>
+
+            <!-- ── DIALOG DE CONFIRMATION ─────────────────────────────── -->
+            <!-- Overlay semi-transparent -->
+            <Grid
+                IsVisible="{Binding ShowConfirmDialog}"
+                BackgroundColor="#80000000"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="FillAndExpand"
+                ZIndex="10">
+                <!-- TODO : remplacer par un vrai overlay modal via Portal si disponible -->
+                <Border
+                    BackgroundColor="White"
+                    Padding="20"
+                    Margin="32"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="340"
+                    StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="Confirmer la décision"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="15"
+                            TextColor="#08316e"
+                            HorizontalOptions="Center"/>
+                        <Label
+                            Text="{Binding PassengerName, StringFormat='Voulez-vous confirmer cette décision pour {0} ?'}"
+                            FontSize="13"
+                            TextColor="#4b5563"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"/>
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Button
+                                Text="Annuler"
+                                BackgroundColor="#f3f4f6"
+                                TextColor="#374151"
+                                CornerRadius="10"
+                                FontSize="13"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CancelDecisionCommand}"/>
+                            <Button
+                                Text="Confirmer"
+                                BackgroundColor="#08316e"
+                                TextColor="White"
+                                CornerRadius="10"
+                                FontSize="13"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ConfirmDecisionCommand}"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

@@ -234,42 +234,40 @@ public partial class CustomTabBar : ContentView
     //  navigate: true  → déclenche NavigationService.GoTo()
     //  navigate: false → visuel uniquement (sync externe)
     // ─────────────────────────────────────────────────────────────────
-    private void SelectTab(int index, bool navigate)
+    private async void SelectTab(int index, bool navigate)
     {
         if (index == _selectedIndex) return;
         _selectedIndex = index;
 
+        // Mise à jour visuelle — déjà sur UI thread (tap gesture)
         for (int i = 0; i < _cells.Count; i++)
         {
             var cell = _cells[i];
             bool active = i == index;
 
-            MainThread.BeginInvokeOnMainThread(async () =>
-            {
-                cell.Card.IsVisible = active;
-                cell.NormalView.IsVisible = !active;
-                if (cell.Label is not null)
-                    cell.Label.IsVisible = !active;
+            cell.Card.IsVisible = active;
+            cell.NormalView.IsVisible = !active;
+            if (cell.Label is not null)
+                cell.Label.IsVisible = !active;
 
-                if (active)
-                {
-                    if (!navigate)
-                        cell.Card.Scale = 1.08;
-                    else
-                        await cell.Card.ScaleTo(1.08, 120, Easing.CubicOut);
-                }
+            if (active)
+            {
+                if (!navigate)
+                    cell.Card.Scale = 1.08;
                 else
-                {
-                    cell.Card.Scale = 1.0;
-                }
-            });
+                    await cell.Card.ScaleTo(1.08, 120, Easing.CubicOut);
+            }
+            else
+            {
+                cell.Card.Scale = 1.0;
+            }
         }
 
         if (navigate && _navService is not null)
         {
             var route = TabBarConfig.Items[index].Route;
 
-            // ── Passe par le NavigationService, pas directement par Shell ──
+            // ── Passe par le NavigationService ──
             _navService.GoTo(route);
 
             // Mise à jour du titre

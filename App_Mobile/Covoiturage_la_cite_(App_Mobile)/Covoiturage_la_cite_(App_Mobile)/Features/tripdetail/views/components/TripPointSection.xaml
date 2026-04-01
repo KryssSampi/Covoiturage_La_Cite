@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    TripPointSection.xaml
+    Composant pure-view : affiche un point départ ou arrivée.
+    BindingContext = TripPointDisplayModel
+-->
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.tripdetail.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.tripdetail.views.components.TripPointSection"
+    x:DataType="dm:TripPointDisplayModel">
+
+    <Border BackgroundColor="White" Padding="14" StrokeThickness="0">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="12"/>
+        </Border.StrokeShape>
+        <VerticalStackLayout Spacing="6">
+
+            <!-- Type label + dot -->
+            <HorizontalStackLayout Spacing="6">
+                <Ellipse
+                    WidthRequest="10" HeightRequest="10"
+                    Fill="{Binding DotColor}"
+                    VerticalOptions="Center"/>
+                <Label
+                    Text="{Binding TypeLabel}"
+                    FontFamily="OpenSansSemibold"
+                    FontSize="11"
+                    TextColor="#08316e"
+                    CharacterSpacing="0.5"
+                    VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+
+            <!-- Nom du lieu -->
+            <Label
+                Text="{Binding Label}"
+                FontFamily="OpenSansSemibold"
+                FontSize="14"
+                TextColor="#1f2937"
+                LineBreakMode="TailTruncation"/>
+
+            <!-- Adresse complète -->
+            <Label
+                Text="{Binding FullAddress}"
+                FontSize="11"
+                TextColor="#6b7280"
+                LineBreakMode="WordWrap"/>
+
+            <!-- Instructions (optionnelles) -->
+            <Border
+                IsVisible="{Binding HasInstructions}"
+                BackgroundColor="#f0f9ff"
+                Padding="8,6"
+                StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="8"/>
+                </Border.StrokeShape>
+                <Label
+                    Text="{Binding Instructions}"
+                    FontSize="11"
+                    TextColor="#0369a1"
+                    FontAttributes="Italic"/>
+            </Border>
+
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

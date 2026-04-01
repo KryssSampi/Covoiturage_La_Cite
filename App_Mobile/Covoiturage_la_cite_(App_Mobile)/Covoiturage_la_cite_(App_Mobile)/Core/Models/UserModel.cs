@@ -14,7 +14,7 @@
         Chatty
     }
 
-    public record DriverProfile(
+    public partial  record DriverProfile(
         string ValidationStatus,
         int ReputationPoints,
         double AverageRating,

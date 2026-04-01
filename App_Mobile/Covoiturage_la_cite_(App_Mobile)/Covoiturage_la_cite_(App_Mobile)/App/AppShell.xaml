@@ -1,60 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
 ═══════════════════════════════════════════════════════════════════════
- AppShell.xaml — Gardien du Flyout natif + pages hors-wrapper
+ AppShell.xaml — Shell avec Flyout custom
 
- CE QUE FAIT LE SHELL :
-   ✅ Flyout natif (SideNav header/content/footer)
-   ✅ Navigation vers MainPage (point d'entrée unique)
-   ✅ Navigation push vers les pages hors-wrapper :
-        - search          (focus total, pas de chrome)
-        - reservation     (flux étape par étape)
-        - trajet_detail   (page de détail)
-        - payment         (flux paiement)
-        - notifications   (modale)
-        - login           (auth)
-        - onboarding      (premier lancement)
-   ✅ Back natif sur ces pages
+ ARCHITECTURE :
+   • MainView = page principale avec TopBar + TabBar custom
+   • Flyout = SideNav (ouvert via TopBar custom, pas l'icône native)
+   • Pages détail = poussées via Shell.GoToAsync() avec NavBar native
 
- CE QUE NE FAIT PAS LE SHELL :
-   ❌ Navigation entre les 5 onglets principaux → NavigationService
-   ❌ Rendu de la TopBar et TabBar → MainPage
+ NAVIGATION :
+   • Onglets MainView → NavigationService (custom)
+   • SideNav → Shell.FlyoutIsPresented (via TopBar)
+   • Pages hors-wrapper → Shell natif avec back button
 ═══════════════════════════════════════════════════════════════════════
 -->
 <Shell
     x:Class="Covoiturage_la_cite__App_Mobile_.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.customshell.converter"
-    xmlns:ui="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.ui"
     xmlns:main="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.customshell.views.components"
-    xmlns:search="clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.searchpage.view"
+    xmlns:ui="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.ui"
     Shell.FlyoutBehavior="Flyout"
     Shell.FlyoutWidth="300"
     FlyoutBackgroundColor="White"
-    Shell.NavBarIsVisible="False"
+    Shell.NavBarIsVisible="True"
     Shell.TabBarIsVisible="False"
     x:Name="AppShellRoot">
 
     <!-- ═══════════════════════════════════════════════════════════
-         RESSOURCES
-    ═══════════════════════════════════════════════════════════════ -->
-    <Shell.Resources>
-        <ResourceDictionary>
-            <conv:NotificationBadgeConverter x:Key="BadgeConverter"/>
-            <conv:BoolToVisibilityConverter  x:Key="BoolToVis"/>
-            <conv:GreaterThanZeroConverter   x:Key="GreaterThanZero"/>
-            <Color x:Key="PrimaryBlue">#1A56CC</Color>
-            <Color x:Key="PrimaryBlueDark">#08316e</Color>
-            <Color x:Key="SurfaceColor">#FFFFFF</Color>
-            <Color x:Key="BackgroundColor">#F2F5FA</Color>
-            <Color x:Key="Gray400">#8A95A8</Color>
-            <Color x:Key="RedBadge">#E24B4A</Color>
-        </ResourceDictionary>
-    </Shell.Resources>
-
-    <!-- ═══════════════════════════════════════════════════════════
-         FLYOUT — natif, inchangé
+         FLYOUT CUSTOM (SideNav)
     ═══════════════════════════════════════════════════════════════ -->
     <Shell.FlyoutHeader>
         <ui:SideNavHeader/>
@@ -69,59 +43,33 @@
     </Shell.FlyoutFooter>
 
     <!-- ═══════════════════════════════════════════════════════════
-         POINT D'ENTRÉE UNIQUE — MainPage
-         Toute la navigation principale se passe à l'intérieur.
-         Le Shell ne voit qu'une seule "page".
+         RESSOURCES
     ═══════════════════════════════════════════════════════════════ -->
-    <FlyoutItem IsVisible="True" Route="main">
-        <ShellContent
-            ContentTemplate="{DataTemplate main:MainView}"
-            Route="main_page"/>
-    </FlyoutItem>
+    <Shell.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PrimaryBlue">#1A56CC</Color>
+            <Color x:Key="PrimaryBlueDark">#08316e</Color>
+            <Color x:Key="SurfaceColor">#FFFFFF</Color>
+            <Color x:Key="BackgroundColor">#F2F5FA</Color>
+            <Color x:Key="Gray400">#8A95A8</Color>
+        </ResourceDictionary>
+    </Shell.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════
-         PAGES HORS-WRAPPER
-         Gérées par le Shell natif — back natif disponible.
-         Pas de TopBar custom, pas de TabBar custom.
-         À déclarer ici + RegisterRoutes() dans AppShell.xaml.cs
+         POINT D'ENTRÉE — MainView
+         TopBar + TabBar custom, NavBar Shell désactivée.
+         FlyoutIcon caché car TopBar gère l'ouverture du menu.
     ═══════════════════════════════════════════════════════════════ -->
-    <FlyoutItem IsVisible="True" Route="search">
-        <ShellContent
-            ContentTemplate="{DataTemplate search:SearchPage}"
-            Route="search_page"/>
-    </FlyoutItem>
+    <ShellContent
+        ContentTemplate="{DataTemplate main:MainView}"
+        Route="main"
+        Shell.NavBarIsVisible="False"
+        FlyoutItemIsVisible="False"/>
 
-    <!--
-    Pages poussées via NavigationService.Push("route") ou Shell.Current.GoToAsync("route").
-    Elles ont leur propre TopBar (ou pas du tout selon le besoin).
-
-    Exemples commentés — décommenter au fur et à mesure :
-
-
-
-    <FlyoutItem IsVisible="False" Route="trajet_detail">
-        <ShellContent
-            ContentTemplate="{DataTemplate detail:TrajetDetailPage}"
-            Route="trajet_detail_page"/>
-    </FlyoutItem>
-
-    <FlyoutItem IsVisible="False" Route="reservation">
-        <ShellContent
-            ContentTemplate="{DataTemplate resa:ReservationPage}"
-            Route="reservation_page"/>
-    </FlyoutItem>
-
-    <FlyoutItem IsVisible="False" Route="notifications">
-        <ShellContent
-            ContentTemplate="{DataTemplate notif:NotificationPage}"
-            Route="notifications_page"/>
-    </FlyoutItem>
-
-    <FlyoutItem IsVisible="False" Route="login">
-        <ShellContent
-            ContentTemplate="{DataTemplate auth:LoginPage}"
-            Route="login_page"/>
-    </FlyoutItem>
-    -->
+    <!-- ═══════════════════════════════════════════════════════════
+         PAGES DÉTAIL (via GoToAsync)
+         NavBar Shell = back button natif.
+         Routes enregistrées dans AppShell.xaml.cs
+    ═══════════════════════════════════════════════════════════════ -->
 
 </Shell>

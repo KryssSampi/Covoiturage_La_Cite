@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    NotificationDetailPage.xaml
+    Page hors-MainView (Shell) — back arrow natif.
+    Affiche le détail d'une notification sélectionnée.
+    Route : //notificationdetail?notificationId={id}
+
+    BindingContext = NotificationDetailPageDisplayModel
+    Le composant NotificationDetailPanel reçoit NotificationDetail comme BindingContext.
+-->
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationdetailpage.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:comp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.notifications.views.components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:notifDm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.notifications.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationdetailpage.view.NotificationDetailPage"
+    x:DataType="dm:NotificationDetailPageDisplayModel"
+    BackgroundColor="#F2F5FA"
+    Shell.NavBarIsVisible="True"
+    Title="{Binding PageTitle}">
+
+    <!-- TopBar personnalisée avec back arrow natif du Shell -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="True" IsEnabled="True"/>
+    </Shell.BackButtonBehavior>
+
+    <Grid RowDefinitions="*">
+
+        <!-- ── Loading ──────────────────────────────────────────── -->
+        <ActivityIndicator
+            Grid.Row="0"
+            IsRunning="{Binding IsLoading}"
+            IsVisible="{Binding IsLoading}"
+            Color="#08316e"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"/>
+
+        <!-- ── Contenu ───────────────────────────────────────────── -->
+        <Grid Grid.Row="0" IsVisible="{Binding IsLoading, Converter={StaticResource InvertBool}}">
+            <comp:NotificationDetailPanel
+                BindingContext="{Binding NotificationDetail}"
+                HorizontalOptions="FillAndExpand"
+                VerticalOptions="FillAndExpand"/>
+        </Grid>
+
+    </Grid>
+</ContentPage>
