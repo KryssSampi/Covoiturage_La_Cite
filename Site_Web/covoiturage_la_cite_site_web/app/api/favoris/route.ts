@@ -1,16 +1,17 @@
 import { NextResponse } from 'next/server';
-import { buildFavorisResponse } from '@/core/services/favoris-api.service';
+import { FavoriteService } from '@/server/services/SocialService';
+import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
+    const auth = await withAuth(req);
+    const result = await FavoriteService.getFavorites(auth);
 
-    if (!userId) {
-      return NextResponse.json({ error: 'userId requis' }, { status: 400 });
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
     }
 
-    return NextResponse.json(buildFavorisResponse(userId));
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }

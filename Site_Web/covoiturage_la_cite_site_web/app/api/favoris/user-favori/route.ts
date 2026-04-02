@@ -1,19 +1,23 @@
 import { NextResponse } from 'next/server';
-import { setUserFavori, unsetUserFavori } from '@/core/services/favoris-api.service';
+import { FavoriteService } from '@/server/services/SocialService';
+import { withAuth } from '@/server/auth';
 
 export async function POST(req: Request) {
   try {
-    const { userId, targetUserId } = (await req.json()) as {
-      userId?: string;
-      targetUserId?: string;
-    };
+    const { targetUserId } = (await req.json()) as { targetUserId?: string };
 
-    if (!userId || !targetUserId) {
-      return NextResponse.json({ error: 'userId et targetUserId requis' }, { status: 400 });
+    if (!targetUserId) {
+      return NextResponse.json({ error: 'targetUserId requis' }, { status: 400 });
     }
 
-    const { affinite, created } = setUserFavori(userId, targetUserId);
-    return NextResponse.json(affinite, { status: created ? 201 : 200 });
+    const auth = await withAuth(req);
+    const result = await FavoriteService.toggle(targetUserId, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
+    }
+
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
@@ -22,15 +26,17 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const affiniteId = searchParams.get('affiniteId');
+    const targetUserId = searchParams.get('targetUserId');
 
-    if (!affiniteId) {
-      return NextResponse.json({ error: 'affiniteId requis' }, { status: 400 });
+    if (!targetUserId) {
+      return NextResponse.json({ error: 'targetUserId requis' }, { status: 400 });
     }
 
-    const updated = unsetUserFavori(affiniteId);
-    if (!updated) {
-      return NextResponse.json({ error: 'Affinite non trouvee' }, { status: 404 });
+    const auth = await withAuth(req);
+    const result = await FavoriteService.toggle(targetUserId, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 404 });
     }
 
     return NextResponse.json({ success: true });

@@ -1,52 +1,243 @@
-using Covoiturage_La_Cite_Server_Core_.Application.Services.UserServices;
+using Covoiturage_La_Cite_Server_Core_.Api.Configurations;
+using Covoiturage_La_Cite_Server_Core_.Api.Middlewares;
+using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Auth;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.User;
+using Covoiturage_La_Cite_Server_Core_.Data.MongoDB;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Seeding;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.UserRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Trip;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.TrajetRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Reservation;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.ReservationRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Vehicle;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.VehiculeRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Finance;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.FinanceRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Notification;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.NotificationRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Social;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.SocialRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Gamification;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.GamificationRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Gps;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.GpsRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Campus;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.CampusRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Admin;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.AdminRepository;
+using Covoiturage_La_Cite_Server_Core_.Api.Hubs;
+using Covoiturage_La_Cite_Server_Core_.Application.Jobs;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Matching;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Security;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.SecurityRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Pipeda;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.PipedaRepository;
+using FluentValidation;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
-var builder = WebApplication.CreateBuilder(args);
+using Serilog;
 
-// Add services to the container.
+// ── Serilog bootstrap ───────────────────────────────────────────────────────
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-builder.Services.AddSingleton<MongoDbContext>();
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        o => o.UseNetTopologySuite()
-    )
-);
-builder.Services.AddCors(options =>
+try
 {
-    options.AddPolicy("AllowAll", policy =>
+    var builder = WebApplication.CreateBuilder(args);
+
+    // ── Serilog complet ─────────────────────────────────────────────────────
+    builder.Host.UseSerilog((ctx, lc) => lc
+        .ReadFrom.Configuration(ctx.Configuration)
+        .WriteTo.Console());
+
+    // ── PostgreSQL / EF Core ─────────────────────────────────────────────────
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            o => o.UseNetTopologySuite()));
+
+    // ── MongoDB ──────────────────────────────────────────────────────────────
+    builder.Services.AddSingleton<MongoDbContext>();
+
+    // ── Authentication JWT ───────────────────────────────────────────────────
+    builder.Services.AddJwtAuth(builder.Configuration);
+
+    // ── Hangfire ─────────────────────────────────────────────────────────────
+    builder.Services.AddHangfire(config => config
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UsePostgreSqlStorage(c =>
+            c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))));
+    builder.Services.AddHangfireServer();
+
+    // ── Redis (IDistributedCache) ─────────────────────────────────────────────
+    // TODO: Réactiver Redis quand installé
+    // builder.Services.AddStackExchangeRedisCache(options =>
+    //     options.Configuration = builder.Configuration["Redis:ConnectionString"]);
+    builder.Services.AddDistributedMemoryCache();
+
+    // ── SignalR ───────────────────────────────────────────────────────────────
+    builder.Services.AddSignalR();
+
+    // ── FluentValidation ──────────────────────────────────────────────────────
+    builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+    // ── Controllers + OpenAPI ────────────────────────────────────────────────
+    builder.Services.AddControllers();
+    builder.Services.AddOpenApi();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    // ── CORS (dev: AllowAll → prod: whitelist domaine web uniquement) ─────────
+    builder.Services.AddCors(options =>
     {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+        options.AddPolicy("WebClientOnly", policy =>
+        {
+            var allowedOrigin = builder.Configuration["Cors:AllowedOrigin"] ?? "http://localhost:3000";
+            policy.WithOrigins(allowedOrigin)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
     });
-});
 
-builder.Services.AddScoped<UserRepository>();
-builder.Services.AddScoped<UserServices>();
+    // ── Application Services ─────────────────────────────────────────────────
+    // P0 — Auth
+    builder.Services.AddScoped<TokenService>();
+    builder.Services.AddScoped<MicrosoftSsoService>();
 
+    // P1 — Users & Auth
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<IUserService, UserService>();
 
-var app = builder.Build();
+    // P2 — Trajets
+    builder.Services.AddScoped<ITrajetRepository, TrajetRepository>();
+    builder.Services.AddScoped<ITrajetService, TrajetService>();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
+    // P3 — Réservations
+    builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+    builder.Services.AddScoped<IReservationService, ReservationService>();
+
+    // P4 — Véhicules
+    builder.Services.AddScoped<IVehiculeRepository, VehiculeRepository>();
+    builder.Services.AddScoped<IVehiculeService, VehiculeService>();
+
+    // P5 — Finances
+    builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+    builder.Services.AddScoped<IPenaltyRepository, PenaltyRepository>();
+    builder.Services.AddScoped<IWithdrawalRepository, WithdrawalRepository>();
+    builder.Services.AddScoped<IFinanceService, FinanceService>();
+
+    // P6 — Notifications
+    builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+    builder.Services.AddScoped<INotificationService, NotificationService>();
+
+    // P7 — Social (Reviews, Favoris, Reports)
+    builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+    builder.Services.AddScoped<IAffinityRepository, AffinityRepository>();
+    builder.Services.AddScoped<IReportRepository, ReportRepository>();
+    builder.Services.AddScoped<IReviewService, ReviewService>();
+    builder.Services.AddScoped<IAffinityService, AffinityService>();
+    builder.Services.AddScoped<IReportService, ReportService>();
+
+    // P8 — Gamification
+    builder.Services.AddScoped<IBadgeRepository, BadgeRepository>();
+    builder.Services.AddScoped<IUserBadgeRepository, UserBadgeRepository>();
+    builder.Services.AddScoped<IEcoChallengeRepository, EcoChallengeRepository>();
+    builder.Services.AddScoped<IChallengeParticipationRepository, ChallengeParticipationRepository>();
+    builder.Services.AddScoped<IGamificationService, GamificationService>();
+
+    // P9 — GPS / Tracking
+    builder.Services.AddScoped<IGpsPositionRepository, GpsPositionRepository>();
+    builder.Services.AddScoped<ISosAlertRepository, SosAlertRepository>();
+    builder.Services.AddScoped<IGpsTrackingService, GpsTrackingService>();
+
+    // P10 — Campus
+    builder.Services.AddScoped<IGeofenceZoneRepository, GeofenceZoneRepository>();
+    builder.Services.AddScoped<IWaypointTripRepository, WaypointTripRepository>();
+    builder.Services.AddScoped<ICampusService, CampusService>();
+
+    // P11 — Admin
+    builder.Services.AddScoped<IPlatformConfigRepository, PlatformConfigRepository>();
+    builder.Services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+    builder.Services.AddScoped<IPlatformStatsRepository, PlatformStatsRepository>();
+    builder.Services.AddScoped<IAdminService, AdminService>();
+
+    // P12 — SignalR
+    builder.Services.AddSingleton<SignalREventService>();
+
+    // P13 — Hangfire Jobs
+    builder.Services.AddScoped<IHangfireJobRegistrar, HangfireJobRegistrar>();
+
+    // P14 — Matching v4
+    builder.Services.AddScoped<IMatchingService, MatchingService>();
+    // P15 — Security (Double Lock ECC-P256)
+    builder.Services.AddScoped<IClientCertificateRepository, ClientCertificateRepository>();
+    builder.Services.AddScoped<IUserSecurityActivityRepository, UserSecurityActivityRepository>();
+    builder.Services.AddScoped<ICertificateRotationEventRepository, CertificateRotationEventRepository>();
+    builder.Services.AddScoped<IWebSessionKeyRepository, WebSessionKeyRepository>();
+    builder.Services.AddScoped<ISecurityService, SecurityService>();
+
+    // P16 — PIPEDA Compliance
+    builder.Services.AddScoped<IConsentementRepository, ConsentementRepository>();
+    builder.Services.AddScoped<IDataExportRepository, DataExportRepository>();
+    builder.Services.AddScoped<IPipedaComplianceService, PipedaComplianceService>();
+    // ─────────────────────────────────────────────────────────────────────────
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        using var seedScope = app.Services.CreateScope();
+        var db = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var seedLogger = seedScope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseSeeder");
+        await DatabaseSeeder.SeedAsync(db, seedLogger);
+    }
+
+    // ── Middleware pipeline ───────────────────────────────────────────────────
+    app.UseMiddleware<ExceptionMiddleware>();
+    app.UseSerilogRequestLogging();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseCors("WebClientOnly");
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    // ── Hangfire Dashboard (dev seulement) ────────────────────────────────────
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseHangfireDashboard("/hangfire");
+    }
+
+    app.MapControllers();
+
+    // ── SignalR Hub ────────────────────────────────────────────────────────────
+    app.MapHub<CovoiturageHub>("/hubs/covoiturage");
+
+    // ── Hangfire Jobs ─────────────────────────────────────────────────────────
+    using (var scope = app.Services.CreateScope())
+    {
+        scope.ServiceProvider.GetRequiredService<IHangfireJobRegistrar>().RegisterAll();
+    }
+
+    app.Run();
 }
-app.UseCors("AllowAll");
-
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Démarrage du serveur échoué");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

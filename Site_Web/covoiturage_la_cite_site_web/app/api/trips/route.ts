@@ -1,24 +1,34 @@
 /**
- * GET  /api/trips  — Liste de trajets filtrés
+ * GET  /api/trips  — Liste/recherche de trajets
  * POST /api/trips  — Création d'un trajet
  */
 
 import { NextResponse } from 'next/server';
-import type { TripModel } from '@/core/models/TripModel';
-import { persistenceManager } from '@/tests/PersistenceManager';
-import { buildCreatedTripRecord, filterTripsForQuery } from '@/core/services/trip-api.service';
+import { TripService } from '@/server/services/TripService';
+import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const trips = filterTripsForQuery({
-      driverId: searchParams.get('driverId'),
-      passengerId: searchParams.get('passengerId'),
-      status: searchParams.get('status'),
-      unavailableForUserId: searchParams.get('unavailableForUserId'),
-    });
+    const auth = await withAuth(req);
 
-    return NextResponse.json(trips);
+    const driverId = searchParams.get('driverId');
+
+    // Si driverId fourni → trajets du conducteur
+    if (driverId) {
+      const result = await TripService.getMyDriverTrips(undefined, 1, 50, auth);
+      if (!result.success) {
+        return NextResponse.json({ error: result.message }, { status: 500 });
+      }
+      return NextResponse.json(result.data);
+    }
+
+    // Sinon → recherche (mode listing)
+    const result = await TripService.search({}, auth);
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
+    }
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
@@ -26,15 +36,16 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const trip = (await req.json()) as TripModel;
-    const result = buildCreatedTripRecord(trip);
+    const body = await req.json();
+    const auth = await withAuth(req);
 
-    if (!result.trip) {
-      return NextResponse.json({ error: result.error ?? 'Erreur serveur' }, { status: result.status ?? 500 });
+    const result = await TripService.create(body, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
-    persistenceManager.addItem('trips', result.trip);
-    return NextResponse.json(result.trip, { status: 201 });
+    return NextResponse.json(result.data, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }

@@ -4,20 +4,19 @@
  */
 
 import { NextResponse } from 'next/server';
-import { persistenceManager } from '@/tests/PersistenceManager';
-import { paymentService } from '@/server/services/PaymentService';
-import { buildPendingReservationRecord, filterReservationsForQuery, type ReservationRecord } from '@/core/services/reservation-api.service';
+import { ReservationService } from '@/server/services/ReservationService';
+import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const reservations = filterReservationsForQuery({
-      passengerId: searchParams.get('passengerId'),
-      driverId: searchParams.get('driverId'),
-      status: searchParams.get('status'),
-    });
+    const auth = await withAuth(req);
+    const result = await ReservationService.getMine(undefined, 1, 100, auth);
 
-    return NextResponse.json(reservations);
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
+    }
+
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
@@ -25,17 +24,16 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as ReservationRecord;
-    const result = buildPendingReservationRecord(body);
+    const body = await req.json();
+    const auth = await withAuth(req);
 
-    if (!result.reservation) {
-      return NextResponse.json({ error: result.error ?? 'Erreur serveur' }, { status: result.status ?? 500 });
+    const result = await ReservationService.create(body, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message ?? 'Erreur serveur' }, { status: 400 });
     }
 
-    persistenceManager.addItem('reservations', result.reservation);
-    await paymentService.blockHoldingAmount(body.passengerId as string, result.reservation.id as string);
-
-    return NextResponse.json(result.reservation, { status: 201 });
+    return NextResponse.json(result.data, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }

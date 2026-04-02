@@ -1,18 +1,21 @@
 import { NextResponse } from 'next/server';
-import { getNotificationById, markNotificationRead } from '@/core/services/notification-api.service';
+import { NotificationService } from '@/server/services/NotificationService';
+import { withAuth } from '@/server/auth';
 
 type Context = { params: Promise<{ id: string }> };
 
-export async function PATCH(_req: Request, { params }: Context) {
+export async function PATCH(req: Request, { params }: Context) {
   try {
     const { id } = await params;
-    const existing = getNotificationById(id);
+    const auth = await withAuth(req);
 
-    if (!existing) {
-      return NextResponse.json({ error: 'Notification introuvable' }, { status: 404 });
+    const result = await NotificationService.markAsRead(id, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message ?? 'Notification introuvable' }, { status: 404 });
     }
 
-    return NextResponse.json(markNotificationRead(id));
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }

@@ -1,60 +1,93 @@
-﻿using Covoiturage_La_Cite_Server_Core_.Application.Services.UserServices;
+﻿using System.Security.Claims;
+using Covoiturage_La_Cite_Server_Core_.Api.DTOs.Common;
+using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
+using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Covoiturage_La_Cite_Server_Core_.Api.Controllers.UserController
+namespace Covoiturage_La_Cite_Server_Core_.Api.Controllers.UserController;
+
+[ApiController]
+[Route("api/users")]
+public class UserController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public partial class UserController : ControllerBase
+    private readonly IUserService _userService;
+
+    public UserController(IUserService userService)
     {
-        private readonly UserServices _userServices;
-        public UserController(UserServices userServices)
-        {
-            _userServices = userServices;
-        }
+        _userService = userService;
+    }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var users = _userServices.GetAllUsers();
-            return Ok(users);
-        }
+    /// <summary>GET /api/users/me — Profil complet de l'utilisateur connecté</summary>
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUser(CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        var user = await _userService.GetCurrentUserAsync(userId, ct);
+        if (user == null) return NotFound(ApiResponse.Fail("Utilisateur introuvable"));
+        return Ok(ApiResponse<UserResponseDto>.Ok(user));
+    }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(Guid id)
-        {
-            var user = await _userServices.GetUserByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            return Ok(user);
+    /// <summary>PATCH /api/users/me — Mise à jour du profil</summary>
+    [HttpPatch("me")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto dto, CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        var updated = await _userService.UpdateProfileAsync(userId, dto, ct);
+        return Ok(ApiResponse<UserResponseDto>.Ok(updated, "Profil mis à jour"));
+    }
 
-        }
+    /// <summary>DELETE /api/users/me — Suppression de compte (soft delete PIPEDA)</summary>
+    [HttpDelete("me")]
+    [Authorize]
+    public async Task<IActionResult> DeleteAccount(CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        await _userService.SoftDeleteAsync(userId, ct);
+        return Ok(ApiResponse.Ok("Compte supprimé"));
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateUser(Data.Models.User user)
-        {
-            await _userServices.AddUserAsync(user);
-            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
-        }
+    /// <summary>GET /api/users/{id}/public — Profil public (données sensibles masquées)</summary>
+    [HttpGet("{id:guid}/public")]
+    [Authorize]
+    public async Task<IActionResult> GetPublicProfile(Guid id, CancellationToken ct)
+    {
+        var profile = await _userService.GetPublicProfileAsync(id, ct);
+        if (profile == null) return NotFound(ApiResponse.Fail("Utilisateur introuvable"));
+        return Ok(ApiResponse<UserPublicDto>.Ok(profile));
+    }
 
-        [HttpPut("{id}")]
+    /// <summary>GET /api/users — Liste admin paginée</summary>
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllUsers(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        CancellationToken ct = default)
+    {
+        var result = await _userService.GetAllPaginatedAsync(page, pageSize, search, ct);
+        return Ok(ApiResponse<PaginatedResult<UserResponseDto>>.Ok(result));
+    }
 
-        public async Task<IActionResult> UpdateUser(Guid id, Data.Models.User user)
-        {
-            if (id != user.Id)
-            {
-                return BadRequest();
-            }
-            await _userServices.UpdateUserAsync(user);
-            return NoContent();
-        }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(Guid id)
-        {
-            await _userServices.DeleteUserAsync(id);
-            return NoContent();
-        }
+    /// <summary>GET /api/users/{id} — Détail utilisateur (admin)</summary>
+    [HttpGet("{id:guid}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetUserById(Guid id, CancellationToken ct)
+    {
+        var user = await _userService.GetByIdAsync(id, ct);
+        if (user == null) return NotFound(ApiResponse.Fail("Utilisateur introuvable"));
+        return Ok(ApiResponse<UserResponseDto>.Ok(user));
+    }
+
+    // ── Helper ───────────────────────────────────────────────────────────────
+
+    private Guid GetCurrentUserId()
+    {
+        var sub = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? throw new UnauthorizedAccessException("Token invalide");
+        return Guid.Parse(sub);
     }
 }

@@ -1,43 +1,23 @@
 /**
  * POST /api/passenger/search
- *
- * La route garde uniquement l'I/O HTTP et les validations de surface.
- * Le chargement des données et l'algorithme sont délégués au core.
+ * Délègue au Server Core — POST api/matching/search
  */
-
 import { NextResponse } from 'next/server';
-import type { PassengerSortKey } from '@/features/search/types/search.feature.types';
-import { executePassengerSearch } from '@/core/services/passenger-search.service';
-
-interface SearchBody {
-  passengerId: string;
-  departureCoords?: [number, number];
-  arrivalCoords?: [number, number];
-  desiredHour?: number;
-  /** Heure d'arrivée souhaitée (heures décimales) — déclasse sans éliminer */
-  desiredArrivalHour?: number;
-  desiredWeekday?: number;
-  sortKey?: PassengerSortKey;
-  maxPrice?: number;
-  minSeatsAvailable?: number;
-  departureRadiusMeters?: number;
-  arrivalRadiusMeters?: number;
-}
+import { MatchingService } from '@/server/services/MatchingService';
+import { withAuth } from '@/server/auth';
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as SearchBody;
+    const auth = await withAuth(req);
+    const body = await req.json();
 
-    if (!body.passengerId) {
-      return NextResponse.json({ error: 'passengerId est requis' }, { status: 400 });
+    const result = await MatchingService.search(body, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
-    const result = executePassengerSearch(body);
-    if (!result) {
-      return NextResponse.json({ error: 'Passager introuvable' }, { status: 404 });
-    }
-
-    return NextResponse.json(result);
+    return NextResponse.json(result.data);
   } catch (err) {
     console.error('[/api/passenger/search]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

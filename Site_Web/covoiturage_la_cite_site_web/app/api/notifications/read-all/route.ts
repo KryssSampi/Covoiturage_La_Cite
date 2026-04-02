@@ -1,15 +1,17 @@
 import { NextResponse } from 'next/server';
-import { markAllNotificationsRead } from '@/core/services/notification-api.service';
+import { NotificationService } from '@/server/services/NotificationService';
+import { withAuth } from '@/server/auth';
 
 export async function POST(req: Request) {
   try {
-    const { userId } = (await req.json()) as { userId: string };
+    const auth = await withAuth(req);
+    const result = await NotificationService.markAllAsRead(auth);
 
-    if (!userId) {
-      return NextResponse.json({ error: 'userId est requis' }, { status: 400 });
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
-    return NextResponse.json({ updatedCount: markAllNotificationsRead(userId) });
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
