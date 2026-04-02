@@ -1,18 +1,23 @@
 import { NextResponse } from 'next/server';
-import { deleteAlerte, toggleAlerte } from '@/core/services/favoris-api.service';
+import { FavoriteService } from '@/server/services/SocialService';
+import { withAuth } from '@/server/auth';
 
 export async function PATCH(req: Request) {
   try {
-    const { alerteId, surveyIsOn } = (await req.json()) as {
-      alerteId?: string;
-      surveyIsOn?: boolean;
-    };
+    const { targetUserId } = (await req.json()) as { targetUserId?: string };
 
-    if (!alerteId || typeof surveyIsOn !== 'boolean') {
-      return NextResponse.json({ error: 'alerteId et surveyIsOn requis' }, { status: 400 });
+    if (!targetUserId) {
+      return NextResponse.json({ error: 'targetUserId requis' }, { status: 400 });
     }
 
-    return NextResponse.json(await toggleAlerte(alerteId, surveyIsOn));
+    const auth = await withAuth(req);
+    const result = await FavoriteService.toggle(targetUserId, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
+    }
+
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
@@ -21,13 +26,20 @@ export async function PATCH(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const alerteId = searchParams.get('alerteId');
+    const targetUserId = searchParams.get('targetUserId');
 
-    if (!alerteId) {
-      return NextResponse.json({ error: 'alerteId requis' }, { status: 400 });
+    if (!targetUserId) {
+      return NextResponse.json({ error: 'targetUserId requis' }, { status: 400 });
     }
 
-    return NextResponse.json(await deleteAlerte(alerteId));
+    const auth = await withAuth(req);
+    const result = await FavoriteService.unblock(targetUserId, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
+    }
+
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }

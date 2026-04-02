@@ -1,13 +1,16 @@
 import { NextResponse } from 'next/server';
-import { queryNotifications } from '@/core/services/notification-api.service';
+import { NotificationService } from '@/server/services/NotificationService';
+import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-    const isReadParam = searchParams.get('isRead');
-    const isRead = isReadParam === 'true' ? true : isReadParam === 'false' ? false : null;
-    return NextResponse.json(queryNotifications(userId, isRead));
+    const auth = await withAuth(req);
+    const result = await NotificationService.getAll(1, 50, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
+    }
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }

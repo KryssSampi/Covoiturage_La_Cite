@@ -1,18 +1,21 @@
 /**
- * GET /api/driver/reservation-requests?driverId=XXX
- * Route thin — délègue à buildDriverReservationRequests.
+ * GET /api/driver/reservation-requests
+ * Délègue au Server Core — GET api/reservations/driver-requests
  */
 import { NextResponse } from 'next/server';
-import { buildDriverReservationRequests } from '@/core/services/historique.service';
+import { ReservationService } from '@/server/services/ReservationService';
+import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
   try {
-    const driverId = new URL(req.url).searchParams.get('driverId');
-    if (!driverId) {
-      return NextResponse.json({ error: 'Le paramètre driverId est requis' }, { status: 400 });
+    const auth = await withAuth(req);
+    const result = await ReservationService.getDriverRequests(auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
     }
 
-    return NextResponse.json(buildDriverReservationRequests(driverId));
+    return NextResponse.json(result.data);
   } catch (err) {
     console.error('[api/driver/reservation-requests]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

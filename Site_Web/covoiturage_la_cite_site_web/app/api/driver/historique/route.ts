@@ -1,18 +1,21 @@
 /**
- * GET /api/driver/historique?driverId=XXX
- * Route thin — délègue à buildDriverHistorique.
+ * GET /api/driver/historique
+ * Délègue au Server Core — GET api/driver/historique
  */
 import { NextResponse } from 'next/server';
-import { buildDriverHistorique } from '@/core/services/historique.service';
+import { HistoriqueService } from '@/server/services/HistoriqueService';
+import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
   try {
-    const driverId = new URL(req.url).searchParams.get('driverId');
-    if (!driverId) {
-      return NextResponse.json({ error: 'Le paramètre driverId est requis' }, { status: 400 });
+    const auth = await withAuth(req);
+    const result = await HistoriqueService.getDriverHistorique(undefined, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
     }
 
-    return NextResponse.json(buildDriverHistorique(driverId));
+    return NextResponse.json(result.data);
   } catch (err) {
     console.error('[api/driver/historique]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

@@ -1,14 +1,27 @@
+/**
+ * GET    /api/drafts/[id] — Détail d'un brouillon
+ * PATCH  /api/drafts/[id] — Modifier un brouillon
+ * DELETE /api/drafts/[id] — Supprimer un brouillon
+ * Délègue au Server Core
+ */
 import { NextResponse } from 'next/server';
-import { deleteDraft, getDraftById, patchDraft, type DraftRecord } from '@/core/services/draft-api.service';
+import { DraftService } from '@/server/services/DraftService';
+import { TripService } from '@/server/services/TripService';
+import { withAuth } from '@/server/auth';
 
 type Context = { params: Promise<{ id: string }> };
 
-export async function GET(_req: Request, { params }: Context) {
+export async function GET(req: Request, { params }: Context) {
   try {
     const { id } = await params;
-    const draft = getDraftById(id);
-    if (!draft) return NextResponse.json({ error: 'Brouillon introuvable' }, { status: 404 });
-    return NextResponse.json(draft);
+    const auth = await withAuth(req);
+    const result = await DraftService.getDraftById(id, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: 'Brouillon introuvable' }, { status: 404 });
+    }
+
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
@@ -17,24 +30,31 @@ export async function GET(_req: Request, { params }: Context) {
 export async function PATCH(req: Request, { params }: Context) {
   try {
     const { id } = await params;
-    const patch = (await req.json()) as DraftRecord;
+    const auth = await withAuth(req);
+    const body = await req.json();
 
-    const existing = getDraftById(id);
-    if (!existing) return NextResponse.json({ error: 'Brouillon introuvable' }, { status: 404 });
+    const result = await TripService.saveDraft(id, body, auth);
 
-    return NextResponse.json(patchDraft(id, patch));
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
+    }
+
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
-export async function DELETE(_req: Request, { params }: Context) {
+export async function DELETE(req: Request, { params }: Context) {
   try {
     const { id } = await params;
-    const existing = getDraftById(id);
-    if (!existing) return NextResponse.json({ error: 'Brouillon introuvable' }, { status: 404 });
+    const auth = await withAuth(req);
+    const result = await TripService.cancel(id, undefined, auth);
 
-    deleteDraft(id);
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
+    }
+
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

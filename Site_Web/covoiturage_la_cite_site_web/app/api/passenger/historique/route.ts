@@ -1,18 +1,21 @@
 /**
- * GET /api/passenger/historique?passengerId=XXX
- * Route thin — délègue à buildPassengerHistorique.
+ * GET /api/passenger/historique
+ * Délègue au Server Core — GET api/passenger/historique
  */
 import { NextResponse } from 'next/server';
-import { buildPassengerHistorique } from '@/core/services/historique.service';
+import { HistoriqueService } from '@/server/services/HistoriqueService';
+import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
   try {
-    const passengerId = new URL(req.url).searchParams.get('passengerId');
-    if (!passengerId) {
-      return NextResponse.json({ error: 'Le paramètre passengerId est requis' }, { status: 400 });
+    const auth = await withAuth(req);
+    const result = await HistoriqueService.getPassengerHistorique(undefined, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
     }
 
-    return NextResponse.json(buildPassengerHistorique(passengerId));
+    return NextResponse.json(result.data);
   } catch (err) {
     console.error('[api/passenger/historique]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

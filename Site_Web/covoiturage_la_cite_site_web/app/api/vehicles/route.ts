@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
-import { buildVehicleRecord, queryVehicles, type VehiclePayload } from '@/core/services/vehicle-api.service';
-import { persistenceManager } from '@/tests/PersistenceManager';
+import { VehicleService } from '@/server/services/VehicleService';
+import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const driverId = searchParams.get('driverId');
-    return NextResponse.json(queryVehicles(driverId));
+    const auth = await withAuth(req);
+    const result = await VehicleService.getMyVehicles(auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
+    }
+    return NextResponse.json(result.data);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
@@ -14,15 +18,16 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as VehiclePayload;
-    const { vehicle, error, status } = buildVehicleRecord(body);
+    const body = await req.json();
+    const auth = await withAuth(req);
 
-    if (!vehicle) {
-      return NextResponse.json({ error }, { status: status ?? 400 });
+    const result = await VehicleService.create(body, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
-    persistenceManager.addItem('vehicles', vehicle);
-    return NextResponse.json(vehicle, { status: 201 });
+    return NextResponse.json(result.data, { status: 201 });
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
