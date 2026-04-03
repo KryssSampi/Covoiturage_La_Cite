@@ -13,6 +13,10 @@ export interface ProfileDto {
   postalCode?: string
   country?: string
    profileImageUrl?: string
+   role?: string
+
+   isPublic?: boolean
+bio?: string
 }
 
 export async function getProfile(): Promise<ProfileDto> {
@@ -36,4 +40,20 @@ export const uploadProfilePhoto = async (file: File) => {
 
   return data;
 };
+
+// Get public profile
+export const getPublicProfile = async (id: string) => {
+  const response = await backend.get(`/api/profile/public/${id}`)
+  return response.data
+}
+// Change password
+export const changePassword = async (data: {
+  currentPassword: string
+  newPassword: string
+  confirmNewPassword: string
+}) => {
+  const response = await backend.post("/api/profile/change-password", data)
+  return response.data
+}
+
 

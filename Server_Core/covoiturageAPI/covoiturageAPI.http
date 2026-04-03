@@ -1,0 +1,6 @@
+@covoiturageAPI_HostAddress = http://localhost:5100
+
+GET {{covoiturageAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

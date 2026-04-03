@@ -9,5 +9,10 @@
   --lacite-dark: #005A26;
   --lacite-light: #E6F4EC;
 }
+@theme {
+  --color-lacite: #007A33;
+  --color-lacite-dark: #005A26;
+  --color-lacite-light: #E6F4EC;
+}
 
 

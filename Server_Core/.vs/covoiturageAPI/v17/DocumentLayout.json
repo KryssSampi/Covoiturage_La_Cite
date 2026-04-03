@@ -1,0 +1,836 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\reviewservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\reviewservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\ireviewservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\ireviewservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\controllers\\reviewcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\controllers\\reviewcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\models\\trippassenger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\models\\trippassenger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\models\\trips.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\models\\trips.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\models\\reviews.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\models\\reviews.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\dtos\\reviewdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\dtos\\reviewdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\profileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\profileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\profiles\\usermapping.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\profiles\\usermapping.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\dtos\\profiledto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\dtos\\profiledto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\iprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\iprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\migrations\\20260304012308_addprofileimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\migrations\\20260304012308_addprofileimage.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\filestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\filestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\ifilestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\ifilestorageservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\dtos\\changepassworddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\dtos\\changepassworddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\models\\refreshtoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\models\\refreshtoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\helpers\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\helpers\\jwtservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\dtos\\resendconfirmationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\dtos\\resendconfirmationdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\dtos\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\dtos\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\refreshtokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\refreshtokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\services\\tokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\services\\tokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\middlewares\\exceptionmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\middlewares\\exceptionmiddleware.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\exceptions\\resendlimitreachedexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\exceptions\\resendlimitreachedexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\exceptions\\emailalreadyconfirmedexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\exceptions\\emailalreadyconfirmedexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\exceptions\\emailnotconfirmedexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\exceptions\\emailnotconfirmedexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\exceptions\\invalidcredentialsexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\exceptions\\invalidcredentialsexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\exceptions\\businessexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\exceptions\\businessexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\validators\\logindtovalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\validators\\logindtovalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\validators\\registerdtovalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\validators\\registerdtovalidator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\properties\\launchsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\controllers\\weatherforecastcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\covoiturageapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\covoiturageapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\migrations\\20260214010852_adduser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\migrations\\20260214010852_adduser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\migrations\\20260220131123_addrefreshtokens.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\migrations\\20260220131123_addrefreshtokens.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\migrations\\20260224041525_addemailconfirmation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\migrations\\20260224041525_addemailconfirmation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\migrations\\20260224121735_addemailconfirmationtoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\migrations\\20260224121735_addemailconfirmationtoken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\migrations\\20260226021536_addemailresendlimit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\migrations\\20260226021536_addemailresendlimit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\migrations\\20260303112432_adduseraddressfields.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\migrations\\20260303112432_adduseraddressfields.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\migrations\\20260401145918_addtripandreview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\migrations\\20260401145918_addtripandreview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|c:\\users\\user\\desktop\\etape4\\projetint\u00E9grateur\\projet3\\covoiturageapi\\covoiturageapi\\migrations\\20260401000845_addbioandispublic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{63922105-6754-4657-9D6C-6861048DA820}|covoiturageAPI\\covoiturageAPI.csproj|solutionrelative:covoiturageapi\\migrations\\20260401000845_addbioandispublic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 48,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{56df62a4-05a3-4e5b-aa1a-99371ccfb997}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IReviewService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\IReviewService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\IReviewService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\IReviewService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\IReviewService.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAzwAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-03T02:46:04.745Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ReviewService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\ReviewService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\ReviewService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\ReviewService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\ReviewService.cs",
+              "ViewState": "AgIAAD8AAAAAAAAAAAAIwEkAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-03T02:44:50.15Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ReviewDto.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\ReviewDto.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\DTOs\\ReviewDto.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\ReviewDto.cs",
+              "RelativeToolTip": "covoiturageAPI\\DTOs\\ReviewDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-03T02:39:50.403Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ReviewController.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Controllers\\ReviewController.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Controllers\\ReviewController.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Controllers\\ReviewController.cs",
+              "RelativeToolTip": "covoiturageAPI\\Controllers\\ReviewController.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAcwCIAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-03T02:38:44.01Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 48,
+              "Title": "20260401145918_AddTripAndReview.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260401145918_AddTripAndReview.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Migrations\\20260401145918_AddTripAndReview.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260401145918_AddTripAndReview.cs",
+              "RelativeToolTip": "covoiturageAPI\\Migrations\\20260401145918_AddTripAndReview.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-01T14:59:18.154Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "TripPassenger.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\TripPassenger.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Models\\TripPassenger.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\TripPassenger.cs",
+              "RelativeToolTip": "covoiturageAPI\\Models\\TripPassenger.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAA8wAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-01T14:52:17.752Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Reviews.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\Reviews.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Models\\Reviews.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\Reviews.cs",
+              "RelativeToolTip": "covoiturageAPI\\Models\\Reviews.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-01T04:22:35.092Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Trips.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\Trips.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Models\\Trips.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\Trips.cs",
+              "RelativeToolTip": "covoiturageAPI\\Models\\Trips.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-01T04:21:59.64Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "ChangePasswordDto.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\ChangePasswordDto.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\DTOs\\ChangePasswordDto.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\ChangePasswordDto.cs",
+              "RelativeToolTip": "covoiturageAPI\\DTOs\\ChangePasswordDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-01T04:15:43.45Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "UserMapping.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Profiles\\UserMapping.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Profiles\\UserMapping.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Profiles\\UserMapping.cs",
+              "RelativeToolTip": "covoiturageAPI\\Profiles\\UserMapping.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAYwBYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-01T04:12:07.881Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 49,
+              "Title": "20260401000845_AddBioAndIsPublic.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260401000845_AddBioAndIsPublic.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Migrations\\20260401000845_AddBioAndIsPublic.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260401000845_AddBioAndIsPublic.cs",
+              "RelativeToolTip": "covoiturageAPI\\Migrations\\20260401000845_AddBioAndIsPublic.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-01T00:08:45.817Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "20260304012308_AddProfileImage.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260304012308_AddProfileImage.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Migrations\\20260304012308_AddProfileImage.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260304012308_AddProfileImage.cs",
+              "RelativeToolTip": "covoiturageAPI\\Migrations\\20260304012308_AddProfileImage.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAAA8AAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T01:23:09.282Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "ProfileController.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Controllers\\ProfileController.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Controllers\\ProfileController.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Controllers\\ProfileController.cs",
+              "RelativeToolTip": "covoiturageAPI\\Controllers\\ProfileController.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAAAAwCIAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T01:10:20.397Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "FileStorageService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\FileStorageService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\FileStorageService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\FileStorageService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\FileStorageService.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAqwCsAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T00:44:47.464Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "IFileStorageService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\IFileStorageService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\IFileStorageService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\IFileStorageService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\IFileStorageService.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAwAYAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T00:43:53.092Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "ProfileService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\ProfileService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\ProfileService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\ProfileService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\ProfileService.cs",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAAwB0AAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T00:43:12.404Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "IProfileService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\IProfileService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\IProfileService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\IProfileService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\IProfileService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T00:42:11.579Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 47,
+              "Title": "20260303112432_AddUserAddressFields.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260303112432_AddUserAddressFields.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Migrations\\20260303112432_AddUserAddressFields.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260303112432_AddUserAddressFields.cs",
+              "RelativeToolTip": "covoiturageAPI\\Migrations\\20260303112432_AddUserAddressFields.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAAqwAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-03T11:24:32.859Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "ProfileDto.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\ProfileDto.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\DTOs\\ProfileDto.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\ProfileDto.cs",
+              "RelativeToolTip": "covoiturageAPI\\DTOs\\ProfileDto.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAqwBkAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-02T18:31:58.998Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 32,
+              "Title": "ResendLimitReachedException.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\ResendLimitReachedException.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Exceptions\\ResendLimitReachedException.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\ResendLimitReachedException.cs",
+              "RelativeToolTip": "covoiturageAPI\\Exceptions\\ResendLimitReachedException.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAwwAgAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-26T09:57:57.018Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 33,
+              "Title": "EmailAlreadyConfirmedException.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\EmailAlreadyConfirmedException.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Exceptions\\EmailAlreadyConfirmedException.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\EmailAlreadyConfirmedException.cs",
+              "RelativeToolTip": "covoiturageAPI\\Exceptions\\EmailAlreadyConfirmedException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-26T09:56:02.308Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 34,
+              "Title": "EmailNotConfirmedException.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\EmailNotConfirmedException.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Exceptions\\EmailNotConfirmedException.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\EmailNotConfirmedException.cs",
+              "RelativeToolTip": "covoiturageAPI\\Exceptions\\EmailNotConfirmedException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-26T09:54:41.275Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 35,
+              "Title": "InvalidCredentialsException.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\InvalidCredentialsException.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Exceptions\\InvalidCredentialsException.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\InvalidCredentialsException.cs",
+              "RelativeToolTip": "covoiturageAPI\\Exceptions\\InvalidCredentialsException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-26T09:53:11.444Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 36,
+              "Title": "BusinessException.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\BusinessException.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Exceptions\\BusinessException.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Exceptions\\BusinessException.cs",
+              "RelativeToolTip": "covoiturageAPI\\Exceptions\\BusinessException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-26T09:52:00.632Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "ResendConfirmationDto.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\ResendConfirmationDto.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\DTOs\\ResendConfirmationDto.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\ResendConfirmationDto.cs",
+              "RelativeToolTip": "covoiturageAPI\\DTOs\\ResendConfirmationDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-26T08:40:34.279Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 46,
+              "Title": "20260226021536_AddEmailResendLimit.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260226021536_AddEmailResendLimit.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Migrations\\20260226021536_AddEmailResendLimit.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260226021536_AddEmailResendLimit.cs",
+              "RelativeToolTip": "covoiturageAPI\\Migrations\\20260226021536_AddEmailResendLimit.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-26T02:15:36.759Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 31,
+              "Title": "ExceptionMiddleware.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Middlewares\\ExceptionMiddleware.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Middlewares\\ExceptionMiddleware.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Middlewares\\ExceptionMiddleware.cs",
+              "RelativeToolTip": "covoiturageAPI\\Middlewares\\ExceptionMiddleware.cs",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAQwFUAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-25T18:38:41.579Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 37,
+              "Title": "LoginDtoValidator.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Validators\\LoginDtoValidator.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Validators\\LoginDtoValidator.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Validators\\LoginDtoValidator.cs",
+              "RelativeToolTip": "covoiturageAPI\\Validators\\LoginDtoValidator.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAgwBAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-25T18:04:21.561Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 38,
+              "Title": "RegisterDtoValidator.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Validators\\RegisterDtoValidator.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Validators\\RegisterDtoValidator.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Validators\\RegisterDtoValidator.cs",
+              "RelativeToolTip": "covoiturageAPI\\Validators\\RegisterDtoValidator.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAAwA0AAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-25T18:02:51.084Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "TokenService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\TokenService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\TokenService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\TokenService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\TokenService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-24T17:52:23.633Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 45,
+              "Title": "20260224121735_AddEmailConfirmationToken.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260224121735_AddEmailConfirmationToken.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Migrations\\20260224121735_AddEmailConfirmationToken.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260224121735_AddEmailConfirmationToken.cs",
+              "RelativeToolTip": "covoiturageAPI\\Migrations\\20260224121735_AddEmailConfirmationToken.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-24T12:17:35.729Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "EmailService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\EmailService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\EmailService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\EmailService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\EmailService.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAowBwAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-24T06:15:10.562Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 44,
+              "Title": "20260224041525_AddEmailConfirmation.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260224041525_AddEmailConfirmation.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Migrations\\20260224041525_AddEmailConfirmation.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260224041525_AddEmailConfirmation.cs",
+              "RelativeToolTip": "covoiturageAPI\\Migrations\\20260224041525_AddEmailConfirmation.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-24T04:15:25.87Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "RefreshTokenService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\RefreshTokenService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\RefreshTokenService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\RefreshTokenService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\RefreshTokenService.cs",
+              "ViewState": "AgIAAFIAAAAAAAAAAAAvwD8AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-21T04:05:25.986Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 39,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Properties\\launchSettings.json",
+              "RelativeToolTip": "covoiturageAPI\\Properties\\launchSettings.json",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAwwCkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-02-21T02:06:36.015Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 43,
+              "Title": "20260220131123_AddRefreshTokens.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260220131123_AddRefreshTokens.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Migrations\\20260220131123_AddRefreshTokens.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260220131123_AddRefreshTokens.cs",
+              "RelativeToolTip": "covoiturageAPI\\Migrations\\20260220131123_AddRefreshTokens.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-20T13:11:23.781Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "RefreshToken.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\RefreshToken.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Models\\RefreshToken.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\RefreshToken.cs",
+              "RelativeToolTip": "covoiturageAPI\\Models\\RefreshToken.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAA0wBAAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-20T12:57:28.114Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 40,
+              "Title": "WeatherForecastController.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Controllers\\WeatherForecastController.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Controllers\\WeatherForecastController.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Controllers\\WeatherForecastController.cs",
+              "RelativeToolTip": "covoiturageAPI\\Controllers\\WeatherForecastController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-20T11:47:59.28Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "JwtService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Helpers\\JwtService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Helpers\\JwtService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Helpers\\JwtService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Helpers\\JwtService.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAswCsAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-17T17:09:42.014Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "IAuthService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\IAuthService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\IAuthService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\IAuthService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\IAuthService.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAIA4wBMAAAAzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-17T17:08:31.017Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Services\\AuthService.cs",
+              "RelativeToolTip": "covoiturageAPI\\Services\\AuthService.cs",
+              "ViewState": "AgIAAMIAAAAAAAAAAAAAAMIAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-17T17:07:57.194Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 41,
+              "Title": "covoiturageAPI.csproj",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\covoiturageAPI.csproj",
+              "RelativeDocumentMoniker": "covoiturageAPI\\covoiturageAPI.csproj",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\covoiturageAPI.csproj",
+              "RelativeToolTip": "covoiturageAPI\\covoiturageAPI.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-02-17T15:14:02.49Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "LoginDto.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\LoginDto.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\DTOs\\LoginDto.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\LoginDto.cs",
+              "RelativeToolTip": "covoiturageAPI\\DTOs\\LoginDto.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAA5wBEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-17T15:13:59.624Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "covoiturageAPI\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAAAACwAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T02:15:14.492Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "RegisterDto.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\RegisterDto.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\DTOs\\RegisterDto.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\DTOs\\RegisterDto.cs",
+              "RelativeToolTip": "covoiturageAPI\\DTOs\\RegisterDto.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAkwB4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T01:41:53.689Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 42,
+              "Title": "20260214010852_AddUser.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260214010852_AddUser.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Migrations\\20260214010852_AddUser.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Migrations\\20260214010852_AddUser.cs",
+              "RelativeToolTip": "covoiturageAPI\\Migrations\\20260214010852_AddUser.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAowCsAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T01:08:52.634Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Program.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Program.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Program.cs*",
+              "RelativeToolTip": "covoiturageAPI\\Program.cs*",
+              "ViewState": "AgIAAF4AAAAAAAAAAAAMwGkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T01:07:06.467Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\User.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Models\\User.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Models\\User.cs",
+              "RelativeToolTip": "covoiturageAPI\\Models\\User.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAqwEUAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T00:35:02.624Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "covoiturageAPI\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "covoiturageAPI\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAuwAkAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-14T00:02:37.017Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 30,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\appsettings.json",
+              "RelativeDocumentMoniker": "covoiturageAPI\\appsettings.json",
+              "ToolTip": "C:\\Users\\User\\Desktop\\Etape4\\ProjetInt\u00E9grateur\\projet3\\covoiturageAPI\\covoiturageAPI\\appsettings.json",
+              "RelativeToolTip": "covoiturageAPI\\appsettings.json",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAABEAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-02-13T23:48:18.507Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

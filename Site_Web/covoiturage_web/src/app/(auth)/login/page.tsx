@@ -9,7 +9,7 @@ import { resendConfirmation } from "@/lib/services/auth.service"
 
 export default function LoginPage() {
   const router = useRouter()
-  //const { login } = useAuth()
+  const { login } = useAuth()
 
   const [form, setForm] = useState({
     email: "",
@@ -44,12 +44,7 @@ export default function LoginPage() {
     try {
       setLoading(true)
 
-     fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      })
-      .then(res => res.json())
+      await login(form.email, form.password)
 
       router.push("/dashboard")
 

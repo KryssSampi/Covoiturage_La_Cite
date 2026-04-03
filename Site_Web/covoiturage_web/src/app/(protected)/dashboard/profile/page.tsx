@@ -1,230 +1,10 @@
 "use client"
-/*"use client"
-
-import { useEffect, useState } from "react"
-import { getProfile, updateProfile, ProfileDto } from "@/lib/services/profile.service"
-
-export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("info")
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState("")
-  const [error, setError] = useState("")
-
-  const [profile, setProfile] = useState<ProfileDto>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    streetNumber: "",
-    streetName: "",
-    apartment: "",
-    city: "",
-    province: "",
-    postalCode: "",
-    country: "",
-  })
-
-  const tabs = [
-    { id: "info", label: "Informations" },
-    { id: "security", label: "Sécurité" },
-    { id: "public", label: "Profil Public" },
-    { id: "danger", label: "Danger" },
-  ]
-
-  // 🔹 Charger profil au mount
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const data = await getProfile()
-        setProfile(data)
-      } catch {
-        setError("Erreur chargement profil")
-      }
-    }
-
-    loadProfile()
-  }, [])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value })
-  }
-
-  const handleUpdate = async () => {
-    try {
-      setLoading(true)
-      setMessage("")
-      setError("")
-
-      await updateProfile(profile)
-
-      setMessage("Profil mis à jour avec succès ✅")
-    } catch {
-      setError("Erreur lors de la mise à jour")
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">
-        Gestion du Profil
-      </h1>
-*/
-      {/* Tabs */}
-      /*
-      <div className="flex gap-2 border-b mb-6 overflow-x-auto">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-4 py-2 rounded-t-lg transition whitespace-nowrap ${
-              activeTab === tab.id
-                ? "bg-lacite text-white"
-                : "text-gray-600 hover:bg-lacite/10"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="bg-white p-6 rounded-2xl shadow-sm">
-*/
-        {/* ---------------- INFO ---------------- */}
-        /*
-        {activeTab === "info" && (
-          <div className="space-y-4">
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <input
-                name="firstName"
-                value={profile.firstName}
-                onChange={handleChange}
-                placeholder="Prénom"
-                className="border p-3 rounded-xl focus:ring-2 focus:ring-lacite"
-              />
-
-              <input
-                name="lastName"
-                value={profile.lastName}
-                onChange={handleChange}
-                placeholder="Nom"
-                className="border p-3 rounded-xl focus:ring-2 focus:ring-lacite"
-              />
-            </div>
-              <label htmlFor="Courriel"></label>
-            <input
-            
-              name="email"
-              value={profile.email}
-              disabled
-              className="border p-3 rounded-xl bg-gray-100 w-full"
-            />
-
-            <input
-              name="phone"
-              value={profile.phone}
-              onChange={handleChange}
-              placeholder="Téléphone"
-              className="border p-3 rounded-xl w-full focus:ring-2 focus:ring-lacite"
-            />
-*/
-            {/* -------- Adresse -------- */}
-            /*
-            <div className="grid md:grid-cols-2 gap-4">
-              <input
-                name="streetNumber"
-                value={profile.streetNumber || ""}
-                onChange={handleChange}
-                placeholder="Numéro de rue"
-                className="border p-3 rounded-xl"
-              />
-
-              <input
-                name="streetName"
-                value={profile.streetName || ""}
-                onChange={handleChange}
-                placeholder="Nom de rue"
-                className="border p-3 rounded-xl"
-              />
-            </div>
-
-            <input
-              name="apartment"
-              value={profile.apartment || ""}
-              onChange={handleChange}
-              placeholder="Appartement"
-              className="border p-3 rounded-xl w-full"
-            />
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <input
-                name="city"
-                value={profile.city || ""}
-                onChange={handleChange}
-                placeholder="Ville"
-                className="border p-3 rounded-xl"
-              />
-
-              <input
-                name="province"
-                value={profile.province || ""}
-                onChange={handleChange}
-                placeholder="Province"
-                className="border p-3 rounded-xl"
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              <input
-                name="postalCode"
-                value={profile.postalCode || ""}
-                onChange={handleChange}
-                placeholder="Code postal"
-                className="border p-3 rounded-xl"
-              />
-
-              <input
-                name="country"
-                value={profile.country || ""}
-                onChange={handleChange}
-                placeholder="Pays"
-                className="border p-3 rounded-xl"
-              />
-            </div>
-
-            {message && (
-              <div className="text-green-600 font-medium">{message}</div>
-            )}
-
-            {error && (
-              <div className="text-red-600 font-medium">{error}</div>
-            )}
-
-            <button
-              onClick={handleUpdate}
-              disabled={loading}
-              className="bg-lacite text-white px-6 py-2 rounded-xl hover:bg-lacite-dark transition"
-            >
-              {loading ? "Enregistrement..." : "Enregistrer les modifications"}
-            </button>
-          </div>
-        )}
-
-      </div>
-    </div>
-  )
-}*/
-
 
 import { useEffect, useRef, useState } from "react"
 import { backend } from "@/lib/api/backend"
 import { getProfile, updateProfile, ProfileDto } from "@/lib/services/profile.service"
 import { useAuthStore } from "@/store/useAuthStore"
-
-
-
+import { tr } from "zod/locales"
 
 
 export default function ProfilePage() {
@@ -245,6 +25,21 @@ const user = useAuthStore((s) => s.user)
   const [cameraOpen, setCameraOpen] = useState(false)
   const [captured, setCaptured] = useState(false)
 
+  const [ passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmNewPassword: ""
+  })
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordData({
+      ...passwordData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+
+
   const fileInput = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -263,6 +58,10 @@ const user = useAuthStore((s) => s.user)
     province: "",
     postalCode: "",
     country: "",
+
+   isPublic: false,
+   bio:"",
+ 
   })
 
   const tabs = [
@@ -270,10 +69,10 @@ const user = useAuthStore((s) => s.user)
     { id: "photo", label: "Photo profil" },
     { id: "security", label: "Sécurité" },
     { id: "public", label: "Profil Public" },
-    { id: "danger", label: "Danger" },
+    
   ]
 
-  /* ---------------- LOAD PROFILE ---------------- */
+  {/*---------------- LOAD PROFILE ---------------- */}
 
   useEffect(() => {
 
@@ -301,16 +100,18 @@ const user = useAuthStore((s) => s.user)
 
   }, [])
 
-  /* ---------------- UPDATE PROFILE ---------------- */
+  {/*---------------- UPDATE PROFILE ---------------- */}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+) => {
+  const { name, value } = e.target
 
-    setProfile({
-      ...profile,
-      [e.target.name]: e.target.value
-    })
-
-  }
+  setProfile(prev => ({
+    ...prev,
+    [name]: value
+  }))
+}
 
   const handleUpdate = async () => {
 
@@ -320,7 +121,7 @@ const user = useAuthStore((s) => s.user)
 
       await updateProfile(profile)
 
-      setMessage("Profil mis à jour avec succès ✅")
+      setMessage("Profil mis à jour avec succès ")
 
     } catch {
 
@@ -334,7 +135,7 @@ const user = useAuthStore((s) => s.user)
 
   }
 
-  /* ---------------- UPLOAD FILE ---------------- */
+   {/* ---------------- UPLOAD FILE ---------------- */}
 
   const uploadFile = async (file: File) => {
 
@@ -356,13 +157,6 @@ const user = useAuthStore((s) => s.user)
         profileImageUrl: imageUrl
       })
      
-      const setUser = useAuthStore((s) => s.setUser)
-const user = useAuthStore((s) => s.user)
-
-setUser({
-  ...user!,
-  profileImageUrl: imageUrl
-})
 
        if (user) {
       setUser({
@@ -385,7 +179,7 @@ setUser({
 
   }
 
-  /* ---------------- OPEN CAMERA ---------------- */
+  {/* ---------------- OPEN CAMERA ---------------- */} 
 
   const openCamera = async () => {
 
@@ -409,7 +203,7 @@ setUser({
 
   }
 
-  /* ---------------- STOP CAMERA ---------------- */
+  {/* ---------------- STOP CAMERA ---------------- */} 
 
   const stopCamera = () => {
 
@@ -422,7 +216,7 @@ setUser({
 
   }
 
-  /* ---------------- CAPTURE PHOTO ---------------- */
+  {/* ---------------- CAPTURE PHOTO ---------------- */} 
 
   const capturePhoto = () => {
 
@@ -445,7 +239,7 @@ setUser({
 
   }
 
-  /* ---------------- SAVE PHOTO ---------------- */
+  {/* ---------------- SAVE PHOTO ---------------- */} 
 
   const savePhoto = async () => {
 
@@ -498,7 +292,7 @@ setUser({
 
   }
 
-  /* ---------------- RETAKE PHOTO ---------------- */
+  {/* ---------------- Retake Photo ---------------- */}  
 
   const retakePhoto = () => {
 
@@ -506,6 +300,37 @@ setUser({
 
   }
 
+  {/* Modification du le mot de passe  */  }
+
+  const updatePassword = async () => {
+    if (passwordData.newPassword !== passwordData.confirmNewPassword) {
+      setError("Les nouveaux mots de passe ne correspondent pas")
+      return
+    }
+
+  try {
+    setLoading(true)
+
+    // Appel à l'API pour changer le mot de passe
+
+     await backend.post("/api/profile/change-password", passwordData)
+
+    setMessage("Mot de passe changé avec succès ✅")
+
+  } catch {
+
+
+    setError("Erreur lors de la modification du mot de passe")
+
+  } finally {
+
+
+    setLoading(false)
+
+  } 
+  }
+
+  
   return (
 
     <div className="p-6 max-w-4xl mx-auto">
@@ -514,9 +339,9 @@ setUser({
         Gestion du Profil
       </h1>
 
-      {/* Tabs */}
+      {/** Tabs */}
 
-      <div className="flex gap-2 border-b mb-6">
+      <div className="flex gap-2 border-b mb-6 overflow-x-auto">
 
         {tabs.map(tab => (
 
@@ -538,7 +363,8 @@ setUser({
      
 
       <div className="bg-white p-6 rounded-2xl shadow">
-{/* ---------------- INFO ---------------- */}
+
+ {/*---------------- INFO ---------------- */ }
 
 {activeTab === "info" && (
 
@@ -595,7 +421,7 @@ setUser({
         className="border p-3 rounded-xl w-full"
       />
     </div>
-            {/* ---------------- Adresse ---------------- */}
+            {/*---------------- Adresse ---------------- */}
 
 <div className="border-t pt-4 mt-4 space-y-4">
 
@@ -716,7 +542,7 @@ setUser({
 
         )}
 
-        {/* ---------------- PHOTO ---------------- */}
+        {/*---------------- PHOTO ---------------- */ }
 
         {activeTab === "photo" && (
 
@@ -776,7 +602,7 @@ setUser({
                   <video
                     ref={videoRef}
                     autoPlay
-                    className="w-72 rounded-xl"
+                    className="w-full max-w-sm rounded-xl border"
                   />
 
                 )}
@@ -785,12 +611,12 @@ setUser({
 
                   <img
                     src={preview}
-                    className="w-72 rounded-xl"
+                    className="w-24 h-24 md:w-40 md:h-40 rounded-full object-cover border"
                   />
 
                 )}
 
-                <div className="flex gap-3">
+                <div className="flex flex-col md:flex-row gap-3">
 
                   {!captured && (
 
@@ -842,6 +668,91 @@ setUser({
           </div>
 
         )}
+
+        {/*---------------- SECURITY ---------------- */ }
+
+        {activeTab === "security" && (
+
+          <div className="space-y-4 max-w-md">
+            <h2 className="text-lg font-semibold text-gray-700">
+              Changer le mot de passe
+            </h2>
+            <input 
+            type="password"
+            name="currentPassword"
+            placeholder="Mot de passe actuel"
+            value={passwordData.currentPassword}
+            onChange={handlePasswordChange}
+            className="border p-3 rounded-xl w-full focus:ring-2 focus:ring-lacite"
+               />
+
+            <input
+            type="password"
+            name="newPassword"  
+            placeholder="Nouveau mot de passe"
+            value={passwordData.newPassword}
+            onChange={handlePasswordChange}
+            className="border p-3 rounded-xl w-full focus:ring-2 focus:ring-lacite"
+            />
+
+            <input
+            type="password"
+            name="confirmNewPassword"
+            placeholder="Confirmer le nouveau mot de passe" 
+            value={passwordData.confirmNewPassword}
+            onChange={handlePasswordChange}
+            className="border p-3 rounded-xl w-full focus:ring-2 focus:ring-lacite"
+            />
+
+            <button
+            onClick={updatePassword}
+            className="bg-lacite text-white px-6 py-2 rounded-xl"
+            >
+               Mettre à jour le mot de passe   
+            </button>
+        </div>
+        )}
+
+        {/*---------------- PUBLIC PROFILE ---------------- */    }
+        {activeTab === "public" && (
+          <div className="space-y-4 max-w-md">
+            <h2 className="text-lg font-semibold text-gray-700">
+              Profil Public
+            </h2>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"   
+                checked={profile.isPublic || false  }
+                onChange={(e) => setProfile({
+                  ...profile,
+                  isPublic: e.target.checked
+                })
+              }
+              />
+              
+                Rendre le profil public
+                
+            </label>
+
+            <textarea
+            name="bio"
+            placeholder="Parle un peu de toi"
+            value={profile.bio || ""}
+            
+            onChange={handleChange}
+            className="border p-3 rounded-xl w-full h-32 focus:ring-2 focus:ring-lacite"
+            />
+             <button
+            onClick={handleUpdate}
+            className="bg-lacite text-white px-6 py-2 rounded-xl"
+            >
+           Enregistrer
+            </button> 
+            
+              
+          </div>
+        )}
+
 
       </div>
 

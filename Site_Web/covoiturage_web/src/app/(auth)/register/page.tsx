@@ -34,7 +34,7 @@ export default function RegisterPage() {
     setSuccess("")
     setFieldErrors({})
 
-    // 🔥 Validation Zod
+    //  Validation Zod
     const result = registerSchema.safeParse({
       ...form,
       confirmPassword,
@@ -48,14 +48,9 @@ export default function RegisterPage() {
     try {
       setLoading(true)
 
-     const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      })
+      const response = await register(form)
 
-      const data = await response.json()
-      setSuccess(data.message || "Compte créé avec succès")
+      setSuccess(response.message || "Compte créé avec succès")
 
       setTimeout(() => {
         router.push("/login?registered=true")
