@@ -1,0 +1,1177 @@
+[
+  {
+    "id": "inscription-connexion",
+    "sujet": "Inscription & Connexion",
+    "categorie": "Compte",
+    "intent": "compte",
+    "entity": "compte",
+    "active": true,
+    "items": [
+      {
+        "question": "Comment créer un compte sur Covoiturage La Cité ?",
+        "reponse": "Pour créer un compte, rendez-vous sur la page d'accueil et cliquez sur « S'inscrire ». Vous devez utiliser votre adresse email institutionnelle du Collège La Cité (se terminant par @lacitec.on.ca). Complétez le formulaire avec votre nom, prénom, rôle (étudiant, enseignant ou personnel) et définissez un mot de passe sécurisé. Un email de confirmation vous sera envoyé pour activer votre compte.",
+        "variations": [
+          "comment m'inscrire",
+          "je veux créer un compte",
+          "comment rejoindre la plateforme",
+          "comment s'enregistrer",
+          "je n'ai pas encore de compte",
+          "how to create an account",
+          "inscription sur l'application"
+        ],
+        "keywords": [
+          "inscription",
+          "créer",
+          "compte",
+          "s'inscrire",
+          "enregistrer",
+          "email",
+          "institutionnel",
+          "lacitec",
+          "activer",
+          "mot de passe",
+          "rejoindre",
+          "plateforme",
+          "nouveau"
+        ],
+        "actions": [
+          "Ouvrir la page d'accueil",
+          "Cliquer sur S'inscrire"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "J'ai oublié mon mot de passe, comment le réinitialiser ?",
+        "reponse": "Sur la page de connexion, cliquez sur « Mot de passe oublié ? ». Saisissez votre adresse email institutionnelle et un lien de réinitialisation vous sera envoyé dans les 5 minutes. Ce lien est unique et expire après 30 minutes. Vérifiez aussi votre dossier de courrier indésirable si vous ne voyez pas l'email dans votre boîte de réception.",
+        "variations": [
+          "je ne me souviens plus de mon mot de passe",
+          "mot de passe perdu",
+          "réinitialiser mon mot de passe",
+          "je ne peux plus me connecter",
+          "problème de connexion mot de passe",
+          "forgot my password",
+          "changer mon mot de passe",
+          "lien de réinitialisation"
+        ],
+        "keywords": [
+          "mot de passe",
+          "oublié",
+          "réinitialiser",
+          "connexion",
+          "lien",
+          "email",
+          "récupérer",
+          "reset",
+          "password",
+          "se connecter",
+          "accès"
+        ],
+        "actions": [
+          "Aller sur la page de connexion",
+          "Cliquer sur Mot de passe oublié"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Comment modifier mes informations de profil ?",
+        "reponse": "Accédez à votre profil en cliquant sur votre avatar dans le coin supérieur droit, puis sélectionnez « Profil ». Vous pouvez y modifier votre photo de profil, votre numéro de téléphone, votre biographie et vos préférences de covoiturage. Certaines informations comme votre email institutionnel ne peuvent pas être modifiées pour des raisons de sécurité.",
+        "variations": [
+          "comment changer mes informations",
+          "modifier mon profil",
+          "mettre à jour mes données",
+          "changer ma photo",
+          "modifier mon numéro de téléphone",
+          "éditer mon profil",
+          "changer mon nom",
+          "mettre à jour mon profil"
+        ],
+        "keywords": [
+          "profil",
+          "modifier",
+          "changer",
+          "informations",
+          "photo",
+          "téléphone",
+          "biographie",
+          "préférences",
+          "mettre à jour",
+          "éditer",
+          "paramètres",
+          "avatar"
+        ],
+        "actions": [
+          "Cliquer sur l'avatar",
+          "Sélectionner Profil"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Puis-je avoir un compte conducteur et passager à la fois ?",
+        "reponse": "Oui ! Votre compte unique vous permet de basculer entre les modes conducteur et passager. Depuis votre tableau de bord, utilisez le bouton de basculement de mode pour passer du mode passager au mode conducteur (et vice-versa), à condition que vous ayez déjà fourni les informations nécessaires pour conduire (permis de conduire, informations sur le véhicule, etc.).",
+        "variations": [
+          "je veux être conducteur et passager",
+          "changer de rôle",
+          "basculer entre conducteur et passager",
+          "activer le mode conducteur",
+          "comment devenir conducteur",
+          "passer en mode conducteur",
+          "switcher de rôle"
+        ],
+        "keywords": [
+          "conducteur",
+          "passager",
+          "basculer",
+          "mode",
+          "rôle",
+          "tableau de bord",
+          "permis",
+          "véhicule",
+          "changer",
+          "activer",
+          "switch"
+        ],
+        "actions": [
+          "Tableau de bord",
+          "Bouton de basculement de mode"
+        ],
+        "conditions": [
+          "Avoir fourni permis et infos véhicule pour le mode conducteur"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chercher-covoiturage",
+    "sujet": "Chercher un covoiturage",
+    "categorie": "Trajets",
+    "intent": "passager",
+    "entity": "trajet",
+    "active": true,
+    "items": [
+      {
+        "question": "Comment rechercher un trajet disponible ?",
+        "reponse": "Depuis votre tableau de bord passager, cliquez sur « Planifier » ou utilisez la barre de recherche. Saisissez votre point de départ, votre destination et la date souhaitée. Les trajets disponibles correspondant à votre itinéraire s'afficheront avec les détails du conducteur, l'heure de départ, le nombre de places disponibles et le tarif proposé.",
+        "variations": [
+          "comment trouver un trajet",
+          "chercher un covoiturage",
+          "je cherche une place",
+          "trouver un conducteur",
+          "rechercher un covoiturage disponible",
+          "je veux aller quelque part",
+          "comment utiliser la recherche",
+          "trouver un trajet vers le campus"
+        ],
+        "keywords": [
+          "rechercher",
+          "trouver",
+          "trajet",
+          "disponible",
+          "covoiturage",
+          "départ",
+          "destination",
+          "passager",
+          "planifier",
+          "barre recherche",
+          "place",
+          "conducteur",
+          "itinéraire"
+        ],
+        "actions": [
+          "Tableau de bord passager",
+          "Cliquer sur Planifier",
+          "Saisir départ et destination"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Je ne trouve pas de trajet vers mon adresse, que faire ?",
+        "reponse": "Si aucun trajet ne correspond exactement à votre destination, essayez d'élargir le rayon de recherche ou de modifier légèrement votre point d'arrivée. Vous pouvez aussi consulter les trajets vers les arrêts de bus ou stations proches. N'hésitez pas à activer les notifications pour être averti dès qu'un nouveau trajet correspondant à vos critères est publié.",
+        "variations": [
+          "aucun trajet disponible",
+          "pas de covoiturage vers ma destination",
+          "je ne trouve rien",
+          "aucun résultat de recherche",
+          "comment trouver quand il n'y a pas de trajet",
+          "trajet introuvable"
+        ],
+        "keywords": [
+          "introuvable",
+          "aucun",
+          "résultat",
+          "destination",
+          "rayon",
+          "élargir",
+          "notification",
+          "alerte",
+          "arrêt",
+          "adresse",
+          "pas de trajet"
+        ],
+        "actions": [
+          "Élargir le rayon",
+          "Activer les notifications de nouveaux trajets"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Comment voir les détails d'un trajet avant de réserver ?",
+        "reponse": "Cliquez sur un trajet dans les résultats de recherche pour accéder à sa page de détail. Vous y trouverez le profil complet du conducteur avec ses évaluations, le tracé précis de l'itinéraire sur la carte, les points de départ et d'arrivée exacts, les règles du trajet (animaux, musique, bagages), ainsi que le tarif et les places restantes.",
+        "variations": [
+          "voir les informations d'un trajet",
+          "détails avant de réserver",
+          "informations sur le trajet",
+          "profil du conducteur",
+          "voir l'itinéraire",
+          "consulter les détails"
+        ],
+        "keywords": [
+          "détails",
+          "informations",
+          "profil",
+          "conducteur",
+          "évaluations",
+          "itinéraire",
+          "carte",
+          "règles",
+          "tarif",
+          "places",
+          "voir"
+        ],
+        "actions": [
+          "Cliquer sur un trajet dans les résultats"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Comment sont calculés les prix des trajets ?",
+        "reponse": "Les tarifs sont suggérés par notre système en fonction de la distance, du nombre de passagers et des coûts estimés du carburant. Chaque conducteur peut ajuster le prix dans une fourchette raisonnable. Les paiements se font directement dans l'application via notre système sécurisé. L'objectif est le partage des frais et non la réalisation d'un bénéfice.",
+        "variations": [
+          "comment est fixé le prix",
+          "comment fonctionne le tarif",
+          "quel est le coût d'un trajet",
+          "comment le prix est calculé",
+          "combien ça coûte",
+          "tarification des trajets"
+        ],
+        "keywords": [
+          "prix",
+          "tarif",
+          "calculé",
+          "coût",
+          "distance",
+          "carburant",
+          "fourchette",
+          "paiement",
+          "frais",
+          "partage",
+          "passagers"
+        ],
+        "actions": [],
+        "conditions": []
+      }
+    ]
+  },
+  {
+    "id": "proposer-trajet",
+    "sujet": "Proposer un trajet",
+    "categorie": "Trajets",
+    "intent": "conducteur",
+    "entity": "trajet",
+    "active": true,
+    "items": [
+      {
+        "question": "Comment créer un trajet en tant que conducteur ?",
+        "reponse": "Passez en mode conducteur depuis votre tableau de bord, puis cliquez sur « Nouveau trajet ». Définissez votre point de départ, votre destination, la date et l'heure de départ, le nombre de places disponibles et le tarif souhaité. Vous pouvez aussi ajouter des étapes intermédiaires, définir vos préférences (musique, animaux, etc.) et enregistrer le trajet comme brouillon avant de le publier.",
+        "variations": [
+          "publier un trajet",
+          "proposer un covoiturage",
+          "offrir des places",
+          "comment créer un trajet",
+          "ajouter un trajet",
+          "nouveau trajet conducteur",
+          "mettre un trajet en ligne",
+          "poster un trajet"
+        ],
+        "keywords": [
+          "créer",
+          "trajet",
+          "conducteur",
+          "publier",
+          "proposer",
+          "offrir",
+          "places",
+          "départ",
+          "destination",
+          "tarif",
+          "brouillon",
+          "nouveau",
+          "poster"
+        ],
+        "actions": [
+          "Passer en mode conducteur",
+          "Cliquer sur Nouveau trajet"
+        ],
+        "conditions": [
+          "Être en mode conducteur"
+        ]
+      },
+      {
+        "question": "Comment gérer les demandes de mes passagers ?",
+        "reponse": "Toutes les demandes de réservation apparaissent dans la section « Demandes » de votre tableau de bord. Pour chaque demande, vous voyez le profil du passager, son évaluation et son commentaire. Vous pouvez accepter ou refuser chaque demande. En cas d'acceptation, le passager reçoit une confirmation et votre contact est partagé mutuellement pour faciliter la coordination.",
+        "variations": [
+          "voir les demandes de réservation",
+          "accepter ou refuser un passager",
+          "gérer mes réservations conducteur",
+          "j'ai reçu une demande",
+          "comment accepter une réservation",
+          "valider une demande"
+        ],
+        "keywords": [
+          "demandes",
+          "réservation",
+          "accepter",
+          "refuser",
+          "passager",
+          "tableau de bord",
+          "profil",
+          "confirmation",
+          "gérer",
+          "valider"
+        ],
+        "actions": [
+          "Section Demandes du tableau de bord",
+          "Accepter ou refuser"
+        ],
+        "conditions": [
+          "Être en mode conducteur"
+        ]
+      },
+      {
+        "question": "Comment annuler un trajet que j'ai publié ?",
+        "reponse": "Rendez-vous dans votre historique ou sur la page du trajet concerné, puis cliquez sur « Annuler le trajet ». Tous les passagers déjà acceptés seront automatiquement notifiés de l'annulation. Pour limiter l'impact sur la communauté, essayez d'annuler au moins 24 heures avant le départ. Les annulations répétées à la dernière minute peuvent affecter votre évaluation de conducteur.",
+        "variations": [
+          "supprimer un trajet",
+          "annuler mon trajet publié",
+          "je veux annuler",
+          "retirer un trajet",
+          "annulation trajet conducteur",
+          "comment annuler un covoiturage"
+        ],
+        "keywords": [
+          "annuler",
+          "trajet",
+          "supprimer",
+          "retirer",
+          "historique",
+          "passagers",
+          "notification",
+          "24 heures",
+          "évaluation",
+          "publié",
+          "annulation"
+        ],
+        "actions": [
+          "Historique ou page du trajet",
+          "Cliquer sur Annuler le trajet"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Qu'est-ce que le système de brouillons ?",
+        "reponse": "Le système de brouillons vous permet de préparer un trajet récurrent sans le publier immédiatement. Créez un trajet, enregistrez-le comme brouillon, puis publiez-le quand vous êtes prêt. C'est particulièrement utile pour les trajets hebdomadaires (par exemple, tous les lundis matin vers le campus) que vous planifiez à l'avance.",
+        "variations": [
+          "brouillon de trajet",
+          "sauvegarder un trajet sans publier",
+          "trajet récurrent brouillon",
+          "préparer un trajet à l'avance",
+          "trajet hebdomadaire",
+          "planifier un trajet récurrent"
+        ],
+        "keywords": [
+          "brouillon",
+          "récurrent",
+          "hebdomadaire",
+          "préparer",
+          "sauvegarder",
+          "publier",
+          "planifier",
+          "avance",
+          "campus",
+          "lundi"
+        ],
+        "actions": [
+          "Créer un trajet",
+          "Enregistrer comme brouillon"
+        ],
+        "conditions": []
+      }
+    ]
+  },
+  {
+    "id": "reservations-demandes",
+    "sujet": "Réservations & Demandes",
+    "categorie": "Réservations",
+    "intent": "reservation",
+    "entity": "reservation",
+    "active": true,
+    "items": [
+      {
+        "question": "Comment réserver une place dans un trajet ?",
+        "reponse": "Depuis la page de détail d'un trajet, cliquez sur « Réserver une place ». Vous pouvez ajouter un message au conducteur pour vous présenter ou préciser votre point de montée exact. Votre demande sera soumise au conducteur qui devra l'accepter ou la refuser. Vous serez notifié de sa décision par notification dans l'application.",
+        "variations": [
+          "faire une réservation",
+          "comment booker une place",
+          "réserver un trajet",
+          "prendre une place",
+          "comment réserver",
+          "book a ride",
+          "je veux réserver",
+          "envoyer une demande de réservation"
+        ],
+        "keywords": [
+          "réserver",
+          "place",
+          "réservation",
+          "booker",
+          "demande",
+          "conducteur",
+          "message",
+          "montée",
+          "accepter",
+          "notification"
+        ],
+        "actions": [
+          "Page de détail du trajet",
+          "Cliquer sur Réserver une place"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Comment savoir si ma demande de réservation est confirmée ?",
+        "reponse": "Vous recevrez une notification push dès que le conducteur répond à votre demande. Le statut de votre réservation est également visible dans la section « Mes trajets » ou « Historique » de votre tableau de bord : En attente (jaune), Confirmée (verte) ou Refusée (rouge). Vous pouvez aussi contacter directement le conducteur une fois votre réservation acceptée.",
+        "variations": [
+          "est-ce que ma réservation est confirmée",
+          "vérifier le statut de ma réservation",
+          "comment savoir si j'ai une place",
+          "ma réservation est-elle acceptée",
+          "statut de ma demande",
+          "où voir mes réservations",
+          "voir mes trajets réservés"
+        ],
+        "keywords": [
+          "confirmée",
+          "statut",
+          "réservation",
+          "notification",
+          "attente",
+          "acceptée",
+          "refusée",
+          "tableau de bord",
+          "historique",
+          "mes trajets",
+          "réponse"
+        ],
+        "actions": [
+          "Vérifier dans Mes trajets",
+          "Attendre la notification"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Comment annuler ma réservation ?",
+        "reponse": "Accédez à votre tableau de bord, section « Mes trajets », puis cliquez sur le trajet concerné et sélectionnez « Annuler ma réservation ». Pensez à prévenir le conducteur le plus tôt possible, idéalement 24 heures avant le départ. Les annulations de dernière minute répétées peuvent impacter votre note de passager et votre GoScore.",
+        "variations": [
+          "annuler ma réservation",
+          "je veux annuler ma place",
+          "comment se désinscrire d'un trajet",
+          "retirer ma réservation",
+          "annulation passager",
+          "je ne peux plus venir",
+          "supprimer ma réservation"
+        ],
+        "keywords": [
+          "annuler",
+          "réservation",
+          "place",
+          "mes trajets",
+          "passager",
+          "GoScore",
+          "note",
+          "24 heures",
+          "désinscrire",
+          "retirer"
+        ],
+        "actions": [
+          "Mes trajets",
+          "Annuler ma réservation"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Que se passe-t-il si un conducteur annule le trajet après ma confirmation ?",
+        "reponse": "En cas d'annulation par le conducteur, vous recevrez immédiatement une notification. Si des frais ont été engagés, le remboursement est traité automatiquement dans les 3 à 5 jours ouvrables. Nous vous encourageons à chercher rapidement une alternative. Si l'annulation survient fréquemment de la part du même conducteur, vous pouvez le signaler depuis son profil.",
+        "variations": [
+          "le conducteur a annulé mon trajet",
+          "annulation par le conducteur",
+          "mon trajet a été annulé",
+          "que faire si le conducteur annule",
+          "remboursement annulation conducteur",
+          "conducteur qui annule souvent"
+        ],
+        "keywords": [
+          "conducteur",
+          "annulé",
+          "annulation",
+          "remboursement",
+          "notification",
+          "alternative",
+          "signaler",
+          "frais",
+          "jours ouvrables",
+          "automatique"
+        ],
+        "actions": [
+          "Chercher un trajet alternatif",
+          "Signaler le conducteur si récurrent"
+        ],
+        "conditions": []
+      }
+    ]
+  },
+  {
+    "id": "securite-verification",
+    "sujet": "Sécurité & Vérification",
+    "categorie": "Sécurité",
+    "intent": "securite",
+    "entity": "trajet",
+    "active": true,
+    "items": [
+      {
+        "question": "Comment les profils des membres sont-ils vérifiés ?",
+        "reponse": "Tous les comptes sont liés à une adresse email institutionnelle du Collège La Cité, ce qui garantit l'appartenance à la communauté. Pour les conducteurs, une vérification supplémentaire est requise : copie du permis de conduire valide et informations sur le véhicule (plaque, assurance). Ces documents sont examinés par notre équipe avant l'activation du mode conducteur.",
+        "variations": [
+          "comment sont vérifiés les utilisateurs",
+          "vérification des profils",
+          "comment savoir si un profil est réel",
+          "identité vérifiée",
+          "documents requis pour conduire",
+          "processus de vérification",
+          "profil certifié"
+        ],
+        "keywords": [
+          "vérification",
+          "profil",
+          "email",
+          "institutionnel",
+          "permis",
+          "véhicule",
+          "documents",
+          "conducteur",
+          "sécurité",
+          "certifié",
+          "identité",
+          "communauté"
+        ],
+        "actions": [
+          "Soumettre documents si conducteur"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Que faire en cas d'incident pendant un trajet ?",
+        "reponse": "En cas d'urgence immédiate, composez le 911. Pour tout incident lié à l'application (comportement inapproprié, accident mineur, conflit), utilisez la fonction « Signaler un incident » disponible sur la page du trajet en cours ou depuis votre historique. Décrivez l'événement avec le plus de détails possible. Notre équipe traitera votre signalement dans les 24 heures.",
+        "variations": [
+          "incident pendant un trajet",
+          "que faire en cas d'urgence",
+          "j'ai eu un accident",
+          "problème pendant le covoiturage",
+          "je me sens en danger",
+          "urgence dans la voiture",
+          "que faire si quelque chose se passe mal",
+          "comportement dangereux conducteur"
+        ],
+        "keywords": [
+          "incident",
+          "urgence",
+          "911",
+          "accident",
+          "danger",
+          "signaler",
+          "comportement",
+          "sécurité",
+          "trajet en cours",
+          "conflit",
+          "inapproprié",
+          "24 heures"
+        ],
+        "actions": [
+          "Composer le 911 si urgence",
+          "Signaler un incident via l'app"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Comment signaler un comportement inapproprié ?",
+        "reponse": "Depuis le profil d'un utilisateur ou depuis les détails d'un trajet, cliquez sur le bouton « Signaler » (⚠️). Choisissez la raison du signalement : comportement irrespectueux, trajet non conforme, informations erronées, etc. Vos coordonnées ne seront pas partagées avec la personne signalée. Tous les signalements sont pris au sérieux et peuvent entraîner la suspension du compte concerné.",
+        "variations": [
+          "signaler un utilisateur",
+          "faire un signalement",
+          "reporter un comportement",
+          "comment dénoncer un problème",
+          "signaler un conducteur",
+          "signaler un passager",
+          "quelqu'un m'a harcelé",
+          "comportement inacceptable",
+          "faire une plainte"
+        ],
+        "keywords": [
+          "signaler",
+          "signalement",
+          "comportement",
+          "inapproprié",
+          "report",
+          "plainte",
+          "bouton",
+          "profil",
+          "suspension",
+          "irrespectueux",
+          "dénoncer",
+          "harcèlement",
+          "abusif"
+        ],
+        "actions": [
+          "Bouton Signaler sur le profil ou les détails du trajet"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Comment fonctionne le système d'évaluations ?",
+        "reponse": "Après chaque trajet, conducteurs et passagers peuvent se noter mutuellement de 1 à 5 étoiles et laisser un commentaire. Ces évaluations alimentent le GoScore, notre indicateur de réputation unique dans la communauté. Un GoScore élevé renforce la confiance et peut débloquer des avantages dans l'application. Les évaluations sont publiques et visibles sur chaque profil.",
+        "variations": [
+          "comment marche les notes",
+          "système de notation",
+          "évaluer un conducteur",
+          "évaluer un passager",
+          "c'est quoi le GoScore",
+          "noter après un trajet",
+          "laisser un avis",
+          "étoiles conducteur"
+        ],
+        "keywords": [
+          "évaluation",
+          "note",
+          "étoiles",
+          "GoScore",
+          "réputation",
+          "avis",
+          "notation",
+          "conducteur",
+          "passager",
+          "commentaire",
+          "avantages",
+          "profil"
+        ],
+        "actions": [
+          "Évaluer après chaque trajet"
+        ],
+        "conditions": [
+          "Trajet complété"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "donnees-confidentialite",
+    "sujet": "Données & Confidentialité",
+    "categorie": "Données",
+    "intent": "compte",
+    "entity": "compte",
+    "active": true,
+    "items": [
+      {
+        "question": "Quelles données personnelles sont collectées ?",
+        "reponse": "Nous collectons les données nécessaires au fonctionnement du service : nom, prénom, email institutionnel, numéro de téléphone (optionnel), photo de profil (optionnelle), historique des trajets et évaluations reçues. Pour les conducteurs : permis de conduire et informations sur le véhicule. Nous collectons aussi des données d'utilisation anonymisées pour améliorer l'application. Aucune donnée n'est vendue à des tiers.",
+        "variations": [
+          "quelles informations sont collectées",
+          "données personnelles",
+          "qu'est-ce que vous gardez sur moi",
+          "vie privée",
+          "confidentialité des données",
+          "PIPEDA",
+          "protection des données"
+        ],
+        "keywords": [
+          "données",
+          "personnelles",
+          "collectées",
+          "confidentialité",
+          "PIPEDA",
+          "vie privée",
+          "email",
+          "téléphone",
+          "historique",
+          "tiers",
+          "anonymisées",
+          "protection"
+        ],
+        "actions": [],
+        "conditions": []
+      },
+      {
+        "question": "Comment supprimer mon compte et mes données ?",
+        "reponse": "Pour supprimer votre compte, accédez à « Paramètres » → « Compte » → « Supprimer mon compte ». La suppression est définitive et irréversible. Vos données personnelles sont effacées dans un délai de 30 jours, conformément à la loi PIPEDA. Certaines données peuvent être conservées sous forme anonymisée à des fins statistiques. Votre historique de trajets actifs doit être réglé avant la suppression.",
+        "variations": [
+          "fermer mon compte",
+          "je veux quitter la plateforme",
+          "supprimer toutes mes données",
+          "effacer mon compte",
+          "désactiver mon compte",
+          "comment partir de l'application",
+          "supprimer mon profil définitivement"
+        ],
+        "keywords": [
+          "supprimer",
+          "compte",
+          "données",
+          "effacer",
+          "fermer",
+          "désactiver",
+          "PIPEDA",
+          "paramètres",
+          "définitif",
+          "irréversible",
+          "30 jours",
+          "quitter"
+        ],
+        "actions": [
+          "Paramètres → Compte → Supprimer mon compte"
+        ],
+        "conditions": [
+          "Régler les trajets actifs avant suppression"
+        ]
+      },
+      {
+        "question": "Puis-je télécharger une copie de mes données ?",
+        "reponse": "Oui, conformément à la loi PIPEDA, vous avez le droit d'accéder à vos données. Rendez-vous dans « Paramètres » → « Confidentialité » → « Télécharger mes données ». Vous recevrez un fichier JSON contenant toutes vos informations : profil, trajets, réservations et évaluations. La demande est traitée dans un délai de 5 jours ouvrables.",
+        "variations": [
+          "exporter mes données",
+          "copie de mes informations",
+          "télécharger mon historique",
+          "accéder à mes données",
+          "droit d'accès aux données",
+          "obtenir mes données personnelles"
+        ],
+        "keywords": [
+          "télécharger",
+          "données",
+          "exporter",
+          "copie",
+          "JSON",
+          "PIPEDA",
+          "droit",
+          "accès",
+          "paramètres",
+          "confidentialité",
+          "5 jours",
+          "fichier"
+        ],
+        "actions": [
+          "Paramètres → Confidentialité → Télécharger mes données"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "L'application partage-t-elle ma position GPS en permanence ?",
+        "reponse": "Non. La géolocalisation n'est activée que pendant un trajet en cours et uniquement avec le consentement explicite de l'utilisateur. En dehors des trajets actifs, votre position n'est pas trackée. Pour les trajets, la position est partagée entre conducteur et passagers concernés uniquement, et n'est pas conservée au-delà de la durée du trajet.",
+        "variations": [
+          "est-ce que vous trackez ma position",
+          "GPS en permanence",
+          "géolocalisation application",
+          "suivi de position",
+          "vous espionnez ma localisation",
+          "ma position est-elle partagée",
+          "localisation temps réel"
+        ],
+        "keywords": [
+          "GPS",
+          "position",
+          "géolocalisation",
+          "tracker",
+          "localisation",
+          "espionnage",
+          "partage",
+          "trajet",
+          "consentement",
+          "temps réel",
+          "permanence",
+          "active"
+        ],
+        "actions": [],
+        "conditions": []
+      }
+    ]
+  },
+  {
+    "id": "paiements-finances",
+    "sujet": "Paiements & Finances",
+    "categorie": "Paiements",
+    "intent": "paiement",
+    "entity": "paiement",
+    "active": true,
+    "items": [
+      {
+        "question": "Comment fonctionnent les paiements sur la plateforme ?",
+        "reponse": "Les paiements s'effectuent directement dans l'application via notre système sécurisé. En tant que passager, le montant est prélevé lors de la confirmation du trajet et versé au conducteur après l'arrivée. Les conducteurs peuvent consulter leur solde et demander un virement dans la section « Finances » de leur tableau de bord. Les transactions sont chiffrées et conformes aux normes PCI-DSS.",
+        "variations": [
+          "comment payer un trajet",
+          "système de paiement",
+          "comment sont gérés les paiements",
+          "paiement sécurisé",
+          "comment je reçois mon argent",
+          "virement conducteur",
+          "comment fonctionne la facturation"
+        ],
+        "keywords": [
+          "paiement",
+          "payer",
+          "virement",
+          "solde",
+          "finances",
+          "sécurisé",
+          "PCI-DSS",
+          "transaction",
+          "conducteur",
+          "passager",
+          "montant",
+          "prélevé"
+        ],
+        "actions": [
+          "Section Finances du tableau de bord"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Comment consulter mon historique de transactions ?",
+        "reponse": "Accédez à la section « Finances » de votre tableau de bord pour voir l'ensemble de vos transactions : paiements effectués, revenus perçus, et solde actuel. Chaque transaction affiche la date, le montant, le trajet associé et le statut (complété, en attente, remboursé). Vous pouvez exporter votre historique en PDF pour vos dossiers personnels.",
+        "variations": [
+          "voir mes paiements",
+          "historique des transactions",
+          "mes finances",
+          "voir mes revenus",
+          "consulter mon solde",
+          "liste des paiements effectués",
+          "exporter mes transactions"
+        ],
+        "keywords": [
+          "historique",
+          "transactions",
+          "paiements",
+          "revenus",
+          "solde",
+          "finances",
+          "PDF",
+          "exporter",
+          "tableau de bord",
+          "montant",
+          "statut",
+          "consulter"
+        ],
+        "actions": [
+          "Section Finances du tableau de bord",
+          "Exporter en PDF"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Que faire si je conteste un paiement ?",
+        "reponse": "Si vous constatez une erreur de paiement, contactez notre support dans les 7 jours suivant la transaction via la section « Contact » ou par email à support@lacitec.on.ca. Décrivez la situation avec le numéro de trajet et le montant concerné. Notre équipe examine les contestations dans les 48 heures et procède au remboursement si nécessaire.",
+        "variations": [
+          "contester un paiement",
+          "erreur de paiement",
+          "paiement incorrect",
+          "je n'aurais pas dû être chargé",
+          "remboursement paiement",
+          "paiement en double",
+          "problème avec mon paiement",
+          "demander un remboursement"
+        ],
+        "keywords": [
+          "contester",
+          "erreur",
+          "paiement",
+          "remboursement",
+          "support",
+          "48 heures",
+          "7 jours",
+          "numéro de trajet",
+          "email",
+          "contact",
+          "incorrect",
+          "double"
+        ],
+        "actions": [
+          "Contacter support@lacitec.on.ca",
+          "Section Contact de l'application"
+        ],
+        "conditions": [
+          "Dans les 7 jours suivant la transaction"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "support-technique",
+    "sujet": "Support Technique",
+    "categorie": "Technique",
+    "intent": "compte",
+    "entity": "compte",
+    "active": true,
+    "items": [
+      {
+        "question": "L'application ne fonctionne pas correctement, que faire ?",
+        "reponse": "Commencez par vérifier votre connexion internet. Ensuite, essayez de vider le cache de votre navigateur (Ctrl+Shift+Delete sur PC, Cmd+Shift+Delete sur Mac) et rechargez la page. Si le problème persiste, déconnectez-vous puis reconnectez-vous. Pour l'application mobile, fermez et relancez l'application. Si aucune de ces solutions ne fonctionne, contactez notre support avec une capture d'écran de l'erreur.",
+        "variations": [
+          "l'app ne marche pas",
+          "bug dans l'application",
+          "l'application plante",
+          "page ne charge pas",
+          "erreur sur la plateforme",
+          "l'application est lente",
+          "problème technique",
+          "l'appli bug",
+          "ça ne fonctionne pas",
+          "l'application a planté",
+          "je ne peux pas accéder à l'application"
+        ],
+        "keywords": [
+          "application",
+          "fonctionne",
+          "bug",
+          "erreur",
+          "technique",
+          "cache",
+          "navigateur",
+          "connexion",
+          "recharger",
+          "mobile",
+          "plantée",
+          "lente",
+          "problème",
+          "plante",
+          "support"
+        ],
+        "actions": [
+          "Vérifier la connexion internet",
+          "Vider le cache du navigateur",
+          "Se déconnecter puis reconnecter",
+          "Contacter le support avec capture d'écran"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "La carte de covoiturage ne s'affiche pas, comment résoudre le problème ?",
+        "reponse": "Assurez-vous d'avoir autorisé l'accès à la géolocalisation dans les paramètres de votre navigateur ou de votre téléphone. Vérifiez que votre connexion internet est stable — les cartes interactives nécessitent une bonne bande passante. Essayez de désactiver les extensions de navigateur (adblockeurs) qui peuvent interférer avec le chargement des cartes Leaflet utilisées par la plateforme.",
+        "variations": [
+          "la carte ne charge pas",
+          "carte blanche",
+          "carte introuvable",
+          "map ne s'affiche pas",
+          "problème avec la carte",
+          "carte grisée",
+          "la carte est vide"
+        ],
+        "keywords": [
+          "carte",
+          "map",
+          "affiche",
+          "géolocalisation",
+          "navigateur",
+          "adblockeur",
+          "extension",
+          "Leaflet",
+          "bande passante",
+          "connexion",
+          "charger",
+          "problème"
+        ],
+        "actions": [
+          "Autoriser la géolocalisation",
+          "Désactiver les adblockeurs",
+          "Vérifier la connexion internet"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Je ne reçois pas de notifications, comment les activer ?",
+        "reponse": "Vérifiez d'abord que les notifications sont activées dans les paramètres de votre compte (section « Notifications »). Ensuite, vérifiez les paramètres de notifications de votre navigateur ou de votre téléphone pour Covoiturage La Cité. Sur mobile, assurez-vous que l'application est autorisée à envoyer des notifications dans les paramètres système. Les notifications Push nécessitent une connexion active.",
+        "variations": [
+          "notifications désactivées",
+          "je ne reçois rien",
+          "comment activer les alertes",
+          "push notifications",
+          "notification ne marche pas",
+          "aucune notification reçue",
+          "activer les notifications"
+        ],
+        "keywords": [
+          "notifications",
+          "alertes",
+          "push",
+          "activer",
+          "paramètres",
+          "téléphone",
+          "navigateur",
+          "mobile",
+          "connexion",
+          "désactivées",
+          "recevoir"
+        ],
+        "actions": [
+          "Vérifier paramètres Notifications du compte",
+          "Autoriser notifications dans le navigateur ou téléphone"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Comment contacter le support technique ?",
+        "reponse": "Vous pouvez nous contacter via plusieurs canaux : (1) Le formulaire de contact sur la page Contact de l'application, (2) Par email à support@lacitec.on.ca avec un délai de réponse de 24-48h, (3) En personne au bureau des services informatiques du Collège La Cité pendant les heures d'ouverture. Pour les urgences (incidents de sécurité), merci d'indiquer « URGENT » dans le sujet de votre email.",
+        "variations": [
+          "contacter le support",
+          "aide humaine",
+          "parler à quelqu'un",
+          "email support",
+          "service client",
+          "équipe support",
+          "besoin d'aide",
+          "signaler un problème au support",
+          "où trouver de l'aide"
+        ],
+        "keywords": [
+          "support",
+          "contact",
+          "aide",
+          "email",
+          "formulaire",
+          "bureau",
+          "informatique",
+          "urgence",
+          "24 heures",
+          "48 heures",
+          "service client",
+          "humain"
+        ],
+        "actions": [
+          "Formulaire de contact",
+          "Email support@lacitec.on.ca",
+          "Bureau des services informatiques"
+        ],
+        "conditions": []
+      }
+    ]
+  },
+  {
+    "id": "accessibilite-inclusive",
+    "sujet": "Accessibilité & Inclusion",
+    "categorie": "Accessibilité",
+    "intent": "compte",
+    "entity": "compte",
+    "active": true,
+    "items": [
+      {
+        "question": "La plateforme est-elle accessible aux personnes en situation de handicap ?",
+        "reponse": "Oui, nous nous engageons à rendre Covoiturage La Cité accessible à tous. La plateforme web est développée progressivement selon les normes WCAG 2.1 niveau AA : navigation au clavier complète, compatibilité avec les lecteurs d'écran, contraste suffisant et textes alternatifs sur toutes les images. Si vous rencontrez une barrière d'accessibilité, signalez-la nous via le formulaire de contact — nous la traitons en priorité.",
+        "variations": [
+          "accessibilité pour personnes handicapées",
+          "site accessible",
+          "lecteur d'écran",
+          "navigation clavier",
+          "WCAG",
+          "barrière d'accessibilité",
+          "personnes à mobilité réduite",
+          "est-ce accessible",
+          "handicap et covoiturage",
+          "accessible en fauteuil roulant"
+        ],
+        "keywords": [
+          "accessible",
+          "accessibilité",
+          "handicap",
+          "WCAG",
+          "lecteur écran",
+          "clavier",
+          "contraste",
+          "images",
+          "barrière",
+          "inclusion",
+          "mobilité réduite",
+          "fauteuil roulant"
+        ],
+        "actions": [
+          "Formulaire de contact pour signaler une barrière d'accessibilité"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "Puis-je signaler un besoin d'accessibilité particulier pour un trajet ?",
+        "reponse": "Lors de votre inscription ou depuis votre profil, vous pouvez indiquer vos besoins spécifiques (fauteuil roulant, aide à la montée, espace pour équipement médical, etc.). Ces informations sont visibles par les conducteurs lors des demandes de réservation afin qu'ils puissent s'assurer que leur véhicule est adapté à vos besoins avant d'accepter votre demande.",
+        "variations": [
+          "besoins spéciaux pour un trajet",
+          "fauteuil roulant dans le trajet",
+          "besoin d'aide pour monter dans la voiture",
+          "équipement médical",
+          "indiquer mes besoins",
+          "accessibilité véhicule",
+          "signaler un besoin particulier"
+        ],
+        "keywords": [
+          "besoin",
+          "accessibilité",
+          "fauteuil roulant",
+          "médical",
+          "spécifique",
+          "profil",
+          "inscription",
+          "conducteur",
+          "véhicule",
+          "adapté",
+          "monter",
+          "aide"
+        ],
+        "actions": [
+          "Indiquer les besoins dans le profil"
+        ],
+        "conditions": []
+      },
+      {
+        "question": "La plateforme est-elle disponible en anglais ?",
+        "reponse": "Oui, Covoiturage La Cité est entièrement disponible en français et en anglais. Utilisez le bouton de langue (FR / EN) dans le coin supérieur droit de l'application pour basculer entre les deux langues à tout moment. Votre préférence linguistique est sauvegardée dans votre compte et s'applique automatiquement à chaque connexion.",
+        "variations": [
+          "utiliser l'application en anglais",
+          "changer la langue",
+          "version anglaise",
+          "is it available in English",
+          "langue de l'application",
+          "FR ou EN",
+          "basculer en anglais"
+        ],
+        "keywords": [
+          "anglais",
+          "langue",
+          "français",
+          "EN",
+          "FR",
+          "basculer",
+          "bouton langue",
+          "préférence",
+          "disponible",
+          "version",
+          "changer langue"
+        ],
+        "actions": [
+          "Bouton FR/EN en haut à droite"
+        ],
+        "conditions": []
+      }
+    ]
+  }
+]

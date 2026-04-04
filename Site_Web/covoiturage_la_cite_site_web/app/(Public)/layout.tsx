@@ -1,10 +1,10 @@
-import { Header } from '@/features/homepage/component/header';
+import { PublicHeaderWrapper } from './PublicHeaderWrapper';
 import { Footer } from '@/shared/components/footer';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 text-gray-900">
-      <Header />
+    <div className="min-h-screen flex flex-col bg-white text-gray-900">
+      <PublicHeaderWrapper />
       <main lang="fr" className="grow">
         {children}
       </main>

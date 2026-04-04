@@ -139,3 +139,40 @@ public class WebSessionKeyRepository : IWebSessionKeyRepository
 
     public Task SaveChangesAsync(CancellationToken ct) => _db.SaveChangesAsync(ct);
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AuthSessionRepository
+// ═══════════════════════════════════════════════════════════════════════════
+public class AuthSessionRepository : IAuthSessionRepository
+{
+    private readonly AppDbContext _db;
+    public AuthSessionRepository(AppDbContext db) => _db = db;
+
+    public Task<AuthSession?> GetByIdKeyHashAsync(string idKeyHash, CancellationToken ct)
+        => _db.AuthSessions.FirstOrDefaultAsync(s => s.IdKeyHash == idKeyHash, ct);
+
+    public Task<AuthSession?> GetByPublicIdAsync(string publicId, CancellationToken ct)
+        => _db.AuthSessions.FirstOrDefaultAsync(s => s.PublicId == publicId, ct);
+
+    public async Task AddAsync(AuthSession session, CancellationToken ct)
+    {
+        await _db.AuthSessions.AddAsync(session, ct);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task UpdateAsync(AuthSession session, CancellationToken ct)
+    {
+        _db.AuthSessions.Update(session);
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task DeleteExpiredAsync(CancellationToken ct)
+    {
+        var now = DateTimeOffset.UtcNow;
+        await _db.AuthSessions
+            .Where(s => s.ExpiresAt < now || (s.IsBlocked && s.BlockedUntil.HasValue && s.BlockedUntil < now))
+            .ExecuteDeleteAsync(ct);
+    }
+
+    public Task SaveChangesAsync(CancellationToken ct) => _db.SaveChangesAsync(ct);
+}

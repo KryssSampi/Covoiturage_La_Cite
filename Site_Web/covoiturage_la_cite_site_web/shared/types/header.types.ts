@@ -63,10 +63,19 @@ export function buildAvatarMenuItems(role: string, id: string): NavItem[] {
 
 export function buildExtraPageTitles(role: string, id: string): NavItem[] {
   return [
-    { labelFR: "Recherche",       labelEN: "Search",      href: `/${role}/search/${id}`    },
-    { labelFR: "Nouveau trajet",  labelEN: "New Trip",    href: `/driver/create-trip/${id}`},
-    { labelFR: "Détail du trajet",labelEN: "Trip Details",href: `/trajets`                 },
-    { labelFR: "Notifications",   labelEN: "Notifications",href: `/notifications`           },
-    { labelFR: "Trajet en cours", labelEN: "Ongoing Trip",href: `/trajet-en-cours`          },
+    { labelFR: "Recherche",        labelEN: "Search",         href: `/${role}/search/${id}`     },
+    { labelFR: "Nouveau trajet",   labelEN: "New Trip",       href: `/driver/create-trip/${id}` },
+    { labelFR: "Détail du trajet", labelEN: "Trip Details",   href: `/trajets`                  },
+    { labelFR: "Notifications",    labelEN: "Notifications",  href: `/notifications`            },
+    { labelFR: "Trajet en cours",  labelEN: "Ongoing Trip",   href: `/trajet-en-cours`          },
+    // ── Pages publiques ──────────────────────────────────────────────────
+    { labelFR: "À propos",          labelEN: "About",          href: "/about"             },
+    { labelFR: "Contact",            labelEN: "Contact",        href: "/contact"           },
+    { labelFR: "Comment ça marche", labelEN: "How it works",   href: "/comment-ca-marche" },
+    { labelFR: "Sécurité",          labelEN: "Safety",         href: "/securite"          },
+    { labelFR: "CGU",               labelEN: "Terms",          href: "/conditions"        },
+    { labelFR: "Confidentialité",   labelEN: "Privacy",        href: "/confidentialite"   },
+    { labelFR: "Accessibilité",     labelEN: "Accessibility",  href: "/accessibilite"     },
+    { labelFR: "Maintenance",       labelEN: "Maintenance",    href: "/maintenance"       },
   ];
 }

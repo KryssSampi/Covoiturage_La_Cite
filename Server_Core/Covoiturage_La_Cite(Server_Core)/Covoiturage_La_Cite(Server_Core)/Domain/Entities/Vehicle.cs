@@ -15,6 +15,10 @@ public class Vehicle
     public bool IsActive { get; set; }
     public bool IsDefault { get; set; }
     public string? PhotoUrl { get; set; }
+    /// <summary>Vérifié par un admin. Apparaît dans la console admin tant que false.</summary>
+    public bool Verified { get; set; }
+    /// <summary>URLs des photos du véhicule soumises lors de l'onboarding (jusqu'à 6).</summary>
+    public List<string> VehiclePhotoUrls { get; set; } = new();
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 

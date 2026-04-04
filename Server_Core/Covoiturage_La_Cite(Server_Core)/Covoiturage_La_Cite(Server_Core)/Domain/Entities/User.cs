@@ -8,6 +8,7 @@ public class User
     public Guid Id { get; set; }
     public string Email { get; set; } = string.Empty;
     public string MicrosoftSsoId { get; set; } = string.Empty;
+    public string? PasswordHash { get; set; }
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string? AvatarUrl { get; set; }
@@ -19,6 +20,16 @@ public class User
     public bool IsProfileVerified { get; set; }
     public bool CanBeDriver { get; set; }
     public int GoScore { get; set; }
+
+    // ── Flags d'onboarding ────────────────────────────────────────────────────
+    /// <summary>L'utilisateur a accepté la politique d'utilisation lors de l'onboarding.</summary>
+    public bool AlreadySignPolitics { get; set; }
+    /// <summary>L'utilisateur (conducteur) a soumis tous ses documents de véhicule.</summary>
+    public bool AlreadySubmittedAllVehiculeDocument { get; set; }
+    /// <summary>L'utilisateur a configuré une photo de profil.</summary>
+    public bool AlreadySetAProfilePicture { get; set; }
+    /// <summary>L'onboarding complet a été terminé au moins une fois.</summary>
+    public bool OnboardingCompleted { get; set; }
     public int ReputationPoints { get; set; }
     public string Language { get; set; } = "fr";
     public DateTimeOffset CreatedAt { get; set; }

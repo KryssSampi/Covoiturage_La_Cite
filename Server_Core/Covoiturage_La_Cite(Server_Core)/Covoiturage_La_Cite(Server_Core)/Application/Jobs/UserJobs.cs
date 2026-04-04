@@ -160,6 +160,60 @@ public class WeeklyReportJob
 }
 
 /// <summary>
+/// Supprime (soft-delete) les comptes inactifs depuis plus de 6 mois.
+///
+/// Couche de non-répudiation : le compte est marqué Deleted (DeletedAt + Status),
+/// mais n'est PAS physiquement supprimé. Si l'utilisateur revient avec le même email
+/// institutionnel, la preuve d'appartenance (@collegelacite.ca) est retrouvée.
+///
+/// Exclusions : admins, comptes déjà supprimés ou bannis, comptes PendingVerification récents.
+/// </summary>
+public class AccountLifecycleJob
+{
+    private readonly AppDbContext _db;
+    private readonly ILogger<AccountLifecycleJob> _logger;
+
+    public AccountLifecycleJob(AppDbContext db, ILogger<AccountLifecycleJob> logger)
+    {
+        _db = db;
+        _logger = logger;
+    }
+
+    public async Task ExecuteAsync()
+    {
+        var cutoff = DateTimeOffset.UtcNow.AddMonths(-6);
+
+        var inactiveUsers = await _db.Users
+            .Where(u =>
+                u.Status == Domain.Enums.UserStatus.Active &&
+                u.Role != Domain.Enums.UserRole.Admin &&
+                (
+                    (u.LastLoginAt != null && u.LastLoginAt < cutoff) ||
+                    (u.LastLoginAt == null && u.CreatedAt < cutoff)
+                )
+            )
+            .ToListAsync();
+
+        if (inactiveUsers.Count == 0)
+        {
+            _logger.LogDebug("AccountLifecycle: aucun compte inactif à supprimer");
+            return;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        foreach (var user in inactiveUsers)
+        {
+            user.DeletedAt = now;
+            user.Status = Domain.Enums.UserStatus.Deleted;
+            user.UpdatedAt = now;
+        }
+
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("AccountLifecycle: {Count} comptes inactifs (>6 mois) supprimés", inactiveUsers.Count);
+    }
+}
+
+/// <summary>
 /// Vérifie et attribue automatiquement les badges aux utilisateurs.
 /// </summary>
 public class BadgeAwardCheckJob

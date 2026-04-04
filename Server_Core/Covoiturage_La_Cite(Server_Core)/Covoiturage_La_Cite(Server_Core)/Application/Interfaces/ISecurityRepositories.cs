@@ -45,3 +45,14 @@ public interface IWebSessionKeyRepository
     Task RevokeAllByUserAsync(Guid userId, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
 }
+
+// ── AuthSession ─────────────────────────────────────────────────────────────
+public interface IAuthSessionRepository
+{
+    Task<AuthSession?> GetByIdKeyHashAsync(string idKeyHash, CancellationToken ct = default);
+    Task<AuthSession?> GetByPublicIdAsync(string publicId, CancellationToken ct = default);
+    Task AddAsync(AuthSession session, CancellationToken ct = default);
+    Task UpdateAsync(AuthSession session, CancellationToken ct = default);
+    Task DeleteExpiredAsync(CancellationToken ct = default);
+    Task SaveChangesAsync(CancellationToken ct = default);
+}

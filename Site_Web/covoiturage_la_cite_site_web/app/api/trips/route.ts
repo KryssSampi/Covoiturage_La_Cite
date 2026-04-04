@@ -20,7 +20,7 @@ export async function GET(req: Request) {
       if (!result.success) {
         return NextResponse.json({ error: result.message }, { status: 500 });
       }
-      return NextResponse.json(result.data);
+      return NextResponse.json(result.data?.items ?? []);
     }
 
     // Sinon → recherche (mode listing)
@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     if (!result.success) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
-    return NextResponse.json(result.data);
+    return NextResponse.json(result.data?.items ?? []);
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }

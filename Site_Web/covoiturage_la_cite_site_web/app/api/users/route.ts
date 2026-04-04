@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     const search = searchParams.get('search') ?? undefined;
 
     const auth = await withAuth(req);
-    const result = await UserService.getAll({ page, pageSize, search }, auth);
+    const result = await UserService.getAll(page, pageSize, search, auth);
 
     if (!result.success) {
       return NextResponse.json({ error: result.message }, { status: 500 });

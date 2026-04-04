@@ -1,13 +1,6 @@
 'use client';
 
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import { TripService } from '@/core/services/trip.service';
-import { ReservationService } from '@/core/services/reservation.service';
-import { NotificationService } from '@/core/services/notification.service';
-import { VehicleService } from '@/core/services/vehicle.service';
-import { UserService } from '@/core/services/user.service';
-import { ReviewService } from '@/core/services/review.service';
-import { staticDb } from '@/tests/db/StaticDb';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import type { TripModel } from '@/core/models/TripModel';
 import type { ReservationModel } from '@/core/models/ReservationModel';
 import type { NotificationModel } from '@/core/models/NotificationModel';
@@ -70,118 +63,32 @@ export function DbProvider({ children }: { children: React.ReactNode }) {
   const appState = useAppState();
   const currentUser = appState.userConnected;
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [trips, setTrips] = useState<TripModel[]>([]);
-  const [reservations, setReservations] = useState<ReservationModel[]>([]);
-  const [notifications, setNotifications] = useState<NotificationModel[]>([]);
-  const [vehicles, setVehicles] = useState<VehicleModel[]>([]);
-  const [users, setUsers] = useState<UserModel[]>([]);
-  const [reviews, setReviews] = useState<ReviewModel[]>([]);
-  const [indisponibilities, setIndisponibilities] = useState<IndisponibilityModel[]>([]);
+  // ──────────────────────────────────────────────────────────────────────────
+  // NOTE : L'ancien système self-service (/api/db/*) est désactivé (503).
+  // Les données de ce contexte ne sont plus alimentées.
+  // Les pages migrent progressivement vers les API Server Core
+  // (ex. /api/dashboard/*, /api/notifications, /api/finances, etc.).
+  // En attendant la suppression complète de DbProvider, on renvoie des
+  // tableaux vides pour éviter la tempête de 503 et l'overflow de rendu.
+  // ──────────────────────────────────────────────────────────────────────────
 
-  const refreshTrips = useCallback(async () => {
-    staticDb.invalidate('trips');
-    const data = await TripService.getAll();
-    setTrips(data);
-  }, []);
+  const [isLoading] = useState(false);
+  const [error] = useState<string | null>(null);
+  const [trips] = useState<TripModel[]>([]);
+  const [reservations] = useState<ReservationModel[]>([]);
+  const [notifications] = useState<NotificationModel[]>([]);
+  const [vehicles] = useState<VehicleModel[]>([]);
+  const [users] = useState<UserModel[]>([]);
+  const [reviews] = useState<ReviewModel[]>([]);
+  const [indisponibilities] = useState<IndisponibilityModel[]>([]);
 
-  const refreshReservations = useCallback(async () => {
-    staticDb.invalidate('reservations');
-    const data = await ReservationService.getAll();
-    setReservations(data);
-  }, []);
-
-  const refreshNotifications = useCallback(async () => {
-    staticDb.invalidate('notifications');
-    const data = await NotificationService.getAll();
-    setNotifications(data);
-  }, []);
-
-  const refreshVehicles = useCallback(async () => {
-    staticDb.invalidate('vehicles');
-    const data = await VehicleService.getAll();
-    setVehicles(data);
-  }, []);
-
-  const refreshUsers = useCallback(async () => {
-    staticDb.invalidate('users');
-    const data = await UserService.getAll();
-    setUsers(data);
-  }, []);
-
-  const refreshReviews = useCallback(async () => {
-    staticDb.invalidate('reviews');
-    const data = await ReviewService.getAll();
-    setReviews(data);
-  }, []);
-
-  const refreshIndisponibilities = useCallback(async () => {
-    const data = await fetch('/api/db/indisponibilities', { cache: 'no-store' }).then(async (res) => {
-      if (!res.ok) {
-        throw new Error(`[DbProvider] indisponibilities ${res.status}`);
-      }
-      return res.json() as Promise<IndisponibilityModel[]>;
-    });
-    setIndisponibilities(data);
-  }, []);
-
-  const refreshAll = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      await Promise.all([
-        refreshTrips(),
-        refreshReservations(),
-        refreshNotifications(),
-        refreshVehicles(),
-        refreshUsers(),
-        refreshReviews(),
-        refreshIndisponibilities(),
-      ]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur de chargement');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [refreshTrips, refreshReservations, refreshNotifications, refreshVehicles, refreshUsers, refreshReviews, refreshIndisponibilities]);
-
-  // Chargement initial
-  useEffect(() => {
-    refreshAll();
-  }, [refreshAll]);
-
-  // ── Mises à jour temps réel via SSE db-watch ──────────────────────────────
-  // Pour chaque entité surveillée, un EventSource écoute les événements 'update'
-  // et déclenche un refresh ciblé — sans polling manuel.
-  useEffect(() => {
-    if (typeof EventSource === 'undefined') return;
-
-    const handlers: { es: EventSource; entity: string }[] = [];
-
-    function watch(entity: string, onUpdate: () => void) {
-      const es = new EventSource(`/api/sse/db-watch/${entity}`);
-      // L'événement initial 'update' au connect est ignoré (données déjà chargées).
-      // On ne réagit qu'aux suivants (vraies modifications).
-      let firstEvent = true;
-      es.addEventListener('update', () => {
-        if (firstEvent) { firstEvent = false; return; }
-        onUpdate();
-      });
-      es.onerror = () => { /* reconnexion automatique du navigateur */ };
-      handlers.push({ es, entity });
-    }
-
-    watch('trips',         () => void refreshTrips());
-    watch('reservations',  () => void refreshReservations());
-    watch('notifications', () => void refreshNotifications());
-    watch('reviews',       () => void refreshReviews());
-
-    return () => {
-      handlers.forEach(({ es }) => es.close());
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const noop = useCallback(async () => {}, []);
+  const refreshTrips = noop;
+  const refreshReservations = noop;
+  const refreshNotifications = noop;
+  const refreshReviews = noop;
+  const refreshIndisponibilities = noop;
+  const refreshAll = noop;
 
   // Données filtrées pour l'utilisateur courant
   const userId = currentUser?.id ?? null;

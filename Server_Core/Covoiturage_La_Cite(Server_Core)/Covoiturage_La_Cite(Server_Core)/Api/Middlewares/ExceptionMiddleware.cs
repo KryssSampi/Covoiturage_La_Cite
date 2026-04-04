@@ -34,11 +34,11 @@ public class ExceptionMiddleware
 
         var (statusCode, message) = exception switch
         {
-            UnauthorizedAccessException => (HttpStatusCode.Unauthorized, "Non autorisé"),
-            KeyNotFoundException        => (HttpStatusCode.NotFound, "Ressource introuvable"),
-            ArgumentException           => (HttpStatusCode.BadRequest, exception.Message),
-            InvalidOperationException   => (HttpStatusCode.Conflict, exception.Message),
-            _                           => (HttpStatusCode.InternalServerError, "Une erreur interne est survenue")
+            UnauthorizedAccessException e => (HttpStatusCode.Unauthorized, string.IsNullOrWhiteSpace(e.Message) ? "Non autorisé" : e.Message),
+            KeyNotFoundException          => (HttpStatusCode.NotFound, "Ressource introuvable"),
+            ArgumentException             => (HttpStatusCode.BadRequest, exception.Message),
+            InvalidOperationException     => (HttpStatusCode.Conflict, exception.Message),
+            _                             => (HttpStatusCode.InternalServerError, "Une erreur interne est survenue")
         };
 
         context.Response.StatusCode = (int)statusCode;

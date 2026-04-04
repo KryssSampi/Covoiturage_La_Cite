@@ -1,0 +1,23 @@
+# Talki — .gitignore
+
+# Sécurité — ne jamais committer
+.env
+.env.local
+.env.*.local
+*.example
+
+# Modèles HuggingFace (lourds)
+models/
+
+# Données runtime
+data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+# Logs
+logs/
+*.log
