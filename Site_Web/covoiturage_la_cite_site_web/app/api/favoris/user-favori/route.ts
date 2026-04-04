@@ -1,23 +1,16 @@
 import { NextResponse } from 'next/server';
-import { FavoriteService } from '@/server/services/SocialService';
-import { withAuth } from '@/server/auth';
+import { setUserFavori, unsetUserFavori } from '@/core/services/favoris-api.service';
 
 export async function POST(req: Request) {
   try {
-    const { targetUserId } = (await req.json()) as { targetUserId?: string };
+    const { userId, targetUserId } = (await req.json()) as { userId?: string; targetUserId?: string };
 
-    if (!targetUserId) {
-      return NextResponse.json({ error: 'targetUserId requis' }, { status: 400 });
+    if (!userId || !targetUserId) {
+      return NextResponse.json({ error: 'userId et targetUserId requis' }, { status: 400 });
     }
 
-    const auth = await withAuth(req);
-    const result = await FavoriteService.toggle(targetUserId, auth);
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.message }, { status: 400 });
-    }
-
-    return NextResponse.json(result.data);
+    const { affinite, created } = setUserFavori(userId, targetUserId);
+    return NextResponse.json(affinite, { status: created ? 201 : 200 });
   } catch {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
@@ -26,17 +19,15 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const targetUserId = searchParams.get('targetUserId');
+    const affiniteId = searchParams.get('affiniteId');
 
-    if (!targetUserId) {
-      return NextResponse.json({ error: 'targetUserId requis' }, { status: 400 });
+    if (!affiniteId) {
+      return NextResponse.json({ error: 'affiniteId requis' }, { status: 400 });
     }
 
-    const auth = await withAuth(req);
-    const result = await FavoriteService.toggle(targetUserId, auth);
-
-    if (!result.success) {
-      return NextResponse.json({ error: result.message }, { status: 404 });
+    const updated = unsetUserFavori(affiniteId);
+    if (!updated) {
+      return NextResponse.json({ error: 'Affinité introuvable' }, { status: 404 });
     }
 
     return NextResponse.json({ success: true });

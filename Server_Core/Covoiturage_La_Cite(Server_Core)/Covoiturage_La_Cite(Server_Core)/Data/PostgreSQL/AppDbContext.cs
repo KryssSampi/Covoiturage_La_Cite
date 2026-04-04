@@ -58,6 +58,7 @@ public class AppDbContext : DbContext
     public DbSet<UserSecurityActivity> UserSecurityActivities => Set<UserSecurityActivity>();
     public DbSet<WebSessionKey> WebSessionKeys => Set<WebSessionKey>();
     public DbSet<CertificateRotationEvent> CertificateRotationEvents => Set<CertificateRotationEvent>();
+    public DbSet<AuthSession> AuthSessions => Set<AuthSession>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -286,6 +287,15 @@ public class AppDbContext : DbContext
         {
             e.HasKey(c => c.Id);
             e.HasIndex(c => new { c.UserId, c.EcoChallengeId }).IsUnique();
+        });
+
+        // ── AuthSession ───────────────────────────────────────────────────────
+        modelBuilder.Entity<AuthSession>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.HasIndex(a => a.IdKeyHash).IsUnique();
+            e.HasIndex(a => a.PublicId).IsUnique();
+            e.HasIndex(a => a.ExpiresAt); // pour le cleanup
         });
     }
 }

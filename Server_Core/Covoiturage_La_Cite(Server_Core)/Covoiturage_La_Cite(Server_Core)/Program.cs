@@ -32,8 +32,10 @@ using Covoiturage_La_Cite_Server_Core_.Application.Jobs;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Matching;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Security;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.SecurityRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Auth;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Pipeda;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.PipedaRepository;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Onboarding;
 using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -58,7 +60,9 @@ try
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(
             builder.Configuration.GetConnectionString("DefaultConnection"),
-            o => o.UseNetTopologySuite()));
+            o => o.UseNetTopologySuite())
+        .ConfigureWarnings(w => w
+            .Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)));
 
     // ── MongoDB ──────────────────────────────────────────────────────────────
     builder.Services.AddSingleton<MongoDbContext>();
@@ -110,6 +114,12 @@ try
     // P0 — Auth
     builder.Services.AddScoped<TokenService>();
     builder.Services.AddScoped<MicrosoftSsoService>();
+    builder.Services.AddSingleton<SessionCodeService>();
+    builder.Services.AddHostedService<SessionCodeCleanupService>();
+    builder.Services.AddScoped<IAuthSessionRepository, AuthSessionRepository>();
+    builder.Services.AddScoped<IAuthSessionService, AuthSessionService>();
+    builder.Services.AddScoped<IEmailService, EmailService>();
+    builder.Services.AddHostedService<AuthSessionCleanupService>();
 
     // P1 — Users & Auth
     builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -122,6 +132,9 @@ try
     // P3 — Réservations
     builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
     builder.Services.AddScoped<IReservationService, ReservationService>();
+
+    // Onboarding
+    builder.Services.AddScoped<IOnboardingService, OnboardingService>();
 
     // P4 — Véhicules
     builder.Services.AddScoped<IVehiculeRepository, VehiculeRepository>();
@@ -209,9 +222,13 @@ try
         app.UseSwaggerUI();
     }
 
-    app.UseHttpsRedirection();
+    if (!app.Environment.IsDevelopment())
+        app.UseHttpsRedirection();
+
     app.UseCors("WebClientOnly");
     app.UseAuthentication();
+    app.UseMiddleware<WebSessionKeyMiddleware>();
+    // app.UseMiddleware<CertificateValidationMiddleware>(); // Activer lors du sprint mobile
     app.UseAuthorization();
 
     // ── Hangfire Dashboard (dev seulement) ────────────────────────────────────

@@ -1,19 +1,22 @@
+import Image from 'next/image';
 import { FaShieldHalved, FaUserCheck, FaTriangleExclamation, FaLock, FaEye, FaFingerprint, FaBell, FaGavel, FaCircleExclamation, FaClipboardList, FaUserShield, FaServer, FaKey, FaMobileScreen } from 'react-icons/fa6';
 
 export default function SecuritePage() {
   return (
-    <main className="min-h-screen bg-[linear-gradient(180deg,#08316e_0%,#0d3f7e_45%,#0a2a5c_100%)] text-white">
+    <main className="min-h-screen bg-white text-gray-900">
       {/* Hero */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,rgba(94,159,233,0.15),transparent_60%)]" />
-        <div className="relative mx-auto max-w-6xl px-4 pt-20 pb-16 text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg">
+        <Image src="/img/avantages/securite.png" fill className="object-cover" alt="" priority />
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.45)_0%,rgba(255,255,255,0.80)_60%,rgba(255,255,255,0.97)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,rgba(8,49,110,0.04),transparent_60%)]" />
+        <div className="relative mx-auto max-w-6xl px-4 pt-28 pb-36 text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#5E9FE9]/10 border border-[#5E9FE9]/20 shadow-md">
             <FaShieldHalved className="text-[#5E9FE9] text-3xl" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
             Votre <span className="text-[#5E9FE9]">sécurité</span>, notre priorité
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/80 leading-8">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 leading-8">
             La sécurité des membres est intégrée à chaque aspect de la plateforme. De la vérification
             d&apos;identité à la protection des données, découvrez les mécanismes que nous avons mis en place
             pour garantir des trajets sereins.
@@ -22,50 +25,50 @@ export default function SecuritePage() {
       </section>
 
       {/* Piliers de sécurité */}
-      <section className="mx-auto max-w-6xl px-4 pb-16">
+      <section className="mx-auto max-w-6xl px-4 pt-16 pb-16">
         <div className="grid gap-6 md:grid-cols-3">
-          <article className="group rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm p-7 shadow-xl hover:bg-white/15 transition-all duration-300">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9]/20">
+          <article className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-xl hover:bg-gray-50 transition-all duration-300">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9]/10">
               <FaUserCheck className="text-[#5E9FE9] text-2xl" />
             </div>
             <h2 className="text-xl font-semibold">Vérification d&apos;identité</h2>
-            <p className="mt-3 text-white/75 leading-7">
+            <p className="mt-3 text-gray-600 leading-7">
               Chaque compte est validé via l&apos;identité institutionnelle du Collège La Cité. Les profils
               passent par des contrôles de cohérence rigoureux avant d&apos;être pleinement activés.
             </p>
-            <ul className="mt-4 space-y-2 text-sm text-white/60">
+            <ul className="mt-4 space-y-2 text-sm text-gray-500">
               <li className="flex items-center gap-2"><FaFingerprint className="text-[#5E9FE9] shrink-0" /> Vérification du courriel @lacitec.on.ca</li>
               <li className="flex items-center gap-2"><FaEye className="text-[#5E9FE9] shrink-0" /> Contrôle des doublons de compte</li>
               <li className="flex items-center gap-2"><FaUserShield className="text-[#5E9FE9] shrink-0" /> Validation manuelle des cas suspects</li>
             </ul>
           </article>
 
-          <article className="group rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm p-7 shadow-xl hover:bg-white/15 transition-all duration-300">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9]/20">
+          <article className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-xl hover:bg-gray-50 transition-all duration-300">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9]/10">
               <FaTriangleExclamation className="text-[#5E9FE9] text-2xl" />
             </div>
             <h2 className="text-xl font-semibold">Signalement et modération</h2>
-            <p className="mt-3 text-white/75 leading-7">
+            <p className="mt-3 text-gray-600 leading-7">
               Un système de signalement accessible à tout moment. Chaque rapport est examiné par notre
               équipe de modération qui intervient rapidement — de l&apos;avertissement à la suspension.
             </p>
-            <ul className="mt-4 space-y-2 text-sm text-white/60">
+            <ul className="mt-4 space-y-2 text-sm text-gray-500">
               <li className="flex items-center gap-2"><FaBell className="text-[#5E9FE9] shrink-0" /> Alertes en temps réel</li>
               <li className="flex items-center gap-2"><FaGavel className="text-[#5E9FE9] shrink-0" /> Processus d&apos;escalade structuré</li>
               <li className="flex items-center gap-2"><FaClipboardList className="text-[#5E9FE9] shrink-0" /> Audit complet des événements</li>
             </ul>
           </article>
 
-          <article className="group rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm p-7 shadow-xl hover:bg-white/15 transition-all duration-300">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9]/20">
+          <article className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-xl hover:bg-gray-50 transition-all duration-300">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9]/10">
               <FaLock className="text-[#5E9FE9] text-2xl" />
             </div>
             <h2 className="text-xl font-semibold">Protection des sessions</h2>
-            <p className="mt-3 text-white/75 leading-7">
+            <p className="mt-3 text-gray-600 leading-7">
               Sessions sécurisées avec tokens chiffrés, détection d&apos;anomalies de connexion et
               déconnexion automatique en cas d&apos;inactivité prolongée.
             </p>
-            <ul className="mt-4 space-y-2 text-sm text-white/60">
+            <ul className="mt-4 space-y-2 text-sm text-gray-500">
               <li className="flex items-center gap-2"><FaKey className="text-[#5E9FE9] shrink-0" /> Tokens JWT chiffrés et rotatifs</li>
               <li className="flex items-center gap-2"><FaServer className="text-[#5E9FE9] shrink-0" /> Infrastructure sécurisée</li>
               <li className="flex items-center gap-2"><FaMobileScreen className="text-[#5E9FE9] shrink-0" /> Gestion multi-appareils</li>
@@ -76,55 +79,55 @@ export default function SecuritePage() {
 
       {/* Mesures complémentaires */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
-        <div className="rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm p-10 shadow-xl">
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-10 shadow-xl">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">
             <FaEye className="inline mr-2 text-[#5E9FE9]" />
             Mesures complémentaires
           </h2>
           <div className="grid gap-5 md:grid-cols-2">
-            <div className="flex gap-5 rounded-xl border border-white/15 bg-white/10 p-6">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5E9FE9]/20">
+            <div className="flex gap-5 rounded-xl border border-gray-200 bg-white p-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5E9FE9]/10">
                 <FaCircleExclamation className="text-[#5E9FE9] text-xl" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Bouton d&apos;urgence en trajet</h3>
-                <p className="mt-2 text-white/75 leading-7">
+                <p className="mt-2 text-gray-600 leading-7">
                   Pendant un trajet actif, chaque participant a accès à un bouton d&apos;urgence qui notifie
                   immédiatement l&apos;équipe de support et enregistre les coordonnées GPS du moment.
                 </p>
               </div>
             </div>
-            <div className="flex gap-5 rounded-xl border border-white/15 bg-white/10 p-6">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5E9FE9]/20">
+            <div className="flex gap-5 rounded-xl border border-gray-200 bg-white p-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5E9FE9]/10">
                 <FaUserShield className="text-[#5E9FE9] text-xl" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Évaluations bidirectionnelles</h3>
-                <p className="mt-2 text-white/75 leading-7">
+                <p className="mt-2 text-gray-600 leading-7">
                   Après chaque trajet, conducteurs et passagers s&apos;évaluent mutuellement. Les profils
                   avec des notes faibles sont signalés automatiquement pour examen.
                 </p>
               </div>
             </div>
-            <div className="flex gap-5 rounded-xl border border-white/15 bg-white/10 p-6">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5E9FE9]/20">
+            <div className="flex gap-5 rounded-xl border border-gray-200 bg-white p-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5E9FE9]/10">
                 <FaClipboardList className="text-[#5E9FE9] text-xl" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Historique complet</h3>
-                <p className="mt-2 text-white/75 leading-7">
+                <p className="mt-2 text-gray-600 leading-7">
                   Chaque trajet, réservation et interaction est enregistré. Cet historique est consultable
                   par l&apos;utilisateur et peut servir de preuve en cas de litige.
                 </p>
               </div>
             </div>
-            <div className="flex gap-5 rounded-xl border border-white/15 bg-white/10 p-6">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5E9FE9]/20">
+            <div className="flex gap-5 rounded-xl border border-gray-200 bg-white p-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#5E9FE9]/10">
                 <FaGavel className="text-[#5E9FE9] text-xl" />
               </div>
               <div>
                 <h3 className="font-semibold text-lg">Politique de tolérance zéro</h3>
-                <p className="mt-2 text-white/75 leading-7">
+                <p className="mt-2 text-gray-600 leading-7">
                   Le harcèlement, la discrimination et les comportements dangereux entraînent une suspension
                   immédiate du compte, sans préavis, conformément à nos conditions d&apos;utilisation.
                 </p>
@@ -138,7 +141,7 @@ export default function SecuritePage() {
       <section className="mx-auto max-w-4xl px-4 pb-20">
         <form
           id="signalement-form"
-          className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm p-8 md:p-10 shadow-xl"
+          className="rounded-2xl border border-gray-200 bg-white p-8 md:p-10 shadow-md"
           action="mailto:support@lacitec.on.ca"
           method="post"
           encType="text/plain"
@@ -146,7 +149,7 @@ export default function SecuritePage() {
           <div className="text-center mb-8">
             <FaTriangleExclamation className="mx-auto text-4xl text-[#5E9FE9] mb-4" />
             <h2 className="text-2xl md:text-3xl font-bold">Formulaire de signalement</h2>
-            <p className="mt-3 text-white/70 max-w-lg mx-auto">
+            <p className="mt-3 text-gray-500 max-w-lg mx-auto">
               Si vous êtes témoin ou victime d&apos;un incident, remplissez ce formulaire. Toutes les informations
               sont traitées de manière confidentielle.
             </p>
@@ -154,7 +157,7 @@ export default function SecuritePage() {
 
           <div className="grid gap-6 md:grid-cols-2">
             <div className="grid gap-2">
-              <label htmlFor="incident-type" className="text-sm font-medium text-white/90">
+              <label htmlFor="incident-type" className="text-sm font-medium text-gray-700">
                 <FaCircleExclamation className="inline mr-1.5 text-[#5E9FE9]" />
                 Type d&apos;incident
               </label>
@@ -162,7 +165,7 @@ export default function SecuritePage() {
                 id="incident-type"
                 name="incidentType"
                 required
-                className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#5E9FE9]/50 focus:border-[#5E9FE9] transition-all [&>option]:bg-[#0d3f7e] [&>option]:text-white"
+                className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#5E9FE9]/50 focus:border-[#5E9FE9] transition-all [&>option]:bg-white [&>option]:text-gray-900"
               >
                 <option value="">Sélectionner un type</option>
                 <option value="securite">Sécurité pendant un trajet</option>
@@ -175,7 +178,7 @@ export default function SecuritePage() {
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="incident-date" className="text-sm font-medium text-white/90">
+              <label htmlFor="incident-date" className="text-sm font-medium text-gray-700">
                 <FaClipboardList className="inline mr-1.5 text-[#5E9FE9]" />
                 Date de l&apos;incident
               </label>
@@ -184,13 +187,13 @@ export default function SecuritePage() {
                 name="incidentDate"
                 type="date"
                 required
-                className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#5E9FE9]/50 focus:border-[#5E9FE9] transition-all scheme-dark"
+                className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#5E9FE9]/50 focus:border-[#5E9FE9] transition-all"
               />
             </div>
           </div>
 
           <div className="mt-6 grid gap-2">
-            <label htmlFor="incident-details" className="text-sm font-medium text-white/90">
+            <label htmlFor="incident-details" className="text-sm font-medium text-gray-700">
               <FaClipboardList className="inline mr-1.5 text-[#5E9FE9]" />
               Description détaillée
             </label>
@@ -200,7 +203,7 @@ export default function SecuritePage() {
               required
               rows={6}
               placeholder="Décrivez l'incident en détail : contexte, personnes impliquées, date et heure, lieu..."
-              className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-3 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-[#5E9FE9]/50 focus:border-[#5E9FE9] transition-all resize-none"
+              className="rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5E9FE9]/50 focus:border-[#5E9FE9] transition-all resize-none"
             />
           </div>
 
@@ -211,7 +214,7 @@ export default function SecuritePage() {
             >
               <FaShieldHalved /> Envoyer le signalement
             </button>
-            <p className="mt-4 text-xs text-white/50">
+            <p className="mt-4 text-xs text-gray-400">
               Toutes les informations sont traitées de manière confidentielle et sécurisée.
             </p>
           </div>

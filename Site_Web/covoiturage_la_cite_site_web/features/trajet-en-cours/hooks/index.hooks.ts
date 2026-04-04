@@ -19,7 +19,6 @@ import {
   Correspondant,
   Conversation,
   Message,
-  TypeMessage,
   UseMessagerieReturn,
   buildConversationId,
 } from '../types/messagerie.types';
@@ -80,7 +79,7 @@ export function useProgression(
 export function useMessagerie(
   moiId: string,
   correspondants: Correspondant[],
-  tripId?: string,
+  _tripId?: string,
 ): UseMessagerieReturn {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeCorrespondantId, setActiveCorrespondantId] = useState<string>(
@@ -94,57 +93,11 @@ export function useMessagerie(
     }
   }, [correspondants, activeCorrespondantId]);
 
-  /** Construit des Conversation[] depuis les MessageModel[] bruts de la DB */
-  const buildConversationsFromDb = useCallback(
-    (rawMessages: Record<string, unknown>[]): Conversation[] => {
-      const convMap = new Map<string, Conversation>();
-      for (const raw of rawMessages) {
-        const senderId = raw.senderId as string;
-        const recipId  = (raw.recipientId as string | undefined) ?? '';
-        if (!recipId) continue; // ignorer les broadcasts sans destinataire
-        const convId = buildConversationId(senderId, recipId);
-        const msg: Message = {
-          id:             raw.id as string,
-          conversationId: convId,
-          senderId,
-          receiverId:     recipId,
-          content:        raw.content as string,
-          timestamp:      raw.createdAt as string,
-          isRead:         raw.isRead as boolean,
-          type:           (raw.type as TypeMessage) ?? 'text',
-        };
-        if (!convMap.has(convId)) {
-          const now = raw.createdAt as string;
-          convMap.set(convId, {
-            id: convId,
-            participantIds: [senderId, recipId].sort() as [string, string],
-            messages: [],
-            createdAt: now,
-            updatedAt: now,
-          });
-        }
-        convMap.get(convId)!.messages.push(msg);
-      }
-      return Array.from(convMap.values()).map((conv) => ({
-        ...conv,
-        messages: conv.messages.sort((a, b) => a.timestamp.localeCompare(b.timestamp)),
-      }));
-    },
-    [],
-  );
-
-  /** Recharge les messages depuis la DB */
+  /** Recharge les messages — /api/db/messages désactivé, on garde l'état local */
   const refresh = useCallback(async () => {
-    if (!tripId) return;
-    try {
-      const res = await fetch('/api/db/messages', { cache: 'no-store' });
-      if (!res.ok) return;
-      const all = (await res.json()) as Record<string, unknown>[];
-      const forTrip = all.filter((m) => m.tripId === tripId);
-      const convs = buildConversationsFromDb(forTrip);
-      setConversations(convs);
-    } catch { /* réseau — on garde l'état local */ }
-  }, [tripId, buildConversationsFromDb]);
+    // NOTE : /api/db/messages retourne 503 (self-service désactivé).
+    // Les messages sont gérés uniquement en mémoire locale pour le moment.
+  }, []);
 
   // Chargement initial
   useEffect(() => {
@@ -201,36 +154,10 @@ export function useMessagerie(
         }];
       });
 
-      if (tripId) {
-        // Persister le message
-        void fetch('/api/db/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: msgId, tripId,
-            senderId: moiId, recipientId: activeCorrespondantId,
-            content: content.trim(), type: 'text',
-            isRead: false, createdAt: now,
-          }),
-        });
-
-        // Créer une notification pour le destinataire
-        const preview = content.trim().length > 60 ? content.trim().slice(0, 60) + '…' : content.trim();
-        void fetch('/api/db/notifications', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: `NTF-MSG-${Date.now()}`,
-            userId: activeCorrespondantId,
-            type: 'message', title: 'Nouveau message',
-            message: preview,
-            isRead: false, isImportant: false,
-            relatedTripId: tripId, createdAt: now,
-          }),
-        });
-      }
+      // NOTE : /api/db/messages et /api/db/notifications désactivés (503).
+      // La persistance et les notifications sont gérées en local uniquement.
     },
-    [moiId, activeCorrespondantId, tripId],
+    [moiId, activeCorrespondantId],
   );
 
   /** Change la conversation active par ID de correspondant */
@@ -256,7 +183,6 @@ export function useMessagerie(
       if (!content.trim()) return;
       const now     = new Date().toISOString();
       const trimmed = content.trim();
-      const preview = trimmed.length > 60 ? trimmed.slice(0, 60) + '…' : trimmed;
 
       // Préparer tous les messages AVANT le state updater (évite double-appel StrictMode)
       const entries = correspondants.map((c) => {
@@ -284,34 +210,10 @@ export function useMessagerie(
         return updated;
       });
 
-      // Persistance DB — en dehors du state updater
-      if (tripId) {
-        for (const { c, msgId } of entries) {
-          void fetch('/api/db/messages', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: msgId, tripId,
-              senderId: moiId, recipientId: c.id,
-              content: trimmed, type: 'text',
-              isRead: false, createdAt: now,
-            }),
-          });
-          void fetch('/api/db/notifications', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: `NTF-MSG-${Date.now()}-${c.id}`,
-              userId: c.id, type: 'message', title: 'Nouveau message',
-              message: preview,
-              isRead: false, isImportant: false,
-              relatedTripId: tripId, createdAt: now,
-            }),
-          });
-        }
-      }
+      // NOTE : /api/db/messages et /api/db/notifications désactivés (503).
+      // Le broadcast reste en mémoire locale uniquement.
     },
-    [moiId, correspondants, tripId],
+    [moiId, correspondants],
   );
 
   const unreadCounts: Record<string, number> = correspondants.reduce(

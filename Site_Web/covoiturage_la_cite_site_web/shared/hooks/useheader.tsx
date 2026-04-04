@@ -177,8 +177,16 @@ export function useHeader(externalNotifCount?: number): UseHeaderReturn {
 
   const handleLogout = useCallback(() => {
     setActiveLoader(true);
-    router.push("/login");
-    appState.logout();
+    // Call server logout which forwards the request to Server Core and clears cookie
+    void (async () => {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+      } catch {
+        // ignore
+      }
+      router.push('/login');
+      appState.logout();
+    })();
   }, [appState, router, setActiveLoader]);
 
   const activePageTitle = useMemo(() => {

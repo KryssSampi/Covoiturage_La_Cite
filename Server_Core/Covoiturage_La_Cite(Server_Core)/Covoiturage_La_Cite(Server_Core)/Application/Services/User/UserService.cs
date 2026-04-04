@@ -84,7 +84,11 @@ public class UserService : IUserService
                 AvatarUrl = user.AvatarUrl,
                 Role = user.Role.ToString().ToLower(),
                 SchoolRole = user.SchoolRole.ToString().ToLower(),
-                CanBeDriver = user.CanBeDriver
+                CanBeDriver = user.CanBeDriver,
+                AlreadySignPolitics = user.AlreadySignPolitics,
+                AlreadySubmittedAllVehiculeDocument = user.AlreadySubmittedAllVehiculeDocument,
+                AlreadySetAProfilePicture = user.AlreadySetAProfilePicture,
+                OnboardingCompleted = user.OnboardingCompleted,
             },
             IsNewUser = isNew
         };
@@ -145,7 +149,11 @@ public class UserService : IUserService
                 AvatarUrl = user.AvatarUrl,
                 Role = user.Role.ToString().ToLower(),
                 SchoolRole = user.SchoolRole.ToString().ToLower(),
-                CanBeDriver = user.CanBeDriver
+                CanBeDriver = user.CanBeDriver,
+                AlreadySignPolitics = user.AlreadySignPolitics,
+                AlreadySubmittedAllVehiculeDocument = user.AlreadySubmittedAllVehiculeDocument,
+                AlreadySetAProfilePicture = user.AlreadySetAProfilePicture,
+                OnboardingCompleted = user.OnboardingCompleted,
             },
             IsNewUser = isNew
         };

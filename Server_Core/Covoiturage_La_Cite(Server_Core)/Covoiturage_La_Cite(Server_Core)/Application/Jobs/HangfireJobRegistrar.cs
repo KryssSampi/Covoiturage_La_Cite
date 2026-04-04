@@ -40,6 +40,7 @@ public class HangfireJobRegistrar : IHangfireJobRegistrar
         // ── Quotidien (2h du matin) ──────────────────────────────────────
         RecurringJob.AddOrUpdate<GoScoreRecalcJob>("goscore-recalc", j => j.ExecuteAsync(), "0 2 * * *");
         RecurringJob.AddOrUpdate<InactiveUserReminderJob>("inactive-user-reminder", j => j.ExecuteAsync(), "0 3 * * *");
+        RecurringJob.AddOrUpdate<AccountLifecycleJob>("account-lifecycle", j => j.ExecuteAsync(), "0 4 * * *");
         RecurringJob.AddOrUpdate<ChallengeProgressCheckJob>("challenge-progress-check", j => j.ExecuteAsync(), "0 4 * * *");
         RecurringJob.AddOrUpdate<WithdrawalProcessingJob>("withdrawal-processing", j => j.ExecuteAsync(), "0 6 * * *");
 

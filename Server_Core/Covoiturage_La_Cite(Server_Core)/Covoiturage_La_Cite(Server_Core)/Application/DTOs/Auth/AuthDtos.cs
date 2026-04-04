@@ -44,4 +44,9 @@ public record UserSummaryDto
     public string Role { get; init; } = string.Empty;
     public string SchoolRole { get; init; } = string.Empty;
     public bool CanBeDriver { get; init; }
+    // ── Flags d'onboarding ────────────────────────────────────────────────
+    public bool AlreadySignPolitics { get; init; }
+    public bool AlreadySubmittedAllVehiculeDocument { get; init; }
+    public bool AlreadySetAProfilePicture { get; init; }
+    public bool OnboardingCompleted { get; init; }
 }

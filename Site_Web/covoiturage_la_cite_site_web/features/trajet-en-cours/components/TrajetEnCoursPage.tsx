@@ -236,17 +236,7 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
       });
 
       // Mettre à jour passengerRating sur la réservation (conducteur évaluant passager)
-      if (role === 'driver' && reservation?.id) {
-        const allRes = await fetch('/api/db/reservations').then((r) => r.json()) as Record<string, unknown>[];
-        const updated = allRes.map((r) =>
-          r.id === reservation.id ? { ...r, passengerRating: eval_.note } : r,
-        );
-        await fetch('/api/db/reservations', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(updated),
-        });
-      }
+      // NOTE : /api/db/reservations désactivé (503) — le rating est déjà envoyé via /api/reviews ci-dessus.
 
       setEval_((p) => ({ ...p, estSoumis: true }));
       showToast(isFR ? '✓ Évaluation envoyée — Merci !' : '✓ Review submitted — Thank you!', 'green');

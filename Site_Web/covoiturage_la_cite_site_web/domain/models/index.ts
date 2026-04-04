@@ -12,6 +12,7 @@ export { DemandesMultiplesTrackingModel } from './DemandesMultiplesTrackingModel
 export { DocumentsConducteurModel } from './DocumentsConducteurModel';
 export { EvaluationModel } from './EvaluationModel';
 export { ExportsDonneeModel } from './ExportsDonneeModel';
+export { FAQItemModel } from './FAQItemModel';
 export { FavoriModel } from './FavoriModel';
 export { FavorisConducteurModel } from './FavorisConducteurModel';
 export { GeofenceEventModel } from './GeofenceEventModel';

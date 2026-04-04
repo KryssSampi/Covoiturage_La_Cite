@@ -76,3 +76,65 @@ export function clearTokenCookie(response: NextResponse): NextResponse {
 
   return response;
 }
+
+// ── Auth Session (multi-step auth) ────────────────────────────────────────
+
+/** Nom du cookie contenant l'idKey de la session d'authentification */
+export const AUTH_SESSION_COOKIE = 'auth_session_key';
+
+/**
+ * Stocke l'idKey de la AuthSession dans un cookie httpOnly.
+ */
+export function setAuthSessionCookie(
+  response: NextResponse,
+  idKey: string,
+  expiresAt: string,
+): NextResponse {
+  const maxAge = Math.max(
+    0,
+    Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000),
+  );
+
+  response.cookies.set(AUTH_SESSION_COOKIE, idKey, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/api/auth/session',
+    maxAge,
+  });
+
+  return response;
+}
+
+/**
+ * Lit l'idKey de la AuthSession depuis les cookies de la requête entrante.
+ */
+export async function getAuthSessionKey(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    return cookieStore.get(AUTH_SESSION_COOKIE)?.value ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Ajoute le cookie de blocage (lisible par JS pour le compteur).
+ */
+export function setBlockedCookie(
+  response: NextResponse,
+  blockedUntil: string,
+): NextResponse {
+  const expiresAt = new Date(blockedUntil);
+  const unixSeconds = Math.floor(expiresAt.getTime() / 1000);
+
+  response.cookies.set('auth_blocked_until', String(unixSeconds), {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/',
+    maxAge: Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000)),
+  });
+
+  return response;
+}

@@ -15,7 +15,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
 
-    return NextResponse.json(result.data);
+    return NextResponse.json(result.data?.items ?? []);
   } catch (err) {
     console.error('[admin/trips]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
