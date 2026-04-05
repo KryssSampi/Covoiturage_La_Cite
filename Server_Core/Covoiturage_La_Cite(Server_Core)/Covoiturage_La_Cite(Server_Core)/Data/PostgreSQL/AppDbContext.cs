@@ -42,8 +42,12 @@ public class AppDbContext : DbContext
     public DbSet<UserBadge> UserBadges => Set<UserBadge>();
     public DbSet<EcoChallenge> EcoChallenges => Set<EcoChallenge>();
     public DbSet<ChallengeParticipation> ChallengeParticipations => Set<ChallengeParticipation>();
+    public DbSet<GoTask> GoTasks => Set<GoTask>();
+    public DbSet<UserGoTaskProgression> UserGoTaskProgressions => Set<UserGoTaskProgression>();
     public DbSet<MatchingScoreCache> MatchingScoreCaches => Set<MatchingScoreCache>();
     public DbSet<SmartSuggestion> SmartSuggestions => Set<SmartSuggestion>();
+    public DbSet<UserLike> UserLikes => Set<UserLike>();
+    public DbSet<SurveyTripAlert> SurveyTripAlerts => Set<SurveyTripAlert>();
 
     // ── Campus ────────────────────────────────────────────────────────────────
     public DbSet<GeofenceZone> GeofenceZones => Set<GeofenceZone>();
@@ -295,7 +299,46 @@ public class AppDbContext : DbContext
             e.HasKey(a => a.Id);
             e.HasIndex(a => a.IdKeyHash).IsUnique();
             e.HasIndex(a => a.PublicId).IsUnique();
-            e.HasIndex(a => a.ExpiresAt); // pour le cleanup
+            e.HasIndex(a => a.ExpiresAt);
+        });
+
+        // ── GoTask ────────────────────────────────────────────────────────────
+        modelBuilder.Entity<GoTask>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.HasIndex(t => t.TaskKey).IsUnique();
+            e.HasMany(t => t.Progressions).WithOne(p => p.GoTask)
+                .HasForeignKey(p => p.GoTaskId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<UserGoTaskProgression>(e =>
+        {
+            e.HasKey(p => p.Id);
+            e.HasIndex(p => new { p.UserId, p.GoTaskId }).IsUnique();
+            e.HasOne(p => p.User).WithMany()
+                .HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // ── UserLike ──────────────────────────────────────────────────────────
+        modelBuilder.Entity<UserLike>(e =>
+        {
+            e.HasKey(l => l.Id);
+            e.HasIndex(l => new { l.LikerId, l.LikedId }).IsUnique(); // un like par paire
+            e.HasOne(l => l.Liker).WithMany(u => u.LikesGiven)
+                .HasForeignKey(l => l.LikerId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(l => l.Liked).WithMany(u => u.LikesReceived)
+                .HasForeignKey(l => l.LikedId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── SurveyTripAlert ────────────────────────────────────────────────────
+        modelBuilder.Entity<SurveyTripAlert>(e =>
+        {
+            e.HasKey(s => s.Id);
+            e.HasIndex(s => new { s.UserId, s.DriverId, s.DepartureLabel, s.ArrivalLabel });
+            e.HasOne(s => s.User).WithMany(u => u.SurveyAlerts)
+                .HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(s => s.Driver).WithMany(u => u.SurveyAlertsAsDriver)
+                .HasForeignKey(s => s.DriverId).OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

@@ -12,12 +12,14 @@ namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Trip;
 public class TrajetService : ITrajetService
 {
     private readonly ITrajetRepository _repo;
+    private readonly IGoTaskService _goTasks;
     private readonly ILogger<TrajetService> _logger;
     private static readonly GeometryFactory _gf = new(new PrecisionModel(), 4326);
 
-    public TrajetService(ITrajetRepository repo, ILogger<TrajetService> logger)
+    public TrajetService(ITrajetRepository repo, IGoTaskService goTasks, ILogger<TrajetService> logger)
     {
         _repo = repo;
+        _goTasks = goTasks;
         _logger = logger;
     }
 
@@ -256,6 +258,8 @@ public class TrajetService : ITrajetService
         trip.UpdatedAt = DateTimeOffset.UtcNow;
         await _repo.UpdateAsync(trip, ct);
         _logger.LogInformation("Trajet publié: {TripId}", tripId);
+        // GoTask trigger — GT-010 : premier trajet publié comme conducteur
+        _ = Task.Run(() => _goTasks.TryCompleteAsync(driverId, "GT-010", ct), ct);
         return MapToResponse(trip);
     }
 
@@ -291,6 +295,8 @@ public class TrajetService : ITrajetService
 
         await _repo.UpdateAsync(trip, ct);
         _logger.LogInformation("Trajet terminé: {TripId}, CO2 sauvé: {Co2}kg", tripId, trip.Co2SavedKg);
+        // GoTask triggers — GT-002 : premier trajet terminé
+        _ = Task.Run(() => _goTasks.TryCompleteAsync(driverId, "GT-002", ct), ct);
         return MapToResponse(trip);
     }
 
@@ -421,4 +427,47 @@ public class TrajetService : ITrajetService
         Capacity = v.Capacity,
         PhotoUrl = v.PhotoUrl
     };
+
+    // ── Recommandations ───────────────────────────────────────────────────────
+
+    public async Task<IEnumerable<TrajetResponseDto>> GetRecommendedAsync(Guid userId, CancellationToken ct = default)
+    {
+        const int count = 5;
+        var recommended = new List<Domain.Entities.Trip>();
+
+        // 1. Analyser les destinations récentes du passager (30 derniers jours)
+        var recentPassenger = await _repo.GetPassengerHistoriqueAsync(userId, 1, 20, ct);
+        var recentDriver   = await _repo.GetDriverHistoriqueAsync(userId, 1, 20, ct);
+        var recent = recentPassenger.Concat(recentDriver).ToList();
+
+        if (recent.Count > 0)
+        {
+            // Destination la plus fréquente
+            var topArrival = recent
+                .GroupBy(t => t.ArrivalLabel)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault();
+
+            if (!string.IsNullOrEmpty(topArrival))
+            {
+                var byDestination = await _repo.GetPublishedByArrivalLabelAsync(topArrival, count, ct);
+                recommended.AddRange(byDestination);
+            }
+        }
+
+        // 2. Compléter jusqu'à 5 avec des trajets aléatoires si nécessaire
+        if (recommended.Count < count)
+        {
+            var random = await _repo.GetRandomPublishedAsync(count, ct);
+            foreach (var t in random)
+            {
+                if (recommended.Count >= count) break;
+                if (recommended.All(r => r.Id != t.Id))
+                    recommended.Add(t);
+            }
+        }
+
+        return recommended.Take(count).Select(MapToResponse);
+    }
 }

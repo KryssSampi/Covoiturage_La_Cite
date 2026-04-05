@@ -12,6 +12,8 @@ import ProfilePhotoStep from './steps/ProfilePhotoStep';
 
 interface Props {
   userId: string;
+  initialRole?: 'passenger' | 'driver';
+  startStep?: OnboardingStep;
 }
 
 const STEP_LABELS: Record<OnboardingStep, string> = {
@@ -34,7 +36,7 @@ function getOrderedSteps(role: 'passenger' | 'driver'): OnboardingStep[] {
 
 export default function OnboardingSlider({ userId }: Props) {
   const router = useRouter();
-  const onboarding = useOnboarding();
+  const onboarding = useOnboarding({ initialRole, startStep });
   const { step, formData, showAbandonWarning, confirmAbandonDriver, cancelAbandonDriver, goToPreviousStep } = onboarding;
 
   // Redirection quand terminé

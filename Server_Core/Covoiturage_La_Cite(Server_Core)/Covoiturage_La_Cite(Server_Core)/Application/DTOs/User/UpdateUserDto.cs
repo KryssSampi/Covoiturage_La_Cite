@@ -19,8 +19,14 @@ public record UpdateUserDto
     [Url]
     public string? AvatarUrl { get; init; }
 
+    [MaxLength(500)]
+    public string? Bio { get; init; }
+
     [MaxLength(5)]
     public string? Language { get; init; }
+
+    /// <summary>Langues parlées (remplace la liste existante).</summary>
+    public string[]? LanguagesSpoken { get; init; }
 
     public UpdatePreferencesDto? Preferences { get; init; }
 }
@@ -31,4 +37,10 @@ public record UpdatePreferencesDto
     public bool? PetsAccepted { get; init; }
     public bool? SmokingAccepted { get; init; }
     public string? ConversationLevel { get; init; }
+    public bool? EmailPrimordiales { get; init; }
+    public bool? EmailSecondaires { get; init; }
+    public bool? EmailNegligeables { get; init; }
+    public bool? PushPrimordiales { get; init; }
+    public bool? PushSecondaires { get; init; }
+    public bool? PushNegligeables { get; init; }
 }

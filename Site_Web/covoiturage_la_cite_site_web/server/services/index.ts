@@ -31,8 +31,9 @@ export { NotificationService } from './NotificationService';
 // ── Social (Review, Favorite, Report) ─────────────────────────────────────────
 export { ReviewService, FavoriteService, ReportService } from './SocialService';
 
-// ── Gamification (Badge, Challenge) ───────────────────────────────────────────
-export { BadgeService, ChallengeService } from './GamificationService';
+// ── Gamification (Badge, Challenge, GoTask, GoBoard) ──────────────────────────
+export { BadgeService, ChallengeService, GoTaskService } from './GamificationService';
+export type { GoTaskResponseDto, GoBoardResponseDto } from './GamificationService';
 
 // ── GPS & SOS ─────────────────────────────────────────────────────────────────
 export { GpsService, SosService } from './GpsService';
@@ -57,3 +58,11 @@ export { DraftService } from './DraftService';
 
 // ── Historique ────────────────────────────────────────────────────────────────
 export { HistoriqueService } from './HistoriqueService';
+
+// ── Chat instantané ───────────────────────────────────────────────────────────
+export { ChatService } from './ChatService';
+export type { ChatMessageResponseDto, SendMessageDto, ConversationSummaryDto } from './ChatService';
+
+// ── Contenu éditorial (Astuces + Nouveautés) ─────────────────────────────────
+export { ContentService } from './ContentService';
+export type { AstuceResponseDto, NouveauteResponseDto, CreateNouveauteDto } from './ContentService';

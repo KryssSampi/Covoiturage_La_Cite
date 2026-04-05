@@ -11,11 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
+namespace Covoiturage_La_Cite_Server_Core_.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260404070902_AddOnboardingFields")]
-    partial class AddOnboardingFields
+    [Migration("20260404155514_Initialization")]
+    partial class Initialization
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

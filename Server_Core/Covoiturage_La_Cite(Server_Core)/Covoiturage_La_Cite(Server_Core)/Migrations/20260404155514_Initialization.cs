@@ -1,14 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
+namespace Covoiturage_La_Cite_Server_Core_.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Initialization : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,6 +37,33 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AuditLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AuthSessions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    IdKeyHash = table.Column<string>(type: "text", nullable: false),
+                    PublicId = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: true),
+                    IpAddress = table.Column<string>(type: "text", nullable: false),
+                    UserAgent = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    OtpCodeHash = table.Column<string>(type: "text", nullable: true),
+                    OtpExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    OtpTotalAttempts = table.Column<int>(type: "integer", nullable: false),
+                    OtpCurrentAttempts = table.Column<int>(type: "integer", nullable: false),
+                    OtpResendCount = table.Column<int>(type: "integer", nullable: false),
+                    IsBlocked = table.Column<bool>(type: "boolean", nullable: false),
+                    BlockedUntil = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    IsValidated = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AuthSessions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -140,16 +168,22 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     MicrosoftSsoId = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
                     FirstName = table.Column<string>(type: "text", nullable: false),
                     LastName = table.Column<string>(type: "text", nullable: false),
                     AvatarUrl = table.Column<string>(type: "text", nullable: true),
                     PhoneNumber = table.Column<string>(type: "text", nullable: true),
                     Bio = table.Column<string>(type: "text", nullable: true),
                     Role = table.Column<string>(type: "text", nullable: false),
+                    SchoolRole = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
                     IsProfileVerified = table.Column<bool>(type: "boolean", nullable: false),
                     CanBeDriver = table.Column<bool>(type: "boolean", nullable: false),
                     GoScore = table.Column<int>(type: "integer", nullable: false),
+                    AlreadySignPolitics = table.Column<bool>(type: "boolean", nullable: false),
+                    AlreadySubmittedAllVehiculeDocument = table.Column<bool>(type: "boolean", nullable: false),
+                    AlreadySetAProfilePicture = table.Column<bool>(type: "boolean", nullable: false),
+                    OnboardingCompleted = table.Column<bool>(type: "boolean", nullable: false),
                     ReputationPoints = table.Column<int>(type: "integer", nullable: false),
                     Language = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -594,6 +628,8 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     IsDefault = table.Column<bool>(type: "boolean", nullable: false),
                     PhotoUrl = table.Column<string>(type: "text", nullable: true),
+                    Verified = table.Column<bool>(type: "boolean", nullable: false),
+                    VehiclePhotoUrls = table.Column<List<string>>(type: "text[]", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
@@ -1073,6 +1109,23 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                 columns: new[] { "EntityType", "EntityId" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AuthSessions_ExpiresAt",
+                table: "AuthSessions",
+                column: "ExpiresAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthSessions_IdKeyHash",
+                table: "AuthSessions",
+                column: "IdKeyHash",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AuthSessions_PublicId",
+                table: "AuthSessions",
+                column: "PublicId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ChallengeParticipations_EcoChallengeId",
                 table: "ChallengeParticipations",
                 column: "EcoChallengeId");
@@ -1359,6 +1412,9 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
 
             migrationBuilder.DropTable(
                 name: "AuditLogs");
+
+            migrationBuilder.DropTable(
+                name: "AuthSessions");
 
             migrationBuilder.DropTable(
                 name: "CertificateRotationEvents");

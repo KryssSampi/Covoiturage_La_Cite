@@ -16,3 +16,22 @@ public interface IGamificationService
     Task<IEnumerable<ChallengeParticipationResponseDto>> GetMyChallengesAsync(Guid userId, CancellationToken ct = default);
     Task<IEnumerable<ChallengeParticipationResponseDto>> GetLeaderboardAsync(Guid challengeId, int top = 10, CancellationToken ct = default);
 }
+
+public interface IGoTaskService
+{
+    /// <summary>Retourne toutes les GoTasks actives avec la progression de l'utilisateur.</summary>
+    Task<IEnumerable<GoTaskResponseDto>> GetAllWithProgressionAsync(Guid userId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Tente de marquer une GoTask comme complétée pour l'utilisateur.
+    /// Idempotent — si déjà complétée, retourne false sans erreur.
+    /// Attribue les GoPoints et envoie une notification si complétée.
+    /// </summary>
+    Task<bool> TryCompleteAsync(Guid userId, string taskKey, CancellationToken ct = default);
+
+    /// <summary>
+    /// Retourne le GoBoard complet de l'utilisateur :
+    /// GoScore, palier, rang, GoTasks avec progression, classement, défis écologiques.
+    /// </summary>
+    Task<GoBoardResponseDto> GetGoBoardAsync(Guid userId, CancellationToken ct = default);
+}

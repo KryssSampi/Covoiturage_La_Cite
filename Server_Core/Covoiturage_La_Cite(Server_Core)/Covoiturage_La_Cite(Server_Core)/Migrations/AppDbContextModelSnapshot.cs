@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
+namespace Covoiturage_La_Cite_Server_Core_.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -406,6 +406,53 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("GeofenceZones");
+                });
+
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.GoTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DescriptionFr")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TaskKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TitleEn")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TitleFr")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TaskKey")
+                        .IsUnique();
+
+                    b.ToTable("GoTasks");
                 });
 
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.GpsPosition", b =>
@@ -1253,6 +1300,45 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     b.ToTable("SosAlerts");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.SurveyTripAlert", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArrivalLabel")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DepartureLabel")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("DriverId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DriverName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
+
+                    b.HasIndex("UserId", "DriverId", "DepartureLabel", "ArrivalLabel");
+
+                    b.ToTable("SurveyTripAlerts");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.Transaction", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1509,6 +1595,10 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.PrimitiveCollection<string[]>("LanguagesSpoken")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
                     b.Property<DateTimeOffset?>("LastLoginAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1635,6 +1725,59 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     b.ToTable("UserBehaviorPatterns");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.UserGoTaskProgression", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("GoTaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDone")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GoTaskId");
+
+                    b.HasIndex("UserId", "GoTaskId")
+                        .IsUnique();
+
+                    b.ToTable("UserGoTaskProgressions");
+                });
+
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.UserLike", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LikedId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LikerId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LikedId");
+
+                    b.HasIndex("LikerId", "LikedId")
+                        .IsUnique();
+
+                    b.ToTable("UserLikes");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.UserPreferences", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1644,7 +1787,16 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     b.Property<int>("ConversationLevel")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("EmailNegligeables")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("EmailNotifications")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("EmailPrimordiales")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("EmailSecondaires")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("HasPets")
@@ -1657,7 +1809,16 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     b.Property<bool>("MusicAccepted")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("PushNegligeables")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("PushNotifications")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PushPrimordiales")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PushSecondaires")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("SmokesRegularly")
@@ -2166,6 +2327,25 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.SurveyTripAlert", b =>
+                {
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "Driver")
+                        .WithMany("SurveyAlertsAsDriver")
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "User")
+                        .WithMany("SurveyAlerts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Driver");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.Transaction", b =>
                 {
                     b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "Driver")
@@ -2253,6 +2433,44 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.UserGoTaskProgression", b =>
+                {
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.GoTask", "GoTask")
+                        .WithMany("Progressions")
+                        .HasForeignKey("GoTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GoTask");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.UserLike", b =>
+                {
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "Liked")
+                        .WithMany("LikesReceived")
+                        .HasForeignKey("LikedId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "Liker")
+                        .WithMany("LikesGiven")
+                        .HasForeignKey("LikerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Liked");
+
+                    b.Navigation("Liker");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.UserPreferences", b =>
                 {
                     b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "User")
@@ -2327,6 +2545,11 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     b.Navigation("Participations");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.GoTask", b =>
+                {
+                    b.Navigation("Progressions");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.Reservation", b =>
                 {
                     b.Navigation("Review");
@@ -2358,6 +2581,10 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
 
                     b.Navigation("DriverProfile");
 
+                    b.Navigation("LikesGiven");
+
+                    b.Navigation("LikesReceived");
+
                     b.Navigation("Notifications");
 
                     b.Navigation("Penalties");
@@ -2375,6 +2602,10 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Migrations
                     b.Navigation("SosAlerts");
 
                     b.Navigation("Stats");
+
+                    b.Navigation("SurveyAlerts");
+
+                    b.Navigation("SurveyAlertsAsDriver");
 
                     b.Navigation("Trips");
                 });

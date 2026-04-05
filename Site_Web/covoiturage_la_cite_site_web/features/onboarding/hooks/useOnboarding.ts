@@ -101,9 +101,11 @@ async function apiPost(path: string, body?: unknown): Promise<{ success: boolean
   return { success: true, data: json };
 }
 
-export function useOnboarding(): UseOnboardingReturn {
-  const [step, setStep] = useState<OnboardingStep>('politics');
-  const [formData, setFormData] = useState<OnboardingFormData>(INITIAL_FORM);
+export function useOnboarding(initial?: { initialRole?: 'passenger' | 'driver'; startStep?: OnboardingStep }): UseOnboardingReturn {
+  const startStep = initial?.startStep ?? 'politics';
+  const initialRole = initial?.initialRole ?? INITIAL_FORM.role;
+  const [step, setStep] = useState<OnboardingStep>(startStep);
+  const [formData, setFormData] = useState<OnboardingFormData>({ ...INITIAL_FORM, role: initialRole });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAbandonWarning, setShowAbandonWarning] = useState(false);

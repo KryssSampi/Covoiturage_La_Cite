@@ -112,4 +112,13 @@ public class UserRepository : IUserRepository
             await _db.SaveChangesAsync(ct);
         }
     }
+
+    public async Task<IEnumerable<User>> GetTopByGoScoreAsync(int top, CancellationToken ct = default)
+    {
+        return await _db.Users
+            .Where(u => u.DeletedAt == null)
+            .OrderByDescending(u => u.GoScore)
+            .Take(top)
+            .ToListAsync(ct);
+    }
 }

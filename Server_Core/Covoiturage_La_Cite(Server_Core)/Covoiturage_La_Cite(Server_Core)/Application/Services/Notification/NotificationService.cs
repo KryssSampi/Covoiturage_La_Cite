@@ -1,17 +1,35 @@
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Sse;
+using Covoiturage_La_Cite_Server_Core_.Api.Hubs;
 using Covoiturage_La_Cite_Server_Core_.Domain.Entities;
+using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
+// ReSharper disable once RedundantUsingDirective — NotificationCategory used in switch
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Notification;
 
 public class NotificationService : INotificationService
 {
     private readonly INotificationRepository _repo;
+    private readonly IUserRepository _userRepo;
+    private readonly IEmailService _emailService;
+    private readonly SignalREventService _signalR;
+    private readonly SseChannelService _sse;
     private readonly ILogger<NotificationService> _logger;
 
-    public NotificationService(INotificationRepository repo, ILogger<NotificationService> logger)
+    public NotificationService(
+        INotificationRepository repo,
+        IUserRepository userRepo,
+        IEmailService emailService,
+        SignalREventService signalR,
+        SseChannelService sse,
+        ILogger<NotificationService> logger)
     {
         _repo = repo;
+        _userRepo = userRepo;
+        _emailService = emailService;
+        _signalR = signalR;
+        _sse = sse;
         _logger = logger;
     }
 
@@ -67,7 +85,23 @@ public class NotificationService : INotificationService
 
         await _repo.AddAsync(notification, ct);
         _logger.LogInformation("Notification créée: {NotifId} type={Type} pour {UserId}", notification.Id, dto.Type, dto.UserId);
-        return MapToResponse(notification);
+
+        var responseDto = MapToResponse(notification);
+
+        // ── Triggers asynchrones (fire-and-forget, ne bloque pas la réponse) ──
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await FireTriggersAsync(notification, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erreur lors des triggers pour notification {NotifId}", notification.Id);
+            }
+        }, ct);
+
+        return responseDto;
     }
 
     public async Task DeleteAsync(Guid notificationId, Guid userId, CancellationToken ct = default)
@@ -79,6 +113,52 @@ public class NotificationService : INotificationService
             throw new UnauthorizedAccessException("Cette notification ne vous appartient pas");
 
         await _repo.DeleteAsync(notificationId, ct);
+    }
+
+    // ── Triggers internes ────────────────────────────────────────────────────
+
+    private async Task FireTriggersAsync(Domain.Entities.Notification n, CancellationToken ct)
+    {
+        var user = await _userRepo.GetWithProfileAsync(n.UserId, ct);
+        if (user == null) return;
+
+        var category = NotificationCategoryHelper.GetCategory(n.Type);
+        var prefs = user.Preferences;
+
+        var responseDto = MapToResponse(n);
+
+        // 1. SSE temps réel → web client connecté
+        _sse.Publish(n.UserId, "notification", responseDto);
+
+        // 2. SignalR → clients SignalR connectés (mobile + web si connecté via WS)
+        await _signalR.SendToUserAsync(n.UserId, "NotificationReceived", responseDto);
+
+        // 3. Email selon les préférences par catégorie
+        var sendEmail = category switch
+        {
+            NotificationCategory.Primordiale  => prefs?.EmailPrimordiales  ?? true,
+            NotificationCategory.Secondaire   => prefs?.EmailSecondaires   ?? true,
+            NotificationCategory.Negligeable  => prefs?.EmailNegligeables  ?? false,
+            _ => false
+        };
+
+        if (sendEmail && (prefs?.EmailNotifications ?? true))
+        {
+            try
+            {
+                await _emailService.SendNotificationEmailAsync(
+                    user.Email,
+                    user.FirstName,
+                    n.Title,
+                    n.Body,
+                    n.DeepLink,
+                    ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Échec envoi email notification {NotifId}", n.Id);
+            }
+        }
     }
 
     private static NotificationResponseDto MapToResponse(Domain.Entities.Notification n) => new()

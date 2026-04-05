@@ -11,4 +11,5 @@ public interface IUserRepository : Domain.Interfaces.IRepository<User>
     Task<IEnumerable<User>> GetAllPaginatedAsync(int page, int pageSize, string? search = null, CancellationToken ct = default);
     Task<int> CountAsync(string? search = null, CancellationToken ct = default);
     Task SoftDeleteAsync(Guid id, CancellationToken ct = default);
+    Task<IEnumerable<User>> GetTopByGoScoreAsync(int top, CancellationToken ct = default);
 }

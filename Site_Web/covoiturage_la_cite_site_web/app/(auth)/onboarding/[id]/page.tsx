@@ -1,9 +1,10 @@
 'use client';
 
 import { use, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppState } from '@/core/state/app_state';
 import OnboardingSlider from '@/features/onboarding/components/OnboardingSlider';
+import type { OnboardingStep } from '@/features/onboarding/hooks/useOnboarding';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -13,6 +14,7 @@ export default function OnboardingPage({ params }: Props) {
   const { id } = use(params);
   const appState = useAppState();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Redirige vers le login si non authentifié
   useEffect(() => {
@@ -31,5 +33,10 @@ export default function OnboardingPage({ params }: Props) {
 
   if (!appState.userConnected) return null;
 
-  return <OnboardingSlider userId={id} />;
+  // Read optional start parameter to jump directly to a driver step
+  const start = searchParams?.get('start') ?? undefined;
+  const initialRole = start === 'vehicle' ? 'driver' : undefined;
+  const startStep: OnboardingStep | undefined = start === 'vehicle' ? 'vehicle' : undefined;
+
+  return <OnboardingSlider userId={id} initialRole={initialRole} startStep={startStep} />;
 }

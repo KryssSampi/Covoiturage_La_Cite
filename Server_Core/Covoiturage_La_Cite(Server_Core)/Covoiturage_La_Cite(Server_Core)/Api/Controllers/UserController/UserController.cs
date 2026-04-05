@@ -2,6 +2,7 @@
 using Covoiturage_La_Cite_Server_Core_.Api.DTOs.Common;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,14 +50,38 @@ public class UserController : ControllerBase
         return Ok(ApiResponse.Ok("Compte supprimé"));
     }
 
-    /// <summary>GET /api/users/{id}/public — Profil public (données sensibles masquées)</summary>
+    /// <summary>GET /api/users/{id}/public — Profil public étendu</summary>
     [HttpGet("{id:guid}/public")]
     [Authorize]
     public async Task<IActionResult> GetPublicProfile(Guid id, CancellationToken ct)
     {
-        var profile = await _userService.GetPublicProfileAsync(id, ct);
+        var requesterId = GetCurrentUserId();
+        var profile = await _userService.GetPublicProfileAsync(id, requesterId, ct);
         if (profile == null) return NotFound(ApiResponse.Fail("Utilisateur introuvable"));
         return Ok(ApiResponse<UserPublicDto>.Ok(profile));
+    }
+
+    /// <summary>POST /api/users/{id}/like — Toggle like (idempotent)</summary>
+    [HttpPost("{id:guid}/like")]
+    [Authorize]
+    public async Task<IActionResult> ToggleLike(Guid id, CancellationToken ct)
+    {
+        var likerId = GetCurrentUserId();
+        if (likerId == id) return BadRequest(ApiResponse.Fail("Impossible de se liker soi-même"));
+        var (isLiked, count) = await _userService.ToggleLikeAsync(likerId, id, ct);
+        return Ok(ApiResponse<object>.Ok(new { isLiked, count }));
+    }
+
+    /// <summary>POST /api/users/{id}/survey-alert — Créer une alerte de suivi de trajet conducteur</summary>
+    [HttpPost("{id:guid}/survey-alert")]
+    [Authorize]
+    public async Task<IActionResult> CreateSurveyAlert(Guid id, [FromBody] CreateSurveyAlertDto dto, CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        // id dans l'URL = driverId, on force la cohérence
+        var correctedDto = dto with { DriverId = id };
+        var alert = await _userService.CreateSurveyAlertAsync(userId, correctedDto, ct);
+        return Ok(ApiResponse<SurveyTripAlertDto>.Ok(alert));
     }
 
     /// <summary>GET /api/users — Liste admin paginée</summary>

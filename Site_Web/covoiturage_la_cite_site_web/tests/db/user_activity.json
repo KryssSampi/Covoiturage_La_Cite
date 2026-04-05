@@ -1309,5 +1309,50 @@
       }
     ],
     "updatedAt": "2026-04-04T08:39:42.845Z"
+  },
+  {
+    "id": "ACT-2026-79736",
+    "userId": "cc4bdd3d-f8e5-41b9-8b58-f787adf10dfa",
+    "accountCreatedAt": "2026-04-04T20:41:22.217Z",
+    "lastSeenAt": "2026-04-05T02:44:39.107Z",
+    "isCurrentlyConnectedOnWeb": false,
+    "isCurrentlyConnectedOnMobile": false,
+    "connectionHistory": [
+      {
+        "type": "web",
+        "connectedAt": "2026-04-05T02:42:45.906Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-05T02:44:39.107Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-05T02:42:43.080Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-05T02:42:45.674Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-05T02:29:50.667Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-05T02:33:31.665Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-04T20:41:28.023Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-04T20:50:53.284Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-04T20:41:27.995Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger"
+      }
+    ],
+    "updatedAt": "2026-04-05T02:44:39.109Z"
   }
 ]

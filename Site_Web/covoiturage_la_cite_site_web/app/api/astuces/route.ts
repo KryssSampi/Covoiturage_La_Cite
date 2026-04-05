@@ -1,20 +1,18 @@
-import { NextResponse } from "next/server";
-import { persistenceManager } from "@/tests/PersistenceManager";
-import type { Tip } from "@/features/dashboard/types/lacite_astuces.types";
+import { NextResponse } from 'next/server';
+import { ContentService } from '@/server/services/ContentService';
 
 /**
- * GET /api/astuces
- * Retourne la liste complète des astuces La Cité depuis la base JSON.
- * Données statiques modifiables uniquement par l'administrateur (édition directe du fichier JSON).
+ * GET /api/astuces — Astuces actives depuis Server Core (MongoDB).
+ * Route publique — pas d'auth requise.
  */
 export async function GET() {
   try {
-    const tips = persistenceManager.readAll<Tip>("astuces");
-    return NextResponse.json(tips);
+    const result = await ContentService.getAstuces();
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
+    }
+    return NextResponse.json(result.data ?? []);
   } catch {
-    return NextResponse.json(
-      { error: "Impossible de lire les astuces" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Impossible de lire les astuces' }, { status: 500 });
   }
 }

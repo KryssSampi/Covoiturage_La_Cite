@@ -288,7 +288,7 @@ export function useAuthSession(onLoginSuccess: (user: AuthLoginUser) => void) {
     }
   }, [handleBlocked]);
 
-  const submitRegister = useCallback(async (firstName: string, lastName: string, password: string) => {
+  const submitRegister = useCallback(async (firstName: string, lastName: string, password: string, schoolRole?: string) => {
     if (!firstName.trim() || !lastName.trim()) {
       setError('Prénom et nom requis.');
       return;
@@ -307,7 +307,7 @@ export function useAuthSession(onLoginSuccess: (user: AuthLoginUser) => void) {
       const res = await fetch('/api/auth/session/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName: firstName.trim(), lastName: lastName.trim(), password }),
+        body: JSON.stringify({ firstName: firstName.trim(), lastName: lastName.trim(), password, schoolRole }),
       });
 
       const data = await res.json();

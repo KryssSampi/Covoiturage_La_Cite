@@ -62,6 +62,50 @@ export const BadgeService = {
   },
 };
 
+// ── GoTask / GoBoard ──────────────────────────────────────────────────────────
+
+export interface GoTaskResponseDto {
+  id: string;
+  taskKey: string;
+  titleFr: string;
+  titleEn: string;
+  descriptionFr: string;
+  descriptionEn: string;
+  category: string;
+  link?: string;
+  points: number;
+  isCompleted: boolean;
+  completedAt?: string;
+}
+
+export interface GoBoardResponseDto {
+  goScore: number;
+  tier: string;
+  rang: number;
+  pointsGagnes: number;
+  goTasks: GoTaskResponseDto[];
+  classement: { rang: number; utilisateurId: string; nom: string; score: number; estMoi: boolean }[];
+  defisEco: { id: string; title: string; titleEn: string; metricType: string; targetValue: number; rewardPoints: number; progres: number; statut: string }[];
+}
+
+export const GoTaskService = {
+
+  /** GoTasks avec progression de l'utilisateur courant */
+  async getAll(options?: RequestOptions): Promise<ApiResponse<GoTaskResponseDto[]>> {
+    return get<GoTaskResponseDto[]>('api/gotasks', options);
+  },
+
+  /** GoBoard complet (GoScore, classement, défis éco, progression GoTasks) */
+  async getGoBoard(options?: RequestOptions): Promise<ApiResponse<GoBoardResponseDto>> {
+    return get<GoBoardResponseDto>('api/gotasks/goboard', options);
+  },
+
+  /** Compléter une GoTask manuellement */
+  async complete(taskKey: string, options?: RequestOptions): Promise<ApiResponse<{ completed: boolean; taskKey: string }>> {
+    return post(`api/gotasks/${taskKey}/complete`, undefined, options);
+  },
+};
+
 export const ChallengeService = {
 
   /** Défis actifs */

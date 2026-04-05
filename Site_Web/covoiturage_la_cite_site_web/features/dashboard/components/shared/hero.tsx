@@ -116,12 +116,18 @@ export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }
               </button>
             </div>
           ) : (
-            <Link
-              href="#devenir-conducteur"
+            <button
+              type="button"
+              onClick={() => {
+                const uid = appState.userConnected?.id;
+                if (!uid) return router.push('/login');
+                // Start onboarding at vehicle step for driver intent
+                router.push(`/onboarding/${uid}?start=vehicle`);
+              }}
               className="absolute rounded-full border-2 border-white bg-[#08316ec6] px-2 py-4 font-semibold text-white transition-all duration-300 hover:scale-105 hover:bg-[#08316e] hover:shadow-2xl hover:shadow-blue-500/40 active:scale-95 lg:relative lg:self-start lg:mt-2 lg:-mb-10 lg:border-4 lg:px-15 lg:py-8 lg:text-5xl"
             >
               {isFR ? "Devenir conducteur ?" : "Become a driver ?"}
-            </Link>
+            </button>
           )}
         </div>
       </div>

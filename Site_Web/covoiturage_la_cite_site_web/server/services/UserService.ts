@@ -38,12 +38,29 @@ export interface UserPublicDto {
   driverStats?: unknown;
 }
 
+export interface UpdatePreferencesDto {
+  musicAccepted?: boolean;
+  petsAccepted?: boolean;
+  smokingAccepted?: boolean;
+  conversationLevel?: string;
+  emailPrimordiales?: boolean;
+  emailSecondaires?: boolean;
+  emailNegligeables?: boolean;
+  pushPrimordiales?: boolean;
+  pushSecondaires?: boolean;
+  pushNegligeables?: boolean;
+}
+
 export interface UpdateUserDto {
   firstName?: string;
   lastName?: string;
   phone?: string;
+  phoneNumber?: string;
   avatarUrl?: string;
   bio?: string;
+  language?: string;
+  languagesSpoken?: string[];
+  preferences?: UpdatePreferencesDto;
 }
 
 export interface PaginatedResult<T> {

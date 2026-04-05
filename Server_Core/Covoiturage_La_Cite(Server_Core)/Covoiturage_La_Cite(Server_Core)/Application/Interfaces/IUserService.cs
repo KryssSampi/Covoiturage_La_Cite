@@ -7,7 +7,9 @@ public interface IUserService
 {
     Task<UserResponseDto?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<UserResponseDto?> GetCurrentUserAsync(Guid userId, CancellationToken ct = default);
-    Task<UserPublicDto?> GetPublicProfileAsync(Guid id, CancellationToken ct = default);
+    Task<UserPublicDto?> GetPublicProfileAsync(Guid id, Guid? requesterId = null, CancellationToken ct = default);
+    Task<(bool isLiked, int count)> ToggleLikeAsync(Guid likerId, Guid likedId, CancellationToken ct = default);
+    Task<SurveyTripAlertDto> CreateSurveyAlertAsync(Guid userId, CreateSurveyAlertDto dto, CancellationToken ct = default);
     Task<UserResponseDto> UpdateProfileAsync(Guid userId, UpdateUserDto dto, CancellationToken ct = default);
     Task SoftDeleteAsync(Guid userId, CancellationToken ct = default);
     Task<PaginatedResult<UserResponseDto>> GetAllPaginatedAsync(int page, int pageSize, string? search = null, CancellationToken ct = default);
