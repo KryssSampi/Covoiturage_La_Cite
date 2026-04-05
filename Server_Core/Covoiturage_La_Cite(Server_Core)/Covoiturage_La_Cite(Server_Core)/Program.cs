@@ -1,41 +1,43 @@
 using Covoiturage_La_Cite_Server_Core_.Api.Configurations;
+using Covoiturage_La_Cite_Server_Core_.Api.Hubs;
 using Covoiturage_La_Cite_Server_Core_.Api.Middlewares;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Application.Jobs;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Admin;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Auth;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Campus;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Chat;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Content;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Finance;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Gamification;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Gps;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Matching;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Notification;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Onboarding;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Pipeda;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Reservation;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Security;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Social;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Sse;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Trip;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.User;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Vehicle;
 using Covoiturage_La_Cite_Server_Core_.Data.MongoDB;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Seeding;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.UserRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Trip;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.TrajetRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Reservation;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.ReservationRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Vehicle;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.VehiculeRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Finance;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.FinanceRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Notification;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.NotificationRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Social;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.SocialRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Gamification;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.GamificationRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Gps;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.GpsRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Campus;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.CampusRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Admin;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.AdminRepository;
-using Covoiturage_La_Cite_Server_Core_.Api.Hubs;
-using Covoiturage_La_Cite_Server_Core_.Application.Jobs;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Matching;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Security;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.SecurityRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Auth;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Pipeda;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.CampusRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.FinanceRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.GamificationRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.GpsRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.NotificationRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.PipedaRepository;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Onboarding;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.ReservationRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.SecurityRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.SocialRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.TrajetRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.UserRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.VehiculeRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Seeding;
 using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -164,6 +166,12 @@ try
     builder.Services.AddScoped<IEcoChallengeRepository, EcoChallengeRepository>();
     builder.Services.AddScoped<IChallengeParticipationRepository, ChallengeParticipationRepository>();
     builder.Services.AddScoped<IGamificationService, GamificationService>();
+    builder.Services.AddScoped<IGoTaskRepository, GoTaskRepository>();
+    builder.Services.AddScoped<IUserGoTaskProgressionRepository, UserGoTaskProgressionRepository>();
+    builder.Services.AddScoped<IGoTaskService, GoTaskService>();
+
+    // SSE (singleton — channel per user)
+    builder.Services.AddSingleton<SseChannelService>();
 
     // P9 — GPS / Tracking
     builder.Services.AddScoped<IGpsPositionRepository, GpsPositionRepository>();
@@ -200,6 +208,12 @@ try
     builder.Services.AddScoped<IConsentementRepository, ConsentementRepository>();
     builder.Services.AddScoped<IDataExportRepository, DataExportRepository>();
     builder.Services.AddScoped<IPipedaComplianceService, PipedaComplianceService>();
+
+    // P17 — Chat instantané
+    builder.Services.AddScoped<IChatService, ChatService>();
+
+    // P18 — Contenu éditorial (Astuces + Nouveautés)
+    builder.Services.AddScoped<IContentService, ContentService>();
     // ─────────────────────────────────────────────────────────────────────────
     var app = builder.Build();
 

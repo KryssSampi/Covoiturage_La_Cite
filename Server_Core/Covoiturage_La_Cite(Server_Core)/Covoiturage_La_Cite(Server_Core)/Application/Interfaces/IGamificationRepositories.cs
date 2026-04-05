@@ -3,6 +3,20 @@ using Covoiturage_La_Cite_Server_Core_.Domain.Interfaces;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 
+public interface IGoTaskRepository : IRepository<GoTask>
+{
+    Task<IEnumerable<GoTask>> GetAllActiveAsync(CancellationToken ct = default);
+    Task<GoTask?> GetByKeyAsync(string taskKey, CancellationToken ct = default);
+    Task<IEnumerable<GoTask>> GetWithUserProgressionAsync(Guid userId, CancellationToken ct = default);
+}
+
+public interface IUserGoTaskProgressionRepository : IRepository<UserGoTaskProgression>
+{
+    Task<UserGoTaskProgression?> GetByUserAndTaskAsync(Guid userId, Guid goTaskId, CancellationToken ct = default);
+    Task<IEnumerable<UserGoTaskProgression>> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
+    Task<bool> IsCompletedAsync(Guid userId, Guid goTaskId, CancellationToken ct = default);
+}
+
 public interface IBadgeRepository : IRepository<Badge>
 {
     Task<IEnumerable<Badge>> GetActiveAsync(CancellationToken ct = default);

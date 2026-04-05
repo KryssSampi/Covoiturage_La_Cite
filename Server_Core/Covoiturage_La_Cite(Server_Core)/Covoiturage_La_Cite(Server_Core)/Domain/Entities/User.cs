@@ -32,6 +32,9 @@ public class User
     public bool OnboardingCompleted { get; set; }
     public int ReputationPoints { get; set; }
     public string Language { get; set; } = "fr";
+
+    /// <summary>Langues parlées par l'utilisateur (ex: ["fr", "en", "es"]).</summary>
+    public string[] LanguagesSpoken { get; set; } = ["fr"];
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
@@ -50,4 +53,8 @@ public class User
     public ICollection<Penalty> Penalties { get; set; } = new List<Penalty>();
     public ICollection<Report> ReportsFiled { get; set; } = new List<Report>();
     public ICollection<SosAlert> SosAlerts { get; set; } = new List<SosAlert>();
+    public ICollection<UserLike> LikesGiven { get; set; } = new List<UserLike>();
+    public ICollection<UserLike> LikesReceived { get; set; } = new List<UserLike>();
+    public ICollection<SurveyTripAlert> SurveyAlerts { get; set; } = new List<SurveyTripAlert>();
+    public ICollection<SurveyTripAlert> SurveyAlertsAsDriver { get; set; } = new List<SurveyTripAlert>();
 }

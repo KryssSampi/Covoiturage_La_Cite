@@ -1,19 +1,19 @@
-import { NextResponse } from "next/server";
-import { persistenceManager } from "@/tests/PersistenceManager";
-import type { GoTask } from "@/features/dashboard/types/goboard.types";
+import { NextResponse } from 'next/server';
+import { GoTaskService } from '@/server/services/GamificationService';
+import { withAuth } from '@/server/auth';
 
 /**
- * GET /api/gotasks
- * Retourne la liste complète des GoTasks depuis la base JSON.
+ * GET /api/gotasks — GoTasks avec progression de l'utilisateur courant (Server Core).
  */
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const tasks = persistenceManager.readAll<GoTask>("gotasks");
-    return NextResponse.json(tasks);
+    const auth = await withAuth(req);
+    const result = await GoTaskService.getAll(auth);
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
+    }
+    return NextResponse.json(result.data ?? []);
   } catch {
-    return NextResponse.json(
-      { error: "Impossible de lire les gotasks" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: 'Impossible de lire les gotasks' }, { status: 500 });
   }
 }

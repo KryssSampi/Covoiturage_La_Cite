@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Session manquante. Rechargez la page.' }, { status: 401 });
     }
 
-    const body = (await req.json()) as { firstName?: string; lastName?: string; password?: string };
+    const body = (await req.json()) as { firstName?: string; lastName?: string; password?: string; schoolRole?: string };
     if (!body.firstName?.trim() || !body.lastName?.trim()) {
       return NextResponse.json({ error: 'Prénom et nom requis.' }, { status: 400 });
     }
@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       body.lastName.trim(),
       body.password,
       authSessionKey,
+      (body as any).schoolRole,
     );
 
     if (status === 429 && json.data) {

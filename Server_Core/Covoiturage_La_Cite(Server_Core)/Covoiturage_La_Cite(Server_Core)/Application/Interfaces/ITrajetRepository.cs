@@ -13,6 +13,10 @@ public interface ITrajetRepository : Domain.Interfaces.IRepository<Trip>
     Task<IEnumerable<Trip>> GetDriverHistoriqueAsync(Guid driverId, int page, int pageSize, CancellationToken ct = default);
     Task<IEnumerable<Trip>> GetPassengerHistoriqueAsync(Guid passengerId, int page, int pageSize, CancellationToken ct = default);
     Task<Trip?> GetTripEnCoursAsync(Guid tripId, CancellationToken ct = default);
+    /// <summary>Retourne jusqu'à `count` trajets publiés dont la destination correspond au label donné.</summary>
+    Task<IEnumerable<Trip>> GetPublishedByArrivalLabelAsync(string arrivalLabel, int count, CancellationToken ct = default);
+    /// <summary>Retourne `count` trajets publiés aléatoires (fallback recommandations).</summary>
+    Task<IEnumerable<Trip>> GetRandomPublishedAsync(int count, CancellationToken ct = default);
 }
 
 /// <summary>

@@ -8,12 +8,14 @@ public class VehiculeService : IVehiculeService
 {
     private readonly IVehiculeRepository _repo;
     private readonly IUserRepository _userRepo;
+    private readonly IGoTaskService _goTasks;
     private readonly ILogger<VehiculeService> _logger;
 
-    public VehiculeService(IVehiculeRepository repo, IUserRepository userRepo, ILogger<VehiculeService> logger)
+    public VehiculeService(IVehiculeRepository repo, IUserRepository userRepo, IGoTaskService goTasks, ILogger<VehiculeService> logger)
     {
         _repo = repo;
         _userRepo = userRepo;
+        _goTasks = goTasks;
         _logger = logger;
     }
 
@@ -67,6 +69,8 @@ public class VehiculeService : IVehiculeService
 
         await _repo.AddAsync(vehicle, ct);
         _logger.LogInformation("Véhicule créé: {VehicleId} pour conducteur {UserId}", vehicle.Id, userId);
+        // GoTask trigger — GT-011 : premier véhicule ajouté
+        _ = Task.Run(() => _goTasks.TryCompleteAsync(userId, "GT-011", ct), ct);
         return MapToResponse(vehicle);
     }
 

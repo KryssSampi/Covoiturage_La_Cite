@@ -56,7 +56,7 @@ export function buildMenuItems(role: string, id: string): NavItem[] {
 
 export function buildAvatarMenuItems(role: string, id: string): NavItem[] {
   return [
-    { labelFR: "Profil",      labelEN: "Profile",   href: `/profile/${id}`          },
+    { labelFR: "Profil",      labelEN: "Profile",   href: `/profile/settings`          },
     { labelFR: "Paramètres",  labelEN: "Settings",  href: `/${role}/settings/${id}` },
   ];
 }

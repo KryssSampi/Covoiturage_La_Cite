@@ -17,5 +17,13 @@ public enum NotificationType
     Suggestion,
     BadgeEarned,
     ChallengeCompleted,
-    System
+    System,
+    // ── Bienvenue & onboarding ─────────────────────────────────────────────────
+    Welcome,
+    HowItWorks,
+    // ── Gamification ──────────────────────────────────────────────────────────
+    GoTaskCompleted,
+    GoScoreMilestone,
+    // ── Recommandations ───────────────────────────────────────────────────────
+    RecommendedTrip
 }

@@ -24,4 +24,11 @@ public interface ITrajetService
     // Brouillons
     Task<IEnumerable<TrajetResponseDto>> GetDraftsAsync(Guid driverId, CancellationToken ct = default);
     Task<TrajetResponseDto?> GetDraftByIdAsync(Guid draftId, Guid driverId, CancellationToken ct = default);
+
+    // Recommandations
+    /// <summary>
+    /// Retourne jusqu'à 5 trajets recommandés pour l'utilisateur.
+    /// Analyse les destinations récentes/récurrentes ; fallback : 5 trajets publiés aléatoires.
+    /// </summary>
+    Task<IEnumerable<TrajetResponseDto>> GetRecommendedAsync(Guid userId, CancellationToken ct = default);
 }

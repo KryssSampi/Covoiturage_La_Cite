@@ -135,9 +135,9 @@ export const AuthSessionService = {
     });
   },
 
-  register(firstName: string, lastName: string, password: string, authSessionKey: string) {
+  register(firstName: string, lastName: string, password: string, authSessionKey: string, schoolRole?: string) {
     return callServerCore<LoginResultData>('api/auth/register', {
-      body: { firstName, lastName, password },
+      body: { firstName, lastName, password, schoolRole },
       authSessionKey,
     });
   },

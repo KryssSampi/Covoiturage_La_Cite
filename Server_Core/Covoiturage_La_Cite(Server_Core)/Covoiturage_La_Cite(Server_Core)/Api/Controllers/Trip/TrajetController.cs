@@ -127,6 +127,19 @@ public class TrajetController : ControllerBase
         return Ok(ApiResponse<TrajetResponseDto>.Ok(trip, "Brouillon sauvegardé"));
     }
 
+    /// <summary>
+    /// GET /api/trips/recommended
+    /// Retourne jusqu'à 5 trajets recommandés basés sur l'historique de l'utilisateur.
+    /// Si pas d'historique : 5 trajets aléatoires publiés.
+    /// </summary>
+    [HttpGet("recommended")]
+    public async Task<IActionResult> GetRecommended(CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        var trips = await _trajetService.GetRecommendedAsync(userId, ct);
+        return Ok(ApiResponse<IEnumerable<TrajetResponseDto>>.Ok(trips));
+    }
+
     private Guid GetCurrentUserId()
     {
         var sub = User.FindFirst(ClaimTypes.NameIdentifier)?.Value

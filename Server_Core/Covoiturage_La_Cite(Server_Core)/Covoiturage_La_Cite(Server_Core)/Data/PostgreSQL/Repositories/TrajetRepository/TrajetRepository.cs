@@ -190,4 +190,28 @@ public class TrajetRepository : ITrajetRepository
             .Include(t => t.Reservations).ThenInclude(r => r.Passenger)
             .Include(t => t.GpsPositions.OrderByDescending(g => g.CapturedAt).Take(1))
             .FirstOrDefaultAsync(t => t.Id == tripId && t.Status == TripStatus.InProgress, ct);
+
+    public async Task<IEnumerable<Trip>> GetPublishedByArrivalLabelAsync(string arrivalLabel, int count, CancellationToken ct = default)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        return await _db.Trips
+            .Include(t => t.Driver)
+            .Where(t => t.Status == TripStatus.Published
+                && t.DepartureDate >= today
+                && EF.Functions.ILike(t.ArrivalLabel, $"%{arrivalLabel}%"))
+            .OrderBy(t => t.DepartureDate).ThenBy(t => t.DepartureTime)
+            .Take(count)
+            .ToListAsync(ct);
+    }
+
+    public async Task<IEnumerable<Trip>> GetRandomPublishedAsync(int count, CancellationToken ct = default)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        return await _db.Trips
+            .Include(t => t.Driver)
+            .Where(t => t.Status == TripStatus.Published && t.DepartureDate >= today)
+            .OrderBy(_ => EF.Functions.Random())
+            .Take(count)
+            .ToListAsync(ct);
+    }
 }

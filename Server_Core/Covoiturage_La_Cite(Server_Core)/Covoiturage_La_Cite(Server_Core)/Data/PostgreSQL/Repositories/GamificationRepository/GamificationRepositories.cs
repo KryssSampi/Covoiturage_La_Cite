@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.GamificationRepository;
 
+
 // ── BadgeRepository ──────────────────────────────────────────────────────────
 
 public class BadgeRepository : IBadgeRepository
@@ -114,4 +115,65 @@ public class ChallengeParticipationRepository : IChallengeParticipationRepositor
         => await _db.ChallengeParticipations.Include(cp => cp.EcoChallenge).FirstOrDefaultAsync(cp => cp.UserId == userId && cp.EcoChallengeId == challengeId, ct);
     public async Task<IEnumerable<ChallengeParticipation>> GetLeaderboardAsync(Guid challengeId, int top = 10, CancellationToken ct = default)
         => await _db.ChallengeParticipations.Include(cp => cp.User).Where(cp => cp.EcoChallengeId == challengeId).OrderByDescending(cp => cp.CurrentValue).Take(top).ToListAsync(ct);
+}
+
+// ── GoTaskRepository ──────────────────────────────────────────────────────────
+
+public class GoTaskRepository : IGoTaskRepository
+{
+    private readonly AppDbContext _db;
+    public GoTaskRepository(AppDbContext db) => _db = db;
+
+    public async Task<GoTask?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => await _db.GoTasks.Include(t => t.Progressions).FirstOrDefaultAsync(t => t.Id == id, ct);
+    public async Task<IEnumerable<GoTask>> GetAllAsync(CancellationToken ct = default)
+        => await _db.GoTasks.Include(t => t.Progressions).ToListAsync(ct);
+    public async Task AddAsync(GoTask entity, CancellationToken ct = default)
+    { await _db.GoTasks.AddAsync(entity, ct); await _db.SaveChangesAsync(ct); }
+    public async Task UpdateAsync(GoTask entity, CancellationToken ct = default)
+    { _db.GoTasks.Update(entity); await _db.SaveChangesAsync(ct); }
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    { var t = await GetByIdAsync(id, ct); if (t != null) { _db.GoTasks.Remove(t); await _db.SaveChangesAsync(ct); } }
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken ct = default)
+        => await _db.GoTasks.AnyAsync(t => t.Id == id, ct);
+
+    public async Task<IEnumerable<GoTask>> GetAllActiveAsync(CancellationToken ct = default)
+        => await _db.GoTasks.Where(t => t.IsActive).ToListAsync(ct);
+
+    public async Task<GoTask?> GetByKeyAsync(string taskKey, CancellationToken ct = default)
+        => await _db.GoTasks.Include(t => t.Progressions).FirstOrDefaultAsync(t => t.TaskKey == taskKey, ct);
+
+    public async Task<IEnumerable<GoTask>> GetWithUserProgressionAsync(Guid userId, CancellationToken ct = default)
+        => await _db.GoTasks
+            .Where(t => t.IsActive)
+            .Include(t => t.Progressions.Where(p => p.UserId == userId))
+            .ToListAsync(ct);
+}
+
+// ── UserGoTaskProgressionRepository ──────────────────────────────────────────
+
+public class UserGoTaskProgressionRepository : IUserGoTaskProgressionRepository
+{
+    private readonly AppDbContext _db;
+    public UserGoTaskProgressionRepository(AppDbContext db) => _db = db;
+
+    public async Task<UserGoTaskProgression?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => await _db.UserGoTaskProgressions.FirstOrDefaultAsync(p => p.Id == id, ct);
+    public async Task<IEnumerable<UserGoTaskProgression>> GetAllAsync(CancellationToken ct = default)
+        => await _db.UserGoTaskProgressions.ToListAsync(ct);
+    public async Task AddAsync(UserGoTaskProgression entity, CancellationToken ct = default)
+    { await _db.UserGoTaskProgressions.AddAsync(entity, ct); await _db.SaveChangesAsync(ct); }
+    public async Task UpdateAsync(UserGoTaskProgression entity, CancellationToken ct = default)
+    { _db.UserGoTaskProgressions.Update(entity); await _db.SaveChangesAsync(ct); }
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
+    { var p = await GetByIdAsync(id, ct); if (p != null) { _db.UserGoTaskProgressions.Remove(p); await _db.SaveChangesAsync(ct); } }
+    public async Task<bool> ExistsAsync(Guid id, CancellationToken ct = default)
+        => await _db.UserGoTaskProgressions.AnyAsync(p => p.Id == id, ct);
+
+    public async Task<UserGoTaskProgression?> GetByUserAndTaskAsync(Guid userId, Guid goTaskId, CancellationToken ct = default)
+        => await _db.UserGoTaskProgressions.FirstOrDefaultAsync(p => p.UserId == userId && p.GoTaskId == goTaskId, ct);
+    public async Task<IEnumerable<UserGoTaskProgression>> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
+        => await _db.UserGoTaskProgressions.Where(p => p.UserId == userId).ToListAsync(ct);
+    public async Task<bool> IsCompletedAsync(Guid userId, Guid goTaskId, CancellationToken ct = default)
+        => await _db.UserGoTaskProgressions.AnyAsync(p => p.UserId == userId && p.GoTaskId == goTaskId && p.IsDone, ct);
 }

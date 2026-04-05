@@ -10,10 +10,11 @@ namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Social;
 public class ReviewService : IReviewService
 {
     private readonly IReviewRepository _repo;
+    private readonly IGoTaskService _goTasks;
     private readonly ILogger<ReviewService> _logger;
 
-    public ReviewService(IReviewRepository repo, ILogger<ReviewService> logger)
-    { _repo = repo; _logger = logger; }
+    public ReviewService(IReviewRepository repo, IGoTaskService goTasks, ILogger<ReviewService> logger)
+    { _repo = repo; _goTasks = goTasks; _logger = logger; }
 
     public async Task<ReviewResponseDto> CreateAsync(Guid reviewerId, CreateReviewDto dto, CancellationToken ct = default)
     {
@@ -42,6 +43,8 @@ public class ReviewService : IReviewService
 
         await _repo.AddAsync(review, ct);
         _logger.LogInformation("Avis créé: {ReviewId} par {ReviewerId} pour {RevieweeId}", review.Id, reviewerId, dto.RevieweeId);
+        // GoTask trigger — GT-006 : premier avis laissé
+        _ = Task.Run(() => _goTasks.TryCompleteAsync(reviewerId, "GT-006", ct), ct);
         return MapReview(review);
     }
 

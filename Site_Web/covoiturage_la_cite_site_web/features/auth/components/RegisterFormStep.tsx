@@ -8,6 +8,7 @@ import PasswordCriterion from './PasswordCriterion';
 export default function RegisterFormStep({ auth, isFr }: { auth: ReturnType<typeof useAuthSession>; isFr: boolean }) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [schoolRole, setSchoolRole] = useState('Etudiant');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -23,7 +24,7 @@ export default function RegisterFormStep({ auth, isFr }: { auth: ReturnType<type
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!passwordsMatch) return;
-    auth.submitRegister(firstName, lastName, password);
+    auth.submitRegister(firstName, lastName, password, schoolRole);
   };
 
   return (
@@ -156,6 +157,26 @@ export default function RegisterFormStep({ auth, isFr }: { auth: ReturnType<type
       </div>
 
       <ErrorMessage message={auth.error} />
+
+      {/* Rôle à la cité */}
+      <div>
+        <label htmlFor="reg-schoolrole" className="mb-1 block text-sm font-medium text-gray-700">
+          {isFr ? "Votre rôle à la cité" : "Your role at the school"}
+        </label>
+        <select
+          id="reg-schoolrole"
+          value={schoolRole}
+          onChange={(e) => setSchoolRole(e.target.value)}
+          disabled={auth.isLoading}
+          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder:text-gray-400
+                     focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500
+                     disabled:bg-gray-50 disabled:text-gray-500"
+        >
+          <option>Etudiant</option>
+          <option>Professeur</option>
+          <option>Administrateur</option>
+        </select>
+      </div>
 
       <button
         type="submit"

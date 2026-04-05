@@ -391,13 +391,15 @@ public class AuthSessionService : IAuthSessionService
 
     private static string GeneratePublicId()
     {
-        // 8 caractères alphanumériques lisibles
-        var bytes = new byte[6];
-        RandomNumberGenerator.Fill(bytes);
-        return Convert.ToBase64String(bytes)
-            .Replace("+", "")
-            .Replace("/", "")
-            .Replace("=", "")[..8];
+        // 8 caractères alphanumériques lisibles (exclusion des caractères ambigus)
+        const string alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+        var sb = new System.Text.StringBuilder(8);
+        for (int i = 0; i < 8; i++)
+        {
+            int idx = RandomNumberGenerator.GetInt32(alphabet.Length);
+            sb.Append(alphabet[idx]);
+        }
+        return sb.ToString();
     }
 
     private static string HashToken(string token)

@@ -157,4 +157,9 @@ export const TripService = {
   async saveDraft(tripId: string, data: CreateTrajetDto, options?: RequestOptions): Promise<ApiResponse<TrajetResponseDto>> {
     return post<TrajetResponseDto>(`api/trips/${tripId}/save-draft`, data, options);
   },
+
+  /** Trajets recommandés pour l'utilisateur courant (5 max, basé sur l'historique ou aléatoire) */
+  async getRecommended(options?: RequestOptions): Promise<ApiResponse<TrajetResponseDto[]>> {
+    return get<TrajetResponseDto[]>('api/trips/recommended', options);
+  },
 };

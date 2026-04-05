@@ -10,15 +10,18 @@ public class ReservationService : IReservationService
 {
     private readonly IReservationRepository _repo;
     private readonly ITrajetRepository _trajetRepo;
+    private readonly IGoTaskService _goTasks;
     private readonly ILogger<ReservationService> _logger;
 
     public ReservationService(
         IReservationRepository repo,
         ITrajetRepository trajetRepo,
+        IGoTaskService goTasks,
         ILogger<ReservationService> logger)
     {
         _repo = repo;
         _trajetRepo = trajetRepo;
+        _goTasks = goTasks;
         _logger = logger;
     }
 
@@ -117,6 +120,8 @@ public class ReservationService : IReservationService
 
         await _repo.AddAsync(reservation, ct);
         _logger.LogInformation("Reservation créée: {ReservationId} (Trip {TripId})", reservation.Id, trip.Id);
+        // GoTask trigger — GT-012 : première réservation passager
+        _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
 
         return MapToResponse(reservation);
     }
