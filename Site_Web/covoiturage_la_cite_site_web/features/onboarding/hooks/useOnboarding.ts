@@ -14,6 +14,7 @@
  *  5. vehiclePhotos — 6 photos du véhicule (conducteur seulement)
  *  6. documents    — Documents conducteur (conducteur seulement)
  *  7. profilePhoto — Photo de profil
+ *  8. faceVerification — Vérification d'identité (4 angles visage, auto-capture)
  */
 
 import { useState, useCallback } from 'react';
@@ -26,6 +27,7 @@ export type OnboardingStep =
   | 'vehiclePhotos'
   | 'documents'
   | 'profilePhoto'
+  | 'faceVerification'
   | 'done';
 
 export interface OnboardingFormData {
@@ -48,6 +50,8 @@ export interface OnboardingFormData {
   documents: Record<string, { fileUrl: string; expiryDate?: string }>;
   // Étape 7 : Profil
   avatarUrl: string;
+  // Étape 8 : Vérification d'identité
+  identityPhotos: string[];
 }
 
 interface UseOnboardingReturn {
@@ -69,6 +73,7 @@ interface UseOnboardingReturn {
   submitVehiclePhotos: () => Promise<void>;
   submitDocument: (docType: string, fileUrl: string, expiryDate?: string) => Promise<void>;
   submitProfilePicture: () => Promise<void>;
+  submitIdentityVerification: (photos: string[]) => Promise<void>;
   confirmAbandonDriver: () => Promise<void>;
   cancelAbandonDriver: () => void;
   triggerAbandonWarning: () => void;
@@ -88,6 +93,7 @@ const INITIAL_FORM: OnboardingFormData = {
   vehiclePhotoUrls: [],
   documents: {},
   avatarUrl: '',
+  identityPhotos: [],
 };
 
 async function apiPost(path: string, body?: unknown): Promise<{ success: boolean; data?: unknown; error?: string }> {
@@ -121,7 +127,7 @@ export function useOnboarding(initial?: { initialRole?: 'passenger' | 'driver'; 
     if (role === 'driver') {
       base.push('vehicle', 'vehiclePhotos', 'documents');
     }
-    base.push('profilePhoto');
+    base.push('profilePhoto', 'faceVerification');
     return base;
   }, []);
 
@@ -268,6 +274,23 @@ export function useOnboarding(initial?: { initialRole?: 'passenger' | 'driver'; 
     }
   }, [formData.avatarUrl, goToNextStep]);
 
+  const submitIdentityVerification = useCallback(async (photos: string[]) => {
+    if (photos.length < 4) {
+      setError('4 captures sont requises.');
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await apiPost('identity-verification', { photos });
+      if (!result.success) { setError(result.error ?? 'Erreur'); return; }
+      setField('identityPhotos', photos);
+      goToNextStep();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setField, goToNextStep]);
+
   // ── Abandon conducteur ───────────────────────────────────────────────────
 
   const triggerAbandonWarning = useCallback(() => setShowAbandonWarning(true), []);
@@ -304,6 +327,7 @@ export function useOnboarding(initial?: { initialRole?: 'passenger' | 'driver'; 
     submitVehiclePhotos,
     submitDocument,
     submitProfilePicture,
+    submitIdentityVerification,
     confirmAbandonDriver,
     cancelAbandonDriver,
     triggerAbandonWarning,

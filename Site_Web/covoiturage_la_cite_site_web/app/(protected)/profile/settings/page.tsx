@@ -1,41 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useAppState } from "@/core/state/app_state";
+import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useLoader } from "@/core/context/loader.context";
 import { FaCheck, FaPlus, FaXmark } from "react-icons/fa6";
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-
-interface Prefs {
-  musicAccepted: boolean;
-  petsAccepted: boolean;
-  smokingAccepted: boolean;
-  conversationLevel: string;
-  emailPrimordiales: boolean;
-  emailSecondaires: boolean;
-  emailNegligeables: boolean;
-  pushPrimordiales: boolean;
-  pushSecondaires: boolean;
-  pushNegligeables: boolean;
-}
-
-interface MeData {
-  id: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  avatarUrl?: string;
-  bio?: string;
-  language: string;
-  languagesSpoken: string[];
-  schoolRole: string;
-  role: string;
-  preferences?: Prefs;
-}
-
-type Tab = "profile" | "preferences";
+import { SettingsSidebar } from "@/features/profile/components/SettingsSidebar";
+import type { MeData, SettingsTab, UserPreferences } from "@/features/profile/types/profile.types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -102,14 +72,37 @@ function SaveButton({
   );
 }
 
+function schoolRoleLabel(role: string): string {
+  const map: Record<string, string> = {
+    etudiant: "Étudiant",
+    professeur: "Professeur",
+    membredupersonnel: "Membre du personnel",
+    administrateur: "Administrateur",
+  };
+  if (typeof role !== "string") return role == null ? "" : String(role);
+  const key = role.toLowerCase().replace(/\s+/g, "");
+  return map[key] ?? role;
+}
+
+function roleLabel(role: string): string {
+  const map: Record<string, string> = {
+    driver: "Conducteur",
+    passenger: "Passager",
+    admin: "Administrateur",
+  };
+  if (typeof role !== "string") return role == null ? "" : String(role);
+  const key = role.toLowerCase().replace(/\s+/g, "");
+  return map[key] ?? role;
+}
+
 // ── Page principale ───────────────────────────────────────────────────────────
 
 export default function ProfileSettingsPage() {
   const searchParams = useSearchParams();
-  const initialTab = (searchParams.get("tab") as Tab) ?? "profile";
-  const [tab, setTab] = useState<Tab>(initialTab);
+  const router = useRouter();
+  const initialTab = (searchParams.get("tab") as SettingsTab) ?? "profile";
+  const [tab, setTab] = useState<SettingsTab>(initialTab);
 
-  const { userConnected } = useAppState();
   const { setActiveLoader } = useLoader();
 
   const [me, setMe] = useState<MeData | null>(null);
@@ -124,7 +117,7 @@ export default function ProfileSettingsPage() {
   const [langInput, setLangInput] = useState("");
 
   // Préférences form
-  const [prefs, setPrefs] = useState<Prefs>({
+  const [prefs, setPrefs] = useState<UserPreferences>({
     musicAccepted: false,
     petsAccepted: false,
     smokingAccepted: false,
@@ -163,27 +156,14 @@ export default function ProfileSettingsPage() {
 
   // Sync tab depuis query param
   useEffect(() => {
-    const t = searchParams.get("tab") as Tab;
+    const t = searchParams.get("tab") as SettingsTab;
     if (t) setTab(t);
   }, [searchParams]);
 
-  const schoolRoleLabel = (role: string) => {
-    const map: Record<string, string> = {
-      etudiant: "Étudiant",
-      professeur: "Professeur",
-      membredupersonnel: "Membre du personnel",
-      administrateur: "Administrateur",
-    };
-    return map[role?.toLowerCase()] ?? role;
-  };
-
-  const roleLabel = (role: string) => {
-    const map: Record<string, string> = {
-      driver: "Conducteur",
-      passenger: "Passager",
-      admin: "Administrateur",
-    };
-    return map[role?.toLowerCase()] ?? role;
+  // Navigation vers un onglet
+  const navigateToTab = (newTab: SettingsTab) => {
+    setTab(newTab);
+    router.push(`/profile/settings?tab=${newTab}`);
   };
 
   // ── Langues ──────────────────────────────────────────────────────────────
@@ -245,246 +225,252 @@ export default function ProfileSettingsPage() {
     }
   };
 
+  // ── Déconnexion ───────────────────────────────────────────────────────────
+
+  const handleLogout = async () => {
+    setActiveLoader(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" });
+    } catch {
+      // ignore
+    }
+    router.push("/login");
+  };
+
   if (!me) return null;
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "profile", label: "Profil" },
-    { key: "preferences", label: "Préférences" },
-  ];
-
   return (
-    <main className="mx-auto max-w-lg px-4 py-8 text-gray-800">
-      <h1 className="mb-1 text-xl font-bold">Configuration</h1>
-      <p className="mb-6 text-sm text-gray-400">
-        {schoolRoleLabel(me.schoolRole)} à La Cité ·{" "}
-        <span className="text-blue-600">{roleLabel(me.role)}</span>
-      </p>
+    <main className="mx-auto max-w-5xl px-4 py-8 text-gray-800">
+      <div className="flex flex-col gap-6 lg:flex-row">
+        {/* Sidebar */}
+        <SettingsSidebar
+          user={me}
+          activeTab={tab}
+          onNavigate={navigateToTab}
+          onLogout={handleLogout}
+        />
 
-      {/* Tabs */}
-      <div className="mb-6 flex gap-1 rounded-xl bg-gray-100 p-1">
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`flex-1 rounded-lg py-2 text-sm font-medium transition-all ${
-              tab === t.key
-                ? "bg-white text-blue-600 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+        {/* Contenu principal */}
+        <div className="flex-1">
+          <h1 className="mb-1 text-xl font-bold">
+            {tab === "profile" ? "Configuration du profil" : "Paramètres"}
+          </h1>
+          <p className="mb-6 text-sm text-gray-400">
+            {tab === "profile"
+              ? "Gérez vos données de base visibles par les autres membres."
+              : "Configurez vos préférences pour une meilleure expérience."}
+          </p>
 
-      {/* ── Tab Profil ─────────────────────────────────────────────────────── */}
-      {tab === "profile" && (
-        <div className="flex flex-col gap-5">
-          {/* Nom */}
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
-              Prénom
-            </label>
-            <input
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
-              Nom
-            </label>
-            <input
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-            />
-          </div>
+          {/* ── Tab Profil ─────────────────────────────────────────────────── */}
+          {tab === "profile" && (
+            <div className="flex flex-col gap-5">
+              {/* Nom */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Prénom
+                </label>
+                <input
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Nom
+                </label>
+                <input
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
+                />
+              </div>
 
-          {/* Bio */}
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
-              Bio
-            </label>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              rows={3}
-              maxLength={500}
-              className="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-              placeholder="Parlez-vous de vous…"
-            />
-            <p className="mt-1 text-right text-xs text-gray-300">{bio.length}/500</p>
-          </div>
+              {/* Bio */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Bio
+                </label>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                  maxLength={500}
+                  className="w-full resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
+                  placeholder="Parlez-vous de vous…"
+                />
+                <p className="mt-1 text-right text-xs text-gray-300">{bio.length}/500</p>
+              </div>
 
-          {/* Téléphone */}
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
-              Numéro de téléphone
-            </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-              placeholder="+1 613 555 0100"
-            />
-          </div>
+              {/* Téléphone */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Numéro de téléphone
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
+                  placeholder="+1 613 555 0100"
+                />
+              </div>
 
-          {/* Langue principale */}
-          <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
-              Langue principale
-            </label>
-            <input
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              maxLength={5}
-              className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
-              placeholder="fr"
-            />
-          </div>
+              {/* Langue principale */}
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Langue principale
+                </label>
+                <input
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  maxLength={5}
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
+                  placeholder="fr"
+                />
+              </div>
 
-          {/* Langues parlées */}
-          <div>
-            <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400">
-              Langues parlées
-            </label>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {languages.map((l) => (
-                <span
-                  key={l}
-                  className="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700"
-                >
-                  {l.toUpperCase()}
+              {/* Langues parlées */}
+              <div>
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Langues parlées
+                </label>
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {languages.map((l) => (
+                    <span
+                      key={l}
+                      className="flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700"
+                    >
+                      {l.toUpperCase()}
+                      <button
+                        onClick={() => removeLanguage(l)}
+                        className="ml-1 text-blue-400 hover:text-blue-600"
+                        aria-label={`Supprimer ${l}`}
+                      >
+                        <FaXmark size={10} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    value={langInput}
+                    onChange={(e) => setLangInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addLanguage()}
+                    placeholder="ex: EN, ES, AR…"
+                    maxLength={10}
+                    className="flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
+                  />
                   <button
-                    onClick={() => removeLanguage(l)}
-                    className="ml-1 text-blue-400 hover:text-blue-600"
-                    aria-label={`Supprimer ${l}`}
+                    onClick={addLanguage}
+                    className="flex items-center gap-1 rounded-xl bg-gray-100 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200"
                   >
-                    <FaXmark size={10} />
+                    <FaPlus size={11} /> Ajouter
                   </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                value={langInput}
-                onChange={(e) => setLangInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addLanguage()}
-                placeholder="ex: EN, ES, AR…"
-                maxLength={10}
-                className="flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none"
-              />
-              <button
-                onClick={addLanguage}
-                className="flex items-center gap-1 rounded-xl bg-gray-100 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200"
-              >
-                <FaPlus size={11} /> Ajouter
-              </button>
-            </div>
-            <p className="mt-1 text-xs text-gray-400">
-              Tapez un code de langue (FR, EN, ES…) et appuyez sur Entrée
-            </p>
-          </div>
+                </div>
+                <p className="mt-1 text-xs text-gray-400">
+                  Tapez un code de langue (FR, EN, ES…) et appuyez sur Entrée
+                </p>
+              </div>
 
-          <SaveButton saving={savingProfile} saved={savedProfile} onClick={saveProfile} />
+              <SaveButton saving={savingProfile} saved={savedProfile} onClick={saveProfile} />
+            </div>
+          )}
+
+          {/* ── Tab Paramètres ─────────────────────────────────────────────── */}
+          {tab === "settings" && (
+            <div className="flex flex-col gap-6">
+              {/* Ambiance de trajet */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold text-gray-700">Ambiance de trajet</h3>
+                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm divide-y divide-gray-50">
+                  <Toggle
+                    value={prefs.musicAccepted}
+                    onChange={(v) => setPrefs({ ...prefs, musicAccepted: v })}
+                    label="Musique acceptée"
+                  />
+                  <Toggle
+                    value={prefs.petsAccepted}
+                    onChange={(v) => setPrefs({ ...prefs, petsAccepted: v })}
+                    label="Animaux acceptés"
+                  />
+                  <Toggle
+                    value={prefs.smokingAccepted}
+                    onChange={(v) => setPrefs({ ...prefs, smokingAccepted: v })}
+                    label="Fumeur"
+                  />
+                </div>
+              </div>
+
+              {/* Niveau de conversation */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold text-gray-700">Niveau de conversation</h3>
+                <div className="flex gap-2">
+                  {["quiet", "moderate", "chatty"].map((level) => (
+                    <button
+                      key={level}
+                      onClick={() => setPrefs({ ...prefs, conversationLevel: level })}
+                      className={`flex-1 rounded-xl border py-2 text-xs font-medium capitalize transition-all ${
+                        prefs.conversationLevel === level
+                          ? "border-blue-500 bg-blue-50 text-blue-700"
+                          : "border-gray-200 text-gray-500 hover:border-gray-300"
+                      }`}
+                    >
+                      {level === "quiet" ? "Calme" : level === "moderate" ? "Modéré" : "Bavard"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notifications par email */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold text-gray-700">Notifications par email</h3>
+                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm divide-y divide-gray-50">
+                  <Toggle
+                    value={prefs.emailPrimordiales}
+                    onChange={(v) => setPrefs({ ...prefs, emailPrimordiales: v })}
+                    label="Primordiales (urgentes)"
+                  />
+                  <Toggle
+                    value={prefs.emailSecondaires}
+                    onChange={(v) => setPrefs({ ...prefs, emailSecondaires: v })}
+                    label="Secondaires (importantes)"
+                  />
+                  <Toggle
+                    value={prefs.emailNegligeables}
+                    onChange={(v) => setPrefs({ ...prefs, emailNegligeables: v })}
+                    label="Négligeables (infos)"
+                  />
+                </div>
+              </div>
+
+              {/* Notifications push */}
+              <div>
+                <h3 className="mb-3 text-sm font-semibold text-gray-700">Notifications push mobile</h3>
+                <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm divide-y divide-gray-50">
+                  <Toggle
+                    value={prefs.pushPrimordiales}
+                    onChange={(v) => setPrefs({ ...prefs, pushPrimordiales: v })}
+                    label="Primordiales (urgentes)"
+                  />
+                  <Toggle
+                    value={prefs.pushSecondaires}
+                    onChange={(v) => setPrefs({ ...prefs, pushSecondaires: v })}
+                    label="Secondaires (importantes)"
+                  />
+                  <Toggle
+                    value={prefs.pushNegligeables}
+                    onChange={(v) => setPrefs({ ...prefs, pushNegligeables: v })}
+                    label="Négligeables (infos)"
+                  />
+                </div>
+              </div>
+
+              <SaveButton saving={savingPrefs} saved={savedPrefs} onClick={savePrefs} />
+            </div>
+          )}
         </div>
-      )}
-
-      {/* ── Tab Préférences ───────────────────────────────────────────────── */}
-      {tab === "preferences" && (
-        <div className="flex flex-col gap-6">
-          {/* Ambiance de trajet */}
-          <div>
-            <h3 className="mb-3 text-sm font-semibold text-gray-700">Ambiance de trajet</h3>
-            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm divide-y divide-gray-50">
-              <Toggle
-                value={prefs.musicAccepted}
-                onChange={(v) => setPrefs({ ...prefs, musicAccepted: v })}
-                label="Musique acceptée"
-              />
-              <Toggle
-                value={prefs.petsAccepted}
-                onChange={(v) => setPrefs({ ...prefs, petsAccepted: v })}
-                label="Animaux acceptés"
-              />
-              <Toggle
-                value={prefs.smokingAccepted}
-                onChange={(v) => setPrefs({ ...prefs, smokingAccepted: v })}
-                label="Fumeur"
-              />
-            </div>
-          </div>
-
-          {/* Niveau de conversation */}
-          <div>
-            <h3 className="mb-3 text-sm font-semibold text-gray-700">Niveau de conversation</h3>
-            <div className="flex gap-2">
-              {["quiet", "moderate", "chatty"].map((level) => (
-                <button
-                  key={level}
-                  onClick={() => setPrefs({ ...prefs, conversationLevel: level })}
-                  className={`flex-1 rounded-xl border py-2 text-xs font-medium capitalize transition-all ${
-                    prefs.conversationLevel === level
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 text-gray-500 hover:border-gray-300"
-                  }`}
-                >
-                  {level === "quiet" ? "Calme" : level === "moderate" ? "Modéré" : "Bavard"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Notifications par email */}
-          <div>
-            <h3 className="mb-3 text-sm font-semibold text-gray-700">Notifications par email</h3>
-            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm divide-y divide-gray-50">
-              <Toggle
-                value={prefs.emailPrimordiales}
-                onChange={(v) => setPrefs({ ...prefs, emailPrimordiales: v })}
-                label="Primordiales (urgentes)"
-              />
-              <Toggle
-                value={prefs.emailSecondaires}
-                onChange={(v) => setPrefs({ ...prefs, emailSecondaires: v })}
-                label="Secondaires (importantes)"
-              />
-              <Toggle
-                value={prefs.emailNegligeables}
-                onChange={(v) => setPrefs({ ...prefs, emailNegligeables: v })}
-                label="Négligeables (infos)"
-              />
-            </div>
-          </div>
-
-          {/* Notifications push */}
-          <div>
-            <h3 className="mb-3 text-sm font-semibold text-gray-700">Notifications push mobile</h3>
-            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm divide-y divide-gray-50">
-              <Toggle
-                value={prefs.pushPrimordiales}
-                onChange={(v) => setPrefs({ ...prefs, pushPrimordiales: v })}
-                label="Primordiales (urgentes)"
-              />
-              <Toggle
-                value={prefs.pushSecondaires}
-                onChange={(v) => setPrefs({ ...prefs, pushSecondaires: v })}
-                label="Secondaires (importantes)"
-              />
-              <Toggle
-                value={prefs.pushNegligeables}
-                onChange={(v) => setPrefs({ ...prefs, pushNegligeables: v })}
-                label="Négligeables (infos)"
-              />
-            </div>
-          </div>
-
-          <SaveButton saving={savingPrefs} saved={savedPrefs} onClick={savePrefs} />
-        </div>
-      )}
+      </div>
     </main>
   );
 }

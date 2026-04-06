@@ -37,7 +37,6 @@ using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.SocialReposi
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.TrajetRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.UserRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.VehiculeRepository;
-using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Seeding;
 using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -82,9 +81,8 @@ try
     builder.Services.AddHangfireServer();
 
     // ── Redis (IDistributedCache) ─────────────────────────────────────────────
-    // TODO: Réactiver Redis quand installé
-    // builder.Services.AddStackExchangeRedisCache(options =>
-    //     options.Configuration = builder.Configuration["Redis:ConnectionString"]);
+    builder.Services.AddStackExchangeRedisCache(options =>
+        options.Configuration = builder.Configuration["Redis:ConnectionString"]);
     builder.Services.AddDistributedMemoryCache();
 
     // ── SignalR ───────────────────────────────────────────────────────────────
@@ -217,13 +215,20 @@ try
     // ─────────────────────────────────────────────────────────────────────────
     var app = builder.Build();
 
-    if (app.Environment.IsDevelopment())
+    // ── MongoDB initialization (indexes + seed) ───────────────────────────────
     {
-        using var seedScope = app.Services.CreateScope();
-        var db = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var seedLogger = seedScope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseSeeder");
-        await DatabaseSeeder.SeedAsync(db, seedLogger);
+        var mongoCtx = app.Services.GetRequiredService<MongoDbContext>();
+        var mongoLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("MongoDbInitializer");
+        await MongoDbInitializer.InitializeAsync(mongoCtx, mongoLogger);
     }
+
+    //if (app.Environment.IsDevelopment()) // Seed de données de dev (users, trajets, etc.)
+    //{
+    //    using var seedScope = app.Services.CreateScope();
+    //    var db = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
+    //    var seedLogger = seedScope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseSeeder");
+    //    await DatabaseSeeder.SeedAsync(db, seedLogger);
+    //}
 
     // ── Middleware pipeline ───────────────────────────────────────────────────
     app.UseMiddleware<ExceptionMiddleware>();

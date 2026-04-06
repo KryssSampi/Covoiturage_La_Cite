@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cité-Voiturage — Architecture Système Complète</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07090F;
+  --bg2:#0D1017;
+  --bg3:#111620;
+  --bg4:#171D2B;
+  --border:#1E2840;
+  --border2:#263050;
+  --accent:#3B82F6;
+  --accent2:#60A5FA;
+  --accent3:#93C5FD;
+  --teal:#10B981;
+  --teal2:#34D399;
+  --amber:#F59E0B;
+  --amber2:#FCD34D;
+  --red:#EF4444;
+  --red2:#F87171;
+  --purple:#8B5CF6;
+  --purple2:#A78BFA;
+  --pink:#EC4899;
+  --text1:#F0F4FF;
+  --text2:#A8B8D8;
+  --text3:#5A6A8A;
+  --text4:#3A4A6A;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Fraunces',serif;
+  --sans:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text1);
+  font-family:var(--sans);
+  font-size:14px;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* ── LAYOUT ── */
+.wrap{max-width:1400px;margin:0 auto;padding:0 32px;}
+
+/* ── HEADER ── */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,9,15,0.92);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:16px 0;
+}
+.header-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  max-width:1400px;margin:0 auto;padding:0 32px;
+}
+.logo{
+  font-family:var(--serif);
+  font-size:18px;font-weight:900;
+  color:var(--text1);
+  display:flex;align-items:center;gap:10px;
+}
+.logo-dot{
+  width:8px;height:8px;
+  background:var(--accent);
+  border-radius:50%;
+  box-shadow:0 0 12px var(--accent);
+}
+.nav{display:flex;gap:6px;flex-wrap:wrap;}
+.nav a{
+  color:var(--text3);
+  text-decoration:none;
+  font-size:12px;font-weight:500;
+  padding:5px 10px;
+  border-radius:6px;
+  transition:all .2s;
+  font-family:var(--mono);
+  border:1px solid transparent;
+}
+.nav a:hover{color:var(--accent2);background:rgba(59,130,246,0.08);border-color:var(--border2);}
+
+/* ── HERO ── */
+.hero{
+  padding:80px 0 60px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute;
+  top:-200px;left:50%;transform:translateX(-50%);
+  width:800px;height:400px;
+  background:radial-gradient(ellipse,rgba(59,130,246,0.12) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(59,130,246,0.1);
+  border:1px solid rgba(59,130,246,0.3);
+  border-radius:999px;
+  padding:4px 14px;
+  font-size:11px;font-weight:600;
+  color:var(--accent2);
+  font-family:var(--mono);
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:24px;
+}
+.hero-badge::before{content:'●';font-size:8px;animation:pulse-dot 2s infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+.hero h1{
+  font-family:var(--serif);
+  font-size:clamp(36px,5vw,64px);
+  font-weight:900;
+  line-height:1.05;
+  color:var(--text1);
+  margin-bottom:16px;
+}
+.hero h1 em{
+  font-style:italic;
+  color:transparent;
+  background:linear-gradient(135deg,var(--accent),var(--teal));
+  -webkit-background-clip:text;background-clip:text;
+}
+.hero-sub{
+  font-size:16px;color:var(--text2);
+  max-width:640px;margin:0 auto 40px;
+  line-height:1.6;
+}
+.hero-stats{
+  display:flex;justify-content:center;gap:40px;flex-wrap:wrap;
+}
+.hero-stat{text-align:center;}
+.hero-stat-n{
+  font-family:var(--mono);font-weight:700;font-size:28px;
+  color:var(--accent2);display:block;
+}
+.hero-stat-l{font-size:12px;color:var(--text3);font-family:var(--mono);}
+
+/* ── SECTION ── */
+section{padding:64px 0;}
+.section-head{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:40px;
+}
+.section-tag{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:2px;
+  padding:3px 10px;
+  border-radius:4px;
+  white-space:nowrap;
+}
+.tag-blue{background:rgba(59,130,246,0.15);color:var(--accent2);border:1px solid rgba(59,130,246,0.25);}
+.tag-teal{background:rgba(16,185,129,0.15);color:var(--teal2);border:1px solid rgba(16,185,129,0.25);}
+.tag-amber{background:rgba(245,158,11,0.15);color:var(--amber2);border:1px solid rgba(245,158,11,0.25);}
+.tag-purple{background:rgba(139,92,246,0.15);color:var(--purple2);border:1px solid rgba(139,92,246,0.25);}
+.tag-red{background:rgba(239,68,68,0.15);color:var(--red2);border:1px solid rgba(239,68,68,0.25);}
+.tag-pink{background:rgba(236,72,153,0.15);color:var(--pink);border:1px solid rgba(236,72,153,0.25);}
+
+.section-title{
+  font-family:var(--serif);font-weight:700;font-size:28px;
+  color:var(--text1);
+}
+.section-line{flex:1;height:1px;background:var(--border);}
+
+/* ── TIERS DIAGRAM ── */
+.tiers{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:2px;
+  margin-bottom:60px;
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+.tier{
+  padding:24px 20px;
+  background:var(--bg3);
+  position:relative;
+}
+.tier-label{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:2px;
+  color:var(--text3);margin-bottom:8px;
+}
+.tier-name{
+  font-family:var(--serif);font-size:20px;font-weight:700;
+  margin-bottom:4px;
+}
+.tier-tech{
+  font-family:var(--mono);font-size:11px;
+  color:var(--text3);margin-bottom:16px;
+}
+.tier-items{
+  display:flex;flex-direction:column;gap:4px;
+}
+.tier-item{
+  font-size:12px;color:var(--text2);
+  display:flex;align-items:center;gap:6px;
+}
+.tier-item::before{
+  content:'';width:4px;height:4px;
+  border-radius:50%;flex-shrink:0;
+}
+.tier-blue .tier-name,.tier-blue .tier-item::before{color:var(--accent2);}
+.tier-blue .tier-item::before{background:var(--accent);}
+.tier-teal .tier-name,.tier-teal .tier-item::before{color:var(--teal2);}
+.tier-teal .tier-item::before{background:var(--teal);}
+.tier-amber .tier-name,.tier-amber .tier-item::before{color:var(--amber2);}
+.tier-amber .tier-item::before{background:var(--amber);}
+.tier-purple .tier-name,.tier-purple .tier-item::before{color:var(--purple2);}
+.tier-purple .tier-item::before{background:var(--purple);}
+
+/* ── MODELS GRID ── */
+.models-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(380px,1fr));
+  gap:16px;
+}
+
+/* ── MODEL CARD ── */
+.model-card{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:12px;
+  overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
+}
+.model-card:hover{
+  border-color:var(--border2);
+  box-shadow:0 8px 32px rgba(0,0,0,0.3);
+}
+.model-header{
+  padding:16px 20px 12px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.model-name{
+  font-family:var(--mono);font-weight:700;font-size:15px;
+  color:var(--text1);
+}
+.model-table{
+  font-family:var(--mono);font-size:10px;
+  color:var(--text3);margin-top:2px;
+}
+.model-body{padding:0;}
+.model-fields{list-style:none;}
+.model-field{
+  display:grid;
+  grid-template-columns:180px 120px 1fr;
+  gap:0;
+  padding:7px 20px;
+  border-bottom:1px solid rgba(30,40,64,0.5);
+  align-items:start;
+  font-family:var(--mono);font-size:11.5px;
+  transition:background .15s;
+}
+.model-field:hover{background:rgba(255,255,255,0.02);}
+.model-field:last-child{border-bottom:none;}
+.field-name{color:var(--accent3);font-weight:500;}
+.field-type{color:var(--teal2);}
+.field-type.nullable::after{content:'?';color:var(--text3);}
+.field-desc{color:var(--text3);font-size:10.5px;font-family:var(--sans);}
+.field-pk{
+  display:inline-block;
+  font-size:9px;font-weight:700;
+  background:rgba(245,158,11,0.15);color:var(--amber);
+  border-radius:3px;padding:0 4px;margin-left:4px;
+  vertical-align:middle;
+}
+.field-fk{
+  display:inline-block;font-size:9px;font-weight:700;
+  background:rgba(139,92,246,0.15);color:var(--purple2);
+  border-radius:3px;padding:0 4px;margin-left:4px;
+}
+.field-idx{
+  display:inline-block;font-size:9px;font-weight:700;
+  background:rgba(16,185,129,0.12);color:var(--teal2);
+  border-radius:3px;padding:0 4px;margin-left:4px;
+}
+.model-section-divider{
+  padding:6px 20px 4px;
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text4);
+  background:rgba(255,255,255,0.015);
+  border-bottom:1px solid var(--border);
+}
+.enum-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:var(--mono);font-size:10px;
+  background:rgba(59,130,246,0.08);
+  border:1px solid rgba(59,130,246,0.15);
+  color:var(--accent3);
+  border-radius:4px;padding:1px 6px;
+  margin:1px;
+}
+
+/* ── ENUMS SECTION ── */
+.enums-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:12px;
+  margin-bottom:40px;
+}
+.enum-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:16px;
+}
+.enum-name{
+  font-family:var(--mono);font-size:13px;font-weight:700;
+  color:var(--amber2);margin-bottom:10px;
+}
+.enum-values{display:flex;flex-wrap:wrap;gap:4px;}
+.ev{
+  font-family:var(--mono);font-size:10.5px;
+  background:rgba(245,158,11,0.08);
+  border:1px solid rgba(245,158,11,0.15);
+  color:var(--amber);
+  border-radius:4px;padding:2px 7px;
+}
+
+/* ── SERVICES TABLE ── */
+.services-container{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-bottom:40px;
+}
+.services-box{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+}
+.services-box-header{
+  padding:14px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.services-box-title{
+  font-family:var(--mono);font-weight:700;font-size:13px;
+  color:var(--text1);
+}
+.services-box-count{
+  font-family:var(--mono);font-size:10px;
+  background:rgba(59,130,246,0.12);
+  color:var(--accent2);
+  border-radius:999px;padding:1px 8px;
+  border:1px solid rgba(59,130,246,0.2);
+}
+.service-row{
+  padding:10px 20px;
+  border-bottom:1px solid rgba(30,40,64,0.5);
+  display:grid;grid-template-columns:220px 1fr;gap:12px;
+  align-items:start;
+  transition:background .15s;
+}
+.service-row:hover{background:rgba(255,255,255,0.02);}
+.service-row:last-child{border-bottom:none;}
+.service-name{
+  font-family:var(--mono);font-size:12px;font-weight:600;
+  color:var(--accent2);
+}
+.service-desc{font-size:12px;color:var(--text2);}
+.service-trigger{
+  font-size:10px;color:var(--amber2);font-family:var(--mono);
+  margin-top:2px;
+}
+
+/* ── JOBS TABLE ── */
+.jobs-table{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+  margin-bottom:40px;
+  width:100%;
+  border-collapse:collapse;
+}
+.jobs-table th{
+  padding:11px 20px;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text3);
+  background:rgba(255,255,255,0.02);
+  text-align:left;
+  border-bottom:1px solid var(--border);
+}
+.jobs-table td{
+  padding:10px 20px;
+  border-bottom:1px solid rgba(30,40,64,0.4);
+  font-size:12.5px;vertical-align:top;
+}
+.jobs-table tr:last-child td{border-bottom:none;}
+.jobs-table tr:hover td{background:rgba(255,255,255,0.015);}
+.job-name{font-family:var(--mono);font-weight:600;color:var(--teal2);}
+.job-cron{font-family:var(--mono);font-size:11px;color:var(--amber);background:rgba(245,158,11,0.08);border-radius:4px;padding:2px 6px;}
+.job-desc{color:var(--text2);}
+.job-trigger{font-size:11px;color:var(--text3);}
+
+/* ── ENDPOINTS SECTION ── */
+.endpoints-block{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;margin-bottom:16px;overflow:hidden;
+}
+.ep-header{
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+}
+.ep-domain{
+  font-family:var(--mono);font-weight:700;font-size:14px;
+  color:var(--text1);
+}
+.ep-count{font-family:var(--mono);font-size:11px;color:var(--text3);}
+.ep-list{padding:4px 0;}
+.ep-row{
+  padding:8px 20px;
+  display:grid;grid-template-columns:70px 260px 1fr;
+  gap:12px;align-items:center;
+  border-bottom:1px solid rgba(30,40,64,0.4);
+  font-size:12px;
+}
+.ep-row:last-child{border-bottom:none;}
+.method{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  border-radius:4px;padding:2px 7px;text-align:center;
+}
+.get{background:rgba(16,185,129,0.12);color:var(--teal2);}
+.post{background:rgba(59,130,246,0.12);color:var(--accent2);}
+.put{background:rgba(245,158,11,0.12);color:var(--amber2);}
+.patch{background:rgba(139,92,246,0.12);color:var(--purple2);}
+.delete{background:rgba(239,68,68,0.12);color:var(--red2);}
+.ep-path{font-family:var(--mono);font-size:11.5px;color:var(--text2);}
+.ep-desc{color:var(--text2);}
+
+/* ── SCREENS SECTION ── */
+.screens-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:12px;
+}
+.screen-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;overflow:hidden;
+}
+.screen-card-header{
+  padding:14px 16px 10px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.screen-name{
+  font-family:var(--mono);font-weight:700;font-size:13px;
+  color:var(--text1);
+}
+.screen-role{font-size:10px;font-family:var(--mono);}
+.screen-items{padding:8px 0;}
+.screen-item{
+  padding:6px 16px;
+  display:flex;align-items:flex-start;gap:8px;
+  font-size:12px;color:var(--text2);
+  border-bottom:1px solid rgba(30,40,64,0.35);
+}
+.screen-item:last-child{border-bottom:none;}
+.screen-item::before{
+  content:'';width:5px;height:5px;
+  border-radius:50%;flex-shrink:0;margin-top:5px;
+}
+.si-blue::before{background:var(--accent);}
+.si-teal::before{background:var(--teal);}
+.si-amber::before{background:var(--amber);}
+.si-purple::before{background:var(--purple);}
+
+/* ── EVENTS / SSE ── */
+.events-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(320px,1fr));
+  gap:12px;
+}
+.event-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:16px;
+}
+.event-name{
+  font-family:var(--mono);font-weight:700;font-size:12px;
+  color:var(--teal2);margin-bottom:6px;
+}
+.event-desc{font-size:12px;color:var(--text2);margin-bottom:8px;}
+.event-consumers{
+  display:flex;flex-wrap:wrap;gap:4px;
+}
+.ec{
+  font-family:var(--mono);font-size:10px;
+  background:rgba(16,185,129,0.08);color:var(--teal2);
+  border:1px solid rgba(16,185,129,0.15);
+  border-radius:4px;padding:1px 6px;
+}
+.event-source{
+  font-family:var(--mono);font-size:10px;color:var(--text3);
+  margin-bottom:6px;
+}
+
+/* ── ALGO SECTION ── */
+.algo-block{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:24px;margin-bottom:16px;
+}
+.algo-title{
+  font-family:var(--mono);font-weight:700;font-size:15px;
+  color:var(--accent2);margin-bottom:8px;
+}
+.algo-sub{font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.5;}
+.algo-formula{
+  background:var(--bg);border:1px solid var(--border2);
+  border-radius:8px;padding:16px;
+  font-family:var(--mono);font-size:12px;color:var(--teal2);
+  line-height:2;white-space:pre;overflow-x:auto;
+}
+.algo-comment{color:var(--text3);}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:0;}
+
+/* ── FOOTER ── */
+footer{
+  padding:40px 0;
+  border-top:1px solid var(--border);
+  text-align:center;
+  font-size:12px;color:var(--text3);
+  font-family:var(--mono);
+}
+footer strong{color:var(--accent2);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      Cité-Voiturage
+    </div>
+    <nav class="nav">
+      <a href="#architecture">Architecture</a>
+      <a href="#models">Modèles C#</a>
+      <a href="#enums">Énumérations</a>
+      <a href="#core-services">Core Services</a>
+      <a href="#jobs">Jobs planifiés</a>
+      <a href="#events">Événements</a>
+      <a href="#web-server">Server Web</a>
+      <a href="#web-client">Client Web</a>
+      <a href="#mobile">App Mobile</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+<!-- ══════════ HERO ══════════ -->
+<div class="hero">
+  <div class="hero-badge">Architecture Système Complète v3.0</div>
+  <h1>Cité-Voiturage<br><em>System Design</em></h1>
+  <p class="hero-sub">Architecture distribuée 4 tiers — Core Server C# ASP.NET, Server Web Next.js, Client Web React, App Mobile React Native. Modèles optimisés, services auto-planifiés, matching intelligent.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="hero-stat-n">28</span><span class="hero-stat-l">Modèles C#</span></div>
+    <div class="hero-stat"><span class="hero-stat-n">54</span><span class="hero-stat-l">Services Core</span></div>
+    <div class="hero-stat"><span class="hero-stat-n">24</span><span class="hero-stat-l">Jobs planifiés</span></div>
+    <div class="hero-stat"><span class="hero-stat-n">38</span><span class="hero-stat-l">Écrans mobiles</span></div>
+    <div class="hero-stat"><span class="hero-stat-n">120+</span><span class="hero-stat-l">Endpoints API</span></div>
+  </div>
+</div>
+
+<!-- ══════════ ARCHITECTURE TIERS ══════════ -->
+<section id="architecture">
+  <div class="section-head">
+    <span class="section-tag tag-blue">Vue d'ensemble</span>
+    <h2 class="section-title">Architecture 4 Tiers</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="tiers">
+    <div class="tier tier-blue">
+      <div class="tier-label">Tier 1</div>
+      <div class="tier-name">Core Server</div>
+      <div class="tier-tech">C# / ASP.NET 8 / EF Core</div>
+      <div class="tier-items">
+        <div class="tier-item">Source de vérité métier absolue</div>
+        <div class="tier-item">PostgreSQL + PostGIS</div>
+        <div class="tier-item">SignalR (temps réel)</div>
+        <div class="tier-item">Hangfire (jobs planifiés)</div>
+        <div class="tier-item">Algorithmes matching v4</div>
+        <div class="tier-item">Moteur de pénalités</div>
+        <div class="tier-item">Moteur de suggestions AI</div>
+        <div class="tier-item">Pipelines de scoring</div>
+        <div class="tier-item">PIPEDA conformité</div>
+      </div>
+    </div>
+    <div class="tier tier-teal">
+      <div class="tier-label">Tier 2</div>
+      <div class="tier-name">Server Web</div>
+      <div class="tier-tech">Next.js 15 / Node / SSR</div>
+      <div class="tier-items">
+        <div class="tier-item">BFF (Backend for Frontend)</div>
+        <div class="tier-item">Auth Microsoft SSO</div>
+        <div class="tier-item">SSE push vers client</div>
+        <div class="tier-item">Cache Redis (hot data)</div>
+        <div class="tier-item">Proxy API sécurisé</div>
+        <div class="tier-item">Rate limiting</div>
+        <div class="tier-item">CSRF protection</div>
+        <div class="tier-item">Session JWT (2h web)</div>
+      </div>
+    </div>
+    <div class="tier tier-amber">
+      <div class="tier-label">Tier 3</div>
+      <div class="tier-name">Client Web</div>
+      <div class="tier-tech">React / Zustand / Leaflet</div>
+      <div class="tier-items">
+        <div class="tier-item">SPA hydratée (RSC + CSR)</div>
+        <div class="tier-item">Dashboard conducteur</div>
+        <div class="tier-item">Dashboard passager</div>
+        <div class="tier-item">Panel admin complet</div>
+        <div class="tier-item">Carte Leaflet temps réel</div>
+        <div class="tier-item">PWA (offline partiel)</div>
+        <div class="tier-item">WebNotifications API</div>
+      </div>
+    </div>
+    <div class="tier tier-purple">
+      <div class="tier-label">Tier 4</div>
+      <div class="tier-name">App Mobile</div>
+      <div class="tier-tech">React Native / Expo</div>
+      <div class="tier-items">
+        <div class="tier-item">iOS + Android natif</div>
+        <div class="tier-item">Géoloc background (10s)</div>
+        <div class="tier-item">Push APNs + FCM</div>
+        <div class="tier-item">Geofencing (campus zones)</div>
+        <div class="tier-item">Mode offline + sync queue</div>
+        <div class="tier-item">MapBox / Google Maps</div>
+        <div class="tier-item">Biométrie (Face/Touch ID)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ C# MODELS ══════════ -->
+<section id="models">
+  <div class="section-head">
+    <span class="section-tag tag-blue">C# / EF Core</span>
+    <h2 class="section-title">Modèles Métier Optimaux</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="models-grid">
+
+    <!-- USER -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">User</div>
+          <div class="model-table">TABLE: users</div>
+        </div>
+        <span class="section-tag tag-blue">Core</span>
+      </div>
+      <ul class="model-fields">
+        <div class="model-section-divider">Identité</div>
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc">UUID v7 (triable par temps)</span></li>
+        <li class="model-field"><span class="field-name">Email<span class="field-idx">IDX</span></span><span class="field-type">string</span><span class="field-desc">@lacitec.on.ca — unique</span></li>
+        <li class="model-field"><span class="field-name">MicrosoftSsoId</span><span class="field-type">string</span><span class="field-desc">Azure AD Object ID</span></li>
+        <li class="model-field"><span class="field-name">FirstName</span><span class="field-type">string</span><span class="field-desc">Synchronisé depuis MS Graph</span></li>
+        <li class="model-field"><span class="field-name">LastName</span><span class="field-type">string</span><span class="field-desc">Synchronisé depuis MS Graph</span></li>
+        <li class="model-field"><span class="field-name">AvatarUrl</span><span class="field-type nullable">string</span><span class="field-desc">CDN URL photo de profil</span></li>
+        <li class="model-field"><span class="field-name">PhoneNumber</span><span class="field-type nullable">string</span><span class="field-desc">Format E.164 (+1XXXXXXXXXX)</span></li>
+        <div class="model-section-divider">Rôle & Statut</div>
+        <li class="model-field"><span class="field-name">Role</span><span class="field-type">UserRole</span><span class="field-desc">passenger | driver | admin</span></li>
+        <li class="model-field"><span class="field-name">Status</span><span class="field-type">UserStatus</span><span class="field-desc">active | suspended | banned | deleted</span></li>
+        <li class="model-field"><span class="field-name">IsProfileVerified</span><span class="field-type">bool</span><span class="field-desc">Photo + docs validés par admin</span></li>
+        <li class="model-field"><span class="field-name">CanBeDriver</span><span class="field-type">bool</span><span class="field-desc">Dossier conducteur approuvé</span></li>
+        <div class="model-section-divider">Gamification</div>
+        <li class="model-field"><span class="field-name">GoScore</span><span class="field-type">int</span><span class="field-desc">0–100, calculé en temps réel</span></li>
+        <li class="model-field"><span class="field-name">ReputationPoints</span><span class="field-type">int</span><span class="field-desc">Points cumulatifs bruts</span></li>
+        <li class="model-field"><span class="field-name">Language</span><span class="field-type">string</span><span class="field-desc">fr | en (préférence UI)</span></li>
+        <div class="model-section-divider">Metadata</div>
+        <li class="model-field"><span class="field-name">CreatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc">UTC — date inscription</span></li>
+        <li class="model-field"><span class="field-name">UpdatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc">UTC — dernière modification</span></li>
+        <li class="model-field"><span class="field-name">DeletedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">Soft delete PIPEDA</span></li>
+        <li class="model-field"><span class="field-name">SuspendedUntil</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">Levée auto de suspension</span></li>
+        <div class="model-section-divider">Navigation</div>
+        <li class="model-field"><span class="field-name">DriverProfile</span><span class="field-type nullable">DriverProfile</span><span class="field-desc">1-to-1, présent si CanBeDriver</span></li>
+        <li class="model-field"><span class="field-name">Preferences</span><span class="field-type">UserPreferences</span><span class="field-desc">1-to-1, toujours présent</span></li>
+        <li class="model-field"><span class="field-name">Badges</span><span class="field-type">ICollection&lt;UserBadge&gt;</span><span class="field-desc">Badges obtenus</span></li>
+        <li class="model-field"><span class="field-name">Stats</span><span class="field-type nullable">UserStat</span><span class="field-desc">Statistiques précalculées</span></li>
+      </ul>
+    </div>
+
+    <!-- DRIVER PROFILE -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">DriverProfile</div>
+          <div class="model-table">TABLE: driver_profiles</div>
+        </div>
+        <span class="section-tag tag-teal">Conducteur</span>
+      </div>
+      <ul class="model-fields">
+        <div class="model-section-divider">Identité</div>
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UserId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">→ users.Id (1-to-1)</span></li>
+        <div class="model-section-divider">Validation</div>
+        <li class="model-field"><span class="field-name">ValidationStatus</span><span class="field-type">DriverValidationStatus</span><span class="field-desc">pending | approved | rejected | docs_needed</span></li>
+        <li class="model-field"><span class="field-name">ValidatedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">Date d'approbation admin</span></li>
+        <li class="model-field"><span class="field-name">ValidatedByAdminId</span><span class="field-type nullable">Guid</span><span class="field-desc">Admin ayant approuvé</span></li>
+        <li class="model-field"><span class="field-name">RejectionReason</span><span class="field-type nullable">string</span><span class="field-desc">Explication en cas de refus</span></li>
+        <div class="model-section-divider">Performance</div>
+        <li class="model-field"><span class="field-name">AverageRating</span><span class="field-type">decimal</span><span class="field-desc">1.0–5.0, recalculé à chaque avis</span></li>
+        <li class="model-field"><span class="field-name">TotalTripsAsDriver</span><span class="field-type">int</span><span class="field-desc">Trajets complétés</span></li>
+        <li class="model-field"><span class="field-name">CancellationRate</span><span class="field-type">decimal</span><span class="field-desc">0.00–1.00 (taux annulation)</span></li>
+        <li class="model-field"><span class="field-name">PunctualityScore</span><span class="field-type">int</span><span class="field-desc">0–100 calculé GPS</span></li>
+        <li class="model-field"><span class="field-name">NoShowCount</span><span class="field-type">int</span><span class="field-desc">Absences cumulées</span></li>
+        <li class="model-field"><span class="field-name">Co2SavedKg</span><span class="field-type">decimal</span><span class="field-desc">CO₂ économisé total (kg)</span></li>
+        <div class="model-section-divider">Finance</div>
+        <li class="model-field"><span class="field-name">BalanceAvailable</span><span class="field-type">decimal</span><span class="field-desc">Revenus disponibles (CAD)</span></li>
+        <li class="model-field"><span class="field-name">BalancePending</span><span class="field-type">decimal</span><span class="field-desc">En transit / trajets actifs</span></li>
+        <li class="model-field"><span class="field-name">BalancePenalties</span><span class="field-type">decimal</span><span class="field-desc">Pénalités dues</span></li>
+        <li class="model-field"><span class="field-name">WithholdingRate</span><span class="field-type">decimal</span><span class="field-desc">Taux prélèvement pénalités (0.10–0.20)</span></li>
+        <div class="model-section-divider">Navigation</div>
+        <li class="model-field"><span class="field-name">Vehicles</span><span class="field-type">ICollection&lt;Vehicle&gt;</span><span class="field-desc">Véhicules enregistrés</span></li>
+        <li class="model-field"><span class="field-name">Documents</span><span class="field-type">ICollection&lt;DriverDocument&gt;</span><span class="field-desc">Documents soumis</span></li>
+      </ul>
+    </div>
+
+    <!-- TRIP -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">Trip</div>
+          <div class="model-table">TABLE: trips</div>
+        </div>
+        <span class="section-tag tag-teal">Core</span>
+      </div>
+      <ul class="model-fields">
+        <div class="model-section-divider">Identité</div>
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc">UUID v7</span></li>
+        <li class="model-field"><span class="field-name">DriverId<span class="field-fk">FK</span><span class="field-idx">IDX</span></span><span class="field-type">Guid</span><span class="field-desc">→ users.Id</span></li>
+        <li class="model-field"><span class="field-name">VehicleId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">→ vehicles.Id</span></li>
+        <div class="model-section-divider">Itinéraire (Value Objects)</div>
+        <li class="model-field"><span class="field-name">DepartureLabel</span><span class="field-type">string</span><span class="field-desc">Nom court du départ</span></li>
+        <li class="model-field"><span class="field-name">DepartureAddress</span><span class="field-type">string</span><span class="field-desc">Adresse complète</span></li>
+        <li class="model-field"><span class="field-name">DeparturePoint</span><span class="field-type">Point</span><span class="field-desc">PostGIS geography (lat/lng)</span></li>
+        <li class="model-field"><span class="field-name">ArrivalLabel</span><span class="field-type">string</span><span class="field-desc">Nom court de l'arrivée</span></li>
+        <li class="model-field"><span class="field-name">ArrivalAddress</span><span class="field-type">string</span><span class="field-desc">Adresse complète</span></li>
+        <li class="model-field"><span class="field-name">ArrivalPoint</span><span class="field-type">Point</span><span class="field-desc">PostGIS geography</span></li>
+        <li class="model-field"><span class="field-name">Polyline</span><span class="field-type">string</span><span class="field-desc">JSON encoded [[lat,lng],...]</span></li>
+        <div class="model-section-divider">Horaire</div>
+        <li class="model-field"><span class="field-name">DepartureDate</span><span class="field-type">DateOnly</span><span class="field-desc">Date locale (Canada/Eastern)</span></li>
+        <li class="model-field"><span class="field-name">DepartureTime</span><span class="field-type">TimeOnly</span><span class="field-desc">Heure locale HH:mm</span></li>
+        <li class="model-field"><span class="field-name">EstimatedArrivalTime</span><span class="field-type nullable">TimeOnly</span><span class="field-desc">Calculé OSRM</span></li>
+        <li class="model-field"><span class="field-name">EstimatedDurationMinutes</span><span class="field-type">int</span><span class="field-desc">Durée route OSRM</span></li>
+        <li class="model-field"><span class="field-name">EstimatedDistanceKm</span><span class="field-type">decimal</span><span class="field-desc">Distance route OSRM</span></li>
+        <div class="model-section-divider">Capacité & Prix</div>
+        <li class="model-field"><span class="field-name">MaxPassengers</span><span class="field-type">int</span><span class="field-desc">Places offertes (hors conducteur)</span></li>
+        <li class="model-field"><span class="field-name">CurrentPassengers</span><span class="field-type">int</span><span class="field-desc">Passagers confirmés actuels</span></li>
+        <li class="model-field"><span class="field-name">PricePerPassenger</span><span class="field-type">decimal</span><span class="field-desc">Prix fixé par conducteur (CAD)</span></li>
+        <li class="model-field"><span class="field-name">PassengerPrice</span><span class="field-type">decimal</span><span class="field-desc">PricePerPassenger × 1.15 (frais)</span></li>
+        <li class="model-field"><span class="field-name">PaymentMethod</span><span class="field-type">PaymentMethod</span><span class="field-desc">cash | interac</span></li>
+        <div class="model-section-divider">Statut & Config</div>
+        <li class="model-field"><span class="field-name">Status</span><span class="field-type">TripStatus</span><span class="field-desc">draft→published→in_progress→completed</span></li>
+        <li class="model-field"><span class="field-name">TripType</span><span class="field-type">TripType</span><span class="field-desc">unique | recurrent</span></li>
+        <li class="model-field"><span class="field-name">RecurrenceDays</span><span class="field-type nullable">int[]</span><span class="field-desc">0=dim..6=sam</span></li>
+        <li class="model-field"><span class="field-name">RecurrenceEndDate</span><span class="field-type nullable">DateOnly</span><span class="field-desc">Fin de récurrence</span></li>
+        <li class="model-field"><span class="field-name">ParentTripId</span><span class="field-type nullable">Guid</span><span class="field-desc">Instance parente (récurrence)</span></li>
+        <div class="model-section-divider">Préférences</div>
+        <li class="model-field"><span class="field-name">BaggageAllowed</span><span class="field-type">bool</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">PetsAllowed</span><span class="field-type">bool</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">SmokingAllowed</span><span class="field-type">bool</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">MusicAllowed</span><span class="field-type">bool</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">ConversationLevel</span><span class="field-type">ConversationLevel</span><span class="field-desc">quiet | moderate | chatty</span></li>
+        <li class="model-field"><span class="field-name">DriverNote</span><span class="field-type nullable">string</span><span class="field-desc">Message personnalisé (500 car. max)</span></li>
+        <div class="model-section-divider">Tracking GPS</div>
+        <li class="model-field"><span class="field-name">ActualStartedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">Départ réel GPS confirmé</span></li>
+        <li class="model-field"><span class="field-name">ActualCompletedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">Arrivée réelle GPS confirmée</span></li>
+        <li class="model-field"><span class="field-name">Co2SavedKg</span><span class="field-type nullable">decimal</span><span class="field-desc">Calcul post-trajet</span></li>
+        <li class="model-field"><span class="field-name">AverageRating</span><span class="field-type nullable">decimal</span><span class="field-desc">Moyenne avis passagers</span></li>
+        <div class="model-section-divider">Metadata</div>
+        <li class="model-field"><span class="field-name">CreatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UpdatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- RESERVATION -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">Reservation</div>
+          <div class="model-table">TABLE: reservations</div>
+        </div>
+        <span class="section-tag tag-teal">Core</span>
+      </div>
+      <ul class="model-fields">
+        <div class="model-section-divider">Identité</div>
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">TripId<span class="field-fk">FK</span><span class="field-idx">IDX</span></span><span class="field-type">Guid</span><span class="field-desc">→ trips.Id</span></li>
+        <li class="model-field"><span class="field-name">PassengerId<span class="field-fk">FK</span><span class="field-idx">IDX</span></span><span class="field-type">Guid</span><span class="field-desc">→ users.Id</span></li>
+        <li class="model-field"><span class="field-name">DriverId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">Dénormalisé pour perf requêtes</span></li>
+        <div class="model-section-divider">Cycle de vie</div>
+        <li class="model-field"><span class="field-name">Status</span><span class="field-type">ReservationStatus</span><span class="field-desc">pending→confirmed→in_progress→completed</span></li>
+        <li class="model-field"><span class="field-name">ExpiresAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc">Annulation auto si non traitée</span></li>
+        <li class="model-field"><span class="field-name">ConfirmedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">CancelledAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">CompletedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc"></span></li>
+        <div class="model-section-divider">Financier</div>
+        <li class="model-field"><span class="field-name">PricePerSeat</span><span class="field-type">decimal</span><span class="field-desc">Snapshot prix à la réservation</span></li>
+        <li class="model-field"><span class="field-name">TotalAmount</span><span class="field-type">decimal</span><span class="field-desc">Montant final capturé</span></li>
+        <li class="model-field"><span class="field-name">PaymentStatus</span><span class="field-type">PaymentStatus</span><span class="field-desc">pending | pre_authorized | captured | refunded</span></li>
+        <div class="model-section-divider">Communication</div>
+        <li class="model-field"><span class="field-name">PassengerMessage</span><span class="field-type nullable">string</span><span class="field-desc">Message d'accompagnement (200 car.)</span></li>
+        <li class="model-field"><span class="field-name">RefusalReason</span><span class="field-type nullable">string</span><span class="field-desc">Motif refus conducteur</span></li>
+        <li class="model-field"><span class="field-name">CancellationReason</span><span class="field-type nullable">string</span><span class="field-desc"></span></li>
+        <div class="model-section-divider">Embarquement & Audit</div>
+        <li class="model-field"><span class="field-name">BoardingConfirmedByDriver</span><span class="field-type">bool</span><span class="field-desc">Check-in conducteur</span></li>
+        <li class="model-field"><span class="field-name">BoardingConfirmedByPassenger</span><span class="field-type">bool</span><span class="field-desc">Check-in passager</span></li>
+        <li class="model-field"><span class="field-name">PassengerActuallyBoarded</span><span class="field-type nullable">bool</span><span class="field-desc">Confirmé par GPS (±100m)</span></li>
+        <li class="model-field"><span class="field-name">CompatibilityScore</span><span class="field-type">int</span><span class="field-desc">Score matching v4 (0–100) snapshot</span></li>
+        <div class="model-section-divider">Metadata</div>
+        <li class="model-field"><span class="field-name">RequestedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UpdatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- GPS POSITION -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">GpsPosition</div>
+          <div class="model-table">TABLE: gps_positions (TimescaleDB)</div>
+        </div>
+        <span class="section-tag tag-purple">Temps réel</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">long</span><span class="field-desc">Auto-incrément séquentiel</span></li>
+        <li class="model-field"><span class="field-name">TripId<span class="field-fk">FK</span><span class="field-idx">IDX</span></span><span class="field-type">Guid</span><span class="field-desc">Index composite (TripId, CapturedAt)</span></li>
+        <li class="model-field"><span class="field-name">UserId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">Conducteur émetteur</span></li>
+        <li class="model-field"><span class="field-name">Location</span><span class="field-type">Point</span><span class="field-desc">PostGIS geography — lat/lng haute précision</span></li>
+        <li class="model-field"><span class="field-name">SpeedKmh</span><span class="field-type">decimal</span><span class="field-desc">Vitesse instantanée</span></li>
+        <li class="model-field"><span class="field-name">HeadingDegrees</span><span class="field-type">decimal</span><span class="field-desc">Cap (0–360)</span></li>
+        <li class="model-field"><span class="field-name">AccuracyMeters</span><span class="field-type">decimal</span><span class="field-desc">Précision GPS</span></li>
+        <li class="model-field"><span class="field-name">CapturedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc">Timestamp hypertable (partition par heure)</span></li>
+      </ul>
+    </div>
+
+    <!-- AFFINITY -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">Affinity</div>
+          <div class="model-table">TABLE: affinities</div>
+        </div>
+        <span class="section-tag tag-purple">Matching</span>
+      </div>
+      <ul class="model-fields">
+        <div class="model-section-divider">Relation</div>
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UserId<span class="field-fk">FK</span><span class="field-idx">IDX</span></span><span class="field-type">Guid</span><span class="field-desc">Unique composite (UserId, TargetUserId)</span></li>
+        <li class="model-field"><span class="field-name">TargetUserId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <div class="model-section-divider">Scores</div>
+        <li class="model-field"><span class="field-name">AffinityScore</span><span class="field-type">int</span><span class="field-desc">0–100 calculé dynamiquement</span></li>
+        <li class="model-field"><span class="field-name">IsActuallyFavorite</span><span class="field-type">bool</span><span class="field-desc">Ajout manuel en favoris</span></li>
+        <li class="model-field"><span class="field-name">FavoriteSince</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc"></span></li>
+        <div class="model-section-divider">Historique</div>
+        <li class="model-field"><span class="field-name">TotalTripsTogther</span><span class="field-type">int</span><span class="field-desc">Trajets partagés complétés</span></li>
+        <li class="model-field"><span class="field-name">AvgRatingGiven</span><span class="field-type nullable">decimal</span><span class="field-desc">Moyenne notes données à target</span></li>
+        <li class="model-field"><span class="field-name">AvgRatingReceived</span><span class="field-type nullable">decimal</span><span class="field-desc">Moyenne notes reçues de target</span></li>
+        <li class="model-field"><span class="field-name">LastTripDate</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">Dernier trajet ensemble</span></li>
+        <div class="model-section-divider">Sécurité</div>
+        <li class="model-field"><span class="field-name">IsBlocked</span><span class="field-type">bool</span><span class="field-desc">Bloqué manuellement — éliminé du matching</span></li>
+        <li class="model-field"><span class="field-name">HadIncident</span><span class="field-type">bool</span><span class="field-desc">Signalement soumis contre target</span></li>
+        <li class="model-field"><span class="field-name">IncidentCount</span><span class="field-type">int</span><span class="field-desc">Nombre incidents avec target</span></li>
+        <div class="model-section-divider">Metadata</div>
+        <li class="model-field"><span class="field-name">CreatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc">1er trajet ensemble</span></li>
+        <li class="model-field"><span class="field-name">UpdatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- NOTIFICATION -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">Notification</div>
+          <div class="model-table">TABLE: notifications</div>
+        </div>
+        <span class="section-tag tag-amber">Push</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UserId<span class="field-fk">FK</span><span class="field-idx">IDX</span></span><span class="field-type">Guid</span><span class="field-desc">Destinataire</span></li>
+        <li class="model-field"><span class="field-name">Type</span><span class="field-type">NotificationType</span><span class="field-desc">Enum 20+ valeurs</span></li>
+        <li class="model-field"><span class="field-name">Title</span><span class="field-type">string</span><span class="field-desc">Titre court (push + in-app)</span></li>
+        <li class="model-field"><span class="field-name">Body</span><span class="field-type">string</span><span class="field-desc">Message complet</span></li>
+        <li class="model-field"><span class="field-name">IsRead</span><span class="field-type">bool</span><span class="field-desc">Lu/non lu</span></li>
+        <li class="model-field"><span class="field-name">IsImportant</span><span class="field-type">bool</span><span class="field-desc">Style urgent (rouge pulse)</span></li>
+        <li class="model-field"><span class="field-name">DeepLink</span><span class="field-type nullable">string</span><span class="field-desc">URL/route de redirection</span></li>
+        <li class="model-field"><span class="field-name">Payload</span><span class="field-type nullable">jsonb</span><span class="field-desc">Données contextuelles enrichies</span></li>
+        <li class="model-field"><span class="field-name">RelatedTripId</span><span class="field-type nullable">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">RelatedReservationId</span><span class="field-type nullable">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">PushSentAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">Timestamp envoi push</span></li>
+        <li class="model-field"><span class="field-name">PushDelivered</span><span class="field-type nullable">bool</span><span class="field-desc">ACK reçu APNs/FCM</span></li>
+        <li class="model-field"><span class="field-name">CreatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"><span class="field-idx">IDX</span> (purge > 90j)</span></li>
+      </ul>
+    </div>
+
+    <!-- REVIEW -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">Review</div>
+          <div class="model-table">TABLE: reviews</div>
+        </div>
+        <span class="section-tag tag-amber">Réputation</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">TripId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">ReservationId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">Unique (une seule review/réservation)</span></li>
+        <li class="model-field"><span class="field-name">ReviewerId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">Auteur de l'évaluation</span></li>
+        <li class="model-field"><span class="field-name">RevieweeId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">Personne évaluée</span></li>
+        <li class="model-field"><span class="field-name">RevieweeRole</span><span class="field-type">RevieweeRole</span><span class="field-desc">driver | passenger</span></li>
+        <li class="model-field"><span class="field-name">Rating</span><span class="field-type">int</span><span class="field-desc">1–5 étoiles</span></li>
+        <li class="model-field"><span class="field-name">Comment</span><span class="field-type nullable">string</span><span class="field-desc">500 caractères max</span></li>
+        <li class="model-field"><span class="field-name">Tags</span><span class="field-type">string[]</span><span class="field-desc">["ponctuel","agréable","propre"...]</span></li>
+        <li class="model-field"><span class="field-name">IsPublished</span><span class="field-type">bool</span><span class="field-desc">Visible seulement quand les 2 ont évalué</span></li>
+        <li class="model-field"><span class="field-name">CreatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- PENALTY -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">Penalty</div>
+          <div class="model-table">TABLE: penalties</div>
+        </div>
+        <span class="section-tag tag-red">Finance</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UserId<span class="field-fk">FK</span><span class="field-idx">IDX</span></span><span class="field-type">Guid</span><span class="field-desc">Utilisateur pénalisé</span></li>
+        <li class="model-field"><span class="field-name">TripId<span class="field-fk">FK</span></span><span class="field-type nullable">Guid</span><span class="field-desc">Trajet source de la pénalité</span></li>
+        <li class="model-field"><span class="field-name">ReservationId</span><span class="field-type nullable">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">Type</span><span class="field-type">PenaltyType</span><span class="field-desc">late_cancellation | no_show | delay | misconduct...</span></li>
+        <li class="model-field"><span class="field-name">Amount</span><span class="field-type">decimal</span><span class="field-desc">Montant pénalité (CAD)</span></li>
+        <li class="model-field"><span class="field-name">Status</span><span class="field-type">PenaltyStatus</span><span class="field-desc">pending | deducted | contested | refunded</span></li>
+        <li class="model-field"><span class="field-name">ContestDeadline</span><span class="field-type">DateTimeOffset</span><span class="field-desc">7 jours pour contester</span></li>
+        <li class="model-field"><span class="field-name">ContestReason</span><span class="field-type nullable">string</span><span class="field-desc">Justification passager/conducteur</span></li>
+        <li class="model-field"><span class="field-name">AdminDecision</span><span class="field-type nullable">string</span><span class="field-desc">Décision admin sur contestation</span></li>
+        <li class="model-field"><span class="field-name">GoScoreImpact</span><span class="field-type">int</span><span class="field-desc">Points GoScore retirés</span></li>
+        <li class="model-field"><span class="field-name">TriggerReason</span><span class="field-type">string</span><span class="field-desc">Explication humaine automatique</span></li>
+        <li class="model-field"><span class="field-name">CreatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">DeductedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">Date prélèvement effectif</span></li>
+      </ul>
+    </div>
+
+    <!-- SIGNALEMENT -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">Report (Signalement)</div>
+          <div class="model-table">TABLE: reports</div>
+        </div>
+        <span class="section-tag tag-red">Sécurité</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">PublicReference</span><span class="field-type">string</span><span class="field-desc">SIG-20260324-7A3F (unique)</span></li>
+        <li class="model-field"><span class="field-name">TripId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">ReporterId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">ReportedUserId<span class="field-fk">FK</span></span><span class="field-type nullable">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">Category</span><span class="field-type">ReportCategory</span><span class="field-desc">dangerous_driving | harassment | no_show | fraud...</span></li>
+        <li class="model-field"><span class="field-name">SeverityLevel</span><span class="field-type">SeverityLevel</span><span class="field-desc">critical | severe | moderate | info</span></li>
+        <li class="model-field"><span class="field-name">Description</span><span class="field-type">string</span><span class="field-desc">Min 50 caractères</span></li>
+        <li class="model-field"><span class="field-name">EvidenceUrls</span><span class="field-type">string[]</span><span class="field-desc">Photos/fichiers preuve (CDN)</span></li>
+        <li class="model-field"><span class="field-name">GpsTraceSnapshot</span><span class="field-type nullable">jsonb</span><span class="field-desc">Positions 5 min avant incident</span></li>
+        <li class="model-field"><span class="field-name">Status</span><span class="field-type">ReportStatus</span><span class="field-desc">submitted | in_review | resolved | dismissed</span></li>
+        <li class="model-field"><span class="field-name">AssignedAdminId</span><span class="field-type nullable">Guid</span><span class="field-desc">Admin traitant</span></li>
+        <li class="model-field"><span class="field-name">AdminNote</span><span class="field-type nullable">string</span><span class="field-desc">Note résolution</span></li>
+        <li class="model-field"><span class="field-name">AutoPrevBlockUser</span><span class="field-type">bool</span><span class="field-desc">Blocage préventif si critique</span></li>
+        <li class="model-field"><span class="field-name">CreatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">ResolvedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- SOS ALERT -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">SosAlert</div>
+          <div class="model-table">TABLE: sos_alerts</div>
+        </div>
+        <span class="section-tag tag-red">Urgence</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UserId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">Initiateur SOS</span></li>
+        <li class="model-field"><span class="field-name">TripId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">Trajet en cours</span></li>
+        <li class="model-field"><span class="field-name">EmergencyType</span><span class="field-type">EmergencyType</span><span class="field-desc">accident | malaise | threat | other</span></li>
+        <li class="model-field"><span class="field-name">TriggerLocation</span><span class="field-type">Point</span><span class="field-desc">PostGIS — position exacte déclenchement</span></li>
+        <li class="model-field"><span class="field-name">Status</span><span class="field-type">SosStatus</span><span class="field-desc">triggered | admin_notified | resolved | false_alarm</span></li>
+        <li class="model-field"><span class="field-name">AdminContactedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">SLA: &lt; 5 min</span></li>
+        <li class="model-field"><span class="field-name">EmergencyContactsNotified</span><span class="field-type">bool</span><span class="field-desc">SMS/appel contacts urgence</span></li>
+        <li class="model-field"><span class="field-name">GpsSnapshotJson</span><span class="field-type">jsonb</span><span class="field-desc">5 dernières positions</span></li>
+        <li class="model-field"><span class="field-name">TriggeredAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">ResolvedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- MATCHING SCORE CACHE -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">MatchingScoreCache</div>
+          <div class="model-table">TABLE: matching_score_cache (Redis-backed)</div>
+        </div>
+        <span class="section-tag tag-purple">Performance</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">TripId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">Composite unique (TripId, PassengerId)</span></li>
+        <li class="model-field"><span class="field-name">PassengerId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">GlobalScore</span><span class="field-type">int</span><span class="field-desc">Score final 0–100</span></li>
+        <li class="model-field"><span class="field-name">DepartureProximityScore</span><span class="field-type">int</span><span class="field-desc">Critère 1 (35%)</span></li>
+        <li class="model-field"><span class="field-name">ArrivalProximityScore</span><span class="field-type">int</span><span class="field-desc">Critère 2 (30%)</span></li>
+        <li class="model-field"><span class="field-name">ScheduleScore</span><span class="field-type">int</span><span class="field-desc">Critère 3 (15%)</span></li>
+        <li class="model-field"><span class="field-name">PreferenceScore</span><span class="field-type">int</span><span class="field-desc">Critère 4 (10%)</span></li>
+        <li class="model-field"><span class="field-name">AffinityScore</span><span class="field-type">int</span><span class="field-desc">Critère 5 (10%)</span></li>
+        <li class="model-field"><span class="field-name">Bonuses</span><span class="field-type">int</span><span class="field-desc">Bonus/malus réputation</span></li>
+        <li class="model-field"><span class="field-name">ComputedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc">TTL: 10 minutes</span></li>
+      </ul>
+    </div>
+
+    <!-- SUGGESTION -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">SmartSuggestion</div>
+          <div class="model-table">TABLE: smart_suggestions</div>
+        </div>
+        <span class="section-tag tag-purple">IA</span>
+      </div>
+      <ul class="model-fields">
+        <div class="model-section-divider">Identité</div>
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UserId<span class="field-fk">FK</span><span class="field-idx">IDX</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <div class="model-section-divider">Suggestion</div>
+        <li class="model-field"><span class="field-name">SuggestionType</span><span class="field-type">SuggestionType</span><span class="field-desc">trip_alert | driver_alert | recurring_time | similar_user</span></li>
+        <li class="model-field"><span class="field-name">ConfidenceScore</span><span class="field-type">decimal</span><span class="field-desc">0.0–1.0 confiance modèle</span></li>
+        <li class="model-field"><span class="field-name">SuggestedDeparture</span><span class="field-type nullable">string</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">SuggestedArrival</span><span class="field-type nullable">string</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">SuggestedTimeWindow</span><span class="field-type nullable">string</span><span class="field-desc">Ex: "08:00–09:00"</span></li>
+        <li class="model-field"><span class="field-name">SuggestedDays</span><span class="field-type nullable">int[]</span><span class="field-desc">Jours semaine détectés</span></li>
+        <li class="model-field"><span class="field-name">ReasonLabel</span><span class="field-type">string</span><span class="field-desc">Explication humaine ("Vous faites ce trajet 4x/sem")</span></li>
+        <li class="model-field"><span class="field-name">RelatedTripId</span><span class="field-type nullable">Guid</span><span class="field-desc">Trajet suggéré si disponible</span></li>
+        <div class="model-section-divider">Cycle de vie</div>
+        <li class="model-field"><span class="field-name">Status</span><span class="field-type">SuggestionStatus</span><span class="field-desc">pending | shown | accepted | dismissed</span></li>
+        <li class="model-field"><span class="field-name">ShownAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">ActedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc">Accepted ou dismissed</span></li>
+        <li class="model-field"><span class="field-name">ExpiresAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc">Auto-purge suggestions périmées</span></li>
+        <li class="model-field"><span class="field-name">CreatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- USER BEHAVIOR PATTERN -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">UserBehaviorPattern</div>
+          <div class="model-table">TABLE: user_behavior_patterns</div>
+        </div>
+        <span class="section-tag tag-purple">Analytics</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UserId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc">Unique (1-to-1 avec User)</span></li>
+        <li class="model-field"><span class="field-name">MostFrequentDeparture</span><span class="field-type nullable">string</span><span class="field-desc">Adresse départ la plus fréquente</span></li>
+        <li class="model-field"><span class="field-name">MostFrequentArrival</span><span class="field-type nullable">string</span><span class="field-desc">Adresse arrivée la plus fréquente</span></li>
+        <li class="model-field"><span class="field-name">TypicalDepartureDays</span><span class="field-type">int[]</span><span class="field-desc">Jours semaine habituels</span></li>
+        <li class="model-field"><span class="field-name">TypicalDepartureTimeStart</span><span class="field-type nullable">TimeOnly</span><span class="field-desc">Plage horaire habituelle début</span></li>
+        <li class="model-field"><span class="field-name">TypicalDepartureTimeEnd</span><span class="field-type nullable">TimeOnly</span><span class="field-desc">Plage horaire habituelle fin</span></li>
+        <li class="model-field"><span class="field-name">AvgSessionsPerWeek</span><span class="field-type">decimal</span><span class="field-desc">Activité hebdomadaire</span></li>
+        <li class="model-field"><span class="field-name">ChurnRisk</span><span class="field-type">ChurnRisk</span><span class="field-desc">low | medium | high (14j inactif = high)</span></li>
+        <li class="model-field"><span class="field-name">LastTripDate</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">PatternConfidence</span><span class="field-type">decimal</span><span class="field-desc">0.0–1.0 (nb observations / seuil)</span></li>
+        <li class="model-field"><span class="field-name">RecomputedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc">Recalcul nocturne</span></li>
+      </ul>
+    </div>
+
+    <!-- DRIVER DOCUMENT -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">DriverDocument</div>
+          <div class="model-table">TABLE: driver_documents</div>
+        </div>
+        <span class="section-tag tag-teal">Onboarding</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">DriverProfileId<span class="field-fk">FK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">DocumentType</span><span class="field-type">DocumentType</span><span class="field-desc">license | insurance | registration | criminal_record</span></li>
+        <li class="model-field"><span class="field-name">FileUrl</span><span class="field-type">string</span><span class="field-desc">CDN URL (accès restreint admin)</span></li>
+        <li class="model-field"><span class="field-name">ExpiryDate</span><span class="field-type nullable">DateOnly</span><span class="field-desc">Date expiration document</span></li>
+        <li class="model-field"><span class="field-name">Status</span><span class="field-type">DocStatus</span><span class="field-desc">pending | accepted | rejected | expired</span></li>
+        <li class="model-field"><span class="field-name">SubmittedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">ReviewedAt</span><span class="field-type nullable">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">AdminNote</span><span class="field-type nullable">string</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- GEOFENCE ZONE -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">GeofenceZone</div>
+          <div class="model-table">TABLE: geofence_zones</div>
+        </div>
+        <span class="section-tag tag-teal">Campus</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">Name</span><span class="field-type">string</span><span class="field-desc">"Stationnement A", "Entrée principale"</span></li>
+        <li class="model-field"><span class="field-name">ZoneType</span><span class="field-type">ZoneType</span><span class="field-desc">meeting_point | parking | entrance | drop_off</span></li>
+        <li class="model-field"><span class="field-name">CenterPoint</span><span class="field-type">Point</span><span class="field-desc">PostGIS — centroïde</span></li>
+        <li class="model-field"><span class="field-name">Polygon</span><span class="field-type">Polygon</span><span class="field-desc">PostGIS — périmètre exact</span></li>
+        <li class="model-field"><span class="field-name">RadiusMeters</span><span class="field-type">int</span><span class="field-desc">Rayon de déclenchement geofence</span></li>
+        <li class="model-field"><span class="field-name">Instructions</span><span class="field-type nullable">string</span><span class="field-desc">"Devant la porte 4"</span></li>
+        <li class="model-field"><span class="field-name">PhotoUrl</span><span class="field-type nullable">string</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">Capacity</span><span class="field-type">int</span><span class="field-desc">Nb véhicules simultanés</span></li>
+        <li class="model-field"><span class="field-name">IsActive</span><span class="field-type">bool</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- ECO CHALLENGE -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">EcoChallenge</div>
+          <div class="model-table">TABLE: eco_challenges</div>
+        </div>
+        <span class="section-tag tag-teal">Gamification</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">Title</span><span class="field-type">string</span><span class="field-desc">Bilingue (FR/EN)</span></li>
+        <li class="model-field"><span class="field-name">MetricType</span><span class="field-type">ChallengeMetric</span><span class="field-desc">distance_km | trips_count | co2_kg | unique_passengers</span></li>
+        <li class="model-field"><span class="field-name">TargetValue</span><span class="field-type">decimal</span><span class="field-desc">Objectif à atteindre</span></li>
+        <li class="model-field"><span class="field-name">RewardPoints</span><span class="field-type">int</span><span class="field-desc">Points GoScore à la complétion</span></li>
+        <li class="model-field"><span class="field-name">RewardBadgeId</span><span class="field-type nullable">Guid</span><span class="field-desc">Badge associé (optionnel)</span></li>
+        <li class="model-field"><span class="field-name">Period</span><span class="field-type">ChallengePeriod</span><span class="field-desc">monthly | weekly | all_time</span></li>
+        <li class="model-field"><span class="field-name">ActiveFrom</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">ActiveUntil</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">TargetRole</span><span class="field-type">UserRole</span><span class="field-desc">passenger | driver | all</span></li>
+      </ul>
+    </div>
+
+    <!-- PLATFORM CONFIG -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">PlatformConfig</div>
+          <div class="model-table">TABLE: platform_config (hot-reloadable)</div>
+        </div>
+        <span class="section-tag tag-pink">Admin</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Key<span class="field-pk">PK</span></span><span class="field-type">string</span><span class="field-desc">Ex: "matching.departure_radius_km"</span></li>
+        <li class="model-field"><span class="field-name">Value</span><span class="field-type">string</span><span class="field-desc">JSON-serializable</span></li>
+        <li class="model-field"><span class="field-name">DataType</span><span class="field-type">string</span><span class="field-desc">int | decimal | bool | string | json</span></li>
+        <li class="model-field"><span class="field-name">Category</span><span class="field-type">string</span><span class="field-desc">matching | payments | penalties | gamification...</span></li>
+        <li class="model-field"><span class="field-name">Description</span><span class="field-type">string</span><span class="field-desc">Doc inline pour admin UI</span></li>
+        <li class="model-field"><span class="field-name">LastModifiedByAdminId</span><span class="field-type nullable">Guid</span><span class="field-desc">Audit trail</span></li>
+        <li class="model-field"><span class="field-name">UpdatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc"></span></li>
+      </ul>
+    </div>
+
+    <!-- AUDIT LOG -->
+    <div class="model-card">
+      <div class="model-header">
+        <div>
+          <div class="model-name">AuditLog</div>
+          <div class="model-table">TABLE: audit_logs (append-only)</div>
+        </div>
+        <span class="section-tag tag-pink">Conformité</span>
+      </div>
+      <ul class="model-fields">
+        <li class="model-field"><span class="field-name">Id<span class="field-pk">PK</span></span><span class="field-type">long</span><span class="field-desc">Séquentiel — immuable</span></li>
+        <li class="model-field"><span class="field-name">ActorId</span><span class="field-type nullable">Guid</span><span class="field-desc">Null = système/job</span></li>
+        <li class="model-field"><span class="field-name">ActorRole</span><span class="field-type">string</span><span class="field-desc">user | admin | system | job</span></li>
+        <li class="model-field"><span class="field-name">Action</span><span class="field-type">string</span><span class="field-desc">Ex: "user.suspend", "trip.cancel"</span></li>
+        <li class="model-field"><span class="field-name">EntityType</span><span class="field-type">string</span><span class="field-desc">Trip | User | Reservation...</span></li>
+        <li class="model-field"><span class="field-name">EntityId</span><span class="field-type nullable">Guid</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">PreviousValueJson</span><span class="field-type nullable">jsonb</span><span class="field-desc">État avant mutation</span></li>
+        <li class="model-field"><span class="field-name">NewValueJson</span><span class="field-type nullable">jsonb</span><span class="field-desc">État après mutation</span></li>
+        <li class="model-field"><span class="field-name">IpAddress</span><span class="field-type nullable">string</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">UserAgent</span><span class="field-type nullable">string</span><span class="field-desc"></span></li>
+        <li class="model-field"><span class="field-name">CreatedAt</span><span class="field-type">DateTimeOffset</span><span class="field-desc">Rétention: 7 ans (PIPEDA)</span></li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ ENUMS ══════════ -->
+<section id="enums">
+  <div class="section-head">
+    <span class="section-tag tag-amber">C# Enumerations</span>
+    <h2 class="section-title">Énumérations Partagées</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="enums-grid">
+    <div class="enum-card"><div class="enum-name">TripStatus</div><div class="enum-values"><span class="ev">draft</span><span class="ev">published</span><span class="ev">full</span><span class="ev">confirmed</span><span class="ev">in_progress</span><span class="ev">completed</span><span class="ev">cancelled</span><span class="ev">no_show</span></div></div>
+    <div class="enum-card"><div class="enum-name">ReservationStatus</div><div class="enum-values"><span class="ev">pending</span><span class="ev">confirmed</span><span class="ev">refused</span><span class="ev">cancelled</span><span class="ev">in_progress</span><span class="ev">completed</span><span class="ev">no_show</span></div></div>
+    <div class="enum-card"><div class="enum-name">UserStatus</div><div class="enum-values"><span class="ev">active</span><span class="ev">suspended</span><span class="ev">banned</span><span class="ev">deleted</span><span class="ev">pending_verification</span></div></div>
+    <div class="enum-card"><div class="enum-name">UserRole</div><div class="enum-values"><span class="ev">passenger</span><span class="ev">driver</span><span class="ev">admin</span></div></div>
+    <div class="enum-card"><div class="enum-name">NotificationType</div><div class="enum-values"><span class="ev">reservation_received</span><span class="ev">reservation_accepted</span><span class="ev">reservation_refused</span><span class="ev">reservation_cancelled</span><span class="ev">trip_starting_soon</span><span class="ev">trip_started</span><span class="ev">trip_completed</span><span class="ev">trip_cancelled</span><span class="ev">penalty_applied</span><span class="ev">new_review</span><span class="ev">document_validated</span><span class="ev">sos_alert</span><span class="ev">suggestion</span><span class="ev">badge_earned</span><span class="ev">challenge_completed</span><span class="ev">system</span></div></div>
+    <div class="enum-card"><div class="enum-name">PenaltyType</div><div class="enum-values"><span class="ev">late_cancellation_driver</span><span class="ev">late_cancellation_passenger</span><span class="ev">no_show_driver</span><span class="ev">no_show_passenger</span><span class="ev">delay_15_30min</span><span class="ev">delay_30_60min</span><span class="ev">delay_over_60min</span><span class="ev">misconduct_validated</span></div></div>
+    <div class="enum-card"><div class="enum-name">PaymentStatus</div><div class="enum-values"><span class="ev">pending</span><span class="ev">pre_authorized</span><span class="ev">captured</span><span class="ev">refunded_full</span><span class="ev">refunded_partial</span><span class="ev">failed</span></div></div>
+    <div class="enum-card"><div class="enum-name">SuggestionType</div><div class="enum-values"><span class="ev">recurring_trip_alert</span><span class="ev">favorite_driver_active</span><span class="ev">churn_reactivation</span><span class="ev">eco_challenge_nudge</span><span class="ev">document_expiry_reminder</span><span class="ev">peak_hour_trip_alert</span><span class="ev">similar_user_suggestion</span></div></div>
+    <div class="enum-card"><div class="enum-name">ReportCategory</div><div class="enum-values"><span class="ev">dangerous_driving</span><span class="ev">harassment</span><span class="ev">vehicle_not_conforming</span><span class="ev">wrong_fare</span><span class="ev">route_deviation</span><span class="ev">no_show</span><span class="ev">inappropriate_content</span><span class="ev">other</span></div></div>
+    <div class="enum-card"><div class="enum-name">ChurnRisk</div><div class="enum-values"><span class="ev">low</span><span class="ev">medium</span><span class="ev">high</span><span class="ev">churned</span></div></div>
+    <div class="enum-card"><div class="enum-name">ChallengeMetric</div><div class="enum-values"><span class="ev">distance_km</span><span class="ev">trips_count</span><span class="ev">co2_kg</span><span class="ev">unique_passengers</span><span class="ev">punctuality_streak</span></div></div>
+    <div class="enum-card"><div class="enum-name">DocumentType</div><div class="enum-values"><span class="ev">drivers_license</span><span class="ev">insurance</span><span class="ev">vehicle_registration</span><span class="ev">criminal_record</span><span class="ev">profile_photo</span></div></div>
+  </div>
+</section>
+
+<!-- ══════════ CORE SERVICES ══════════ -->
+<section id="core-services">
+  <div class="section-head">
+    <span class="section-tag tag-blue">C# ASP.NET</span>
+    <h2 class="section-title">Services du Core Server</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="services-container">
+
+    <div class="services-box">
+      <div class="services-box-header">
+        <span class="services-box-title">🎯 Matching & Search</span>
+        <span class="services-box-count">8 services</span>
+      </div>
+      <div class="service-row"><span class="service-name">MatchingEngineService</span><div><div class="service-desc">Calcule score 0–100 (5 critères pondérés) + bonus/malus. Cache Redis TTL 10min.</div><div class="service-trigger">Trigger: recherche passager, publication trajet</div></div></div>
+      <div class="service-row"><span class="service-name">ProximityScoreService</span><div><div class="service-desc">PostGIS ST_Distance — départ (35%) et arrivée (30%). Buckets de distance configurables.</div><div class="service-trigger">Sous-service MatchingEngine</div></div></div>
+      <div class="service-row"><span class="service-name">ScheduleScoreService</span><div><div class="service-desc">Écart horaire passager vs trajet. ±15min=15pts, ±30min=12, ±1h=8, ±2h=4.</div><div class="service-trigger">Sous-service MatchingEngine</div></div></div>
+      <div class="service-row"><span class="service-name">PreferenceScoreService</span><div><div class="service-desc">Compatibilité musique, conversation, animaux, fumeur, bagages. 5 critères × 2pts.</div><div class="service-trigger">Sous-service MatchingEngine</div></div></div>
+      <div class="service-row"><span class="service-name">AffinityScoreService</span><div><div class="service-desc">Historique trajets ensemble + notes mutuelles. Bonus +10 si favori.</div><div class="service-trigger">Sous-service MatchingEngine</div></div></div>
+      <div class="service-row"><span class="service-name">TripSearchService</span><div><div class="service-desc">Requête géospatiale PostGIS avec filtres. Tri par score. Pagination cursor.</div><div class="service-trigger">GET /api/trips/search</div></div></div>
+      <div class="service-row"><span class="service-name">SearchSuggestionService</span><div><div class="service-desc">Autocomplétion adresses (Nominatim OSM + cache). Lieux favoris en priorité.</div><div class="service-trigger">GET /api/locations/suggest</div></div></div>
+      <div class="service-row"><span class="service-name">MultipleRequestService</span><div><div class="service-desc">Gère max 5 demandes simultanées/passager. Auto-annule les autres si 1 acceptée.</div><div class="service-trigger">POST /api/reservations + trigger DomainEvent</div></div></div>
+    </div>
+
+    <div class="services-box">
+      <div class="services-box-header">
+        <span class="services-box-title">🚗 Trip Lifecycle</span>
+        <span class="services-box-count">7 services</span>
+      </div>
+      <div class="service-row"><span class="service-name">TripCreationService</span><div><div class="service-desc">Création trajet + calcul OSRM (distance, durée, polyline) + CO2 estimé.</div><div class="service-trigger">POST /api/trips</div></div></div>
+      <div class="service-row"><span class="service-name">TripPublishService</span><div><div class="service-desc">Publication + fan-out notifications aux passagers avec alertes favorites.</div><div class="service-trigger">PATCH /api/trips/{id}/publish</div></div></div>
+      <div class="service-row"><span class="service-name">TripStartService</span><div><div class="service-desc">Démarrage trajet + activation tracking GPS + check-in passagers.</div><div class="service-trigger">POST /api/trips/{id}/start</div></div></div>
+      <div class="service-row"><span class="service-name">TripCompletionService</span><div><div class="service-desc">Fin trajet + capture paiement + déclench. évaluations + mise à jour stats.</div><div class="service-trigger">GPS auto-detect OU POST /api/trips/{id}/complete</div></div></div>
+      <div class="service-row"><span class="service-name">TripCancellationService</span><div><div class="service-desc">Annulation avec calcul pénalité selon délai. Remboursements passagers auto.</div><div class="service-trigger">POST /api/trips/{id}/cancel</div></div></div>
+      <div class="service-row"><span class="service-name">RecurringTripGeneratorService</span><div><div class="service-desc">Génère instances J+7 des trajets récurrents. Déduplique. Notifie conducteur.</div><div class="service-trigger">Job Hangfire: 23h00 quotidien</div></div></div>
+      <div class="service-row"><span class="service-name">TripDelayDetectionService</span><div><div class="service-desc">Compare ETA temps réel vs planifié. Alerte si écart > 15min. Annule si > 60min.</div><div class="service-trigger">GPS position event (toutes les 30s)</div></div></div>
+    </div>
+
+    <div class="services-box">
+      <div class="services-box-header">
+        <span class="services-box-title">💰 Payments & Finance</span>
+        <span class="services-box-count">6 services</span>
+      </div>
+      <div class="service-row"><span class="service-name">PaymentAuthorizationService</span><div><div class="service-desc">Pré-autorisation à l'acceptation réservation. Freeze fonds passager.</div><div class="service-trigger">ReservationAccepted event</div></div></div>
+      <div class="service-row"><span class="service-name">PaymentCaptureService</span><div><div class="service-desc">Capture 100% après fin trajet. Répartit 85% conducteur / 15% plateforme. Prélève pénalités en attente.</div><div class="service-trigger">TripCompleted event</div></div></div>
+      <div class="service-row"><span class="service-name">RefundService</span><div><div class="service-desc">Calcule remboursement selon délai annulation (100% / 50% / 0%). Compensation +5$ si annul < 24h conducteur.</div><div class="service-trigger">TripCancelled / ReservationCancelled events</div></div></div>
+      <div class="service-row"><span class="service-name">PenaltyEngineService</span><div><div class="service-desc">Moteur de pénalités 10 scénarios. Prélèvement auto + withholdingRate 10-20%.</div><div class="service-trigger">Domain events (NoShow, Delay, Cancellation)</div></div></div>
+      <div class="service-row"><span class="service-name">WithdrawalService</span><div><div class="service-desc">Demande retrait conducteur. Vérifie solde ≥ 20$. Simule virement (IBAN).</div><div class="service-trigger">POST /api/finance/withdraw</div></div></div>
+      <div class="service-row"><span class="service-name">PenaltyContestService</span><div><div class="service-desc">Gère contestations pénalités. Attachement preuves GPS. Décision admin sous 48h.</div><div class="service-trigger">POST /api/penalties/{id}/contest</div></div></div>
+    </div>
+
+    <div class="services-box">
+      <div class="services-box-header">
+        <span class="services-box-title">📍 GPS & Tracking</span>
+        <span class="services-box-count">5 services</span>
+      </div>
+      <div class="service-row"><span class="service-name">GpsIngestionService</span><div><div class="service-desc">Ingère positions GPS batch (10 positions/lot). Insert TimescaleDB. Broadcast SignalR.</div><div class="service-trigger">POST /api/gps/positions (mobile, toutes les 10s)</div></div></div>
+      <div class="service-row"><span class="service-name">EtaCalculationService</span><div><div class="service-desc">Calcule ETA dynamique avec OSRM + position courante. Détecte retards.</div><div class="service-trigger">Chaque position GPS ingérée</div></div></div>
+      <div class="service-row"><span class="service-name">GeofenceDetectionService</span><div><div class="service-desc">ST_Contains PostGIS. Déclenche events enter/exit/dwell zones campus. Notifie participants.</div><div class="service-trigger">Chaque position GPS ingérée</div></div></div>
+      <div class="service-row"><span class="service-name">TripTraceService</span><div><div class="service-desc">Reconstitue polyline réelle depuis GpsPositions. Archive post-trajet. Preuve litige.</div><div class="service-trigger">TripCompleted event</div></div></div>
+      <div class="service-row"><span class="service-name">LivePositionBroadcastService</span><div><div class="service-desc">SignalR hub — diffuse position conducteur aux passagers du trajet en temps réel.</div><div class="service-trigger">GpsIngested event → SignalR group</div></div></div>
+    </div>
+
+    <div class="services-box">
+      <div class="services-box-header">
+        <span class="services-box-title">🔔 Notifications</span>
+        <span class="services-box-count">4 services</span>
+      </div>
+      <div class="service-row"><span class="service-name">NotificationDispatchService</span><div><div class="service-desc">Orchestrateur central. Route vers web SSE / APNs / FCM selon canal préféré. File d'attente si offline.</div><div class="service-trigger">Tous les domain events</div></div></div>
+      <div class="service-row"><span class="service-name">PushNotificationService</span><div><div class="service-desc">Envoie push APNs (iOS) + FCM (Android). Rich notifications + actions directes. ACK tracking.</div><div class="service-trigger">NotificationDispatch (mobile)</div></div></div>
+      <div class="service-row"><span class="service-name">EmailNotificationService</span><div><div class="service-desc">Emails transactionnels via SMTP. Templates bilingues FR/EN. Unsubscribe conforme.</div><div class="service-trigger">Domain events importants</div></div></div>
+      <div class="service-row"><span class="service-name">NotificationQueueService</span><div><div class="service-desc">File d'attente pour utilisateurs offline. Purge à reconnexion. Max 50 notifs stockées.</div><div class="service-trigger">UserOffline → NotificationReceived</div></div></div>
+    </div>
+
+    <div class="services-box">
+      <div class="services-box-header">
+        <span class="services-box-title">🧠 Smart Suggestions & Analytics</span>
+        <span class="services-box-count">6 services</span>
+      </div>
+      <div class="service-row"><span class="service-name">BehaviorPatternService</span><div><div class="service-desc">Analyse historique trajets → détecte jours/heures/routes habituelles. Confiance 0-1.</div><div class="service-trigger">Job nocturne 02h00</div></div></div>
+      <div class="service-row"><span class="service-name">SuggestionEngineService</span><div><div class="service-desc">Génère SmartSuggestions depuis patterns. 7 types. Filtre déjà montrées. Prioritise par confiance.</div><div class="service-trigger">BehaviorPattern updated + Job 06h00</div></div></div>
+      <div class="service-row"><span class="service-name">ChurnDetectionService</span><div><div class="service-desc">Identifie utilisateurs inactifs (14j = high risk). Génère suggestion reactivation.</div><div class="service-trigger">Job quotidien 07h00</div></div></div>
+      <div class="service-row"><span class="service-name">TripAlertMatchingService</span><div><div class="service-desc">Nouveau trajet publié → cherche passagers avec alertes favorites compatibles → notifie instantanément.</div><div class="service-trigger">TripPublished event</div></div></div>
+      <div class="service-row"><span class="service-name">GoScoreCalculatorService</span><div><div class="service-desc">Recalcule GoScore (0-100) selon formule pondérée: trajets, notes, ponctualité, pénalités, incidents.</div><div class="service-trigger">Chaque event impactant réputation</div></div></div>
+      <div class="service-row"><span class="service-name">StatsAggregatorService</span><div><div class="service-desc">Agrège UserStatModel complet (KPIs, CO2, scatter, notes hebdo, distributions). Cache 6h.</div><div class="service-trigger">Job nocturne 01h00 + on-demand</div></div></div>
+    </div>
+
+    <div class="services-box">
+      <div class="services-box-header">
+        <span class="services-box-title">⭐ Reputation & Gamification</span>
+        <span class="services-box-count">5 services</span>
+      </div>
+      <div class="service-row"><span class="service-name">ReviewService</span><div><div class="service-desc">Soumission évaluations mutuelles. Publication simultanée après 7j ou quand les 2 ont évalué. Met à jour affinité.</div><div class="service-trigger">POST /api/reviews</div></div></div>
+      <div class="service-row"><span class="service-name">BadgeAwardService</span><div><div class="service-desc">Vérifie conditions 20+ badges. Attribution automatique. Notification + points bonus.</div><div class="service-trigger">TripCompleted + ReviewReceived + Job 23h30</div></div></div>
+      <div class="service-row"><span class="service-name">ChallengProgressService</span><div><div class="service-desc">Suit progression défis écologiques par utilisateur. Complète et récompense automatiquement.</div><div class="service-trigger">TripCompleted event</div></div></div>
+      <div class="service-row"><span class="service-name">LeaderboardService</span><div><div class="service-desc">Classements mensuels (km, trajets, CO2). Reset 1er du mois. Badge MVP Top 3.</div><div class="service-trigger">TripCompleted + Job 1er du mois 00h00</div></div></div>
+      <div class="service-row"><span class="service-name">AffinityUpdateService</span><div><div class="service-desc">Met à jour AffinityScore après chaque trajet/évaluation/signalement. Recompute score 0-100.</div><div class="service-trigger">TripCompleted + ReviewSubmitted + ReportValidated</div></div></div>
+    </div>
+
+    <div class="services-box">
+      <div class="services-box-header">
+        <span class="services-box-title">🛡️ Security & Moderation</span>
+        <span class="services-box-count">5 services</span>
+      </div>
+      <div class="service-row"><span class="service-name">SosAlertService</span><div><div class="service-desc">Déclenche SOS: snapshot GPS, notifie contacts urgence (SMS), alerte admins en temps réel via SignalR.</div><div class="service-trigger">POST /api/sos (mobile)</div></div></div>
+      <div class="service-row"><span class="service-name">ReportProcessingService</span><div><div class="service-desc">Ingère signalement + enrichit avec GPS trace + assigne admin. Blocage préventif si critique.</div><div class="service-trigger">POST /api/reports</div></div></div>
+      <div class="service-row"><span class="service-name">SuspensionService</span><div><div class="service-desc">Suspend/bannit compte. Annule trajets en cours. Remboursements auto. Annule suspension expirée (job).</div><div class="service-trigger">Admin action + Job toutes les heures</div></div></div>
+      <div class="service-row"><span class="service-name">AnomalyDetectionService</span><div><div class="service-desc">Détecte comportements suspects: taux annulation > 20%, vitesse GPS > 150km/h, réservations abusives.</div><div class="service-trigger">Continu sur domain events clés</div></div></div>
+      <div class="service-row"><span class="service-name">PipedaComplianceService</span><div><div class="service-desc">Gère exports données (ZIP sous 48h), suppression compte (anonymisation PIPEDA), gestion consentements.</div><div class="service-trigger">User request + Job rétention 7 ans</div></div></div>
+    </div>
+
+    <div class="services-box">
+      <div class="services-box-header">
+        <span class="services-box-title">👨‍💼 Driver Onboarding & Admin</span>
+        <span class="services-box-count">4 services</span>
+      </div>
+      <div class="service-row"><span class="service-name">DriverApplicationService</span><div><div class="service-desc">Soumission candidature conducteur. Validation documents. Approbation admin → activation rôle conducteur.</div><div class="service-trigger">POST /api/driver/apply + Admin validation</div></div></div>
+      <div class="service-row"><span class="service-name">DocumentExpiryService</span><div><div class="service-desc">Surveille dates expiration documents conducteurs. Rappels J-30, J-14, J-7. Désactive si expiré.</div><div class="service-trigger">Job quotidien 09h00</div></div></div>
+      <div class="service-row"><span class="service-name">AdminDashboardService</span><div><div class="service-desc">Agrège KPIs admin temps réel: utilisateurs actifs, trajets du jour, signalements en attente, revenus.</div><div class="service-trigger">GET /api/admin/dashboard (cache 5min)</div></div></div>
+      <div class="service-row"><span class="service-name">BroadcastService</span><div><div class="service-desc">Envois massifs email ciblés (segments). Annonces in-app. Rate limiting 100 emails/min.</div><div class="service-trigger">Admin action POST /api/admin/broadcast</div></div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ JOBS ══════════ -->
+<section id="jobs">
+  <div class="section-head">
+    <span class="section-tag tag-teal">Hangfire</span>
+    <h2 class="section-title">Jobs Planifiés & Auto-déclenchés</h2>
+    <div class="section-line"></div>
+  </div>
+  <table class="jobs-table" style="width:100%;">
+    <thead>
+      <tr>
+        <th>Nom du Job</th>
+        <th>Planification</th>
+        <th>Description</th>
+        <th>Actions déclenchées</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="job-name">RecurringTripGeneratorJob</td><td><span class="job-cron">0 23 * * *</span></td><td class="job-desc">Génère les instances de trajets récurrents pour J+7. Déduplique.</td><td class="job-trigger">TripCreated x N, Notifications conducteurs</td></tr>
+      <tr><td class="job-name">StatsAggregatorJob</td><td><span class="job-cron">0 1 * * *</span></td><td class="job-desc">Recalcule UserStatModel pour tous les utilisateurs actifs (30 derniers jours).</td><td class="job-trigger">UserStatModel updated, cache invalidé</td></tr>
+      <tr><td class="job-name">BehaviorPatternJob</td><td><span class="job-cron">0 2 * * *</span></td><td class="job-desc">Analyse les 90 derniers jours d'activité. Détecte patterns récurrents. Confiance calculée.</td><td class="job-trigger">UserBehaviorPattern upserted</td></tr>
+      <tr><td class="job-name">SuggestionGenerationJob</td><td><span class="job-cron">0 6 * * *</span></td><td class="job-desc">Génère SmartSuggestions depuis patterns frais. Purge suggestions expirées.</td><td class="job-trigger">SmartSuggestion created, push notifications</td></tr>
+      <tr><td class="job-name">ChurnDetectionJob</td><td><span class="job-cron">0 7 * * *</span></td><td class="job-desc">Identifie utilisateurs inactifs 14j+. Classe risque churn. Génère suggestion réactivation.</td><td class="job-trigger">ChurnRisk updated, email réactivation</td></tr>
+      <tr><td class="job-name">DocumentExpiryJob</td><td><span class="job-cron">0 9 * * *</span></td><td class="job-desc">Vérifie dates expiration documents conducteurs. Rappels graduels J-30/J-14/J-7.</td><td class="job-trigger">Email rappel, Notification push, désactivation si J+0</td></tr>
+      <tr><td class="job-name">ReservationExpiryJob</td><td><span class="job-cron">*/5 * * * *</span></td><td class="job-desc">Annule demandes de réservation expirées (15min/2h/24h selon type départ).</td><td class="job-trigger">ReservationExpired event, notifications passager/conducteur</td></tr>
+      <tr><td class="job-name">BadgeAuditJob</td><td><span class="job-cron">30 23 * * *</span></td><td class="job-desc">Vérifie toutes les conditions de badges pour chaque utilisateur. Attribution automatique.</td><td class="job-trigger">BadgeEarned event, +pts GoScore, notification</td></tr>
+      <tr><td class="job-name">LeaderboardResetJob</td><td><span class="job-cron">0 0 1 * *</span></td><td class="job-desc">Archive classement mois précédent. Attribue badges MVP. Reset classements mensuels.</td><td class="job-trigger">BadgeAwarded Top 3, leaderboard reset</td></tr>
+      <tr><td class="job-name">SuspensionLiftJob</td><td><span class="job-cron">0 * * * *</span></td><td class="job-desc">Lève suspensions temporaires expirées (SuspendedUntil &lt; now).</td><td class="job-trigger">UserActivated event, email notification</td></tr>
+      <tr><td class="job-name">GpsDataRetentionJob</td><td><span class="job-cron">0 3 * * 0</span></td><td class="job-desc">Supprime positions GPS &gt; 90 jours (hors litiges actifs). Conformité PIPEDA.</td><td class="job-trigger">GpsPositions deleted, AuditLog entry</td></tr>
+      <tr><td class="job-name">NotificationPurgeJob</td><td><span class="job-cron">0 4 * * *</span></td><td class="job-desc">Supprime notifications lues &gt; 90 jours. Garde non-lues 1 an.</td><td class="job-trigger">Notifications purged</td></tr>
+      <tr><td class="job-name">PlatformKpiJob</td><td><span class="job-cron">0 0 * * *</span></td><td class="job-desc">Calcule KPIs globaux plateforme (trajets, utilisateurs, CO2, revenus). Rapport hebdo dim.</td><td class="job-trigger">PlatformStats updated, email hebdo admins</td></tr>
+      <tr><td class="job-name">ChallengeCompletionCheckJob</td><td><span class="job-cron">0 */6 * * *</span></td><td class="job-desc">Vérifie progression défis expirés. Clôture et attribue récompenses.</td><td class="job-trigger">ChallengeCompleted ou ChallengeExpired events</td></tr>
+      <tr><td class="job-name">DelayedTripAutoCompleteJob</td><td><span class="job-cron">*/10 * * * *</span></td><td class="job-desc">Complète automatiquement trajets in_progress depuis &gt; durée estimée × 1.5. Sécurité.</td><td class="job-trigger">TripCompleted auto, capture paiement</td></tr>
+      <tr><td class="job-name">AnomalyAuditJob</td><td><span class="job-cron">0 */4 * * *</span></td><td class="job-desc">Analyse patterns suspects: annulations répétées, GPS vitesse aberrante, réservations abusives.</td><td class="job-trigger">AdminAlert si seuil dépassé</td></tr>
+      <tr><td class="job-name">EcoImpactAggregatorJob</td><td><span class="job-cron">0 0 * * 1</span></td><td class="job-desc">Calcule impact écologique global hebdomadaire (CO2 total, km, voitures évitées). Page d'accueil.</td><td class="job-trigger">PlatformEcoStats updated</td></tr>
+      <tr><td class="job-name">DataExportProcessorJob</td><td><span class="job-cron">*/30 * * * *</span></td><td class="job-desc">Traite demandes exports données utilisateurs (PIPEDA). Génère ZIP. Envoie lien email.</td><td class="job-trigger">DataExportReady, email lien sécurisé 7j</td></tr>
+      <tr><td class="job-name">TripReminderJob</td><td><span class="job-cron">*/5 * * * *</span></td><td class="job-desc">Envoie rappels départ 1h avant et 15min avant à conducteur + passagers.</td><td class="job-trigger">Push notification + email ciblés</td></tr>
+      <tr><td class="job-name">InactiveTripsCleanupJob</td><td><span class="job-cron">0 5 * * *</span></td><td class="job-desc">Annule trajets publiés sans réservation dont la date est passée depuis 24h.</td><td class="job-trigger">TripCancelled (auto), libération ressources</td></tr>
+      <tr><td class="job-name">GoScoreRecalculationJob</td><td><span class="job-cron">0 0 * * *</span></td><td class="job-desc">Recalcule GoScore de tous les utilisateurs actifs. Normalise scores aberrants.</td><td class="job-trigger">UserGoScoreUpdated, badges</td></tr>
+      <tr><td class="job-name">PendingPaymentJob</td><td><span class="job-cron">0 */2 * * *</span></td><td class="job-desc">Capture paiements pre_authorized sur trajets complétés depuis &gt; 2h non encore capturés.</td><td class="job-trigger">PaymentCaptured, balance conducteur</td></tr>
+      <tr><td class="job-name">SosSlaMonitorJob</td><td><span class="job-cron">*/1 * * * *</span></td><td class="job-desc">Vérifie SLA &lt; 5min sur alertes SOS actives. Escalade si admin n'a pas répondu.</td><td class="job-trigger">AdminEscalationAlert</td></tr>
+      <tr><td class="job-name">MatchingCacheWarmupJob</td><td><span class="job-cron">0 5 * * *</span></td><td class="job-desc">Pré-calcule scores matching pour trajets publiés du jour × passagers avec alertes actives.</td><td class="job-trigger">MatchingScoreCache populated</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════ EVENTS / SSE ══════════ -->
+<section id="events">
+  <div class="section-head">
+    <span class="section-tag tag-purple">Domain Events & SignalR</span>
+    <h2 class="section-title">Événements & Flux Temps Réel</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="events-grid">
+    <div class="event-card"><div class="event-source">📡 GPS → Core → SignalR</div><div class="event-name">DriverPositionUpdated</div><div class="event-desc">Position conducteur mise à jour (toutes les 10s). Broadcast à tous les passagers du trajet.</div><div class="event-consumers"><span class="ec">Mobile passager</span><span class="ec">Web client</span><span class="ec">EtaService</span><span class="ec">GeofenceService</span></div></div>
+    <div class="event-card"><div class="event-source">🔔 Core → SSE/Push</div><div class="event-name">ReservationReceived</div><div class="event-desc">Nouvelle demande de réservation reçue par conducteur. Action requise &lt; expiration.</div><div class="event-consumers"><span class="ec">Driver mobile push</span><span class="ec">Driver web SSE</span><span class="ec">NotificationService</span></div></div>
+    <div class="event-card"><div class="event-source">🔔 Core → SSE/Push</div><div class="event-name">ReservationAccepted</div><div class="event-desc">Conducteur accepte → pre-autorisation paiement déclenchée. Passager notifié.</div><div class="event-consumers"><span class="ec">Passenger push</span><span class="ec">PaymentAuthService</span><span class="ec">ChatUnlocked</span></div></div>
+    <div class="event-card"><div class="event-source">⚡ Core SignalR</div><div class="event-name">TripStarted</div><div class="event-desc">Conducteur démarre le trajet. Broadcast à tous les passagers confirmés. ETA activé.</div><div class="event-consumers"><span class="ec">Passenger mobile</span><span class="ec">EmergencyContacts SMS</span><span class="ec">TrackingActivated</span></div></div>
+    <div class="event-card"><div class="event-source">✅ Core</div><div class="event-name">TripCompleted</div><div class="event-desc">Trajet terminé via GPS ou manuel. Déclenche cascade: paiement, stats, évaluations, badges.</div><div class="event-consumers"><span class="ec">PaymentCapture</span><span class="ec">ReviewPrompt</span><span class="ec">BadgeCheck</span><span class="ec">StatsUpdate</span><span class="ec">AffinityUpdate</span></div></div>
+    <div class="event-card"><div class="event-source">🚨 Core SignalR</div><div class="event-name">SosTriggered</div><div class="event-desc">Bouton SOS activé. Priorité critique. Admin notifié en temps réel. Contacts urgence contactés.</div><div class="event-consumers"><span class="ec">Admin dashboard</span><span class="ec">EmergencyContacts</span><span class="ec">TripFrozen</span></div></div>
+    <div class="event-card"><div class="event-source">⚙️ Core → Matching</div><div class="event-name">TripPublished</div><div class="event-desc">Nouveau trajet publié. Déclenche fan-out matching pour passagers avec alertes favorites.</div><div class="event-consumers"><span class="ec">TripAlertService</span><span class="ec">MatchingCacheWarm</span><span class="ec">SearchIndexUpdate</span></div></div>
+    <div class="event-card"><div class="event-source">🧠 Core Analytics</div><div class="event-name">SmartSuggestionReady</div><div class="event-desc">Suggestion IA prête pour utilisateur. Inclut contexte et confiance.</div><div class="event-consumers"><span class="ec">Passenger push</span><span class="ec">Driver push</span><span class="ec">Web SSE</span></div></div>
+    <div class="event-card"><div class="event-source">⚠️ Core → Admin</div><div class="event-name">AnomalyDetected</div><div class="event-desc">Comportement suspect détecté (vitesse, annulations, réservations). Alerte admin.</div><div class="event-consumers"><span class="ec">Admin SignalR</span><span class="ec">AuditLog</span><span class="ec">SuspicionFlag</span></div></div>
+    <div class="event-card"><div class="event-source">📍 Core Geofence</div><div class="event-name">GeofenceEntered</div><div class="event-desc">Conducteur entre dans zone campus. Notifie passagers "conducteur arrive dans X min".</div><div class="event-consumers"><span class="ec">Passenger push</span><span class="ec">Campus zone activated</span></div></div>
+    <div class="event-card"><div class="event-source">💰 Core Finance</div><div class="event-name">PenaltyApplied</div><div class="event-desc">Pénalité automatiquement calculée et appliquée. GoScore impacté. Email notification.</div><div class="event-consumers"><span class="ec">GoScoreRecalc</span><span class="ec">User notification</span><span class="ec">AuditLog</span></div></div>
+    <div class="event-card"><div class="event-source">🏆 Core Gamification</div><div class="event-name">BadgeEarned</div><div class="event-desc">Badge débloqué automatiquement. Notification avec animation célébration.</div><div class="event-consumers"><span class="ec">User push</span><span class="ec">GoBoard update</span><span class="ec">Leaderboard refresh</span></div></div>
+  </div>
+</section>
+
+<!-- ══════════ SERVER WEB ENDPOINTS ══════════ -->
+<section id="web-server">
+  <div class="section-head">
+    <span class="section-tag tag-teal">Next.js BFF</span>
+    <h2 class="section-title">API Server Web (BFF)</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="endpoints-block">
+    <div class="ep-header"><div class="ep-domain">Auth & Users</div><span class="ep-count">8 endpoints</span></div>
+    <div class="ep-list">
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/auth/sso-callback</span><span class="ep-desc">Échange code Azure AD → JWT session (2h web / 30j mobile)</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/auth/refresh</span><span class="ep-desc">Refresh token silencieux</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/auth/logout</span><span class="ep-desc">Invalidation session + cookie clear</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/users/me</span><span class="ep-desc">Profil complet utilisateur connecté</span></div>
+      <div class="ep-row"><span class="method patch">PATCH</span><span class="ep-path">/api/users/me</span><span class="ep-desc">Mise à jour profil (nom, photo, phone, préférences)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/users/{id}/public</span><span class="ep-desc">Profil public (masque données sensibles)</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/users/me/export</span><span class="ep-desc">Demande export données PIPEDA (délai 48h)</span></div>
+      <div class="ep-row"><span class="method delete">DELETE</span><span class="ep-path">/api/users/me</span><span class="ep-desc">Suppression compte (anonymisation PIPEDA)</span></div>
+    </div>
+  </div>
+
+  <div class="endpoints-block">
+    <div class="ep-header"><div class="ep-domain">Trips</div><span class="ep-count">12 endpoints</span></div>
+    <div class="ep-list">
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/trips/search</span><span class="ep-desc">Recherche géospatiale + matching score. Params: from, to, date, filters, page</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/trips/{id}</span><span class="ep-desc">Détail trajet complet avec conducteur, véhicule, préférences</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/trips</span><span class="ep-desc">Création trajet (OSRM calcul auto)</span></div>
+      <div class="ep-row"><span class="method put">PUT</span><span class="ep-path">/api/trips/{id}</span><span class="ep-desc">Modification trajet (restrictions si passagers confirmés)</span></div>
+      <div class="ep-row"><span class="method patch">PATCH</span><span class="ep-path">/api/trips/{id}/publish</span><span class="ep-desc">Publication trajet draft</span></div>
+      <div class="ep-row"><span class="method patch">PATCH</span><span class="ep-path">/api/trips/{id}/start</span><span class="ep-desc">Démarrage trajet (active GPS tracking)</span></div>
+      <div class="ep-row"><span class="method patch">PATCH</span><span class="ep-path">/api/trips/{id}/complete</span><span class="ep-desc">Fin trajet (déclenche capture paiement)</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/trips/{id}/cancel</span><span class="ep-desc">Annulation avec raison</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/trips/mine/driver</span><span class="ep-desc">Mes trajets conducteur (filtres: status, date)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/trips/{id}/passengers</span><span class="ep-desc">Liste passagers confirmés avec détails</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/trips/{id}/live</span><span class="ep-desc">Données temps réel: position, ETA, statut</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/trips/{id}/save-draft</span><span class="ep-desc">Sauvegarde brouillon (non publié)</span></div>
+    </div>
+  </div>
+
+  <div class="endpoints-block">
+    <div class="ep-header"><div class="ep-domain">Reservations</div><span class="ep-count">10 endpoints</span></div>
+    <div class="ep-list">
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/reservations</span><span class="ep-desc">Créer demande réservation (max 5 actives)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/reservations/mine</span><span class="ep-desc">Mes réservations (conducteur: demandes reçues / passager: mes demandes)</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/reservations/{id}/accept</span><span class="ep-desc">Acceptation conducteur</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/reservations/{id}/refuse</span><span class="ep-desc">Refus conducteur avec raison</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/reservations/{id}/cancel</span><span class="ep-desc">Annulation (calcul pénalité auto)</span></div>
+      <div class="ep-row"><span class="method patch">PATCH</span><span class="ep-path">/api/reservations/{id}/boarding/driver</span><span class="ep-desc">Confirmation embarquement (conducteur)</span></div>
+      <div class="ep-row"><span class="method patch">PATCH</span><span class="ep-path">/api/reservations/{id}/boarding/passenger</span><span class="ep-desc">Confirmation embarquement (passager)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/reservations/{id}</span><span class="ep-desc">Détail réservation</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/reservations/active</span><span class="ep-desc">Toutes les demandes en attente (passager)</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/reservations/cancel-all</span><span class="ep-desc">Annulation groupée toutes les demandes en attente</span></div>
+    </div>
+  </div>
+
+  <div class="endpoints-block">
+    <div class="ep-header"><div class="ep-domain">GPS & Tracking</div><span class="ep-count">5 endpoints</span></div>
+    <div class="ep-list">
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/gps/positions</span><span class="ep-desc">Upload batch positions GPS (conducteur mobile, max 10 positions/lot)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/gps/live/{tripId}</span><span class="ep-desc">Position en temps réel (SSE stream)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/gps/trace/{tripId}</span><span class="ep-desc">Polyline complète trajet terminé (admin/litige)</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/sos</span><span class="ep-desc">Déclenche alerte SOS (mobile)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/geofences/zones</span><span class="ep-desc">Zones campus (GeoJSON)</span></div>
+    </div>
+  </div>
+
+  <div class="endpoints-block">
+    <div class="ep-header"><div class="ep-domain">Reviews, Finance, Admin, SSE</div><span class="ep-count">20 endpoints</span></div>
+    <div class="ep-list">
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/reviews</span><span class="ep-desc">Soumettre évaluation post-trajet</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/reviews/user/{id}</span><span class="ep-desc">Évaluations d'un utilisateur (avec pagination)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/finance/driver/balance</span><span class="ep-desc">Solde disponible conducteur</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/finance/withdraw</span><span class="ep-desc">Demande retrait (≥ 20$)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/finance/transactions</span><span class="ep-desc">Historique transactions avec filtres</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/penalties/{id}/contest</span><span class="ep-desc">Contester pénalité avec justificatifs</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/notifications</span><span class="ep-desc">Liste notifications utilisateur</span></div>
+      <div class="ep-row"><span class="method patch">PATCH</span><span class="ep-path">/api/notifications/{id}/read</span><span class="ep-desc">Marquer notification comme lue</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/sse/notifications</span><span class="ep-desc">Stream SSE notifications temps réel (web)</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/reports</span><span class="ep-desc">Soumettre signalement</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/admin/dashboard</span><span class="ep-desc">KPIs admin temps réel</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/admin/users</span><span class="ep-desc">Liste utilisateurs avec filtres avancés</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/admin/users/{id}/suspend</span><span class="ep-desc">Suspension temporaire avec durée</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/admin/driver-applications/{id}/validate</span><span class="ep-desc">Validation candidature conducteur</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/admin/reports</span><span class="ep-desc">Queue signalements (filtres gravité/statut)</span></div>
+      <div class="ep-row"><span class="method post">POST</span><span class="ep-path">/api/admin/broadcast</span><span class="ep-desc">Email massif ciblé par segment</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/admin/sse/alerts</span><span class="ep-desc">Stream SSE alertes admin (SOS, anomalies)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/favorites</span><span class="ep-desc">Favoris utilisateur (lieux + conducteurs + alertes)</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/suggestions</span><span class="ep-desc">Suggestions IA pour l'utilisateur connecté</span></div>
+      <div class="ep-row"><span class="method get">GET</span><span class="ep-path">/api/stats/user</span><span class="ep-desc">Statistiques complètes utilisateur (UserStatModel)</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CLIENT WEB SCREENS ══════════ -->
+<section id="web-client">
+  <div class="section-head">
+    <span class="section-tag tag-amber">React / Next.js</span>
+    <h2 class="section-title">Pages & Composants Client Web</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="screens-grid">
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Homepage Publique</div><span class="screen-role tag-teal" style="font-size:10px;padding:2px 8px;border-radius:4px;">Public</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-teal">Hero + CTA connexion Microsoft SSO</div>
+        <div class="screen-item si-teal">Stats dynamiques plateforme (trajets, CO2, users)</div>
+        <div class="screen-item si-teal">Comment ça marche (3 étapes)</div>
+        <div class="screen-item si-teal">Avantages (6 cartes: écologie, économie, sécurité...)</div>
+        <div class="screen-item si-teal">Footer avec liens légaux</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Dashboard Passager</div><span class="screen-role tag-blue" style="font-size:10px;padding:2px 8px;border-radius:4px;">Passager</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-blue">Hero: GoScore dial animé + salutation</div>
+        <div class="screen-item si-blue">Super Search (origine/dest/date/filtres)</div>
+        <div class="screen-item si-blue">Trajets recommandés (matching v4)</div>
+        <div class="screen-item si-blue">Mes réservations actives (statuts live)</div>
+        <div class="screen-item si-blue">Destinations habituelles (lieux favoris)</div>
+        <div class="screen-item si-blue">Destinations récentes avec photos Unsplash</div>
+        <div class="screen-item si-blue">Notifications + nouveautés slider</div>
+        <div class="screen-item si-blue">Astuces La Cité + GoBoard section</div>
+        <div class="screen-item si-blue">Smart Suggestions contextuelles</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Dashboard Conducteur</div><span class="screen-role tag-amber" style="font-size:10px;padding:2px 8px;border-radius:4px;">Conducteur</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-amber">Hero + balance disponible + GoScore</div>
+        <div class="screen-item si-amber">Demandes réservation en attente (accept/refuse)</div>
+        <div class="screen-item si-amber">Mes trajets publiés (statuts + progression)</div>
+        <div class="screen-item si-amber">Section finances: solde, en transit, pénalités</div>
+        <div class="screen-item si-amber">Quick plan: bouton créer trajet rapide</div>
+        <div class="screen-item si-amber">Avis récents reçus</div>
+        <div class="screen-item si-amber">Stats hebdomadaires condensées</div>
+        <div class="screen-item si-amber">Smart Suggestions conducteur</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Recherche Trajets</div><span class="screen-role tag-blue" style="font-size:10px;padding:2px 8px;border-radius:4px;">Passager</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-blue">Input départ/arrivée avec autocomplete OSM</div>
+        <div class="screen-item si-blue">Sélecteur date/heure avec wheel picker</div>
+        <div class="screen-item si-blue">Filtres actifs (chips supprimables)</div>
+        <div class="screen-item si-blue">Carte Leaflet avec polylines trajets</div>
+        <div class="screen-item si-blue">Liste résultats triés (score, prix, note)</div>
+        <div class="screen-item si-blue">Carte résultat: conducteur, route, score compat.</div>
+        <div class="screen-item si-blue">Détail trajet (4 onglets: info, conducteur, avis, carte)</div>
+        <div class="screen-item si-blue">Modal confirmation réservation</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Création Trajet</div><span class="screen-role tag-amber" style="font-size:10px;padding:2px 8px;border-radius:4px;">Conducteur</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-amber">Formulaire 2 colonnes desktop</div>
+        <div class="screen-item si-amber">Section infos de base (départ/arrivée/date/heure)</div>
+        <div class="screen-item si-amber">Sélection véhicule enregistré</div>
+        <div class="screen-item si-amber">Prévisualisation carte Leaflet OSRM</div>
+        <div class="screen-item si-amber">Stepper prix + nombre places</div>
+        <div class="screen-item si-amber">Toggles préférences (musique, animaux, etc.)</div>
+        <div class="screen-item si-amber">Configuration récurrence (jours + date fin)</div>
+        <div class="screen-item si-amber">Actions: Publier / Sauvegarder brouillon</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Trajet en Cours</div><span class="screen-role tag-purple" style="font-size:10px;padding:2px 8px;border-radius:4px;">Les deux</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-purple">Carte Leaflet temps réel (position live conducteur)</div>
+        <div class="screen-item si-purple">ETA dynamique + progression trajet</div>
+        <div class="screen-item si-purple">Info conducteur/passagers + véhicule</div>
+        <div class="screen-item si-purple">Messagerie in-trip</div>
+        <div class="screen-item si-purple">Liste passagers avec statut embarquement</div>
+        <div class="screen-item si-purple">Bouton SOS accessible en permanence</div>
+        <div class="screen-item si-purple">Overlay signalement multi-étapes</div>
+        <div class="screen-item si-purple">Overlay litige (si problème détecté)</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Planificateur</div><span class="screen-role tag-purple" style="font-size:10px;padding:2px 8px;border-radius:4px;">Les deux</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-purple">Calendrier hebdomadaire interactif</div>
+        <div class="screen-item si-purple">Vue mois (grille mensuelle)</div>
+        <div class="screen-item si-purple">Créneaux de disponibilité / indisponibilité</div>
+        <div class="screen-item si-purple">RideCell pour chaque trajet planifié</div>
+        <div class="screen-item si-purple">Barre recherche contextuelle</div>
+        <div class="screen-item si-purple">Section trajets disponibles (conducteur: à créer)</div>
+        <div class="screen-item si-purple">Navigation semaine prev/next + carousel</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Dashboard Admin</div><span class="screen-role tag-red" style="font-size:10px;padding:2px 8px;border-radius:4px;">Admin</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-amber">KPIs temps réel (users, trajets, revenus, signalements)</div>
+        <div class="screen-item si-amber">Graphiques interactifs (inscriptions, trajets/jour)</div>
+        <div class="screen-item si-amber">Queue validation conducteurs (accept/refuse/demander docs)</div>
+        <div class="screen-item si-amber">Queue signalements (gravité, statut, enquête)</div>
+        <div class="screen-item si-amber">Gestion utilisateurs (recherche, suspension, ban)</div>
+        <div class="screen-item si-amber">Gestion alertes SOS actives (temps réel SignalR)</div>
+        <div class="screen-item si-amber">Rapports & exports CSV/Excel/PDF</div>
+        <div class="screen-item si-amber">Configuration système (PlatformConfig hot-reload)</div>
+        <div class="screen-item si-amber">Logs audit (filtres, export)</div>
+        <div class="screen-item si-amber">Broadcast emails ciblés + annonces in-app</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Statistiques & GoBoard</div><span class="screen-role tag-blue" style="font-size:10px;padding:2px 8px;border-radius:4px;">Les deux</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-blue">KPIs (trajets, CO2, note, GoScore)</div>
+        <div class="screen-item si-blue">Graphique CO2 par mois (barres)</div>
+        <div class="screen-item si-blue">Scatter CO2 × distance</div>
+        <div class="screen-item si-blue">Timeline notes hebdomadaires</div>
+        <div class="screen-item si-blue">Distribution étoiles (donut)</div>
+        <div class="screen-item si-blue">Grille badges (obtenu/verrouillé + progression)</div>
+        <div class="screen-item si-blue">GoScore dial animé avec jauge aiguille</div>
+        <div class="screen-item si-blue">Classement mensuel conducteurs</div>
+        <div class="screen-item si-blue">Défis écologiques actifs (progression barres)</div>
+        <div class="screen-item si-blue">Missions GoBoard avec points</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Finances & Favoris & Profil</div><span class="screen-role tag-teal" style="font-size:10px;padding:2px 8px;border-radius:4px;">Les deux</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-teal">Finances: solde, en transit, pénalités, histogramme</div>
+        <div class="screen-item si-teal">Demande retrait (modal IBAN)</div>
+        <div class="screen-item si-teal">Historique transactions (crédit/débit/pénalité)</div>
+        <div class="screen-item si-teal">Favoris: lieux (add/delete), conducteurs, alertes</div>
+        <div class="screen-item si-teal">Configuration alertes (jours, plage horaire, filtres)</div>
+        <div class="screen-item si-teal">Profil: photo, préférences, langue, notifications</div>
+        <div class="screen-item si-teal">Confidentialité: consentements, export, suppression</div>
+        <div class="screen-item si-teal">Historique trajets (passager + conducteur)</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ MOBILE APP ══════════ -->
+<section id="mobile">
+  <div class="section-head">
+    <span class="section-tag tag-purple">React Native / Expo</span>
+    <h2 class="section-title">Application Mobile — Écrans & Services Natifs</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="screens-grid">
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Onboarding & Auth</div><span class="screen-role tag-teal" style="font-size:10px;padding:2px 8px;border-radius:4px;">Public</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-teal">Splash screen animé La Cité</div>
+        <div class="screen-item si-teal">Welcome slides (3 écrans fonctionnalités)</div>
+        <div class="screen-item si-teal">Login Microsoft SSO (WebView + deep link)</div>
+        <div class="screen-item si-teal">Demande permissions: GPS, notifications, biométrie</div>
+        <div class="screen-item si-teal">Setup profil initial (photo + préférences)</div>
+        <div class="screen-item si-teal">Tour guidé interactif (5 étapes)</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Home / Accueil</div><span class="screen-role tag-blue" style="font-size:10px;padding:2px 8px;border-radius:4px;">Les deux</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-blue">Salutation + GoScore dial compact</div>
+        <div class="screen-item si-blue">Barre recherche sticky avec favoris pills</div>
+        <div class="screen-item si-blue">Hero illustration SVG (diverse community)</div>
+        <div class="screen-item si-blue">Trajet en cours (card live avec progression)</div>
+        <div class="screen-item si-blue">Grid statistiques (4 tuiles: trajets, CO2, note, GoScore)</div>
+        <div class="screen-item si-blue">Scroll horizontal Nouveautés (4 types de cartes)</div>
+        <div class="screen-item si-blue">Bottom nav (Accueil, Trajets, Messages, Explorer, Profil)</div>
+        <div class="screen-item si-blue">Badge notifications temps réel (SSE)</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Recherche Mobile</div><span class="screen-role tag-blue" style="font-size:10px;padding:2px 8px;border-radius:4px;">Passager</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-blue">Header bleu profond avec inputs stylés</div>
+        <div class="screen-item si-blue">Focus keyboard avec liste suggestions</div>
+        <div class="screen-item si-blue">Mock keyboard avec autocomplete en temps réel</div>
+        <div class="screen-item si-blue">Wheel picker date/heure (iOS natif)</div>
+        <div class="screen-item si-blue">Filtres chips actifs + icônes sort/filter</div>
+        <div class="screen-item si-blue">Cards résultats avec score compatibilité</div>
+        <div class="screen-item si-blue">Sheet bottom pour détail trajet (swipe up)</div>
+        <div class="screen-item si-blue">Bouton "Réserver" → confirmation rapide</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Trajet en Cours Mobile</div><span class="screen-role tag-purple" style="font-size:10px;padding:2px 8px;border-radius:4px;">Les deux</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-purple">Carte MapBox full-screen avec icône voiture animée</div>
+        <div class="screen-item si-purple">ETA overlay + distance restante</div>
+        <div class="screen-item si-purple">Panel conducteur (avatar, plaque, note)</div>
+        <div class="screen-item si-purple">Chat in-trip accessible via FAB</div>
+        <div class="screen-item si-purple">SOS bouton rouge proéminent (toujours visible)</div>
+        <div class="screen-item si-purple">Notification persistante "Trajet en cours"</div>
+        <div class="screen-item si-purple">Background tracking GPS (toutes les 10s)</div>
+        <div class="screen-item si-purple">Geofence: alerte "Conducteur arrive" (±500m)</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Créer Trajet Mobile</div><span class="screen-role tag-amber" style="font-size:10px;padding:2px 8px;border-radius:4px;">Conducteur</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-amber">Formulaire scrollable (1 colonne)</div>
+        <div class="screen-item si-amber">Sélection zones campus via carte</div>
+        <div class="screen-item si-amber">Stepper native pour prix et places</div>
+        <div class="screen-item si-amber">Date picker natif iOS/Android</div>
+        <div class="screen-item si-amber">Toggles préférences (switches natifs)</div>
+        <div class="screen-item si-amber">Aperçu route (Leaflet WebView)</div>
+        <div class="screen-item si-amber">Publish + Save Draft actions</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Notifications & Messages</div><span class="screen-role tag-amber" style="font-size:10px;padding:2px 8px;border-radius:4px;">Les deux</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-amber">Centre notifications groupé par type</div>
+        <div class="screen-item si-amber">Rich notifications avec images et actions rapides</div>
+        <div class="screen-item si-amber">Swipe-to-dismiss / swipe-to-action</div>
+        <div class="screen-item si-amber">Push notifications APNs (iOS) + FCM (Android)</div>
+        <div class="screen-item si-amber">Notification persistante trajet actif</div>
+        <div class="screen-item si-amber">Messagerie in-trip (bulles chat)</div>
+        <div class="screen-item si-amber">Son + vibration pour nouveaux messages</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Services Natifs Background</div><span class="screen-role tag-purple" style="font-size:10px;padding:2px 8px;border-radius:4px;">Système</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-purple">GPS Background Service (Expo Location)</div>
+        <div class="screen-item si-purple">Geofencing Service (Expo TaskManager)</div>
+        <div class="screen-item si-purple">Offline Queue (MMKV + NetInfo)</div>
+        <div class="screen-item si-purple">Biométrie (Expo LocalAuthentication)</div>
+        <div class="screen-item si-purple">Contacts urgence (Expo Contacts)</div>
+        <div class="screen-item si-purple">Deep Linking (cite-voiturage://)</div>
+        <div class="screen-item si-purple">Battery Monitor (mode économie auto 10-20%)</div>
+        <div class="screen-item si-purple">Data Mode Detection (3G → compression auto)</div>
+      </div>
+    </div>
+
+    <div class="screen-card">
+      <div class="screen-card-header"><div class="screen-name">Profil & Paramètres Mobile</div><span class="screen-role tag-teal" style="font-size:10px;padding:2px 8px;border-radius:4px;">Les deux</span></div>
+      <div class="screen-items">
+        <div class="screen-item si-teal">Header profil avec gradient (role-based color)</div>
+        <div class="screen-item si-teal">Stats inline (trajets / note / CO2)</div>
+        <div class="screen-item si-teal">Badges affichés (max 3 + voir tous)</div>
+        <div class="screen-item si-teal">Paramètres notifications granulaires</div>
+        <div class="screen-item si-teal">Contacts d'urgence (add/edit/delete)</div>
+        <div class="screen-item si-teal">Mode économie données (toggle)</div>
+        <div class="screen-item si-teal">Langue FR/EN</div>
+        <div class="screen-item si-teal">Confidentialité & PIPEDA</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ ALGO MATCHING ══════════ -->
+<section id="algo">
+  <div class="section-head">
+    <span class="section-tag tag-purple">Algorithme v4</span>
+    <h2 class="section-title">Moteur de Matching — Formule Complète</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="algo-block">
+    <div class="algo-title">MatchingEngineService.ComputeScore(Trip trip, User passenger, UserPreferences prefs)</div>
+    <div class="algo-sub">Calcul du score de compatibilité 0–100 entre un passager et un trajet publié. Exécuté en C#, résultat mis en cache Redis 10 minutes. 5 critères pondérés + bonus/malus.</div>
+    <pre class="algo-formula"><span class="algo-comment">// ─── Critère 1 : Proximité Départ (poids 35%) ───────────────────────────────</span>
+DepartureProximity = ST_Distance(passenger.HomePoint, trip.DeparturePoint)  // PostGIS
+DepartureScore = distance_m ≤ 500  → 35 pts
+               | distance_m ≤ 1000 → 30 pts
+               | distance_m ≤ 2000 → 25 pts
+               | distance_m ≤ 5000 → 15 pts
+               | distance_m ≤ 10000→  5 pts
+               | else              →  0 pts
+
+<span class="algo-comment">// ─── Critère 2 : Proximité Arrivée (poids 30%) ──────────────────────────────</span>
+ArrivalScore    = distance_m ≤ 500  → 30 pts
+               | distance_m ≤ 1000 → 25 pts
+               | distance_m ≤ 2000 → 20 pts
+               | distance_m ≤ 5000 → 10 pts
+               | else              →  0 pts
+
+<span class="algo-comment">// ─── Critère 3 : Horaire (poids 15%) ────────────────────────────────────────</span>
+TimeDeltaMin    = |prefs.DesiredTime - trip.DepartureTime|
+ScheduleScore   = delta ≤ 15 → 15 pts | ≤ 30 → 12 | ≤ 60 → 8 | ≤ 120 → 4 | else → 0
+
+<span class="algo-comment">// ─── Critère 4 : Compatibilité Préférences (poids 10%) ──────────────────────</span>
+PreferenceScore = 0
+IF trip.MusicAllowed  == prefs.MusicAccepted     THEN += 2
+IF trip.PetsAllowed   == prefs.HasPets           THEN += 2
+IF trip.SmokingAllowed== prefs.SmokesRegularly   THEN += 2
+IF trip.BaggageAllowed>= prefs.TypicalBaggage    THEN += 2
+IF trip.ConversLevel  == prefs.ConversationLevel  THEN += 2   <span class="algo-comment">// max 10</span>
+
+<span class="algo-comment">// ─── Critère 5 : Affinité Historique (poids 10%) ────────────────────────────</span>
+Affinity        = affinities WHERE userId=passenger AND targetId=driver
+AffinityScore   = tripsTogther = 0 →  0 | ≤ 2 →  3 | ≤ 5 →  5 | ≤ 10 →  8 | > 10 → 10
+IF affinity.IsActuallyFavorite THEN += 5   <span class="algo-comment">// bonus favori hors plafond</span>
+
+<span class="algo-comment">// ─── Bonus / Malus ───────────────────────────────────────────────────────────</span>
+Bonuses = 0
+IF driver.IsProfileVerified            THEN += 5
+IF driver.AverageRating > 4.5          THEN += 3
+IF driver.PunctualityScore > 95        THEN += 2
+IF driver.AverageRating < 3.5          THEN -= 5
+IF driver.CancellationRate > 0.10      THEN -= 5
+IF affinity.HadIncident                THEN -= 15
+IF affinity.IsBlocked                  THEN = ELIMINATE (return -1)
+IF passenger.GoScore < prefs.MinGoScore THEN = ELIMINATE (return -1)
+
+<span class="algo-comment">// ─── Score Final ─────────────────────────────────────────────────────────────</span>
+GlobalScore = DepartureScore + ArrivalScore + ScheduleScore 
+            + PreferenceScore + AffinityScore + Bonuses
+GlobalScore = Math.Clamp(GlobalScore, 0, 100)
+
+<span class="algo-comment">// Badges visuels selon score</span>
+≥ 90 → "🏆 Meilleur Match"   | ≥ 80 → "⭐ Excellent Match" | ≥ 70 → "✅ Bon Match"</pre>
+  </div>
+
+</section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <strong>Cité-Voiturage — Architecture Système v3.0</strong> · Collège La Cité Ottawa · 
+    28 modèles C# · 54 services · 24 jobs Hangfire · 38 écrans mobiles · 120+ endpoints<br>
+    <span style="color:var(--text4);font-size:11px;">C# ASP.NET 8 + PostgreSQL/PostGIS + SignalR + Hangfire | Next.js 15 BFF | React Native/Expo | Redis</span>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -124,6 +124,26 @@ public class AuthSessionController : ControllerBase
         }
     }
 
+    // ── GET /api/auth/otp-status ───────────────────────────────────────────
+    /// <summary>Retourne le statut OTP (expiration, dernier envoi, resends restants)</summary>
+    [HttpGet("otp-status")]
+    public async Task<IActionResult> OtpStatus(CancellationToken ct)
+    {
+        var idKeyHash = GetIdKeyHash();
+        if (idKeyHash == null)
+            return Unauthorized(ApiResponse.Fail("Session d'authentification manquante."));
+
+        try
+        {
+            var status = await _authSession.GetOtpStatusAsync(idKeyHash, ct);
+            return Ok(ApiResponse<OtpStatusResponse>.Ok(status));
+        }
+        catch (KeyNotFoundException)
+        {
+            return Unauthorized(ApiResponse.Fail("Session d'authentification introuvable."));
+        }
+    }
+
     // ── POST /api/auth/password-login ───────────────────────────────────────
     /// <summary>Login par mot de passe pour utilisateurs existants. Déclenche un OTP 2FA.</summary>
     [HttpPost("password-login")]

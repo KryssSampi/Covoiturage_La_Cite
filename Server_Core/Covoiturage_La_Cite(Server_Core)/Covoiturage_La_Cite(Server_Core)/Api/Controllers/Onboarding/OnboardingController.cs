@@ -204,6 +204,26 @@ public class OnboardingController : ControllerBase
         }
     }
 
+    // ── POST /api/onboarding/identity-verification ─────────────────────────
+    /// <summary>Soumet les 4 photos de vérification d'identité (face, droite, gauche, menton levé).</summary>
+    [HttpPost("identity-verification")]
+    public async Task<IActionResult> SubmitIdentityVerification([FromBody] IdentityVerificationRequest request, CancellationToken ct)
+    {
+        if (request.Photos == null || request.Photos.Length < 4)
+            return BadRequest(ApiResponse.Fail("4 photos sont requises pour la vérification d'identité."));
+
+        var userId = GetUid();
+        try
+        {
+            var result = await _onboarding.SubmitIdentityVerificationAsync(userId, request.Photos, ct);
+            return Ok(ApiResponse<OnboardingStepResult>.Ok(result));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiResponse.Fail(ex.Message));
+        }
+    }
+
     // ── POST /api/onboarding/abandon-driver ─────────────────────────────────
     /// <summary>L'utilisateur abandonne l'onboarding conducteur et reste passager.</summary>
     [HttpPost("abandon-driver")]

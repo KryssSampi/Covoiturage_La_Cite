@@ -16,6 +16,9 @@ public interface IAuthSessionService
     /// <summary>Renouvelle le code OTP (max 3 renouvellements).</summary>
     Task<RenewCodeResponse> RenewCodeAsync(string idKeyHash, string ipAddress, string userAgent, CancellationToken ct = default);
 
+    /// <summary>Retourne l'état actuel de l'OTP (expiration, dernier envoi, resends restants).</summary>
+    Task<OtpStatusResponse> GetOtpStatusAsync(string idKeyHash, CancellationToken ct = default);
+
     /// <summary>Login par mot de passe pour utilisateur existant (après verify-email + OTP).</summary>
     Task<LoginResultDto> PasswordLoginAsync(string idKeyHash, string password, string ipAddress, string userAgent, CancellationToken ct = default);
 

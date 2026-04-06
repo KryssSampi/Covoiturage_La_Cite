@@ -9,6 +9,7 @@ export interface ProfileUsualTripCardProps {
   driverId: string;
   driverName: string;
   onSubscribe?: (departure: string, arrival: string) => Promise<void>;
+  subscribed?: boolean;
 }
 
 export function ProfileUsualTripCard({
@@ -17,16 +18,22 @@ export function ProfileUsualTripCard({
   driverId,
   driverName,
   onSubscribe,
+  subscribed: externalSubscribed,
 }: ProfileUsualTripCardProps) {
-  const [subscribed, setSubscribed] = useState(false);
+  const [internalSubscribed, setInternalSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Utiliser la prop externe si fournie, sinon l'état interne
+  const subscribed = externalSubscribed ?? internalSubscribed;
 
   const handleSubscribe = async () => {
     if (subscribed || loading) return;
     setLoading(true);
     try {
       await onSubscribe?.(departure, arrival);
-      setSubscribed(true);
+      if (externalSubscribed === undefined) {
+        setInternalSubscribed(true);
+      }
     } finally {
       setLoading(false);
     }

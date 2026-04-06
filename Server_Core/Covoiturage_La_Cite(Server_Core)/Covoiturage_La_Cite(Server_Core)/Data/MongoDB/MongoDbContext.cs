@@ -1,14 +1,34 @@
 using Covoiturage_La_Cite_Server_Core_.Data.MongoDB.Models;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 
 namespace Covoiturage_La_Cite_Server_Core_.Data.MongoDB;
 
 public class MongoDbContext
 {
+    private static bool _serializersRegistered;
+    private static readonly object _lock = new();
+
     private readonly IMongoDatabase _database;
 
     public MongoDbContext(IConfiguration config)
     {
+        // Enregistrement unique au niveau processus — DateTimeOffset stocké en string ISO 8601
+        if (!_serializersRegistered)
+        {
+            lock (_lock)
+            {
+                if (!_serializersRegistered)
+                {
+                    BsonSerializer.RegisterSerializer(
+                        new DateTimeOffsetSerializer(BsonType.String));
+                    _serializersRegistered = true;
+                }
+            }
+        }
+
         var connectionString = config["MongoDB:ConnectionString"];
         var databaseName = config["MongoDB:DatabaseName"];
 

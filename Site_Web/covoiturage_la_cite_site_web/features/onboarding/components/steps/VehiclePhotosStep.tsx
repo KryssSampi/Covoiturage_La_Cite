@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import type { useOnboarding } from '../../hooks/useOnboarding';
+import { Language, useAppState } from '@/core/state/app_state';
 
 interface Props {
   onboarding: ReturnType<typeof useOnboarding>;
@@ -10,6 +11,8 @@ interface Props {
 const MAX_PHOTOS = 6;
 
 export default function VehiclePhotosStep({ onboarding }: Props) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
   const { formData, setField, isLoading, error, submitVehiclePhotos, triggerAbandonWarning } = onboarding;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -42,9 +45,13 @@ export default function VehiclePhotosStep({ onboarding }: Props) {
   return (
     <div className="flex flex-col gap-5">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">Photos du véhicule</h2>
+        <h2 className="text-xl font-semibold text-gray-900">
+          {isFR ? 'Photos du véhicule' : 'Vehicle Photos'}
+        </h2>
         <p className="mt-1 text-sm text-gray-500">
-          Ajoutez jusqu&apos;à 6 photos de votre véhicule (extérieur / intérieur).
+          {isFR
+            ? "Ajoutez jusqu'à 6 photos de votre véhicule (extérieur / intérieur)."
+            : 'Add up to 6 photos of your vehicle (exterior / interior).'}
         </p>
       </div>
 
@@ -57,7 +64,7 @@ export default function VehiclePhotosStep({ onboarding }: Props) {
             <button
               type="button"
               onClick={() => removePhoto(idx)}
-              aria-label="Supprimer la photo"
+              aria-label={isFR ? 'Supprimer la photo' : 'Delete photo'}
               className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold hover:bg-red-600"
             >
               ×
@@ -73,7 +80,7 @@ export default function VehiclePhotosStep({ onboarding }: Props) {
             className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 text-gray-400 hover:border-blue-400 hover:text-blue-500 transition-colors"
           >
             <span className="text-2xl">+</span>
-            <span className="text-xs">Photo</span>
+            <span className="text-xs">{isFR ? 'Photo' : 'Photo'}</span>
           </button>
         )}
       </div>
@@ -89,7 +96,7 @@ export default function VehiclePhotosStep({ onboarding }: Props) {
       />
 
       <p className="text-xs text-gray-400 text-center">
-        {photoUrls.length} / {MAX_PHOTOS} photos ajoutées
+        {photoUrls.length} / {MAX_PHOTOS} {isFR ? 'photos ajoutées' : 'photos added'}
       </p>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -102,7 +109,9 @@ export default function VehiclePhotosStep({ onboarding }: Props) {
                    hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                    disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
       >
-        {isLoading ? 'Traitement...' : 'Continuer'}
+        {isLoading
+          ? (isFR ? 'Traitement...' : 'Processing...')
+          : (isFR ? 'Continuer' : 'Continue')}
       </button>
 
       <button
@@ -110,7 +119,7 @@ export default function VehiclePhotosStep({ onboarding }: Props) {
         onClick={triggerAbandonWarning}
         className="text-xs text-gray-400 hover:text-gray-600 underline text-center transition-colors"
       >
-        Continuer en tant que passager uniquement
+        {isFR ? 'Continuer en tant que passager uniquement' : 'Continue as passenger only'}
       </button>
     </div>
   );

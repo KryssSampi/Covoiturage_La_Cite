@@ -28,7 +28,7 @@ export default function RegisterFormStep({ auth, isFr }: { auth: ReturnType<type
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="uniform-form flex flex-col gap-4">
       <div className="text-center">
         <h2 className="text-xl font-semibold text-gray-900">
           {isFr ? 'Créer votre compte' : 'Create your account'}

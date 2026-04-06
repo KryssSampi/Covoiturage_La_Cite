@@ -46,6 +46,15 @@ public record RenewCodeResponse
     public int RemainingResends { get; init; }
 }
 
+/// <summary>Statut OTP pour le client (date d'expiration + resends restants)</summary>
+public record OtpStatusResponse
+{
+    public bool HasOtp { get; init; }
+    public DateTimeOffset? OtpExpiresAt { get; init; }
+    public DateTimeOffset? LastSentAt { get; init; }
+    public int RemainingResends { get; init; }
+}
+
 /// <summary>Requête de login par mot de passe (étape 2 pour utilisateurs existants).</summary>
 public record PasswordLoginRequest
 {

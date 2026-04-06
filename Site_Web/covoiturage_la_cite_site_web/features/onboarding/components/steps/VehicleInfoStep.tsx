@@ -2,6 +2,7 @@
 
 import type { useOnboarding } from '../../hooks/useOnboarding';
 import { VEHICLE_MAKES, VEHICLE_COLORS, VEHICLE_YEARS, getModelsByMake } from '../../data/vehicles';
+import { Language, useAppState } from '@/core/state/app_state';
 
 interface Props {
   onboarding: ReturnType<typeof useOnboarding>;
@@ -10,6 +11,8 @@ interface Props {
 const CAPACITY_OPTIONS = [2, 3, 4, 5, 6, 7, 8];
 
 export default function VehicleInfoStep({ onboarding }: Props) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
   const { formData, setField, isLoading, error, submitVehicle, triggerAbandonWarning } = onboarding;
 
   const models = getModelsByMake(formData.vehicleMake);
@@ -27,15 +30,21 @@ export default function VehicleInfoStep({ onboarding }: Props) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">Informations sur le véhicule</h2>
+        <h2 className="text-xl font-semibold text-gray-900">
+          {isFR ? 'Informations sur le véhicule' : 'Vehicle Information'}
+        </h2>
         <p className="mt-1 text-sm text-gray-500">
-          Ces informations seront visibles par vos passagers.
+          {isFR
+            ? 'Ces informations seront visibles par vos passagers.'
+            : 'This information will be visible to your passengers.'}
         </p>
       </div>
 
       {/* Marque */}
       <div>
-        <label htmlFor="v-make" className="mb-1 block text-sm font-medium text-gray-700">Marque</label>
+        <label htmlFor="v-make" className="mb-1 block text-sm font-medium text-gray-700">
+          {isFR ? 'Marque' : 'Make'}
+        </label>
         <select
           id="v-make"
           value={formData.vehicleMake}
@@ -45,7 +54,7 @@ export default function VehicleInfoStep({ onboarding }: Props) {
                      focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500
                      disabled:bg-gray-50"
         >
-          <option value="">Sélectionnez une marque</option>
+          <option value="">{isFR ? 'Sélectionnez une marque' : 'Select a make'}</option>
           {VEHICLE_MAKES.map((m) => (
             <option key={m.make} value={m.make}>{m.make}</option>
           ))}
@@ -54,7 +63,9 @@ export default function VehicleInfoStep({ onboarding }: Props) {
 
       {/* Modèle */}
       <div>
-        <label htmlFor="v-model" className="mb-1 block text-sm font-medium text-gray-700">Modèle</label>
+        <label htmlFor="v-model" className="mb-1 block text-sm font-medium text-gray-700">
+          {isFR ? 'Modèle' : 'Model'}
+        </label>
         <select
           id="v-model"
           value={formData.vehicleModel}
@@ -64,7 +75,7 @@ export default function VehicleInfoStep({ onboarding }: Props) {
                      focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500
                      disabled:bg-gray-50"
         >
-          <option value="">Sélectionnez un modèle</option>
+          <option value="">{isFR ? 'Sélectionnez un modèle' : 'Select a model'}</option>
           {models.map((m) => (
             <option key={m} value={m}>{m}</option>
           ))}
@@ -74,7 +85,9 @@ export default function VehicleInfoStep({ onboarding }: Props) {
       {/* Année et Couleur sur la même ligne */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label htmlFor="v-year" className="mb-1 block text-sm font-medium text-gray-700">Année</label>
+          <label htmlFor="v-year" className="mb-1 block text-sm font-medium text-gray-700">
+            {isFR ? 'Année' : 'Year'}
+          </label>
           <select
             id="v-year"
             value={formData.vehicleYear}
@@ -90,7 +103,9 @@ export default function VehicleInfoStep({ onboarding }: Props) {
           </select>
         </div>
         <div>
-          <label htmlFor="v-color" className="mb-1 block text-sm font-medium text-gray-700">Couleur</label>
+          <label htmlFor="v-color" className="mb-1 block text-sm font-medium text-gray-700">
+            {isFR ? 'Couleur' : 'Color'}
+          </label>
           <select
             id="v-color"
             value={formData.vehicleColor}
@@ -100,7 +115,7 @@ export default function VehicleInfoStep({ onboarding }: Props) {
                        focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500
                        disabled:bg-gray-50"
           >
-            <option value="">Couleur</option>
+            <option value="">{isFR ? 'Couleur' : 'Color'}</option>
             {VEHICLE_COLORS.map((c) => (
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
@@ -111,7 +126,7 @@ export default function VehicleInfoStep({ onboarding }: Props) {
       {/* Plaque */}
       <div>
         <label htmlFor="v-plate" className="mb-1 block text-sm font-medium text-gray-700">
-          Plaque d&apos;immatriculation
+          {isFR ? "Plaque d'immatriculation" : 'License Plate'}
         </label>
         <input
           id="v-plate"
@@ -130,7 +145,7 @@ export default function VehicleInfoStep({ onboarding }: Props) {
       {/* Capacité */}
       <div>
         <label htmlFor="v-capacity" className="mb-1 block text-sm font-medium text-gray-700">
-          Nombre de places passager
+          {isFR ? 'Nombre de places passager' : 'Number of passenger seats'}
         </label>
         <select
           id="v-capacity"
@@ -142,7 +157,9 @@ export default function VehicleInfoStep({ onboarding }: Props) {
                      disabled:bg-gray-50"
         >
           {CAPACITY_OPTIONS.map((c) => (
-            <option key={c} value={c}>{c} place{c > 1 ? 's' : ''}</option>
+            <option key={c} value={c}>
+              {c} {isFR ? `place${c > 1 ? 's' : ''}` : `seat${c > 1 ? 's' : ''}`}
+            </option>
           ))}
         </select>
       </div>
@@ -156,7 +173,9 @@ export default function VehicleInfoStep({ onboarding }: Props) {
                    hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                    disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
       >
-        {isLoading ? 'Traitement...' : 'Continuer'}
+        {isLoading
+          ? (isFR ? 'Traitement...' : 'Processing...')
+          : (isFR ? 'Continuer' : 'Continue')}
       </button>
 
       {/* Lien d'abandon */}
@@ -165,7 +184,7 @@ export default function VehicleInfoStep({ onboarding }: Props) {
         onClick={triggerAbandonWarning}
         className="text-xs text-gray-400 hover:text-gray-600 underline text-center transition-colors"
       >
-        Continuer en tant que passager uniquement
+        {isFR ? 'Continuer en tant que passager uniquement' : 'Continue as passenger only'}
       </button>
     </form>
   );

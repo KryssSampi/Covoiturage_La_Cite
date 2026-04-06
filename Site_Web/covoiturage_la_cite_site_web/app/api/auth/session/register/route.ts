@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       body.lastName.trim(),
       body.password,
       authSessionKey,
-      (body as any).schoolRole,
+      body.schoolRole,
     );
 
     if (status === 429 && json.data) {

@@ -15,7 +15,6 @@ public class UserActivity
 
     public Guid UserId { get; set; }
 
-    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTimeOffset LastSeenAt { get; set; } = DateTimeOffset.UtcNow;
 
     public bool IsCurrentlyConnectedOnWeb { get; set; }
@@ -29,10 +28,7 @@ public class ConnectionRecord
     /// <summary>web | mobile</summary>
     public string Type { get; set; } = "web";
 
-    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTimeOffset ConnectedAt { get; set; }
-
-    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTimeOffset? DisconnectedAt { get; set; }
 
     public string? UserAgent { get; set; }

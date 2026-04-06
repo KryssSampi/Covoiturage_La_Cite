@@ -28,6 +28,10 @@ public interface IOnboardingService
     /// <summary>Étape finale — Photo de profil.</summary>
     Task<OnboardingStepResult> SetProfilePictureAsync(Guid userId, SetProfilePictureRequest request, CancellationToken ct = default);
 
+    /// <summary>Étape finale (optionnelle) — Soumission des photos pour vérification d'identité.</summary>
+    /// <summary>Vérification d'identité — 4 photos de visage (face, droite, gauche, menton).</summary>
+    Task<OnboardingStepResult> SubmitIdentityVerificationAsync(Guid userId, string[] photos, CancellationToken ct = default);
+
     /// <summary>Abandon de l'onboarding conducteur : l'utilisateur reste passager.</summary>
     Task<OnboardingStepResult> AbandonDriverOnboardingAsync(Guid userId, CancellationToken ct = default);
 }

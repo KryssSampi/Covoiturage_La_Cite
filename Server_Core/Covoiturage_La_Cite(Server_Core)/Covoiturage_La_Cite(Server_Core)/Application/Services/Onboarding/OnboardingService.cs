@@ -249,6 +249,24 @@ public class OnboardingService : IOnboardingService
         return new OnboardingStepResult { Success = true, Message = "Onboarding terminé." };
     }
 
+    // ── Étape : Vérification d'identité ───────────────────────────────────
+    public async Task<OnboardingStepResult> SubmitIdentityVerificationAsync(Guid userId, string[] photos, CancellationToken ct = default)
+    {
+        if (photos == null || photos.Length == 0)
+            return new OnboardingStepResult { Success = false, Message = "Aucune photo fournie." };
+
+        var user = await _userRepo.GetByIdAsync(userId, ct)
+            ?? throw new KeyNotFoundException($"Utilisateur {userId} introuvable.");
+
+        user.IdentityVerificationPhotos = photos;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+        await _userRepo.UpdateAsync(user, ct);
+
+        _logger.LogInformation("Vérification d'identité soumise pour {UserId} ({Count} photos).", userId, photos.Length);
+
+        return new OnboardingStepResult { Success = true, Message = "Photos de vérification enregistrées." };
+    }
+
     // ── Abandon de l'onboarding conducteur ────────────────────────────────
     public async Task<OnboardingStepResult> AbandonDriverOnboardingAsync(Guid userId, CancellationToken ct = default)
     {

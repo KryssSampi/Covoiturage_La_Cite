@@ -1,0 +1,5 @@
+TIER_ACTIF=web/core
+TIER_CIBLE=mobile
+BRANCHE_WEBCORE=Kryss_branch/Web_and_core/feature/api/backend-routes_and_services-implementations
+BRANCHE_MOBILE= Kryss_branch/mobile/feature/ui/frontend-part-I
+PROJET_MOBILE_PATH= D:\Covoiturage_La_Cite\App_Mobile\Covoiturage_la_cite_(App_Mobile)

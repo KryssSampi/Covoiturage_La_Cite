@@ -83,6 +83,13 @@ public record SetProfilePictureRequest
     public string AvatarUrl { get; init; } = string.Empty;
 }
 
+// ── Vérification d'identité ──────────────────────────────────────────────────
+/// <summary>Requête : 4 photos de vérification d'identité (base64 ou URL CDN).</summary>
+public record IdentityVerificationRequest
+{
+    public string[] Photos { get; init; } = [];
+}
+
 // ── Abandon de l'onboarding conducteur ──────────────────────────────────────
 /// <summary>L'utilisateur annule l'onboarding conducteur et reste passager.</summary>
 public record AbandonDriverOnboardingRequest

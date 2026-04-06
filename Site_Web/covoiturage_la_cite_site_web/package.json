@@ -26,6 +26,7 @@
     "@types/pg": "^8.18.0",
     "better-sqlite3": "^12.8.0",
     "date-fns": "^4.1.0",
+    "face-api.js": "^0.22.2",
     "framer-motion": "^12.34.0",
     "js-cookie": "^3.0.5",
     "leaflet": "^1.9.4",

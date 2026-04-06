@@ -1588,6 +1588,13 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.Property<int>("GoScore")
                         .HasColumnType("integer");
 
+                    b.PrimitiveCollection<string[]>("IdentityVerificationPhotos")
+                        .IsRequired()
+                        .HasColumnType("text[]");
+
+                    b.Property<bool>("IdentityVerified")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsProfileVerified")
                         .HasColumnType("boolean");
 

@@ -303,6 +303,27 @@ public class AuthSessionService : IAuthSessionService
         return await FinalizeLoginAsync(idKeyHash, ipAddress, userAgent, ct);
     }
 
+    public async Task<OtpStatusResponse> GetOtpStatusAsync(string idKeyHash, CancellationToken ct = default)
+    {
+        var session = await _repo.GetByIdKeyHashAsync(idKeyHash, ct)
+            ?? throw new KeyNotFoundException("Session d'authentification introuvable.");
+
+        var now = DateTimeOffset.UtcNow;
+
+        bool hasOtp = session.OtpCodeHash != null && session.OtpExpiresAt.HasValue && session.OtpExpiresAt > now;
+        DateTimeOffset? expires = session.OtpExpiresAt;
+        DateTimeOffset? lastSent = expires.HasValue ? expires.Value.AddMinutes(-OtpLifetimeMinutes) : null;
+        int remainingResends = Math.Max(0, MaxOtpResends - session.OtpResendCount);
+
+        return new OtpStatusResponse
+        {
+            HasOtp = hasOtp,
+            OtpExpiresAt = expires,
+            LastSentAt = lastSent,
+            RemainingResends = remainingResends,
+        };
+    }
+
     // ── Statut de blocage ───────────────────────────────────────────────────
     public async Task<BlockedResponse?> GetBlockedStatusAsync(string idKeyHash, CancellationToken ct)
     {

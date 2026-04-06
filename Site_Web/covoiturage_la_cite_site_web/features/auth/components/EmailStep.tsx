@@ -18,20 +18,22 @@ export default function EmailStep({ auth, isFr }: { auth: ReturnType<typeof useA
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">
-          {isFr ? 'Bienvenue' : 'Welcome'}
+      <div className="text-center w-full">
+        <h2 className="text-5xl font-semibold text-[#08316e]">
+          {isFr ? 'Bienvenue!' : 'Welcome!'}
         </h2>
-        <p className="mt-1 text-sm text-gray-500">
+         <p className="mt-1 text-md text-gray-800">
           {isFr
-            ? 'Entrez votre adresse email institutionnelle pour continuer.'
-            : 'Enter your institutional email address to continue.'}
-        </p>
+            ? 'Sur la plateforme de Covoiturage de votre communauté collégiale.'
+              : 'Enter your institutional email address to continue.'}
+          </p>
       </div>
 
       <div>
         <label htmlFor="auth-email" className="mb-1 block text-sm font-medium text-gray-700">
-          {isFr ? 'Adresse email' : 'Email address'}
+              {isFr
+            ? 'Entrez votre Courriel de la cité pour continuer :'
+              : 'Enter your institutional email address to continue.'}
         </label>
         <input
           ref={inputRef}

@@ -8,7 +8,7 @@ import { useAppState } from "@/core/state/app_state";
 import { DbProvider } from "@/core/context/db.context";
 import { TripProvider } from "@/core/context/trip.context";
 import { useEffect, useSyncExternalStore } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { NotificationAlert } from "@/features/notifications/components/NotificationAlert";
 import { useNotificationPush } from "@/features/notifications/hooks/useNotificationPush";
 import { useUserActivityTracking } from "@/features/notifications/hooks/useUserActivityTracking";
@@ -35,6 +35,7 @@ export default function RootLayout({
   const appState        = useAppState();
   const { setActiveLoader } = useLoader();
   const router = useRouter();
+  const pathname = usePathname();
 
   // false sur le serveur ET lors du premier rendu client → aucun mismatch d'hydratation
   const mounted = useIsMounted();
@@ -59,6 +60,17 @@ export default function RootLayout({
       router.replace("/login");
     }
   }, [mounted, appState.userConnected, router, setActiveLoader]);
+
+  // Forcer l'onboarding si l'utilisateur connecté ne l'a pas complété
+  useEffect(() => {
+    if (!mounted || !appState.userConnected) return;
+    // Si déjà complété, rien à faire
+    if (appState.userConnected.onboardingCompleted) return;
+    // Éviter la redirection si on est déjà sur le flux d'onboarding
+    if (pathname && pathname.startsWith('/onboarding')) return;
+    setActiveLoader(true);
+    router.replace(`/onboarding/${appState.userConnected.id}`);
+  }, [mounted, appState.userConnected, pathname, router, setActiveLoader]);
 
   // Avant le montage : null côté serveur ET client → rendu identique, aucun mismatch
   if (!mounted) return null;

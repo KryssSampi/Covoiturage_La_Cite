@@ -2,12 +2,15 @@
 
 import { useRef, useEffect } from 'react';
 import type { useOnboarding } from '../../hooks/useOnboarding';
+import { Language, useAppState } from '@/core/state/app_state';
 
 interface Props {
   onboarding: ReturnType<typeof useOnboarding>;
 }
 
 export default function PhoneStep({ onboarding }: Props) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
   const { formData, setField, isLoading, error, submitPhone } = onboarding;
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -23,15 +26,19 @@ export default function PhoneStep({ onboarding }: Props) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">Votre numéro de téléphone</h2>
+        <h2 className="text-xl font-semibold text-gray-900">
+          {isFR ? 'Votre numéro de téléphone' : 'Your phone number'}
+        </h2>
         <p className="mt-1 text-sm text-gray-500">
-          Pour être contacté(e) par vos passagers ou votre conducteur.
+          {isFR
+            ? "Pour être contacté(e) par vos passagers ou votre conducteur."
+            : 'To be contacted by your passengers or your driver.'}
         </p>
       </div>
 
       <div>
         <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700">
-          Numéro de téléphone
+          {isFR ? 'Numéro de téléphone' : 'Phone number'}
         </label>
         <input
           ref={inputRef}
@@ -47,7 +54,9 @@ export default function PhoneStep({ onboarding }: Props) {
                      disabled:bg-gray-50 disabled:text-gray-500"
         />
         <p className="mt-1 text-xs text-gray-400">
-          Visible uniquement par vos partenaires de trajet confirmés.
+          {isFR
+            ? 'Visible uniquement par vos partenaires de trajet confirmés.'
+            : 'Only visible to your confirmed trip partners.'}
         </p>
       </div>
 
@@ -60,7 +69,9 @@ export default function PhoneStep({ onboarding }: Props) {
                    hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                    disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
       >
-        {isLoading ? 'Traitement...' : 'Continuer'}
+        {isLoading
+          ? (isFR ? 'Traitement...' : 'Processing...')
+          : (isFR ? 'Continuer' : 'Continue')}
       </button>
     </form>
   );

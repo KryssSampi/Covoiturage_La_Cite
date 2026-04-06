@@ -116,14 +116,14 @@ Controller → IService → IRepository → AppDbContext → PostgreSQL
 |-----------|---------|-------------|
 | JWT Config | `Api/Configurations/AuthConfiguration.cs` | Extension `AddJwtAuth` : HMAC-SHA256, ClockSkew=Zero |
 | Token Service | `Application/Services/Auth/TokenService.cs` | Génération/validation tokens JWT |
-| SSO Microsoft | `Application/Services/Auth/MicrosoftSsoService.cs` | Auth Azure AD (@lacitec.on.ca) |
-| DTOs | `Application/DTOs/Auth/AuthDtos.cs` | LoginRequest, TokenResponse, SsoCallback |
+| OTP Service | `Application/Services/Auth/OtpAuthService.cs` | Auth par code OTP envoyé par email (@lacitec.on.ca) |
+| DTOs | `Application/DTOs/Auth/AuthDtos.cs` | LoginRequest, TokenResponse, OtpCallback |
 | Wrapper API | `Api/DTOs/Common/ApiResponse.cs` | `ApiResponse<T>` générique Ok/Fail |
 | Middleware | `Api/Middlewares/ExceptionMiddleware.cs` | Gestion globale erreurs → ApiResponse |
 
 **Détails techniques :**
 - JWT Bearer avec HMAC-SHA256, expiration configurable
-- Microsoft SSO via Azure AD avec validation du domaine `@lacitec.on.ca`
+- Authentification JWT via OTP avec validation du domaine `@lacitec.on.ca`
 - Middleware d'exception global retournant `ApiResponse<T>` standardisé
 
 ---
@@ -514,7 +514,7 @@ Controller → IService → IRepository → AppDbContext → PostgreSQL
 
 | Préfixe Route | Controller | Méthodes |
 |---------------|------------|----------|
-| `api/auth` | AuthController | Login, SSO, Refresh Token |
+| `api/auth` | AuthController | Login, OTP, Refresh Token |
 | `api/users` | UserController | CRUD, profil, stats |
 | `api/trajets` | TrajetController | CRUD, recherche, récurrents |
 | `api/reservations` | ReservationController | Créer, accepter, refuser, annuler |
@@ -539,7 +539,7 @@ Controller → IService → IRepository → AppDbContext → PostgreSQL
 ### Couches de sécurité
 
 1. **JWT Bearer** — HMAC-SHA256, ClockSkew=Zero
-2. **Microsoft SSO** — Azure AD, validation domaine `@lacitec.on.ca`
+2. **JWT via OTP** — Code OTP envoyé par email, validation domaine `@lacitec.on.ca`
 3. **ECC-P256 Double Lock** — Certificats client signés, rotation automatique
 4. **Kill Switch** — 4 niveaux d'escalade de sécurité
 5. **Sessions web glissantes** — Clés de session avec expiration sliding
@@ -597,9 +597,12 @@ Controller → IService → IRepository → AppDbContext → PostgreSQL
     "Issuer": "covoiturage-lacite-core",
     "Audience": "covoiturage-lacite-web"
   },
-  "Microsoft": {
-    "TenantId": "<Azure AD Tenant ID>",
-    "ClientId": "<Azure AD Client ID>"
+  "OtpAuth": {
+    "SmtpHost": "<SMTP host pour envoi emails OTP>",
+    "SmtpPort": 587,
+    "SenderEmail": "noreply@lacitec.on.ca",
+    "OtpExpirationMinutes": 10,
+    "OtpLength": 6
   },
   "Cors": {
     "AllowedOrigin": "http://localhost:3000"
