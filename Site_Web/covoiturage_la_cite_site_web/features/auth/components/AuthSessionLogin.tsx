@@ -19,7 +19,7 @@ export function AuthSessionLogin({ onLoginSuccess }: AuthSessionLoginProps) {
   const auth = useAuthSession(onLoginSuccess);
 
   return (
-    <div className="w-full rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="w-200 min-h-70 rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
       {auth.step === 'loading' && <LoadingStep isFr={isFr} />}
       {auth.step === 'email' && <EmailStep auth={auth} isFr={isFr} />}
       {auth.step === 'password' && <PasswordStep auth={auth} isFr={isFr} />}

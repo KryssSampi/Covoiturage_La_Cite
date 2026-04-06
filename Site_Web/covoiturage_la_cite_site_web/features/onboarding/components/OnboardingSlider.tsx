@@ -1,7 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { useOnboarding, type OnboardingStep } from '../hooks/useOnboarding';
+import { Language, useAppState } from '@/core/state/app_state';
 import PoliticsStep from './steps/PoliticsStep';
 import RoleStep from './steps/RoleStep';
 import PhoneStep from './steps/PhoneStep';
@@ -9,6 +11,7 @@ import VehicleInfoStep from './steps/VehicleInfoStep';
 import VehiclePhotosStep from './steps/VehiclePhotosStep';
 import VehicleDocumentsStep from './steps/VehicleDocumentsStep';
 import ProfilePhotoStep from './steps/ProfilePhotoStep';
+import IdentityVerificationStep from './steps/IdentityVerificationStep';
 
 interface Props {
   userId: string;
@@ -16,35 +19,43 @@ interface Props {
   startStep?: OnboardingStep;
 }
 
-const STEP_LABELS: Record<OnboardingStep, string> = {
-  politics: 'Politique',
-  role: 'Rôle',
-  phone: 'Téléphone',
-  vehicle: 'Véhicule',
-  vehiclePhotos: 'Photos',
-  documents: 'Documents',
-  profilePhoto: 'Photo de profil',
-  done: 'Terminé',
-};
+function getStepLabels(isFR: boolean): Record<OnboardingStep, string> {
+  return {
+    politics: isFR ? 'Politique' : 'Policy',
+    role: isFR ? 'Rôle' : 'Role',
+    phone: isFR ? 'Téléphone' : 'Phone',
+    vehicle: isFR ? 'Véhicule' : 'Vehicle',
+    vehiclePhotos: isFR ? 'Photos' : 'Photos',
+    documents: isFR ? 'Documents' : 'Documents',
+    profilePhoto: isFR ? 'Photo de profil' : 'Profile photo',
+    faceVerification: isFR ? "Vérification d'identité" : 'Identity verification',
+    done: isFR ? 'Terminé' : 'Done',
+  };
+}
 
 function getOrderedSteps(role: 'passenger' | 'driver'): OnboardingStep[] {
   const base: OnboardingStep[] = ['politics', 'role', 'phone'];
   if (role === 'driver') base.push('vehicle', 'vehiclePhotos', 'documents');
-  base.push('profilePhoto');
+  base.push('profilePhoto', 'faceVerification');
   return base;
 }
 
-export default function OnboardingSlider({ userId }: Props) {
+export default function OnboardingSlider({ userId, initialRole, startStep }: Props) {
   const router = useRouter();
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
   const onboarding = useOnboarding({ initialRole, startStep });
   const { step, formData, showAbandonWarning, confirmAbandonDriver, cancelAbandonDriver, goToPreviousStep } = onboarding;
+  const STEP_LABELS = getStepLabels(isFR);
 
-  // Redirection quand terminé
-  if (step === 'done') {
+  // Redirection quand terminé — effectuer la navigation dans useEffect
+  useEffect(() => {
+    if (step !== 'done') return;
     const role = formData.role === 'driver' ? 'driver' : 'passenger';
     router.replace(`/${role}/${userId}`);
-    return null;
-  }
+  }, [step, formData.role, router, userId]);
+
+  if (step === 'done') return null;
 
   const steps = getOrderedSteps(formData.role);
   const currentIndex = steps.indexOf(step);
@@ -53,37 +64,41 @@ export default function OnboardingSlider({ userId }: Props) {
   const canGoBack = currentIndex > 0;
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4 py-8">
-      <div className="w-full max-w-md">
+    <div className="relative flex min-h-screen min-w-[90vw] rounded-4xl flex-col items-start justify-center bg-transparent ">
+      <div className="w-full -mt-60">
         {/* En-tête */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-gray-500">
-              Étape {currentIndex + 1} sur {totalSteps}
+            <span className="text-xl font-medium text-gray-500">
+              {isFR ? 'Étape' : 'Step'} {currentIndex + 1} {isFR ? 'sur' : 'of'} {totalSteps}
             </span>
-            <span className="text-xs font-semibold text-blue-600">
+            <span className="text-md font-semibold text-blue-600">
               {STEP_LABELS[step]}
             </span>
           </div>
 
           {/* Barre de progression */}
-          <div className="h-2 w-full rounded-full bg-gray-200">
+          <div className="mb-2">
+          <div className="h-3 w-full rounded-full bg-gray-200">
             <div
-              className="h-2 rounded-full bg-blue-500 transition-all duration-500"
+              className="h-3 rounded-full bg-blue-500 transition-all duration-500"
               style={{ width: `${progressPercent}%` }}
+        
             />
-          </div>
-
-          {/* Pastilles d'étapes */}
-          <div className="mt-3 flex justify-between">
+            <div className= " flex justify-between -mt-5">
             {steps.map((s, idx) => (
               <div
                 key={s}
-                className={`flex h-2 w-2 rounded-full transition-colors ${
+                className={`flex h-8 w-8 rounded-full transition-colors ${
                   idx < currentIndex ? 'bg-blue-500' : idx === currentIndex ? 'bg-blue-600' : 'bg-gray-200'
                 }`}
               />
             ))}
+          </div>
+          </div>
+
+          {/* Pastilles d'étapes */}
+        
           </div>
         </div>
 
@@ -96,7 +111,7 @@ export default function OnboardingSlider({ userId }: Props) {
               onClick={goToPreviousStep}
               className="mb-4 flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
             >
-              ← Retour
+              ← {isFR ? 'Retour' : 'Back'}
             </button>
           )}
 
@@ -108,12 +123,9 @@ export default function OnboardingSlider({ userId }: Props) {
           {step === 'vehiclePhotos' && <VehiclePhotosStep onboarding={onboarding} />}
           {step === 'documents' && <VehicleDocumentsStep onboarding={onboarding} />}
           {step === 'profilePhoto' && <ProfilePhotoStep onboarding={onboarding} />}
+          {step === 'faceVerification' && <IdentityVerificationStep onboarding={onboarding} />}
         </div>
 
-        {/* Mention de progression */}
-        <p className="mt-4 text-center text-xs text-gray-400">
-          Collège La Cité — Covoiturage
-        </p>
       </div>
 
       {/* Popup abandon conducteur */}
@@ -121,14 +133,14 @@ export default function OnboardingSlider({ userId }: Props) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
             <div className="text-center mb-4">
-              <span className="text-4xl">⚠️</span>
             </div>
             <h3 className="mb-2 text-center text-lg font-semibold text-gray-900">
-              Abandonner l&apos;inscription conducteur ?
+              {isFR ? "Abandonner l'inscription conducteur ?" : 'Abandon driver registration?'}
             </h3>
             <p className="mb-6 text-center text-sm text-gray-500">
-              Si vous continuez, vous serez enregistré(e) comme passager uniquement.
-              Vous pourrez proposer des trajets plus tard depuis votre profil.
+              {isFR
+                ? 'Si vous continuez, vous serez enregistré(e) comme passager uniquement. Vous pourrez proposer des trajets plus tard depuis votre profil.'
+                : 'If you continue, you will be registered as a passenger only. You will be able to offer trips later from your profile.'}
             </p>
             <div className="flex flex-col gap-2">
               <button
@@ -136,14 +148,14 @@ export default function OnboardingSlider({ userId }: Props) {
                 onClick={confirmAbandonDriver}
                 className="w-full rounded-lg bg-red-500 px-4 py-3 text-sm font-medium text-white hover:bg-red-600 transition-colors"
               >
-                Continuer comme passager
+                {isFR ? 'Continuer comme passager' : 'Continue as passenger'}
               </button>
               <button
                 type="button"
                 onClick={cancelAbandonDriver}
                 className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                Rester conducteur
+                {isFR ? 'Rester conducteur' : 'Stay as driver'}
               </button>
             </div>
           </div>

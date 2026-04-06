@@ -31,7 +31,6 @@ public class ChatMessage
     public bool IsRead { get; set; }
     public DateTimeOffset? ReadAt { get; set; }
 
-    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     /// <summary>true si le message a été supprimé (soft-delete).</summary>

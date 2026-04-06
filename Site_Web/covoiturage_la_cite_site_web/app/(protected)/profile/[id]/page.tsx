@@ -1,81 +1,29 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  FaStar,
-  FaHeart,
-  FaUserPlus,
-  FaUserCheck,
   FaArrowRight,
+  FaCheckCircle,
+  FaHeart,
   FaLeaf,
   FaLocationDot,
+  FaShield,
+  FaStar,
+  FaUserPlus,
 } from "react-icons/fa6";
-import {FaShield} from "react-icons/fa6";  
 import { useAppState } from "@/core/state/app_state";
 import { ProfileUsualTripCard } from "@/features/profile/components/ProfileUsualTripCard";
-import { useLoader } from "@/core/context/loader.context";
-
-// ── Types alignés sur UserPublicDto Server Core ───────────────────────────────
-
-interface DriverProfilePublic {
-  validationStatus: string;
-  averageRating: number;
-  totalTripsAsDriver: number;
-  co2SavedKg: number;
-  vehiclePhotoUrl?: string;
-  vehicleMake?: string;
-  vehicleModel?: string;
-  vehicleYear?: number;
-  vehicleColor?: string;
-}
-
-interface PublicReview {
-  reviewerName: string;
-  reviewerAvatar?: string;
-  rating: number;
-  comment?: string;
-  createdAt: string;
-}
-
-interface PublicTrip {
-  id: string;
-  departureLabel: string;
-  arrivalLabel: string;
-  departureDate: string;
-  departureTime: string;
-  availableSeats: number;
-  pricePerPassenger: number;
-}
-
-interface UsualTrip {
-  departureLabel: string;
-  arrivalLabel: string;
-}
-
-interface UserPublic {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl?: string;
-  bio?: string;
-  isProfileVerified: boolean;
-  canBeDriver: boolean;
-  schoolRole: string;
-  role: string;
-  goScore: number;
-  languagesSpoken: string[];
-  createdAt: string;
-  likesCount: number;
-  isLikedByMe: boolean;
-  isFavorite: boolean;
-  driverProfile?: DriverProfilePublic;
-  recentReviews: PublicReview[];
-  recentPublishedTrips: PublicTrip[];
-  usualTrips: UsualTrip[];
-}
+import { useProfileActions } from "@/features/profile/hooks/useProfileActions";
+import {
+  mockBadges,
+  mockPublishedTrips,
+  mockReviews,
+  mockUsualTrips,
+  mockUserPublic,
+} from "@/features/profile/fixtures/profile.fixtures";
+import type { PublicReview, PublicTrip, UsualTrip } from "@/features/profile/types/profile.types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -89,14 +37,7 @@ function schoolRoleLabel(role: string): string {
   return map[role?.toLowerCase()] ?? role;
 }
 
-function roleLabel(role: string): string {
-  const map: Record<string, string> = {
-    driver: "Conducteur",
-    passenger: "Passager",
-    admin: "Administrateur",
-  };
-  return map[role?.toLowerCase()] ?? role;
-}
+// ── Composant StarRating ──────────────────────────────────────────────────────
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -104,7 +45,7 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((s) => (
         <FaStar
           key={s}
-          size={12}
+          size={14}
           className={s <= Math.round(rating) ? "text-amber-400" : "text-gray-200"}
         />
       ))}
@@ -112,340 +53,397 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+// ── Composant Badge ───────────────────────────────────────────────────────────
 
-export default function PublicProfilePage() {
-  const { id } = useParams<{ id: string }>();
-  const router = useRouter();
-  const { userConnected } = useAppState();
-  const { setActiveLoader } = useLoader();
-
-  const [profile, setProfile] = useState<UserPublic | null>(null);
-  const [likeCount, setLikeCount] = useState(0);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [error, setError] = useState(false);
-
-  // Redirection si l'utilisateur consulte son propre profil
-  const isSelf = userConnected?.id === id;
-
-  useEffect(() => {
-    if (!id) return;
-    setActiveLoader(true);
-    fetch(`/api/users/${id}/public`)
-      .then((r) => r.json())
-      .then((data: UserPublic) => {
-        setProfile(data);
-        setLikeCount(data.likesCount ?? 0);
-        setIsLiked(data.isLikedByMe ?? false);
-        setIsFavorite(data.isFavorite ?? false);
-      })
-      .catch(() => setError(true))
-      .finally(() => setActiveLoader(false));
-  }, [id, setActiveLoader]);
-
-  // Like — optimiste
-  const handleLike = useCallback(async () => {
-    if (isSelf) return;
-    const next = !isLiked;
-    setIsLiked(next);
-    setLikeCount((c) => (next ? c + 1 : Math.max(0, c - 1)));
-    await fetch(`/api/users/${id}/like`, { method: "POST" }).catch(() => {
-      // rollback si erreur réseau
-      setIsLiked(!next);
-      setLikeCount((c) => (!next ? c + 1 : Math.max(0, c - 1)));
-    });
-  }, [id, isLiked, isSelf]);
-
-  // Ajouter aux favoris (Affinity toggle)
-  const handleFavorite = useCallback(async () => {
-    if (isSelf) return;
-    const next = !isFavorite;
-    setIsFavorite(next);
-    await fetch(`/api/favoris/user-favori`, {
-      method: next ? "POST" : "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ targetUserId: id }),
-    }).catch(() => setIsFavorite(!next));
-  }, [id, isFavorite, isSelf]);
-
-  // S'abonner à un trajet récurrent
-  const handleSubscribe = useCallback(
-    async (departure: string, arrival: string) => {
-      if (!profile) return;
-      await fetch(`/api/users/${id}/survey-alert`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          driverId: id,
-          driverName: `${profile.firstName} ${profile.lastName}`,
-          departureLabel: departure,
-          arrivalLabel: arrival,
-        }),
-      });
-    },
-    [id, profile]
-  );
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 text-gray-500">
-        <p className="text-lg font-medium">Profil introuvable</p>
-        <button onClick={() => router.back()} className="text-sm text-blue-600 underline">
-          Retour
-        </button>
+function BadgeItem({ name, icon, color }: { name: string; icon: string; color: string }) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className={`flex h-12 w-12 items-center justify-center rounded-full ${color} text-xl`}>
+        {icon}
       </div>
-    );
-  }
+      <span className="text-center text-xs font-medium text-gray-600">{name}</span>
+    </div>
+  );
+}
 
-  if (!profile) return null;
+// ── Composant Stat Card ───────────────────────────────────────────────────────
 
-  const isDriver = profile.canBeDriver && profile.driverProfile;
-  const dp = profile.driverProfile;
-  const fullName = `${profile.firstName} ${profile.lastName}`;
+function StatCard({
+  icon,
+  iconBg,
+  label,
+  value,
+  subValue,
+}: {
+  icon: React.ReactNode;
+  iconBg: string;
+  label: string;
+  value: string | number;
+  subValue?: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconBg}`}>
+        {icon}
+      </div>
+      <div>
+        <p className="text-xs text-gray-500">{label}</p>
+        <p className="text-lg font-bold text-gray-800">
+          {value}
+          {subValue && <span className="text-sm font-normal text-gray-500"> {subValue}</span>}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── Composant Review Card ─────────────────────────────────────────────────────
+
+function ReviewCard({ review }: { review: PublicReview }) {
+  const initials = review.reviewerName?.[0]?.toUpperCase() ?? "?";
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-6 text-gray-800">
-      {/* ── Banner + Avatar ──────────────────────────────────────────────── */}
-      <div className="relative mb-16 h-36 w-full overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800">
-        <div className="absolute -bottom-10 left-5">
-          <div className="relative h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-gray-200 shadow-md">
-            {profile.avatarUrl ? (
-              <Image src={profile.avatarUrl} alt={fullName} fill className="object-cover" />
-            ) : (
-              <span className="flex h-full w-full items-center justify-center text-2xl font-bold text-blue-600">
-                {profile.firstName[0]}
-              </span>
+    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
+            {initials}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-800">{review.reviewerName}</p>
+            <StarRating rating={review.rating} />
+            {review.comment && (
+              <p className="mt-1 text-sm text-gray-600">{review.comment}</p>
             )}
           </div>
         </div>
-
-        {/* Boutons action en haut à droite */}
-        {!isSelf && (
-          <div className="absolute right-3 top-3 flex gap-2">
-            <button
-              onClick={handleFavorite}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold shadow transition-all ${
-                isFavorite
-                  ? "bg-blue-900 text-white"
-                  : "bg-white/90 text-gray-700 hover:bg-blue-50"
-              }`}
-            >
-              {isFavorite ? <FaUserCheck size={12} /> : <FaUserPlus size={12} />}
-              {isFavorite ? "Suivi" : "Suivre"}
-            </button>
-
-            <button
-              onClick={handleLike}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold shadow transition-all ${
-                isLiked
-                  ? "bg-rose-500 text-white"
-                  : "bg-white/90 text-gray-700 hover:bg-rose-50"
-              }`}
-            >
-              <FaHeart size={12} className={isLiked ? "text-white" : "text-rose-400"} />
-              {likeCount}
-            </button>
-          </div>
-        )}
+        <span className="text-xs text-gray-400">
+          {new Date(review.createdAt).toLocaleDateString("fr-CA", {
+            month: "short",
+            year: "numeric",
+          })}
+        </span>
       </div>
+    </div>
+  );
+}
 
-      {/* ── Identité ─────────────────────────────────────────────────────── */}
-      <div className="mb-6">
+// ── Composant Usual Trip Card (maquette) ──────────────────────────────────────
+
+function UsualTripCard({
+  trip,
+  index,
+  onSubscribe,
+}: {
+  trip: UsualTrip;
+  index: number;
+  onSubscribe: (departure: string, arrival: string) => void;
+}) {
+  const frequencies = ["Quotidien", "Dimanche", "Hebdo (Ven)"];
+  const prices = ["15€", "09h", "16€"];
+
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
+      <div className="flex items-center gap-2">
+        {index === 1 ? (
+          <FaLocationDot className="text-gray-400" size={14} />
+        ) : (
+          <FaArrowRight className="text-gray-400" size={12} />
+        )}
+        <div>
+          <p className="text-sm font-semibold text-gray-800">
+            {trip.departureLabel} → {trip.arrivalLabel}
+          </p>
+          <p className="text-xs text-gray-500">{frequencies[index]}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-sm font-bold text-gray-800">{prices[index]}</span>
+        <button
+          onClick={() => onSubscribe(trip.departureLabel, trip.arrivalLabel)}
+          className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-200"
+        >
+          S'abonner
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Composant Published Trip Card (maquette) ──────────────────────────────────
+
+function PublishedTripCard({ trip }: { trip: PublicTrip }) {
+  const { userConnected } = useAppState();
+  const driverName = `${userConnected?.firstName ?? "Julien"} ${userConnected?.lastName ?? "Moreau"}`;
+
+  return (
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+      <div className="flex items-center gap-3">
+        <FaArrowRight className="text-gray-400" size={16} />
+        <div>
+          <p className="text-sm font-semibold text-gray-800">
+            {trip.departureLabel} → {trip.arrivalLabel}
+          </p>
+          <p className="text-xs text-gray-500">
+            {new Date(trip.departureDate).toLocaleDateString("fr-CA", {
+              day: "numeric",
+              month: "short",
+            })}{" "}
+            {trip.departureTime?.substring(0, 5)}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <span className="text-xs text-green-600">
+          {trip.availableSeats} places dispo
+        </span>
+        <span className="text-sm font-bold text-gray-800">{trip.pricePerPassenger}€</span>
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-bold">{fullName}</h1>
-          {profile.isProfileVerified && (
-            <FaShield className="text-blue-500" size={16} title="Profil vérifié" />
-          )}
-        </div>
-        <p className="text-sm text-gray-500">
-          {schoolRoleLabel(profile.schoolRole)} à La Cité
-        </p>
-        <p className="mt-0.5 text-xs font-medium text-blue-600">{roleLabel(profile.role)}</p>
-
-        {profile.bio && (
-          <p className="mt-3 text-sm leading-relaxed text-gray-600">{profile.bio}</p>
-        )}
-
-        {/* Langues */}
-        {profile.languagesSpoken?.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {profile.languagesSpoken.map((l) => (
-              <span
-                key={l}
-                className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600"
-              >
-                {l.toUpperCase()}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ── Stats conducteur ──────────────────────────────────────────────── */}
-      {isDriver && dp && (
-        <div className="mb-6 grid grid-cols-3 gap-3">
-          <div className="rounded-xl bg-amber-50 p-3 text-center">
-            <p className="text-lg font-bold text-amber-600">
-              {dp.averageRating.toFixed(1)}
-              <span className="text-sm"> / 5</span>
-            </p>
-            <p className="text-xs text-gray-500">Note</p>
-          </div>
-          <div className="rounded-xl bg-blue-50 p-3 text-center">
-            <p className="text-lg font-bold text-blue-600">{dp.totalTripsAsDriver}</p>
-            <p className="text-xs text-gray-500">Trajets</p>
-          </div>
-          <div className="rounded-xl bg-green-50 p-3 text-center">
-            <FaLeaf className="mx-auto mb-0.5 text-green-500" size={14} />
-            <p className="text-sm font-bold text-green-600">
-              {dp.co2SavedKg.toFixed(1)} kg
-            </p>
-            <p className="text-xs text-gray-500">CO₂ évité</p>
-          </div>
-        </div>
-      )}
-
-      {/* ── Photo véhicule (conducteur uniquement) ────────────────────────── */}
-      {isDriver && dp?.vehiclePhotoUrl && (
-        <div className="mb-6">
-          <div className="relative h-36 w-full overflow-hidden rounded-2xl bg-gray-100">
+          <div className="h-8 w-8 overflow-hidden rounded-full bg-gray-200">
             <Image
-              src={dp.vehiclePhotoUrl}
-              alt={`${dp.vehicleMake ?? ""} ${dp.vehicleModel ?? ""}`}
+              src="/assets/placeholder/placeholer-profile-picture.png"
+              alt={driverName}
+              width={32}
+              height={32}
+              className="object-cover"
+            />
+          </div>
+          <div className="text-xs">
+            <p className="font-medium text-gray-700">{driverName.split(" ")[0]}</p>
+            <p className="text-gray-500">Véhicule</p>
+          </div>
+        </div>
+        <button className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700">
+          Réserver
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Page Principale ───────────────────────────────────────────────────────────
+
+export default function PublicProfilePage() {
+  const { userConnected } = useAppState();
+  const [isLiked, setIsLiked] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [likeCount, setLikeCount] = useState(mockUserPublic.likesCount);
+
+  const isSelf = userConnected?.id === mockUserPublic.id;
+  const profile = mockUserPublic;
+  const dp = profile.driverProfile;
+  const fullName = `${profile.firstName} ${profile.lastName}`;
+
+  const handleLikeChange = (liked: boolean, count: number) => {
+    setIsLiked(liked);
+    setLikeCount(count);
+  };
+
+  const handleFavoriteChange = (favorite: boolean) => {
+    setIsFavorite(favorite);
+  };
+
+  const { handleLike, handleFavorite, handleSubscribe, handleReserve } = useProfileActions({
+    targetUserId: profile.id,
+    isLiked,
+    isFavorite,
+    likeCount,
+    onLikeChange: handleLikeChange,
+    onFavoriteChange: handleFavoriteChange,
+  });
+
+  return (
+    <main className="mx-auto max-w-4xl px-4 py-6 text-gray-800">
+      {/* ── Titre ─────────────────────────────────────────────────────────── */}
+      <h1 className="mb-4 text-xl font-bold text-gray-800">Profile Summary</h1>
+
+      {/* ── Banner + Avatar ───────────────────────────────────────────────── */}
+      <div className="relative mb-6 h-40 w-full overflow-hidden rounded-2xl">
+        <Image
+          src="/img/planifier-background.png"
+          alt="Banner"
+          fill
+          className="object-cover"
+        />
+        <div className="absolute -bottom-12 left-6">
+          <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-gray-200 shadow-lg">
+            <Image
+              src={profile.avatarUrl ?? "/assets/placeholder/placeholer-profile-picture.png"}
+              alt={fullName}
               fill
               className="object-cover"
             />
           </div>
-          {dp.vehicleMake && (
-            <p className="mt-1.5 text-center text-xs text-gray-400">
-              {dp.vehicleMake} {dp.vehicleModel} {dp.vehicleColor ? `· ${dp.vehicleColor}` : ""}
-              {dp.vehicleYear ? `, ${dp.vehicleYear}` : ""}
-            </p>
-          )}
+        </div>
+      </div>
+
+      {/* ── Infos principales ─────────────────────────────────────────────── */}
+      <div className="mb-6 flex items-start justify-between">
+        <div className="ml-28 flex-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold">{fullName}</h2>
+            {profile.isProfileVerified && (
+              <FaCheckCircle className="text-blue-500" size={18} />
+            )}
+          </div>
+          <p className="text-sm text-gray-500">
+            Go Score {dp?.averageRating.toFixed(1)} · {dp?.totalTripsAsDriver} trajets · Localisation: Paris, FR
+          </p>
+        </div>
+
+        {/* Boutons Suivre / Favori */}
+        {!isSelf && (
+          <div className="flex gap-2">
+            <button
+              onClick={handleLike}
+              className={`flex flex-col items-center rounded-lg px-4 py-2 ${
+                isLiked ? "bg-rose-500 text-white" : "border border-rose-500 text-rose-500"
+              }`}
+            >
+              <div className="flex items-center gap-1">
+                <FaHeart size={14} />
+                <span className="text-sm font-bold">{likeCount}</span>
+              </div>
+              <span className="text-xs">Favori</span>
+            </button>
+            <button
+              onClick={handleFavorite}
+              className={`flex flex-col items-center rounded-lg px-4 py-2 ${
+                isFavorite ? "bg-blue-600 text-white" : "bg-blue-600 text-white"
+              }`}
+            >
+              <FaUserPlus size={14} />
+              <span className="text-xs">Abonnement</span>
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── Bio ───────────────────────────────────────────────────────────── */}
+      {profile.bio && (
+        <div className="mb-6">
+          <p className="text-sm leading-relaxed text-gray-600">
+            <span className="font-semibold">Bio:</span> {profile.bio}
+          </p>
         </div>
       )}
 
-      {/* ── Trajets récurrents habituels (conducteur uniquement) ──────────── */}
-      {isDriver && profile.usualTrips?.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">
-            Itinéraires habituels
-          </h2>
+      {/* ── Badges + Langues + Véhicule ───────────────────────────────────── */}
+      <div className="mb-6 grid grid-cols-3 gap-4">
+        {/* Badges */}
+        <div>
+          <h3 className="mb-2 text-sm font-semibold text-gray-700">Badges</h3>
+          <div className="flex gap-3">
+            {mockBadges.map((badge) => (
+              <BadgeItem key={badge.id} {...badge} />
+            ))}
+          </div>
+        </div>
+
+        {/* Langues */}
+        <div>
+          <h3 className="mb-2 text-sm font-semibold text-gray-700">Languages</h3>
+          <div className="flex flex-wrap gap-2">
+            <span className="flex items-center gap-1 text-sm">
+              🇫🇷 Français
+            </span>
+            <span className="flex items-center gap-1 text-sm">
+              🇬🇧 Anglais
+            </span>
+          </div>
+        </div>
+
+        {/* Véhicule */}
+        {dp?.vehiclePhotoUrl && (
+          <div>
+            <div className="relative h-24 w-full overflow-hidden rounded-xl bg-gray-100">
+              <Image
+                src={dp.vehiclePhotoUrl}
+                alt="Véhicule"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <p className="mt-1 text-center text-xs text-gray-500">
+              {dp.vehicleMake} {dp.vehicleModel} {dp.vehicleColor}, {dp.vehicleYear}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Statistiques ──────────────────────────────────────────────────── */}
+      <section className="mb-6">
+        <h2 className="mb-3 text-lg font-bold">Statistique</h2>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <StatCard
+            icon={<FaLeaf className="text-green-500" />}
+            iconBg="bg-green-50"
+            label="Go Score"
+            value={dp?.averageRating.toFixed(1)}
+            subValue="/ 5 ⭐"
+          />
+          <StatCard
+            icon={<FaLocationDot className="text-blue-500" />}
+            iconBg="bg-blue-50"
+            label="Nombre de Trajets"
+            value={dp?.totalTripsAsDriver}
+          />
+          <StatCard
+            icon={<FaStar className="text-purple-500" />}
+            iconBg="bg-purple-50"
+            label="Note Globale"
+            value=""
+            subValue="⭐⭐⭐⭐⭐ 4.8"
+          />
+          <StatCard
+            icon={<FaLeaf className="text-green-500" />}
+            iconBg="bg-green-50"
+            label="Économie CO2"
+            value={`${(dp?.co2SavedKg ?? 0 / 1000).toFixed(1)} T.`}
+            subValue="CO₂ évitées"
+          />
+        </div>
+      </section>
+
+      {/* ── Avis + Trajets Récurrents ─────────────────────────────────────── */}
+      <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Avis */}
+        <section>
+          <h2 className="mb-3 text-lg font-bold">Avis ({mockReviews.length})</h2>
+          <div className="flex flex-col gap-3">
+            {mockReviews.map((review) => (
+              <ReviewCard key={review.id} review={review} />
+            ))}
+          </div>
+        </section>
+
+        {/* Trajets Récurrents */}
+        <section>
+          <h2 className="mb-3 text-lg font-bold">Trajets Récurrents ({mockUsualTrips.length})</h2>
           <div className="flex flex-col gap-2">
-            {profile.usualTrips.map((t, i) => (
-              <ProfileUsualTripCard
-                key={i}
-                departure={t.departureLabel}
-                arrival={t.arrivalLabel}
-                driverId={id}
-                driverName={fullName}
+            {mockUsualTrips.map((trip, index) => (
+              <UsualTripCard
+                key={index}
+                trip={trip}
+                index={index}
                 onSubscribe={handleSubscribe}
               />
             ))}
           </div>
         </section>
-      )}
-
-      {/* ── Avis reçus ────────────────────────────────────────────────────── */}
-      {profile.recentReviews?.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">
-            Avis reçus ({profile.recentReviews.length})
-          </h2>
-          <div className="flex flex-col gap-3">
-            {profile.recentReviews.map((r, i) => (
-              <div key={i} className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    {r.reviewerAvatar ? (
-                      <Image
-                        src={r.reviewerAvatar}
-                        alt={r.reviewerName}
-                        width={32}
-                        height={32}
-                        className="rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600">
-                        {r.reviewerName[0]}
-                      </div>
-                    )}
-                    <span className="text-sm font-medium">{r.reviewerName}</span>
-                  </div>
-                  <div className="flex flex-col items-end gap-0.5">
-                    <StarRating rating={r.rating} />
-                    <span className="text-xs text-gray-400">
-                      {new Date(r.createdAt).toLocaleDateString("fr-CA", {
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                </div>
-                {r.comment && (
-                  <p className="mt-2 text-sm leading-relaxed text-gray-600">{r.comment}</p>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── Derniers trajets publiés ──────────────────────────────────────── */}
-      {isDriver && profile.recentPublishedTrips?.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-400">
-            Trajets disponibles
-          </h2>
-          <div className="flex flex-col gap-3">
-            {profile.recentPublishedTrips.map((t) => (
-              <Link
-                key={t.id}
-                href={`/trips/${t.id}`}
-                className="flex items-center justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:border-blue-200 hover:bg-blue-50/30"
-              >
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <div className="flex items-center gap-1.5 text-sm font-semibold">
-                    <FaLocationDot size={11} className="shrink-0 text-blue-500" />
-                    <span className="truncate">{t.departureLabel}</span>
-                    <FaArrowRight size={10} className="shrink-0 text-gray-400" />
-                    <span className="truncate">{t.arrivalLabel}</span>
-                  </div>
-                  <p className="text-xs text-gray-400">
-                    {new Date(t.departureDate).toLocaleDateString("fr-CA", {
-                      day: "numeric",
-                      month: "short",
-                    })}{" "}
-                    · {t.departureTime?.substring(0, 5)}
-                  </p>
-                </div>
-                <div className="ml-3 shrink-0 text-right">
-                  <p className="text-sm font-bold text-blue-600">{t.pricePerPassenger}$</p>
-                  <p className="text-xs text-gray-400">{t.availableSeats} place{t.availableSeats > 1 ? "s" : ""}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── GoScore ───────────────────────────────────────────────────────── */}
-      <div className="rounded-xl border border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-gray-500">GoScore</p>
-            <p className="text-2xl font-bold text-blue-700">{profile.goScore}</p>
-          </div>
-          <p className="text-xs text-gray-400">
-            Membre depuis{" "}
-            {new Date(profile.createdAt).toLocaleDateString("fr-CA", {
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
-        </div>
       </div>
+
+      {/* ── Derniers Trajets Publiés ──────────────────────────────────────── */}
+      <section className="mb-6">
+        <h2 className="mb-3 text-lg font-bold">
+          Derniers Trajets Publiés <span className="text-sm font-normal text-gray-500">(Filtrés par nombre de passagers)</span>
+        </h2>
+        <div className="flex flex-col gap-3">
+          {mockPublishedTrips.map((trip) => (
+            <PublishedTripCard key={trip.id} trip={trip} />
+          ))}
+        </div>
+      </section>
     </main>
   );
 }

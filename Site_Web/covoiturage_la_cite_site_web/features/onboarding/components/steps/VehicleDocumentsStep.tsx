@@ -2,6 +2,8 @@
 
 import { useRef } from 'react';
 import type { useOnboarding } from '../../hooks/useOnboarding';
+import { FaCircleCheck, FaFileImport } from 'react-icons/fa6';
+import { Language, useAppState } from '@/core/state/app_state';
 
 interface Props {
   onboarding: ReturnType<typeof useOnboarding>;
@@ -14,43 +16,55 @@ interface DocConfig {
   requiresExpiry: boolean;
 }
 
-const REQUIRED_DOCS: DocConfig[] = [
-  {
-    type: 'DriversLicense',
-    label: "Permis de conduire",
-    description: "Recto/verso de votre permis de conduire provincial.",
-    requiresExpiry: true,
-  },
-  {
-    type: 'Insurance',
-    label: "Assurance automobile",
-    description: "Certificat d'assurance en cours de validité.",
-    requiresExpiry: true,
-  },
-  {
-    type: 'VehicleRegistration',
-    label: "Immatriculation du véhicule",
-    description: "Certificat d'immatriculation (carte grise).",
-    requiresExpiry: false,
-  },
-  {
-    type: 'CriminalRecord',
-    label: "Vérification des antécédents judiciaires",
-    description: "Récente (moins de 6 mois). Disponible à la bibliothèque du Collège.",
-    requiresExpiry: false,
-  },
-];
+function getRequiredDocs(isFR: boolean): DocConfig[] {
+  return [
+    {
+      type: 'DriversLicense',
+      label: isFR ? 'Permis de conduire' : "Driver's License",
+      description: isFR
+        ? 'Recto/verso de votre permis de conduire provincial.'
+        : 'Front/back of your provincial driver license.',
+      requiresExpiry: true,
+    },
+    {
+      type: 'Insurance',
+      label: isFR ? 'Assurance automobile' : 'Auto Insurance',
+      description: isFR
+        ? "Certificat d'assurance en cours de validité."
+        : 'Valid insurance certificate.',
+      requiresExpiry: true,
+    },
+    {
+      type: 'VehicleRegistration',
+      label: isFR ? 'Immatriculation du véhicule' : 'Vehicle Registration',
+      description: isFR
+        ? "Certificat d'immatriculation (carte grise)."
+        : 'Registration certificate.',
+      requiresExpiry: false,
+    },
+    {
+      type: 'CriminalRecord',
+      label: isFR ? 'Vérification des antécédents judiciaires' : 'Criminal Record Check',
+      description: isFR
+        ? 'Récente (moins de 6 mois). Disponible à la bibliothèque du Collège.'
+        : 'Recent (less than 6 months). Available at the College library.',
+      requiresExpiry: false,
+    },
+  ];
+}
 
 function DocumentCard({
   doc,
   submitted,
   onUpload,
   isLoading,
+  isFR,
 }: {
   doc: DocConfig;
   submitted?: { fileUrl: string; expiryDate?: string };
   onUpload: (docType: string, fileUrl: string, expiryDate?: string) => void;
   isLoading: boolean;
+  isFR: boolean;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const expiryRef = useRef<HTMLInputElement>(null);
@@ -74,7 +88,7 @@ function DocumentCard({
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-lg">{submitted ? '✅' : '📄'}</span>
+            <span className="text-lg">{submitted ? <FaCircleCheck color="#34D399" /> : <FaFileImport color="#08316e" />}</span>
             <h3 className="text-sm font-semibold text-gray-900">{doc.label}</h3>
           </div>
           <p className="mt-1 text-xs text-gray-500">{doc.description}</p>
@@ -83,7 +97,9 @@ function DocumentCard({
 
       {doc.requiresExpiry && (
         <div className="mt-3">
-          <label className="mb-1 block text-xs font-medium text-gray-600">Date d&apos;expiration</label>
+          <label className="mb-1 block text-xs font-medium text-gray-600">
+            {isFR ? "Date d'expiration" : 'Expiry Date'}
+          </label>
           <input
             ref={expiryRef}
             type="date"
@@ -104,7 +120,9 @@ function DocumentCard({
             : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
           } disabled:opacity-50 disabled:cursor-not-allowed`}
       >
-        {submitted ? '🔄 Remplacer' : '📤 Téléverser'}
+        {submitted
+          ? (isFR ? ' Remplacer' : ' Replace')
+          : (isFR ? 'Téléverser' : 'Upload')}
       </button>
 
       <input
@@ -119,7 +137,10 @@ function DocumentCard({
 }
 
 export default function VehicleDocumentsStep({ onboarding }: Props) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
   const { formData, isLoading, error, submitDocument, goToNextStep, triggerAbandonWarning } = onboarding;
+  const REQUIRED_DOCS = getRequiredDocs(isFR);
 
   const allSubmitted = REQUIRED_DOCS.every((doc) => formData.documents[doc.type]);
   const submittedCount = REQUIRED_DOCS.filter((doc) => formData.documents[doc.type]).length;
@@ -127,9 +148,11 @@ export default function VehicleDocumentsStep({ onboarding }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">Documents conducteur</h2>
+        <h2 className="text-xl font-semibold text-gray-900">
+          {isFR ? 'Documents conducteur' : 'Driver Documents'}
+        </h2>
         <p className="mt-1 text-sm text-gray-500">
-          {submittedCount} / {REQUIRED_DOCS.length} documents soumis
+          {submittedCount} / {REQUIRED_DOCS.length} {isFR ? 'documents soumis' : 'documents submitted'}
         </p>
       </div>
 
@@ -149,6 +172,7 @@ export default function VehicleDocumentsStep({ onboarding }: Props) {
             submitted={formData.documents[doc.type]}
             onUpload={submitDocument}
             isLoading={isLoading}
+            isFR={isFR}
           />
         ))}
       </div>
@@ -163,7 +187,11 @@ export default function VehicleDocumentsStep({ onboarding }: Props) {
                    hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                    disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
       >
-        {isLoading ? 'Traitement...' : allSubmitted ? 'Continuer' : `Encore ${REQUIRED_DOCS.length - submittedCount} document(s)`}
+        {isLoading
+          ? (isFR ? 'Traitement...' : 'Processing...')
+          : allSubmitted
+            ? (isFR ? 'Continuer' : 'Continue')
+            : (isFR ? `Encore ${REQUIRED_DOCS.length - submittedCount} document(s)` : `${REQUIRED_DOCS.length - submittedCount} document(s) remaining`)}
       </button>
 
       <button
@@ -171,7 +199,7 @@ export default function VehicleDocumentsStep({ onboarding }: Props) {
         onClick={triggerAbandonWarning}
         className="text-xs text-gray-400 hover:text-gray-600 underline text-center transition-colors"
       >
-        Continuer en tant que passager uniquement
+        {isFR ? 'Continuer en tant que passager uniquement' : 'Continue as passenger only'}
       </button>
     </div>
   );

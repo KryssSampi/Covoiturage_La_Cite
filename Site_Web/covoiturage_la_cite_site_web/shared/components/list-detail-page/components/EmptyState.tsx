@@ -2,6 +2,7 @@
 
 import React from "react";
 import { FiSearch, FiInbox } from "react-icons/fi";
+import { Language, useAppState } from "@/core/state/app_state";
 import { EmptyAction } from "../types";
 
 interface EmptyStateProps {
@@ -18,6 +19,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   emptyAction,
   onClearFilters,
 }) => {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
   const isNoData = type === "no-data";
 
   return (
@@ -35,15 +38,17 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
       {/* Titre */}
       <p className="text-lg font-bold text-gray-700">
-        {isNoData ? "Aucun element" : "Aucun resultat"}
+        {isNoData
+          ? (isFR ? "Aucun élément" : "No items")
+          : (isFR ? "Aucun résultat" : "No results")}
       </p>
 
       {/* Message personnalisable */}
       <p className="text-md text-gray-400 leading-relaxed max-w-48">
         {message ?? (
           isNoData
-            ? "Aucun element a afficher pour le moment."
-            : "Aucun element ne correspond a votre recherche ou vos filtres."
+            ? (isFR ? "Aucun élément à afficher pour le moment." : "No items to display at the moment.")
+            : (isFR ? "Aucun élément ne correspond à votre recherche ou vos filtres." : "No items match your search or filters.")
         )}
       </p>
 
@@ -59,7 +64,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         </button>
       )}
 
-      {/* Bouton reinitialiser les filtres */}
+      {/* Bouton réinitialiser les filtres */}
       {!isNoData && onClearFilters && (
         <button
           type="button"
@@ -67,7 +72,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           className="mt-1 px-5 py-2.5 rounded-xl text-white text-xs font-semibold transition-opacity hover:opacity-90"
           style={{ backgroundColor: "#6b7280" }}
         >
-          Reinitialiser les filtres
+          {isFR ? "Réinitialiser les filtres" : "Reset filters"}
         </button>
       )}
     </div>

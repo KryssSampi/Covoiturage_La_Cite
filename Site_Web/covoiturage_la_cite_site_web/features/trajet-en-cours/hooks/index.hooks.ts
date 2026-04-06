@@ -4,16 +4,10 @@
 // Simule un trajet en temps réel, gère la messagerie
 // et le système de signalement.
 // ═══════════════════════════════════════════════════════
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   TrajetProgressionFixture,
   UseProgressionReturn,
-  SignalementData,
-  SignalementOptions,
-  CibleSignalement,
-  NiveauSecurite,
-  EtapeSignalement,
-  UseSignalementReturn,
 } from '../types/progression-signalement.types';
 import {
   Correspondant,
@@ -24,7 +18,8 @@ import {
 } from '../types/messagerie.types';
 import { genererNouvelleProgression } from '../fixtures/index.fixtures';
 import { calculer } from '../utils/trajet-progression.utils';
-import { genererRapportPDF } from '../utils/signalement-pdf.utils';
+// useSignalement est exporté depuis ./useSignalement
+export { useSignalement } from './useSignalement';
 
 
 // ═══════════════════════════════════════════════════════
@@ -79,30 +74,24 @@ export function useProgression(
 export function useMessagerie(
   moiId: string,
   correspondants: Correspondant[],
-  _tripId?: string,
 ): UseMessagerieReturn {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  // Initialise les conversations via useMemo pour éviter setState dans useEffect
+  const initialConversations = useMemo(() => {
+    const now = new Date().toISOString();
+    return correspondants.map((c) => ({
+      id: buildConversationId(moiId, c.id),
+      participantIds: [moiId, c.id].sort() as [string, string],
+      messages: [],
+      createdAt: now,
+      updatedAt: now,
+    }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [correspondants.length, moiId]);
+
+  const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
   const [activeCorrespondantId, setActiveCorrespondantId] = useState<string>(
     correspondants[0]?.id ?? '',
   );
-
-  // Active le premier correspondant dès que la liste est disponible
-  useEffect(() => {
-    if (correspondants.length > 0 && !activeCorrespondantId) {
-      setActiveCorrespondantId(correspondants[0].id);
-    }
-  }, [correspondants, activeCorrespondantId]);
-
-  /** Recharge les messages — /api/db/messages désactivé, on garde l'état local */
-  const refresh = useCallback(async () => {
-    // NOTE : /api/db/messages retourne 503 (self-service désactivé).
-    // Les messages sont gérés uniquement en mémoire locale pour le moment.
-  }, []);
-
-  // Chargement initial
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
 
   const activeConvId = activeCorrespondantId
     ? buildConversationId(moiId, activeCorrespondantId)
@@ -117,7 +106,7 @@ export function useMessagerie(
 
   const messagesActifs: Message[] = activeConversation?.messages ?? [];
 
-  /** Envoie un message dans la conversation active, persiste en DB et crée une notification */
+  /** Envoie un message dans la conversation active */
   const sendMessage = useCallback(
     (content: string) => {
       if (!content.trim() || !activeCorrespondantId) return;
@@ -216,6 +205,12 @@ export function useMessagerie(
     [moiId, correspondants],
   );
 
+  /** Rafraîchit les conversations (stub — API désactivée) */
+  const refresh = useCallback(async () => {
+    // NOTE : API messages désactivée (503). Les conversations restent en mémoire locale.
+    return Promise.resolve();
+  }, []);
+
   const unreadCounts: Record<string, number> = correspondants.reduce(
     (acc, c) => {
       const convId = buildConversationId(moiId, c.id);
@@ -242,120 +237,4 @@ export function useMessagerie(
 }
 
 
-// ═══════════════════════════════════════════════════════
-// useSignalement — Système de signalement en 5 étapes
-// ═══════════════════════════════════════════════════════
-
-const INIT: SignalementData = {
-  cible: null,
-  cibleNom: '',
-  motifId: null,
-  motifLabel: '',
-  niveauSecurite: null,
-  description: '',
-  heureIncident: '',
-  preuves: [],
-  options: {
-    anonyme: false,
-    accepterContact: true,
-    bloquerUtilisateur: false,
-    notifierResultat: true,
-  },
-};
-
-function genRef() {
-  return `SIG-2026-${String(Math.floor(10000 + Math.random() * 90000))}`;
-}
-
-export function useSignalement(
-  trajetId: string,
-  cibleNomParDefaut = '',
-  cibleRoleParDefaut?: CibleSignalement,
-): UseSignalementReturn {
-  const [etape, setEtape] = useState<EtapeSignalement>(1);
-  const [data, setData] = useState<SignalementData>({
-    ...INIT,
-    cibleNom: cibleNomParDefaut,
-    cible: cibleRoleParDefaut ?? null,
-  });
-  const [soumis, setSoumis] = useState(false);
-  const [refNum, setRefNum] = useState('');
-
-  const peutContinuer: boolean = (() => {
-    switch (etape) {
-      case 1: return !!data.cible;
-      case 2: return !!data.motifId;
-      case 3: return !!data.niveauSecurite;
-      case 4: return data.description.trim().length >= 50;
-      case 5: return true;
-      default: return false;
-    }
-  })();
-
-  const setCible = useCallback((c: CibleSignalement) =>
-    setData((p) => ({ ...p, cible: c, motifId: null, motifLabel: '' })), []);
-
-  const setMotif = useCallback((id: string, label: string) =>
-    setData((p) => ({ ...p, motifId: id, motifLabel: label })), []);
-
-  const setNiveauSecurite = useCallback((n: NiveauSecurite) =>
-    setData((p) => ({ ...p, niveauSecurite: n })), []);
-
-  const setDescription = useCallback((d: string) =>
-    setData((p) => ({ ...p, description: d })), []);
-
-  const setHeureIncident = useCallback((h: string) =>
-    setData((p) => ({ ...p, heureIncident: h })), []);
-
-  const ajouterPreuve = useCallback((pv: string) =>
-    setData((p) => ({
-      ...p,
-      preuves: p.preuves.length < 5 ? [...p.preuves, pv] : p.preuves,
-    })), []);
-
-  const supprimerPreuve = useCallback((i: number) =>
-    setData((p) => ({ ...p, preuves: p.preuves.filter((_, idx) => idx !== i) })), []);
-
-  const setOption = useCallback((key: keyof SignalementOptions, val: boolean) =>
-    setData((p) => ({ ...p, options: { ...p.options, [key]: val } })), []);
-
-  const suivant = useCallback(() => {
-    if (peutContinuer && etape < 5) setEtape((p) => (p + 1) as EtapeSignalement);
-  }, [peutContinuer, etape]);
-
-  const precedent = useCallback(() => {
-    if (etape > 1) setEtape((p) => (p - 1) as EtapeSignalement);
-  }, [etape]);
-
-  const soumettre = useCallback(() => {
-    const ref = genRef();
-    setRefNum(ref);
-    setSoumis(true);
-    console.log('[Signalement]', { trajetId, ref, ...data });
-  }, [data, trajetId]);
-
-  const reinitialiser = useCallback(() => {
-    setEtape(1);
-    setData({ ...INIT, cibleNom: cibleNomParDefaut, cible: cibleRoleParDefaut ?? null });
-    setSoumis(false);
-    setRefNum('');
-  }, [cibleNomParDefaut, cibleRoleParDefaut]);
-
-  /** Génère et ouvre un rapport PDF du signalement */
-  const telechargerPDF = useCallback(() => {
-    genererRapportPDF(data, trajetId, refNum);
-  }, [data, trajetId, refNum]);
-
-  return {
-    etapeActuelle: etape,
-    signalement: data,
-    estSoumis: soumis,
-    referenceSignalement: refNum,
-    peutContinuer,
-    setCible, setMotif, setNiveauSecurite,
-    setDescription, setHeureIncident,
-    ajouterPreuve, supprimerPreuve, setOption,
-    suivant, precedent, soumettre,
-    reinitialiser, telechargerPDF,
-  };
-}
+// useSignalement est désormais dans ./useSignalement.ts

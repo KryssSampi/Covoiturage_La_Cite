@@ -97,6 +97,10 @@ export const OnboardingService = {
     return post<OnboardingStepResult>('api/onboarding/set-profile-picture', data, options);
   },
 
+  async submitIdentityVerification(photos: string[], options?: RequestOptions): Promise<ApiResponse<OnboardingStepResult>> {
+    return post<OnboardingStepResult>('api/onboarding/identity-verification', { photos }, options);
+  },
+
   async abandonDriver(options?: RequestOptions): Promise<ApiResponse<OnboardingStepResult>> {
     return post<OnboardingStepResult>('api/onboarding/abandon-driver', {}, options);
   },

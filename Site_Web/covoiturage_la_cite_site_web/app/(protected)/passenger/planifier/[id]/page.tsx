@@ -9,7 +9,7 @@ import { FaCalendarDays } from "react-icons/fa6";
 import { useDb } from "@/core/context/db.context";
 import { useLoader } from "@/core/context/loader.context";
 import type { IndisponibilityDateRange } from "@/core/models/IndisponibilityModel";
-import { useAppState } from "@/core/state/app_state";
+import { Language, useAppState } from "@/core/state/app_state";
 import { isDashboardTripBlockedByIndisponibility } from "@/core/utils/indisponibility.utils";
 import { tripModelToReservation } from "@/features/dashboard/converters/dashboard.converter";
 import type { Reservation } from "@/features/dashboard/types";
@@ -40,6 +40,8 @@ const mapVariants = {
 const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
 
 function PlannerContent({ onRefresh }: { onRefresh?: () => Promise<void> }) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
   const { plannerSearchActive, plannerSearchValues, exitPlannerSearch } = useHeroSearchBar();
   const { trips, users, myIndisponibility } = useDb();
 
@@ -82,12 +84,14 @@ function PlannerContent({ onRefresh }: { onRefresh?: () => Promise<void> }) {
               className="inline-flex items-center gap-2 rounded-lg bg-[#08316e] px-4 py-2 text-sm font-semibold text-white shadow transition-colors duration-200 hover:bg-[#0a4a9e]"
             >
               <FaCalendarDays size={14} />
-              Retour au calendrier
+              {isFR ? 'Retour au calendrier' : 'Back to calendar'}
             </button>
             <span className="text-sm text-gray-500">
               {plannerSearchValues?.departureLabel && plannerSearchValues?.arrivalLabel
-                ? `Resultats : ${plannerSearchValues.departureLabel} vers ${plannerSearchValues.arrivalLabel}`
-                : "Remplissez le formulaire ci-dessus pour rechercher un trajet"}
+                ? `${isFR ? 'Résultats' : 'Results'} : ${plannerSearchValues.departureLabel} ${isFR ? 'vers' : 'to'} ${plannerSearchValues.arrivalLabel}`
+                : isFR
+                  ? "Remplissez le formulaire ci-dessus pour rechercher un trajet"
+                  : "Fill out the form above to search for a trip"}
             </span>
           </motion.div>
         )}

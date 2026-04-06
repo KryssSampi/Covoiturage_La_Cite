@@ -7,6 +7,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { Language, useAppState } from "@/core/state/app_state";
 
 interface FeatureHeaderProps {
   /** Libellé affiché dans le breadcrumb après "Tableau de bord /" */
@@ -20,6 +21,9 @@ interface FeatureHeaderProps {
 }
 
 export default function FeatureHeader({ breadcrumb, title, subtitle, children }: FeatureHeaderProps) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
+
   return (
     <div className="relative overflow-hidden px-6 md:px-10 pt-8 pb-7">
       {/* Image de fond couvrant tout le header */}
@@ -45,7 +49,7 @@ export default function FeatureHeader({ breadcrumb, title, subtitle, children }:
       {/* Contenu texte */}
       <div className="relative z-10">
         <div className="text-xs text-[rgba(255,255,255,0.65)] mb-2.5 tracking-wide">
-          Tableau de bord / <span className="text-white font-semibold">{breadcrumb}</span>
+          {isFR ? "Tableau de bord" : "Dashboard"} / <span className="text-white font-semibold">{breadcrumb}</span>
         </div>
         <h1 className="font-['Syne',sans-serif] font-extrabold text-2xl md:text-[28px] text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
           {title}

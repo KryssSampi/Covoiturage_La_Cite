@@ -7,9 +7,58 @@ import ErrorMessage from './ErrorMessage';
 export default function OtpStep({ auth, isFr }: { auth: ReturnType<typeof useAuthSession>; isFr: boolean }) {
   const [code, setCode] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const [otpExpiresAt, setOtpExpiresAt] = useState<Date | null>(null);
+  const [validityRemaining, setValidityRemaining] = useState<number>(0);
+  const [resendCooldown, setResendCooldown] = useState<number>(0);
 
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  // Récupère l'état OTP côté serveur (date d'expiration, resends restants)
+  useEffect(() => {
+    let cancelled = false;
+    let attempts = 0;
+
+    async function fetchOtpStatus() {
+      try {
+        const res = await fetch('/api/auth/otp-status');
+        if (!res.ok) return;
+        const body = await res.json();
+        const data = body?.data ?? body; // ApiResponse wrapper ou raw
+        if (cancelled) return;
+        if (data?.otpExpiresAt) {
+          const expires = new Date(data.otpExpiresAt);
+          setOtpExpiresAt(expires);
+          const sec = Math.max(0, Math.ceil((expires.getTime() - Date.now()) / 1000));
+          setValidityRemaining(sec);
+        } else {
+          // Keine expiration yet — retry a few times in case server just sent the email
+          attempts += 1;
+          if (attempts <= 5 && !cancelled) {
+            setTimeout(fetchOtpStatus, 500);
+          } else {
+            setOtpExpiresAt(null);
+            setValidityRemaining(0);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    fetchOtpStatus();
+
+    return () => { cancelled = true; };
+  }, []);
+
+  // Tick validity and resend cooldown every second
+  useEffect(() => {
+    const t = setInterval(() => {
+      setValidityRemaining((s) => Math.max(0, s - 1));
+      setResendCooldown((s) => Math.max(0, s - 1));
+    }, 1000);
+    return () => clearInterval(t);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -20,6 +69,28 @@ export default function OtpStep({ auth, isFr }: { auth: ReturnType<typeof useAut
   const handleCodeChange = (value: string) => {
     const digits = value.replace(/\D/g, '').slice(0, 6);
     setCode(digits);
+  };
+
+  const handleResend = async () => {
+    // démarrer blocage local immédiat pour 30s
+    setResendCooldown(30);
+    try {
+      await auth.renewCode();
+      // après renvoi, interroger le statut OTP pour mettre à jour expiry
+      const res = await fetch('/api/auth/otp-status');
+      if (res.ok) {
+        const body = await res.json();
+        const data = body?.data ?? body;
+        if (data?.otpExpiresAt) {
+          const expires = new Date(data.otpExpiresAt);
+          setOtpExpiresAt(expires);
+          const sec = Math.max(0, Math.ceil((expires.getTime() - Date.now()) / 1000));
+          setValidityRemaining(sec);
+        }
+      }
+    } catch {
+      // en cas d'erreur côté serveur, on laisse le cooldown local mais on affiche l'erreur via auth
+    }
   };
 
   return (
@@ -38,7 +109,7 @@ export default function OtpStep({ auth, isFr }: { auth: ReturnType<typeof useAut
       </div>
 
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-2xl font-semibold text-gray-900">
           {isFr ? 'Vérification' : 'Verification'}
         </h2>
         <p className="mt-1 text-sm text-gray-500">
@@ -46,7 +117,7 @@ export default function OtpStep({ auth, isFr }: { auth: ReturnType<typeof useAut
             ? 'Un code de vérification a été envoyé à'
             : 'A verification code has been sent to'}
         </p>
-        <p className="mt-0.5 text-sm font-medium text-gray-700">{auth.email}</p>
+        <p className="mt-0.5 text-xl font-medium text-gray-700">{auth.email}</p>
       </div>
 
       <div>
@@ -86,16 +157,25 @@ export default function OtpStep({ auth, isFr }: { auth: ReturnType<typeof useAut
       </button>
 
       <div className="text-center">
+        {validityRemaining > 0 && (
+          <p className="text-sm text-gray-500 mb-2">
+            {isFr ? 'Code valide pendant' : 'Code valid for'} : {Math.floor(validityRemaining / 60)}:{String(validityRemaining % 60).padStart(2, '0')}
+          </p>
+        )}
+
         {auth.remainingResends > 0 ? (
           <button
             type="button"
-            onClick={auth.renewCode}
-            disabled={auth.isLoading}
+            onClick={handleResend}
+            disabled={auth.isLoading || resendCooldown > 0}
             className="text-sm text-blue-600 hover:text-blue-700 disabled:text-gray-400 transition-colors"
           >
-            {isFr
-              ? `Renvoyer le code (${auth.remainingResends} restant${auth.remainingResends > 1 ? 's' : ''})`
-              : `Resend code (${auth.remainingResends} remaining)`}
+            {resendCooldown > 0
+              ? (isFr ? `Renvoyer dans ${resendCooldown}s` : `Resend in ${resendCooldown}s`)
+              : (isFr
+                ? `Renvoyer le code (${auth.remainingResends} restant${auth.remainingResends > 1 ? 's' : ''})`
+                : `Resend code (${auth.remainingResends} remaining)`)
+            }
           </button>
         ) : (
           <p className="text-sm text-gray-400">

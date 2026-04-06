@@ -19,6 +19,5 @@ public class Nouveaute
     public string? ThumbnailUrl { get; set; }
     public bool IsPublished { get; set; } = true;
 
-    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

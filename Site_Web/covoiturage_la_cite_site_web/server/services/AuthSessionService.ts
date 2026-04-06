@@ -6,6 +6,7 @@
  */
 
 import { SERVER_CORE_URL, DEFAULT_TIMEOUT } from '../config';
+import { getAuthSessionKey } from '@/server/auth';
 
 // ── Types réponse Server Core ─────────────────────────────────────────────
 
@@ -36,6 +37,13 @@ export interface VerifyCodeData {
 
 export interface RenewCodeData {
   success: boolean;
+  remainingResends: number;
+}
+
+export interface OtpStatusData {
+  hasOtp: boolean;
+  otpExpiresAt?: string | null;
+  lastSentAt?: string | null;
   remainingResends: number;
 }
 
@@ -132,6 +140,20 @@ export const AuthSessionService = {
   renewCode(authSessionKey: string) {
     return callServerCore<RenewCodeData>('api/auth/renew-code', {
       authSessionKey,
+    });
+  },
+
+  async otpStatus(authSessionKey?: string) {
+    // If no key provided, try to read from cookies on the server
+    const key = authSessionKey ?? (await getAuthSessionKey());
+    if (!key) {
+      const json = { success: false, message: 'Session manquante.' } as unknown as { success: boolean; message: string };
+      return { json, status: 401 } as const;
+    }
+
+    return callServerCore<OtpStatusData>('api/auth/otp-status', {
+      method: 'GET',
+      authSessionKey: key,
     });
   },
 

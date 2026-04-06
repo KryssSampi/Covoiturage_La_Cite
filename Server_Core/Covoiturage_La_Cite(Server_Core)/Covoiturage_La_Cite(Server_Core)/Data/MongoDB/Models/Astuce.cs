@@ -22,6 +22,5 @@ public class Astuce
     public bool IsActive { get; set; } = true;
     public int Order { get; set; }
 
-    [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

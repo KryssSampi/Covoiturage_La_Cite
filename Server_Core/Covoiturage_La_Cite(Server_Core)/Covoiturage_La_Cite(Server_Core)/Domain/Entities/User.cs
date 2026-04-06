@@ -35,6 +35,12 @@ public class User
 
     /// <summary>Langues parlées par l'utilisateur (ex: ["fr", "en", "es"]).</summary>
     public string[] LanguagesSpoken { get; set; } = ["fr"];
+
+    /// <summary>Photos de vérification d'identité (4 angles : face, droite, gauche, menton levé). Stockées en base64 ou URL.</summary>
+    public string[] IdentityVerificationPhotos { get; set; } = [];
+
+    /// <summary>Indique si l'identité a été vérifiée et validée (par admin ou automatiquement).</summary>
+    public bool IdentityVerified { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }

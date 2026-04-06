@@ -77,6 +77,8 @@ public class AppDbContext : DbContext
             e.Property(u => u.Role).HasConversion<string>();
             e.Property(u => u.SchoolRole).HasConversion<string>();
             e.Property(u => u.Status).HasConversion<string>();
+            e.Property(u => u.LanguagesSpoken).HasColumnType("text[]");
+            e.Property(u => u.IdentityVerificationPhotos).HasColumnType("text[]");
             e.HasOne(u => u.DriverProfile).WithOne(d => d.User)
                 .HasForeignKey<DriverProfile>(d => d.UserId);
             e.HasOne(u => u.Preferences).WithOne(p => p.User)

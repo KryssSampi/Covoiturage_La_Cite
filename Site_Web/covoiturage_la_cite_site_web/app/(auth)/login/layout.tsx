@@ -98,9 +98,9 @@ export default function AuthLayout({
         ))}
 
        {/* Dégradé blanc du bas → 60 % de la hauteur */}
-        <div className="absolute z-5 inset-x-0 bottom-0 h-[60%] bg-linear-to-t from-white via-white/60 to-transparent pointer-events-none" />
+        <div className="absolute z-5 inset-x-0 bottom-0 h-[60%] bg-linear-to-t from-gray-500 to-transparent pointer-events-none" />
         {/* Voile bleu-marine → noir subtil sur toute la section */}
-        <div className="absolute z-5 inset-0 bg-linear-to-b from-[#08316e]/15 to-black/10 pointer-events-none" />
+        <div className="absolute z-5 inset-0 bg-linear-to-b from-[#08316e]/35 to-black/10 pointer-events-none" />
       
        {/* Logo + Titre — centré par-dessus le collage */}
         <div className="relative z-10 h-full mt-20 flex items-center justify-center">
@@ -116,14 +116,14 @@ export default function AuthLayout({
               />
             </div>
             <h1 className="text-6xl md:text-6xl font-bold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
-              Covoiturage La Cité
+              Covoiturage <span className="text-blue-500">La Cité</span>
             </h1>
           </div>
         </div>
       </section>
 
       {/* ── Contenu (formulaire de connexion) ── */}
-      <main className="flex flex-1 items-start justify-center px-4 pt-8">
+      <main className="flex-1 w-full flex items-start justify-center px-4 pt-8">
         {children}
       </main>
 

@@ -33,10 +33,10 @@ export default function PasswordStep({ auth, isFr }: { auth: ReturnType<typeof u
       </div>
 
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-3xl font-semibold text-gray-900">
           {isFr ? 'Connexion' : 'Sign in'}
         </h2>
-        <p className="mt-1 text-sm text-gray-500">{auth.email}</p>
+        <p className="mt-1 text-xl text-gray-500">{auth.email}</p>
       </div>
 
       <div>

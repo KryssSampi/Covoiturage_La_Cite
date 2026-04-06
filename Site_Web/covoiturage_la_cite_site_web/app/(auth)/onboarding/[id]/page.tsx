@@ -2,6 +2,7 @@
 
 import { use, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Cookies from 'js-cookie';
 import { useAppState } from '@/core/state/app_state';
 import OnboardingSlider from '@/features/onboarding/components/OnboardingSlider';
 import type { OnboardingStep } from '@/features/onboarding/hooks/useOnboarding';
@@ -19,7 +20,13 @@ export default function OnboardingPage({ params }: Props) {
   // Redirige vers le login si non authentifié
   useEffect(() => {
     if (appState.userConnected === null) {
-      router.replace('/login');
+      // Si un cookie de session (sc_token) existe, la session est peut-être en cours
+      // d'initialisation — attendre que `appState` soit restauré plutôt que
+      // forcer une redirection immédiate qui cause des boucles.
+      const hasToken = !!Cookies.get('sc_token');
+      if (!hasToken) {
+        router.replace('/login');
+      }
     }
   }, [appState.userConnected, router]);
 

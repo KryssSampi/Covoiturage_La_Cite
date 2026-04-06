@@ -19,10 +19,15 @@ export default function LoginPage() {
   // Redirection si déjà connecté
   useEffect(() => {
     if (appState.userConnected) {
-      const { role, id } = appState.userConnected;
-      router.replace(`/${role}/${id}`);
+      const { role, id, onboardingCompleted } = appState.userConnected;
+      setActiveLoader(true);
+      if (!onboardingCompleted) {
+        router.replace(`/onboarding/${id}`);
+      } else {
+        router.replace(`/${role}/${id}`);
+      }
     }
-  }, [appState.userConnected, router]);
+  }, [appState.userConnected, router, setActiveLoader]);
 
   const handleLoginSuccess = (user: AuthLoginUser) => {
     const connected: ConnectedUser = {
@@ -32,21 +37,17 @@ export default function LoginPage() {
       lastName: user.lastName,
       avatarUrl: user.avatarUrl ?? null,
       canBeDriver: user.canBeDriver,
+      onboardingCompleted: user.onboardingCompleted,
     };
 
     appState.login(connected);
     setActiveLoader(true);
-
-    if (!user.onboardingCompleted) {
-      router.push(`/onboarding/${connected.id}`);
-    } else {
-      router.push(`/${connected.role}/${connected.id}`);
-    }
+    // Navigation centralisée dans le useEffect (évite les courses concurrents)
   };
 
   return (
-    <div className="flex items-center justify-centerpx-4">
-      <div className="w-full max-w-md">
+    <div className="flex items-center justify-center px-4">
+      <div className="w-full">
         <AuthSessionLogin onLoginSuccess={handleLoginSuccess} />
       </div>
     </div>
