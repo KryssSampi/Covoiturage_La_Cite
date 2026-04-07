@@ -136,7 +136,10 @@ export function buildFavorisResponse(userId: string): FavorisApiResponse {
   return {
     lieux,
     utilisateursFavoris,
-    alertes: buildDemoAlertes(userId, lieux),
+    // Lire les alertes persistées si présentes, sinon générer les demo
+    alertes: (persistenceManager.readAll<any>('alertes') || []).filter((a: any) => a.userId === userId).length > 0
+      ? (persistenceManager.readAll<any>('alertes') || []).filter((a: any) => a.userId === userId)
+      : buildDemoAlertes(userId, lieux),
     usersSearch,
   };
 }
@@ -183,17 +186,49 @@ export function unsetUserFavori(affiniteId: string): AffiniteModel | null {
 }
 
 export async function toggleAlerte(alerteId: string, surveyIsOn: boolean) {
-  await new Promise((resolve) => setTimeout(resolve, 400));
+  // Met à jour l'alerte persistée si elle existe, sinon crée une entrée minimale
+  const all = persistenceManager.readAll<any>('alertes') ?? [];
+  const idx = all.findIndex((a: any) => a.id === alerteId);
+  const now = nowIso();
 
-  return {
-    success: true,
-    alerteId,
-    surveyIsOn,
+  if (idx >= 0) {
+    const updated = { ...all[idx], surveyIsOn, statut: surveyIsOn ? 'actif' : 'desactive', updatedAt: now };
+    persistenceManager.updateItem('alertes', alerteId, updated);
+    return { success: true, alerteId, surveyIsOn, statut: updated.statut };
+  }
+
+  // Si aucune alerte existante, ajouter une alerte minimale pour l'utilisateur
+  const newAlerte = {
+    id: alerteId,
+    userId: alerteId.split('-')[1] ?? 'unknown',
+    lieuDepartId: '',
+    lieuArriveeId: '',
+    lieuDepartLabel: '',
+    lieuArriveeLabel: '',
+    joursActifs: ['Lun', 'Mar', 'Mer'],
+    heureMin: '00:00',
+    heureMax: '23:59',
+    favorisUniquement: false,
+    noteMinimale: 0,
+    prixMax: 0,
     statut: surveyIsOn ? 'actif' : 'desactive',
+    surveyIsOn,
+    createdAt: now,
+    updatedAt: now,
   };
+
+  persistenceManager.addItem('alertes', newAlerte);
+  return { success: true, alerteId: newAlerte.id, surveyIsOn, statut: newAlerte.statut };
 }
 
 export async function deleteAlerte(alerteId: string) {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return { success: true, alerteId };
+  // Supprimer l'alerte persistée si elle existe
+  const all = persistenceManager.readAll<any>('alertes') ?? [];
+  const exists = all.some((a: any) => a.id === alerteId);
+  if (exists) {
+    persistenceManager.writeAll('alertes', all.filter((a: any) => a.id !== alerteId));
+    return { success: true, alerteId };
+  }
+
+  return { success: false, alerteId, message: 'Alerte introuvable' };
 }

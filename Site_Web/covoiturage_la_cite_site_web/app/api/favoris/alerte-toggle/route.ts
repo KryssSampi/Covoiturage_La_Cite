@@ -12,6 +12,7 @@ export async function PATCH(req: Request) {
     const result = await toggleAlerte(alerteId, surveyIsOn);
     return NextResponse.json(result);
   } catch {
+    console.error('[API] PATCH /api/favoris/alerte-toggle — erreur');
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -28,6 +29,7 @@ export async function DELETE(req: Request) {
     const result = await deleteAlerte(alerteId);
     return NextResponse.json(result);
   } catch {
+    console.error('[API] DELETE /api/favoris/alerte-toggle — erreur');
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

@@ -35,11 +35,6 @@ import type {
 import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
 import { getLieuFavoriIcon } from "@/shared/utils/lieu-favori-icon";
 import type { DraftTrip } from "@/features/brouillons/types";
-import { FIXTURE_DRAFTS } from "@/tests/fixtures/brouillons/drafts.fixtures";
-import { FIXTURE_GO_TASKS } from "@/tests/fixtures/dashboard/goboard.fixtures";
-import { LACITE_TIPS } from "@/tests/fixtures/dashboard/lacite_astuces.fixtures";
-import { FIXTURE_LIEUX_FAVORIS } from "@/shared/fixtures/favoris.fixtures";
-import { FIXTURE_DRIVER_FINANCE } from "@/tests/fixtures/dashboard/finance.fixtures";
 
 interface DriverDashboardData {
   publishedTrips: PublishedTrip[];
@@ -56,6 +51,14 @@ const DEFAULT_STATS: UserStatsSummary = {
   goScore: 0,
 };
 
+const DEFAULT_FINANCE: DriverFinanceSummary = {
+  soldeDisponible: 0,
+  currency: "CAD",
+  weeklyProfit: 0,
+  weeklyPendingProfit: 0,
+  penalties: 0,
+};
+
 export default function DriverDashboardPage() {
   const appState = useAppState();
   const params = useParams();
@@ -66,11 +69,11 @@ export default function DriverDashboardPage() {
   const routeId = typeof params.id === "string" ? params.id : params.id?.[0];
 
   const [dashData, setDashData] = useState<DriverDashboardData | null>(null);
-  const [finance, setFinance] = useState<DriverFinanceSummary>(FIXTURE_DRIVER_FINANCE);
-  const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>(FIXTURE_LIEUX_FAVORIS);
-  const [tips, setTips] = useState<Tip[]>(LACITE_TIPS);
-  const [drafts, setDrafts] = useState<DraftTrip[]>(FIXTURE_DRAFTS);
-  const [goTasks, setGoTasks] = useState<GoTask[]>(FIXTURE_GO_TASKS);
+  const [finance, setFinance] = useState<DriverFinanceSummary>(DEFAULT_FINANCE);
+  const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>([]);
+  const [tips, setTips] = useState<Tip[]>([]);
+  const [drafts, setDrafts] = useState<DraftTrip[]>([]);
+  const [goTasks, setGoTasks] = useState<GoTask[]>([]);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [isTripsLoading, setIsTripsLoading] = useState(false);
 
@@ -105,25 +108,37 @@ export default function DriverDashboardPage() {
 
       if (dashboardRes.ok) {
         setDashData(await dashboardRes.json());
+      } else {
+        console.error("[driver/page] loadDriverData - dashboardRes", dashboardRes.status, dashboardRes.statusText);
       }
       if (financeRes.ok) {
         setFinance(await financeRes.json());
+      } else {
+        console.error("[driver/page] loadDriverData - financeRes", financeRes.status, financeRes.statusText);
       }
       if (favoritesRes.ok) {
         const payload = await favoritesRes.json();
-        if (Array.isArray(payload)) setFavorites(payload);
+        setFavorites(Array.isArray(payload) ? payload : []);
+      } else {
+        console.error("[driver/page] loadDriverData - favoritesRes", favoritesRes.status, favoritesRes.statusText);
       }
       if (astucesRes.ok) {
         const payload = await astucesRes.json();
-        if (Array.isArray(payload) && payload.length > 0) setTips(payload);
+        setTips(Array.isArray(payload) ? payload : []);
+      } else {
+        console.error("[driver/page] loadDriverData - astucesRes", astucesRes.status, astucesRes.statusText);
       }
       if (draftsRes.ok) {
         const payload = await draftsRes.json();
-        if (Array.isArray(payload) && payload.length > 0) setDrafts(payload);
+        setDrafts(Array.isArray(payload) ? payload : []);
+      } else {
+        console.error("[driver/page] loadDriverData - draftsRes", draftsRes.status, draftsRes.statusText);
       }
       if (goTasksRes.ok) {
         const payload = await goTasksRes.json();
-        if (Array.isArray(payload) && payload.length > 0) setGoTasks(payload);
+        setGoTasks(Array.isArray(payload) ? payload : []);
+      } else {
+        console.error("[driver/page] loadDriverData - goTasksRes", goTasksRes.status, goTasksRes.statusText);
       }
     } catch (error) {
       console.error("[driver/page] loadDriverData", error);
@@ -163,10 +178,14 @@ export default function DriverDashboardPage() {
         method: "POST",
         headers: { "x-caller-id": user?.id ?? "" },
       });
-      if (!res.ok) return false;
+      if (!res.ok) {
+        console.error(`[driver/page] handleRejectRequest - id: ${id} - response not ok`, res.status, res.statusText);
+        return false;
+      }
       await loadDriverData();
       return true;
-    } catch {
+    } catch (error) {
+      console.error(`[driver/page] handleRejectRequest - id: ${id}`, error);
       return false;
     } finally {
       setIsActionLoading(false);
@@ -200,15 +219,29 @@ export default function DriverDashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "start" }),
       });
-      if (res.ok) await loadDriverData();
-    } catch { /* silencieux */ }
+      if (!res.ok) {
+        console.error(`[driver/page] handleStartTrip - tripId: ${tripId} - response not ok`, res.status, res.statusText);
+        return;
+      }
+      await loadDriverData();
+    } catch (error) {
+      console.error(`[driver/page] handleStartTrip - tripId: ${tripId}`, error);
+    }
   }, [loadDriverData]);
 
   const handleDeleteFavorite = useCallback(async (favorite: LieuFavoriUnifie) => {
-    await fetch(`/api/lieux-favoris?id=${favorite.id}&userId=${user?.id}`, {
-      method: "DELETE",
-    });
-    setFavorites((prev) => prev.filter((item) => item.id !== favorite.id));
+    try {
+      const res = await fetch(`/api/lieux-favoris?id=${favorite.id}&userId=${user?.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        console.error(`[driver/page] handleDeleteFavorite - id: ${favorite.id} - response not ok`, res.status, res.statusText);
+        return;
+      }
+      setFavorites((prev) => prev.filter((item) => item.id !== favorite.id));
+    } catch (error) {
+      console.error(`[driver/page] handleDeleteFavorite - id: ${favorite.id}`, error);
+    }
   }, [user?.id]);
 
   if (user?.id !== routeId || user?.role.toString().toLowerCase() !== "driver") {

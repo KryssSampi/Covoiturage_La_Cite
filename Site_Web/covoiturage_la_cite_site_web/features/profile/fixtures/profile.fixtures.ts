@@ -20,7 +20,7 @@ export const mockDriverProfile: DriverProfilePublic = {
   averageRating: 4.8,
   totalTripsAsDriver: 142,
   co2SavedKg: 1600,
-  vehiclePhotoUrl: "/img/avantages/ecologie.png",
+  vehiclePhotoUrl: "/assets/placeholder/no-car-image.jpg",
   vehicleMake: "Renault",
   vehicleModel: "Captur",
   vehicleYear: 2021,
@@ -98,7 +98,7 @@ export const mockUserPublic: UserPublic = {
   firstName: "Julien",
   lastName: "Moreau",
   avatarUrl: "/assets/placeholder/placeholer-profile-picture.png",
-  bio: "Conducteur passionné et éco-responsable depuis 2018. J'aime partager des trajets et rencontrer de nouvelles personnes. Ponctuel et véhicule propre ! 🚗🌿",
+  bio: "Conducteur passionné et éco-responsable depuis 2018. J'aime partager des trajets et rencontrer de nouvelles personnes. Ponctuel et véhicule propre !",
   isProfileVerified: true,
   canBeDriver: true,
   schoolRole: "etudiant",
@@ -136,7 +136,7 @@ export const mockMeData: MeData = {
   lastName: "Moreau",
   phone: "+1 613 555 0100",
   avatarUrl: "/assets/placeholder/placeholer-profile-picture.png",
-  bio: "Conducteur passionné et éco-responsable depuis 2018. J'aime partager des trajets et rencontrer de nouvelles personnes. Ponctuel et véhicule propre ! 🚗",
+  bio: "Conducteur passionné et éco-responsable depuis 2018. J'aime partager des trajets et rencontrer de nouvelles personnes. Ponctuel et véhicule propre !",
   language: "fr",
   languagesSpoken: ["FR", "EN"],
   schoolRole: "etudiant",
@@ -154,8 +154,8 @@ export interface Badge {
 }
 
 export const mockBadges: Badge[] = [
-  { id: "1", name: "Conducteur Expert", icon: "👨‍️", color: "bg-blue-100" },
-  { id: "2", name: "Ponctuel", icon: "⏰", color: "bg-green-100" },
-  { id: "3", name: "Eco-Friendly", icon: "🌿", color: "bg-emerald-100" },
-  { id: "4", name: "Ambiance Sympa", icon: "😊", color: "bg-yellow-100" },
+  { id: "1", name: "Conducteur Expert", icon: "FaCar", color: "bg-blue-100" },
+  { id: "2", name: "Ponctuel", icon: "FaClock", color: "bg-green-100" },
+  { id: "3", name: "Eco-Friendly", icon: "FaLeaf", color: "bg-emerald-100" },
+  { id: "4", name: "Ambiance Sympa", icon: "FaFaceSmile", color: "bg-yellow-100" },
 ];

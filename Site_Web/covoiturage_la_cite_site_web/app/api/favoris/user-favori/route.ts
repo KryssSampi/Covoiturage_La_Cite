@@ -12,6 +12,7 @@ export async function POST(req: Request) {
     const { affinite, created } = setUserFavori(userId, targetUserId);
     return NextResponse.json(affinite, { status: created ? 201 : 200 });
   } catch {
+    console.error('[API] POST /api/favoris/user-favori — erreur');
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -32,6 +33,7 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch {
+    console.error('[API] DELETE /api/favoris/user-favori — erreur');
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

@@ -8,6 +8,7 @@
 import { NextResponse } from "next/server";
 import { FinanceService } from "@/server/services/FinanceService";
 import { withAuth } from "@/server/auth";
+import { persistenceManager } from '@/tests/PersistenceManager';
 import type {
   DriverFinanceSummaryDto,
   PassengerFinanceSummaryDto,
@@ -154,22 +155,43 @@ export async function GET(req: Request) {
       ? buildTrend("down", `${penalitesActives.length} pénalité(s) active(s)`, "Prévenez vos passagers pour éviter les pénalités.")
       : buildTrend("up", "Aucune pénalité active", "Excellent comportement !");
 
+    // ── Construire histogramme simple (group by date)
+    const histogramMap: Record<string, number> = {};
+    for (const tx of transactions) {
+      const d = new Date(tx.date).toISOString().slice(0, 10);
+      histogramMap[d] = (histogramMap[d] || 0) + 1;
+    }
+    const histogramme = Object.keys(histogramMap).sort().map((date) => ({ date, value: histogramMap[date] }));
+
+    // ── Scatter gain par heure (sommes par heure)
+    const hourMap: Record<string, number> = {};
+    for (const tx of transactions) {
+      const h = String(new Date(tx.date).getHours()).padStart(2, '0');
+      hourMap[h] = (hourMap[h] || 0) + tx.montant;
+    }
+    const scatterGainParHeure = Object.keys(hourMap).sort().map((hour) => ({ hour, montant: hourMap[hour] }));
+
+    // ── Bank accounts (lire depuis persistenceManager si présent)
+    const allAccounts = persistenceManager.readAll<any>('bank_accounts') || [];
+    const bankAccounts = allAccounts.filter((a: any) => a.userId === (auth?.userId ?? ''));
+
     // ── Réponse ───────────────────────────────────────────────────────────
     return NextResponse.json({
-      userId: "",
+      userId: auth?.userId ?? "",
       role,
       periode,
       transactions,
-      histogramme: [],
+      histogramme,
       tendances: {
         solde: tendanceSolde,
         histogramme: buildTrend("stable", "Données via Server Core", ""),
         transactions: tendanceTransactions,
-        penalites: tendancePenalites,
+        penalites: tendancePenalite,
       },
-      bankAccounts: [],
+      bankAccounts,
       driver: driverData,
       passenger: passengerData,
+      scatterGainParHeure,
     });
   } catch (error) {
     console.error("[API] GET /api/finances — erreur :", error);

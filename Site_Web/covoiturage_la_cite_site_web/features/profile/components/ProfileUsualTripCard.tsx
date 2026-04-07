@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FaArrowRight, FaBell, FaCheck } from "react-icons/fa6";
+import { Language, useAppState } from "@/core/state/app_state";
 
 export interface ProfileUsualTripCardProps {
   departure: string;
@@ -12,6 +13,21 @@ export interface ProfileUsualTripCardProps {
   subscribed?: boolean;
 }
 
+const ICON_COLOR = "#08316e";
+
+// ── Traductions ───────────────────────────────────────────────────────────────
+
+const translations = {
+  fr: {
+    subscribed: "Abonné",
+    subscribe: "S'abonner",
+  },
+  en: {
+    subscribed: "Subscribed",
+    subscribe: "Subscribe",
+  },
+};
+
 export function ProfileUsualTripCard({
   departure,
   arrival,
@@ -20,10 +36,13 @@ export function ProfileUsualTripCard({
   onSubscribe,
   subscribed: externalSubscribed,
 }: ProfileUsualTripCardProps) {
+  const { lang } = useAppState();
+  const isFR = lang === Language.FR;
+  const t = isFR ? translations.fr : translations.en;
+
   const [internalSubscribed, setInternalSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Utiliser la prop externe si fournie, sinon l'état interne
   const subscribed = externalSubscribed ?? internalSubscribed;
 
   const handleSubscribe = async () => {
@@ -40,32 +59,32 @@ export function ProfileUsualTripCard({
   };
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
-      <div className="flex min-w-0 items-center gap-2 text-sm font-medium text-gray-800">
+    <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white px-6 py-5 shadow-sm min-h-20">
+      <div className="flex min-w-0 items-center gap-3 text-base font-medium text-gray-800">
         <span className="truncate">{departure}</span>
-        <FaArrowRight className="shrink-0 text-gray-400" size={11} />
+        <FaArrowRight className="shrink-0" size={14} style={{ color: ICON_COLOR }} />
         <span className="truncate">{arrival}</span>
       </div>
 
       <button
         onClick={handleSubscribe}
         disabled={subscribed || loading}
-        className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
+        className={`flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all ${
           subscribed
             ? "bg-green-100 text-green-700 cursor-default"
             : "bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
         }`}
-        aria-label={subscribed ? "Abonné" : `S'abonner aux trajets ${departure} → ${arrival} de ${driverName}`}
+        aria-label={subscribed ? t.subscribed : `${t.subscribe} ${departure} → ${arrival} ${driverName}`}
       >
         {subscribed ? (
           <>
-            <FaCheck size={10} /> Abonné
+            <FaCheck size={12} /> {t.subscribed}
           </>
         ) : loading ? (
-          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
         ) : (
           <>
-            <FaBell size={10} /> S&apos;abonner
+            <FaBell size={12} /> {t.subscribe}
           </>
         )}
       </button>
