@@ -1359,15 +1359,271 @@
     "id": "ACT-2026-50111",
     "userId": "b541dbde-ccb9-4c12-8a57-0d531d9268c8",
     "accountCreatedAt": "2026-04-05T03:40:36.098Z",
-    "lastSeenAt": "2026-04-06T02:48:39.962Z",
+    "lastSeenAt": "2026-04-07T00:07:17.201Z",
     "isCurrentlyConnectedOnWeb": true,
     "isCurrentlyConnectedOnMobile": false,
     "connectionHistory": [
       {
         "type": "web",
-        "connectedAt": "2026-04-06T02:48:39.962Z",
+        "connectedAt": "2026-04-07T00:07:17.201Z",
         "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
         "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T23:59:54.469Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T22:38:08.720Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T23:59:41.446Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T22:28:55.591Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T22:37:44.709Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T22:15:01.099Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T22:28:42.284Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T21:10:00.887Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T22:14:53.593Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T20:56:22.286Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T21:09:27.671Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T19:22:27.444Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T20:56:11.027Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T19:11:15.870Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T19:22:06.685Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T18:04:45.469Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T19:11:09.370Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T18:02:58.370Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T18:03:01.551Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T17:22:02.183Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T18:02:42.166Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T16:51:43.363Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T17:21:48.411Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T16:29:08.340Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T16:51:19.587Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T16:27:56.462Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T16:27:58.328Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T16:06:21.505Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T16:27:32.015Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T16:06:21.433Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T16:06:21.464Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T15:50:11.470Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T15:56:18.503Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T14:54:59.253Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T15:49:30.168Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T14:54:41.445Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T14:54:53.467Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T14:50:33.686Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T14:54:32.372Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T14:09:06.765Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T14:49:54.961Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T14:08:30.308Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T14:08:31.957Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T14:06:54.935Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T14:06:57.062Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T13:30:02.120Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T14:06:10.574Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T13:29:42.760Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T13:29:50.076Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T05:47:42.896Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T05:14:20.809Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T05:45:02.324Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T04:58:05.795Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T04:40:23.461Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T04:57:48.146Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T04:38:54.394Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T04:40:18.624Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T04:37:30.506Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T04:37:43.261Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T04:37:08.156Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T04:37:15.082Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T04:08:56.041Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T04:36:26.141Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T03:59:43.515Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T04:08:44.659Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T03:47:57.354Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T03:59:35.613Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T03:19:47.499Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T03:47:43.698Z"
+      },
+      {
+        "type": "web",
+        "connectedAt": "2026-04-06T02:48:39.962Z",
+        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "role": "passenger",
+        "disconnectedAt": "2026-04-06T03:19:41.955Z"
       },
       {
         "type": "web",
@@ -1451,71 +1707,8 @@
         "connectedAt": "2026-04-05T19:02:00.142Z",
         "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
         "role": "passenger"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-04-05T18:58:34.268Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-04-05T19:00:13.022Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-04-05T18:58:34.078Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-04-05T18:58:34.244Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-04-05T05:55:32.563Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-04-05T05:55:51.442Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-04-05T05:55:29.360Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-04-05T05:55:29.622Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-04-05T04:22:21.767Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-04-05T04:22:26.191Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-04-05T04:22:20.595Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-04-05T04:22:21.703Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-04-05T03:41:31.439Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-04-05T03:41:34.216Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-04-05T03:40:41.886Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-04-05T03:40:45.389Z"
-      },
-      {
-        "type": "web",
-        "connectedAt": "2026-04-05T03:40:37.238Z",
-        "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
-        "role": "passenger",
-        "disconnectedAt": "2026-04-05T03:40:39.490Z"
       }
     ],
-    "updatedAt": "2026-04-06T02:48:39.967Z"
+    "updatedAt": "2026-04-07T00:07:17.250Z"
   }
 ]

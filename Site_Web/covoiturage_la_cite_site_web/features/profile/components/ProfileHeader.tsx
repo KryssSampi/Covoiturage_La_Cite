@@ -11,6 +11,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { FaChevronDown, FaUser, FaGear } from "react-icons/fa6";
+import { Language, useAppState } from "@/core/state/app_state";
 
 interface ProfileHeaderProps {
   avatarUrl?: string;
@@ -20,6 +21,20 @@ interface ProfileHeaderProps {
 }
 
 const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
+const ICON_COLOR = "#08316e";
+
+// ── Traductions ───────────────────────────────────────────────────────────────
+
+const translations = {
+  fr: {
+    profile: "Profil",
+    settings: "Paramètres",
+  },
+  en: {
+    profile: "Profile",
+    settings: "Settings",
+  },
+};
 
 export function ProfileHeader({
   avatarUrl,
@@ -28,6 +43,10 @@ export function ProfileHeader({
   isOwnProfile,
 }: ProfileHeaderProps) {
   const router = useRouter();
+  const { lang } = useAppState();
+  const isFR = lang === Language.FR;
+  const t = isFR ? translations.fr : translations.en;
+
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -71,7 +90,7 @@ export function ProfileHeader({
               }}
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-blue-600">
+            <div className="flex h-full w-full items-center justify-center text-2xl font-bold" style={{ color: ICON_COLOR }}>
               {initials || "?"}
             </div>
           )}
@@ -92,10 +111,11 @@ export function ProfileHeader({
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-all hover:bg-white/30"
               >
-                <FaUser size={14} />
+                <FaUser size={14} style={{ color: ICON_COLOR }} />
                 <FaChevronDown
                   size={12}
                   className={`transition-transform ${menuOpen ? "rotate-180" : ""}`}
+                  style={{ color: ICON_COLOR }}
                 />
               </button>
 
@@ -106,15 +126,15 @@ export function ProfileHeader({
                     onClick={() => handleNavigate("profile")}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
                   >
-                    <FaUser size={14} className="text-blue-600" />
-                    <span>Profil</span>
+                    <FaUser size={14} style={{ color: ICON_COLOR }} />
+                    <span>{t.profile}</span>
                   </button>
                   <button
                     onClick={() => handleNavigate("settings")}
                     className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-50"
                   >
-                    <FaGear size={14} className="text-blue-600" />
-                    <span>Paramètres</span>
+                    <FaGear size={14} style={{ color: ICON_COLOR }} />
+                    <span>{t.settings}</span>
                   </button>
                 </div>
               )}

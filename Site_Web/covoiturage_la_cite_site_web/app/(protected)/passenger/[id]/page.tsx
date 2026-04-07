@@ -32,9 +32,6 @@ import type {
 } from "@/features/dashboard/types";
 import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
 import { getLieuFavoriIcon } from "@/shared/utils/lieu-favori-icon";
-import { FIXTURE_GO_TASKS } from "@/tests/fixtures/dashboard/goboard.fixtures";
-import { LACITE_TIPS } from "@/tests/fixtures/dashboard/lacite_astuces.fixtures";
-import { FIXTURE_LIEUX_FAVORIS } from "@/shared/fixtures/favoris.fixtures";
 
 interface PassengerDashboardData {
   reservations: Reservation[];
@@ -58,11 +55,12 @@ export default function PassengerDashboardPage() {
   const user = appState.userConnected;
   const { setActiveLoader } = useLoader();
   const routeId = typeof params.id === "string" ? params.id : params.id?.[0];
+  const userId = user?.id ?? "";
 
   const [dashData, setDashData] = useState<PassengerDashboardData | null>(null);
-  const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>(FIXTURE_LIEUX_FAVORIS);
-  const [tips, setTips] = useState<Tip[]>(LACITE_TIPS);
-  const [goTasks, setGoTasks] = useState<GoTask[]>(FIXTURE_GO_TASKS);
+  const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>([]);
+  const [tips, setTips] = useState<Tip[]>([]);
+  const [goTasks, setGoTasks] = useState<GoTask[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -93,24 +91,26 @@ export default function PassengerDashboardPage() {
 
       if (dashboardRes.ok) {
         setDashData(await dashboardRes.json());
+      } else {
+        console.error("[passenger/page] loadPassengerData - dashboardRes", dashboardRes.status, dashboardRes.statusText);
       }
       if (favoritesRes.ok) {
         const payload = await favoritesRes.json();
-        if (Array.isArray(payload)) {
-          setFavorites(payload);
-        }
+        setFavorites(Array.isArray(payload) ? payload : []);
+      } else {
+        console.error("[passenger/page] loadPassengerData - favoritesRes", favoritesRes.status, favoritesRes.statusText);
       }
       if (astucesRes.ok) {
         const payload = await astucesRes.json();
-        if (Array.isArray(payload) && payload.length > 0) {
-          setTips(payload);
-        }
+        setTips(Array.isArray(payload) ? payload : []);
+      } else {
+        console.error("[passenger/page] loadPassengerData - astucesRes", astucesRes.status, astucesRes.statusText);
       }
       if (goTasksRes.ok) {
         const payload = await goTasksRes.json();
-        if (Array.isArray(payload) && payload.length > 0) {
-          setGoTasks(payload);
-        }
+        setGoTasks(Array.isArray(payload) ? payload : []);
+      } else {
+        console.error("[passenger/page] loadPassengerData - goTasksRes", goTasksRes.status, goTasksRes.statusText);
       }
     } catch (error) {
       console.error("[passenger/page] loadPassengerData", error);
@@ -133,40 +133,56 @@ export default function PassengerDashboardPage() {
     try {
       const res = await fetch(`/api/reservations/${encodeURIComponent(reservationId)}/cancel`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-caller-id": `${user?.id}` },
+        headers: { "Content-Type": "application/json", "x-caller-id": userId },
         body: JSON.stringify({ raison }),
       });
-      if (!res.ok) return false;
+      if (!res.ok) {
+        console.error(`[passenger/page] handleCancelReservation - reservationId: ${reservationId} - response not ok`, res.status, res.statusText);
+        return false;
+      }
       await loadPassengerData();
       return true;
-    } catch {
+    } catch (error) {
+      console.error(`[passenger/page] handleCancelReservation - reservationId: ${reservationId}`, error);
       return false;
     }
-  }, [loadPassengerData, user]);
+  }, [loadPassengerData, userId]);
 
   const handleStartReservation = useCallback(async (reservationId: string) => {
     try {
       const res = await fetch(`/api/reservations/${encodeURIComponent(reservationId)}/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" 
-          , "x-caller-id": `${user?.id}`
+          , "x-caller-id": userId
         },
       });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        console.error(`[passenger/page] handleStartReservation - reservationId: ${reservationId} - response not ok`, res.status, res.statusText);
+        return null;
+      }
       const payload = await res.json();
       await loadPassengerData();
       return typeof payload.tripId === "string" ? payload.tripId : null;
-    } catch {
+    } catch (error) {
+      console.error(`[passenger/page] handleStartReservation - reservationId: ${reservationId}`, error);
       return null;
     }
-  }, [loadPassengerData, user]);
+  }, [loadPassengerData, userId]);
 
   const handleDeleteFavorite = useCallback(async (favorite: LieuFavoriUnifie) => {
-    await fetch(`/api/lieux-favoris?id=${favorite.id}&userId=${user?.id}`, {
-      method: "DELETE",
-    });
-    setFavorites((prev) => prev.filter((item) => item.id !== favorite.id));
-  }, [user?.id]);
+    try {
+      const res = await fetch(`/api/lieux-favoris?id=${favorite.id}&userId=${userId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        console.error(`[passenger/page] handleDeleteFavorite - id: ${favorite.id} - response not ok`, res.status, res.statusText);
+        return;
+      }
+      setFavorites((prev) => prev.filter((item) => item.id !== favorite.id));
+    } catch (error) {
+      console.error(`[passenger/page] handleDeleteFavorite - id: ${favorite.id}`, error);
+    }
+  }, [userId]);
 
   if (user?.id !== routeId || user?.role.toString().toLowerCase() !== "passenger") {
     return null;

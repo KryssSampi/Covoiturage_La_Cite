@@ -196,11 +196,19 @@ export default function PlannerPage() {
         body: JSON.stringify({ raison }),
       });
 
-      if (!response.ok) return false;
+      if (!response.ok) {
+        console.error(
+          `[passenger/planifier] handleCancelReservation - reservationId: ${reservationId} - response not ok`,
+          response.status,
+          response.statusText,
+        );
+        return false;
+      }
 
       await Promise.all([refreshReservations(), refreshTrips()]);
       return true;
-    } catch {
+    } catch (error) {
+      console.error(`[passenger/planifier] handleCancelReservation - reservationId: ${reservationId}`, error);
       return false;
     }
   }, [refreshReservations, refreshTrips, userConnected]);
@@ -214,12 +222,20 @@ export default function PlannerPage() {
         },
       });
 
-      if (!response.ok) return null;
+      if (!response.ok) {
+        console.error(
+          `[passenger/planifier] handleStartReservation - reservationId: ${reservationId} - response not ok`,
+          response.status,
+          response.statusText,
+        );
+        return null;
+      }
 
       const payload = await response.json();
       await Promise.all([refreshReservations(), refreshTrips()]);
       return typeof payload.tripId === "string" ? payload.tripId : null;
-    } catch {
+    } catch (error) {
+      console.error(`[passenger/planifier] handleStartReservation - reservationId: ${reservationId}`, error);
       return null;
     }
   }, [refreshReservations, refreshTrips, userConnected]);
@@ -227,18 +243,35 @@ export default function PlannerPage() {
   const handleSaveIndisponibilities = useCallback(async (dates: IndisponibilityDateRange[]) => {
     if (!userConnected?.id) return;
 
-    await fetch(`/api/indisponibilities/${encodeURIComponent(userConnected.id)}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dates }),
-    });
+    try {
+      const response = await fetch(`/api/indisponibilities/${encodeURIComponent(userConnected.id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dates }),
+      });
 
-    await refreshIndisponibilities();
+      if (!response.ok) {
+        console.error(
+          `[passenger/planifier] handleSaveIndisponibilities - userId: ${userConnected.id} - response not ok`,
+          response.status,
+          response.statusText,
+        );
+        return;
+      }
+
+      await refreshIndisponibilities();
+    } catch (error) {
+      console.error(`[passenger/planifier] handleSaveIndisponibilities - userId: ${userConnected.id}`, error);
+    }
   }, [refreshIndisponibilities, userConnected]);
 
   // Rafraîchit trips + réservations depuis la page (respecte la règle : aucun composant ne fetch)
   const handleRefresh = useCallback(async () => {
-    await Promise.all([refreshTrips(), refreshReservations()]);
+    try {
+      await Promise.all([refreshTrips(), refreshReservations()]);
+    } catch (error) {
+      console.error("[passenger/planifier] handleRefresh", error);
+    }
   }, [refreshTrips, refreshReservations]);
 
   if (userConnected?.id !== routeId || userRole !== "passenger") {

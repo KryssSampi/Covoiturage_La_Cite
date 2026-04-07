@@ -7,7 +7,8 @@
 "use client";
 
 import Image from "next/image";
-import { FaUser, FaGear, FaRightFromBracket } from "react-icons/fa6";
+import { FaUser, FaGear, FaRightFromBracket, FaIdBadge } from "react-icons/fa6";
+import { Language, useAppState } from "@/core/state/app_state";
 import type { MeData, SettingsTab } from "../types/profile.types";
 
 interface SettingsSidebarProps {
@@ -18,16 +19,44 @@ interface SettingsSidebarProps {
 }
 
 const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
+const ICON_COLOR = "#08316e";
 
-function schoolRoleLabel(role: string): string {
-  const map: Record<string, string> = {
+function schoolRoleLabel(role: string, isFR: boolean): string {
+  const mapFR: Record<string, string> = {
     etudiant: "Étudiant",
     professeur: "Professeur",
     membredupersonnel: "Membre du personnel",
     administrateur: "Administrateur",
   };
-  return map[role?.toLowerCase()] ?? role;
+  const mapEN: Record<string, string> = {
+    etudiant: "Student",
+    professeur: "Professor",
+    membredupersonnel: "Staff Member",
+    administrateur: "Administrator",
+  };
+  return (isFR ? mapFR : mapEN)[role?.toLowerCase()] ?? role;
 }
+
+// ── Traductions ───────────────────────────────────────────────────────────────
+
+const translations = {
+  fr: {
+    profileSummary: "Résumé du profil",
+    myBio: "Ma Bio",
+    profileConfig: "Configuration du profil",
+    settings: "Paramètres",
+    logout: "Déconnexion",
+    atLaCite: "à La Cité",
+  },
+  en: {
+    profileSummary: "Profile Summary",
+    myBio: "My Bio",
+    profileConfig: "Profile Configuration",
+    settings: "Settings",
+    logout: "Logout",
+    atLaCite: "at La Cité",
+  },
+};
 
 export function SettingsSidebar({
   user,
@@ -35,6 +64,10 @@ export function SettingsSidebar({
   onNavigate,
   onLogout,
 }: SettingsSidebarProps) {
+  const { lang } = useAppState();
+  const isFR = lang === Language.FR;
+  const t = isFR ? translations.fr : translations.en;
+
   const initials = `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase();
 
   return (
@@ -55,7 +88,7 @@ export function SettingsSidebar({
                 }}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-lg font-bold text-blue-600">
+              <div className="flex h-full w-full items-center justify-center text-lg font-bold" style={{ color: ICON_COLOR }}>
                 {initials || "?"}
               </div>
             )}
@@ -65,7 +98,7 @@ export function SettingsSidebar({
               {user.firstName} {user.lastName}
             </h3>
             <p className="text-xs text-gray-500">
-              {schoolRoleLabel(user.schoolRole)} à La Cité
+              {schoolRoleLabel(user.schoolRole, isFR)} {t.atLaCite}
             </p>
           </div>
         </div>
@@ -74,7 +107,7 @@ export function SettingsSidebar({
         {user.bio && (
           <div className="rounded-xl bg-gray-50 p-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-1">
-              Ma Bio
+              {t.myBio}
             </p>
             <p className="text-sm leading-relaxed text-gray-600 line-clamp-3">
               {user.bio}
@@ -93,8 +126,8 @@ export function SettingsSidebar({
               : "text-gray-600 hover:bg-gray-50"
           }`}
         >
-          <FaUser size={16} />
-          Configuration du profil
+          <FaUser size={16} style={{ color: ICON_COLOR }} />
+          {t.profileConfig}
         </button>
         <button
           onClick={() => onNavigate("settings")}
@@ -104,8 +137,8 @@ export function SettingsSidebar({
               : "text-gray-600 hover:bg-gray-50"
           }`}
         >
-          <FaGear size={16} />
-          Paramètres
+          <FaGear size={16} style={{ color: ICON_COLOR }} />
+          {t.settings}
         </button>
       </nav>
 
@@ -115,7 +148,7 @@ export function SettingsSidebar({
         className="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 py-3 text-sm font-semibold text-white transition-all hover:bg-red-700 active:scale-95"
       >
         <FaRightFromBracket size={14} />
-        Déconnexion
+        {t.logout}
       </button>
     </aside>
   );

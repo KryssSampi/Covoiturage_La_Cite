@@ -12,6 +12,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(buildFavorisResponse(userId));
   } catch {
+    console.error('[API] GET /api/favoris — erreur');
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

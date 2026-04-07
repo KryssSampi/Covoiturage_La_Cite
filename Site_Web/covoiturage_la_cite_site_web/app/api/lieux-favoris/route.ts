@@ -17,6 +17,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(queryLieuxFavoris(userId));
   } catch {
+    console.error('[API] GET /api/lieux-favoris — erreur');
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(saveLieuFavori(body), { status: 201 });
   } catch {
+    console.error('[API] POST /api/lieux-favoris — erreur');
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -47,6 +49,7 @@ export async function DELETE(req: Request) {
     deleteLieuFavori(id, userId);
     return NextResponse.json({ success: true });
   } catch {
+    console.error('[API] DELETE /api/lieux-favoris — erreur');
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

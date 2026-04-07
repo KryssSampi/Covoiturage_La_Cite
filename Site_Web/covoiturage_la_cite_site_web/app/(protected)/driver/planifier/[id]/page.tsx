@@ -160,7 +160,9 @@ export default function PlannerPage() {
   useEffect(() => {
     if (!newTripId || !userConnected?.id) return;
 
-    void Promise.all([refreshTrips(), refreshReservations()]);
+    void Promise.all([refreshTrips(), refreshReservations()]).catch((error) => {
+      console.error("[driver/planifier] refresh after newTripId", error);
+    });
   }, [newTripId, refreshReservations, refreshTrips, userConnected?.id]);
 
   const plannerRides = useMemo<PublishedTrip[]>(() => {
@@ -188,11 +190,15 @@ export default function PlannerPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "start" }),
       });
-      if (res.ok) {
-        await Promise.all([refreshTrips(), refreshReservations()]);
-        router.push(`/trajet-en-cours/${tripId}`);
+      if (!res.ok) {
+        console.error(`[driver/planifier] handleStartTrip - tripId: ${tripId} - response not ok`, res.status, res.statusText);
+        return;
       }
-    } catch { /* silencieux */ }
+      await Promise.all([refreshTrips(), refreshReservations()]);
+      router.push(`/trajet-en-cours/${tripId}`);
+    } catch (error) {
+      console.error(`[driver/planifier] handleStartTrip - tripId: ${tripId}`, error);
+    }
   }, [refreshTrips, refreshReservations, router]);
 
   const handleCancelTrip = useCallback(async (tripId: string) => {
@@ -203,30 +209,51 @@ export default function PlannerPage() {
         body: JSON.stringify({ action: "cancel" }),
       });
 
-      if (!response.ok) return false;
+      if (!response.ok) {
+        console.error(`[driver/planifier] handleCancelTrip - tripId: ${tripId} - response not ok`, response.status, response.statusText);
+        return false;
+      }
 
       await Promise.all([refreshTrips(), refreshReservations()]);
       return true;
-    } catch {
+    } catch (error) {
+      console.error(`[driver/planifier] handleCancelTrip - tripId: ${tripId}`, error);
       return false;
     }
   }, [refreshReservations, refreshTrips]);
 
   const handleRefresh = useCallback(async () => {
-    await Promise.all([refreshTrips(), refreshReservations()]);
+    try {
+      await Promise.all([refreshTrips(), refreshReservations()]);
+    } catch (error) {
+      console.error("[driver/planifier] handleRefresh", error);
+    }
   }, [refreshTrips, refreshReservations]);
 
   // Gère la sauvegarde des périodes d'indisponibilité du conducteur
   const handleSaveIndisponibilities = useCallback(async (dates: IndisponibilityDateRange[]) => {
     if (!userConnected?.id) return;
 
-    await fetch(`/api/indisponibilities/${encodeURIComponent(userConnected.id)}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dates }),
-    });
+    try {
+      const response = await fetch(`/api/indisponibilities/${encodeURIComponent(userConnected.id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dates }),
+      });
 
-    await refreshIndisponibilities();
+      if (!response.ok) {
+        console.error(
+          `[driver/planifier] handleSaveIndisponibilities - userId: ${userConnected.id} - response not ok`,
+          response.status,
+          response.statusText,
+        );
+        return;
+      }
+
+      await refreshIndisponibilities();
+    } catch (error) {
+      console.error(`[driver/planifier] handleSaveIndisponibilities - userId: ${userConnected.id}`, error);
+    }
   }, [refreshIndisponibilities, userConnected]);
 
   if (userConnected?.id !== routeId || userRole !== "driver") {
