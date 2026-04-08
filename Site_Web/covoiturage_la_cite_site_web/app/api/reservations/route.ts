@@ -17,7 +17,8 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json(result.data?.items ?? []);
-  } catch {
+  } catch (err) {
+    console.error('[api/reservations]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -34,7 +35,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(result.data, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error('[api/reservations]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

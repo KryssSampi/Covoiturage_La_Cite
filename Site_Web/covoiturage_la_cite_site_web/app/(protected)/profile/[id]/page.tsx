@@ -1,17 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useParams } from "next/navigation";
 import { Language, useAppState } from "@/core/state/app_state";
 import { useProfileActions } from "@/features/profile/hooks/useProfileActions";
-import {
-  mockBadges,
-  mockPublishedTrips,
-  mockReviews,
-  mockUsualTrips,
-  mockUserPublic,
-} from "@/features/profile/fixtures/profile.fixtures";
 import type { Trip, Review } from "@/features/dashboard/types";
-import type { UsualTrip } from "@/features/profile/types/profile.types";
+import type { UsualTrip, UserPublic, DriverProfilePublic, PublicReview, PublicTrip } from "@/features/profile/types/profile.types";
 import {
   ProfileBanner,
   ProfileHeaderSection,
@@ -21,6 +15,7 @@ import {
   ProfileRecurringTripsSection,
   ProfilePublishedTripsSection,
 } from "@/features/profile/components/public-profile";
+import { Badge } from "@/features/profile/fixtures/profile.fixtures";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -38,7 +33,7 @@ function schoolRoleLabel(role: string, isFR: boolean): string {
     administrateur: "Administrator",
   };
   const map = isFR ? mapFR : mapEN;
-  return map[role?.toLowerCase()] ?? role;
+  return map[String(role ?? "").toLowerCase()] ?? role;
 }
 
 // ── Traductions ───────────────────────────────────────────────────────────────
@@ -70,6 +65,8 @@ const translations = {
     book: "Réserver",
     atlacite: "à La Cité",
     actually: "Actuellement",
+    loading: "Chargement...",
+    notFound: "Profil introuvable",
   },
   en: {
     profileSummary: "Profile Summary",
@@ -97,15 +94,14 @@ const translations = {
     book: "Book",
     atlacite: "at La Cité",
     actually: "Currently",
+    loading: "Loading...",
+    notFound: "Profile not found",
   },
 };
 
 // ── Convertir PublicTrip en Trip pour RecommendedTripCard ─────────────────────
 
-function toTripDto(
-  item: typeof mockPublishedTrips[0],
-  driverName: string
-): Trip {
+function toTripDto(item: PublicTrip, driverName: string): Trip {
   return {
     id: item.id,
     departure: item.departureLabel,
@@ -130,17 +126,58 @@ function toTripDto(
 
 export default function PublicProfilePage() {
   const { lang, userConnected } = useAppState();
+  const params = useParams();
+  const profileId = params?.id as string | undefined;
   const isFR = lang === Language.FR;
   const t = isFR ? translations.fr : translations.en;
 
+  const [profile, setProfile] = useState<UserPublic | null>(null);
+  const [reviews, setReviews] = useState<PublicReview[]>([]);
+  const [publishedTrips, setPublishedTrips] = useState<PublicTrip[]>([]);
+  const [usualTrips, setUsualTrips] = useState<UsualTrip[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [likeCount, setLikeCount] = useState(mockUserPublic.likesCount);
+  const [likeCount, setLikeCount] = useState(0);
 
-  const isSelf = userConnected?.id === mockUserPublic.id;
-  const profile = mockUserPublic;
-  const dp = profile.driverProfile;
-  const fullName = `${profile.firstName} ${profile.lastName}`;
+  // Fetch profile data
+  useEffect(() => {
+    if (!profileId) return;
+
+    (async () => {
+      try {
+        const [profileRes, reviewsRes] = await Promise.allSettled([
+          fetch(`/api/users/${profileId}/public`),
+          fetch(`/api/reviews?revieweeId=${profileId}`),
+        ]);
+
+        if (profileRes.status === 'fulfilled' && profileRes.value.ok) {
+          const data = await profileRes.value.json();
+          setProfile(data);
+          setLikeCount(data.likesCount ?? 0);
+          setIsLiked(data.isLikedByMe ?? false);
+          setIsFavorite(data.isFavorite ?? false);
+        }
+
+        if (reviewsRes.status === 'fulfilled' && reviewsRes.value.ok) {
+          const rows = await reviewsRes.value.json();
+          setReviews((rows as Array<{ reviewerName: string; reviewerId?: string; reviewerAvatar?: string; rating: number; comment?: string; createdAt: string }>).map((r, i) => ({
+            id: r.reviewerId ?? `review-${i}`,
+            reviewerName: r.reviewerName,
+            reviewerId: r.reviewerId,
+            reviewerAvatar: r.reviewerAvatar,
+            rating: r.rating,
+            comment: r.comment ?? "",
+            createdAt: r.createdAt,
+          })));
+        }
+      } catch (err) {
+        console.error('[profile/[id]] fetch data', err);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [profileId]);
 
   const handleLikeChange = (liked: boolean, count: number) => {
     setIsLiked(liked);
@@ -152,7 +189,7 @@ export default function PublicProfilePage() {
   };
 
   const { handleLike, handleFavorite, handleSubscribe } = useProfileActions({
-    targetUserId: profile.id,
+    targetUserId: profile?.id ?? '',
     isLiked,
     isFavorite,
     likeCount,
@@ -160,23 +197,37 @@ export default function PublicProfilePage() {
     onFavoriteChange: handleFavoriteChange,
   });
 
-  const dashboardReviews: Review[] = mockReviews.map((review, index) => ({
-    id: review.id ?? `review-${index}`,
-    reviewer: review.reviewerName,
-    reviewerId: review.reviewerId ?? "",
-    revieweeId: profile.id,
-    reviewerpicture:
-      review.reviewerAvatar ??
-      "/assets/placeholder/placeholer-profile-picture.png",
-    rating: review.rating,
-    date: review.createdAt,
-    comment: review.comment ?? "",
-    tags: [],
-    tripId: null,
-    createdAt: review.createdAt,
-  }));
+  const fullName = profile ? `${profile.firstName} ${profile.lastName}` : '';
+  const isSelf = userConnected?.id === profile?.id;
 
-  const tripDtos = mockPublishedTrips.map((item) => toTripDto(item, fullName));
+  const dashboardReviews: Review[] = useMemo(() =>
+    reviews.map((review, index) => ({
+      id: review.id ?? `review-${index}`,
+      reviewer: review.reviewerName,
+      reviewerId: review.reviewerId ?? "",
+      revieweeId: profile?.id ?? "",
+      reviewerpicture: review.reviewerAvatar ?? "/assets/placeholder/placeholer-profile-picture.png",
+      rating: review.rating,
+      date: review.createdAt,
+      comment: review.comment ?? "",
+      tags: [],
+      tripId: null,
+      createdAt: review.createdAt,
+    })), [reviews, profile?.id]);
+
+  const tripDtos = useMemo(() =>
+    publishedTrips.map((item) => toTripDto(item, fullName)),
+    [publishedTrips, fullName]);
+
+  if (isLoading) {
+    return <div className="mx-auto w-7xl px-4 py-6 text-center text-gray-500">{t.loading}</div>;
+  }
+
+  if (!profile) {
+    return <div className="mx-auto w-7xl px-4 py-6 text-center text-gray-500">{t.notFound}</div>;
+  }
+
+  const dp = profile.driverProfile;
 
   return (
     <main className="mx-auto w-7xl px-4 py-6 text-gray-800">
@@ -205,7 +256,7 @@ export default function PublicProfilePage() {
 
       <ProfileBadgesSection
         badgesLabel={t.badges}
-        badges={mockBadges}
+        badges={[] as Badge[]}
         languagesLabel={t.languages}
         frenchLabel={t.french}
         englishLabel={t.english}
@@ -237,7 +288,7 @@ export default function PublicProfilePage() {
         />
         <ProfileRecurringTripsSection
           recurringTripsLabel={t.recurringTrips}
-          trips={mockUsualTrips}
+          trips={usualTrips}
           driverId={profile.id}
           driverName={fullName}
           onSubscribe={(departure, arrival) =>

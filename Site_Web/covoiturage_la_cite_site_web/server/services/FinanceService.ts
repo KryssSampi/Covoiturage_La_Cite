@@ -78,6 +78,16 @@ export interface ContestPenaltyRequest {
   reason: string;
 }
 
+export interface BankAccountResponseDto {
+  id: string;
+  userId: string;
+  accountType: string;
+  institutionName: string;
+  maskedAccountNumber: string;
+  isDefault: boolean;
+  createdAt: string;
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export const FinanceService = {
@@ -138,5 +148,10 @@ export const FinanceService = {
   /** Liste des retraits */
   async getWithdrawals(options?: RequestOptions): Promise<ApiResponse<WithdrawalResponseDto[]>> {
     return get<WithdrawalResponseDto[]>('api/finances/withdrawals', options);
+  },
+
+  /** Comptes bancaires enregistrés */
+  async getBankAccounts(options?: RequestOptions): Promise<ApiResponse<BankAccountResponseDto[]>> {
+    return get<BankAccountResponseDto[]>('api/finances/bank-accounts', options);
   },
 };

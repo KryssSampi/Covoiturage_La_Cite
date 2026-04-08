@@ -265,7 +265,7 @@ public class AuthSessionController : ControllerBase
                 Expires = blocked.BlockedUntil,
             });
 
-            return StatusCode(429, ApiResponse<BlockedResponse>.Fail("Session bloquée.", new[] { $"Réessayez dans {blocked.RemainingSeconds} secondes." }));
+            return StatusCode(429, ApiResponse.Fail("Session bloquée.", new[] { $"Réessayez dans {blocked.RemainingSeconds} secondes." }));
         }
 
         return StatusCode(429, ApiResponse.Fail("Session bloquée."));

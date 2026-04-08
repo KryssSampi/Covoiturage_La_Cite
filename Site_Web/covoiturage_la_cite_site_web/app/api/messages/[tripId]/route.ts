@@ -16,7 +16,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ tripId: 
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
     return NextResponse.json(result.data ?? []);
-  } catch {
+  } catch (err) {
+    console.error('[api/messages/[tripId]]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

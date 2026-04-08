@@ -31,7 +31,8 @@ export async function PATCH(req: Request, { params }: Context) {
     }
 
     return NextResponse.json(result.data ?? { success: true });
-  } catch {
+  } catch (err) {
+    console.error('[api/trips/[id]/status]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

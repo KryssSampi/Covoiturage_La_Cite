@@ -42,7 +42,8 @@ export default function OtpStep({ auth, isFr }: { auth: ReturnType<typeof useAut
             setValidityRemaining(0);
           }
         }
-      } catch {
+      } catch (err) {
+        console.error("[OtpStep]", err);
         // ignore
       }
     }

@@ -29,7 +29,8 @@ export async function extractToken(req?: Request): Promise<string | null> {
   try {
     const cookieStore = await cookies();
     return cookieStore.get(TOKEN_COOKIE)?.value ?? null;
-  } catch {
+  } catch (err) {
+    console.error("[server/auth]", err);
     return null;
   }
 }
@@ -113,7 +114,8 @@ export async function getAuthSessionKey(): Promise<string | null> {
   try {
     const cookieStore = await cookies();
     return cookieStore.get(AUTH_SESSION_COOKIE)?.value ?? null;
-  } catch {
+  } catch (err) {
+    console.error("[server/auth]", err);
     return null;
   }
 }

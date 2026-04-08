@@ -11,7 +11,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
     return NextResponse.json(result.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/vehicles]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -28,7 +29,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(result.data, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error('[api/vehicles]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

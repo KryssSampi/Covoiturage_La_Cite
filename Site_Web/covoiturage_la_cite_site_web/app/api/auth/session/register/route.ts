@@ -50,7 +50,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ error: 'Réponse inattendue du serveur.' }, { status: 500 });
-  } catch {
+  } catch (err) {
+    console.error('[api/auth/session/register]', err);
     return NextResponse.json({ error: 'Erreur serveur.' }, { status: 500 });
   }
 }

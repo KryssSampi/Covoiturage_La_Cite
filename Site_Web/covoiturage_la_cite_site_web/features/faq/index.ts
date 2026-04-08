@@ -4,5 +4,4 @@ export { FAQAnswerPanel }  from './components/FAQAnswerPanel';
 export { FAQCategoryTabs } from './components/FAQCategoryTabs';
 export { FAQSearch }       from './components/FAQSearch';
 export { useFAQ }          from './hooks/useFAQ';
-export { FAQService }      from './services/faq.service';
 export type * from './types/faq.types';

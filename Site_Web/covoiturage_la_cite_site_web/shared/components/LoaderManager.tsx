@@ -13,17 +13,14 @@ export function LoaderManager() {
 
   useEffect(() => {
     if (previousPath.current !== pathname) {
-      // Activation
-      setActiveLoader(true);
+      previousPath.current = pathname;
 
-      // Minimum visible time
+      // Filet de sécurité : désactive le loader si la page destination
+      // oublie d'appeler setActiveLoader(false). N'active JAMAIS le loader.
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
       timeoutRef.current = setTimeout(() => {
         setActiveLoader(false);
-      }, 4000);
-
-      previousPath.current = pathname;
+      }, 1200);
     }
   }, [pathname, setActiveLoader]);
 

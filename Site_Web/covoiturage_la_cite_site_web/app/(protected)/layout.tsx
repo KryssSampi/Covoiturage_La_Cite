@@ -3,9 +3,7 @@
 import { Footer } from "@/shared/components/footer";
 import { Header } from "@/shared/components/header";
 import { useLoader } from "@/core/context/loader.context";
-import { LoaderManager } from "@/shared/components/LoaderManager";
 import { useAppState } from "@/core/state/app_state";
-import { DbProvider } from "@/core/context/db.context";
 import { TripProvider } from "@/core/context/trip.context";
 import { useEffect, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -80,7 +78,6 @@ export default function RootLayout({
 
   return (
     <>
-      <LoaderManager />
       <NotificationAlert
         notification={current}
         isVisible={hasAlert}
@@ -88,13 +85,11 @@ export default function RootLayout({
         onDismiss={dismissCurrent}
         notificationsHref={userId && userRole ? `/${userRole}/notifications/${userId}` : undefined}
       />
-      <DbProvider>
-        <TripProvider>
-          <Header />
-          {children}
-          <Footer />
-        </TripProvider>
-      </DbProvider>
+      <TripProvider>
+        <Header />
+        {children}
+        <Footer />
+      </TripProvider>
     </>
   );
 }

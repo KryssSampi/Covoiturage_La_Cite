@@ -34,7 +34,7 @@ function schoolRoleLabel(role: string, isFR: boolean): string {
     membredupersonnel: "Staff Member",
     administrateur: "Administrator",
   };
-  return (isFR ? mapFR : mapEN)[role?.toLowerCase()] ?? role;
+  return (isFR ? mapFR : mapEN)[String(role ?? "").toLowerCase()] ?? role;
 }
 
 // ── Traductions ───────────────────────────────────────────────────────────────

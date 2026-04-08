@@ -1,8 +1,16 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { FaScaleBalanced, FaUserCheck, FaHandshake, FaBan, FaTriangleExclamation, FaCircleXmark, FaFileContract, FaCircleCheck, FaShieldHalved, FaGavel, FaClock, FaArrowRight } from 'react-icons/fa6';
+import { CONDITIONS_TRANSLATIONS, t } from '@/core/i18n/public-pages.translations';
+import { Language, useAppState } from '@/core/state/app_state';
 
 export default function ConditionsPage() {
+  const { lang } = useAppState();
+  const isFr = lang === Language.FR;
+  const tr = CONDITIONS_TRANSLATIONS;
+
   return (
     <main className="min-h-screen bg-white text-gray-900">
       {/* Hero */}
@@ -15,11 +23,10 @@ export default function ConditionsPage() {
             <FaScaleBalanced className="text-[#5E9FE9] text-3xl" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Conditions <span className="text-[#5E9FE9]">d&apos;utilisation</span>
+            {t(tr.condHeroTitleFr, tr.condHeroTitleEn, lang)}
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 leading-8">
-            En utilisant Covoiturage La Cité, vous acceptez les règles suivantes. Ces conditions visent
-            à garantir une expérience sûre, respectueuse et équitable pour toute la communauté.
+            {t(tr.condHeroSubtitleFr, tr.condHeroSubtitleEn, lang)}
           </p>
         </div>
       </section>
@@ -30,28 +37,17 @@ export default function ConditionsPage() {
           {/* Règle 1 */}
           <article className="flex gap-6 rounded-2xl border border-gray-200 bg-white p-7 shadow-xl hover:bg-gray-50 transition-all duration-300">
             <div className="shrink-0">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">
-                1
-              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">1</div>
             </div>
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <FaUserCheck className="text-[#5E9FE9] text-xl" />
-                <h2 className="text-xl font-semibold">Compte personnel et informations exactes</h2>
+                <h2 className="text-xl font-semibold">{t(tr.rule1TitleFr, tr.rule1TitleEn, lang)}</h2>
               </div>
-              <p className="text-gray-600 leading-7">
-                Chaque utilisateur doit créer un compte personnel unique avec des informations véridiques
-                et à jour. L&apos;utilisation d&apos;un faux profil, d&apos;une identité empruntée ou la création
-                de comptes multiples est strictement interdite. Votre courriel institutionnel sert
-                de vérification principale.
-              </p>
+              <p className="text-gray-600 leading-7">{t(tr.rule1DescFr, tr.rule1DescEn, lang)}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-                  <FaCircleCheck className="text-[#5E9FE9]" /> Un seul compte par personne
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-                  <FaCircleCheck className="text-[#5E9FE9]" /> Informations vérifiables
-                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600"><FaCircleCheck className="text-[#5E9FE9]" /> {t(tr.rule1Badge1Fr, tr.rule1Badge1En, lang)}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600"><FaCircleCheck className="text-[#5E9FE9]" /> {t(tr.rule1Badge2Fr, tr.rule1Badge2En, lang)}</span>
               </div>
             </div>
           </article>
@@ -59,28 +55,17 @@ export default function ConditionsPage() {
           {/* Règle 2 */}
           <article className="flex gap-6 rounded-2xl border border-gray-200 bg-white p-7 shadow-xl hover:bg-gray-50 transition-all duration-300">
             <div className="shrink-0">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">
-                2
-              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">2</div>
             </div>
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <FaHandshake className="text-[#5E9FE9] text-xl" />
-                <h2 className="text-xl font-semibold">Respect des engagements et des autres membres</h2>
+                <h2 className="text-xl font-semibold">{t(tr.rule2TitleFr, tr.rule2TitleEn, lang)}</h2>
               </div>
-              <p className="text-gray-600 leading-7">
-                Lorsque vous réservez ou proposez un trajet, vous vous engagez à respecter l&apos;horaire convenu,
-                le point de rencontre et les conditions du voyage. Les annulations tardives répétées, le
-                non-respect des passagers ou conducteurs, ou tout comportement irrespectueux peut entraîner
-                des sanctions.
-              </p>
+              <p className="text-gray-600 leading-7">{t(tr.rule2DescFr, tr.rule2DescEn, lang)}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-                  <FaClock className="text-[#5E9FE9]" /> Ponctualité requise
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-                  <FaHandshake className="text-[#5E9FE9]" /> Courtoisie obligatoire
-                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600"><FaClock className="text-[#5E9FE9]" /> {t(tr.rule2Badge1Fr, tr.rule2Badge1En, lang)}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600"><FaHandshake className="text-[#5E9FE9]" /> {t(tr.rule2Badge2Fr, tr.rule2Badge2En, lang)}</span>
               </div>
             </div>
           </article>
@@ -88,31 +73,18 @@ export default function ConditionsPage() {
           {/* Règle 3 */}
           <article className="flex gap-6 rounded-2xl border border-gray-200 bg-white p-7 shadow-xl hover:bg-gray-50 transition-all duration-300">
             <div className="shrink-0">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">
-                3
-              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">3</div>
             </div>
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <FaBan className="text-[#5E9FE9] text-xl" />
-                <h2 className="text-xl font-semibold">Contenu interdit</h2>
+                <h2 className="text-xl font-semibold">{t(tr.rule3TitleFr, tr.rule3TitleEn, lang)}</h2>
               </div>
-              <p className="text-gray-600 leading-7">
-                Il est interdit de publier du contenu abusif, trompeur, offensant, discriminatoire ou dangereux
-                sur la plateforme. Cela inclut les messages, les descriptions de trajet, les commentaires
-                d&apos;évaluation et toute autre interaction. Tout contenu signalé est examiné et retiré
-                si jugé non conforme.
-              </p>
+              <p className="text-gray-600 leading-7">{t(tr.rule3DescFr, tr.rule3DescEn, lang)}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs text-red-600">
-                  <FaCircleXmark /> Pas de spam
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs text-red-600">
-                  <FaCircleXmark /> Pas de discrimination
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs text-red-600">
-                  <FaCircleXmark /> Pas de contenu trompeur
-                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs text-red-600"><FaCircleXmark /> {t(tr.rule3Badge1Fr, tr.rule3Badge1En, lang)}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs text-red-600"><FaCircleXmark /> {t(tr.rule3Badge2Fr, tr.rule3Badge2En, lang)}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-xs text-red-600"><FaCircleXmark /> {t(tr.rule3Badge3Fr, tr.rule3Badge3En, lang)}</span>
               </div>
             </div>
           </article>
@@ -120,23 +92,17 @@ export default function ConditionsPage() {
           {/* Règle 4 */}
           <article className="flex gap-6 rounded-2xl border border-gray-200 bg-white p-7 shadow-xl hover:bg-gray-50 transition-all duration-300">
             <div className="shrink-0">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">
-                4
-              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">4</div>
             </div>
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <FaTriangleExclamation className="text-[#5E9FE9] text-xl" />
-                <h2 className="text-xl font-semibold">Obligation de signalement</h2>
+                <h2 className="text-xl font-semibold">{t(tr.rule4TitleFr, tr.rule4TitleEn, lang)}</h2>
               </div>
-              <p className="text-gray-600 leading-7">
-                Tout incident de sécurité, comportement inapproprié ou situation dangereuse doit être signalé
-                rapidement via le formulaire de signalement. Le silence face à un comportement problématique
-                met en danger l&apos;ensemble de la communauté. En cas de danger immédiat, contactez le 911 en premier.
-              </p>
+              <p className="text-gray-600 leading-7">{t(tr.rule4DescFr, tr.rule4DescEn, lang)}</p>
               <div className="mt-3">
                 <Link href="/securite#signalement-form" className="inline-flex items-center gap-2 text-[#5E9FE9] hover:text-[#7db8f0] transition-colors text-sm font-medium">
-                  Accéder au formulaire de signalement <FaArrowRight className="text-xs" />
+                  {t(tr.rule4LinkFr, tr.rule4LinkEn, lang)} <FaArrowRight className="text-xs" />
                 </Link>
               </div>
             </div>
@@ -145,28 +111,17 @@ export default function ConditionsPage() {
           {/* Règle 5 */}
           <article className="flex gap-6 rounded-2xl border border-gray-200 bg-white p-7 shadow-xl hover:bg-gray-50 transition-all duration-300">
             <div className="shrink-0">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">
-                5
-              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9] text-white text-xl font-bold shadow-lg shadow-[#5E9FE9]/30">5</div>
             </div>
             <div>
               <div className="flex items-center gap-3 mb-3">
                 <FaGavel className="text-[#5E9FE9] text-xl" />
-                <h2 className="text-xl font-semibold">Sanctions et suspension</h2>
+                <h2 className="text-xl font-semibold">{t(tr.rule5TitleFr, tr.rule5TitleEn, lang)}</h2>
               </div>
-              <p className="text-gray-600 leading-7">
-                Le non-respect de ces conditions peut entraîner des mesures allant de l&apos;avertissement
-                à la suspension temporaire ou permanente du compte. Les décisions de modération sont
-                prises en accord avec les politiques institutionnelles du Collège La Cité et sont
-                communiquées par courriel.
-              </p>
+              <p className="text-gray-600 leading-7">{t(tr.rule5DescFr, tr.rule5DescEn, lang)}</p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-                  <FaShieldHalved className="text-[#5E9FE9]" /> Processus équitable
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-                  <FaFileContract className="text-[#5E9FE9]" /> Notification par courriel
-                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600"><FaShieldHalved className="text-[#5E9FE9]" /> {t(tr.rule5Badge1Fr, tr.rule5Badge1En, lang)}</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600"><FaFileContract className="text-[#5E9FE9]" /> {t(tr.rule5Badge2Fr, tr.rule5Badge2En, lang)}</span>
               </div>
             </div>
           </article>
@@ -178,12 +133,7 @@ export default function ConditionsPage() {
         <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 shadow-xl text-center">
           <FaFileContract className="mx-auto text-3xl text-[#5E9FE9] mb-4" />
           <p className="text-gray-500 text-sm leading-6 max-w-2xl mx-auto">
-            Ce résumé présente les règles de base d&apos;utilisation de la plateforme Covoiturage La Cité.
-            Il ne remplace pas le texte contractuel complet de l&apos;institution. Pour toute question
-            relative aux conditions d&apos;utilisation, contactez-nous à{' '}
-            <a href="mailto:support@lacitec.on.ca" className="text-[#5E9FE9] hover:underline">
-              support@lacitec.on.ca
-            </a>.
+            {t(tr.legalNoteFr, tr.legalNoteEn, lang)}
           </p>
         </div>
       </section>

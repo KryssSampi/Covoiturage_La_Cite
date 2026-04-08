@@ -15,7 +15,6 @@
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 
 import { Language, useAppState }           from "@/core/state/app_state";
-import { useDb }                           from "@/core/context/db.context";
 import { isTripBlockedByIndisponibility } from "@/core/utils/indisponibility.utils";
 import {
   tripModelToTrip,
@@ -68,8 +67,12 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
   const lang     = appState.lang ?? Language.FR;
   const isDriver = appState.userConnected?.role.toString() === "driver";
 
-  // Données réelles depuis la base JSON via DbProvider
-  const { trips, myReservations, reservations: allReservations, users, myIndisponibility } = useDb();
+  // DbProvider supprimé — les dashboards chargent leurs données via leurs propres fetch/polling
+  const trips: import("@/core/models/TripModel").TripModel[] = [];
+  const myReservations: import("@/core/models/ReservationModel").ReservationModel[] = [];
+  const allReservations: import("@/core/models/ReservationModel").ReservationModel[] = [];
+  const users: import("@/core/models/UserModel").UserModel[] = [];
+  const myIndisponibility = null;
 
   // ID du passager connecté — pour exclure ses propres trajets des recommandations
   const currentUserId = appState.userConnected?.id ?? null;

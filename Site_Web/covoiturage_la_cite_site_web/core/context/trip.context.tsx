@@ -6,9 +6,9 @@ import { ReservationService } from '@/core/services/reservation.service';
 import { NotificationService } from '@/core/services/notification.service';
 import type { TripModel } from '@/core/models/TripModel';
 import type { ReservationModel } from '@/core/models/ReservationModel';
-import { useDb } from './db.context';
 import { useAppState } from '@/core/state/app_state';
 import { DEFAULT_TRIP_PREFERENCES } from '@/core/models/TripModel';
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -59,10 +59,15 @@ export function useTripActions(): TripContextType {
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
+// No-op refresh — DbProvider supprimé, les pages font leur propre polling via fetch
+const noop = async () => {};
+
 export function TripProvider({ children }: { children: React.ReactNode }) {
   const appState = useAppState();
   const currentUser = appState.userConnected;
-  const { refreshTrips, refreshReservations, refreshNotifications } = useDb();
+  const refreshTrips = noop;
+  const refreshReservations = noop;
+  const refreshNotifications = noop;
 
   const [isCreating, setIsCreating] = useState(false);
   const [isReserving, setIsReserving] = useState(false);

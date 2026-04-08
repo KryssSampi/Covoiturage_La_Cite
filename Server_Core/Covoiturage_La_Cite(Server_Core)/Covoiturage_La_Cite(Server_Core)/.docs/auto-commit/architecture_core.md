@@ -1,6 +1,6 @@
 # architecture_core.md — Tiers Core (ASP.NET)
 # Racine : D:\Covoiturage_La_Cite\Server_Core\Covoiturage_La_Cite(Server_Core)\Covoiturage_La_Cite(Server_Core)
-# Généré le 2026-04-06 23:00 | 267 fichiers indexés
+# Généré le 2026-04-07 23:00 | 284 fichiers indexés
 # Format : chemin/relatif|description
 
 .gitignore|Fichier C# — gitignore
@@ -12,6 +12,7 @@ Api/Controllers/Auth/AuthSessionController.cs|Fichier C# — auth session contro
 Api/Controllers/Campus/CampusControllers.cs|Fichier C# — campus controllers
 Api/Controllers/Chat/ChatController.cs|Fichier C# — chat controller
 Api/Controllers/Content/ContentController.cs|Fichier C# — content controller
+Api/Controllers/Content/FaqController.cs|Fichier C# — faq controller
 Api/Controllers/Draft/DraftController.cs|Fichier C# — draft controller
 Api/Controllers/Finance/FinanceController.cs|Fichier C# — finance controller
 Api/Controllers/Gamification/GamificationControllers.cs|Fichier C# — gamification controllers
@@ -22,10 +23,12 @@ Api/Controllers/Matching/MatchingController.cs|Fichier C# — matching controlle
 Api/Controllers/Notification/NotificationController.cs|Fichier C# — notification controller
 Api/Controllers/Onboarding/OnboardingController.cs|Fichier C# — onboarding controller
 Api/Controllers/Pipeda/PipedaController.cs|Fichier C# — pipeda controller
+Api/Controllers/Places/PlaceFavoriController.cs|Fichier C# — place favori controller
 Api/Controllers/Reservation/ReservationController.cs|Fichier C# — reservation controller
 Api/Controllers/Security/SecurityController.cs|Fichier C# — security controller
 Api/Controllers/Social/SocialControllers.cs|Fichier C# — social controllers
 Api/Controllers/Sse/NotificationSseController.cs|Fichier C# — notification sse controller
+Api/Controllers/Stats/UserStatsController.cs|Fichier C# — user stats controller
 Api/Controllers/Trip/TrajetController.cs|Fichier C# — trajet controller
 Api/Controllers/UserController/UserController.cs|Fichier C# — user controller
 Api/Controllers/Vehicle/VehiculeController.cs|Fichier C# — vehicule controller
@@ -43,6 +46,7 @@ Application/DTOs/Auth/AuthSessionDtos.cs|Fichier C# — auth session dtos
 Application/DTOs/Campus/CampusDtos.cs|Fichier C# — campus dtos
 Application/DTOs/Chat/ChatDtos.cs|Fichier C# — chat dtos
 Application/DTOs/Content/ContentDtos.cs|Fichier C# — content dtos
+Application/DTOs/Content/FaqDtos.cs|Fichier C# — faq dtos
 Application/DTOs/Finance/FinanceDtos.cs|Fichier C# — finance dtos
 Application/DTOs/Gamification/GamificationDtos.cs|Fichier C# — gamification dtos
 Application/DTOs/Gps/GpsDtos.cs|Fichier C# — gps dtos
@@ -50,11 +54,13 @@ Application/DTOs/Matching/MatchingDtos.cs|Fichier C# — matching dtos
 Application/DTOs/Notification/NotificationDtos.cs|Fichier C# — notification dtos
 Application/DTOs/Onboarding/OnboardingDtos.cs|Fichier C# — onboarding dtos
 Application/DTOs/Pipeda/PipedaDtos.cs|Fichier C# — pipeda dtos
+Application/DTOs/Places/PlaceFavoriDtos.cs|Fichier C# — place favori dtos
 Application/DTOs/Reservation/CreateReservationDto.cs|Fichier C# — create reservation dto
 Application/DTOs/Reservation/ReservationEnrichedDto.cs|Fichier C# — reservation enriched dto
 Application/DTOs/Reservation/ReservationResponseDto.cs|Fichier C# — reservation response dto
 Application/DTOs/Security/SecurityDtos.cs|Fichier C# — security dtos
 Application/DTOs/Social/SocialDtos.cs|Fichier C# — social dtos
+Application/DTOs/Stats/UserStatsRawDto.cs|Fichier C# — user stats raw dto
 Application/DTOs/Trip/CreateTrajetDto.cs|Fichier C# — create trajet dto
 Application/DTOs/Trip/TrajetResponseDto.cs|Fichier C# — trajet response dto
 Application/DTOs/User/PaginatedResult.cs|Fichier C# — paginated result
@@ -72,6 +78,7 @@ Application/Interfaces/ICampusService.cs|Fichier C# — i campus service
 Application/Interfaces/IChatService.cs|Fichier C# — i chat service
 Application/Interfaces/IContentService.cs|Fichier C# — i content service
 Application/Interfaces/IEmailService.cs|Fichier C# — i email service
+Application/Interfaces/IFaqService.cs|Fichier C# — i faq service
 Application/Interfaces/IFinanceRepositories.cs|Fichier C# — i finance repositories
 Application/Interfaces/IFinanceService.cs|Fichier C# — i finance service
 Application/Interfaces/IGamificationRepositories.cs|Fichier C# — i gamification repositories
@@ -84,6 +91,7 @@ Application/Interfaces/INotificationService.cs|Fichier C# — i notification ser
 Application/Interfaces/IOnboardingService.cs|Fichier C# — i onboarding service
 Application/Interfaces/IPipedaRepositories.cs|Fichier C# — i pipeda repositories
 Application/Interfaces/IPipedaService.cs|Fichier C# — i pipeda service
+Application/Interfaces/IPlaceFavoriService.cs|Fichier C# — i place favori service
 Application/Interfaces/IReservationRepository.cs|Fichier C# — i reservation repository
 Application/Interfaces/IReservationService.cs|Fichier C# — i reservation service
 Application/Interfaces/ISecurityRepositories.cs|Fichier C# — i security repositories
@@ -94,6 +102,7 @@ Application/Interfaces/ITrajetRepository.cs|Fichier C# — i trajet repository
 Application/Interfaces/ITrajetService.cs|Fichier C# — i trajet service
 Application/Interfaces/IUserRepository.cs|Fichier C# — i user repository
 Application/Interfaces/IUserService.cs|Fichier C# — i user service
+Application/Interfaces/IUserStatsService.cs|Fichier C# — i user stats service
 Application/Interfaces/IVehiculeRepository.cs|Fichier C# — i vehicule repository
 Application/Interfaces/IVehiculeService.cs|Fichier C# — i vehicule service
 Application/Jobs/HangfireJobRegistrar.cs|Fichier C# — hangfire job registrar
@@ -111,6 +120,7 @@ Application/Services/Auth/TokenService.cs|Fichier C# — token service
 Application/Services/Campus/CampusService.cs|Fichier C# — campus service
 Application/Services/Chat/ChatService.cs|Fichier C# — chat service
 Application/Services/Content/ContentService.cs|Fichier C# — content service
+Application/Services/Content/FaqService.cs|Fichier C# — faq service
 Application/Services/Finance/FinanceService.cs|Fichier C# — finance service
 Application/Services/Gamification/GamificationService.cs|Fichier C# — gamification service
 Application/Services/Gamification/GoTaskService.cs|Fichier C# — go task service
@@ -120,10 +130,12 @@ Application/Services/Notification/NotificationCategoryHelper.cs|Fichier C# — n
 Application/Services/Notification/NotificationService.cs|Fichier C# — notification service
 Application/Services/Onboarding/OnboardingService.cs|Fichier C# — onboarding service
 Application/Services/Pipeda/PipedaComplianceService.cs|Fichier C# — pipeda compliance service
+Application/Services/Places/PlaceFavoriService.cs|Fichier C# — place favori service
 Application/Services/Reservation/ReservationService.cs|Fichier C# — reservation service
 Application/Services/Security/SecurityService.cs|Fichier C# — security service
 Application/Services/Social/SocialServices.cs|Fichier C# — social services
 Application/Services/Sse/SseChannelService.cs|Fichier C# — sse channel service
+Application/Services/Stats/UserStatsService.cs|Fichier C# — user stats service
 Application/Services/Trip/TrajetService.cs|Fichier C# — trajet service
 Application/Services/User/UserService.cs|Fichier C# — user service
 Application/Services/UserServices/UserServices.cs|Fichier C# — user services
@@ -183,6 +195,7 @@ Data/MongoDB/DocumentModel/.gitkeep|Fichier C# — gitkeep
 Data/MongoDB/Models/AppLog.cs|Fichier C# — app log
 Data/MongoDB/Models/Astuce.cs|Fichier C# — astuce
 Data/MongoDB/Models/ChatMessage.cs|Fichier C# — chat message
+Data/MongoDB/Models/FaqItem.cs|Fichier C# — faq item
 Data/MongoDB/Models/Nouveaute.cs|Fichier C# — nouveaute
 Data/MongoDB/Models/UserActivity.cs|Fichier C# — user activity
 Data/MongoDB/MongoDbContext.cs|Fichier C# — mongo db context
@@ -216,6 +229,7 @@ Domain/Entities/GpsPosition.cs|Fichier C# — gps position
 Domain/Entities/MatchingScoreCache.cs|Fichier C# — matching score cache
 Domain/Entities/Notification.cs|Fichier C# — notification
 Domain/Entities/Penalty.cs|Fichier C# — penalty
+Domain/Entities/PlaceFavori.cs|Fichier C# — place favori
 Domain/Entities/PlatformConfig.cs|Fichier C# — platform config
 Domain/Entities/PlatformStats.cs|Fichier C# — platform stats
 Domain/Entities/Report.cs|Fichier C# — report
@@ -264,9 +278,12 @@ Migrations/20260405031838_Initialization.Designer.cs|Fichier C# — 202604050318
 Migrations/20260405031838_Initialization.cs|Fichier C# — 20260405031838  initialization
 Migrations/20260405140435_AddIdentityVerificationFields.Designer.cs|Fichier C# — 20260405140435  add identity verification fields  designer
 Migrations/20260405140435_AddIdentityVerificationFields.cs|Fichier C# — 20260405140435  add identity verification fields
+Migrations/20260408015143_AddPlaceFavoriAndUserStats.Designer.cs|Fichier C# — 20260408015143  add place favori and user stats  designer
+Migrations/20260408015143_AddPlaceFavoriAndUserStats.cs|Fichier C# — 20260408015143  add place favori and user stats
 Migrations/AppDbContextModelSnapshot.cs|Fichier C# — app db context model snapshot
 Program.cs|Fichier C# — program
 Properties/launchSettings.json|Fichier C# — launch settings
+appsettings.Development.example.json|Configuration — appsettings.Development.example
 appsettings.Development.json|Configuration — appsettings.Development
 appsettings.json|Configuration ASP.NET Core — variables d'environnement
 docs/IMPLEMENTATION_DOC.md|Fichier C# — i m p l e m e n t a t i o n  d o c

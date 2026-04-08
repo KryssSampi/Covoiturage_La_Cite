@@ -49,6 +49,9 @@ public class AppDbContext : DbContext
     public DbSet<UserLike> UserLikes => Set<UserLike>();
     public DbSet<SurveyTripAlert> SurveyTripAlerts => Set<SurveyTripAlert>();
 
+    // ── Places Favoris ────────────────────────────────────────────────────────
+    public DbSet<PlaceFavori> PlacesFavoris => Set<PlaceFavori>();
+
     // ── Campus ────────────────────────────────────────────────────────────────
     public DbSet<GeofenceZone> GeofenceZones => Set<GeofenceZone>();
 
@@ -341,6 +344,15 @@ public class AppDbContext : DbContext
                 .HasForeignKey(s => s.UserId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne(s => s.Driver).WithMany(u => u.SurveyAlertsAsDriver)
                 .HasForeignKey(s => s.DriverId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ── PlaceFavori ────────────────────────────────────────────────────────
+        modelBuilder.Entity<PlaceFavori>(e =>
+        {
+            e.HasKey(p => p.Id);
+            e.HasIndex(p => p.UserId);
+            e.HasOne(p => p.User).WithMany(u => u.PlacesFavoris)
+                .HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import { FaCalendarDays } from "react-icons/fa6";
 
-import { useDb } from "@/core/context/db.context";
 import { useLoader } from "@/core/context/loader.context";
 import type { IndisponibilityDateRange } from "@/core/models/IndisponibilityModel";
 import { Language, useAppState } from "@/core/state/app_state";
@@ -43,7 +42,10 @@ function PlannerContent({ onRefresh }: { onRefresh?: () => Promise<void> }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
   const { plannerSearchActive, plannerSearchValues, exitPlannerSearch } = useHeroSearchBar();
-  const { trips, users, myIndisponibility } = useDb();
+  // DbProvider supprimé — données vides, la map utilise les trajets de l'API search
+  const trips: import("@/core/models/TripModel").TripModel[] = [];
+  const users: import("@/core/models/UserModel").UserModel[] = [];
+  const myIndisponibility = null;
 
   // Scroll + refresh automatique vers la zone trajets si demandé par la page réservation
   useEffect(() => {
@@ -143,15 +145,14 @@ export default function PlannerPage() {
   const { setActiveLoader } = useLoader();
   const routeId = typeof params.id === "string" ? params.id : params.id?.[0];
   const userRole = userConnected?.role?.toString().toLowerCase();
-  const {
-    trips,
-    reservations,
-    users,
-    myIndisponibility,
-    refreshTrips,
-    refreshReservations,
-    refreshIndisponibilities,
-  } = useDb();
+  // DbProvider supprimé — les données viennent des appels fetch directs
+  const trips: import("@/core/models/TripModel").TripModel[] = [];
+  const reservations: import("@/core/models/ReservationModel").ReservationModel[] = [];
+  const users: import("@/core/models/UserModel").UserModel[] = [];
+  const myIndisponibility = null;
+  const refreshTrips = async () => {};
+  const refreshReservations = async () => {};
+  const refreshIndisponibilities = async () => {};
 
   useEffect(() => {
     if (!userConnected) {

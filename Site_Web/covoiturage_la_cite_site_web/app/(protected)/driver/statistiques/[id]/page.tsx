@@ -56,16 +56,11 @@ export default function DriverStatistiquesRoutePage() {
     void loadData(periode);
   }, [loadData, params.id, user, periode]);
 
-  // SSE : mise à jour temps réel lorsque les stats changent
+  // Polling 60s — SSE db-watch désactivé (Server Core)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const es = new EventSource("/api/sse/db-watch/user_stats");
-    let isFirst = true;
-    es.addEventListener("update", () => {
-      if (isFirst) { isFirst = false; return; }
-      void loadData(periode);
-    });
-    return () => es.close();
+    const id = setInterval(() => { void loadData(periode); }, 60_000);
+    return () => clearInterval(id);
   }, [user, params.id, loadData, periode]);
 
   if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "driver") return null;

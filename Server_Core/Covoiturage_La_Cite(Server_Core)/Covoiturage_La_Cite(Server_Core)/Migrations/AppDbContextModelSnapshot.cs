@@ -656,6 +656,46 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.ToTable("Penalties");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.PlaceFavori", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Adresse")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IconTag")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAnchored")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("Lat")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Lng")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Pseudonyme")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PlacesFavoris");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.PlatformConfig", b =>
                 {
                     b.Property<string>("Key")
@@ -2177,6 +2217,17 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.PlaceFavori", b =>
+                {
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "User")
+                        .WithMany("PlacesFavoris")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.Report", b =>
                 {
                     b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "ReportedUser")
@@ -2595,6 +2646,8 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.Navigation("Notifications");
 
                     b.Navigation("Penalties");
+
+                    b.Navigation("PlacesFavoris");
 
                     b.Navigation("Preferences");
 

@@ -161,34 +161,124 @@ export function useNotificationPush(
   useEffect(() => {
     if (!userId) return;
 
-    const source = new EventSource(
-      `/api/sse/notifications?userId=${encodeURIComponent(userId)}`,
-    );
+    // Utiliser fetch avec ReadableStream au lieu d'EventSource pour capturer les status HTTP
+    const controller = new AbortController();
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    source.addEventListener("notification", (e: MessageEvent) => {
-      const data = JSON.parse(e.data) as {
-        unreadCount: number;
-        latest: NotificationModel | null;
-      };
+    async function connectSse() {
+      try {
+        const res = await fetch(
+          `/api/sse/notifications?userId=${encodeURIComponent(userId)}`,
+          {
+            headers: { Accept: 'text/event-stream' },
+            signal: controller.signal,
+          },
+        );
 
-      setUnreadCount(data.unreadCount);
+        // 401/403 → session expirée, rediriger vers login
+        if (res.status === 401 || res.status === 403) {
+          console.warn('[useNotificationPush] Session expirée, redirection vers /login');
+          window.location.href = '/login';
+          return;
+        }
 
-      if (data.latest && data.latest.id !== lastSeenIdRef.current) {
-        lastSeenIdRef.current = data.latest.id;
+        // 503 → Server Core down, retry après 10s
+        if (res.status === 503) {
+          console.error('[useNotificationPush] SSE service unavailable, retry in 10s');
+          retryTimeout = setTimeout(connectSse, 10_000);
+          return;
+        }
 
-        setQueue((prev) => {
-          const updated = [...prev, data.latest!];
-          if (prev.length === 0) {
-            setCurrent(data.latest!);
-            setHasAlert(true);
+        if (!res.ok || !res.body) {
+          console.error('[useNotificationPush] SSE connection failed:', res.status);
+          retryTimeout = setTimeout(connectSse, 10_000);
+          return;
+        }
+
+        // Lire le flux SSE
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done || controller.signal.aborted) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const events = buffer.split('\n\n');
+          buffer = events.pop() || '';
+
+          for (const event of events) {
+            const lines = event.split('\n');
+            let eventType = 'message';
+            let data = '';
+
+            for (const line of lines) {
+              if (line.startsWith('event: ')) {
+                eventType = line.slice(7);
+              } else if (line.startsWith('data: ')) {
+                data = line.slice(6);
+              }
+            }
+
+            if (eventType === 'notification' && data) {
+              try {
+                const parsed = JSON.parse(data) as {
+                  unreadCount: number;
+                  latest: NotificationModel | null;
+                };
+
+                setUnreadCount(parsed.unreadCount);
+
+                if (parsed.latest && parsed.latest.id !== lastSeenIdRef.current) {
+                  lastSeenIdRef.current = parsed.latest.id;
+
+                  setQueue((prev) => {
+                    const updated = [...prev, parsed.latest!];
+                    if (prev.length === 0) {
+                      setCurrent(parsed.latest!);
+                      setHasAlert(true);
+                    }
+                    return updated;
+                  });
+                }
+              } catch {
+                // JSON invalide, ignorer
+              }
+            } else if (eventType === 'error' && data) {
+              try {
+                const errorData = JSON.parse(data);
+                if (errorData.code === 'SSE_UNAUTHORIZED') {
+                  console.warn('[useNotificationPush] Session expirée (via SSE error), redirection');
+                  window.location.href = '/login';
+                  return;
+                }
+                if (errorData.code === 'SSE_UNAVAILABLE') {
+                  console.error('[useNotificationPush] SSE service unavailable');
+                  retryTimeout = setTimeout(connectSse, 10_000);
+                  return;
+                }
+              } catch {
+                // Erreur SSE non structurée, retry
+                retryTimeout = setTimeout(connectSse, 10_000);
+                return;
+              }
+            }
           }
-          return updated;
-        });
+        }
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        console.error('[useNotificationPush] SSE connection error:', err);
+        retryTimeout = setTimeout(connectSse, 10_000);
       }
-    });
+    }
 
-    source.onerror = () => {};
-    return () => source.close();
+    connectSse();
+
+    return () => {
+      controller.abort();
+      if (retryTimeout) clearTimeout(retryTimeout);
+    };
   }, [userId, playSound]);
 
   return { unreadCount, current, hasAlert, queueLength: queue.length, dismissCurrent };

@@ -1,42 +1,56 @@
 /**
  * GET /api/faq
- * Retourne tous les items FAQ stockés en JSON.
+ * Retourne toutes les sections FAQ depuis le Server Core (MongoDB).
  * Web-only — non exposé à l'app mobile.
  *
- * Le fichier source (faq-data.json) est la copie intégrale du chatbot.
- * Le converter élimine les champs chatbot-only (intent, entity, active,
- * variations, keywords, actions, conditions) et ne conserve que ce que
- * le front-end attend (id, sujet, categorie, items[{question, reponse}]).
+ * Le Server Core est la source de vérité. Les données sont gérées
+ * via l'interface admin (POST/PATCH/DELETE /api/faq).
  */
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import {
-  convertChatbotFAQToWeb,
-  type ChatbotFAQSection,
-} from '@/features/faq/data/faq-converter';
+import { get } from '@/server/http-client';
 
-const INTERNAL_TOKEN = process.env.CHATBOT_INTERNAL_TOKEN
-  || '82a51cc52f5a012f6a153a529df06fe393e767f578bdd48af70d14e2126fd746';
+const INTERNAL_TOKEN = process.env.CHATBOT_INTERNAL_TOKEN ?? '';
 
 export async function GET(request: NextRequest) {
   try {
-    const filePath = join(process.cwd(), 'features', 'faq', 'data', 'faq-data.json');
-    const raw      = readFileSync(filePath, 'utf-8');
-    const sections: ChatbotFAQSection[] = JSON.parse(raw);
-
-    // Si le chatbot appelle (token interne) → format complet avec tous les champs
     const token = request.headers.get('x-internal-token') ?? '';
     if (INTERNAL_TOKEN && token === INTERNAL_TOKEN) {
-      return NextResponse.json(sections, { status: 200 });
+      // Le chatbot peut aussi appeler directement le Server Core
     }
 
-    // Sinon (front-end web) → format allégé
-    const items = convertChatbotFAQToWeb(sections);
+    const result = await get('api/faq');
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: 'Impossible de charger les FAQ.', detail: result.message },
+        { status: 502 },
+      );
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sections = (result.data as any)?.data ?? (result.data as any) ?? [];
+
+    // Format web allégé (compatible avec le frontend existant)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const items = Array.isArray(sections)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? sections.map((s: any) => ({
+          id: s.externalId ?? s.id,
+          sujet: s.sujetFr ?? s.sujet,
+          categorie: s.categorie,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          items: (s.items ?? []).map((q: any) => ({
+            question: q.questionFr ?? q.question,
+            reponse: q.reponseFr ?? q.reponse,
+          })),
+        }))
+      : [];
+
     return NextResponse.json({ items }, { status: 200 });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    console.error('[api/faq] GET error:', message);
     return NextResponse.json(
       {
         error: 'Impossible de charger les FAQ.',

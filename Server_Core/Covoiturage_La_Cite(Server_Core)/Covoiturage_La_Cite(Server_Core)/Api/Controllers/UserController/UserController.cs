@@ -84,6 +84,40 @@ public class UserController : ControllerBase
         return Ok(ApiResponse<SurveyTripAlertDto>.Ok(alert));
     }
 
+    /// <summary>PATCH /api/users/survey-alerts/{alertId}/toggle — Toggle IsActive d'une alerte</summary>
+    [HttpPatch("survey-alerts/{alertId:guid}/toggle")]
+    [Authorize]
+    public async Task<IActionResult> ToggleSurveyAlert(Guid alertId, CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        try
+        {
+            var result = await _userService.ToggleSurveyAlertAsync(userId, alertId, ct);
+            return Ok(ApiResponse<SurveyTripAlertDto>.Ok(result));
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(ApiResponse.Fail("Alerte introuvable"));
+        }
+    }
+
+    /// <summary>DELETE /api/users/survey-alerts/{alertId} — Supprimer une alerte</summary>
+    [HttpDelete("survey-alerts/{alertId:guid}")]
+    [Authorize]
+    public async Task<IActionResult> DeleteSurveyAlert(Guid alertId, CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        try
+        {
+            await _userService.DeleteSurveyAlertAsync(userId, alertId, ct);
+            return Ok(ApiResponse.Ok("Alerte supprimée"));
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound(ApiResponse.Fail("Alerte introuvable"));
+        }
+    }
+
     /// <summary>GET /api/users — Liste admin paginée</summary>
     [HttpGet]
     [Authorize(Roles = "Admin")]

@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {
-  const token = extractToken(req);
+  const token = await extractToken(req);
 
   if (!token) {
     return new Response(
@@ -46,21 +46,31 @@ export async function GET(req: NextRequest) {
       duplex: 'half',
       signal: req.signal,
     });
-  } catch {
+  } catch (err) {
+    console.error('[api/sse/notifications] Server Core unreachable:', err);
     return new Response(
-      'event: error\ndata: {"error":"Server Core inaccessible"}\n\n',
+      'event: error\ndata: {"error":"Server Core inaccessible","code":"SSE_UNAVAILABLE"}\n\n',
       {
-        status: 502,
+        status: 503,
         headers: { 'Content-Type': 'text/event-stream' },
       },
     );
   }
 
   if (!coreResponse.ok || !coreResponse.body) {
+    const status = coreResponse.status;
+    const errorData = JSON.stringify({
+      error: status === 401 ? 'Session expirée' : `Server Core SSE ${status}`,
+      code: status === 401 ? 'SSE_UNAUTHORIZED' : 'SSE_ERROR',
+      httpStatus: status,
+    });
+
+    console.error(`[api/sse/notifications] Server Core responded ${status}`);
+
     return new Response(
-      `event: error\ndata: {"error":"Server Core SSE ${coreResponse.status}"}\n\n`,
+      `event: error\ndata: ${errorData}\n\n`,
       {
-        status: 502,
+        status: status === 401 ? 401 : 502,
         headers: { 'Content-Type': 'text/event-stream' },
       },
     );
@@ -76,7 +86,8 @@ export async function GET(req: NextRequest) {
           if (done) break;
           controller.enqueue(value);
         }
-      } catch {
+      } catch (err) {
+    console.error('[api/sse/notifications]', err);
         // client déconnecté ou signal abort
       } finally {
         reader.releaseLock();

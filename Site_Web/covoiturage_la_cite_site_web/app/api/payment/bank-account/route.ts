@@ -25,7 +25,8 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json(account);
-  } catch {
+  } catch (err) {
+    console.error('[api/payment/bank-account]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

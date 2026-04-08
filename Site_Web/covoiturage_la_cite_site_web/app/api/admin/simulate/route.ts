@@ -1,9 +1,11 @@
 /**
  * POST /api/admin/simulate
- * Route thin — délègue toute la logique à runSimulation.
+ * Route thin — délègue toute la logique à runSimulation → Server Core.
+ * Authentification Admin obligatoire.
  * @body { tripId: string; event: SimulationEvent; params?: SimulationParams }
  */
 import { NextResponse } from 'next/server';
+import { withAuth } from '@/server/auth';
 import { runSimulation, VALID_EVENTS } from '@/core/services/simulation.service';
 import type { SimulationEvent, SimulationParams } from '@/core/services/simulation.service';
 
@@ -15,6 +17,13 @@ interface SimulationBody {
 
 export async function POST(req: Request) {
   try {
+    const auth = await withAuth(req);
+
+    // Authentification obligatoire — le Server Core vérifie le rôle Admin via JWT
+    if (!auth.token) {
+      return NextResponse.json({ error: 'Authentification requise' }, { status: 401 });
+    }
+
     const body = (await req.json()) as Partial<SimulationBody>;
 
     if (!body.tripId || !body.event) {
@@ -27,14 +36,20 @@ export async function POST(req: Request) {
       );
     }
 
-    const result = runSimulation(body.tripId, body.event, body.params ?? {});
+    const result = await runSimulation(
+      body.tripId,
+      body.event,
+      body.params ?? {},
+      { token: auth.token },
+    );
 
     if ('error' in result) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
     return NextResponse.json(result);
-  } catch {
+  } catch (err) {
+    console.error('[api/admin/simulate]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

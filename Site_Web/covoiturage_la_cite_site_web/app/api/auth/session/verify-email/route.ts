@@ -36,7 +36,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(json.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/auth/session/verify-email]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

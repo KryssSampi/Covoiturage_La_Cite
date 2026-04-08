@@ -52,8 +52,8 @@ export function useProfileActions({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ liked: nextLiked }),
         });
-      } catch {
-        // Rollback en cas d'erreur
+      } catch (err) {
+        console.error('[useProfileActions] handleLike', err);
         onLikeChange(isLiked, likeCount);
       } finally {
         setLikeLoading(false);
@@ -77,8 +77,8 @@ export function useProfileActions({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targetUserId }),
       });
-    } catch {
-      // Rollback en cas d'erreur
+    } catch (err) {
+      console.error('[useProfileActions] handleFavorite', err);
       onFavoriteChange(isFavorite);
     } finally {
       setFavoriteLoading(false);

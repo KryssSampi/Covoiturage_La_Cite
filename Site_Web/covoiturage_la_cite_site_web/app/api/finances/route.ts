@@ -8,12 +8,12 @@
 import { NextResponse } from "next/server";
 import { FinanceService } from "@/server/services/FinanceService";
 import { withAuth } from "@/server/auth";
-import { persistenceManager } from '@/tests/PersistenceManager';
 import type {
   DriverFinanceSummaryDto,
   PassengerFinanceSummaryDto,
   TransactionResponseDto,
   PenaltyResponseDto,
+  BankAccountResponseDto,
 } from "@/server/services/FinanceService";
 
 // ─── Types locaux (format attendu par le frontend) ─────────────────────────
@@ -42,12 +42,13 @@ export async function GET(req: Request) {
     }
 
     // ── Appels parallèles au Server Core ──────────────────────────────────
-    const [summaryRes, transactionsRes, penaltiesRes] = await Promise.all([
+    const [summaryRes, transactionsRes, penaltiesRes, bankAccountsRes] = await Promise.all([
       role === "driver"
         ? FinanceService.getDriverSummary(auth)
         : FinanceService.getPassengerSummary(auth),
       FinanceService.getTransactions(role, undefined, undefined, auth),
       FinanceService.getPenalties(auth),
+      FinanceService.getBankAccounts(auth),
     ]);
 
     // ── Mapping transactions Server Core → format frontend ────────────────
@@ -171,9 +172,8 @@ export async function GET(req: Request) {
     }
     const scatterGainParHeure = Object.keys(hourMap).sort().map((hour) => ({ hour, montant: hourMap[hour] }));
 
-    // ── Bank accounts (lire depuis persistenceManager si présent)
-    const allAccounts = persistenceManager.readAll<any>('bank_accounts') || [];
-    const bankAccounts = allAccounts.filter((a: any) => a.userId === (auth?.userId ?? ''));
+    // ── Bank accounts via Server Core
+    const bankAccounts: BankAccountResponseDto[] = bankAccountsRes.data ?? [];
 
     // ── Réponse ───────────────────────────────────────────────────────────
     return NextResponse.json({
@@ -186,7 +186,7 @@ export async function GET(req: Request) {
         solde: tendanceSolde,
         histogramme: buildTrend("stable", "Données via Server Core", ""),
         transactions: tendanceTransactions,
-        penalites: tendancePenalite,
+        penalites: tendancePenalites,
       },
       bankAccounts,
       driver: driverData,

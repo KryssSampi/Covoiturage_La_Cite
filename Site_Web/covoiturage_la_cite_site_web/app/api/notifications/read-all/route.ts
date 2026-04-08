@@ -12,7 +12,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(result.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/notifications/read-all]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

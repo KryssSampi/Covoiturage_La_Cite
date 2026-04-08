@@ -44,7 +44,8 @@ export async function POST(req: Request) {
 
     // OTP envoyé (cas normal)
     return NextResponse.json({ otpSent: true });
-  } catch {
+  } catch (err) {
+    console.error('[api/auth/session/password-login]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

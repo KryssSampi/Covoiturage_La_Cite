@@ -72,7 +72,7 @@ export default function PassengerSearchPage() {
         }
       }
       setUserReservations(map);
-    } catch { /* erreur réseau silencieuse */ }
+    } catch (err) { console.error('[passenger/search] fetchUserReservations', err); }
   }, [user]);
 
   // Handler du bouton OK du toast — redirige vers planifier et scrolle vers ride area
@@ -149,7 +149,7 @@ export default function PassengerSearchPage() {
       const data = await res.json() as { trips: TripSearchDTO[]; blockedTrips?: TripSearchDTO[] };
       setAvailableTrips(data.trips.map(tripSearchDTOToTripWithCoords));
       setBlockedTrips((data.blockedTrips ?? []).map(tripSearchDTOToTripWithCoords));
-    } catch { /* erreur réseau silencieuse */ }
+    } catch (err) { console.error('[passenger/search] fetchTrips', err); }
   }, [user, depLat, depLng, arrLat, arrLng, dateParam, timeParam]);
 
   // Déclenche le fetch une seule fois au montage du composant

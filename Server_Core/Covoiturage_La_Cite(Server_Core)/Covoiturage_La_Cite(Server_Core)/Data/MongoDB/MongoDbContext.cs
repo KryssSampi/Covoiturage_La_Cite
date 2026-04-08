@@ -58,6 +58,10 @@ public class MongoDbContext
     public IMongoCollection<UserActivity> UserActivities
         => _database.GetCollection<UserActivity>("user_activities");
 
+    /// <summary>Sections FAQ (Foire Aux Questions) pour le site web.</summary>
+    public IMongoCollection<FaqItem> Faqs
+        => _database.GetCollection<FaqItem>("faqs");
+
     // ── Accès générique (pour les cas non typés) ──────────────────────────────
 
     public IMongoCollection<T> Collection<T>(string name)

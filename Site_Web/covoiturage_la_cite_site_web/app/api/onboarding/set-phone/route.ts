@@ -11,7 +11,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: result.message }, { status: 400 });
     }
     return NextResponse.json(result.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/onboarding/set-phone]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

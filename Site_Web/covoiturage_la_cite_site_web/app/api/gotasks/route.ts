@@ -13,7 +13,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
     return NextResponse.json(result.data ?? []);
-  } catch {
+  } catch (err) {
+    console.error('[api/gotasks]', err);
     return NextResponse.json({ error: 'Impossible de lire les gotasks' }, { status: 500 });
   }
 }

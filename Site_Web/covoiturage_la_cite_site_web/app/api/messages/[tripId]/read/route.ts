@@ -12,7 +12,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ tripId
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err) {
+    console.error('[api/messages/[tripId]/read]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
