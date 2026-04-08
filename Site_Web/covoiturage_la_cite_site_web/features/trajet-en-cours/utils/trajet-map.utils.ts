@@ -92,7 +92,8 @@ export async function fetchOsrmRoute(
     const coords = data.routes?.[0]?.geometry?.coordinates;
     if (!coords) return null;
     return coords.map(([lng, lat]) => ({ lat, lng }));
-  } catch {
+  } catch (err) {
+    console.error('[trajet-map.utils] fetchOsrmRoute', err);
     return null;
   }
 }

@@ -75,7 +75,8 @@ export default function DriverReservationsRoutePage() {
       if (!res.ok) return false;
       await loadData();
       return true;
-    } catch {
+    } catch (err) {
+      console.error("[driver/reservations/page]", err);
       return false;
     } finally {
       setIsActionLoading(false);
@@ -92,7 +93,8 @@ export default function DriverReservationsRoutePage() {
       if (!res.ok) return false;
       await loadData();
       return true;
-    } catch {
+    } catch (err) {
+      console.error("[driver/reservations/page]", err);
       return false;
     } finally {
       setIsActionLoading(false);

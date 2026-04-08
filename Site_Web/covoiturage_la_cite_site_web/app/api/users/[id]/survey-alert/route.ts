@@ -10,7 +10,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const result = await post(`api/users/${id}/survey-alert`, body, auth);
     if (!result.success) return NextResponse.json({ error: result.message }, { status: 400 });
     return NextResponse.json(result.data, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error('[api/users/[id]/survey-alert]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

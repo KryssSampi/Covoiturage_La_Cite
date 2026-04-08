@@ -19,8 +19,6 @@ import {
 } from "react-icons/fa6";
 import { Language, useAppState } from "@/core/state/app_state";
 import { useLoader } from "@/core/context/loader.context";
-import { mockMeData } from "@/features/profile/fixtures/profile.fixtures";
-import { mockVehicles } from "@/features/profile/fixtures/vehicles.fixtures";
 import type {
   MeData,
   SettingsTab,
@@ -65,7 +63,7 @@ function schoolRoleLabel(role: string, isFR: boolean): string {
     administrateur: "Administrator",
   };
   const map = isFR ? mapFR : mapEN;
-  return map[role?.toLowerCase()] ?? role;
+  return map[String(role ?? '').toLowerCase()] ?? role;
 }
 
 function appRoleLabel(role: string, isFR: boolean): string {
@@ -82,7 +80,7 @@ function appRoleLabel(role: string, isFR: boolean): string {
     moderator: "Moderator",
   };
   const map = isFR ? mapFR : mapEN;
-  return map[role?.toLowerCase()] ?? role;
+  return map[String(role ?? '').toLowerCase()] ?? role;
 }
 
 // ── Traductions ───────────────────────────────────────────────────────────────
@@ -141,7 +139,8 @@ const translations = {
 export default function ProfileSettingsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { lang } = useAppState();
+  const appState = useAppState();
+  const { lang } = appState;
   const isFR = lang === Language.FR;
   const t = isFR ? translations.fr : translations.en;
 
@@ -151,6 +150,7 @@ export default function ProfileSettingsPage() {
 
   const [me, setMe] = useState<MeData | null>(null);
   const [profileData, setProfileData] = useState<MeData | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
   const [visibility, setVisibility] = useState<ProfileVisibility>({
     goScore: true,
     tripsCount: true,
@@ -204,11 +204,8 @@ export default function ProfileSettingsPage() {
     baggagePolicy: "light",
     requirePassengerMessage: false,
   });
-  const [vehicles, setVehicles] = useState<VehicleInfo[]>(() => mockVehicles.map((v) => ({ ...v })));
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string>(() => {
-    const activeVehicle = mockVehicles.find((v) => v.isActive);
-    return activeVehicle?.id ?? mockVehicles[0]?.id ?? "";
-  });
+  const [vehicles, setVehicles] = useState<VehicleInfo[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
   const vehicle = vehicles.find((v) => v.id === selectedVehicleId) ?? vehicles[0] ?? null;
   const [accessibility, setAccessibility] = useState({
     fontSize: "medium" as "small" | "medium" | "large",
@@ -220,13 +217,11 @@ export default function ProfileSettingsPage() {
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
   const [uploadedCoverImages, setUploadedCoverImages] = useState<UploadedCoverImage[]>([]);
   const [isCoverOverlayOpen, setIsCoverOverlayOpen] = useState(false);
-  const [avatarPhotoUrl, setAvatarPhotoUrl] = useState<string | undefined>(mockMeData.avatarUrl);
+  const [avatarPhotoUrl, setAvatarPhotoUrl] = useState<string | undefined>(undefined);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | undefined>(undefined);
   const [isProfilePhotoOverlayOpen, setIsProfilePhotoOverlayOpen] = useState(false);
   const [isBadgesOverlayOpen, setIsBadgesOverlayOpen] = useState(false);
-  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>(
-    PROFILE_BADGE_CATALOG.slice(0, 4).map((badge) => badge.id)
-  );
+  const [selectedBadgeIds, setSelectedBadgeIds] = useState<string[]>([]);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -280,10 +275,30 @@ export default function ProfileSettingsPage() {
 
   const handleSaveWithReset = async () => {
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      const body = {
+        firstName: profileData?.firstName,
+        lastName: profileData?.lastName,
+        phone: profileData?.phone,
+        avatarUrl: profileData?.avatarUrl,
+        bio: profileData?.bio,
+        language: profileData?.language,
+        languagesSpoken: profileData?.languagesSpoken,
+        preferences: {
+          ...tripPrefs,
+          ...notifPrefs,
+        },
+      };
+      const res = await fetch('/api/profile/me', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        console.error('[profile/settings] save failed', await res.text());
+        return;
+      }
       setSaved(true);
-      // Réinitialiser les états initiaux après sauvegarde
       setInitialProfileData(profileData);
       setInitialVisibility({ ...visibility });
       setInitialTripPrefs({ ...tripPrefs });
@@ -292,52 +307,109 @@ export default function ProfileSettingsPage() {
       setInitialSearchPrefs({ ...searchPrefs });
       setInitialAccessibility({ ...accessibility });
       setTimeout(() => setSaved(false), 3000);
-    }, 1000);
+    } catch (err) {
+      console.error('[profile/settings] handleSaveWithReset', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // Charger le profil (utilise les fixtures pour l'instant)
+  // Charger le profil depuis Server Core, puis les véhicules uniquement si driver
   useEffect(() => {
     setActiveLoader(true);
-    setTimeout(() => {
-      setMe(mockMeData);
-      setProfileData(mockMeData);
-      setAvatarPhotoUrl(mockMeData.avatarUrl);
-      setInitialProfileData(mockMeData);
-      if (mockMeData.preferences) {
-        const newTripPrefs = {
-          musicAccepted: mockMeData.preferences.musicAccepted ?? true,
-          petsAccepted: mockMeData.preferences.petsAccepted ?? false,
-          smokingAccepted: mockMeData.preferences.smokingAccepted ?? false,
-          conversationLevel: (mockMeData.preferences.conversationLevel as "quiet" | "moderate" | "chatty") ?? "moderate",
+    (async () => {
+      try {
+        const profileRes = await fetch('/api/profile/me');
+        if (!profileRes.ok) {
+          setApiError(isFR ? 'Erreur chargement profil' : 'Profile load error');
+          return;
+        }
+
+        const dto = await profileRes.json();
+        const role = String(dto.role ?? '').toLowerCase();
+        const meData: MeData = {
+          id: dto.id,
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          phone: dto.phone,
+          avatarUrl: dto.avatarUrl,
+          bio: dto.bio,
+          language: 'fr',
+          languagesSpoken: ['FR'],
+          schoolRole: String(dto.schoolRole ?? '').toLowerCase(),
+          role,
+          preferences: (dto.preferences as MeData['preferences']) ?? undefined,
         };
-        setTripPrefs(newTripPrefs);
-        setInitialTripPrefs(newTripPrefs);
-        const newNotifPrefs = {
-          emailPrimordiales: mockMeData.preferences.emailPrimordiales ?? true,
-          emailSecondaires: mockMeData.preferences.emailSecondaires ?? true,
-          emailNegligeables: mockMeData.preferences.emailNegligeables ?? false,
-          pushPrimordiales: mockMeData.preferences.pushPrimordiales ?? true,
-          pushSecondaires: mockMeData.preferences.pushSecondaires ?? true,
-          pushNegligeables: mockMeData.preferences.pushNegligeables ?? false,
-        };
-        setNotifPrefs(newNotifPrefs);
-        setInitialNotifPrefs(newNotifPrefs);
+        setMe(meData);
+        setProfileData(meData);
+        setAvatarPhotoUrl(dto.avatarUrl);
+        setInitialProfileData(meData);
+
+        if (dto.preferences) {
+          const p = dto.preferences;
+          const newTripPrefs = {
+            musicAccepted: p.musicAccepted ?? true,
+            petsAccepted: p.petsAccepted ?? false,
+            smokingAccepted: p.smokingAccepted ?? false,
+            conversationLevel: (p.conversationLevel as "quiet" | "moderate" | "chatty") ?? "moderate",
+          };
+          setTripPrefs(newTripPrefs);
+          setInitialTripPrefs(newTripPrefs);
+          const newNotifPrefs = {
+            emailPrimordiales: p.emailPrimordiales ?? true,
+            emailSecondaires: p.emailSecondaires ?? true,
+            emailNegligeables: p.emailNegligeables ?? false,
+            pushPrimordiales: p.pushPrimordiales ?? true,
+            pushSecondaires: p.pushSecondaires ?? true,
+            pushNegligeables: p.pushNegligeables ?? false,
+          };
+          setNotifPrefs(newNotifPrefs);
+          setInitialNotifPrefs(newNotifPrefs);
+        }
+
+        // Véhicules : uniquement pour les conducteurs
+        if (role === 'driver') {
+          const vehiclesRes = await fetch('/api/vehicles');
+          if (vehiclesRes.ok) {
+            const vData = await vehiclesRes.json();
+            const vInfos: VehicleInfo[] = (vData as Array<{
+              id: string; driverProfileId: string; make: string; model: string;
+              year: number; color: string; licensePlate: string; maxSeats: number;
+              photoUrl?: string; isActive: boolean; isDefault: boolean;
+              createdAt: string; updatedAt: string;
+            }>).map((v) => ({
+              id: v.id, driverId: v.driverProfileId, make: v.make, model: v.model,
+              year: v.year, color: v.color, licensePlate: v.licensePlate,
+              maxSeats: v.maxSeats, photoUrl: v.photoUrl, isActive: v.isActive,
+              isValidated: true, createdAt: v.createdAt, updatedAt: v.updatedAt,
+            }));
+            setVehicles(vInfos);
+            const active = vInfos.find((v) => v.isActive);
+            setSelectedVehicleId(active?.id ?? vInfos[0]?.id ?? "");
+          }
+        }
+      } catch (err) {
+        console.error('[profile/settings] fetch data', err);
+        setApiError(isFR ? 'Erreur réseau' : 'Network error');
+      } finally {
+        setInitialVisibility({ ...visibility });
+        setInitialPrivacy({ ...privacy });
+        setInitialSearchPrefs({ ...searchPrefs });
+        setInitialAccessibility({ ...accessibility });
+        setActiveLoader(false);
       }
-      setInitialVisibility({ ...visibility });
-      setInitialPrivacy({ ...privacy });
-      setInitialSearchPrefs({ ...searchPrefs });
-      setInitialAccessibility({ ...accessibility });
-      setActiveLoader(false);
-    }, 500);
-  }, [setActiveLoader]);
+    })();
+  }, [setActiveLoader, isFR]);
 
   const navigateToTab = (newTab: SettingsTab) => {
     setTab(newTab);
     router.push(`/profile/settings?tab=${newTab}`);
   };
 
-  const handleLogout = () => {
-    router.push("/login");
+  const handleLogout = async () => {
+    try { await fetch('/api/auth/logout', { method: 'POST' }); } catch { /* ignore */ }
+    appState.logout();
+    router.replace("/login");
   };
 
   if (!me) return null;
@@ -349,6 +421,8 @@ export default function ProfileSettingsPage() {
   const showPreviewButton = tab === "profile" || tab === "visibility";
   const profilePreviewHref = me ? `/profile/${me.id}` : "#";
 
+  const isDriver = me.role === "driver";
+
   const tabs = [
     { key: "profile" as SettingsTab, label: t.profile, icon: <FaUser size={14} /> },
     { key: "visibility" as SettingsTab, label: t.visibility, icon: <FaEye size={14} /> },
@@ -356,7 +430,7 @@ export default function ProfileSettingsPage() {
     { key: "notifications" as SettingsTab, label: t.notifications, icon: <FaBell size={14} /> },
     { key: "privacy" as SettingsTab, label: t.privacy, icon: <FaLock size={14} /> },
     { key: "search" as SettingsTab, label: t.search, icon: <FaMagnifyingGlass size={14} /> },
-    { key: "vehicle" as SettingsTab, label: t.vehicle, icon: <FaCarSide size={14} /> },
+    ...(isDriver ? [{ key: "vehicle" as SettingsTab, label: t.vehicle, icon: <FaCarSide size={14} /> }] : []),
     { key: "accessibility" as SettingsTab, label: t.accessibility, icon: <FaUniversalAccess size={14} /> },
   ];
 

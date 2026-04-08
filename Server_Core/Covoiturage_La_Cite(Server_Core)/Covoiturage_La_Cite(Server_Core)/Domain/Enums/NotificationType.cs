@@ -6,6 +6,7 @@ public enum NotificationType
     ReservationAccepted,
     ReservationRefused,
     ReservationCancelled,
+    TripReminder,
     TripStartingSoon,
     TripStarted,
     TripCompleted,

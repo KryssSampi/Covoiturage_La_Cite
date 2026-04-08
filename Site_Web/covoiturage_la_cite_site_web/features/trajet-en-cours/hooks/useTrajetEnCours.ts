@@ -7,18 +7,21 @@ import { useRouter } from 'next/navigation';
 import { EvaluationState } from '../types/trajet-en-cours.types';
 import type { Correspondant, MoiInfo } from '../types/messagerie.types';
 import type { UserModel } from '@/core/models/UserModel';
+import type { TripModel } from '@/core/models/TripModel';
+import type { VehicleModel } from '@/core/models/VehicleModel';
 import type { TrajetEnCoursData } from '../types/trajet-en-cours.types';
 import type { PassengerPosition } from './useRealtimePositions';
 import type { TrajetMapFixture } from '../types/map.types';
 import type { TrajetProgressionFixture } from '../types/progression-signalement.types';
 
-import { useDb } from '@/core/context/db.context';
 import { toTrajetEnCoursData, tripToMapFixture, tripToProgressionFixture } from '../converters/trajet-en-cours.converter';
 import {
   trajetFixture,
   moiFixture,
   progressionFixture,
 } from '../fixtures/index.fixtures';
+import { DEFAULT_TRIP_PREFERENCES } from '@/core/models/TripModel';
+import type { TrajetEnCoursDto } from '@/server/services/TripService';
 import { useMessagerie } from '../hooks/index.hooks';
 import { useTrajetMap } from '../hooks/useTrajetMap';
 import { useLocationEmitter } from '../hooks/useLocationEmitter';
@@ -36,9 +39,9 @@ export interface UseTrajetEnCoursProps {
 
 export interface UseTrajetEnCoursReturn {
   // Données du trajet
-  tripModel: ReturnType<typeof useDb>['trips'][number] | null;
+  tripModel: TripModel | null;
   driverUser: UserModel | null;
-  vehicleModel: ReturnType<typeof useDb>['vehicles'][number] | null;
+  vehicleModel: VehicleModel | null;
   passengerUsers: UserModel[];
   role: 'driver' | 'passenger';
   trajetData: TrajetEnCoursData;
@@ -90,31 +93,121 @@ export interface UseTrajetEnCoursReturn {
 export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEnCoursReturn {
   const appState = useAppState();
   const router = useRouter();
-  const { trips, users, vehicles, reservations, reviews, isLoading } = useDb();
   const currentUser = appState.userConnected;
   const isFR = appState.lang === Language.FR;
   const RATING_LABELS = isFR ? RATING_LABELS_FR : RATING_LABELS_EN;
 
-  // ── Données du trajet ──────────────────────────────────────────────────────
-  const tripModel = useMemo(
-    () => (tripId ? trips.find((t) => t.id === tripId) ?? null : null),
-    [trips, tripId],
-  );
-  const driverUser = useMemo(
-    () => (tripModel ? users.find((u) => u.id === tripModel.driverId) ?? null : null),
-    [tripModel, users],
-  );
-  const vehicleModel = useMemo(
-    () => (tripModel ? vehicles.find((v) => v.id === tripModel.vehicleId) ?? null : null),
-    [tripModel, vehicles],
-  );
-  const passengerUsers = useMemo(
-    (): UserModel[] =>
-      tripModel
-        ? tripModel.passengerIds.map((pid) => users.find((u) => u.id === pid)).filter((u): u is UserModel => !!u)
-        : [],
-    [tripModel, users],
-  );
+  // ── État API (remplace useDb) ──────────────────────────────────────────────
+  const [apiData, setApiData] = useState<TrajetEnCoursDto | null>(null);
+  const [driverUser, setDriverUser] = useState<UserModel | null>(null);
+  const [vehicleModel, setVehicleModel] = useState<VehicleModel | null>(null);
+  const [alreadyReviewedIds, setAlreadyReviewedIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // ── Fetch tripData + conducteur + véhicule en parallèle ───────────────────
+  useEffect(() => {
+    if (!tripId) { setIsLoading(false); return; }
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/trajet-en-cours/${tripId}`);
+        if (!res.ok) { setIsLoading(false); return; }
+        const data = await res.json() as TrajetEnCoursDto;
+        setApiData(data);
+
+        // Fetch conducteur + véhicule en parallèle
+        const [driverRes, vehicleRes] = await Promise.allSettled([
+          fetch(`/api/users/${encodeURIComponent(data.trip.driverId)}`),
+          fetch(`/api/vehicles/${encodeURIComponent(data.trip.vehicleId)}`),
+        ]);
+        if (driverRes.status === 'fulfilled' && driverRes.value.ok) {
+          setDriverUser(await driverRes.value.json() as UserModel);
+        }
+        if (vehicleRes.status === 'fulfilled' && vehicleRes.value.ok) {
+          setVehicleModel(await vehicleRes.value.json() as VehicleModel);
+        }
+      } catch (err) {
+        console.error('[useTrajetEnCours] fetch initial', err);
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, [tripId]);
+
+  // ── Fetch avis déjà soumis (passager/conducteur déjà évalué) ─────────────
+  useEffect(() => {
+    if (!tripId || !currentUser?.id) return;
+    fetch(`/api/reviews?tripId=${encodeURIComponent(tripId)}&reviewerId=${encodeURIComponent(currentUser.id)}`)
+      .then((r) => r.ok ? r.json() : [])
+      .then((rows: Array<{ revieweeId: string }>) => {
+        setAlreadyReviewedIds(rows.map((r) => r.revieweeId));
+      })
+      .catch((err) => console.error('[useTrajetEnCours] fetchReviews', err));
+  }, [tripId, currentUser?.id]);
+
+  // ── Adaptation TrajetEnCoursDto → TripModel ───────────────────────────────
+  const tripModel = useMemo((): TripModel | null => {
+    if (!apiData?.trip) return null;
+    const t = apiData.trip;
+    // Parse polyline if it's a JSON string [[lat,lng],...]
+    let polyline: [number, number][] = [];
+    if (t.polyline) {
+      try { polyline = JSON.parse(t.polyline) as [number, number][]; } catch { /* keep empty */ }
+    }
+    return {
+      id: t.id,
+      driverId: t.driverId,
+      vehicleId: t.vehicleId,
+      passengerIds: apiData.passengers.map((p) => p.userId),
+      departure: {
+        label: t.departureAddress,
+        fullAddress: t.departureAddress,
+        coordinates: { lat: t.departureLat, lng: t.departureLng },
+      },
+      arrival: {
+        label: t.arrivalAddress,
+        fullAddress: t.arrivalAddress,
+        coordinates: { lat: t.arrivalLat, lng: t.arrivalLng },
+      },
+      waypoints: [],
+      polyline,
+      departureDate: t.departureDate,
+      departureTime: t.departureTime,
+      maxPassengers: t.maxPassengers,
+      currentPassengers: t.currentPassengers,
+      pricePerPassenger: t.pricePerPassenger,
+      passengerPrice: t.passengerPrice,
+      paymentMethod: (t.paymentMethod as TripModel['paymentMethod']) ?? 'cash',
+      status: (t.status as TripModel['status']) ?? 'in_progress',
+      departureType: 'planned',
+      tripType: (t.tripType as TripModel['tripType']) ?? 'unique',
+      preferences: DEFAULT_TRIP_PREFERENCES,
+      createdAt: t.createdAt,
+      updatedAt: t.updatedAt,
+    };
+  }, [apiData]);
+
+  // ── Adaptation TrajetPassengerDto[] → UserModel[] ────────────────────────
+  const passengerUsers = useMemo((): UserModel[] =>
+    (apiData?.passengers ?? []).map((p) => ({
+      id: p.userId,
+      email: '',
+      firstName: p.firstName,
+      lastName: p.lastName,
+      initials: `${p.firstName[0] ?? '?'}${p.lastName[0] ?? ''}`.toUpperCase(),
+      avatarUrl: p.avatarUrl,
+      role: 'passenger' as const,
+      canBeDriver: false,
+      profileVerified: false,
+      isActive: true,
+      passengerProfile: { averageRating: 4.0, totalTripsAsPassenger: 0, co2SavedKg: 0, punctualityScore: 80, noShowCount: 0 },
+      preferences: { musicAccepted: true, petsAccepted: false, smokingAccepted: false, conversationLevel: 'moderate' as const },
+      goScore: 250,
+      badgeIds: [],
+      createdAt: '',
+      updatedAt: '',
+    } as UserModel)),
+  [apiData]);
 
   const role = useMemo(
     () => (currentUser?.id === tripModel?.driverId ? ('driver' as const) : ('passenger' as const)),
@@ -176,17 +269,13 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
   }, [driverPos]);
 
   // ── Messagerie ─────────────────────────────────────────────────────────────
-  const coreUser = useMemo(
-    () => (currentUser ? users.find((u) => u.id === currentUser.id) ?? null : null),
-    [currentUser, users],
-  );
   const moiInfo = useMemo((): MoiInfo => ({
-    id: coreUser?.id ?? moiFixture.id,
-    prenom: coreUser?.firstName ?? moiFixture.prenom,
-    nom: coreUser?.lastName ?? moiFixture.nom,
-    initiales: coreUser?.initials ?? moiFixture.initiales,
+    id: currentUser?.id ?? moiFixture.id,
+    prenom: currentUser?.firstName ?? moiFixture.prenom,
+    nom: currentUser?.lastName ?? moiFixture.nom,
+    initiales: currentUser?.initials ?? moiFixture.initiales,
     couleurAvatar: '#1a5cb0',
-  }), [coreUser]);
+  }), [currentUser]);
 
   const correspondants = useMemo((): Correspondant[] => {
     if (role === 'driver') {
@@ -223,14 +312,6 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
     setTimeout(() => setToast(null), 3500);
   }, []);
 
-  // IDs des passagers déjà évalués
-  const alreadyReviewedIds = useMemo(() => {
-    if (!currentUser?.id || !tripId) return [];
-    return reviews
-      .filter((r) => r.tripId === tripId && r.reviewerId === currentUser.id)
-      .map((r) => r.revieweeId);
-  }, [reviews, currentUser?.id, tripId]);
-
   const submitEval = useCallback(async () => {
     if (!eval_.note || eval_.commentaire.trim().length < 10) {
       showToast(isFR ? '⭐ Note et commentaire requis (10 car. min.).' : '⭐ Rating and comment required (min 10 chars).'); return;
@@ -241,9 +322,9 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
 
     const revieweeId = role === 'driver' ? eval_.passagerSelectionne! : (driverUser?.id ?? '');
     const revieweeRole = role === 'driver' ? 'passenger' : 'driver';
-    const reservation = reservations.find(
-      (r) => r.tripId === tripId && (role === 'driver' ? r.passengerId === revieweeId : r.passengerId === currentUser?.id),
-    );
+    // reservationId récupéré depuis les passagers de l'API
+    const passengerEntry = apiData?.passengers.find((p) => p.userId === revieweeId);
+    const reservationId = passengerEntry?.reservationId ?? '';
 
     try {
       await fetch('/api/reviews', {
@@ -251,7 +332,7 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tripId,
-          reservationId: reservation?.id ?? '',
+          reservationId,
           reviewerId: currentUser?.id ?? '',
           revieweeId,
           revieweeRole,
@@ -268,10 +349,11 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
         ? `/driver/${currentUser?.id}`
         : `/passenger/${currentUser?.id}`;
       setTimeout(() => router.replace(dashUrl), 1200);
-    } catch {
+    } catch (err) {
+      console.error('[useTrajetEnCours] submitEvaluation', err);
       showToast(isFR ? 'Erreur lors de l\'envoi.' : 'Submission error.', 'red');
     }
-  }, [eval_, role, driverUser?.id, reservations, tripId, currentUser?.id, isFR, showToast, router]);
+  }, [eval_, role, driverUser?.id, apiData, tripId, currentUser?.id, isFR, showToast, router]);
 
   // ── URL tableau de bord ────────────────────────────────────────────────────
   const dashUrl = role === 'driver'
@@ -333,7 +415,8 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
       } else {
         showToast(isFR ? "Erreur lors de l'annulation." : 'Error cancelling trip.', 'red');
       }
-    } catch {
+    } catch (err) {
+      console.error('[useTrajetEnCours] handleCancelTrip', err);
       showToast(isFR ? "Erreur réseau." : 'Network error.', 'red');
     }
     setShowCancelWarning(false);

@@ -21,6 +21,15 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> GetDashboard(CancellationToken ct)
         => Ok(ApiResponse<PlatformStatsDto>.Ok(await _service.GetDashboardStatsAsync(ct)));
 
+    /// <summary>
+    /// Statistiques publiques de la plateforme — accessible sans authentification.
+    /// Utilisé par la page About du site web.
+    /// </summary>
+    [HttpGet("platform-stats")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetPublicPlatformStats(CancellationToken ct)
+        => Ok(ApiResponse<PlatformStatsDto>.Ok(await _service.GetPublicPlatformStatsAsync(ct)));
+
     // ── User Management ──────────────────────────────────────────────────────
 
     [HttpPost("users/{userId:guid}/suspend")]
@@ -54,6 +63,30 @@ public class AdminController : ControllerBase
     [HttpPut("config")]
     public async Task<IActionResult> SetConfig([FromBody] SetConfigDto dto, CancellationToken ct)
         => Ok(ApiResponse<PlatformConfigDto>.Ok(await _service.SetConfigAsync(GetUid(), dto, ct)));
+
+    // ── Simulation ──────────────────────────────────────────────────────────
+
+    [HttpPost("simulate")]
+    public async Task<IActionResult> SimulateEvent([FromBody] SimulateEventRequestDto dto, CancellationToken ct)
+    {
+        try
+        {
+            var result = await _service.SimulateEventAsync(GetUid(), dto, ct);
+            return Ok(ApiResponse<SimulateEventResultDto>.Ok(result));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ApiResponse<string>.Fail(ex.Message));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<string>.Fail(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return UnprocessableEntity(ApiResponse<string>.Fail(ex.Message));
+        }
+    }
 
     // ── Audit Logs ───────────────────────────────────────────────────────────
 

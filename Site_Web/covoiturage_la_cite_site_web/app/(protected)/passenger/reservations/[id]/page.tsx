@@ -37,7 +37,7 @@ export default function PassengerReservationsRoutePage() {
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/passenger/reservations-enriched?passengerId=${encodeURIComponent(user.id)}`);
+      const res = await fetch('/api/passenger/reservations-enriched');
       if (!res.ok) return;
       setItems(await res.json());
     } catch (error) {

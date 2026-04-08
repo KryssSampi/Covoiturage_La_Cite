@@ -47,16 +47,13 @@ export default function PassengerNotificationsRoutePage() {
     return () => { cancelled = true; };
   }, [user, params.id, version]);
 
-  // SSE
+  // Polling 30s (remplacement SSE db-watch 503)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const es = new EventSource("/api/sse/db-watch/notifications");
-    let isFirst = true;
-    es.addEventListener("update", () => {
-      if (isFirst) { isFirst = false; return; }
+    const intervalId = setInterval(() => {
       reload();
-    });
-    return () => es.close();
+    }, 30_000);
+    return () => clearInterval(intervalId);
   }, [user, params.id, reload]);
 
   const onRead = useCallback(async (id: string) => {

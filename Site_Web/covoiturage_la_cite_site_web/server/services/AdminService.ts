@@ -43,6 +43,27 @@ export interface AuditLogDto {
   createdAt: string;
 }
 
+export interface SimulateEventRequestDto {
+  tripId: string;
+  event: string;
+  reservationId?: string;
+}
+
+export interface SimulatePenaliteDto {
+  montant: number;
+  pointsReputation: number;
+  suspension?: string;
+}
+
+export interface SimulateEventResultDto {
+  success: boolean;
+  event: string;
+  tripId: string;
+  message: string;
+  affectedReservations: number;
+  penalite: SimulatePenaliteDto | null;
+}
+
 export interface ReasonDto {
   reason: string;
 }
@@ -121,5 +142,10 @@ export const AdminService = {
   /** Logs d'audit par entité */
   async getAuditLogsByEntity(entityType: string, entityId: string, options?: RequestOptions): Promise<ApiResponse<AuditLogDto[]>> {
     return get<AuditLogDto[]>(`api/admin/audit-logs/${entityType}/${entityId}`, options);
+  },
+
+  /** Simuler un événement sur un trajet (admin only) */
+  async simulateEvent(data: SimulateEventRequestDto, options?: RequestOptions): Promise<ApiResponse<SimulateEventResultDto>> {
+    return post<SimulateEventResultDto>('api/admin/simulate', data, options);
   },
 };

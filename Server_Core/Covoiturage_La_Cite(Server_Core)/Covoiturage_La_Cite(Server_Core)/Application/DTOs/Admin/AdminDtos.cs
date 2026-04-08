@@ -46,6 +46,39 @@ public class AuditLogDto
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+// ── Simulation ───────────────────────────────────────────────────────────────
+
+public class SimulateEventRequestDto
+{
+    /// <summary>ID du trajet cible.</summary>
+    public Guid TripId { get; set; }
+
+    /// <summary>Événement à simuler (retard_15_30, retard_30_60, retard_60plus,
+    /// annulation_conducteur, no_show_conducteur, no_show_passager,
+    /// trajet_complete, litige, accident).</summary>
+    public string Event { get; set; } = string.Empty;
+
+    /// <summary>Optionnel — réservation cible pour no_show_passager.</summary>
+    public Guid? ReservationId { get; set; }
+}
+
+public class SimulateEventResultDto
+{
+    public bool Success { get; set; }
+    public string Event { get; set; } = string.Empty;
+    public Guid TripId { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public int AffectedReservations { get; set; }
+    public SimulatePenaliteDto? Penalite { get; set; }
+}
+
+public class SimulatePenaliteDto
+{
+    public decimal Montant { get; set; }
+    public int PointsReputation { get; set; }
+    public string? Suspension { get; set; }
+}
+
 public class ReportAdminDto
 {
     public Guid Id { get; set; }

@@ -29,15 +29,22 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
     return NextResponse.json(result.data?.items ?? []);
-  } catch {
+  } catch (err) {
+    console.error('[api/trips]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
     const auth = await withAuth(req);
+
+    // Sécurité : authentification obligatoire — le Server Core valide aussi le driverId via JWT
+    if (!auth.token) {
+      return NextResponse.json({ error: 'Authentification requise' }, { status: 401 });
+    }
+
+    const body = await req.json();
 
     const result = await TripService.create(body, auth);
 
@@ -46,7 +53,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(result.data, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error('[api/trips]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

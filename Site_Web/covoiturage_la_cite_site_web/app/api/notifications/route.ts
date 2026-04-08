@@ -6,6 +6,7 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const isRead = searchParams.get('isRead');
+    // L'utilisateur est déterminé via le JWT (withAuth), pas via query param.
     const auth = await withAuth(req);
 
     // Si isRead=false demandé (ex : useNotificationPush au login) → uniquement les non lues
@@ -23,7 +24,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
     return NextResponse.json(result.data ?? []);
-  } catch {
+  } catch (err) {
+    console.error('[api/notifications]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

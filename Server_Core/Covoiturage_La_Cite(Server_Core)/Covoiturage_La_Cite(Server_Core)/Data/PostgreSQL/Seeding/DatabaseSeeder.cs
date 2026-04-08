@@ -932,6 +932,294 @@ public static class DatabaseSeeder
         await db.SaveChangesAsync(ct);
 
         logger.LogInformation("DatabaseSeeder: injection complète terminée ({SeedVersion})", seedVersion);
+
+        // Extensions idempotentes
+        await SeedGoTasksAsync(db, logger, adminId, ct);
+        await SeedSimulationDataAsync(db, logger, driver1Id, driver2Id, passenger1Id, passenger2Id, vehicle1Id, vehicle2Id, gf, now, ct);
+    }
+
+    // ── GoTasks GT-001 → GT-013 ───────────────────────────────────────────────
+
+    private static async Task SeedGoTasksAsync(AppDbContext db, ILogger logger, Guid adminId, CancellationToken ct)
+    {
+        var alreadySeeded = await db.PlatformConfigs.AsNoTracking()
+            .AnyAsync(c => c.Key == "seed.gotasks.v1", ct);
+        if (alreadySeeded) return;
+
+        var goTasks = new[]
+        {
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000001"), TaskKey = "GT-001", TitleFr = "Premier trajet", TitleEn = "First ride", DescriptionFr = "Effectuez votre premier trajet en tant que passager.", DescriptionEn = "Complete your first ride as passenger.", Category = "passengerOnly", Points = 50, Link = "/passenger/{id}", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000002"), TaskKey = "GT-002", TitleFr = "Conducteur débutant", TitleEn = "New Driver", DescriptionFr = "Publiez votre premier trajet en tant que conducteur.", DescriptionEn = "Publish your first trip as driver.", Category = "driverOnly", Points = 75, Link = "/driver/{id}/create-trip", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000003"), TaskKey = "GT-003", TitleFr = "Profil complet", TitleEn = "Complete Profile", DescriptionFr = "Complétez votre profil (photo, bio, langues).", DescriptionEn = "Complete your profile with photo, bio and languages.", Category = "mixte", Points = 30, Link = "/profile/settings", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000004"), TaskKey = "GT-004", TitleFr = "5 trajets complétés", TitleEn = "5 trips completed", DescriptionFr = "Complétez 5 trajets en tant que passager.", DescriptionEn = "Complete 5 trips as passenger.", Category = "passengerOnly", Points = 100, Link = "/passenger/{id}/historique", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000005"), TaskKey = "GT-005", TitleFr = "Éco Conducteur", TitleEn = "Eco Driver", DescriptionFr = "Économisez 50kg de CO₂ grâce au covoiturage.", DescriptionEn = "Save 50kg of CO2 through carpooling.", Category = "driverOnly", Points = 120, Link = "/driver/{id}/statistiques", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000006"), TaskKey = "GT-006", TitleFr = "Super Conducteur", TitleEn = "Super Driver", DescriptionFr = "Maintenez une note moyenne de 4.8+ pendant 1 mois.", DescriptionEn = "Maintain 4.8+ average rating for 1 month.", Category = "driverOnly", Points = 150, Link = "/driver/{id}/statistiques", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000007"), TaskKey = "GT-007", TitleFr = "Avis partagé", TitleEn = "Review shared", DescriptionFr = "Donnez votre premier avis après un trajet.", DescriptionEn = "Leave your first review after a trip.", Category = "mixte", Points = 25, Link = "/passenger/{id}", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000008"), TaskKey = "GT-008", TitleFr = "Lieu favori ajouté", TitleEn = "Favorite place added", DescriptionFr = "Ajoutez un lieu favori à votre compte.", DescriptionEn = "Add a favorite place to your account.", Category = "mixte", Points = 20, Link = "/driver/{id}/favoris", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000009"), TaskKey = "GT-009", TitleFr = "Premier brouillon", TitleEn = "First draft", DescriptionFr = "Sauvegardez votre premier brouillon de trajet.", DescriptionEn = "Save your first trip draft.", Category = "driverOnly", Points = 15, Link = "/driver/{id}/brouillons", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000010"), TaskKey = "GT-010", TitleFr = "Favori humain", TitleEn = "Human favorite", DescriptionFr = "Ajoutez un autre membre en favori.", DescriptionEn = "Add another member as favorite.", Category = "mixte", Points = 30, Link = "/passenger/{id}/favoris", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000011"), TaskKey = "GT-011", TitleFr = "Ambassadeur Vert", TitleEn = "Green Ambassador", DescriptionFr = "Économisez 200kg de CO₂ cumulatif.", DescriptionEn = "Save 200kg of CO2 cumulatively.", Category = "driverOnly", Points = 200, Link = "/driver/{id}/statistiques", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000012"), TaskKey = "GT-012", TitleFr = "Communauté active", TitleEn = "Active community", DescriptionFr = "Participez à 3 défis écologiques.", DescriptionEn = "Participate in 3 eco challenges.", Category = "mixte", Points = 80, Link = "/driver/{id}/goboard", IsActive = true },
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000013"), TaskKey = "GT-013", TitleFr = "Identité vérifiée", TitleEn = "Verified identity", DescriptionFr = "Faites vérifier votre identité par la plateforme.", DescriptionEn = "Get your identity verified by the platform.", Category = "mixte", Points = 100, Link = "/profile/settings", IsActive = true },
+        };
+
+        await db.GoTasks.AddRangeAsync(goTasks, ct);
+
+        db.PlatformConfigs.Add(new PlatformConfig
+        {
+            Key = "seed.gotasks.v1",
+            Value = "seeded",
+            DataType = "string",
+            Category = "system",
+            Description = "GoTasks GT-001 à GT-013 injectés",
+            LastModifiedByAdminId = adminId,
+            UpdatedAt = DateTimeOffset.UtcNow
+        });
+
+        await db.SaveChangesAsync(ct);
+        logger.LogInformation("DatabaseSeeder: GoTasks GT-001→GT-013 injectés");
+    }
+
+    // ── Simulation 1 mois d'utilisation ──────────────────────────────────────
+
+    private static async Task SeedSimulationDataAsync(
+        AppDbContext db, ILogger logger,
+        Guid driver1Id, Guid driver2Id, Guid passenger1Id, Guid passenger2Id,
+        Guid vehicle1Id, Guid vehicle2Id,
+        GeometryFactory gf, DateTimeOffset now, CancellationToken ct)
+    {
+        var alreadySeeded = await db.PlatformConfigs.AsNoTracking()
+            .AnyAsync(c => c.Key == "seed.simulation.v1", ct);
+        if (alreadySeeded) return;
+
+        // 3 conducteurs supplémentaires
+        var driver3Id = Guid.Parse("B0000000-0000-0000-0000-000000000001");
+        var driver4Id = Guid.Parse("B0000000-0000-0000-0000-000000000002");
+        var driver5Id = Guid.Parse("B0000000-0000-0000-0000-000000000003");
+        var passenger3Id = Guid.Parse("B0000000-0000-0000-0000-000000000004");
+        var passenger4Id = Guid.Parse("B0000000-0000-0000-0000-000000000005");
+
+        var newUsers = new[]
+        {
+            new User { Id = driver3Id, Email = "6712345@collegelacite.ca", MicrosoftSsoId = "aad-driver-003", FirstName = "Karim", LastName = "Boudier", Role = UserRole.Driver, SchoolRole = SchoolRole.MembreDuPersonnel, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = true, GoScore = 310, ReputationPoints = 190, Language = "fr", PhoneNumber = "+1-514-000-0006", Bio = "Je vise toujours la ponctualité.", CreatedAt = now.AddMonths(-3), UpdatedAt = now.AddDays(-1) },
+            new User { Id = driver4Id, Email = "7123456@lacitec.on.ca", MicrosoftSsoId = "aad-driver-004", FirstName = "Priya", LastName = "Sharma", Role = UserRole.Driver, SchoolRole = SchoolRole.Etudiant, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = true, GoScore = 280, ReputationPoints = 160, Language = "en", PhoneNumber = "+1-514-000-0007", Bio = "Music-friendly rides.", CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-2) },
+            new User { Id = driver5Id, Email = "8234567@collegelacite.ca", MicrosoftSsoId = "aad-driver-005", FirstName = "Jordan", LastName = "Leblanc", Role = UserRole.Driver, SchoolRole = SchoolRole.Professeur, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = true, GoScore = 260, ReputationPoints = 130, Language = "fr", PhoneNumber = "+1-514-000-0008", CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-3) },
+            new User { Id = passenger3Id, Email = "9345678@collegelacite.ca", MicrosoftSsoId = "aad-passenger-003", FirstName = "Fatou", LastName = "Diallo", Role = UserRole.Passenger, SchoolRole = SchoolRole.Etudiant, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = false, GoScore = 195, ReputationPoints = 90, Language = "fr", PhoneNumber = "+1-514-000-0009", CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-1) },
+            new User { Id = passenger4Id, Email = "0456789@lacitec.on.ca", MicrosoftSsoId = "aad-passenger-004", FirstName = "Yan", LastName = "Chen", Role = UserRole.Passenger, SchoolRole = SchoolRole.Etudiant, Status = UserStatus.Active, IsProfileVerified = false, CanBeDriver = false, GoScore = 150, ReputationPoints = 60, Language = "en", PhoneNumber = "+1-514-000-0010", CreatedAt = now.AddMonths(-1), UpdatedAt = now.AddDays(-2) },
+        };
+        await db.Users.AddRangeAsync(newUsers, ct);
+
+        // Véhicules pour les nouveaux conducteurs
+        var vehicle3Id = Guid.Parse("C0000000-0000-0000-0000-000000000001");
+        var vehicle4Id = Guid.Parse("C0000000-0000-0000-0000-000000000002");
+        var vehicle5Id = Guid.Parse("C0000000-0000-0000-0000-000000000003");
+
+        var dp3Id = Guid.Parse("D0000000-0000-0000-0000-000000000001");
+        var dp4Id = Guid.Parse("D0000000-0000-0000-0000-000000000002");
+        var dp5Id = Guid.Parse("D0000000-0000-0000-0000-000000000003");
+
+        await db.DriverProfiles.AddRangeAsync(
+            new DriverProfile { Id = dp3Id, UserId = driver3Id, ValidationStatus = DriverValidationStatus.Approved, AverageRating = 4.7m, TotalTripsAsDriver = 18, CancellationRate = 0.05m, PunctualityScore = 88, Co2SavedKg = 62m, BalanceAvailable = 180m, WithholdingRate = 0.15m },
+            new DriverProfile { Id = dp4Id, UserId = driver4Id, ValidationStatus = DriverValidationStatus.Approved, AverageRating = 4.5m, TotalTripsAsDriver = 12, CancellationRate = 0.06m, PunctualityScore = 85, Co2SavedKg = 44m, BalanceAvailable = 120m, WithholdingRate = 0.15m },
+            new DriverProfile { Id = dp5Id, UserId = driver5Id, ValidationStatus = DriverValidationStatus.Approved, AverageRating = 4.3m, TotalTripsAsDriver = 8, CancellationRate = 0.08m, PunctualityScore = 80, Co2SavedKg = 28m, BalanceAvailable = 75m, WithholdingRate = 0.15m });
+
+        await db.Vehicles.AddRangeAsync(
+            new Vehicle { Id = vehicle3Id, DriverProfileId = dp3Id, Make = "Mazda", Model = "3", Year = 2022, LicensePlate = "DEF-456", Color = "Gris", Capacity = 4, IsActive = true, IsDefault = true, CreatedAt = now.AddMonths(-3), UpdatedAt = now.AddDays(-1) },
+            new Vehicle { Id = vehicle4Id, DriverProfileId = dp4Id, Make = "Hyundai", Model = "Elantra", Year = 2021, LicensePlate = "GHI-789", Color = "Blanc", Capacity = 4, IsActive = true, IsDefault = true, CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-2) },
+            new Vehicle { Id = vehicle5Id, DriverProfileId = dp5Id, Make = "Ford", Model = "Fusion", Year = 2019, LicensePlate = "JKL-012", Color = "Rouge", Capacity = 4, IsActive = true, IsDefault = true, CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-3) });
+
+        await db.UserPreferences.AddRangeAsync(newUsers.Select(u => new UserPreferences { Id = Guid.NewGuid(), UserId = u.Id, MusicAccepted = true, HasPets = false, SmokesRegularly = false, TypicalBaggage = false, ConversationLevel = ConversationLevel.Moderate, EmailNotifications = true, PushNotifications = true, Language = u.Language }), ct);
+
+        await db.UserStats.AddRangeAsync(
+            new UserStat { Id = Guid.NewGuid(), UserId = driver3Id, TotalTripsAsDriver = 18, TotalCo2SavedKg = 62m, TotalDistanceKm = 490m, AverageRatingAsDriver = 4.7m, TotalReviewsReceived = 14, TotalEarningsDriver = 850m, RecomputedAt = now },
+            new UserStat { Id = Guid.NewGuid(), UserId = driver4Id, TotalTripsAsDriver = 12, TotalCo2SavedKg = 44m, TotalDistanceKm = 310m, AverageRatingAsDriver = 4.5m, TotalReviewsReceived = 10, TotalEarningsDriver = 540m, RecomputedAt = now },
+            new UserStat { Id = Guid.NewGuid(), UserId = driver5Id, TotalTripsAsDriver = 8, TotalCo2SavedKg = 28m, TotalDistanceKm = 200m, AverageRatingAsDriver = 4.3m, TotalReviewsReceived = 6, TotalEarningsDriver = 320m, RecomputedAt = now },
+            new UserStat { Id = Guid.NewGuid(), UserId = passenger3Id, TotalTripsAsPassenger = 10, TotalCo2SavedKg = 34m, AverageRatingAsPassenger = 4.8m, TotalReviewsGiven = 8, TotalSpentPassenger = 110m, RecomputedAt = now },
+            new UserStat { Id = Guid.NewGuid(), UserId = passenger4Id, TotalTripsAsPassenger = 6, TotalCo2SavedKg = 18m, AverageRatingAsPassenger = 4.6m, TotalReviewsGiven = 5, TotalSpentPassenger = 64m, RecomputedAt = now });
+
+        // ── 20 trajets passés (1 mois, statut Completed) ──────────────────────
+        var tripIds = new Guid[20];
+        for (var i = 0; i < 20; i++) tripIds[i] = Guid.NewGuid();
+
+        var drivers = new[] { driver1Id, driver2Id, driver3Id, driver4Id, driver5Id };
+        var vehicles = new[] { vehicle1Id, vehicle2Id, vehicle3Id, vehicle4Id, vehicle5Id };
+        var routes = new[]
+        {
+            ("Campus La Cité", "Station Laurier", -75.6408m, 45.4362m, -75.6926m, 45.4215m, 11.3m, 28),
+            ("Campus La Cité", "ByWard Market", -75.6408m, 45.4362m, -75.6900m, 45.4289m, 10.4m, 30),
+            ("Campus La Cité", "Glebe", -75.6408m, 45.4362m, -75.6930m, 45.4000m, 14.2m, 35),
+            ("Campus La Cité", "Barrhaven", -75.6408m, 45.4362m, -75.7600m, 45.2930m, 22.5m, 45),
+            ("Station Laurier", "Campus La Cité", -75.6926m, 45.4215m, -75.6408m, 45.4362m, 11.3m, 28),
+        };
+
+        var tripList = new List<Trip>();
+        for (var i = 0; i < 20; i++)
+        {
+            var dIdx = i % 5;
+            var rIdx = i % routes.Length;
+            var r = routes[rIdx];
+            var daysAgo = 30 - (i * 1);
+            var depDate = DateOnly.FromDateTime(now.AddDays(-daysAgo).DateTime);
+
+            tripList.Add(new Trip
+            {
+                Id = tripIds[i],
+                DriverId = drivers[dIdx],
+                VehicleId = vehicles[dIdx],
+                DepartureLabel = r.Item1,
+                DepartureAddress = r.Item1 + ", Ottawa",
+                DeparturePoint = gf.CreatePoint(new Coordinate((double)r.Item3, (double)r.Item4)),
+                ArrivalLabel = r.Item2,
+                ArrivalAddress = r.Item2 + ", Ottawa",
+                ArrivalPoint = gf.CreatePoint(new Coordinate((double)r.Item5, (double)r.Item6)),
+                DepartureDate = depDate,
+                DepartureTime = new TimeOnly(8 + (i % 3) * 2, 0),
+                EstimatedDurationMinutes = r.Item8,
+                EstimatedDistanceKm = r.Item7,
+                MaxPassengers = 3,
+                CurrentPassengers = 1 + (i % 2),
+                PricePerPassenger = 7.00m + (i % 4),
+                PassengerPrice = 7.00m + (i % 4),
+                PaymentMethod = i % 2 == 0 ? PaymentMethod.Interac : PaymentMethod.Cash,
+                Status = TripStatus.Completed,
+                TripType = TripType.Unique,
+                Co2SavedKg = r.Item7 * 0.12m,
+                AverageRating = 4.0m + ((i % 5) * 0.2m),
+                ActualStartedAt = now.AddDays(-daysAgo),
+                ActualCompletedAt = now.AddDays(-daysAgo).AddMinutes(r.Item8),
+                BaggageAllowed = true, PetsAllowed = false, SmokingAllowed = false, MusicAllowed = true,
+                ConversationLevel = ConversationLevel.Moderate,
+                CreatedAt = now.AddDays(-daysAgo - 3),
+                UpdatedAt = now.AddDays(-daysAgo)
+            });
+        }
+        await db.Trips.AddRangeAsync(tripList, ct);
+
+        // ── 20 réservations pour ces trajets ─────────────────────────────────
+        var passengers = new[] { passenger1Id, passenger2Id, passenger3Id, passenger4Id };
+        var reservations = new List<Reservation>();
+        for (var i = 0; i < 20; i++)
+        {
+            var daysAgo = 30 - (i * 1);
+            var dIdx = i % 5;
+            reservations.Add(new Reservation
+            {
+                Id = Guid.NewGuid(),
+                TripId = tripIds[i],
+                PassengerId = passengers[i % 4],
+                DriverId = drivers[dIdx],
+                Status = ReservationStatus.Confirmed,
+                PricePerSeat = 7.00m + (i % 4),
+                TotalAmount = 7.00m + (i % 4),
+                PaymentStatus = PaymentStatus.Captured,
+                CompatibilityScore = 75 + (i % 20),
+                CreatedAt = now.AddDays(-daysAgo - 2),
+                RequestedAt = now.AddDays(-daysAgo - 2),
+                ConfirmedAt = now.AddDays(-daysAgo - 1),
+                UpdatedAt = now.AddDays(-daysAgo)
+            });
+        }
+        await db.Reservations.AddRangeAsync(reservations, ct);
+
+        // ── 15 avis sur ces trajets ───────────────────────────────────────────
+        var ratings = new[] { 5, 5, 4, 5, 4, 5, 3, 5, 4, 5, 5, 4, 5, 4, 5 };
+        var reviewTags = new[] { new[] { "ponctuel", "propre" }, new[] { "sympathique" }, new[] { "confort" } };
+        var reviews = new List<Review>();
+        for (var i = 0; i < 15; i++)
+        {
+            var daysAgo = 29 - i;
+            var res = reservations[i];
+            reviews.Add(new Review
+            {
+                Id = Guid.NewGuid(),
+                TripId = res.TripId,
+                ReservationId = res.Id,
+                ReviewerId = res.PassengerId,
+                RevieweeId = res.DriverId,
+                RevieweeRole = UserRole.Driver,
+                Rating = ratings[i],
+                Comment = $"Trajet #{i + 1} — note {ratings[i]}/5.",
+                Tags = reviewTags[i % reviewTags.Length],
+                IsPublished = true,
+                CreatedAt = now.AddDays(-daysAgo)
+            });
+        }
+        await db.Reviews.AddRangeAsync(reviews, ct);
+
+        // ── Lieux favoris simulés ─────────────────────────────────────────────
+        var allUserIds = new[] { driver1Id, driver2Id, driver3Id, passenger1Id, passenger2Id };
+        var lieuLabels = new[] { ("Domicile", "domicile", 45.4180m, -75.7020m), ("Travail", "travail", 45.4260m, -75.7100m) };
+        var placesList = new List<PlaceFavori>();
+        foreach (var uid in allUserIds)
+        {
+            foreach (var (label, icon, lat, lng) in lieuLabels)
+            {
+                placesList.Add(new PlaceFavori
+                {
+                    Id = Guid.NewGuid(), UserId = uid,
+                    Pseudonyme = label, Adresse = label + ", Ottawa",
+                    Lat = lat + (uid.GetHashCode() % 100) * 0.0001m,
+                    Lng = lng + (uid.GetHashCode() % 100) * 0.0001m,
+                    IconTag = icon, IsAnchored = false,
+                    CreatedAt = now.AddDays(-20)
+                });
+            }
+        }
+        await db.PlacesFavoris.AddRangeAsync(placesList, ct);
+
+        // ── GoTask progressions (driver1 proche complétion de plusieurs) ──────
+        var goTaskIds = new[]
+        {
+            Guid.Parse("A0000000-0000-0000-0000-000000000001"),
+            Guid.Parse("A0000000-0000-0000-0000-000000000002"),
+            Guid.Parse("A0000000-0000-0000-0000-000000000003"),
+            Guid.Parse("A0000000-0000-0000-0000-000000000005"),
+            Guid.Parse("A0000000-0000-0000-0000-000000000007"),
+        };
+        // Only add if GoTasks were seeded (idempotent check already done above)
+        var existingKeys = await db.GoTasks.AsNoTracking().Select(t => t.Id).ToListAsync(ct);
+        var progressions = new List<UserGoTaskProgression>();
+        foreach (var taskId in goTaskIds)
+        {
+            if (!existingKeys.Contains(taskId)) continue;
+            progressions.Add(new UserGoTaskProgression { Id = Guid.NewGuid(), UserId = driver1Id, GoTaskId = taskId, IsDone = true, CompletedAt = now.AddDays(-15) });
+            progressions.Add(new UserGoTaskProgression { Id = Guid.NewGuid(), UserId = passenger1Id, GoTaskId = taskId, IsDone = true, CompletedAt = now.AddDays(-10) });
+        }
+        if (progressions.Count > 0)
+            await db.UserGoTaskProgressions.AddRangeAsync(progressions, ct);
+
+        // ── Notifications supplémentaires ─────────────────────────────────────
+        var notifList = new List<Notification>();
+        for (var i = 0; i < 10; i++)
+        {
+            notifList.Add(new Notification
+            {
+                Id = Guid.NewGuid(),
+                UserId = passengers[i % 4],
+                Type = i % 3 == 0 ? NotificationType.ReservationAccepted : i % 3 == 1 ? NotificationType.TripReminder : NotificationType.NewReview,
+                Title = $"Notification #{i + 1}",
+                Body = $"Message de test #{i + 1}",
+                IsRead = i % 2 == 0,
+                IsImportant = i < 3,
+                RelatedTripId = tripIds[i],
+                CreatedAt = now.AddDays(-(i + 1))
+            });
+        }
+        await db.Notifications.AddRangeAsync(notifList, ct);
+
+        db.PlatformConfigs.Add(new PlatformConfig
+        {
+            Key = "seed.simulation.v1",
+            Value = "seeded",
+            DataType = "string",
+            Category = "system",
+            Description = "Simulation 1 mois — 5 users, 20 trips, 20 réservations, 15 avis",
+            LastModifiedByAdminId = Guid.Parse("10000000-0000-0000-0000-000000000001"),
+            UpdatedAt = DateTimeOffset.UtcNow
+        });
+
+        await db.SaveChangesAsync(ct);
+        logger.LogInformation("DatabaseSeeder: simulation 1 mois injectée (5 users, 20 trips, 20 réservations, 15 avis, lieux favoris, GoTask progressions)");
     }
 }
 

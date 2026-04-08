@@ -24,7 +24,8 @@ export async function POST() {
     setAuthSessionCookie(response, idKey, expiresAt);
 
     return response;
-  } catch {
+  } catch (err) {
+    console.error('[api/auth/session/init]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

@@ -89,7 +89,8 @@ export default function DriverFinancesRoutePage() {
       // Rafraîchir les données après retrait réussi
       void loadData(periode);
       return { ok: true, msg: body.message || "Retrait effectué" };
-    } catch {
+    } catch (err) {
+      console.error("[driver/finances/page]", err);
       return { ok: false, msg: "Erreur réseau" };
     }
   }, [user, loadData, periode]);

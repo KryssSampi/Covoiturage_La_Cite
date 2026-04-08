@@ -176,16 +176,16 @@ export function useHeader(externalNotifCount?: number): UseHeaderReturn {
   const toggleAvatar = useCallback(() => setIsAvatarOpen((prev) => !prev), []);
 
   const handleLogout = useCallback(() => {
+    // Vider le state en premier — login page ne verra plus userConnected
+    appState.logout();
     setActiveLoader(true);
-    // Call server logout which forwards the request to Server Core and clears cookie
     void (async () => {
       try {
         await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
       } catch {
         // ignore
       }
-      router.push('/login');
-      appState.logout();
+      router.replace('/login');
     })();
   }, [appState, router, setActiveLoader]);
 

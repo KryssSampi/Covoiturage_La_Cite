@@ -18,7 +18,8 @@ export async function GET(req: Request, { params }: Context) {
       return NextResponse.json({ error: result.message ?? 'Réservation introuvable' }, { status: 404 });
     }
     return NextResponse.json(result.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/reservations/[id]]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

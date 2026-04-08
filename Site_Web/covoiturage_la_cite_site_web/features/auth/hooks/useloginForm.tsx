@@ -26,7 +26,7 @@ export interface CoreUserResponse {
 export function coreToConnectedUser(core: CoreUserResponse): ConnectedUser {
   return {
     id:          core.id,
-    role:        core.role.toLowerCase(),
+    role:        String(core.role).toLowerCase(),
     firstName:   core.firstName,
     lastName:    core.lastName,
     avatarUrl:   core.avatarUrl ?? null,

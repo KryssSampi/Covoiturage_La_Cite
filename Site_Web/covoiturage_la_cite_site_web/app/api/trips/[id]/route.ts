@@ -14,7 +14,8 @@ export async function GET(req: Request, { params }: Context) {
       return NextResponse.json({ error: result.message ?? 'Trajet introuvable' }, { status: 404 });
     }
     return NextResponse.json(result.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/trips/[id]]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -32,7 +33,8 @@ export async function PATCH(req: Request, { params }: Context) {
     }
 
     return NextResponse.json(result.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/trips/[id]]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -49,7 +51,8 @@ export async function DELETE(req: Request, { params }: Context) {
     }
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err) {
+    console.error('[api/trips/[id]]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

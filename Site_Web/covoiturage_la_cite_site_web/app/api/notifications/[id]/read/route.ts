@@ -16,7 +16,8 @@ export async function PATCH(req: Request, { params }: Context) {
     }
 
     return NextResponse.json(result.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/notifications/[id]/read]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

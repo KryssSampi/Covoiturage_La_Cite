@@ -20,7 +20,8 @@ export async function GET(req: Request) {
 
     const activity = getActivityForUser(userId);
     return NextResponse.json(activity ?? { userId, isCurrentlyConnectedOnWeb: false });
-  } catch {
+  } catch (err) {
+    console.error('[api/user-activity]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -58,7 +59,8 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ error: 'action invalide (connect|disconnect)' }, { status: 400 });
-  } catch {
+  } catch (err) {
+    console.error('[api/user-activity]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

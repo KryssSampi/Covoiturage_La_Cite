@@ -6,6 +6,10 @@ public interface IAdminService
 {
     // Dashboard
     Task<PlatformStatsDto> GetDashboardStatsAsync(CancellationToken ct = default);
+    /// <summary>
+    /// Statistiques publiques de la plateforme (sans auth) — utilisé par la page About.
+    /// </summary>
+    Task<PlatformStatsDto> GetPublicPlatformStatsAsync(CancellationToken ct = default);
 
     // User Management
     Task SuspendUserAsync(Guid adminId, Guid userId, string reason, CancellationToken ct = default);
@@ -23,6 +27,9 @@ public interface IAdminService
     // Audit Log
     Task<IEnumerable<AuditLogDto>> GetRecentAuditLogsAsync(int count = 50, CancellationToken ct = default);
     Task<IEnumerable<AuditLogDto>> GetAuditLogsByEntityAsync(string entityType, Guid entityId, CancellationToken ct = default);
+
+    // Simulation (admin only — outil de test)
+    Task<SimulateEventResultDto> SimulateEventAsync(Guid adminId, SimulateEventRequestDto dto, CancellationToken ct = default);
 
     // Helpers
     Task LogAuditAsync(Guid? actorId, string actorRole, string action, string entityType, Guid? entityId,

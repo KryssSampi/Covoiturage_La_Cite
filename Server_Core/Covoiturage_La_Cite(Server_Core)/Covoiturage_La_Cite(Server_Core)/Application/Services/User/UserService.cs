@@ -346,6 +346,29 @@ public class UserService : IUserService
         return MapSurveyAlert(alert);
     }
 
+    public async Task<SurveyTripAlertDto> ToggleSurveyAlertAsync(Guid userId, Guid alertId, CancellationToken ct = default)
+    {
+        var alert = await _db.SurveyTripAlerts
+            .FirstOrDefaultAsync(s => s.Id == alertId && s.UserId == userId, ct)
+            ?? throw new KeyNotFoundException("Alerte introuvable ou accès refusé");
+
+        alert.IsActive = !alert.IsActive;
+        await _db.SaveChangesAsync(ct);
+        _logger.LogInformation("SurveyTripAlert {AlertId} toggle → IsActive={IsActive}", alertId, alert.IsActive);
+        return MapSurveyAlert(alert);
+    }
+
+    public async Task DeleteSurveyAlertAsync(Guid userId, Guid alertId, CancellationToken ct = default)
+    {
+        var alert = await _db.SurveyTripAlerts
+            .FirstOrDefaultAsync(s => s.Id == alertId && s.UserId == userId, ct)
+            ?? throw new KeyNotFoundException("Alerte introuvable ou accès refusé");
+
+        _db.SurveyTripAlerts.Remove(alert);
+        await _db.SaveChangesAsync(ct);
+        _logger.LogInformation("SurveyTripAlert {AlertId} supprimée par {UserId}", alertId, userId);
+    }
+
     private static SurveyTripAlertDto MapSurveyAlert(SurveyTripAlert a) => new()
     {
         Id = a.Id,

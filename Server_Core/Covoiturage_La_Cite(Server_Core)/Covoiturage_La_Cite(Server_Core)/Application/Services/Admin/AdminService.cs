@@ -1,7 +1,9 @@
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Admin;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Entities;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Admin;
 
@@ -12,6 +14,7 @@ public class AdminService : IAdminService
     private readonly IPlatformConfigRepository _configRepo;
     private readonly IAuditLogRepository _auditRepo;
     private readonly IPlatformStatsRepository _statsRepo;
+    private readonly AppDbContext _db;
     private readonly ILogger<AdminService> _logger;
 
     public AdminService(
@@ -20,6 +23,7 @@ public class AdminService : IAdminService
         IPlatformConfigRepository configRepo,
         IAuditLogRepository auditRepo,
         IPlatformStatsRepository statsRepo,
+        AppDbContext db,
         ILogger<AdminService> logger)
     {
         _userRepo = userRepo;
@@ -27,6 +31,7 @@ public class AdminService : IAdminService
         _configRepo = configRepo;
         _auditRepo = auditRepo;
         _statsRepo = statsRepo;
+        _db = db;
         _logger = logger;
     }
 
@@ -51,6 +56,15 @@ public class AdminService : IAdminService
             PendingDriverApplications = stats.PendingDriverApplications,
             ComputedAt = stats.ComputedAt
         };
+    }
+
+    /// <summary>
+    /// Statistiques publiques de la plateforme (sans auth) — utilisé par la page About.
+    /// Réutilise GetDashboardStatsAsync car les données sont les mêmes.
+    /// </summary>
+    public async Task<PlatformStatsDto> GetPublicPlatformStatsAsync(CancellationToken ct = default)
+    {
+        return await GetDashboardStatsAsync(ct);
     }
 
     // ── User Management ──────────────────────────────────────────────────────
@@ -184,6 +198,104 @@ public class AdminService : IAdminService
             CreatedAt = DateTimeOffset.UtcNow
         };
         await _auditRepo.AddAsync(log, ct);
+    }
+
+    // ── Simulation (outil admin) ─────────────────────────────────────────────
+
+    public async Task<SimulateEventResultDto> SimulateEventAsync(
+        Guid adminId, SimulateEventRequestDto dto, CancellationToken ct = default)
+    {
+        var trip = await _db.Trips.FirstOrDefaultAsync(t => t.Id == dto.TripId, ct)
+            ?? throw new KeyNotFoundException("Trajet introuvable");
+
+        var activeReservations = await _db.Reservations
+            .Where(r => r.TripId == dto.TripId &&
+                        (r.Status == ReservationStatus.Confirmed ||
+                         r.Status == ReservationStatus.InProgress ||
+                         r.Status == ReservationStatus.Pending))
+            .ToListAsync(ct);
+
+        string message;
+        SimulatePenaliteDto? penalite = null;
+
+        switch (dto.Event)
+        {
+            case "retard_15_30":
+            case "retard_30_60":
+                penalite = new SimulatePenaliteDto { Montant = dto.Event == "retard_15_30" ? 5m : 15m, PointsReputation = -5 };
+                message = $"Pénalité retard appliquée : {penalite.Montant}$ débités du conducteur";
+                break;
+
+            case "retard_60plus":
+                penalite = new SimulatePenaliteDto { Montant = 25m, PointsReputation = -15 };
+                trip.Status = TripStatus.Cancelled;
+                foreach (var r in activeReservations) r.Status = ReservationStatus.CancelledByDriver;
+                message = "Retard > 60 min : trajet annulé, passagers remboursés à 100%";
+                break;
+
+            case "annulation_conducteur":
+                penalite = new SimulatePenaliteDto { Montant = 20m, PointsReputation = -10 };
+                trip.Status = TripStatus.Cancelled;
+                foreach (var r in activeReservations) r.Status = ReservationStatus.CancelledByDriver;
+                message = $"Annulation conducteur : pénalité {penalite.Montant}$, passagers remboursés";
+                break;
+
+            case "no_show_conducteur":
+                penalite = new SimulatePenaliteDto { Montant = 30m, PointsReputation = -20, Suspension = "7 jours" };
+                trip.Status = TripStatus.NoShow;
+                foreach (var r in activeReservations) r.Status = ReservationStatus.CancelledByDriver;
+                message = $"No-show conducteur : pénalité {penalite.Montant}$, suspension 7 jours, passagers remboursés";
+                break;
+
+            case "no_show_passager":
+                var target = dto.ReservationId.HasValue
+                    ? activeReservations.FirstOrDefault(r => r.Id == dto.ReservationId.Value)
+                    : activeReservations.FirstOrDefault(r =>
+                        r.Status == ReservationStatus.Confirmed || r.Status == ReservationStatus.InProgress);
+                if (target is null) throw new InvalidOperationException("Aucune réservation active trouvée pour ce trajet");
+                target.Status = ReservationStatus.NoShow;
+                penalite = new SimulatePenaliteDto { Montant = 10m, PointsReputation = -5 };
+                message = $"No-show passager : pénalité appliquée, 85% versé au conducteur";
+                activeReservations.Clear();
+                activeReservations.Add(target);
+                break;
+
+            case "trajet_complete":
+                trip.Status = TripStatus.Completed;
+                foreach (var r in activeReservations) r.Status = ReservationStatus.Completed;
+                message = $"Trajet complété : paiement capturé pour {activeReservations.Count} passager(s)";
+                break;
+
+            case "litige":
+                penalite = new SimulatePenaliteDto { Montant = 50m, PointsReputation = -25, Suspension = "30 jours" };
+                message = $"Signalement validé : pénalité {penalite.Montant}$, suspension 30 jours";
+                break;
+
+            case "accident":
+                trip.Status = TripStatus.Cancelled;
+                foreach (var r in activeReservations) r.Status = ReservationStatus.CancelledByDriver;
+                message = "Accident : trajet annulé, remboursement 100% pour tous les passagers";
+                break;
+
+            default:
+                throw new ArgumentException($"Événement inconnu : {dto.Event}");
+        }
+
+        await _db.SaveChangesAsync(ct);
+        await LogAuditAsync(adminId, "admin", $"simulate.{dto.Event}", "Trip", dto.TripId,
+            newValue: message, ct: ct);
+
+        _logger.LogInformation("Admin {AdminId} a simulé l'événement {Event} sur le trajet {TripId}", adminId, dto.Event, dto.TripId);
+
+        return new SimulateEventResultDto
+        {
+            Success = true,
+            Event = dto.Event,
+            TripId = dto.TripId,
+            Message = message,
+            AffectedReservations = activeReservations.Count,
+            Penalite = penalite
+        };
     }
 
     // ── Mappers ──────────────────────────────────────────────────────────────

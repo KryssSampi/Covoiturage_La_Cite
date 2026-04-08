@@ -36,7 +36,7 @@ export default function BrouillonsRoutePage() {
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/drafts?driverId=${encodeURIComponent(user.id)}`);
+      const res = await fetch('/api/drafts');
       if (!res.ok) return;
       const drafts: DraftTrip[] = await res.json();
       setItems(drafts);

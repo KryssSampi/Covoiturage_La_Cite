@@ -11,7 +11,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
     return NextResponse.json({ count: result.data ?? 0 });
-  } catch {
+  } catch (err) {
+    console.error('[api/messages/unread-count]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

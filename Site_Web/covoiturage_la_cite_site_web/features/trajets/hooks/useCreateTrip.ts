@@ -262,7 +262,8 @@ export function useCreateTrip(
           message: data.error ?? 'Erreur lors de la publication.',
         });
       }
-    } catch {
+    } catch (err) {
+      console.error('[useCreateTrip] doPublish', err);
       setTripToast({
         isOpen: true,
         success: false,
@@ -291,8 +292,8 @@ export function useCreateTrip(
           return;
         }
       }
-    } catch {
-      // optional preflight check
+    } catch (err) {
+      console.error('[useCreateTrip] handlePublish indisponibilité preflight', err);
     }
 
     // ── 2. Vérification de conflit avec les trajets existants ─────────────
@@ -324,8 +325,8 @@ export function useCreateTrip(
           }
         }
       }
-    } catch {
-      // optional preflight check
+    } catch (err) {
+      console.error('[useCreateTrip] handlePublish conflict preflight', err);
     }
 
     await doPublish();
@@ -389,7 +390,8 @@ export function useCreateTrip(
           message: data.error ?? 'Erreur lors de la sauvegarde.',
         });
       }
-    } catch {
+    } catch (err) {
+      console.error('[useCreateTrip] handleSaveDraft', err);
       setTripToast({
         isOpen: true,
         success: false,

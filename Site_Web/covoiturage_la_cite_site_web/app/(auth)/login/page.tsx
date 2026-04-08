@@ -32,7 +32,7 @@ export default function LoginPage() {
   const handleLoginSuccess = (user: AuthLoginUser) => {
     const connected: ConnectedUser = {
       id: user.id,
-      role: user.role.toLowerCase(),
+      role: String(user.role).toLowerCase(),
       firstName: user.firstName,
       lastName: user.lastName,
       avatarUrl: user.avatarUrl ?? null,

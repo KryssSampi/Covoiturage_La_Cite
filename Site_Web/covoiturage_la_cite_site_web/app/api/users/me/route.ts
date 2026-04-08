@@ -9,7 +9,8 @@ export async function GET(req: Request) {
     const result = await UserService.getMe(auth);
     if (!result.success) return NextResponse.json({ error: result.message }, { status: 401 });
     return NextResponse.json(result.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/users/me]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -22,7 +23,8 @@ export async function PATCH(req: Request) {
     const result = await UserService.updateMe(body, auth);
     if (!result.success) return NextResponse.json({ error: result.message }, { status: 400 });
     return NextResponse.json(result.data);
-  } catch {
+  } catch (err) {
+    console.error('[api/users/me]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

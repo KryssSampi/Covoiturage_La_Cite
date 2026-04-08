@@ -37,7 +37,7 @@ export default function PassengerHistoriqueRoutePage() {
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/passenger/historique?passengerId=${encodeURIComponent(user.id)}`);
+      const res = await fetch('/api/passenger/historique');
       if (!res.ok) return;
       setItems(await res.json());
     } catch (error) {

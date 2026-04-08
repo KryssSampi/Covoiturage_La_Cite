@@ -52,7 +52,7 @@ interface VehicleTabProps {
 
 export function VehicleTab({
   vehicle,
-  vehicles = mockVehicles,
+  vehicles = [],
   onChange,
   onSelectVehicle,
   onSetActive,

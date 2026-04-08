@@ -141,7 +141,8 @@ export function usePublishedTripView({
           message: data.error ?? 'Erreur serveur',
         });
       }
-    } catch {
+    } catch (err) {
+      console.error('[usePublishedTripView] handleReservationRequest', err);
       setReservationToast({ isOpen: true, success: false, message: 'Erreur réseau' });
     } finally {
       setIsSubmitting(false);

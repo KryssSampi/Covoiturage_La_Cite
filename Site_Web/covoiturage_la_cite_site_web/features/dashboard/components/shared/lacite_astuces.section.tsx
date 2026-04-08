@@ -8,6 +8,24 @@ import { Language, useAppState } from "@/core/state/app_state";
 import { Tip } from "../../types/lacite_astuces.types";
 import { LACITE_TIPS } from "@/tests/fixtures/dashboard/lacite_astuces.fixtures";
 
+/**
+ * Fetch les astuces depuis l'API et les convertit au format Tip.
+ * Retourne les données de l'API ou fallback sur LACITE_TIPS si erreur/vide.
+ */
+async function fetchTips(): Promise<Tip[]> {
+  try {
+    const response = await fetch("/api/astuces");
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const data: Tip[] = await response.json();
+    return data.length > 0 ? data : LACITE_TIPS;
+  } catch (err) {
+    console.warn("[LaCiteAstuces] Impossible de charger les astuces, fallback sur fixtures.", err);
+    return LACITE_TIPS;
+  }
+}
+
 const AUTO_SLIDE_INTERVAL_MS = 15_000;
 
 function AstucesSkeleton() {
@@ -29,8 +47,8 @@ function AstucesSkeleton() {
 }
 
 export function LaCiteAstucesSection({
-  tips = LACITE_TIPS,
-  isLoading = false,
+  tips: propTips,
+  isLoading: propIsLoading = false,
 }: {
   tips?: Tip[];
   isLoading?: boolean;
@@ -38,8 +56,30 @@ export function LaCiteAstucesSection({
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
   const [index, setIndex] = useState(0);
+  const [fetchedTips, setFetchedTips] = useState<Tip[]>([]);
+  const [isFetching, setIsFetching] = useState(true);
 
-  const safeTips = tips.length > 0 ? tips : LACITE_TIPS;
+  // Fetch les astuces au montage du composant
+  useEffect(() => {
+    let cancelled = false;
+    setIsFetching(true);
+    fetchTips().then((data) => {
+      if (!cancelled) {
+        setFetchedTips(data);
+        setIsFetching(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  // Priorité : propTips > fetchedTips > LACITE_TIPS (fallback)
+  const safeTips = (propTips && propTips.length > 0)
+    ? propTips
+    : fetchedTips.length > 0
+      ? fetchedTips
+      : LACITE_TIPS;
+
+  const isLoading = propIsLoading || isFetching;
 
   const next = useCallback(() => {
     setIndex((prev) => (prev + 1) % safeTips.length);

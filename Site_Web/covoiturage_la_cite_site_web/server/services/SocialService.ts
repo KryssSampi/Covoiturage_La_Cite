@@ -35,11 +35,15 @@ export interface AffinityResponseDto {
   id: string;
   userId: string;
   targetUserId: string;
-  isFavorite: boolean;
+  isActuallyFavorite?: boolean;
+  isFavorite?: boolean;
   isBlocked: boolean;
   affinityScore: number;
-  sharedTrips: number;
-  lastInteraction?: string;
+  totalTripsTogether?: number;
+  sharedTrips?: number;
+  favoriteSince?: string | null;
+  avgRatingGiven?: number | null;
+  createdAt?: string;
 }
 
 // ── Types — Reports ───────────────────────────────────────────────────────────

@@ -20,6 +20,8 @@ using Covoiturage_La_Cite_Server_Core_.Application.Services.Security;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Social;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Sse;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Trip;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Places;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Stats;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Vehicle;
 using Covoiturage_La_Cite_Server_Core_.Data.MongoDB;
@@ -92,7 +94,12 @@ try
     builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
     // ── Controllers + OpenAPI ────────────────────────────────────────────────
-    builder.Services.AddControllers();
+    builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(
+                new System.Text.Json.Serialization.JsonStringEnumConverter());
+        });
     builder.Services.AddOpenApi();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
@@ -212,6 +219,15 @@ try
 
     // P18 — Contenu éditorial (Astuces + Nouveautés)
     builder.Services.AddScoped<IContentService, ContentService>();
+
+    // P19 — FAQ (Foire Aux Questions) — MongoDB
+    builder.Services.AddScoped<IFaqService, FaqService>();
+
+    // P20 — Lieux favoris (PlaceFavori) — PostgreSQL
+    builder.Services.AddScoped<IPlaceFavoriService, PlaceFavoriService>();
+
+    // P21 — Statistiques utilisateur — PostgreSQL
+    builder.Services.AddScoped<IUserStatsService, UserStatsService>();
     // ─────────────────────────────────────────────────────────────────────────
     var app = builder.Build();
 

@@ -63,4 +63,5 @@ public class User
     public ICollection<UserLike> LikesReceived { get; set; } = new List<UserLike>();
     public ICollection<SurveyTripAlert> SurveyAlerts { get; set; } = new List<SurveyTripAlert>();
     public ICollection<SurveyTripAlert> SurveyAlertsAsDriver { get; set; } = new List<SurveyTripAlert>();
+    public ICollection<PlaceFavori> PlacesFavoris { get; set; } = new List<PlaceFavori>();
 }

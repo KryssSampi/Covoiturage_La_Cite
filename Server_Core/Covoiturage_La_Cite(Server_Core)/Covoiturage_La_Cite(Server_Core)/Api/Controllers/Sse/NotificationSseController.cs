@@ -21,6 +21,18 @@ public class NotificationSseController : ControllerBase
     }
 
     /// <summary>
+    /// GET /api/sse/health
+    /// Health-check du service SSE — ne nécessite pas d'authentification.
+    /// Retourne OK si le service SSE est opérationnel.
+    /// </summary>
+    [HttpGet("health")]
+    [AllowAnonymous]
+    public IActionResult Health()
+    {
+        return Ok(new { status = "ok", service = "sse", timestamp = DateTimeOffset.UtcNow });
+    }
+
+    /// <summary>
     /// GET /api/sse/notifications
     /// Ouvre un flux SSE (text/event-stream) pour les notifications temps réel.
     /// Le client doit envoyer le JWT dans le header Authorization (Bearer).

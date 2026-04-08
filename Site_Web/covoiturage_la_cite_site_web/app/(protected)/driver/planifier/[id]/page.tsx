@@ -6,7 +6,6 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import { FaCalendarDays } from "react-icons/fa6";
 
-import { useDb } from "@/core/context/db.context";
 import { useLoader } from "@/core/context/loader.context";
 import type { IndisponibilityDateRange } from "@/core/models/IndisponibilityModel";
 import type { UserModel } from "@/core/models/UserModel";
@@ -129,15 +128,14 @@ export default function PlannerPage() {
   const { setActiveLoader } = useLoader();
   const routeId = typeof params.id === "string" ? params.id : params.id?.[0];
   const userRole = userConnected?.role?.toString().toLowerCase();
-  const {
-    trips,
-    reservations,
-    users,
-    myIndisponibility,
-    refreshTrips,
-    refreshReservations,
-    refreshIndisponibilities,
-  } = useDb();
+  // DbProvider supprimé — les données viennent des appels fetch directs
+  const trips: import("@/core/models/TripModel").TripModel[] = [];
+  const reservations: import("@/core/models/ReservationModel").ReservationModel[] = [];
+  const users: import("@/core/models/UserModel").UserModel[] = [];
+  const myIndisponibility = null;
+  const refreshTrips = async () => {};
+  const refreshReservations = async () => {};
+  const refreshIndisponibilities = async () => {};
   const newTripId = searchParams.get("newTripId");
 
   useEffect(() => {
