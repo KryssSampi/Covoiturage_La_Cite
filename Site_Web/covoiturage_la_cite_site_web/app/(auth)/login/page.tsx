@@ -21,11 +21,17 @@ export default function LoginPage() {
     if (appState.userConnected) {
       const { role, id, onboardingCompleted } = appState.userConnected;
       setActiveLoader(true);
-      if (!onboardingCompleted) {
-        router.replace(`/onboarding/${id}`);
-      } else {
-        router.replace(`/${role}/${id}`);
-      }
+      (async () => {
+        try {
+          if (!onboardingCompleted) {
+            await router.replace(`/onboarding/${id}`);
+          } else {
+            await router.replace(`/${role}/${id}`);
+          }
+        } finally {
+          setActiveLoader(false);
+        }
+      })();
     }
   }, [appState.userConnected, router, setActiveLoader]);
 
@@ -41,7 +47,6 @@ export default function LoginPage() {
     };
 
     appState.login(connected);
-    setActiveLoader(true);
     // Navigation centralisée dans le useEffect (évite les courses concurrents)
   };
 

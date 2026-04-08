@@ -49,30 +49,30 @@ public class TransactionRepository : ITransactionRepository
     public async Task<IEnumerable<Transaction>> GetByDriverIdAsync(Guid driverId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default)
     {
         var q = _db.Transactions.Where(t => t.DriverId == driverId);
-        if (from.HasValue) q = q.Where(t => t.CreatedAt >= from.Value);
-        if (to.HasValue) q = q.Where(t => t.CreatedAt <= to.Value);
+        if (from.HasValue) { var f = from.Value.ToUniversalTime(); q = q.Where(t => t.CreatedAt >= f); }
+        if (to.HasValue) { var t2 = to.Value.ToUniversalTime(); q = q.Where(t => t.CreatedAt <= t2); }
         return await q.OrderByDescending(t => t.CreatedAt).ToListAsync(ct);
     }
 
     public async Task<IEnumerable<Transaction>> GetByPassengerIdAsync(Guid passengerId, DateTimeOffset? from, DateTimeOffset? to, CancellationToken ct = default)
     {
         var q = _db.Transactions.Where(t => t.PassengerId == passengerId);
-        if (from.HasValue) q = q.Where(t => t.CreatedAt >= from.Value);
-        if (to.HasValue) q = q.Where(t => t.CreatedAt <= to.Value);
+        if (from.HasValue) { var f = from.Value.ToUniversalTime(); q = q.Where(t => t.CreatedAt >= f); }
+        if (to.HasValue) { var t2 = to.Value.ToUniversalTime(); q = q.Where(t => t.CreatedAt <= t2); }
         return await q.OrderByDescending(t => t.CreatedAt).ToListAsync(ct);
     }
 
     public async Task<decimal> GetDriverTotalEarningsAsync(Guid driverId, DateTimeOffset? from = null, CancellationToken ct = default)
     {
         var q = _db.Transactions.Where(t => t.DriverId == driverId && t.Status == PaymentStatus.Captured);
-        if (from.HasValue) q = q.Where(t => t.CapturedAt >= from.Value);
+        if (from.HasValue) { var f = from.Value.ToUniversalTime(); q = q.Where(t => t.CapturedAt >= f); }
         return await q.SumAsync(t => t.DriverShare, ct);
     }
 
     public async Task<decimal> GetPassengerTotalSpentAsync(Guid passengerId, DateTimeOffset? from = null, CancellationToken ct = default)
     {
         var q = _db.Transactions.Where(t => t.PassengerId == passengerId && t.Status == PaymentStatus.Captured);
-        if (from.HasValue) q = q.Where(t => t.CapturedAt >= from.Value);
+        if (from.HasValue) { var f = from.Value.ToUniversalTime(); q = q.Where(t => t.CapturedAt >= f); }
         return await q.SumAsync(t => t.Amount, ct);
     }
 }

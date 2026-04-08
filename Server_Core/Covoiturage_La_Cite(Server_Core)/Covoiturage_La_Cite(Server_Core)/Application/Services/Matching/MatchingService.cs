@@ -34,7 +34,7 @@ public class MatchingService : IMatchingService
 
         // Charger les trajets publiés (potentiellement filtrés par date)
         var query = _db.Trips
-            .Include(t => t.Driver)
+            .Include(t => t.Driver).ThenInclude(u => u!.DriverProfile)
             .Include(t => t.Reservations)
             .Where(t => t.Status == TripStatus.Published);
 
@@ -66,16 +66,26 @@ public class MatchingService : IMatchingService
                 TripId = trip.Id,
                 DriverId = trip.DriverId,
                 DriverFirstName = trip.Driver?.FirstName ?? "",
+                DriverLastName = trip.Driver?.LastName ?? "",
+                DriverAvatarUrl = trip.Driver?.AvatarUrl,
                 DriverRating = trip.Driver?.DriverProfile?.AverageRating ?? 5.0m,
+                DriverTripCount = trip.Driver?.DriverProfile?.TotalTripsAsDriver ?? 0,
                 DriverVerified = trip.Driver?.IsProfileVerified ?? false,
                 DepartureLabel = trip.DepartureLabel,
+                DepartureLat = trip.DeparturePoint.Y,
+                DepartureLng = trip.DeparturePoint.X,
                 ArrivalLabel = trip.ArrivalLabel,
+                ArrivalLat = trip.ArrivalPoint.Y,
+                ArrivalLng = trip.ArrivalPoint.X,
+                Polyline = trip.Polyline,
                 DepartureDate = trip.DepartureDate,
                 DepartureTime = trip.DepartureTime.ToString("HH:mm"),
                 EstimatedDurationMinutes = trip.EstimatedDurationMinutes,
                 EstimatedDistanceKm = trip.EstimatedDistanceKm,
+                PricePerPassenger = trip.PricePerPassenger,
                 PassengerPrice = trip.PassengerPrice,
                 PaymentMethod = trip.PaymentMethod.ToString(),
+                MaxPassengers = trip.MaxPassengers,
                 AvailableSeats = trip.MaxPassengers - trip.CurrentPassengers,
                 Score = score
             });

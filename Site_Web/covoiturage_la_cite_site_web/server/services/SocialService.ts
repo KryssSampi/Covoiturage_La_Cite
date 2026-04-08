@@ -19,6 +19,7 @@ export interface CreateReviewDto {
 
 export interface ReviewResponseDto {
   id: string;
+  tripId?: string;
   reservationId: string;
   reviewerId: string;
   revieweeId: string;
@@ -26,6 +27,7 @@ export interface ReviewResponseDto {
   rating: number;
   comment?: string;
   tags?: string[];
+  isPublished?: boolean;
   createdAt: string;
 }
 

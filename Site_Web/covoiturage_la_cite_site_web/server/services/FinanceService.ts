@@ -9,11 +9,16 @@ import { get, post, type ApiResponse, type RequestOptions } from '../http-client
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface DriverFinanceSummaryDto {
-  totalEarnings: number;
-  pendingBalance: number;
-  availableBalance: number;
-  totalWithdrawn: number;
-  activePenalties: number;
+  soldeDisponible: number;
+  soldeEnTransit: number;
+  soldePenalites: number;
+  tauxPrelevement: number;
+  gainSemaine: number;
+  gainMois: number;
+  commissionTotale: number;
+  nbTrajetsPayants: number;
+  nbPenalitesActives: number;
+  currency: string;
 }
 
 export interface PassengerFinanceSummaryDto {

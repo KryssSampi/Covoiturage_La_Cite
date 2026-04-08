@@ -74,8 +74,12 @@ export function useLoginForm(onLogin?: OnLoginCallback) {
 
       appState.login(connected);
 
-      setActiveLoader(true);
-      router.push(`/${connected.role}/${connected.id}`);
+        setActiveLoader(true);
+        try {
+          await router.push(`/${connected.role}/${connected.id}`);
+        } finally {
+          setActiveLoader(false);
+        }
     } catch (err) {
       setError(
         err instanceof Error

@@ -1,14 +1,16 @@
 // features/auth/components/LoginArea.tsx
-'use client'
+"use client"
 
 import { useAppState, Language } from '@/core/state/app_state'
 import { useLoginForm, type OnLoginCallback } from '../hooks/useloginForm'
 import { FaArrowLeft, FaHome } from 'react-icons/fa'
 import { useLoader } from '@/core/context/loader.context'
+import { useRouter } from 'next/navigation'
 
 export function LoginArea({ onLogin }: { onLogin?: OnLoginCallback }) {
   const appState = useAppState()
   const { setActiveLoader } = useLoader();
+  const router = useRouter();
   const { email, setEmail, error, isLoading, handleLogin } = useLoginForm(onLogin)
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -18,8 +20,8 @@ export function LoginArea({ onLogin }: { onLogin?: OnLoginCallback }) {
 
   return (
        <div className=" relative flex flex-col gap-y-4 items-center justify-center  bg-[rgba(0,0,0,0.2)] px-10 rounded-2xl">
-      <FaArrowLeft className="absolute top-3 left-3 text-blue-500 text-2xl cursor-pointer hover:text-blue-700 transition-colors" onClick={() => {setActiveLoader(true); window.history.back()}} />
-      <FaHome className="absolute top-3 right-3 text-blue-500 text-2xl cursor-pointer hover:text-blue-700 transition-colors" onClick={() => {setActiveLoader(true); window.location.href = '/'}} />
+      <FaArrowLeft className="absolute top-3 left-3 text-blue-500 text-2xl cursor-pointer hover:text-blue-700 transition-colors" onClick={() => { router.back(); }} />
+      <FaHome className="absolute top-3 right-3 text-blue-500 text-2xl cursor-pointer hover:text-blue-700 transition-colors" onClick={async () => { setActiveLoader(true); try { await router.push('/'); } finally { setActiveLoader(false); } }} />
        <form 
       onSubmit={handleSubmit}
       className="w-full h-75 flex flex-col gap-y-4 items-center justify-center"

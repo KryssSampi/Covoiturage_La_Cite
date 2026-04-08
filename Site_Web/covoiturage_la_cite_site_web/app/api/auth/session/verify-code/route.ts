@@ -13,12 +13,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Session manquante. Rechargez la page.' }, { status: 401 });
     }
 
-    const body = (await req.json()) as { code?: string };
+    const body = (await req.json()) as { code?: string; rememberOtp?: boolean };
     if (!body.code) {
       return NextResponse.json({ error: 'Code requis' }, { status: 400 });
     }
 
-    const { json, status } = await AuthSessionService.verifyCode(body.code, authSessionKey);
+    const { json, status } = await AuthSessionService.verifyCode(body.code, authSessionKey, body.rememberOtp ?? false);
 
     if (status === 429 && json.data) {
       const blocked = json.data as unknown as { blockedUntil: string; remainingSeconds: number };

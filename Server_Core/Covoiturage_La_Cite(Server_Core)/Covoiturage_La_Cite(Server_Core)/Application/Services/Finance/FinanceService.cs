@@ -281,7 +281,8 @@ public class FinanceService : IFinanceService
     {
         var now = DateTimeOffset.UtcNow;
         var diff = (7 + (now.DayOfWeek - DayOfWeek.Monday)) % 7;
-        return now.AddDays(-diff).Date;
+        var d = now.AddDays(-diff);
+        return new DateTimeOffset(d.Year, d.Month, d.Day, 0, 0, 0, TimeSpan.Zero);
     }
 
     private static TransactionResponseDto MapTxToResponse(Transaction tx) => new()

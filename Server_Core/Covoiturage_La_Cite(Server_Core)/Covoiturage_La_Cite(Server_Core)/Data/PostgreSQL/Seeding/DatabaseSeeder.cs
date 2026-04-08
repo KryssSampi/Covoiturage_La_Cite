@@ -8,6 +8,28 @@ namespace Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Seeding;
 
 public static class DatabaseSeeder
 {
+    // ── Mot de passe commun à tous les utilisateurs de test ───────────────────
+    // Mot de passe clair : Test@2026!
+    // Hash BCrypt (cost=11) généré une fois et réutilisé pour perf au démarrage
+    private static readonly string TestPasswordHash = BCrypt.Net.BCrypt.HashPassword("Test@2026!");
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // CREDENTIALS DE TEST
+    // ──────────────────────────────────────────────────────────────────────────
+    // Tous les comptes : mot de passe = Test@2026!   OTP = bypassé (DisabledOtp = true)
+    //
+    // Admin     : 1234567@collegelacite.ca
+    // Driver 1  : 2345671@collegelacite.ca   (Marc Tremblay)
+    // Driver 2  : 3456712@collegelacite.ca   (Sarah Nguyen)
+    // Driver 3  : 6712345@collegelacite.ca   (Karim Boudier)
+    // Driver 4  : 7123456@collegelacite.ca   (Priya Sharma)
+    // Driver 5  : 8234567@collegelacite.ca   (Jordan Leblanc)
+    // Passenger1: 4567123@collegelacite.ca   (Alice Roy)
+    // Passenger2: 5671234@collegelacite.ca   (Leo Martin)
+    // Passenger3: 9345678@collegelacite.ca   (Fatou Diallo)
+    // Passenger4: 0456789@collegelacite.ca   (Yan Chen)
+    // ──────────────────────────────────────────────────────────────────────────
+
     /// <summary>
     /// Injecte un jeu de données cohérent couvrant toutes les tables PostgreSQL principales.
     /// </summary>
@@ -28,6 +50,8 @@ public static class DatabaseSeeder
         if (alreadySeeded)
         {
             logger.LogInformation("DatabaseSeeder: données déjà injectées ({SeedVersion})", seedVersion);
+            // Patch toujours appliqué même si seed déjà fait — met à jour les comptes de test
+            await PatchTestUsersAsync(db, logger, ct);
             return;
         }
 
@@ -48,6 +72,7 @@ public static class DatabaseSeeder
                 Id = adminId,
                 Email = "1234567@collegelacite.ca",
                 MicrosoftSsoId = "aad-admin-001",
+                PasswordHash = TestPasswordHash,
                 FirstName = "Admin",
                 LastName = "LaCite",
                 Role = UserRole.Admin,
@@ -59,6 +84,12 @@ public static class DatabaseSeeder
                 ReputationPoints = 500,
                 Language = "fr",
                 PhoneNumber = "+1-514-000-0001",
+                DisabledOtp = true,
+                DisabledOtpAt = now,
+                AlreadySignPolitics = true,
+                AlreadySetAProfilePicture = true,
+                AlreadySubmittedAllVehiculeDocument = true,
+                OnboardingCompleted = true,
                 CreatedAt = now.AddMonths(-6),
                 UpdatedAt = now.AddDays(-1),
                 LastLoginAt = now.AddMinutes(-30)
@@ -68,6 +99,7 @@ public static class DatabaseSeeder
                 Id = driver1Id,
                 Email = "2345671@collegelacite.ca",
                 MicrosoftSsoId = "aad-driver-001",
+                PasswordHash = TestPasswordHash,
                 FirstName = "Marc",
                 LastName = "Tremblay",
                 Role = UserRole.Driver,
@@ -80,6 +112,12 @@ public static class DatabaseSeeder
                 Language = "fr",
                 PhoneNumber = "+1-514-000-0002",
                 Bio = "Conducteur ponctuel et calme.",
+                DisabledOtp = true,
+                DisabledOtpAt = now,
+                AlreadySignPolitics = true,
+                AlreadySetAProfilePicture = true,
+                AlreadySubmittedAllVehiculeDocument = true,
+                OnboardingCompleted = true,
                 CreatedAt = now.AddMonths(-5),
                 UpdatedAt = now.AddDays(-1),
                 LastLoginAt = now.AddHours(-2)
@@ -87,8 +125,9 @@ public static class DatabaseSeeder
             new User
             {
                 Id = driver2Id,
-                Email = "3456712@lacitec.on.ca",
+                Email = "3456712@collegelacite.ca",
                 MicrosoftSsoId = "aad-driver-002",
+                PasswordHash = TestPasswordHash,
                 FirstName = "Sarah",
                 LastName = "Nguyen",
                 Role = UserRole.Driver,
@@ -101,6 +140,12 @@ public static class DatabaseSeeder
                 Language = "en",
                 PhoneNumber = "+1-514-000-0003",
                 Bio = "Friendly rides around campus.",
+                DisabledOtp = true,
+                DisabledOtpAt = now,
+                AlreadySignPolitics = true,
+                AlreadySetAProfilePicture = true,
+                AlreadySubmittedAllVehiculeDocument = true,
+                OnboardingCompleted = true,
                 CreatedAt = now.AddMonths(-4),
                 UpdatedAt = now.AddDays(-1),
                 LastLoginAt = now.AddHours(-6)
@@ -110,6 +155,7 @@ public static class DatabaseSeeder
                 Id = passenger1Id,
                 Email = "4567123@collegelacite.ca",
                 MicrosoftSsoId = "aad-passenger-001",
+                PasswordHash = TestPasswordHash,
                 FirstName = "Alice",
                 LastName = "Roy",
                 Role = UserRole.Passenger,
@@ -121,6 +167,12 @@ public static class DatabaseSeeder
                 ReputationPoints = 180,
                 Language = "fr",
                 PhoneNumber = "+1-514-000-0004",
+                DisabledOtp = true,
+                DisabledOtpAt = now,
+                AlreadySignPolitics = true,
+                AlreadySetAProfilePicture = true,
+                AlreadySubmittedAllVehiculeDocument = true,
+                OnboardingCompleted = true,
                 CreatedAt = now.AddMonths(-3),
                 UpdatedAt = now.AddDays(-2),
                 LastLoginAt = now.AddHours(-4)
@@ -128,8 +180,9 @@ public static class DatabaseSeeder
             new User
             {
                 Id = passenger2Id,
-                Email = "5671234@lacitec.on.ca",
+                Email = "5671234@collegelacite.ca",
                 MicrosoftSsoId = "aad-passenger-002",
+                PasswordHash = TestPasswordHash,
                 FirstName = "Leo",
                 LastName = "Martin",
                 Role = UserRole.Passenger,
@@ -141,6 +194,12 @@ public static class DatabaseSeeder
                 ReputationPoints = 120,
                 Language = "fr",
                 PhoneNumber = "+1-514-000-0005",
+                DisabledOtp = true,
+                DisabledOtpAt = now,
+                AlreadySignPolitics = true,
+                AlreadySetAProfilePicture = true,
+                AlreadySubmittedAllVehiculeDocument = true,
+                OnboardingCompleted = true,
                 CreatedAt = now.AddMonths(-2),
                 UpdatedAt = now.AddDays(-3),
                 LastLoginAt = now.AddDays(-1)
@@ -936,9 +995,10 @@ public static class DatabaseSeeder
         // Extensions idempotentes
         await SeedGoTasksAsync(db, logger, adminId, ct);
         await SeedSimulationDataAsync(db, logger, driver1Id, driver2Id, passenger1Id, passenger2Id, vehicle1Id, vehicle2Id, gf, now, ct);
+        await PatchTestUsersAsync(db, logger, ct);
     }
 
-    // ── GoTasks GT-001 → GT-013 ───────────────────────────────────────────────
+    // ── GoTasks GT-000 → GT-013 + Badge "Nouveau membre" ─────────────────────
 
     private static async Task SeedGoTasksAsync(AppDbContext db, ILogger logger, Guid adminId, CancellationToken ct)
     {
@@ -946,8 +1006,24 @@ public static class DatabaseSeeder
             .AnyAsync(c => c.Key == "seed.gotasks.v1", ct);
         if (alreadySeeded) return;
 
+        // Badge "Nouveau membre" — attribué automatiquement à la création de compte
+        await db.Badges.AddAsync(new Badge
+        {
+            Id            = Guid.Parse("60000000-0000-0000-0000-000000000003"),
+            Name          = "Nouveau membre",
+            NameEn        = "New Member",
+            Description   = "A rejoint la communauté Covoiturage La Cité.",
+            DescriptionEn = "Joined the Covoiturage La Cité community.",
+            Category      = "social",
+            IconUrl       = "/badges/new-member.svg",
+            RewardPoints  = 0,
+            IsActive      = true,
+            CreatedAt     = DateTimeOffset.UtcNow,
+        }, ct);
+
         var goTasks = new[]
         {
+            new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000000"), TaskKey = "GT-000", TitleFr = "Bienvenue !", TitleEn = "Welcome!", DescriptionFr = "Rejoignez la communauté Covoiturage La Cité.", DescriptionEn = "Join the Covoiturage La Cité community.", Category = "mixte", Points = 250, Link = "/driver/{id}/goboard", IsActive = true },
             new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000001"), TaskKey = "GT-001", TitleFr = "Premier trajet", TitleEn = "First ride", DescriptionFr = "Effectuez votre premier trajet en tant que passager.", DescriptionEn = "Complete your first ride as passenger.", Category = "passengerOnly", Points = 50, Link = "/passenger/{id}", IsActive = true },
             new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000002"), TaskKey = "GT-002", TitleFr = "Conducteur débutant", TitleEn = "New Driver", DescriptionFr = "Publiez votre premier trajet en tant que conducteur.", DescriptionEn = "Publish your first trip as driver.", Category = "driverOnly", Points = 75, Link = "/driver/{id}/create-trip", IsActive = true },
             new GoTask { Id = Guid.Parse("A0000000-0000-0000-0000-000000000003"), TaskKey = "GT-003", TitleFr = "Profil complet", TitleEn = "Complete Profile", DescriptionFr = "Complétez votre profil (photo, bio, langues).", DescriptionEn = "Complete your profile with photo, bio and languages.", Category = "mixte", Points = 30, Link = "/profile/settings", IsActive = true },
@@ -971,13 +1047,83 @@ public static class DatabaseSeeder
             Value = "seeded",
             DataType = "string",
             Category = "system",
-            Description = "GoTasks GT-001 à GT-013 injectés",
+            Description = "GoTasks GT-000 à GT-013 + badge Nouveau membre injectés",
             LastModifiedByAdminId = adminId,
             UpdatedAt = DateTimeOffset.UtcNow
         });
 
         await db.SaveChangesAsync(ct);
-        logger.LogInformation("DatabaseSeeder: GoTasks GT-001→GT-013 injectés");
+        logger.LogInformation("DatabaseSeeder: GoTasks GT-000→GT-013 + badge 'Nouveau membre' injectés");
+    }
+
+    // ── Patch idempotent : password + DisabledOtp sur tous les comptes de test ─
+    // Tourne à chaque démarrage — safe car c'est un simple UPDATE par email.
+    // Nécessaire quand le seed principal a déjà tourné (v1) sans ces champs.
+
+    private static readonly string[] TestEmails =
+    [
+        "1234567@collegelacite.ca",
+        "2345671@collegelacite.ca",
+        "3456712@collegelacite.ca",
+        "4567123@collegelacite.ca",
+        "5671234@collegelacite.ca",
+        "6712345@collegelacite.ca",
+        "7123456@collegelacite.ca",
+        "8234567@collegelacite.ca",
+        "9345678@collegelacite.ca",
+        "0456789@collegelacite.ca",
+    ];
+
+    private static async Task PatchTestUsersAsync(AppDbContext db, ILogger logger, CancellationToken ct)
+    {
+        var users = await db.Users
+            .Where(u => TestEmails.Contains(u.Email))
+            .ToListAsync(ct);
+
+        if (users.Count == 0) return;
+
+        var changed = 0;
+        var now = DateTimeOffset.UtcNow;
+
+        foreach (var user in users)
+        {
+            var dirty = false;
+
+            if (string.IsNullOrEmpty(user.PasswordHash))
+            {
+                user.PasswordHash = TestPasswordHash;
+                dirty = true;
+            }
+
+            if (!user.DisabledOtp)
+            {
+                user.DisabledOtp   = true;
+                user.DisabledOtpAt = now;
+                dirty = true;
+            }
+
+            // Onboarding — tous les comptes de test passent directement
+            if (!user.OnboardingCompleted)
+            {
+                user.AlreadySignPolitics                    = true;
+                user.AlreadySetAProfilePicture              = true;
+                user.AlreadySubmittedAllVehiculeDocument    = true;
+                user.OnboardingCompleted                    = true;
+                dirty = true;
+            }
+
+            if (dirty)
+            {
+                user.UpdatedAt = now;
+                changed++;
+            }
+        }
+
+        if (changed > 0)
+        {
+            await db.SaveChangesAsync(ct);
+            logger.LogInformation("PatchTestUsers: {Count} comptes de test mis à jour (mot de passe + DisabledOtp)", changed);
+        }
     }
 
     // ── Simulation 1 mois d'utilisation ──────────────────────────────────────
@@ -1001,11 +1147,11 @@ public static class DatabaseSeeder
 
         var newUsers = new[]
         {
-            new User { Id = driver3Id, Email = "6712345@collegelacite.ca", MicrosoftSsoId = "aad-driver-003", FirstName = "Karim", LastName = "Boudier", Role = UserRole.Driver, SchoolRole = SchoolRole.MembreDuPersonnel, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = true, GoScore = 310, ReputationPoints = 190, Language = "fr", PhoneNumber = "+1-514-000-0006", Bio = "Je vise toujours la ponctualité.", CreatedAt = now.AddMonths(-3), UpdatedAt = now.AddDays(-1) },
-            new User { Id = driver4Id, Email = "7123456@lacitec.on.ca", MicrosoftSsoId = "aad-driver-004", FirstName = "Priya", LastName = "Sharma", Role = UserRole.Driver, SchoolRole = SchoolRole.Etudiant, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = true, GoScore = 280, ReputationPoints = 160, Language = "en", PhoneNumber = "+1-514-000-0007", Bio = "Music-friendly rides.", CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-2) },
-            new User { Id = driver5Id, Email = "8234567@collegelacite.ca", MicrosoftSsoId = "aad-driver-005", FirstName = "Jordan", LastName = "Leblanc", Role = UserRole.Driver, SchoolRole = SchoolRole.Professeur, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = true, GoScore = 260, ReputationPoints = 130, Language = "fr", PhoneNumber = "+1-514-000-0008", CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-3) },
-            new User { Id = passenger3Id, Email = "9345678@collegelacite.ca", MicrosoftSsoId = "aad-passenger-003", FirstName = "Fatou", LastName = "Diallo", Role = UserRole.Passenger, SchoolRole = SchoolRole.Etudiant, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = false, GoScore = 195, ReputationPoints = 90, Language = "fr", PhoneNumber = "+1-514-000-0009", CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-1) },
-            new User { Id = passenger4Id, Email = "0456789@lacitec.on.ca", MicrosoftSsoId = "aad-passenger-004", FirstName = "Yan", LastName = "Chen", Role = UserRole.Passenger, SchoolRole = SchoolRole.Etudiant, Status = UserStatus.Active, IsProfileVerified = false, CanBeDriver = false, GoScore = 150, ReputationPoints = 60, Language = "en", PhoneNumber = "+1-514-000-0010", CreatedAt = now.AddMonths(-1), UpdatedAt = now.AddDays(-2) },
+            new User { Id = driver3Id, Email = "6712345@collegelacite.ca", MicrosoftSsoId = "aad-driver-003", PasswordHash = TestPasswordHash, FirstName = "Karim", LastName = "Boudier", Role = UserRole.Driver, SchoolRole = SchoolRole.MembreDuPersonnel, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = true, GoScore = 310, ReputationPoints = 190, Language = "fr", PhoneNumber = "+1-514-000-0006", Bio = "Je vise toujours la ponctualité.", DisabledOtp = true, DisabledOtpAt = now, AlreadySignPolitics = true, AlreadySetAProfilePicture = true, AlreadySubmittedAllVehiculeDocument = true, OnboardingCompleted = true, CreatedAt = now.AddMonths(-3), UpdatedAt = now.AddDays(-1) },
+            new User { Id = driver4Id, Email = "7123456@collegelacite.ca", MicrosoftSsoId = "aad-driver-004", PasswordHash = TestPasswordHash, FirstName = "Priya", LastName = "Sharma", Role = UserRole.Driver, SchoolRole = SchoolRole.Etudiant, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = true, GoScore = 280, ReputationPoints = 160, Language = "en", PhoneNumber = "+1-514-000-0007", Bio = "Music-friendly rides.", DisabledOtp = true, DisabledOtpAt = now, AlreadySignPolitics = true, AlreadySetAProfilePicture = true, AlreadySubmittedAllVehiculeDocument = true, OnboardingCompleted = true, CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-2) },
+            new User { Id = driver5Id, Email = "8234567@collegelacite.ca", MicrosoftSsoId = "aad-driver-005", PasswordHash = TestPasswordHash, FirstName = "Jordan", LastName = "Leblanc", Role = UserRole.Driver, SchoolRole = SchoolRole.Professeur, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = true, GoScore = 260, ReputationPoints = 130, Language = "fr", PhoneNumber = "+1-514-000-0008", DisabledOtp = true, DisabledOtpAt = now, AlreadySignPolitics = true, AlreadySetAProfilePicture = true, AlreadySubmittedAllVehiculeDocument = true, OnboardingCompleted = true, CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-3) },
+            new User { Id = passenger3Id, Email = "9345678@collegelacite.ca", MicrosoftSsoId = "aad-passenger-003", PasswordHash = TestPasswordHash, FirstName = "Fatou", LastName = "Diallo", Role = UserRole.Passenger, SchoolRole = SchoolRole.Etudiant, Status = UserStatus.Active, IsProfileVerified = true, CanBeDriver = false, GoScore = 195, ReputationPoints = 90, Language = "fr", PhoneNumber = "+1-514-000-0009", DisabledOtp = true, DisabledOtpAt = now, AlreadySignPolitics = true, AlreadySetAProfilePicture = true, AlreadySubmittedAllVehiculeDocument = true, OnboardingCompleted = true, CreatedAt = now.AddMonths(-2), UpdatedAt = now.AddDays(-1) },
+            new User { Id = passenger4Id, Email = "0456789@collegelacite.ca", MicrosoftSsoId = "aad-passenger-004", PasswordHash = TestPasswordHash, FirstName = "Yan", LastName = "Chen", Role = UserRole.Passenger, SchoolRole = SchoolRole.Etudiant, Status = UserStatus.Active, IsProfileVerified = false, CanBeDriver = false, GoScore = 150, ReputationPoints = 60, Language = "en", PhoneNumber = "+1-514-000-0010", DisabledOtp = true, DisabledOtpAt = now, AlreadySignPolitics = true, AlreadySetAProfilePicture = true, AlreadySubmittedAllVehiculeDocument = true, OnboardingCompleted = true, CreatedAt = now.AddMonths(-1), UpdatedAt = now.AddDays(-2) },
         };
         await db.Users.AddRangeAsync(newUsers, ct);
 

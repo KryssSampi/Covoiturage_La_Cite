@@ -130,9 +130,9 @@ export const AuthSessionService = {
     });
   },
 
-  verifyCode(code: string, authSessionKey: string) {
+  verifyCode(code: string, authSessionKey: string, rememberOtp = false) {
     return callServerCore<LoginResultData & VerifyCodeData>('api/auth/verify-code', {
-      body: { code },
+      body: { code, rememberOtp },
       authSessionKey,
     });
   },

@@ -41,6 +41,11 @@ public class User
 
     /// <summary>Indique si l'identité a été vérifiée et validée (par admin ou automatiquement).</summary>
     public bool IdentityVerified { get; set; }
+    /// <summary>Si true, l'OTP 2FA est bypassé lors de la connexion par mot de passe (valable 30 jours).</summary>
+    public bool DisabledOtp { get; set; }
+    /// <summary>Date à laquelle DisabledOtp a été activé. Job quotidien remet à false après 30 jours.</summary>
+    public DateTimeOffset? DisabledOtpAt { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }

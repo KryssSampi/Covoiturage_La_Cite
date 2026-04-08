@@ -1,7 +1,9 @@
 using System.Security.Cryptography;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Auth;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Entities.Security;
+using Microsoft.EntityFrameworkCore;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Auth;
 
@@ -11,6 +13,8 @@ public class AuthSessionService : IAuthSessionService
     private readonly IUserRepository _userRepo;
     private readonly IEmailService _emailService;
     private readonly TokenService _tokenService;
+    private readonly IUserProvisioningService _provisioning;
+    private readonly AppDbContext _db;
     private readonly ILogger<AuthSessionService> _logger;
 
     private const int SessionLifetimeMinutes = 60;
@@ -25,12 +29,16 @@ public class AuthSessionService : IAuthSessionService
         IUserRepository userRepo,
         IEmailService emailService,
         TokenService tokenService,
+        IUserProvisioningService provisioning,
+        AppDbContext db,
         ILogger<AuthSessionService> logger)
     {
         _repo = repo;
         _userRepo = userRepo;
         _emailService = emailService;
         _tokenService = tokenService;
+        _provisioning = provisioning;
+        _db = db;
         _logger = logger;
     }
 
@@ -91,7 +99,7 @@ public class AuthSessionService : IAuthSessionService
 
     // ── Étape 2 : Vérifier le code OTP ──────────────────────────────────────
     public async Task<VerifyCodeResponse> VerifyCodeAsync(
-        string idKeyHash, string code, string ipAddress, string userAgent, CancellationToken ct)
+        string idKeyHash, string code, string ipAddress, string userAgent, CancellationToken ct, bool rememberOtp = false)
     {
         var session = await GetValidSession(idKeyHash, ipAddress, userAgent, ct);
 
@@ -136,6 +144,19 @@ public class AuthSessionService : IAuthSessionService
         // Code correct
         session.IsValidated = true;
         session.OtpCodeHash = null; // consommer le code
+
+        // RememberOtp — désactiver le 2FA pour 30 jours (utilisateurs existants seulement)
+        if (rememberOtp && session.UserId.HasValue)
+        {
+            var user = await _userRepo.GetByIdAsync(session.UserId.Value, ct);
+            if (user != null)
+            {
+                user.DisabledOtp = true;
+                user.DisabledOtpAt = DateTimeOffset.UtcNow;
+                await _userRepo.UpdateAsync(user, ct);
+            }
+        }
+
         await _repo.UpdateAsync(session, ct);
 
         return new VerifyCodeResponse { Success = true, RemainingAttempts = 0 };
@@ -200,12 +221,45 @@ public class AuthSessionService : IAuthSessionService
             throw new InvalidOperationException("Mot de passe incorrect.");
         }
 
-        // Mot de passe correct → envoyer OTP pour 2FA
+        // Mot de passe correct — vérifier si l'OTP est bypassé (DisabledOtp pour 30 jours)
+        var otpExpiry = user.DisabledOtpAt?.AddDays(30);
+        if (user.DisabledOtp && otpExpiry.HasValue && otpExpiry.Value > DateTimeOffset.UtcNow)
+        {
+            // Bypass OTP — finaliser le login directement
+            session.IsValidated = true;
+            var now = DateTimeOffset.UtcNow;
+            var (accessToken, refreshToken, expiresAt) = _tokenService.GenerateTokenPair(user, session.Id.ToString(), ipAddress);
+            session.RefreshTokenHash = HashToken(refreshToken);
+            session.RefreshTokenExpiresAt = now.AddHours(24);
+            user.LastLoginAt = now;
+            await _userRepo.UpdateAsync(user, ct);
+            await _repo.UpdateAsync(session, ct);
+            _logger.LogInformation("Login sans OTP (DisabledOtp) pour {Email}", user.Email);
+            return new LoginResultDto
+            {
+                AccessToken = accessToken,
+                AccessTokenExpiresAt = expiresAt,
+                User = new UserSummaryDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    AvatarUrl = user.AvatarUrl,
+                    Role = user.Role.ToString(),
+                    SchoolRole = user.SchoolRole.ToString(),
+                    CanBeDriver = user.CanBeDriver,
+                    AlreadySignPolitics = user.AlreadySignPolitics,
+                    AlreadySubmittedAllVehiculeDocument = user.AlreadySubmittedAllVehiculeDocument,
+                    AlreadySetAProfilePicture = user.AlreadySetAProfilePicture,
+                    OnboardingCompleted = user.OnboardingCompleted,
+                },
+            };
+        }
+
+        // OTP requis → envoyer le code 2FA
         await GenerateAndSendOtp(session, ct);
         await _repo.UpdateAsync(session, ct);
-
-        // On ne retourne pas les tokens ici — il faut encore valider le code OTP
-        // On retourne un signal indiquant qu'un OTP a été envoyé
         throw new InvalidOperationException("OTP_SENT");
     }
 
@@ -230,6 +284,16 @@ public class AuthSessionService : IAuthSessionService
         // Générer les tokens
         var (accessToken, refreshToken, expiresAt) = _tokenService.GenerateTokenPair(user, session.Id.ToString(), ipAddress);
 
+        // Stocker le hash du refresh token et sa date d'expiration dans la session
+        session.RefreshTokenHash = HashToken(refreshToken);
+        // Par défaut, refresh token valable 24h
+        session.RefreshTokenExpiresAt = DateTimeOffset.UtcNow.AddHours(24);
+
+        // Mettre à jour le user (last login) et la session en base
+        user.LastLoginAt = DateTimeOffset.UtcNow;
+        await _userRepo.UpdateAsync(user, ct);
+        await _repo.UpdateAsync(session, ct);
+
         _logger.LogInformation("Login réussi pour {Email}, session {PublicId}", user.Email, session.PublicId);
 
         return new LoginResultDto
@@ -251,6 +315,47 @@ public class AuthSessionService : IAuthSessionService
                 AlreadySetAProfilePicture = user.AlreadySetAProfilePicture,
                 OnboardingCompleted = user.OnboardingCompleted,
             },
+        };
+    }
+
+    // ── Refresh access token via refresh token ─────────────────────────────
+    public async Task<RefreshResultDto> RefreshAsync(string refreshToken, string ipAddress, string userAgent, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            throw new InvalidOperationException("Refresh token manquant.");
+
+        var hash = HashToken(refreshToken);
+        var session = await _repo.GetByRefreshTokenHashAsync(hash, ct)
+            ?? throw new KeyNotFoundException("Refresh token invalide ou introuvable.");
+
+        // Vérifier expiration du refresh token
+        if (!session.RefreshTokenExpiresAt.HasValue || session.RefreshTokenExpiresAt.Value < DateTimeOffset.UtcNow)
+            throw new InvalidOperationException("Refresh token expiré.");
+
+        // Vérifier blocage
+        if (session.IsBlocked)
+            throw new InvalidOperationException("Session bloquée.");
+
+        if (session.UserId == null)
+            throw new InvalidOperationException("Session sans utilisateur associé.");
+
+        var user = await _userRepo.GetByIdAsync(session.UserId.Value, ct)
+            ?? throw new InvalidOperationException("Utilisateur introuvable pour cette session.");
+
+        // Générer nouvelle paire (rotation du refresh token)
+        var (newAccessToken, newRefreshToken, accessExpiresAt) = _tokenService.GenerateTokenPair(user, session.Id.ToString(), ipAddress);
+
+        // Mettre à jour le hash et l'expiration du refresh token
+        session.RefreshTokenHash = HashToken(newRefreshToken);
+        session.RefreshTokenExpiresAt = DateTimeOffset.UtcNow.AddHours(24);
+        await _repo.UpdateAsync(session, ct);
+
+        return new RefreshResultDto
+        {
+            AccessToken = newAccessToken,
+            AccessTokenExpiresAt = accessExpiresAt,
+            RefreshToken = newRefreshToken,
+            RefreshTokenExpiresAt = session.RefreshTokenExpiresAt,
         };
     }
 
@@ -293,6 +398,7 @@ public class AuthSessionService : IAuthSessionService
         };
 
         await _userRepo.AddAsync(user, ct);
+        await _provisioning.ProvisionAsync(user.Id, ct);
 
         session.UserId = user.Id;
         await _repo.UpdateAsync(session, ct);
@@ -421,6 +527,22 @@ public class AuthSessionService : IAuthSessionService
             sb.Append(alphabet[idx]);
         }
         return sb.ToString();
+    }
+
+    // ── Logout : invalider le refresh token ────────────────────────────────────
+    public async Task LogoutAsync(string refreshToken, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(refreshToken)) return;
+
+        var hash = HashToken(refreshToken);
+        var session = await _repo.GetByRefreshTokenHashAsync(hash, ct);
+        if (session == null) return;
+
+        session.RefreshTokenHash = null;
+        session.RefreshTokenExpiresAt = null;
+        await _repo.UpdateAsync(session, ct);
+
+        _logger.LogInformation("Logout: refresh token invalidé pour session {PublicId}", session.PublicId);
     }
 
     private static string HashToken(string token)

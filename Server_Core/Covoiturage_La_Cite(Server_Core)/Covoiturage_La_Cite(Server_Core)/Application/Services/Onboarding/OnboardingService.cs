@@ -238,6 +238,17 @@ public class OnboardingService : IOnboardingService
         var user = await _userRepo.GetByIdAsync(userId, ct)
             ?? throw new KeyNotFoundException($"Utilisateur {userId} introuvable.");
 
+        // Un conducteur doit avoir soumis tous ses documents obligatoires avant de terminer
+        if (user.Role == UserRole.Driver && !user.AlreadySubmittedAllVehiculeDocument)
+        {
+            _logger.LogWarning("Conducteur {UserId} a tenté de terminer l'onboarding sans avoir soumis tous ses documents.", userId);
+            return new OnboardingStepResult
+            {
+                Success = false,
+                Message = "documents_required",
+            };
+        }
+
         user.AvatarUrl = request.AvatarUrl;
         user.AlreadySetAProfilePicture = true;
         user.OnboardingCompleted = true;

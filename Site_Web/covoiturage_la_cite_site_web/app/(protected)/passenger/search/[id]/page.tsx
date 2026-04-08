@@ -100,14 +100,14 @@ export default function PassengerSearchPage() {
     // Mode survey : trips pré-calculés en sessionStorage → on les utilise directement
     try {
       const raw = sessionStorage.getItem("surveyMatchingTrips");
+      sessionStorage.removeItem("surveyMatchingTrips");
       if (raw) {
         const parsed: TripWithCoords[] = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
           setAvailableTrips(parsed);
           setBlockedTrips([]);
+          return; // only short-circuit when we actually have data
         }
-        sessionStorage.removeItem("surveyMatchingTrips");
-        return;
       }
     } catch { /* sessionStorage indisponible ou JSON invalide */ }
 
@@ -128,6 +128,7 @@ export default function PassengerSearchPage() {
         body.desiredHour = h + (m ?? 0) / 60;
       }
       if (effectiveDate) {
+        body.date = effectiveDate; // filtre exact sur la date
         const day = new Date(effectiveDate).getDay(); // 0=dim … 6=sam
         body.desiredWeekday = day;
       }
@@ -146,8 +147,8 @@ export default function PassengerSearchPage() {
 
       if (!res.ok) return;
 
-      const data = await res.json() as { trips: TripSearchDTO[]; blockedTrips?: TripSearchDTO[] };
-      setAvailableTrips(data.trips.map(tripSearchDTOToTripWithCoords));
+      const data = await res.json() as { trips?: TripSearchDTO[]; blockedTrips?: TripSearchDTO[] };
+      setAvailableTrips((data.trips ?? []).map(tripSearchDTOToTripWithCoords));
       setBlockedTrips((data.blockedTrips ?? []).map(tripSearchDTOToTripWithCoords));
     } catch (err) { console.error('[passenger/search] fetchTrips', err); }
   }, [user, depLat, depLng, arrLat, arrLng, dateParam, timeParam]);

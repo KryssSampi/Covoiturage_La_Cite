@@ -66,6 +66,8 @@ public class AppDbContext : DbContext
     public DbSet<WebSessionKey> WebSessionKeys => Set<WebSessionKey>();
     public DbSet<CertificateRotationEvent> CertificateRotationEvents => Set<CertificateRotationEvent>();
     public DbSet<AuthSession> AuthSessions => Set<AuthSession>();
+    public DbSet<MediaStorage> MediaStorages => Set<MediaStorage>();
+    public DbSet<MediaLog> MediaLogs => Set<MediaLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -346,13 +348,28 @@ public class AppDbContext : DbContext
                 .HasForeignKey(s => s.DriverId).OnDelete(DeleteBehavior.Restrict);
         });
 
-        // ── PlaceFavori ────────────────────────────────────────────────────────
-        modelBuilder.Entity<PlaceFavori>(e =>
+        // -- Media Storage -------------------------------------------------------
+        modelBuilder.Entity<MediaStorage>(e =>
         {
-            e.HasKey(p => p.Id);
-            e.HasIndex(p => p.UserId);
-            e.HasOne(p => p.User).WithMany(u => u.PlacesFavoris)
-                .HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Cascade);
+            e.HasKey(m => m.Id);
+            e.HasIndex(m => m.Sector);
+            e.HasIndex(m => m.MediaType);
+            e.HasIndex(m => m.OwnerId);
+            e.HasIndex(m => m.OwnerType);
+            e.HasIndex(m => m.ArchiveStatus);
+            e.HasIndex(m => m.UploadedAt);
+            e.HasIndex(m => m.UploadedBy);
+        });
+
+        modelBuilder.Entity<MediaLog>(e =>
+        {
+            e.HasKey(l => l.Id);
+            e.HasIndex(l => l.MediaId);
+            e.HasIndex(l => l.Sector);
+            e.HasIndex(l => l.Operation);
+            e.HasIndex(l => l.Result);
+            e.HasIndex(l => l.UserId);
+            e.HasIndex(l => l.CreatedAt);
         });
     }
 }

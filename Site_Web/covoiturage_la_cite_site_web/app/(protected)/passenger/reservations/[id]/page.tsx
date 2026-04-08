@@ -55,13 +55,12 @@ export default function PassengerReservationsRoutePage() {
   // SSE : mise à jour temps réel lorsque les réservations changent
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const es = new EventSource("/api/sse/db-watch/reservations");
-    let isFirst = true;
-    es.addEventListener("update", () => {
-      if (isFirst) { isFirst = false; return; }
+    // SSE endpoint /api/sse/db-watch/* is deprecated and returns 503.
+    // Use a light polling fallback to avoid calling the disabled SSE route.
+    const interval = setInterval(() => {
       void loadData();
-    });
-    return () => es.close();
+    }, 30000); // 30s
+    return () => clearInterval(interval);
   }, [user, params.id, loadData]);
 
   if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "passenger") return null;

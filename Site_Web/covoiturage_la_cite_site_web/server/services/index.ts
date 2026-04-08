@@ -66,3 +66,7 @@ export type { ChatMessageResponseDto, SendMessageDto, ConversationSummaryDto } f
 // ── Contenu éditorial (Astuces + Nouveautés) ─────────────────────────────────
 export { ContentService } from './ContentService';
 export type { AstuceResponseDto, NouveauteResponseDto, CreateNouveauteDto } from './ContentService';
+
+// ── Routing (ORS + fallback synthétique) ─────────────────────────────────────
+export { RoutingService } from './RoutingService';
+export type { SimpleRoute, CircuitRoute } from './RoutingService';

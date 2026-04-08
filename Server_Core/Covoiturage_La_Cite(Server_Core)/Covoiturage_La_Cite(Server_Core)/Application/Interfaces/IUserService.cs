@@ -26,4 +26,7 @@ public interface IUserService
     /// Crée automatiquement l'utilisateur s'il n'existe pas.
     /// </summary>
     Task<AuthResultDto> AuthenticateWithEmailTestModeAsync(string email, CancellationToken ct = default);
+
+    /// <summary>Active ou désactive le bypass OTP pour 30 jours sur le compte de l'utilisateur.</summary>
+    Task SetOtpPreferenceAsync(Guid userId, bool disabledOtp, CancellationToken ct = default);
 }

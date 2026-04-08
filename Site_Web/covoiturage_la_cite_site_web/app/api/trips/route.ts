@@ -39,16 +39,47 @@ export async function POST(req: Request) {
   try {
     const auth = await withAuth(req);
 
-    // Sécurité : authentification obligatoire — le Server Core valide aussi le driverId via JWT
-    if (!auth.token) {
+    if (!auth.token)
       return NextResponse.json({ error: 'Authentification requise' }, { status: 401 });
-    }
 
-    const body = await req.json();
+    const raw = await req.json();
+
+    // Transformation frontend → Server Core CreateTrajetDto
+    const body = {
+      vehicleId:        raw.vehicleId,
+      // Départ
+      departureLabel:   raw.departure?.label   ?? raw.departureAddress ?? '',
+      departureAddress: raw.departure?.fullAddress ?? raw.departureAddress ?? '',
+      departureLat:     raw.departure?.coordinates?.lat ?? raw.departureLat,
+      departureLng:     raw.departure?.coordinates?.lng ?? raw.departureLng,
+      // Arrivée
+      arrivalLabel:     raw.arrival?.label     ?? raw.arrivalAddress ?? '',
+      arrivalAddress:   raw.arrival?.fullAddress ?? raw.arrivalAddress ?? '',
+      arrivalLat:       raw.arrival?.coordinates?.lat ?? raw.arrivalLat,
+      arrivalLng:       raw.arrival?.coordinates?.lng ?? raw.arrivalLng,
+      // Horaire
+      departureDate:    raw.departureDate,
+      departureTime:    raw.departureTime,
+      // Capacité
+      maxPassengers:    raw.maxPassengers,
+      pricePerPassenger: raw.pricePerPassenger,
+      paymentMethod:    raw.paymentMethod,
+      // Type
+      tripType:         raw.tripType ?? 'unique',
+      recurrenceDays:   raw.recurringDays,
+      // Préférences (imbriquées ou à plat)
+      baggageAllowed:   raw.preferences?.baggageAllowed  ?? raw.baggageAllowed  ?? true,
+      petsAllowed:      raw.preferences?.petsAllowed     ?? raw.petsAllowed     ?? false,
+      smokingAllowed:   raw.preferences?.smokingAllowed  ?? raw.smokingAllowed  ?? false,
+      musicAllowed:     raw.preferences?.musicAllowed    ?? raw.musicAllowed    ?? true,
+      conversationLevel: raw.preferences?.conversationLevel ?? raw.conversationLevel ?? 'moderate',
+      driverNote:       raw.preferences?.driverNote      ?? raw.notes,
+    };
 
     const result = await TripService.create(body, auth);
 
     if (!result.success) {
+      console.error('[POST /api/trips] Server Core error:', result.message);
       return NextResponse.json({ error: result.message }, { status: 400 });
     }
 

@@ -17,16 +17,19 @@ export async function GET(
     const result = await FinanceService.getDriverSummary(auth);
 
     if (!result.success) {
-      return NextResponse.json({ error: result.message }, { status: 404 });
+      // Pas de profil conducteur encore → retourner des 0 plutôt qu'un 404
+      return NextResponse.json({
+        soldeDisponible: 0, currency: 'CAD', weeklyProfit: 0, weeklyPendingProfit: 0, penalties: 0,
+      });
     }
 
     const data = result.data;
     return NextResponse.json({
-      soldeDisponible:     data?.availableBalance ?? 0,
-      currency:            'CAD',
-      weeklyProfit:        data?.totalEarnings ?? 0,
-      weeklyPendingProfit: data?.pendingBalance ?? 0,
-      penalties:           data?.activePenalties ?? 0,
+      soldeDisponible:     data?.soldeDisponible  ?? 0,
+      currency:            data?.currency         ?? 'CAD',
+      weeklyProfit:        data?.gainSemaine      ?? 0,
+      weeklyPendingProfit: data?.soldeEnTransit   ?? 0,
+      penalties:           data?.soldePenalites   ?? 0,
     });
   } catch (err) {
     console.error('[GET /api/dashboard/driver/finance]', err);

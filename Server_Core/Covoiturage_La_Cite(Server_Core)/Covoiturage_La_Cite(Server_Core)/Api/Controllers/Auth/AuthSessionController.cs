@@ -18,6 +18,50 @@ public class AuthSessionController : ControllerBase
         _authSession = authSession;
     }
 
+    // ── POST /api/auth/logout ──────────────────────────────────────────────
+    /// <summary>Déconnexion explicite : invalide le refresh token côté serveur. Le cookie sc_refresh est lu automatiquement.</summary>
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] Covoiturage_La_Cite_Server_Core_.Application.DTOs.Auth.RefreshRequest? request, CancellationToken ct)
+    {
+        var refreshToken = Request.Cookies["sc_refresh"] ?? request?.RefreshToken;
+        if (!string.IsNullOrWhiteSpace(refreshToken))
+            await _authSession.LogoutAsync(refreshToken, ct);
+
+        // Supprimer le cookie refresh côté serveur
+        Response.Cookies.Delete("sc_refresh");
+        return Ok(ApiResponse.Ok("Déconnexion réussie."));
+    }
+
+    // ── POST /api/auth/refresh ─────────────────────────────────────────────
+    /// <summary>Refresh access token en échange d'un refresh token. Le refresh token peut être fourni dans le body ou dans le cookie httpOnly `sc_refresh`.</summary>
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh([FromBody] Covoiturage_La_Cite_Server_Core_.Application.DTOs.Auth.RefreshRequest? request, CancellationToken ct)
+    {
+        // Prefer cookie if present
+        var refreshToken = Request.Cookies["sc_refresh"] ?? request?.RefreshToken;
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return BadRequest(ApiResponse.Fail("Refresh token manquant."));
+
+        try
+        {
+            var result = await _authSession.RefreshAsync(refreshToken, GetClientIp(), GetUserAgent(), ct);
+            return Ok(ApiResponse<Covoiturage_La_Cite_Server_Core_.Application.DTOs.Auth.RefreshResultDto>.Ok(result));
+        }
+        catch (KeyNotFoundException)
+        {
+            return Unauthorized(ApiResponse.Fail("Refresh token invalide."));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Unauthorized(ApiResponse.Fail(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            // fallback
+            return StatusCode(500, ApiResponse.Fail("Erreur serveur lors du refresh."));
+        }
+    }
+
     // ── POST /api/auth/init-session ─────────────────────────────────────────
     /// <summary>Crée une AuthSession. Retourne publicId dans le body et idKey dans un cookie httpOnly.</summary>
     [HttpPost("init-session")]
@@ -78,7 +122,7 @@ public class AuthSessionController : ControllerBase
 
         try
         {
-            var result = await _authSession.VerifyCodeAsync(idKeyHash, request.Code, GetClientIp(), GetUserAgent(), ct);
+            var result = await _authSession.VerifyCodeAsync(idKeyHash, request.Code, GetClientIp(), GetUserAgent(), ct, request.RememberOtp);
 
             if (result.Success)
             {

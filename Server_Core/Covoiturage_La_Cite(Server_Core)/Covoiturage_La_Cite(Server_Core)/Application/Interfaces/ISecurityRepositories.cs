@@ -51,6 +51,7 @@ public interface IAuthSessionRepository
 {
     Task<AuthSession?> GetByIdKeyHashAsync(string idKeyHash, CancellationToken ct = default);
     Task<AuthSession?> GetByPublicIdAsync(string publicId, CancellationToken ct = default);
+    Task<AuthSession?> GetByRefreshTokenHashAsync(string refreshTokenHash, CancellationToken ct = default);
     Task AddAsync(AuthSession session, CancellationToken ct = default);
     Task UpdateAsync(AuthSession session, CancellationToken ct = default);
     Task DeleteExpiredAsync(CancellationToken ct = default);

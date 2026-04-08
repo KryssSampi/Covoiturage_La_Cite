@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Covoiturage_La_Cite_Server_Core_.Api.Controllers.UserController;
 
+public record OtpPreferenceRequest(bool DisabledOtp);
+
 [ApiController]
 [Route("api/users")]
 public class UserController : ControllerBase
@@ -139,6 +141,19 @@ public class UserController : ControllerBase
         var user = await _userService.GetByIdAsync(id, ct);
         if (user == null) return NotFound(ApiResponse.Fail("Utilisateur introuvable"));
         return Ok(ApiResponse<UserResponseDto>.Ok(user));
+    }
+
+    /// <summary>PATCH /api/users/me/otp-preference — Active ou désactive le bypass OTP (30 jours)</summary>
+    [HttpPatch("me/otp-preference")]
+    [Authorize]
+    public async Task<IActionResult> SetOtpPreference([FromBody] OtpPreferenceRequest request, CancellationToken ct)
+    {
+        var userId = GetCurrentUserId();
+        await _userService.SetOtpPreferenceAsync(userId, request.DisabledOtp, ct);
+        var msg = request.DisabledOtp
+            ? "Code OTP désactivé pour 30 jours."
+            : "Vérification OTP réactivée.";
+        return Ok(ApiResponse.Ok(msg));
     }
 
     // ── Helper ───────────────────────────────────────────────────────────────

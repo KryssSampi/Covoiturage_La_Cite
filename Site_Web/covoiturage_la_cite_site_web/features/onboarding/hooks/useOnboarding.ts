@@ -267,7 +267,16 @@ export function useOnboarding(initial?: { initialRole?: 'passenger' | 'driver'; 
     setError(null);
     try {
       const result = await apiPost('set-profile-picture', { avatarUrl: formData.avatarUrl });
-      if (!result.success) { setError(result.error ?? 'Erreur'); return; }
+      if (!result.success) {
+        // Le Server Core bloque les conducteurs sans documents — rediriger vers l'étape documents
+        if (result.error === 'documents_required') {
+          setStep('documents');
+          setError('Vous devez soumettre tous vos documents avant de continuer.');
+        } else {
+          setError(result.error ?? 'Erreur');
+        }
+        return;
+      }
       goToNextStep();
     } finally {
       setIsLoading(false);

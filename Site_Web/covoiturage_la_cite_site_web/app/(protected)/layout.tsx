@@ -11,6 +11,7 @@ import { NotificationAlert } from "@/features/notifications/components/Notificat
 import { useNotificationPush } from "@/features/notifications/hooks/useNotificationPush";
 import { useUserActivityTracking } from "@/features/notifications/hooks/useUserActivityTracking";
 import { useWebNotifications } from "@/features/notifications/hooks/useWebNotifications";
+import { SessionManager } from '@/shared/components/SessionManager';
 
 /**
  * Détecte si le composant est monté côté client.
@@ -86,6 +87,7 @@ export default function RootLayout({
         notificationsHref={userId && userRole ? `/${userRole}/notifications/${userId}` : undefined}
       />
       <TripProvider>
+        <SessionManager />
         <Header />
         {children}
         <Footer />

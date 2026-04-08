@@ -170,9 +170,12 @@ public class AuthSessionRepository : IAuthSessionRepository
     {
         var now = DateTimeOffset.UtcNow;
         await _db.AuthSessions
-            .Where(s => s.ExpiresAt < now || (s.IsBlocked && s.BlockedUntil.HasValue && s.BlockedUntil < now))
+            .Where(s => s.ExpiresAt < now || (s.RefreshTokenExpiresAt.HasValue && s.RefreshTokenExpiresAt < now) || (s.IsBlocked && s.BlockedUntil.HasValue && s.BlockedUntil < now))
             .ExecuteDeleteAsync(ct);
     }
+
+    public Task<AuthSession?> GetByRefreshTokenHashAsync(string refreshTokenHash, CancellationToken ct)
+        => _db.AuthSessions.FirstOrDefaultAsync(s => s.RefreshTokenHash == refreshTokenHash, ct);
 
     public Task SaveChangesAsync(CancellationToken ct) => _db.SaveChangesAsync(ct);
 }

@@ -59,7 +59,9 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     IsBlocked = table.Column<bool>(type: "boolean", nullable: false),
                     BlockedUntil = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     IsValidated = table.Column<bool>(type: "boolean", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: true)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    RefreshTokenHash = table.Column<string>(type: "text", nullable: true),
+                    RefreshTokenExpiresAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -144,6 +146,57 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MediaLogs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    MediaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Sector = table.Column<string>(type: "text", nullable: false),
+                    Operation = table.Column<string>(type: "text", nullable: false),
+                    Result = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: true),
+                    IpAddress = table.Column<string>(type: "text", nullable: true),
+                    UserAgent = table.Column<string>(type: "text", nullable: true),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    ErrorDetails = table.Column<string>(type: "text", nullable: true),
+                    ContextData = table.Column<string>(type: "text", nullable: true),
+                    DurationMs = table.Column<int>(type: "integer", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MediaLogs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MediaStorages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    OriginalFileName = table.Column<string>(type: "text", nullable: false),
+                    StoredFileName = table.Column<string>(type: "text", nullable: false),
+                    MimeType = table.Column<string>(type: "text", nullable: false),
+                    FileSize = table.Column<long>(type: "bigint", nullable: false),
+                    Url = table.Column<string>(type: "text", nullable: false),
+                    Sector = table.Column<string>(type: "text", nullable: false),
+                    MediaType = table.Column<string>(type: "text", nullable: false),
+                    OwnerId = table.Column<string>(type: "text", nullable: true),
+                    OwnerType = table.Column<string>(type: "text", nullable: true),
+                    ArchiveStatus = table.Column<string>(type: "text", nullable: false),
+                    UploadedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UploadedBy = table.Column<string>(type: "text", nullable: true),
+                    ArchivedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    ArchiveReason = table.Column<string>(type: "text", nullable: true),
+                    Metadata = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MediaStorages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PlatformConfigs",
                 columns: table => new
                 {
@@ -207,6 +260,10 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     ReputationPoints = table.Column<int>(type: "integer", nullable: false),
                     Language = table.Column<string>(type: "text", nullable: false),
                     LanguagesSpoken = table.Column<string[]>(type: "text[]", nullable: false),
+                    IdentityVerificationPhotos = table.Column<string[]>(type: "text[]", nullable: false),
+                    IdentityVerified = table.Column<bool>(type: "boolean", nullable: false),
+                    DisabledOtp = table.Column<bool>(type: "boolean", nullable: false),
+                    DisabledOtpAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     DeletedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
@@ -369,6 +426,31 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     table.PrimaryKey("PK_Notifications", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Notifications_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PlacesFavoris",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Pseudonyme = table.Column<string>(type: "text", nullable: false),
+                    Adresse = table.Column<string>(type: "text", nullable: false),
+                    Lat = table.Column<decimal>(type: "numeric", nullable: false),
+                    Lng = table.Column<decimal>(type: "numeric", nullable: false),
+                    IconTag = table.Column<string>(type: "text", nullable: false),
+                    IsAnchored = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlacesFavoris", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PlacesFavoris_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -1301,6 +1383,71 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_MediaLogs_CreatedAt",
+                table: "MediaLogs",
+                column: "CreatedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaLogs_MediaId",
+                table: "MediaLogs",
+                column: "MediaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaLogs_Operation",
+                table: "MediaLogs",
+                column: "Operation");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaLogs_Result",
+                table: "MediaLogs",
+                column: "Result");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaLogs_Sector",
+                table: "MediaLogs",
+                column: "Sector");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaLogs_UserId",
+                table: "MediaLogs",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaStorages_ArchiveStatus",
+                table: "MediaStorages",
+                column: "ArchiveStatus");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaStorages_MediaType",
+                table: "MediaStorages",
+                column: "MediaType");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaStorages_OwnerId",
+                table: "MediaStorages",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaStorages_OwnerType",
+                table: "MediaStorages",
+                column: "OwnerType");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaStorages_Sector",
+                table: "MediaStorages",
+                column: "Sector");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaStorages_UploadedAt",
+                table: "MediaStorages",
+                column: "UploadedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MediaStorages_UploadedBy",
+                table: "MediaStorages",
+                column: "UploadedBy");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Notifications_CreatedAt",
                 table: "Notifications",
                 column: "CreatedAt");
@@ -1323,6 +1470,11 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Penalties_UserId",
                 table: "Penalties",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlacesFavoris_UserId",
+                table: "PlacesFavoris",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -1583,10 +1735,19 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                 name: "MatchingScoreCaches");
 
             migrationBuilder.DropTable(
+                name: "MediaLogs");
+
+            migrationBuilder.DropTable(
+                name: "MediaStorages");
+
+            migrationBuilder.DropTable(
                 name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "Penalties");
+
+            migrationBuilder.DropTable(
+                name: "PlacesFavoris");
 
             migrationBuilder.DropTable(
                 name: "PlatformConfigs");

@@ -6,11 +6,11 @@ import {
   toTrajetsReservationStatus,
 } from '@/features/trajets/converters/trip.converter';
 import { ViewerRole, TripViewSource } from '@/features/trajets/types/published-trip.view.types';
+import { withAuth } from '@/server/auth';
 import { TripService } from '@/server/services/TripService';
 import { UserService } from '@/server/services/UserService';
 import { VehicleService } from '@/server/services/VehicleService';
 import { ReservationService } from '@/server/services/ReservationService';
-import type { ReservationModel } from '@/core/models/ReservationModel';
 import type { TripModel } from '@/core/models/TripModel';
 import type { ConnectedUser } from '@/core/state/app_state';
 import type { UserModel } from '@/core/models/UserModel';
@@ -53,24 +53,47 @@ export default async function TripViewPage({ params, searchParams }: PageProps) 
   const { id } = await params;
   const { source: rawSource, status, role: rawRole, alreadyReserved } = await searchParams;
 
+  const auth = await withAuth();
+
   // Fetch trip depuis Server Core
-  const tripResult = await TripService.getById(id);
+  const tripResult = await TripService.getById(id, auth);
   if (!tripResult.success || !tripResult.data) {
     notFound();
   }
   const tripDto = tripResult.data;
 
-  // Fetch driver depuis Server Core
-  const driverResult = await UserService.getById(tripDto.driverId);
-  if (!driverResult.success || !driverResult.data) {
-    notFound();
+  // Profil conducteur : inclus dans tripDto.Driver si disponible, sinon fetch public
+  let driverDto: { id: string; firstName: string; lastName: string; avatarUrl?: string; goScore?: number; memberSince?: string; driverRating?: number } | null = null;
+  if (tripDto.driver) {
+    driverDto = {
+      id: tripDto.driverId,
+      firstName: tripDto.driver.firstName ?? '',
+      lastName: tripDto.driver.lastName ?? '',
+      avatarUrl: tripDto.driver.avatarUrl,
+      goScore: tripDto.driver.goScore,
+      driverRating: Number(tripDto.driver.averageRating ?? 4.5),
+    };
+  } else {
+    const driverResult = await UserService.getPublicProfile(tripDto.driverId, auth);
+    if (!driverResult.success || !driverResult.data) {
+      notFound();
+    }
+    const pub = driverResult.data!;
+    driverDto = {
+      id: pub.id,
+      firstName: pub.firstName,
+      lastName: pub.lastName,
+      avatarUrl: pub.avatarUrl,
+      goScore: pub.goScore,
+      memberSince: pub.memberSince,
+    };
   }
-  const driverDto = driverResult.data;
+  if (!driverDto) notFound();
 
   // Fetch vehicle depuis Server Core (fallback si non trouve)
-  const vehicleResult = await VehicleService.getMyVehicles();
+  const vehicleResult = await VehicleService.getMyVehicles(auth);
   const vehicleDto = vehicleResult.success
-    ? vehicleResult.data.find((v) => v.id === tripDto.vehicleId)
+    ? vehicleResult.data?.find((v) => v.id === tripDto.vehicleId)
     : undefined;
 
   // Mapper TripDto → TripModel pour le converter existant
@@ -95,29 +118,31 @@ export default async function TripViewPage({ params, searchParams }: PageProps) 
     departureTime: tripDto.departureTime,
     maxPassengers: tripDto.maxPassengers,
     currentPassengers: tripDto.currentPassengers,
-    pricePerPassenger: tripDto.pricePerPassenger,
-    passengerPrice: tripDto.passengerPrice,
+    pricePerPassenger: Number(tripDto.pricePerPassenger),
+    passengerPrice: Math.round(Number(tripDto.pricePerPassenger) * 1.15 * 100) / 100,
     paymentMethod: (tripDto.paymentMethod as TripModel['paymentMethod']) ?? 'cash',
     status: (tripDto.status as TripModel['status']) ?? 'published',
     departureType: 'planned',
     tripType: (tripDto.tripType as TripModel['tripType']) ?? 'unique',
     preferences: {
       conversationLevel: (tripDto.conversationLevel as 'quiet' | 'moderate' | 'chatty') ?? 'moderate',
-      musicAccepted: true,
-      smokingAccepted: false,
-      petsAccepted: false,
+      musicAllowed: tripDto.musicAllowed ?? true,
+      smokingAllowed: tripDto.smokingAllowed ?? false,
+      petsAllowed: tripDto.petsAllowed ?? false,
+      baggageAllowed: tripDto.baggageAllowed ?? true,
+      flexibleItinerary: false,
     },
     createdAt: tripDto.createdAt,
     updatedAt: tripDto.updatedAt,
   };
 
-  // Mapper UserDto → UserModel
+  // Mapper UserPublicDto → UserModel
   const driverUser: UserModel = {
     id: driverDto.id,
-    email: driverDto.email ?? '',
+    email: '',
     firstName: driverDto.firstName ?? '',
     lastName: driverDto.lastName ?? '',
-    initials: driverDto.initials ?? '',
+    initials: `${driverDto.firstName?.[0] ?? ''}${driverDto.lastName?.[0] ?? ''}`.toUpperCase(),
     avatarUrl: driverDto.avatarUrl,
     role: 'driver' as const,
     canBeDriver: true,
@@ -125,10 +150,10 @@ export default async function TripViewPage({ params, searchParams }: PageProps) 
     isActive: true,
     passengerProfile: { averageRating: 4.0, totalTripsAsPassenger: 0, co2SavedKg: 0, punctualityScore: 80, noShowCount: 0 },
     preferences: { musicAccepted: true, petsAccepted: false, smokingAccepted: false, conversationLevel: 'moderate' as const },
-    goScore: 250,
+    goScore: driverDto.goScore ?? 0,
     badgeIds: [],
-    createdAt: driverDto.createdAt ?? '',
-    updatedAt: driverDto.updatedAt ?? '',
+    createdAt: driverDto.memberSince ?? '',
+    updatedAt: driverDto.memberSince ?? '',
   };
 
   // Mapper VehicleDto → VehicleModel
@@ -179,36 +204,24 @@ export default async function TripViewPage({ params, searchParams }: PageProps) 
         : 'passenger');
 
   // Fetch reservation existante via Server Core
-  let existingReservationModel: ReservationModel | undefined;
+  let existingReservation: { status: import('@/features/trajets/types/published-trip.view.types').ReservationStatus; updatedAt: string } | undefined;
+
+  const alreadyReservedBool =
+    alreadyReserved === 'true' || alreadyReserved === '1' ? true
+    : alreadyReserved === 'false' || alreadyReserved === '0' ? false
+    : false;
+
   if (connectedUser?.id && connectedUser.id !== tripDto.driverId) {
     try {
-      const resResult = await ReservationService.getMine();
+      const resResult = await ReservationService.getMine(undefined, 1, 50, auth);
       if (resResult.success && resResult.data) {
-        const matchingReservations = resResult.data
+        const match = (resResult.data.items ?? [])
           .filter((r) => r.tripId === tripDto.id && r.passengerId === connectedUser.id)
-          .sort(
-            (a, b) =>
-              new Date(b.updatedAt ?? b.createdAt).getTime() -
-              new Date(a.updatedAt ?? a.createdAt).getTime()
-          );
-        if (matchingReservations.length > 0) {
-          const r = matchingReservations[0];
-          existingReservationModel = {
-            id: r.id,
-            tripId: r.tripId,
-            passengerId: r.passengerId,
-            driverId: r.driverId,
-            status: r.status as ReservationModel['status'],
-            paymentStatus: r.paymentStatus as ReservationModel['paymentStatus'],
-            seatsReserved: r.seatsReserved,
-            passengerPrice: r.passengerPrice,
-            driverAmount: r.driverAmount,
-            platformFee: r.platformFee,
-            pickupNote: r.pickupNote,
-            createdAt: r.createdAt,
-            updatedAt: r.updatedAt,
-            confirmedAt: r.confirmedAt,
-            cancelledAt: r.cancelledAt,
+          .sort((a, b) => new Date(b.updatedAt ?? b.createdAt).getTime() - new Date(a.updatedAt ?? a.createdAt).getTime())[0];
+        if (match) {
+          existingReservation = {
+            status: toTrajetsReservationStatus(match.status as import('@/core/models/ReservationModel').ReservationLifecycleStatus),
+            updatedAt: match.updatedAt ?? match.createdAt,
           };
         }
       }
@@ -217,22 +230,12 @@ export default async function TripViewPage({ params, searchParams }: PageProps) 
     }
   }
 
-  const alreadyReservedBool =
-    alreadyReserved === 'true' || alreadyReserved === '1' ? true
-    : alreadyReserved === 'false' || alreadyReserved === '0' ? false
-    : false;
-
-  const existingReservation = existingReservationModel
-    ? {
-        status: toTrajetsReservationStatus(existingReservationModel.status),
-        updatedAt: existingReservationModel.updatedAt ?? existingReservationModel.createdAt,
-      }
-    : alreadyReservedBool
-      ? {
-          status: 'pending' as import('@/features/trajets/types/published-trip.view.types').ReservationStatus,
-          updatedAt: new Date().toISOString(),
-        }
-      : undefined;
+  if (!existingReservation && alreadyReservedBool) {
+    existingReservation = {
+      status: 'pending',
+      updatedAt: new Date().toISOString(),
+    };
+  }
 
   const source: TripViewSource =
     rawSource === 'reservation' || rawSource === 'publishedtrip'
@@ -254,7 +257,8 @@ export default async function TripViewPage({ params, searchParams }: PageProps) 
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
-  const tripResult = await TripService.getById(id);
+  const auth = await withAuth();
+  const tripResult = await TripService.getById(id, auth);
   const tripDto = tripResult.success ? tripResult.data : null;
 
   return {
