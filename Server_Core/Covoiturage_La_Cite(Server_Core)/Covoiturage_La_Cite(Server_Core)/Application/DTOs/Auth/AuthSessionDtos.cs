@@ -30,6 +30,8 @@ public record VerifyEmailResponse
 public record VerifyCodeRequest
 {
     public string Code { get; init; } = string.Empty;
+    /// <summary>Si true, désactive l'OTP 2FA pour 30 jours sur ce compte (utilisateurs existants uniquement).</summary>
+    public bool RememberOtp { get; init; }
 }
 
 /// <summary>Réponse verify-code.</summary>
@@ -67,6 +69,23 @@ public record LoginResultDto
     public string AccessToken { get; init; } = null!;
     public DateTimeOffset AccessTokenExpiresAt { get; init; }
     public UserSummaryDto User { get; init; } = null!;
+}
+
+/// <summary>Résultat d'un refresh : nouveau access token + (optionnellement) nouveau refresh token.</summary>
+public record RefreshResultDto
+{
+    public string AccessToken { get; init; } = null!;
+    public DateTimeOffset AccessTokenExpiresAt { get; init; }
+
+    // Raw refresh token renvoyé au BFF pour écriture en cookie httpOnly. Stocker uniquement le hash côté serveur.
+    public string? RefreshToken { get; init; }
+    public DateTimeOffset? RefreshTokenExpiresAt { get; init; }
+}
+
+/// <summary>Requête envoyée pour rafraîchir le token (optionnel si le token est présent en cookie httpOnly).</summary>
+public record RefreshRequest
+{
+    public string? RefreshToken { get; init; }
 }
 
 /// <summary>Info de blocage envoyée au client.</summary>

@@ -12,16 +12,17 @@ using Covoiturage_La_Cite_Server_Core_.Application.Services.Finance;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Gamification;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Gps;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Matching;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Media;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Onboarding;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Pipeda;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Places;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Reservation;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Security;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Social;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Sse;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Trip;
-using Covoiturage_La_Cite_Server_Core_.Application.Services.Places;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Stats;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Trip;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Vehicle;
 using Covoiturage_La_Cite_Server_Core_.Data.MongoDB;
@@ -31,6 +32,8 @@ using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.CampusReposi
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.FinanceRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.GamificationRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.GpsRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.MediaLogRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.MediaStorageRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.NotificationRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.PipedaRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.ReservationRepository;
@@ -39,6 +42,7 @@ using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.SocialReposi
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.TrajetRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.UserRepository;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Repositories.VehiculeRepository;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL.Seeding;
 using FluentValidation;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -131,6 +135,7 @@ try
     // P1 — Users & Auth
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<IUserService, UserService>();
+    builder.Services.AddScoped<IUserProvisioningService, UserProvisioningService>();
 
     // P2 — Trajets
     builder.Services.AddScoped<ITrajetRepository, TrajetRepository>();
@@ -223,6 +228,10 @@ try
     // P19 — FAQ (Foire Aux Questions) — MongoDB
     builder.Services.AddScoped<IFaqService, FaqService>();
 
+    builder.Services.AddScoped<IMediaStorageRepository, MediaStorageRepository>();
+    builder.Services.AddScoped<IMediaLogRepository, MediaLogRepository>();
+    builder.Services.AddScoped<IMediaStorageService, MediaStorageService>();
+
     // P20 — Lieux favoris (PlaceFavori) — PostgreSQL
     builder.Services.AddScoped<IPlaceFavoriService, PlaceFavoriService>();
 
@@ -238,13 +247,13 @@ try
         await MongoDbInitializer.InitializeAsync(mongoCtx, mongoLogger);
     }
 
-    //if (app.Environment.IsDevelopment()) // Seed de données de dev (users, trajets, etc.)
-    //{
-    //    using var seedScope = app.Services.CreateScope();
-    //    var db = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
-    //    var seedLogger = seedScope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseSeeder");
-    //    await DatabaseSeeder.SeedAsync(db, seedLogger);
-    //}
+    if (app.Environment.IsDevelopment()) // Seed de données de dev (users, trajets, etc.)
+    {
+        using var seedScope = app.Services.CreateScope();
+        var db = seedScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var seedLogger = seedScope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseSeeder");
+        await DatabaseSeeder.SeedAsync(db, seedLogger);
+    }
 
     // ── Middleware pipeline ───────────────────────────────────────────────────
     app.UseMiddleware<ExceptionMiddleware>();

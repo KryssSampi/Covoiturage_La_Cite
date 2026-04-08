@@ -47,5 +47,8 @@ public class HangfireJobRegistrar : IHangfireJobRegistrar
         // ── Hebdomadaire (lundi 1h) ──────────────────────────────────────
         RecurringJob.AddOrUpdate<WeeklyReportJob>("weekly-report", j => j.ExecuteAsync(), "0 1 * * 1");
         RecurringJob.AddOrUpdate<BadgeAwardCheckJob>("badge-award-check", j => j.ExecuteAsync(), "0 5 * * 1");
+
+        // ── Quotidien (5h du matin) ──────────────────────────────────────
+        RecurringJob.AddOrUpdate<OtpExpiryJob>("otp-expiry", j => j.ExecuteAsync(), "0 5 * * *");
     }
 }

@@ -1,3 +1,4 @@
+using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Trip;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
@@ -13,13 +14,15 @@ public class TrajetService : ITrajetService
 {
     private readonly ITrajetRepository _repo;
     private readonly IGoTaskService _goTasks;
+    private readonly INotificationService _notifications;
     private readonly ILogger<TrajetService> _logger;
     private static readonly GeometryFactory _gf = new(new PrecisionModel(), 4326);
 
-    public TrajetService(ITrajetRepository repo, IGoTaskService goTasks, ILogger<TrajetService> logger)
+    public TrajetService(ITrajetRepository repo, IGoTaskService goTasks, INotificationService notifications, ILogger<TrajetService> logger)
     {
         _repo = repo;
         _goTasks = goTasks;
+        _notifications = notifications;
         _logger = logger;
     }
 
@@ -191,6 +194,29 @@ public class TrajetService : ITrajetService
         var trip = BuildTrip(driverId, dto, TripStatus.Published);
         await _repo.AddAsync(trip, ct);
         _logger.LogInformation("Trajet créé et publié: {TripId} par {DriverId}", trip.Id, driverId);
+
+        // Notification + email au conducteur
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _notifications.CreateAsync(new CreateNotificationDto
+                {
+                    UserId       = driverId,
+                    Type         = NotificationType.System,
+                    Title        = "Trajet publié",
+                    Body         = $"Votre trajet de {dto.DepartureLabel} vers {dto.ArrivalLabel} le {dto.DepartureDate:d} à {dto.DepartureTime} a été publié avec succès.",
+                    IsImportant  = false,
+                    RelatedTripId = trip.Id,
+                    DeepLink     = $"/driver/planifier/{driverId}",
+                }, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Impossible d'envoyer la notification de création du trajet {TripId}", trip.Id);
+            }
+        }, ct);
+
         return MapToResponse(trip);
     }
 

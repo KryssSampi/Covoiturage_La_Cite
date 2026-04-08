@@ -19,6 +19,10 @@ import { Language, useAppState } from '@/core/state/app_state';
 // ── Props du composant ─────────────────────────────────────────────────────────
 
 export interface IdentityVerificationFormProps {
+  // Refs DOM — OBLIGATOIRES pour que le flux vidéo et la capture fonctionnent
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
+
   // État de la vérification
   status: VerificationStatus;
   loadError: string | null;
@@ -71,6 +75,8 @@ function IconFor(
 // ── Composant principal ────────────────────────────────────────────────────────
 
 export default function IdentityVerificationForm({
+  videoRef,
+  canvasRef,
   status,
   loadError,
   videoReady,
@@ -219,12 +225,15 @@ export default function IdentityVerificationForm({
         <div className="flex flex-col items-center gap-3">
           <div className="relative w-full max-w-sm">
             <video
+              ref={videoRef}
               className="h-64 w-full rounded-2xl object-cover bg-black"
               style={{ transform: 'scaleX(-1)' }}
               autoPlay
               playsInline
               muted
             />
+            {/* Canvas hors-écran utilisé pour la capture de frames */}
+            <canvas ref={canvasRef} className="hidden" />
             {/* Stop overlay when streaming */}
             {isStreaming && (
               <div className="absolute top-2 right-2">

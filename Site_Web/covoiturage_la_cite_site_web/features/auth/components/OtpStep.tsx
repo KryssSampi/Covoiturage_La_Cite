@@ -6,6 +6,7 @@ import ErrorMessage from './ErrorMessage';
 
 export default function OtpStep({ auth, isFr }: { auth: ReturnType<typeof useAuthSession>; isFr: boolean }) {
   const [code, setCode] = useState('');
+  const [rememberOtp, setRememberOtp] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [otpExpiresAt, setOtpExpiresAt] = useState<Date | null>(null);
   const [validityRemaining, setValidityRemaining] = useState<number>(0);
@@ -64,7 +65,7 @@ export default function OtpStep({ auth, isFr }: { auth: ReturnType<typeof useAut
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    auth.submitCode(code);
+    auth.submitCode(code, rememberOtp);
   };
 
   const handleCodeChange = (value: string) => {
@@ -144,6 +145,23 @@ export default function OtpStep({ auth, isFr }: { auth: ReturnType<typeof useAut
       </div>
 
       <ErrorMessage message={auth.error} />
+
+      {/* Checkbox "Ne plus demander" — affiché uniquement pour les utilisateurs existants (2FA après mdp) */}
+      {!auth.isNewUser && (
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={rememberOtp}
+            onChange={(e) => setRememberOtp(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <span className="text-sm text-gray-600">
+            {isFr
+              ? 'Ne plus me demander pendant 30 jours sur cet appareil'
+              : 'Don\'t ask again for 30 days on this device'}
+          </span>
+        </label>
+      )}
 
       <button
         type="submit"

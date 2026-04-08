@@ -32,30 +32,63 @@ export interface CreateTrajetDto {
 
 export type UpdateTrajetDto = Partial<CreateTrajetDto>;
 
+export interface TripDriverDto {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl?: string;
+  averageRating: number;
+  goScore: number;
+  isProfileVerified: boolean;
+}
+
+export interface TripVehicleDto {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  color: string;
+  licensePlate: string;
+  capacity: number;
+  photoUrl?: string;
+}
+
 export interface TrajetResponseDto {
   id: string;
   driverId: string;
+  vehicleId: string;
+  departureLabel: string;
+  departureAddress: string;
   departureLat: number;
   departureLng: number;
-  departureAddress: string;
+  arrivalLabel: string;
+  arrivalAddress: string;
   arrivalLat: number;
   arrivalLng: number;
-  arrivalAddress: string;
   departureDate: string;
   departureTime: string;
+  estimatedArrivalTime?: string;
+  estimatedDurationMinutes: number;
+  estimatedDistanceKm?: number;
   maxPassengers: number;
   currentPassengers: number;
   pricePerPassenger: number;
-  passengerPrice: number;
   paymentMethod: string;
   tripType: string;
   status: string;
   conversationLevel?: string;
-  vehicleId: string;
-  notes?: string;
+  driverNote?: string;
   polyline?: string;
+  baggageAllowed?: boolean;
+  petsAllowed?: boolean;
+  smokingAllowed?: boolean;
+  musicAllowed?: boolean;
+  co2SavedKg?: number;
+  averageRating?: number;
   createdAt: string;
   updatedAt: string;
+  driver?: TripDriverDto;
+  vehicle?: TripVehicleDto;
 }
 
 export interface TrajetPassengerDto {

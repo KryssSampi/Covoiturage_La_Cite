@@ -8,8 +8,8 @@ public class MatchingSearchDto
     public double? DepartureLng { get; set; }
     public double? ArrivalLat { get; set; }
     public double? ArrivalLng { get; set; }
-    public double DepartureRadiusMeters { get; set; } = 1000;
-    public double ArrivalRadiusMeters { get; set; } = 1000;
+    public double DepartureRadiusMeters { get; set; } = 5000;
+    public double ArrivalRadiusMeters { get; set; } = 5000;
     public DateOnly? Date { get; set; }
     public double? DesiredHour { get; set; }
     public double? DesiredArrivalHour { get; set; }
@@ -70,17 +70,27 @@ public class MatchedTripDto
     public Guid TripId { get; set; }
     public Guid DriverId { get; set; }
     public string DriverFirstName { get; set; } = string.Empty;
+    public string DriverLastName { get; set; } = string.Empty;
+    public string? DriverAvatarUrl { get; set; }
     public decimal DriverRating { get; set; }
+    public int DriverTripCount { get; set; }
     public bool DriverVerified { get; set; }
 
     public string DepartureLabel { get; set; } = string.Empty;
+    public double DepartureLat { get; set; }
+    public double DepartureLng { get; set; }
     public string ArrivalLabel { get; set; } = string.Empty;
+    public double ArrivalLat { get; set; }
+    public double ArrivalLng { get; set; }
+    public string? Polyline { get; set; }
     public DateOnly DepartureDate { get; set; }
     public string DepartureTime { get; set; } = string.Empty;
     public int EstimatedDurationMinutes { get; set; }
     public decimal EstimatedDistanceKm { get; set; }
+    public decimal PricePerPassenger { get; set; }
     public decimal PassengerPrice { get; set; }
     public string PaymentMethod { get; set; } = string.Empty;
+    public int MaxPassengers { get; set; }
     public int AvailableSeats { get; set; }
 
     public MatchingScoreDto Score { get; set; } = new();

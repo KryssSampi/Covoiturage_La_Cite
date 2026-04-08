@@ -16,17 +16,16 @@ public class UserService : IUserService
     private readonly MicrosoftSsoService _ssoService;
     private readonly TokenService _tokenService;
     private readonly INotificationService _notificationService;
+    private readonly IUserProvisioningService _provisioning;
     private readonly AppDbContext _db;
     private readonly ILogger<UserService> _logger;
-
-    // GoScore de départ offert à chaque nouveau membre
-    private const int InitialGoScore = 250;
 
     public UserService(
         IUserRepository userRepository,
         MicrosoftSsoService ssoService,
         TokenService tokenService,
         INotificationService notificationService,
+        IUserProvisioningService provisioning,
         AppDbContext db,
         ILogger<UserService> logger)
     {
@@ -34,6 +33,7 @@ public class UserService : IUserService
         _ssoService = ssoService;
         _tokenService = tokenService;
         _notificationService = notificationService;
+        _provisioning = provisioning;
         _db = db;
         _logger = logger;
     }
@@ -66,8 +66,9 @@ public class UserService : IUserService
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             };
-            user.GoScore = InitialGoScore;
+            user.GoScore = 0; // Crédité par le provisionnement (GT-000)
             await _userRepository.AddAsync(user, ct);
+            await _provisioning.ProvisionAsync(user.Id, ct);
             isNew = true;
             _logger.LogInformation("Nouvel utilisateur créé: {Email}", user.Email);
         }
@@ -140,8 +141,9 @@ public class UserService : IUserService
                 CreatedAt = DateTimeOffset.UtcNow,
                 UpdatedAt = DateTimeOffset.UtcNow
             };
-            user.GoScore = InitialGoScore;
+            user.GoScore = 0; // Crédité par le provisionnement (GT-000)
             await _userRepository.AddAsync(user, ct);
+            await _provisioning.ProvisionAsync(user.Id, ct);
             isNew = true;
             _logger.LogInformation("[TESTMODE] Nouvel utilisateur test créé: {Email}", email);
         }
@@ -449,9 +451,9 @@ public class UserService : IUserService
             {
                 UserId = user.Id,
                 Type = NotificationType.Welcome,
-                Title = $"Bienvenue {user.FirstName} ! Vous avez {InitialGoScore} GoPoints !",
-                Body = $"Super, vous faites maintenant partie de la communauté Covoiturage La Cité ! " +
-                       $"On vous offre {InitialGoScore} GoPoints pour bien démarrer. " +
+                Title = $"Bienvenue {user.FirstName} ! Vous avez 250 GoPoints !",
+                Body = "Super, vous faites maintenant partie de la communauté Covoiturage La Cité ! " +
+                       "On vous offre 250 GoPoints pour bien démarrer. " +
                        "Plus vous covoiturez, plus vous gagnez — et la planète vous dit merci !",
                 IsImportant = true,
                 DeepLink = "/goboard"
@@ -522,5 +524,18 @@ public class UserService : IUserService
                 ConversationLevel = user.Preferences.ConversationLevel.ToString().ToLower()
             }
         };
+    }
+
+    // ── OTP Preference ────────────────────────────────────────────────────────
+
+    public async Task SetOtpPreferenceAsync(Guid userId, bool disabledOtp, CancellationToken ct = default)
+    {
+        var user = await _db.Users.FindAsync([userId], ct)
+            ?? throw new KeyNotFoundException("Utilisateur introuvable.");
+
+        user.DisabledOtp = disabledOtp;
+        user.DisabledOtpAt = disabledOtp ? DateTimeOffset.UtcNow : null;
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+        await _db.SaveChangesAsync(ct);
     }
 }

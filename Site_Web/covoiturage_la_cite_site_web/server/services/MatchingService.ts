@@ -6,44 +6,74 @@
 
 import { get, post, type ApiResponse, type RequestOptions } from '../http-client';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// ── Types (alignés sur Server Core MatchingDtos) ──────────────────────────────
 
 export interface MatchingSearchDto {
-  originLat: number;
-  originLng: number;
-  destinationLat: number;
-  destinationLng: number;
+  departureLat?: number;
+  departureLng?: number;
+  arrivalLat?: number;
+  arrivalLng?: number;
+  departureRadiusMeters?: number;
+  arrivalRadiusMeters?: number;
+  date?: string;           // "YYYY-MM-DD"
+  desiredHour?: number;    // heures décimales (ex: 8.5 = 08h30)
+  desiredWeekday?: number; // 0=dim … 6=sam
+  maxPrice?: number;
+  minSeatsAvailable?: number;
+  sortKey?: string;        // "matching_desc" | "price_asc" | "price_desc" | "departure_asc" | "seats_desc"
+}
+
+export interface MatchedTripDto {
+  tripId: string;
+  driverId: string;
+  driverFirstName: string;
+  driverLastName: string;
+  driverAvatarUrl?: string;
+  driverRating: number;
+  driverTripCount: number;
+  driverVerified: boolean;
+  departureLabel: string;
+  departureLat: number;
+  departureLng: number;
+  arrivalLabel: string;
+  arrivalLat: number;
+  arrivalLng: number;
+  polyline?: string;
+  departureDate: string;
   departureTime: string;
-  maxDetourMinutes?: number;
-  maxResults?: number;
+  estimatedDurationMinutes: number;
+  estimatedDistanceKm: number;
+  pricePerPassenger: number;
+  passengerPrice: number;
+  paymentMethod: string;
+  maxPassengers: number;
+  availableSeats: number;
+  score: {
+    total: number;
+    geoDepart: number;
+    geoArrivee: number;
+    compatMusique: number;
+    compatConversation: number;
+    compatBagages: number;
+    compatLangue: number;
+    fiabiliteNote: number;
+    fiabiliteAnnulation: number;
+    fiabilitePonctualite: number;
+    fiabiliteVerifie: number;
+    affiniteFavoris: number;
+    affiniteNote: number;
+    affiniteTrajets: number;
+    horaire: number;
+    bonusRecurrence: number;
+    eliminationReason?: string;
+  };
 }
 
 export interface MatchingResultDto {
-  tripId: string;
-  driverName: string;
-  score: number;
-  geoScore: number;
-  behaviorScore: number;
-  reliabilityScore: number;
-  affinityScore: number;
-  scheduleScore: number;
-  bonusScore: number;
-  detourMinutes: number;
-  departureTime: string;
-  estimatedPickupTime: string;
-  priceEstimate: number;
-}
-
-export interface MatchingScoreDto {
-  tripId: string;
-  totalScore: number;
-  geoScore: number;
-  behaviorScore: number;
-  reliabilityScore: number;
-  affinityScore: number;
-  scheduleScore: number;
-  bonusScore: number;
-  breakdown: Record<string, number>;
+  trips: MatchedTripDto[];
+  totalEvaluated: number;
+  totalEliminated: number;
+  totalMatched: number;
 }
 
 // ── Service ───────────────────────────────────────────────────────────────────
@@ -51,12 +81,12 @@ export interface MatchingScoreDto {
 export const MatchingService = {
 
   /** Recherche de matchs */
-  async search(data: MatchingSearchDto, options?: RequestOptions): Promise<ApiResponse<MatchingResultDto[]>> {
-    return post<MatchingResultDto[]>('api/matching/search', data, options);
+  async search(data: MatchingSearchDto, options?: RequestOptions): Promise<ApiResponse<MatchingResultDto>> {
+    return post<MatchingResultDto>('api/matching/search', data, options);
   },
 
   /** Score de matching pour un trajet */
-  async getScore(tripId: string, options?: RequestOptions): Promise<ApiResponse<MatchingScoreDto>> {
-    return get<MatchingScoreDto>(`api/matching/score/${tripId}`, options);
+  async getScore(tripId: string, options?: RequestOptions): Promise<ApiResponse<MatchedTripDto['score']>> {
+    return get<MatchedTripDto['score']>(`api/matching/score/${tripId}`, options);
   },
 };

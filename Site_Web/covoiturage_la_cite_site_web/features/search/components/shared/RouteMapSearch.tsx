@@ -145,10 +145,15 @@ export function RouteMapSearch({
     ? (() => { const [h, m] = routeMap.departureTime.split(":").map(Number); return h + m / 60; })()
     : undefined;
 
+  // En mode passager, le serveur a déjà appliqué le filtre géographique.
+  // On passe null pour éviter un double-filtrage client avec un rayon plus strict.
+  const passengerCoordsForFilter = role === 'passenger' ? null : routeMap.departureCoords;
+  const passengerArrivalForFilter = role === 'passenger' ? null : routeMap.arrivalCoords;
+
   const { filteredTrips, totalCount, scores } = usePassengerSearch({
     trips: availableTrips,
-    departureCoords: routeMap.departureCoords,
-    arrivalCoords: routeMap.arrivalCoords,
+    departureCoords: passengerCoordsForFilter,
+    arrivalCoords: passengerArrivalForFilter,
     filters,
     sortKey: sortKey as PassengerSortKey,
     desiredHour,

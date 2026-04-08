@@ -58,7 +58,7 @@ public class TokenService
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var now = DateTime.UtcNow;
-        var accessExpiry = now.AddMinutes(15);
+        var accessExpiry = now.AddHours(6);
 
         var claims = new[]
         {

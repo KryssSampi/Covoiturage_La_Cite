@@ -8,7 +8,7 @@ import { GlobalLoader } from "./GlobalLoader";
 export function LoaderManager() {
   const pathname = usePathname();
   const previousPath = useRef(pathname);
-  const { setActiveLoader } = useLoader();
+  const { isActive, setActiveLoader } = useLoader();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -23,6 +23,19 @@ export function LoaderManager() {
       }, 1200);
     }
   }, [pathname, setActiveLoader]);
+
+  // Safety fallback: if loader stays active for too long, cut it off.
+  useEffect(() => {
+    if (!isActive) return;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      setActiveLoader(false);
+    }, 10000); // 10s fallback
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [isActive, setActiveLoader]);
 
   return <GlobalLoader />;
 }

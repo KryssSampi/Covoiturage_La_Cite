@@ -205,7 +205,7 @@ export function useAuthSession(onLoginSuccess: (user: AuthLoginUser) => void) {
     }
   }, [handleBlocked]);
 
-  const submitCode = useCallback(async (code: string) => {
+  const submitCode = useCallback(async (code: string, rememberOtp = false) => {
     if (!code || code.length < 6) {
       setError('Entrez le code à 6 chiffres.');
       return;
@@ -218,7 +218,7 @@ export function useAuthSession(onLoginSuccess: (user: AuthLoginUser) => void) {
       const res = await fetch('/api/auth/session/verify-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, rememberOtp }),
       });
 
       const data = await res.json();
@@ -258,7 +258,7 @@ export function useAuthSession(onLoginSuccess: (user: AuthLoginUser) => void) {
     } finally {
       setIsLoading(false);
     }
-  }, [handleBlocked, isNewUser]);
+  }, [handleBlocked, isNewUser]); // rememberOtp is a param, not state dep
 
   const renewCode = useCallback(async () => {
     setIsLoading(true);

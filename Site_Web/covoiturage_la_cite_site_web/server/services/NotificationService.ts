@@ -13,10 +13,13 @@ export interface NotificationResponseDto {
   userId: string;
   type: string;
   title: string;
-  message: string;
+  body: string;
   isRead: boolean;
   isImportant: boolean;
-  payload?: Record<string, unknown>;
+  deepLink?: string;
+  payload?: string;
+  relatedTripId?: string;
+  relatedReservationId?: string;
   createdAt: string;
 }
 

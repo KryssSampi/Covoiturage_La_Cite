@@ -46,7 +46,7 @@ return (
   >
         <LoaderProvider>
           <LoaderManager />
-          {children}
+            {children}
         </LoaderProvider>
       </body>
     </html>

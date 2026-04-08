@@ -52,4 +52,11 @@ public class AuthSession
 
     /// <summary>UserId lié si l'email correspond à un utilisateur existant.</summary>
     public Guid? UserId { get; set; }
+
+    // ── Refresh token (stocker le hash, jamais le token en clair) ───────────────
+    /// <summary>Hash (SHA-256) du refresh token émis lors du login. Null si pas encore émis.</summary>
+    public string? RefreshTokenHash { get; set; }
+
+    /// <summary>Date d'expiration du refresh token (UTC).</summary>
+    public DateTimeOffset? RefreshTokenExpiresAt { get; set; }
 }

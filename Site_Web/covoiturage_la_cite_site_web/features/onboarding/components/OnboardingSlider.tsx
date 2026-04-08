@@ -48,12 +48,20 @@ export default function OnboardingSlider({ userId, initialRole, startStep }: Pro
   const { step, formData, showAbandonWarning, confirmAbandonDriver, cancelAbandonDriver, goToPreviousStep } = onboarding;
   const STEP_LABELS = getStepLabels(isFR);
 
-  // Redirection quand terminé — effectuer la navigation dans useEffect
+  // Redirection quand terminé — marquer l'onboarding complété dans l'état global AVANT de naviguer
   useEffect(() => {
     if (step !== 'done') return;
     const role = formData.role === 'driver' ? 'driver' : 'passenger';
+
+    // Sans cette mise à jour, le guard (protected/layout.tsx) voit toujours
+    // onboardingCompleted=false et redirige en boucle vers /onboarding.
+    const current = appState.userConnected;
+    if (current) {
+      appState.login({ ...current, onboardingCompleted: true, role });
+    }
+
     router.replace(`/${role}/${userId}`);
-  }, [step, formData.role, router, userId]);
+  }, [step, formData.role, router, userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (step === 'done') return null;
 

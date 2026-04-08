@@ -14,8 +14,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Covoiturage_La_Cite_Server_Core_.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260405140435_AddIdentityVerificationFields")]
-    partial class AddIdentityVerificationFields
+    [Migration("20260408130241_Initialization")]
+    partial class Initialization
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -543,6 +543,152 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.ToTable("MatchingScoreCaches");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.MediaLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContextData")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("DurationMs")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ErrorDetails")
+                        .HasColumnType("text");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("MediaId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Sector")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("MediaId");
+
+                    b.HasIndex("Operation");
+
+                    b.HasIndex("Result");
+
+                    b.HasIndex("Sector");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("MediaLogs");
+                });
+
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.MediaStorage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ArchiveReason")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ArchiveStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("MediaType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("text");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OwnerId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OwnerType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Sector")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StoredFileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UploadedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArchiveStatus");
+
+                    b.HasIndex("MediaType");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("OwnerType");
+
+                    b.HasIndex("Sector");
+
+                    b.HasIndex("UploadedAt");
+
+                    b.HasIndex("UploadedBy");
+
+                    b.ToTable("MediaStorages");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -657,6 +803,46 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Penalties");
+                });
+
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.PlaceFavori", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Adresse")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IconTag")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsAnchored")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("Lat")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("Lng")
+                        .HasColumnType("numeric");
+
+                    b.Property<string>("Pseudonyme")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PlacesFavoris");
                 });
 
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.PlatformConfig", b =>
@@ -984,6 +1170,12 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
 
                     b.Property<string>("PublicId")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("RefreshTokenExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RefreshTokenHash")
                         .HasColumnType("text");
 
                     b.Property<string>("UserAgent")
@@ -1578,6 +1770,12 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("DisabledOtp")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("DisabledOtpAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
@@ -2180,6 +2378,17 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.PlaceFavori", b =>
+                {
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "User")
+                        .WithMany("PlacesFavoris")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.Report", b =>
                 {
                     b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "ReportedUser")
@@ -2598,6 +2807,8 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.Navigation("Notifications");
 
                     b.Navigation("Penalties");
+
+                    b.Navigation("PlacesFavoris");
 
                     b.Navigation("Preferences");
 

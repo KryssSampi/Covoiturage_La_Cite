@@ -261,3 +261,34 @@ public class BadgeAwardCheckJob
         }
     }
 }
+
+/// <summary>
+/// Réinitialise DisabledOtp à false pour les utilisateurs dont les 30 jours sont expirés.
+/// Tourne quotidiennement à 5h du matin.
+/// </summary>
+public class OtpExpiryJob
+{
+    private readonly AppDbContext _db;
+    private readonly ILogger<OtpExpiryJob> _logger;
+    public OtpExpiryJob(AppDbContext db, ILogger<OtpExpiryJob> logger) { _db = db; _logger = logger; }
+
+    public async Task ExecuteAsync()
+    {
+        var cutoff = DateTimeOffset.UtcNow.AddDays(-30);
+        var expired = await _db.Users
+            .Where(u => u.DisabledOtp && u.DisabledOtpAt.HasValue && u.DisabledOtpAt.Value < cutoff)
+            .ToListAsync();
+
+        if (expired.Count == 0) return;
+
+        foreach (var user in expired)
+        {
+            user.DisabledOtp = false;
+            user.DisabledOtpAt = null;
+            user.UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        await _db.SaveChangesAsync();
+        _logger.LogInformation("OtpExpiryJob: {Count} comptes remis en 2FA OTP", expired.Count);
+    }
+}
