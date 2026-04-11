@@ -7,6 +7,7 @@ const sampleUsers = [
   { _id: "3", email: "sara.b@lacitec.on.ca", name: "Sara Bouchard", role: "passager", status: "suspendu", rides: 5, rating: 3.7 },
   { _id: "4", email: "admin@lacitec.on.ca", name: "Admin LaCite", role: "admin", status: "actif", rides: 0, rating: 5.0 },
   { _id: "5", email: "marc.l@lacitec.on.ca", name: "Marc Levesque", role: "conducteur", status: "actif", rides: 52, rating: 4.9 },
+  { _id: "6", email: "marc@lacitec.on.ca", name: "Marc Levesque", role: "conducteur", status: "actif", rides: 52, rating: 4.9 },
 ];
 
 export default function Users() {
