@@ -6,6 +6,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { withAuth } from '@/server/auth';
 import {
   recordWebConnect,
   recordWebDisconnect,
@@ -14,9 +15,9 @@ import {
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-    if (!userId) return NextResponse.json({ error: 'userId requis' }, { status: 400 });
+    const auth = await withAuth(req);
+    const userId = auth.userId;
+    if (!userId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
     const activity = getActivityForUser(userId);
     return NextResponse.json(activity ?? { userId, isCurrentlyConnectedOnWeb: false });
@@ -36,10 +37,11 @@ export async function POST(req: Request) {
       location?: string;
       role?: string;
     };
-
-    const { userId, action } = body;
+    const auth = await withAuth(req);
+    const userId = auth.userId;
+    const action = body.action;
     if (!userId || !action) {
-      return NextResponse.json({ error: 'userId et action requis' }, { status: 400 });
+      return NextResponse.json({ error: 'Non authentifié ou action manquante' }, { status: 400 });
     }
 
     if (action === 'connect') {

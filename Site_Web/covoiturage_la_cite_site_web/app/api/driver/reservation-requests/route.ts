@@ -1,39 +1,54 @@
 /**
  * GET /api/driver/reservation-requests
- * Délègue au Server Core — GET api/reservations/driver-requests
- * Transforme ReservationEnrichedDto (format Server Core) en ReservationRequest (format client).
+ * Delegue au Server Core -> GET api/driver/reservation-requests
+ * Mappe le DTO enrichi (nested ou flat) vers ReservationRequest (frontend).
  */
 import { NextResponse } from 'next/server';
 import { ReservationService, type ReservationEnrichedDto } from '@/server/services/ReservationService';
 import { withAuth } from '@/server/auth';
 import type { ReservationRequest } from '@/features/dashboard/types';
 
-/**
- * Convertit un ReservationEnrichedDto (Server Core) en ReservationRequest (format attendu par le client).
- * Note : applicant.note et applicant.doneTrips ne sont pas disponibles dans le DTO — valeur neutre 0.
- * Note : maxPassengers n'est pas disponible dans le DTO — valeur neutre 0.
- */
 function toReservationRequest(dto: ReservationEnrichedDto): ReservationRequest {
-  const rawDate = dto.tripDepartureDate ?? '';
-  const date = rawDate.slice(0, 10);
-  const time = rawDate.length >= 16 ? rawDate.slice(11, 16) : '';
+  // Nested format (Server Core actuel)
+  if (dto.reservation && dto.trip && dto.passenger) {
+    const rawDate = dto.trip.departureDate ?? '';
+    return {
+      id: dto.reservation.id,
+      applicant: {
+        id: dto.passenger.id,
+        urlPicture: dto.passenger.avatarUrl ?? '',
+        name: `${dto.passenger.firstName} ${dto.passenger.lastName}`.trim(),
+        note: dto.passenger.averageRating ?? 0,
+        doneTrips: dto.passenger.totalTripsAsPassenger ?? 0,
+      },
+      departure: dto.trip.departureLabel ?? '',
+      destination: dto.trip.arrivalLabel ?? '',
+      date: rawDate.slice(0, 10),
+      time: rawDate.length >= 16 ? rawDate.slice(11, 16) : (dto.trip.departureTime ?? ''),
+      maxPassengers: dto.trip.maxPassengers ?? 0,
+      currentPassengers: dto.reservation.seatsReserved,
+      price: dto.reservation.passengerPrice,
+    };
+  }
 
+  // Flat fallback (retro-compat)
+  const rawDate = dto.tripDepartureDate ?? '';
   return {
-    id: dto.id,
+    id: dto.id ?? '',
     applicant: {
-      id: dto.passengerId,
+      id: dto.passengerId ?? '',
       urlPicture: dto.passengerAvatarUrl ?? '',
-      name: dto.passengerName ?? 'Membre La Cité',
+      name: dto.passengerName ?? 'Membre La Cite',
       note: 0,
       doneTrips: 0,
     },
     departure: dto.tripDepartureAddress ?? '',
     destination: dto.tripArrivalAddress ?? '',
-    date,
-    time,
+    date: rawDate.slice(0, 10),
+    time: rawDate.length >= 16 ? rawDate.slice(11, 16) : '',
     maxPassengers: 0,
-    currentPassengers: dto.seatsReserved,
-    price: dto.passengerPrice,
+    currentPassengers: dto.seatsReserved ?? 0,
+    price: dto.passengerPrice ?? 0,
   };
 }
 

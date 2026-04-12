@@ -86,7 +86,7 @@ export default function DriverReservationsRoutePage() {
   const handleRejectRequest = useCallback(async (id: string) => {
     setIsActionLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/reject`, { method: "POST",
+      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/refuse`, { method: "POST",
         headers: { "x-caller-id": `${user?.id}` }
       });
       if (!res.ok) return false;

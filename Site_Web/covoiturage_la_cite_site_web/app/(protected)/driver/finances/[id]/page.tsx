@@ -41,7 +41,8 @@ export default function DriverFinancesRoutePage() {
     if (!user) return;
     try {
       const res = await fetch(
-        `/api/finances?userId=${encodeURIComponent(user.id)}&role=driver&periode=${encodeURIComponent(p)}`,
+        `/api/finances?role=driver&periode=${encodeURIComponent(p)}`,
+        { credentials: 'same-origin' },
       );
       if (!res.ok) return;
       setData(await res.json());
@@ -81,8 +82,9 @@ export default function DriverFinancesRoutePage() {
     try {
       const res = await fetch("/api/payment/withdraw", {
         method: "POST",
+        credentials: 'same-origin',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ driverId: user.id, montant, bankAccountId }),
+        body: JSON.stringify({ montant, bankAccountId }),
       });
       const body = await res.json();
       if (!res.ok) return { ok: false, msg: body.error || "Erreur lors du retrait" };

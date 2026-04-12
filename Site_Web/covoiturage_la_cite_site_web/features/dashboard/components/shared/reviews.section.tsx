@@ -87,7 +87,7 @@ export function ReviewsSection({ reviews }: { reviews: Review[] }) {
                     <div className="flex items-center mb-2">
                       <Link href={`/public-profile/${review.reviewerId}`}>
                         <h3 className="text-lg text-[#08316e] font-semibold hover:underline">
-                          {review.reviewer}
+                          {review.reviewer ?? (review.reviewerId ? `${review.reviewerId.slice(0, 8)}...` : "Utilisateur")}
                         </h3>
                       </Link>
                       <span className="ml-2 text-sm text-gray-500">

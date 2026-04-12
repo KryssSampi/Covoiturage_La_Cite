@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 // TrajetHeader — En-tête résumé du trajet (conducteur/passager)
 // ═══════════════════════════════════════════════════════════════════════
-import { FaPhone, FaBan } from 'react-icons/fa';
+import { FaPhone, FaBan, FaFlagCheckered } from 'react-icons/fa';
 import { TripHeaderCard } from '@/shared/components/trip-header-card/TripHeaderCard';
 import type { TrajetEnCoursData } from '../types/trajet-en-cours.types';
 
@@ -11,9 +11,10 @@ interface TrajetHeaderProps {
   isFR: boolean;
   onCallDriver?: () => void;
   onCancelTrip?: () => void;
+  onCompleteTrip?: () => void;
 }
 
-export function TrajetHeader({ trajetData, role, isFR, onCallDriver, onCancelTrip }: TrajetHeaderProps) {
+export function TrajetHeader({ trajetData, role, isFR, onCallDriver, onCancelTrip, onCompleteTrip }: TrajetHeaderProps) {
   const { conducteur, titre, id, tarif, statut, dateDepart, heureDepart } = trajetData;
 
   return (
@@ -41,7 +42,14 @@ export function TrajetHeader({ trajetData, role, isFR, onCallDriver, onCancelTri
       className="rounded-none rounded-b-2xl shadow-[0_4px_18px_rgba(8,49,110,0.09)]"
       actions={
         role === 'driver' ? (
-          <div className="flex justify-end w-full">
+          <div className="flex justify-end w-full gap-3">
+            <button
+              onClick={onCompleteTrip}
+              className="flex items-center gap-2 py-2 px-4 rounded-lg font-bold text-xl text-center justify-center w-80 h-12 text-white cursor-pointer"
+              style={{ background: '#0aad6a' }}
+            >
+              <FaFlagCheckered size={16} /> {isFR ? 'Terminer' : 'Complete'}
+            </button>
             <button
               onClick={onCancelTrip}
               className="flex items-center gap-2 py-2 px-4 rounded-lg font-bold text-xl text-center justify-center w-80 h-12 text-white cursor-pointer"

@@ -100,9 +100,9 @@ export default function DriverDashboardPage() {
       const [dashboardRes, financeRes, favoritesRes, astucesRes, draftsRes, goTasksRes] = await Promise.all([
         fetch(`/api/dashboard/driver/${user.id}`),
         fetch(`/api/dashboard/driver/${user.id}/finance`),
-        fetch(`/api/lieux-favoris?userId=${user.id}`),
+        fetch(`/api/lieux-favoris`, { credentials: 'same-origin' }),
         fetch("/api/astuces"),
-        fetch(`/api/drafts?driverId=${user.id}`),
+        fetch(`/api/drafts`, { credentials: 'same-origin' }),
         fetch("/api/gotasks"),
       ]);
 
@@ -174,7 +174,7 @@ export default function DriverDashboardPage() {
   const handleRejectRequest = useCallback(async (id: string) => {
     setIsActionLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/reject`, {
+      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/refuse`, {
         method: "POST",
         headers: { "x-caller-id": user?.id ?? "" },
       });
@@ -214,25 +214,25 @@ export default function DriverDashboardPage() {
 
   const handleStartTrip = useCallback(async (tripId: string) => {
     try {
-      const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/status`, {
+      const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/start`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "start" }),
       });
       if (!res.ok) {
         console.error(`[driver/page] handleStartTrip - tripId: ${tripId} - response not ok`, res.status, res.statusText);
         return;
       }
       await loadDriverData();
+      router.push(`/trajet-en-cours/${tripId}`);
     } catch (error) {
       console.error(`[driver/page] handleStartTrip - tripId: ${tripId}`, error);
     }
-  }, [loadDriverData]);
+  }, [loadDriverData, router]);
 
   const handleDeleteFavorite = useCallback(async (favorite: LieuFavoriUnifie) => {
     try {
-      const res = await fetch(`/api/lieux-favoris?id=${favorite.id}&userId=${user?.id}`, {
+      const res = await fetch(`/api/lieux-favoris?id=${favorite.id}`, {
         method: "DELETE",
+        credentials: 'same-origin',
       });
       if (!res.ok) {
         console.error(`[driver/page] handleDeleteFavorite - id: ${favorite.id} - response not ok`, res.status, res.statusText);

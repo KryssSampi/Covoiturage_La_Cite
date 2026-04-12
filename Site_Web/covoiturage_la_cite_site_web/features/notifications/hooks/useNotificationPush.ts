@@ -124,7 +124,8 @@ export function useNotificationPush(
     async function loadUnread() {
       try {
         const res = await fetch(
-          `/api/notifications?userId=${encodeURIComponent(userId!)}&isRead=false`,
+          `/api/notifications?isRead=false`,
+          { credentials: 'same-origin' },
         );
         if (!res.ok) return;
         const unread: NotificationModel[] = await res.json();
@@ -157,127 +158,75 @@ export function useNotificationPush(
     };
   }, [userId, userRole, playSound]);
 
-  // ── SSE : nouvelles notifications en cours de session ─────────────────────
+  // ── Polling : remplacer SSE désactivé par un polling périodique
   useEffect(() => {
     if (!userId) return;
 
-    // Utiliser fetch avec ReadableStream au lieu d'EventSource pour capturer les status HTTP
-    const controller = new AbortController();
-    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let backoff = 10_000; // ms
 
-    async function connectSse() {
+    async function poll() {
+      if (cancelled) return;
       try {
-        const res = await fetch(
-          `/api/sse/notifications?userId=${encodeURIComponent(userId)}`,
-          {
-            headers: { Accept: 'text/event-stream' },
-            signal: controller.signal,
-          },
-        );
-
-        // 401/403 → session expirée, rediriger vers login
+        const res = await fetch(`/api/notifications?isRead=false`, { credentials: 'same-origin' });
         if (res.status === 401 || res.status === 403) {
           console.warn('[useNotificationPush] Session expirée, redirection vers /login');
           window.location.href = '/login';
           return;
         }
 
-        // 503 → Server Core down, retry après 10s
-        if (res.status === 503) {
-          console.error('[useNotificationPush] SSE service unavailable, retry in 10s');
-          retryTimeout = setTimeout(connectSse, 10_000);
-          return;
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        if (!res.ok || !res.body) {
-          console.error('[useNotificationPush] SSE connection failed:', res.status);
-          retryTimeout = setTimeout(connectSse, 10_000);
-          return;
-        }
+        const unread: NotificationModel[] = await res.json();
+        setUnreadCount(unread.length);
 
-        // Lire le flux SSE
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
+        if (unread.length > 0) {
+          const sorted = [...unread].sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          );
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done || controller.signal.aborted) break;
+          // Si nouvelle notification depuis la dernière vue, l'ajouter à la queue
+          if (sorted[0].id !== lastSeenIdRef.current) {
+            lastSeenIdRef.current = sorted[0].id;
 
-          buffer += decoder.decode(value, { stream: true });
-          const events = buffer.split('\n\n');
-          buffer = events.pop() || '';
-
-          for (const event of events) {
-            const lines = event.split('\n');
-            let eventType = 'message';
-            let data = '';
-
-            for (const line of lines) {
-              if (line.startsWith('event: ')) {
-                eventType = line.slice(7);
-              } else if (line.startsWith('data: ')) {
-                data = line.slice(6);
+            setQueue((prev) => {
+              // Ajouter seulement les éléments non présents
+              const newItems = sorted.filter((s) => !prev.find((p) => p.id === s.id));
+              const updated = [...prev, ...newItems];
+              if (prev.length === 0 && updated.length > 0) {
+                setCurrent(updated[0]);
+                setHasAlert(true);
               }
-            }
-
-            if (eventType === 'notification' && data) {
-              try {
-                const parsed = JSON.parse(data) as {
-                  unreadCount: number;
-                  latest: NotificationModel | null;
-                };
-
-                setUnreadCount(parsed.unreadCount);
-
-                if (parsed.latest && parsed.latest.id !== lastSeenIdRef.current) {
-                  lastSeenIdRef.current = parsed.latest.id;
-
-                  setQueue((prev) => {
-                    const updated = [...prev, parsed.latest!];
-                    if (prev.length === 0) {
-                      setCurrent(parsed.latest!);
-                      setHasAlert(true);
-                    }
-                    return updated;
-                  });
-                }
-              } catch {
-                // JSON invalide, ignorer
-              }
-            } else if (eventType === 'error' && data) {
-              try {
-                const errorData = JSON.parse(data);
-                if (errorData.code === 'SSE_UNAUTHORIZED') {
-                  console.warn('[useNotificationPush] Session expirée (via SSE error), redirection');
-                  window.location.href = '/login';
-                  return;
-                }
-                if (errorData.code === 'SSE_UNAVAILABLE') {
-                  console.error('[useNotificationPush] SSE service unavailable');
-                  retryTimeout = setTimeout(connectSse, 10_000);
-                  return;
-                }
-              } catch {
-                // Erreur SSE non structurée, retry
-                retryTimeout = setTimeout(connectSse, 10_000);
-                return;
-              }
-            }
+              return updated;
+            });
           }
         }
+
+        // reset backoff on success
+        backoff = 10_000;
       } catch (err) {
-        if (controller.signal.aborted) return;
-        console.error('[useNotificationPush] SSE connection error:', err);
-        retryTimeout = setTimeout(connectSse, 10_000);
+        if (cancelled) return;
+        console.error('[useNotificationPush] polling error:', err);
+        // Exponential backoff with cap
+        const wait = Math.min(backoff, 300_000);
+        backoff = Math.min(backoff * 2, 300_000);
+        if (intervalId) clearInterval(intervalId);
+        // schedule resume after wait
+        setTimeout(() => {
+          if (cancelled) return;
+          intervalId = setInterval(poll, 15_000);
+        }, wait);
       }
     }
 
-    connectSse();
+    // démarrer immédiatement puis toutes les 15s
+    void poll();
+    intervalId = setInterval(poll, 15_000);
 
     return () => {
-      controller.abort();
-      if (retryTimeout) clearTimeout(retryTimeout);
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
     };
   }, [userId, playSound]);
 

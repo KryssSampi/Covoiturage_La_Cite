@@ -28,6 +28,7 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
     setShowSignalement, setShowLitige, setShowCancelWarning,
     setShowTripCompleted, setShowFinDeTrajet, setShowOsrmError,
     showToast, submitEval, handleCancelTrip, handleRefreshMessages, handleTripCompletedOk,
+    handleCompleteTrip,
   } = trajet;
 
   const { conducteur, depart, arrivee, passagers, titre, id } = trajetData;
@@ -65,6 +66,7 @@ export default function TrajetEnCoursPage({ tripId }: { tripId?: string }) {
         isFR={isFR}
         onCallDriver={() => showToast(isFR ? `Appel en cours vers ${conducteur.prenom}…` : `Calling ${conducteur.prenom}…`, 'green')}
         onCancelTrip={() => setShowCancelWarning(true)}
+        onCompleteTrip={handleCompleteTrip}
       />
 
       {/* ── Contenu principal ── */}

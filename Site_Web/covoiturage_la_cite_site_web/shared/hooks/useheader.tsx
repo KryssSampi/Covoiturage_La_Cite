@@ -119,7 +119,7 @@ export function useHeader(externalNotifCount?: number): UseHeaderReturn {
 
     let cancelled = false;
 
-    fetch(`/api/notifications?userId=${encodeURIComponent(id)}`)
+    fetch(`/api/notifications`, { credentials: 'same-origin' })
       .then((res) => {
         if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
         return res.json();

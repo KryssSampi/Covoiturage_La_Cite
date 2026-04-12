@@ -84,7 +84,7 @@ export default function PassengerDashboardPage() {
     try {
       const [dashboardRes, favoritesRes, astucesRes, goTasksRes] = await Promise.all([
         fetch(`/api/dashboard/passenger/${user.id}`),
-        fetch(`/api/lieux-favoris?userId=${user.id}`),
+        fetch(`/api/lieux-favoris`, { credentials: 'same-origin' }),
         fetch("/api/astuces"),
         fetch("/api/gotasks"),
       ]);
@@ -171,8 +171,9 @@ export default function PassengerDashboardPage() {
 
   const handleDeleteFavorite = useCallback(async (favorite: LieuFavoriUnifie) => {
     try {
-      const res = await fetch(`/api/lieux-favoris?id=${favorite.id}&userId=${userId}`, {
+      const res = await fetch(`/api/lieux-favoris?id=${favorite.id}`, {
         method: "DELETE",
+        credentials: 'same-origin',
       });
       if (!res.ok) {
         console.error(`[passenger/page] handleDeleteFavorite - id: ${favorite.id} - response not ok`, res.status, res.statusText);
@@ -182,7 +183,7 @@ export default function PassengerDashboardPage() {
     } catch (error) {
       console.error(`[passenger/page] handleDeleteFavorite - id: ${favorite.id}`, error);
     }
-  }, [userId]);
+  }, []);
 
   if (user?.id !== routeId || user?.role.toString().toLowerCase() !== "passenger") {
     return null;
@@ -224,7 +225,7 @@ export default function PassengerDashboardPage() {
                 </div>
                 <RecommendedRidesSection />
               </div>
-              <div className="flex w-full max-w-[30rem] shrink-0 flex-col gap-6 pl-0 xl:w-2/7 xl:pl-5">
+              <div className="flex w-full max-w-120 shrink-0 flex-col gap-6 pl-0 xl:w-2/7 xl:pl-5">
                 <StatisticSection stats={dashData?.stats ?? DEFAULT_STATS} />
                 <NotificationsSection notifications={dashData?.notifications ?? []} />
                 <GoBoard currentScore={dashData?.stats?.goScore ?? 0} tasks={goTasks} />

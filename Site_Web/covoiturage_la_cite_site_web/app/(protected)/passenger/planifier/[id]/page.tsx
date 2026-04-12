@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { FaCalendarDays } from "react-icons/fa6";
 
 import { useLoader } from "@/core/context/loader.context";
-import type { IndisponibilityDateRange } from "@/core/models/IndisponibilityModel";
+import type { IndisponibilityDateRange, IndisponibilityModel } from "@/core/models/IndisponibilityModel";
 import { Language, useAppState } from "@/core/state/app_state";
 import { isDashboardTripBlockedByIndisponibility } from "@/core/utils/indisponibility.utils";
 import { tripModelToReservation } from "@/features/dashboard/converters/dashboard.converter";
@@ -45,7 +45,12 @@ function PlannerContent({ onRefresh }: { onRefresh?: () => Promise<void> }) {
   // DbProvider supprimé — données vides, la map utilise les trajets de l'API search
   const trips: import("@/core/models/TripModel").TripModel[] = [];
   const users: import("@/core/models/UserModel").UserModel[] = [];
-  const myIndisponibility = null;
+  const myIndisponibility: IndisponibilityModel = {
+    id: "planner-passenger-empty",
+    dates: [],
+    createdAt: "",
+    updatedAt: "",
+  };
 
   // Scroll + refresh automatique vers la zone trajets si demandé par la page réservation
   useEffect(() => {
@@ -149,7 +154,12 @@ export default function PlannerPage() {
   const trips: import("@/core/models/TripModel").TripModel[] = [];
   const reservations: import("@/core/models/ReservationModel").ReservationModel[] = [];
   const users: import("@/core/models/UserModel").UserModel[] = [];
-  const myIndisponibility = null;
+  const myIndisponibility: IndisponibilityModel = {
+    id: "planner-passenger-empty",
+    dates: [],
+    createdAt: "",
+    updatedAt: "",
+  };
   const refreshTrips = async () => {};
   const refreshReservations = async () => {};
   const refreshIndisponibilities = async () => {};

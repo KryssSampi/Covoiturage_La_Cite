@@ -33,6 +33,7 @@ export default function PassengerSearchPage() {
 
   const [availableTrips, setAvailableTrips] = useState<TripWithCoords[]>([]);
   const [blockedTrips, setBlockedTrips] = useState<TripWithCoords[]>([]);
+  const [serverScoresMap, setServerScoresMap] = useState<Map<string, number>>(new Map());
   // Ref pour éviter les appels en cascade lors du changement de dépendances
   const hasFetchedRef = useRef(false);
 
@@ -106,6 +107,7 @@ export default function PassengerSearchPage() {
         if (Array.isArray(parsed) && parsed.length > 0) {
           setAvailableTrips(parsed);
           setBlockedTrips([]);
+          setServerScoresMap(new Map());
           return; // only short-circuit when we actually have data
         }
       }
@@ -147,9 +149,15 @@ export default function PassengerSearchPage() {
 
       if (!res.ok) return;
 
-      const data = await res.json() as { trips?: TripSearchDTO[]; blockedTrips?: TripSearchDTO[] };
+      const data = await res.json() as {
+        trips?: TripSearchDTO[];
+        blockedTrips?: TripSearchDTO[];
+        serverScores?: Record<string, number>;
+      };
       setAvailableTrips((data.trips ?? []).map(tripSearchDTOToTripWithCoords));
       setBlockedTrips((data.blockedTrips ?? []).map(tripSearchDTOToTripWithCoords));
+      if (data.serverScores) setServerScoresMap(new Map(Object.entries(data.serverScores)));
+      else setServerScoresMap(new Map());
     } catch (err) { console.error('[passenger/search] fetchTrips', err); }
   }, [user, depLat, depLng, arrLat, arrLng, dateParam, timeParam]);
 
@@ -207,6 +215,7 @@ export default function PassengerSearchPage() {
         initialValues={initialValues}
         availableTrips={availableTrips}
         blockedTrips={blockedTrips}
+        serverScores={serverScoresMap}
         userReservations={userReservations}
         onPassengerSearch={async ({ departureCoords, arrivalCoords, departureDate, departureTime, maxPrice, minSeatsAvailable, departureRadiusMeters, arrivalRadiusMeters }) => {
           await fetchTrips({
