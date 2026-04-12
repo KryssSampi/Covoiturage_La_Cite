@@ -17,6 +17,7 @@ interface ListingZoneProps {
   activeCircuitIdx?: number;
   isLoading?: boolean;
   scores?: Map<string, MatchingScore>;
+  serverScores?: Map<string, number>;
   selectedTripId?: string | null;
   onSelectTrip?: (trip: Trip) => void;
   onSelectCircuit?: (idx: number) => void;

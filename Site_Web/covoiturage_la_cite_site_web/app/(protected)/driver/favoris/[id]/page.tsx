@@ -37,7 +37,7 @@ export default function DriverFavorisRoutePage() {
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/favoris?userId=${encodeURIComponent(user.id)}`);
+      const res = await fetch(`/api/favoris`, { credentials: 'same-origin' });
       if (!res.ok) return;
       setData(await res.json());
     } catch (error) {
@@ -67,8 +67,9 @@ export default function DriverFavorisRoutePage() {
       try {
         const res = await fetch("/api/lieux-favoris", {
           method: "POST",
+          credentials: 'same-origin',
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...d, userId: user.id }),
+          body: JSON.stringify(d),
         });
         if (res.ok) { void loadData(); return { ok: true }; }
       } catch (err) { console.error("[driver/favoris/page]", err); }
@@ -78,7 +79,7 @@ export default function DriverFavorisRoutePage() {
     onDeleteLieu: useCallback(async (id: string) => {
       if (!user) return { ok: false };
       try {
-        const res = await fetch(`/api/lieux-favoris?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+        const res = await fetch(`/api/lieux-favoris?id=${encodeURIComponent(id)}`, { method: "DELETE", credentials: 'same-origin' });
         if (res.ok) { void loadData(); return { ok: true }; }
       } catch (err) { console.error("[driver/favoris/page]", err); }
       return { ok: false };
@@ -89,8 +90,9 @@ export default function DriverFavorisRoutePage() {
       try {
         const res = await fetch("/api/favoris/user-favori", {
           method: "POST",
+          credentials: 'same-origin',
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.id, targetUserId }),
+          body: JSON.stringify({ targetUserId }),
         });
         if (res.ok) { void loadData(); return { ok: true }; }
       } catch (err) { console.error("[driver/favoris/page]", err); }
@@ -100,7 +102,7 @@ export default function DriverFavorisRoutePage() {
     onDeleteUserFavori: useCallback(async (affiniteId: string) => {
       if (!user) return { ok: false };
       try {
-        const res = await fetch(`/api/favoris/user-favori?affiniteId=${encodeURIComponent(affiniteId)}`, { method: "DELETE" });
+        const res = await fetch(`/api/favoris/user-favori?affiniteId=${encodeURIComponent(affiniteId)}`, { method: "DELETE", credentials: 'same-origin' });
         if (res.ok) { void loadData(); return { ok: true }; }
       } catch (err) { console.error("[driver/favoris/page]", err); }
       return { ok: false };

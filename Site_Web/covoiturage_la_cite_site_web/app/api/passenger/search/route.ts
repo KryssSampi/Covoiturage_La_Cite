@@ -1,13 +1,11 @@
 /**
  * POST /api/passenger/search
- * Délègue au Server Core — POST api/matching/search
- * Fallback sur GET api/trips/search si le matching échoue ou retourne 0 résultats.
+ * Delegue au Server Core - POST api/matching/search
+ * Fallback sur GET api/trips/search si le matching echoue.
  */
 import { NextResponse } from 'next/server';
 import { withAuth } from '@/server/auth';
 import { get, post } from '@/server/http-client';
-
-// ── Types Server Core ──────────────────────────────────────────────────────────
 
 interface MatchedTripDto {
   tripId: string;
@@ -69,12 +67,10 @@ interface SimpleTrajetDto {
   driver?: { firstName?: string; lastName?: string; avatarUrl?: string; averageRating?: number; goScore?: number };
 }
 
-// ── Type attendu par le frontend ───────────────────────────────────────────────
-
 interface TripSearchDTO {
   id: string;
   departure: { label: string; fullAddress: string; coordinates: { lat: number; lng: number } };
-  arrival:   { label: string; fullAddress: string; coordinates: { lat: number; lng: number } };
+  arrival: { label: string; fullAddress: string; coordinates: { lat: number; lng: number } };
   departureDate: string;
   departureTime: string;
   estimatedDistanceKm?: number;
@@ -87,25 +83,35 @@ interface TripSearchDTO {
   tripType: string;
   polyline: [number, number][];
   preferences: {
-    baggageAllowed: boolean; petsAllowed: boolean; smokingAllowed: boolean;
-    musicAllowed: boolean; flexibleItinerary: boolean; conversationLevel: string;
+    baggageAllowed: boolean;
+    petsAllowed: boolean;
+    smokingAllowed: boolean;
+    musicAllowed: boolean;
+    flexibleItinerary: boolean;
+    conversationLevel: string;
   };
-  driver: { id: string; firstName: string; lastName: string; avatarUrl?: string; rating: number; tripCount: number; verified: boolean };
+  driver: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    avatarUrl?: string;
+    rating: number;
+    tripCount: number;
+    verified: boolean;
+  };
   matchScore?: number;
   blockedReason?: string;
 }
-
-// ── Parsers polyline ───────────────────────────────────────────────────────────
 
 function parsePolyline(raw?: string): [number, number][] {
   if (!raw) return [];
   try {
     const p = JSON.parse(raw);
     return Array.isArray(p[0]?.[0]) ? (p[0] as [number, number][]) : (p as [number, number][]);
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
-
-// ── Transformations ────────────────────────────────────────────────────────────
 
 function matchedToDTO(dto: MatchedTripDto): TripSearchDTO {
   return {
@@ -131,7 +137,14 @@ function matchedToDTO(dto: MatchedTripDto): TripSearchDTO {
     availableSeats: dto.availableSeats,
     tripType: 'unique',
     polyline: parsePolyline(dto.polyline),
-    preferences: { baggageAllowed: true, petsAllowed: false, smokingAllowed: false, musicAllowed: true, flexibleItinerary: false, conversationLevel: 'moderate' },
+    preferences: {
+      baggageAllowed: true,
+      petsAllowed: false,
+      smokingAllowed: false,
+      musicAllowed: true,
+      flexibleItinerary: false,
+      conversationLevel: 'moderate',
+    },
     driver: {
       id: dto.driverId,
       firstName: dto.driverFirstName || '',
@@ -142,6 +155,7 @@ function matchedToDTO(dto: MatchedTripDto): TripSearchDTO {
       verified: dto.driverVerified ?? false,
     },
     matchScore: dto.score?.total,
+    blockedReason: dto.score?.eliminationReason,
   };
 }
 
@@ -170,7 +184,14 @@ function simpleToDTO(dto: SimpleTrajetDto): TripSearchDTO {
     availableSeats: dto.maxPassengers - (dto.currentPassengers ?? 0),
     tripType: 'unique',
     polyline: parsePolyline(dto.polyline),
-    preferences: { baggageAllowed: true, petsAllowed: false, smokingAllowed: false, musicAllowed: true, flexibleItinerary: false, conversationLevel: 'moderate' },
+    preferences: {
+      baggageAllowed: true,
+      petsAllowed: false,
+      smokingAllowed: false,
+      musicAllowed: true,
+      flexibleItinerary: false,
+      conversationLevel: 'moderate',
+    },
     driver: {
       id: dto.driverId,
       firstName: dto.driver?.firstName || '',
@@ -183,12 +204,10 @@ function simpleToDTO(dto: SimpleTrajetDto): TripSearchDTO {
   };
 }
 
-// ── Handler ────────────────────────────────────────────────────────────────────
-
 export async function POST(req: Request) {
   try {
     const auth = await withAuth(req);
-    const body = await req.json() as {
+    const body = (await req.json()) as {
       passengerId?: string;
       departureCoords?: [number, number];
       arrivalCoords?: [number, number];
@@ -202,7 +221,68 @@ export async function POST(req: Request) {
       sortKey?: string;
     };
 
-    // Tous les trajets publiés sans filtre — matching géré côté client
+    const matchBody = {
+      PassengerId: body.passengerId ?? "",
+      DepartureLat: body.departureCoords?.[0] ?? 0,
+      DepartureLng: body.departureCoords?.[1] ?? 0,
+      ArrivalLat: body.arrivalCoords?.[0] ?? 0,
+      ArrivalLng: body.arrivalCoords?.[1] ?? 0,
+      DesiredDate: body.date,
+      Date: body.date,
+      DesiredHour: body.desiredHour,
+      DesiredWeekday: body.desiredWeekday,
+      MaxPrice: body.maxPrice,
+      MinSeatsAvailable: body.minSeatsAvailable ?? 1,
+      DepartureRadiusMeters: body.departureRadiusMeters ?? 5000,
+      ArrivalRadiusMeters: body.arrivalRadiusMeters ?? 5000,
+      SortKey: body.sortKey ?? 'score_desc',
+    };
+
+    const matchResult = await post<ServerMatchingResultDto>('api/matching/search', matchBody, auth);
+    if (matchResult.success && matchResult.data?.trips) {
+      const mapped = matchResult.data.trips.map(matchedToDTO);
+      const trips = mapped.filter((t) => !t.blockedReason);
+      const matchedIds = new Set(matchResult.data.trips.map((t) => t.tripId));
+
+      let blockedTrips: TripSearchDTO[] = [];
+      try {
+        const allPublished = await get<{ items?: SimpleTrajetDto[] } | SimpleTrajetDto[]>(
+          'api/trips/search',
+          { ...auth, params: { page: 1, pageSize: 50 } }
+        );
+
+        let items: SimpleTrajetDto[] = [];
+        if (allPublished.success && allPublished.data) {
+          const data = allPublished.data as unknown;
+          if (Array.isArray(data)) items = data as SimpleTrajetDto[];
+          else if (Array.isArray((data as { items?: unknown }).items)) {
+            items = (data as { items: SimpleTrajetDto[] }).items;
+          }
+        }
+
+        blockedTrips = items
+          .filter((t) => {
+            const status = (t.status ?? '').toLowerCase();
+            return status === 'published' && !matchedIds.has(t.id);
+          })
+          .slice(0, 10)
+          .map((t) => ({
+            ...simpleToDTO(t),
+            matchScore: 0,
+            blockedReason: 'low_match',
+          }));
+      } catch {
+        blockedTrips = [];
+      }
+
+      const serverScores: Record<string, number> = {};
+      for (const t of matchResult.data.trips) {
+        if (t.tripId && t.score?.total != null) serverScores[t.tripId] = t.score.total;
+      }
+
+      return NextResponse.json({ trips, blockedTrips, serverScores });
+    }
+
     const fallback = await get<{ items?: SimpleTrajetDto[] } | SimpleTrajetDto[]>(
       'api/trips/search',
       { ...auth, params: { page: 1, pageSize: 100 } }
@@ -219,8 +299,8 @@ export async function POST(req: Request) {
       const s = (t.status ?? '').toLowerCase();
       return s === 'published' || s === 'full';
     });
-    return NextResponse.json({ trips: published.map(simpleToDTO), blockedTrips: [] });
 
+    return NextResponse.json({ trips: published.map(simpleToDTO), blockedTrips: [] });
   } catch (err) {
     console.error('[/api/passenger/search]', err);
     return NextResponse.json({ trips: [], blockedTrips: [] });

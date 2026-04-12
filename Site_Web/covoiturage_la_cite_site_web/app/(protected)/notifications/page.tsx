@@ -18,7 +18,7 @@ export default function NotificationsRoutePage() {
     let cancelled = false;
     async function fetchData() {
       try {
-        const res = await fetch("/api/notifications");
+        const res = await fetch("/api/notifications", { credentials: 'same-origin' });
         if (!res.ok || cancelled) return;
         const data: NotificationModel[] = await res.json();
         if (!cancelled) setItems(data);
@@ -39,7 +39,7 @@ export default function NotificationsRoutePage() {
 
   const onRead = useCallback(async (id: string) => {
     try {
-      await fetch(`/api/notifications/${id}/read`, { method: "PATCH" });
+      await fetch(`/api/notifications/${id}/read`, { method: "PATCH", credentials: 'same-origin' });
       reload();
     } catch (err) {
       console.error("[notifications] onRead", err);

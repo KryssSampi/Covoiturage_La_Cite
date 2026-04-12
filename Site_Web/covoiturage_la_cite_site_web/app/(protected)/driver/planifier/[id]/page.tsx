@@ -151,7 +151,7 @@ export default function PlannerPage() {
     };
     return map[raw] ?? PublishedTripStatus.Published;
   }
-  const myIndisponibility = null;
+  const myIndisponibility: { dates?: IndisponibilityDateRange[] } = { dates: [] };
   const refreshReservations = async () => {};
   const refreshIndisponibilities = async () => {};
 
@@ -217,10 +217,8 @@ export default function PlannerPage() {
 
   const handleStartTrip = useCallback(async (tripId: string) => {
     try {
-      const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/status`, {
+      const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/start`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "start" }),
       });
       if (!res.ok) {
         console.error(`[driver/planifier] handleStartTrip - tripId: ${tripId} - response not ok`, res.status, res.statusText);

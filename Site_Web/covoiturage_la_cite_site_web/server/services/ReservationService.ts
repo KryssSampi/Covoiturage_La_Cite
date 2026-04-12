@@ -33,10 +33,46 @@ export interface ReservationResponseDto {
   cancelledAt?: string;
 }
 
-export interface ReservationEnrichedDto extends ReservationResponseDto {
+export interface ReservationEnrichedDto extends Partial<ReservationResponseDto> {
+  // Format nested (Server Core actuel)
+  reservation?: ReservationResponseDto;
+  trip?: {
+    id: string;
+    departureLabel?: string;
+    arrivalLabel?: string;
+    departureDate?: string;
+    departureTime?: string;
+    estimatedDurationMinutes?: number;
+    maxPassengers?: number;
+    currentPassengers?: number;
+    pricePerPassenger?: number;
+    status?: string;
+  };
+  passenger?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    avatarUrl?: string;
+    averageRating?: number;
+    totalTripsAsPassenger?: number;
+  };
+  driver?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    avatarUrl?: string;
+    averageRating?: number;
+    totalTripsAsDriver?: number;
+  };
+
+  // Format flat (retro-compat si endpoint legacy)
+  id?: string;
+  tripId?: string;
+  passengerId?: string;
+  seatsReserved?: number;
+  passengerPrice?: number;
   passengerName?: string;
   passengerAvatarUrl?: string;
-  driverName?: string;
   tripDepartureAddress?: string;
   tripArrivalAddress?: string;
   tripDepartureDate?: string;

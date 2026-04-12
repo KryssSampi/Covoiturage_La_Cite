@@ -1,6 +1,6 @@
 # architecture_core.md — Tiers Core (ASP.NET)
 # Racine : D:\Covoiturage_La_Cite\Server_Core\Covoiturage_La_Cite(Server_Core)\Covoiturage_La_Cite(Server_Core)
-# Généré le 2026-04-08 14:19 | 294 fichiers indexés
+# Généré le 2026-04-11 23:00 | 294 fichiers indexés
 # Format : chemin/relatif|description
 
 .gitignore|Fichier C# — gitignore

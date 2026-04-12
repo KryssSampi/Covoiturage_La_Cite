@@ -5,17 +5,15 @@
  * Utilisé principalement pour l'affichage dans la section tests de FinancesPage.
  */
 import { NextResponse } from 'next/server';
+import { withAuth } from '@/server/auth';
 import { persistenceManager } from '@/tests/PersistenceManager';
 import type { BankAccountModel } from '@/core/models/BankAccountModel';
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-
-    if (!userId) {
-      return NextResponse.json({ error: 'Paramètre userId requis' }, { status: 400 });
-    }
+    const auth = await withAuth(req);
+    const userId = auth.userId;
+    if (!userId) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
     const accounts = persistenceManager.readAll<BankAccountModel>('bank_accounts');
     const account = accounts.find((a) => a.userId === userId);

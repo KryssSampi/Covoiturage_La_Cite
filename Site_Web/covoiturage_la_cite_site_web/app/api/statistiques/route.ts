@@ -148,7 +148,7 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId') ?? auth.userId;
+    const userId = auth.userId;
     const periode = searchParams.get('periode') ?? 'mois';
 
     const result = await UserStatsService.getRawStats(userId, periode, { token: auth.token });

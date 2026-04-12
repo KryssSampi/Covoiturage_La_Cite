@@ -16,9 +16,7 @@ import type { TrajetProgressionFixture } from '../types/progression-signalement.
 
 import { toTrajetEnCoursData, tripToMapFixture, tripToProgressionFixture } from '../converters/trajet-en-cours.converter';
 import {
-  trajetFixture,
   moiFixture,
-  progressionFixture,
 } from '../fixtures/index.fixtures';
 import { DEFAULT_TRIP_PREFERENCES } from '@/core/models/TripModel';
 import type { TrajetEnCoursDto } from '@/server/services/TripService';
@@ -26,12 +24,76 @@ import { useMessagerie } from '../hooks/index.hooks';
 import { useTrajetMap } from '../hooks/useTrajetMap';
 import { useLocationEmitter } from '../hooks/useLocationEmitter';
 import { useRealtimePositions } from '../hooks/useRealtimePositions';
-import { fixtureMapPrincipale, haversineM } from '../fixtures/map.fixtures';
+import { haversineM } from '../fixtures/map.fixtures';
 import { Language, useAppState } from '@/core/state/app_state';
 
 const RATING_LABELS_FR: Record<number, string> = { 1: 'Mauvais', 2: 'Passable', 3: 'Correct', 4: 'Bien', 5: 'Excellent !' };
 const RATING_LABELS_EN: Record<number, string> = { 1: 'Poor', 2: 'Fair', 3: 'Okay', 4: 'Good', 5: 'Excellent!' };
 const AVATAR_COLORS = ['#e03050', '#0aad6a', '#c8960a', '#0098c8', '#9333ea'];
+const EMPTY_TRAJET_DATA: TrajetEnCoursData = {
+  id: '',
+  titre: '',
+  role: 'passenger',
+  conducteur: {
+    id: '',
+    prenom: '',
+    nom: '',
+    initiales: '',
+    note: 0,
+    nbTrajets: 0,
+    nbTrajetsEnsemble: 0,
+    badges: [],
+    vehicule: {
+      marque: '',
+      modele: '',
+      annee: 0,
+      couleur: '',
+      immatriculation: '',
+      nbPlaces: 0,
+    },
+    estVerifie: false,
+  },
+  passagers: [],
+  depart: { nom: '', adresse: '', coordonnees: { lat: 0, lng: 0 } },
+  arrivee: { nom: '', adresse: '', coordonnees: { lat: 0, lng: 0 } },
+  preferences: {
+    bagagesAutorises: false,
+    animauxAcceptes: false,
+    fumeur: false,
+    musique: false,
+    niveauConversation: 'modere',
+  },
+  statut: {
+    etat: 'confirme',
+    typeDepart: 'unique',
+    estRecurrent: false,
+    detourMaxMin: 0,
+    modePaiement: 'comptant',
+    nbPlacesDisponibles: 0,
+    nbPlacesTotales: 0,
+    derniereMaj: new Date(0),
+  },
+  tarif: { prixParPassager: 0, economieVsTaxi: 0, co2EconomiseKg: 0 },
+};
+const EMPTY_MAP_FIXTURE: TrajetMapFixture = {
+  id: 'empty',
+  label: '',
+  depart: { lat: 45, lng: -75 },
+  arrivee: { lat: 45.00001, lng: -75.00001 },
+  labelDepart: '',
+  labelArrivee: '',
+  vitesseMoyenneKmh: 50,
+  polyline: [{ lat: 45, lng: -75 }, { lat: 45.00001, lng: -75.00001 }],
+  distanceTotaleM: 1,
+};
+const EMPTY_PROGRESSION_FIXTURE: TrajetProgressionFixture = {
+  id: 'empty',
+  labelDepart: '',
+  labelArrivee: '',
+  dureeTotaleSecondes: 0,
+  distanceTotaleKm: 0,
+  etapes: [],
+};
 
 export interface UseTrajetEnCoursProps {
   tripId?: string;
@@ -86,6 +148,7 @@ export interface UseTrajetEnCoursReturn {
   showToast: (msg: string, type?: 'green' | 'red') => void;
   submitEval: () => Promise<void>;
   handleCancelTrip: () => Promise<void>;
+  handleCompleteTrip: () => Promise<void>;
   handleRefreshMessages: () => void;
   handleTripCompletedOk: () => void;
 }
@@ -176,7 +239,7 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
       maxPassengers: t.maxPassengers,
       currentPassengers: t.currentPassengers,
       pricePerPassenger: t.pricePerPassenger,
-      passengerPrice: t.passengerPrice,
+      passengerPrice: t.pricePerPassenger,
       paymentMethod: (t.paymentMethod as TripModel['paymentMethod']) ?? 'cash',
       status: (t.status as TripModel['status']) ?? 'in_progress',
       departureType: 'planned',
@@ -216,17 +279,17 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
 
   // ── Données UI ─────────────────────────────────────────────────────────────
   const trajetData = useMemo(() => {
-    if (!tripModel || !driverUser || !vehicleModel) return trajetFixture;
+    if (!tripModel || !driverUser || !vehicleModel) return EMPTY_TRAJET_DATA;
     return toTrajetEnCoursData(tripModel, role, driverUser, vehicleModel, passengerUsers);
   }, [tripModel, role, driverUser, vehicleModel, passengerUsers]);
 
   const mapFixture = useMemo(
-    () => (tripModel ? (tripToMapFixture(tripModel) ?? fixtureMapPrincipale) : fixtureMapPrincipale),
+    () => (tripModel ? (tripToMapFixture(tripModel) ?? EMPTY_MAP_FIXTURE) : EMPTY_MAP_FIXTURE),
     [tripModel],
   );
 
   const activeProgressionFixture = useMemo(
-    () => (tripModel ? tripToProgressionFixture(tripModel) : progressionFixture),
+    () => (tripModel ? tripToProgressionFixture(tripModel) : EMPTY_PROGRESSION_FIXTURE),
     [tripModel],
   );
 
@@ -273,7 +336,7 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
     id: currentUser?.id ?? moiFixture.id,
     prenom: currentUser?.firstName ?? moiFixture.prenom,
     nom: currentUser?.lastName ?? moiFixture.nom,
-    initiales: currentUser?.initials ?? moiFixture.initiales,
+    initiales: (currentUser?.firstName?.[0] ?? '') + (currentUser?.lastName?.[0] ?? '') || moiFixture.initiales,
     couleurAvatar: '#1a5cb0',
   }), [currentUser]);
 
@@ -422,6 +485,26 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
     setShowCancelWarning(false);
   }, [tripId, isFR, showToast, router]);
 
+  const handleCompleteTrip = useCallback(async () => {
+    if (!tripId) return;
+    try {
+      const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/complete`, {
+        method: 'PATCH',
+      });
+      if (res.ok) {
+        completionFlowStarted.current = true;
+        setShowFinDeTrajet(false);
+        setShowTripCompleted(true);
+        showToast(isFR ? 'Trajet termine avec succes.' : 'Trip completed successfully.', 'green');
+      } else {
+        showToast(isFR ? 'Erreur lors de la fin du trajet.' : 'Error while completing trip.', 'red');
+      }
+    } catch (err) {
+      console.error('[useTrajetEnCours] handleCompleteTrip', err);
+      showToast(isFR ? 'Erreur reseau.' : 'Network error.', 'red');
+    }
+  }, [tripId, isFR, showToast]);
+
   // ── Rafraîchissement de la messagerie ─────────────────────────────────────
   const handleRefreshMessages = useCallback(() => {
     void messagerie.refresh();
@@ -435,6 +518,6 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
     showSignalement, showLitige, showCancelWarning, showTripCompleted, showFinDeTrajet, showOsrmError,
     eval_, toast, alreadyReviewedIds, dashUrl, isLoading,
     setShowSignalement, setShowLitige, setShowCancelWarning, setShowTripCompleted, setShowFinDeTrajet, setShowOsrmError,
-    setEval_, showToast, submitEval, handleCancelTrip, handleRefreshMessages, handleTripCompletedOk,
+    setEval_, showToast, submitEval, handleCancelTrip, handleCompleteTrip, handleRefreshMessages, handleTripCompletedOk,
   };
 }

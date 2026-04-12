@@ -40,7 +40,8 @@ export default function PassengerStatistiquesRoutePage() {
     if (!user) return;
     try {
       const res = await fetch(
-        `/api/statistiques?userId=${encodeURIComponent(user.id)}&periode=${encodeURIComponent(p)}`,
+        `/api/statistiques?periode=${encodeURIComponent(p)}`,
+        { credentials: 'same-origin' },
       );
       if (!res.ok) return;
       setData(await res.json());

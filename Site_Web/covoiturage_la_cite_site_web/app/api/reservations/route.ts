@@ -25,10 +25,26 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = (await req.json()) as {
+      tripId?: string;
+      seatsRequested?: number;
+      pickupNote?: string;
+    };
     const auth = await withAuth(req);
+    const payload = {
+      tripId: String(body.tripId ?? ''),
+      seatsRequested:
+        typeof body.seatsRequested === 'number' && Number.isFinite(body.seatsRequested)
+          ? Math.max(1, Math.trunc(body.seatsRequested))
+          : 1,
+      pickupNote: typeof body.pickupNote === 'string' ? body.pickupNote : undefined,
+    };
 
-    const result = await ReservationService.create(body, auth);
+    if (!payload.tripId) {
+      return NextResponse.json({ error: 'tripId requis' }, { status: 400 });
+    }
+
+    const result = await ReservationService.create(payload, auth);
 
     if (!result.success) {
       return NextResponse.json({ error: result.message ?? 'Erreur serveur' }, { status: 400 });

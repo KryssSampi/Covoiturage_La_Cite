@@ -12,7 +12,7 @@
  * @pattern Provider > Context > Hook (useDashboardContext)
  */
 
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, useEffect, type ReactNode } from "react";
 
 import { Language, useAppState }           from "@/core/state/app_state";
 import { isTripBlockedByIndisponibility } from "@/core/utils/indisponibility.utils";
@@ -124,12 +124,29 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
       .filter((t): t is Trip => t !== null);
   }, [trips, usersMap, currentUserId, allReservations, myIndisponibility]);
 
-  // Destinations : gardées en fixtures (non critiques pour le test du cycle de vie)
-  const recentDestinations  = useMemo(() => FIXTURES_RECENT_DESTINATIONS, []);
+  // Destinations : tentative de lecture via API BFF, fallback fixtures si indisponible
+  const [recentDestinations, setRecentDestinations] = useState<Destination[]>(() => FIXTURES_RECENT_DESTINATIONS);
   const usualDestinations   = useMemo(() => FIXTURES_USUAL_DESTINATIONS,  []);
   const surveyRecent        = useMemo(() => FIXTURES_SURVEY_RECENT,        []);
   const surveyUsual         = useMemo(() => FIXTURES_SURVEY_USUAL,         []);
   const surveyWishing       = useMemo(() => FIXTURES_SURVEY_WISHING,       []);
+
+  useEffect(() => {
+    // Charge les destinations récentes depuis le BFF si l'utilisateur est connecté.
+    if (!currentUserId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/passenger/${currentUserId}/recent-destinations?limit=5`, { credentials: 'same-origin' });
+        if (!res.ok || cancelled) return;
+        const data = await res.json();
+        if (!cancelled && Array.isArray(data)) setRecentDestinations(data);
+      } catch (err) {
+        console.error('[DashboardProvider] fetch recentDestinations', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUserId]);
 
   const value: DashboardContextType = {
     lang,

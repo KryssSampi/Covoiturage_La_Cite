@@ -270,20 +270,18 @@ export function PublishedTripCard({
   };
 
   // Démarrage du trajet — bloque si un autre trajet est déjà en cours
-  const handleStartTrip = (e: React.MouseEvent) => {
+  const handleStartTrip = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (hasInProgressTrip) {
-       try {
-          onStartTrip(trip.id);
-        } catch (err) {
-          console.error('[PublishedTripCard] Erreur démarrage:', err);
-        } finally {
-        onBlockStart();
-        router.push(`/trajet-en-cours/${trip.id}`);
-        }
+      onBlockStart();
       return;
     }
-  
+
+    try {
+      await onStartTrip(trip.id);
+    } catch (err) {
+      console.error('[PublishedTripCard] Erreur démarrage:', err);
+    }
   };
 
   // Annulation du trajet — envoie PATCH /api/trips/{id}/status { action: 'cancel' }

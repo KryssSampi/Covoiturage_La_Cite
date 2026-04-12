@@ -35,7 +35,7 @@ export default function DriverNotificationsRoutePage() {
     let cancelled = false;
     async function fetchData() {
       try {
-        const res = await fetch(`/api/notifications?userId=${encodeURIComponent(user!.id)}`);
+        const res = await fetch(`/api/notifications`, { credentials: 'same-origin' });
         if (!res.ok || cancelled) return;
         const data: NotificationModel[] = await res.json();
         if (!cancelled) setItems(data);
@@ -57,8 +57,8 @@ export default function DriverNotificationsRoutePage() {
   }, [user, params.id, reload]);
 
   const onRead = useCallback(async (id: string) => {
-    try {
-      await fetch(`/api/notifications/${id}/read`, { method: "PATCH" });
+      try {
+      await fetch(`/api/notifications/${id}/read`, { method: "PATCH", credentials: 'same-origin' });
       reload();
     } catch (err) {
       console.error("[driver/notifications] onRead", err);

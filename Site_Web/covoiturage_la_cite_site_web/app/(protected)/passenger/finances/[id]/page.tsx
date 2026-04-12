@@ -42,7 +42,8 @@ export default function PassengerFinancesRoutePage() {
     if (!user) return;
     try {
       const res = await fetch(
-        `/api/finances?userId=${encodeURIComponent(user.id)}&role=passenger&periode=${encodeURIComponent(p)}`,
+        `/api/finances?role=passenger&periode=${encodeURIComponent(p)}`,
+        { credentials: 'same-origin' },
       );
       if (!res.ok) return;
       setData(await res.json());
