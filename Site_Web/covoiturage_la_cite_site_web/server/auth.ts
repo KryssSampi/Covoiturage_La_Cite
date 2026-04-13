@@ -36,11 +36,29 @@ export async function extractToken(req?: Request): Promise<string | null> {
 }
 
 /**
- * Construit les RequestOptions avec le token pour appeler le Server Core.
+ * Décode un JWT sans vérification de signature (extraction payload uniquement).
  */
-export async function withAuth(req?: Request): Promise<{ token?: string }> {
+function decodeJwtPayload(token: string): Record<string, unknown> {
+  try {
+    const segment = token.split('.')[1];
+    if (!segment) return {};
+    const padded = segment.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(segment.length / 4) * 4, '=');
+    return JSON.parse(Buffer.from(padded, 'base64').toString('utf8')) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Construit les RequestOptions avec le token et l'userId extrait du JWT.
+ */
+export async function withAuth(req?: Request): Promise<{ token?: string; userId?: string }> {
   const token = await extractToken(req);
-  return token ? { token } : {};
+  if (!token) return {};
+  const payload = decodeJwtPayload(token);
+  const sub = payload.sub ?? payload.nameid ?? payload.nameidentifier ?? payload.userId;
+  const userId = typeof sub === 'string' && sub.length > 0 ? sub : undefined;
+  return { token, userId };
 }
 
 /**

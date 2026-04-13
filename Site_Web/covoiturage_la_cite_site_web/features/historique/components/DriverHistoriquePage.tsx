@@ -41,7 +41,7 @@ function PublishedTripListCard({ trip, lang }: { trip: PublishedTrip; lang: Lang
         </p>
         <div className="flex items-center justify-between mt-1">
           <span className="flex items-center gap-1 text-[15px] text-gray-500">
-            {trip.passengers.length}/{trip.maxPassengers}
+            {Array.isArray(trip.passengers) ? trip.passengers.length : (trip.passengers ?? 0)}/{trip.maxPassengers ?? "?"}
             <FaUserFriends size={15} className="text-[#08316e]" />
           </span>
           <span className="text-[15px] font-bold text-green-500">{trip.price} CAD</span>

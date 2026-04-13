@@ -5,7 +5,6 @@ public enum TripStatus
     Draft,
     Published,
     Full,
-    Confirmed,
     InProgress,
     Completed,
     Cancelled,

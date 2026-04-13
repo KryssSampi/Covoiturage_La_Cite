@@ -58,20 +58,11 @@ export function GoBoardRoutePage({ expectedRole }: GoBoardRoutePageProps) {
     void loadData();
   }, [loadData, params.id, user, expectedRole]);
 
-  // SSE : mise à jour temps réel
+  // Polling 30s — db-watch SSE désactivé (503)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const entities = ["gotasks", "goevents", "goboard_classement", "eco_challenges"];
-    const sources = entities.map((entity) => {
-      const es = new EventSource(`/api/sse/db-watch/${entity}`);
-      // K-5: SSE remplacé par polling — les EventSource retournent 503
-      // On utilise un polling à la place
-      return { es, intervalId: setInterval(() => void loadData(), 30_000) };
-    });
-    return () => sources.forEach(({ es, intervalId }) => {
-      es.close();
-      clearInterval(intervalId);
-    });
+    const id = setInterval(() => void loadData(), 30_000);
+    return () => clearInterval(id);
   }, [user, params.id, loadData]);
 
   if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== expectedRole) return null;

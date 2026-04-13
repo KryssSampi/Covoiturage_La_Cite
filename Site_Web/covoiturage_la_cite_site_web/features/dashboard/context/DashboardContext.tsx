@@ -126,25 +126,38 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
 
   // Destinations : tentative de lecture via API BFF, fallback fixtures si indisponible
   const [recentDestinations, setRecentDestinations] = useState<Destination[]>(() => FIXTURES_RECENT_DESTINATIONS);
-  const usualDestinations   = useMemo(() => FIXTURES_USUAL_DESTINATIONS,  []);
+  const [usualDestinations, setUsualDestinations] = useState<Destination[]>(() => FIXTURES_USUAL_DESTINATIONS);
   const surveyRecent        = useMemo(() => FIXTURES_SURVEY_RECENT,        []);
   const surveyUsual         = useMemo(() => FIXTURES_SURVEY_USUAL,         []);
   const surveyWishing       = useMemo(() => FIXTURES_SURVEY_WISHING,       []);
 
   useEffect(() => {
-    // Charge les destinations récentes depuis le BFF si l'utilisateur est connecté.
     if (!currentUserId) return;
     let cancelled = false;
+
     (async () => {
       try {
-        const res = await fetch(`/api/passenger/${currentUserId}/recent-destinations?limit=5`, { credentials: 'same-origin' });
-        if (!res.ok || cancelled) return;
-        const data = await res.json();
-        if (!cancelled && Array.isArray(data)) setRecentDestinations(data);
+        const [resRecent, resUsual] = await Promise.all([
+          fetch(`/api/passenger/${currentUserId}/recent-destinations?limit=5`, { credentials: 'same-origin' }),
+          fetch(`/api/passenger/${currentUserId}/usual-destinations?limit=5`, { credentials: 'same-origin' }),
+        ]);
+
+        if (cancelled) return;
+
+        if (resRecent.ok) {
+          const data = await resRecent.json();
+          if (!cancelled && Array.isArray(data)) setRecentDestinations(data);
+        }
+
+        if (resUsual.ok) {
+          const data = await resUsual.json();
+          if (!cancelled && Array.isArray(data)) setUsualDestinations(data);
+        }
       } catch (err) {
-        console.error('[DashboardProvider] fetch recentDestinations', err);
+        console.error('[DashboardProvider] fetch destinations', err);
       }
     })();
+
     return () => { cancelled = true; };
   }, [currentUserId]);
 

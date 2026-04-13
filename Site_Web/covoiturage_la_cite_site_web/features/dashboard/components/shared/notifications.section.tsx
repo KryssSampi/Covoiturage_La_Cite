@@ -15,6 +15,7 @@
  * @uses FIXTURE_NOTIFICATIONS — données de test (à remplacer par API)
  */
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";

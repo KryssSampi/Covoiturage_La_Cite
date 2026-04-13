@@ -1,6 +1,7 @@
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Jobs;
 
@@ -9,14 +10,17 @@ namespace Covoiturage_La_Cite_Server_Core_.Application.Jobs;
 /// </summary>
 public class PenaltyExpiryJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<PenaltyExpiryJob> _logger;
-    public PenaltyExpiryJob(AppDbContext db, ILogger<PenaltyExpiryJob> logger) { _db = db; _logger = logger; }
+    public PenaltyExpiryJob(IServiceScopeFactory scopeFactory, ILogger<PenaltyExpiryJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         var now = DateTimeOffset.UtcNow;
-        var expired = await _db.Penalties
+        var expired = await db.Penalties
             .Where(p => p.Status == PenaltyStatus.Active && p.ContestDeadline < now)
             .ToListAsync();
 
@@ -25,7 +29,7 @@ public class PenaltyExpiryJob
 
         if (expired.Count > 0)
         {
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
             _logger.LogInformation("PenaltyExpiry: {Count} pénalités expirées", expired.Count);
         }
     }
@@ -36,35 +40,38 @@ public class PenaltyExpiryJob
 /// </summary>
 public class PlatformStatsJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<PlatformStatsJob> _logger;
-    public PlatformStatsJob(AppDbContext db, ILogger<PlatformStatsJob> logger) { _db = db; _logger = logger; }
+    public PlatformStatsJob(IServiceScopeFactory scopeFactory, ILogger<PlatformStatsJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         var now = DateTimeOffset.UtcNow;
         var today = DateOnly.FromDateTime(now.UtcDateTime);
         var monthStart = new DateOnly(today.Year, today.Month, 1);
         var thirtyDaysAgo = now.AddDays(-30);
 
-        var stats = await _db.PlatformStats.OrderByDescending(s => s.ComputedAt).FirstOrDefaultAsync();
+        var stats = await db.PlatformStats.OrderByDescending(s => s.ComputedAt).FirstOrDefaultAsync();
         if (stats == null)
         {
             stats = new Domain.Entities.PlatformStats { Id = Guid.NewGuid() };
-            _db.PlatformStats.Add(stats);
+            db.PlatformStats.Add(stats);
         }
 
-        stats.TotalUsers = await _db.Users.CountAsync();
-        stats.ActiveUsersLast30Days = await _db.Users.CountAsync(u => u.LastLoginAt >= thirtyDaysAgo);
-        stats.TotalTrips = await _db.Trips.CountAsync();
-        stats.TripsToday = await _db.Trips.CountAsync(t => t.DepartureDate == today);
-        stats.TripsThisMonth = await _db.Trips.CountAsync(t => t.DepartureDate >= monthStart);
-        stats.TotalCo2SavedKg = await _db.Trips.Where(t => t.Co2SavedKg != null).SumAsync(t => t.Co2SavedKg!.Value);
-        stats.TotalRevenuePlatform = await _db.Transactions.Where(t => t.PlatformFee > 0).SumAsync(t => t.PlatformFee);
-        stats.PendingReports = await _db.Reports.CountAsync(r => r.Status == "pending" || r.Status == "in_review");
+        stats.TotalUsers = await db.Users.CountAsync();
+        stats.ActiveUsersLast30Days = await db.Users.CountAsync(u => u.LastLoginAt >= thirtyDaysAgo);
+        stats.TotalTrips = await db.Trips.CountAsync();
+        stats.TripsToday = await db.Trips.CountAsync(t => t.DepartureDate == today);
+        stats.TripsThisMonth = await db.Trips.CountAsync(t => t.DepartureDate >= monthStart);
+        stats.TotalCo2SavedKg = await db.Trips.Where(t => t.Co2SavedKg != null).SumAsync(t => t.Co2SavedKg!.Value);
+        stats.TotalRevenuePlatform = await db.Transactions.Where(t => t.PlatformFee > 0).SumAsync(t => t.PlatformFee);
+        stats.PendingReports = await db.Reports.CountAsync(r => r.Status == "pending" || r.Status == "in_review");
         stats.ComputedAt = now;
 
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
         _logger.LogInformation("PlatformStats recalculées à {Time}", now);
     }
 }
@@ -74,15 +81,18 @@ public class PlatformStatsJob
 /// </summary>
 public class AnomalyDetectionJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<AnomalyDetectionJob> _logger;
-    public AnomalyDetectionJob(AppDbContext db, ILogger<AnomalyDetectionJob> logger) { _db = db; _logger = logger; }
+    public AnomalyDetectionJob(IServiceScopeFactory scopeFactory, ILogger<AnomalyDetectionJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         // Détection: utilisateurs avec >5 annulations dans les 7 derniers jours
         var sevenDaysAgo = DateTimeOffset.UtcNow.AddDays(-7);
-        var suspiciousCancellers = await _db.Reservations
+        var suspiciousCancellers = await db.Reservations
             .Where(r => r.Status == ReservationStatus.CancelledByPassenger && r.UpdatedAt >= sevenDaysAgo)
             .GroupBy(r => r.PassengerId)
             .Where(g => g.Count() > 5)
@@ -94,7 +104,7 @@ public class AnomalyDetectionJob
 
         // Détection: vitesses GPS > 200 km/h (GPS spoofing probable)
         var recentGps = DateTimeOffset.UtcNow.AddHours(-1);
-        var speedAnomalies = await _db.GpsPositions
+        var speedAnomalies = await db.GpsPositions
             .Where(g => g.CapturedAt >= recentGps && g.SpeedKmh > 200)
             .Select(g => new { g.UserId, g.TripId, g.SpeedKmh })
             .Take(20)
@@ -110,14 +120,17 @@ public class AnomalyDetectionJob
 /// </summary>
 public class SosEscalationJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<SosEscalationJob> _logger;
-    public SosEscalationJob(AppDbContext db, ILogger<SosEscalationJob> logger) { _db = db; _logger = logger; }
+    public SosEscalationJob(IServiceScopeFactory scopeFactory, ILogger<SosEscalationJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         var fiveMinAgo = DateTimeOffset.UtcNow.AddMinutes(-5);
-        var unhandled = await _db.SosAlerts
+        var unhandled = await db.SosAlerts
             .Where(a => a.Status == "triggered" && a.TriggeredAt < fiveMinAgo && a.AdminContactedAt == null)
             .ToListAsync();
 
@@ -129,7 +142,7 @@ public class SosEscalationJob
         }
 
         if (unhandled.Count > 0)
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
     }
 }
 

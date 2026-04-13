@@ -8,7 +8,7 @@ import { FaStar, FaLocationDot, FaArrowRight } from "react-icons/fa6";
 import { FaPlusCircle, FaUserFriends } from "react-icons/fa";
 
 import { Language, useAppState } from "@/core/state/app_state";
-import { formatDate } from "@/core/utils/date.utils";
+import { formatDate, utcToLocalDateIso, utcToLocalTime } from "@/core/utils/date.utils";
 import type { Trip } from "@/features/dashboard/types";
 import type { MatchingScore, BlockedTripReason } from "@/features/search/types/search.feature.types";
 import { PassengerAvatars } from "@/shared/components/PassengerAvatars";
@@ -81,6 +81,9 @@ export function RecommendedTripCard({
     router.push(`/trajets/${trip.id}?${query.toString()}`);
   }
 
+  const localIsoDate = utcToLocalDateIso(trip.date, trip.time);
+  const localTime = utcToLocalTime(trip.date, trip.time);
+
   return (
     <div
       className="w-80vw flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-2 hover:shadow-2xl hover:scale-[1.01] transition-all active:scale-[0.99] relative overflow-visible"
@@ -123,7 +126,8 @@ export function RecommendedTripCard({
 
       <div className="flex flex-col items-start w-full pr-28 gap-0.5">
         <span className="text-lg font-semibold text-black">
-          {formatDate(trip.date, lang)}&nbsp;:&nbsp;{trip.time}
+          {formatDate(localIsoDate, lang, localTime)}
+          &nbsp;:&nbsp;{localTime}
         </span>
 
         <div className="flex items-center text-black text-base gap-2 flex-wrap">

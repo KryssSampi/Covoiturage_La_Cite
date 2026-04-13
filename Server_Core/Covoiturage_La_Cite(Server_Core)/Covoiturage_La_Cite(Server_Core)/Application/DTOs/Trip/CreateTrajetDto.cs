@@ -48,6 +48,11 @@ public record CreateTrajetDto
     public int[]? RecurrenceDays { get; init; }
     public DateOnly? RecurrenceEndDate { get; init; }
 
+    // Données géo calculées (ORS)
+    public int EstimatedDurationMinutes { get; init; }
+    public decimal EstimatedDistanceKm { get; init; }
+    public string? Polyline { get; init; }
+
     // Préférences
     public bool BaggageAllowed { get; init; } = true;
     public bool PetsAllowed { get; init; }

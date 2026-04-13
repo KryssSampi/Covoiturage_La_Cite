@@ -30,15 +30,22 @@ public class ExceptionMiddleware
 
     private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
+        // Ne pas écrire si la réponse a déjà commencé
+        if (context.Response.HasStarted) return;
+
         context.Response.ContentType = "application/json";
 
         var (statusCode, message) = exception switch
         {
-            UnauthorizedAccessException e => (HttpStatusCode.Unauthorized, string.IsNullOrWhiteSpace(e.Message) ? "Non autorisé" : e.Message),
-            KeyNotFoundException          => (HttpStatusCode.NotFound, "Ressource introuvable"),
-            ArgumentException             => (HttpStatusCode.BadRequest, exception.Message),
-            InvalidOperationException     => (HttpStatusCode.Conflict, exception.Message),
-            _                             => (HttpStatusCode.InternalServerError, "Une erreur interne est survenue")
+            OperationCanceledException    => (HttpStatusCode.BadRequest,           "Requête annulée"),
+            UnauthorizedAccessException e => (HttpStatusCode.Unauthorized,         string.IsNullOrWhiteSpace(e.Message) ? "Non autorisé" : e.Message),
+            KeyNotFoundException          => (HttpStatusCode.NotFound,             "Ressource introuvable"),
+            ArgumentNullException e       => (HttpStatusCode.BadRequest,           e.Message),
+            ArgumentException e           => (HttpStatusCode.BadRequest,           e.Message),
+            FormatException               => (HttpStatusCode.BadRequest,           "Format de données invalide"),
+            NotSupportedException e       => (HttpStatusCode.BadRequest,           e.Message),
+            InvalidOperationException e   => (HttpStatusCode.Conflict,             e.Message),
+            _                             => (HttpStatusCode.InternalServerError,  "Une erreur interne est survenue")
         };
 
         context.Response.StatusCode = (int)statusCode;

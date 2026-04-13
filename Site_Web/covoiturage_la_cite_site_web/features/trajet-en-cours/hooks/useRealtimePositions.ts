@@ -34,24 +34,66 @@ export function useRealtimePositions(
 ): RealtimePositions {
   const [positions, setPositions] = useState<RealtimePositions>(INITIAL);
   const sourceRef = useRef<EventSource | null>(null);
+  const pollingRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!tripId) return;
 
-    sourceRef.current = new EventSource(
-      `/api/sse/locations?tripId=${encodeURIComponent(tripId)}`,
-    );
+    let stopped = false;
 
-    sourceRef.current.onmessage = (e: MessageEvent) => {
+    // Polling primary: call a positions endpoint if available
+    const tryFetch = async () => {
       try {
-        const data = JSON.parse(e.data as string) as RealtimePositions;
-        setPositions(data);
-      } catch { /* ignore payload invalide */ }
+        const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/positions`);
+        if (res.ok) {
+          const data = (await res.json()) as RealtimePositions;
+          setPositions((prev) => ({ ...prev, ...data }));
+          return true;
+        }
+        // 404 or not implemented → fallback to SSE
+        return false;
+      } catch {
+        return false;
+      }
     };
 
-    sourceRef.current.onerror = () => { /* reconnexion automatique du navigateur */ };
+    const startPolling = () => {
+      // immediate first fetch
+      void tryFetch();
+      pollingRef.current = window.setInterval(() => {
+        void tryFetch();
+      }, 10000);
+    };
+
+    // Try polling; if the endpoint isn't available, fallback to EventSource
+    (async () => {
+      const ok = await tryFetch();
+      if (stopped) return;
+      if (ok) {
+        startPolling();
+      } else {
+        // Fallback: EventSource on the legacy SSE path
+        sourceRef.current = new EventSource(
+          `/api/sse/locations?tripId=${encodeURIComponent(tripId)}`,
+        );
+
+        sourceRef.current.onmessage = (e: MessageEvent) => {
+          try {
+            const data = JSON.parse(e.data as string) as RealtimePositions;
+            setPositions(data);
+          } catch { /* ignore payload invalide */ }
+        };
+
+        sourceRef.current.onerror = () => { /* reconnexion automatique du navigateur */ };
+      }
+    })();
 
     return () => {
+      stopped = true;
+      if (pollingRef.current) {
+        clearInterval(pollingRef.current);
+        pollingRef.current = null;
+      }
       sourceRef.current?.close();
       sourceRef.current = null;
     };

@@ -293,7 +293,7 @@ public class TrajetService : ITrajetService
     {
         var trip = await GetOwnedTrip(tripId, driverId, ct);
 
-        if (trip.Status != TripStatus.Published && trip.Status != TripStatus.Confirmed && trip.Status != TripStatus.Full)
+        if (trip.Status != TripStatus.Published && trip.Status != TripStatus.Full)
             throw new InvalidOperationException($"Impossible de démarrer un trajet en statut {trip.Status}");
 
         trip.Status = TripStatus.InProgress;
@@ -380,6 +380,9 @@ public class TrajetService : ITrajetService
             MusicAllowed = dto.MusicAllowed,
             ConversationLevel = Enum.TryParse<ConversationLevel>(dto.ConversationLevel, true, out var cl) ? cl : ConversationLevel.Moderate,
             DriverNote = dto.DriverNote,
+            EstimatedDurationMinutes = dto.EstimatedDurationMinutes,
+            EstimatedDistanceKm = dto.EstimatedDistanceKm,
+            Polyline = dto.Polyline,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
         };

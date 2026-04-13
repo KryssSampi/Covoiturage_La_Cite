@@ -15,7 +15,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
 
-    return NextResponse.json(result.data);
+    // Server Core may return a paginated wrapper { items, totalCount } — normalize to array
+    const raw = result.data as unknown;
+    const entries = Array.isArray(raw) ? raw : ((raw as { items?: unknown[] } | null)?.items ?? []);
+    return NextResponse.json(entries);
   } catch (err) {
     console.error('[api/passenger/historique]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

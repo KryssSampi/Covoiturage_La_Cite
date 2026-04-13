@@ -239,6 +239,16 @@ export async function POST(req: Request) {
     };
 
     const matchResult = await post<ServerMatchingResultDto>('api/matching/search', matchBody, auth);
+    // Diagnostic log: help to identify why matching returns empty
+    try {
+      const tripsLen = (matchResult && (matchResult as unknown as ServerMatchingResultDto).trips)
+        ? (matchResult as unknown as ServerMatchingResultDto).trips.length
+        : 0;
+      const mrMsg = (matchResult as unknown as { message?: string })?.message ?? null;
+      console.log('[search] matching result:', Boolean((matchResult as unknown as { success?: boolean })?.success), tripsLen, mrMsg);
+    } catch (e) {
+      console.warn('[search] failed to log matching result', e);
+    }
     if (matchResult.success && matchResult.data?.trips) {
       const mapped = matchResult.data.trips.map(matchedToDTO);
       const trips = mapped.filter((t) => !t.blockedReason);
@@ -260,6 +270,13 @@ export async function POST(req: Request) {
           }
         }
 
+        // Diagnostic: log items count returned by trips search
+        try {
+          console.log('[search] GET api/trips/search returned items:', Array.isArray(items) ? items.length : 0);
+        } catch (e) {
+          console.warn('[search] failed to log trips.search items', e);
+        }
+
         blockedTrips = items
           .filter((t) => {
             const status = (t.status ?? '').toLowerCase();
@@ -271,7 +288,8 @@ export async function POST(req: Request) {
             matchScore: 0,
             blockedReason: 'low_match',
           }));
-      } catch {
+      } catch (e) {
+        console.error('[search] GET api/trips/search failed:', e);
         blockedTrips = [];
       }
 
@@ -293,6 +311,12 @@ export async function POST(req: Request) {
       const d = fallback.data as unknown;
       if (Array.isArray(d)) items = d as SimpleTrajetDto[];
       else if (Array.isArray((d as { items?: unknown }).items)) items = (d as { items: SimpleTrajetDto[] }).items;
+    }
+
+    try {
+      console.log('[search] fallback GET api/trips/search returned items:', Array.isArray(items) ? items.length : 0);
+    } catch (e) {
+      console.warn('[search] failed to log fallback trips.search items', e);
     }
 
     const published = items.filter((t) => {
