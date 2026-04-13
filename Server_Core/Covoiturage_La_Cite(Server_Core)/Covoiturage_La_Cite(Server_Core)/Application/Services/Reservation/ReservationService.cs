@@ -1,7 +1,6 @@
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Reservation;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
-using Covoiturage_La_Cite_Server_Core_.Domain.Entities;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Reservation;
@@ -90,8 +89,11 @@ public class ReservationService : IReservationService
         if (trip.DriverId == passengerId)
             throw new InvalidOperationException("Impossible de réserver son propre trajet");
 
-        if (trip.Status != TripStatus.Published && trip.Status != TripStatus.Confirmed)
+        if (trip.Status == TripStatus.Cancelled || trip.Status == TripStatus.Completed)
             throw new InvalidOperationException("Trajet non disponible pour réservation");
+
+        if (trip.ActualStartedAt != null)
+            throw new InvalidOperationException("Impossible de rejoindre un trajet déjà démarré");
 
         if (trip.CurrentPassengers >= trip.MaxPassengers)
             throw new InvalidOperationException("Trajet complet");
@@ -109,6 +111,7 @@ public class ReservationService : IReservationService
             DriverId = trip.DriverId,
             Status = ReservationStatus.Pending,
             ExpiresAt = ComputeExpiration(trip, now),
+            CreatedAt = now,
             PricePerSeat = trip.PricePerPassenger,
             TotalAmount = trip.PricePerPassenger,
             PaymentStatus = PaymentStatus.Pending,
@@ -151,8 +154,6 @@ public class ReservationService : IReservationService
         trip.CurrentPassengers += 1;
         if (trip.CurrentPassengers >= trip.MaxPassengers)
             trip.Status = TripStatus.Full;
-        else if (trip.Status == TripStatus.Published)
-            trip.Status = TripStatus.Confirmed;
 
         await _repo.UpdateAsync(reservation, ct);
         await _trajetRepo.UpdateAsync(trip, ct);
@@ -211,10 +212,9 @@ public class ReservationService : IReservationService
         {
             trip.CurrentPassengers = Math.Max(0, trip.CurrentPassengers - 1);
 
-            if (trip.Status == TripStatus.Full || trip.Status == TripStatus.Confirmed)
+            if (trip.Status == TripStatus.Full)
             {
-                var confirmedCount = await _repo.CountConfirmedByTripAsync(trip.Id, ct);
-                trip.Status = confirmedCount == 0 ? TripStatus.Published : TripStatus.Confirmed;
+                trip.Status = TripStatus.Published;
             }
 
             await _trajetRepo.UpdateAsync(trip, ct);

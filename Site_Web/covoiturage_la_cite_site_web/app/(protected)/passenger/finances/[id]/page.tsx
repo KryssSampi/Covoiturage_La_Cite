@@ -60,20 +60,11 @@ export default function PassengerFinancesRoutePage() {
   }, [loadData, params.id, user, periode]);
 
   // SSE : mise à jour temps réel lorsque les finances changent
+  // Polling 30s — db-watch SSE désactivé (503)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    // Surveiller les comptes passager et comptes bancaires
-    const entities = ["passenger_finance_accounts", "bank_accounts"];
-    const sources = entities.map((entity) => {
-      const es = new EventSource(`/api/sse/db-watch/${entity}`);
-      let isFirst = true;
-      es.addEventListener("update", () => {
-        if (isFirst) { isFirst = false; return; }
-        void loadData(periode);
-      });
-      return es;
-    });
-    return () => sources.forEach((es) => es.close());
+    const id = setInterval(() => void loadData(periode), 30_000);
+    return () => clearInterval(id);
   }, [user, params.id, loadData, periode]);
 
   if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "passenger") return null;

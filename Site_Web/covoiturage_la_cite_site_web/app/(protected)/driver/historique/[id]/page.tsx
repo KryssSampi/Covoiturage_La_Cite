@@ -52,16 +52,11 @@ export default function DriverHistoriqueRoutePage() {
     void loadData();
   }, [loadData, params.id, user]);
 
-  // SSE : mise à jour temps réel lorsque les trajets changent
+  // Polling 30s — db-watch SSE désactivé (503)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const es = new EventSource("/api/sse/db-watch/trips");
-    let isFirst = true;
-    es.addEventListener("update", () => {
-      if (isFirst) { isFirst = false; return; }
-      void loadData();
-    });
-    return () => es.close();
+    const id = setInterval(() => void loadData(), 30_000);
+    return () => clearInterval(id);
   }, [user, params.id, loadData]);
 
   if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "driver") return null;

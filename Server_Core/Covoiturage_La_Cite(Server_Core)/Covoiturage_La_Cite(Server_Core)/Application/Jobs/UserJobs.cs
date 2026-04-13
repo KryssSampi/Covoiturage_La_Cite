@@ -1,6 +1,7 @@
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Jobs;
 
@@ -10,23 +11,26 @@ namespace Covoiturage_La_Cite_Server_Core_.Application.Jobs;
 /// </summary>
 public class GoScoreRecalcJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<GoScoreRecalcJob> _logger;
-    public GoScoreRecalcJob(AppDbContext db, ILogger<GoScoreRecalcJob> logger) { _db = db; _logger = logger; }
+    public GoScoreRecalcJob(IServiceScopeFactory scopeFactory, ILogger<GoScoreRecalcJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
-        var users = await _db.Users.Include(u => u.DriverProfile).ToListAsync();
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var users = await db.Users.Include(u => u.DriverProfile).ToListAsync();
         var updated = 0;
 
         foreach (var user in users)
         {
             // Formule simplifiée — à affiner avec pondération
-            var tripsCompleted = await _db.Reservations.CountAsync(r =>
+            var tripsCompleted = await db.Reservations.CountAsync(r =>
                 r.PassengerId == user.Id && r.Status == Domain.Enums.ReservationStatus.Completed);
-            var tripsAsDriver = await _db.Trips.CountAsync(t =>
+            var tripsAsDriver = await db.Trips.CountAsync(t =>
                 t.DriverId == user.Id && t.Status == Domain.Enums.TripStatus.Completed);
-            var activePenalties = await _db.Penalties.CountAsync(p =>
+            var activePenalties = await db.Penalties.CountAsync(p =>
                 p.UserId == user.Id && p.Status == Domain.Enums.PenaltyStatus.Active);
             var avgRating = user.DriverProfile?.AverageRating ?? 5.0m;
 
@@ -41,7 +45,7 @@ public class GoScoreRecalcJob
             updated++;
         }
 
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
         _logger.LogInformation("GoScoreRecalc: {Count} utilisateurs mis à jour", updated);
     }
 }
@@ -51,14 +55,17 @@ public class GoScoreRecalcJob
 /// </summary>
 public class InactiveUserReminderJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<InactiveUserReminderJob> _logger;
-    public InactiveUserReminderJob(AppDbContext db, ILogger<InactiveUserReminderJob> logger) { _db = db; _logger = logger; }
+    public InactiveUserReminderJob(IServiceScopeFactory scopeFactory, ILogger<InactiveUserReminderJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         var cutoff = DateTimeOffset.UtcNow.AddDays(-14);
-        var inactive = await _db.Users
+        var inactive = await db.Users
             .Where(u => u.LastLoginAt < cutoff && u.Status == Domain.Enums.UserStatus.Active)
             .CountAsync();
 
@@ -72,20 +79,23 @@ public class InactiveUserReminderJob
 /// </summary>
 public class ChallengeProgressCheckJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<ChallengeProgressCheckJob> _logger;
-    public ChallengeProgressCheckJob(AppDbContext db, ILogger<ChallengeProgressCheckJob> logger) { _db = db; _logger = logger; }
+    public ChallengeProgressCheckJob(IServiceScopeFactory scopeFactory, ILogger<ChallengeProgressCheckJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         var now = DateTimeOffset.UtcNow;
         // Expire les défis terminés
-        var expiredChallenges = await _db.EcoChallenges
+        var expiredChallenges = await db.EcoChallenges
             .Where(c => c.ActiveUntil < now)
             .ToListAsync();
 
         // Vérifier les participations
-        var participations = await _db.ChallengeParticipations
+        var participations = await db.ChallengeParticipations
             .Include(cp => cp.EcoChallenge)
             .Where(cp => !cp.IsCompleted && cp.EcoChallenge.ActiveUntil >= now)
             .ToListAsync();
@@ -103,7 +113,7 @@ public class ChallengeProgressCheckJob
 
         if (completed > 0)
         {
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
             _logger.LogInformation("ChallengeProgressCheck: {Count} défis complétés", completed);
         }
     }
@@ -114,13 +124,16 @@ public class ChallengeProgressCheckJob
 /// </summary>
 public class WithdrawalProcessingJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<WithdrawalProcessingJob> _logger;
-    public WithdrawalProcessingJob(AppDbContext db, ILogger<WithdrawalProcessingJob> logger) { _db = db; _logger = logger; }
+    public WithdrawalProcessingJob(IServiceScopeFactory scopeFactory, ILogger<WithdrawalProcessingJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
-        var pending = await _db.Withdrawals
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var pending = await db.Withdrawals
             .Where(w => w.Status == "Pending")
             .ToListAsync();
 
@@ -132,7 +145,7 @@ public class WithdrawalProcessingJob
 
         if (pending.Count > 0)
         {
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
             _logger.LogInformation("WithdrawalProcessing: {Count} retraits en traitement", pending.Count);
         }
     }
@@ -143,16 +156,19 @@ public class WithdrawalProcessingJob
 /// </summary>
 public class WeeklyReportJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<WeeklyReportJob> _logger;
-    public WeeklyReportJob(AppDbContext db, ILogger<WeeklyReportJob> logger) { _db = db; _logger = logger; }
+    public WeeklyReportJob(IServiceScopeFactory scopeFactory, ILogger<WeeklyReportJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         var weekAgo = DateTimeOffset.UtcNow.AddDays(-7);
-        var newUsers = await _db.Users.CountAsync(u => u.CreatedAt >= weekAgo);
-        var tripsCompleted = await _db.Trips.CountAsync(t => t.Status == Domain.Enums.TripStatus.Completed && t.ActualCompletedAt >= weekAgo);
-        var revenue = await _db.Transactions.Where(t => t.CreatedAt >= weekAgo).SumAsync(t => t.PlatformFee);
+        var newUsers = await db.Users.CountAsync(u => u.CreatedAt >= weekAgo);
+        var tripsCompleted = await db.Trips.CountAsync(t => t.Status == Domain.Enums.TripStatus.Completed && t.ActualCompletedAt >= weekAgo);
+        var revenue = await db.Transactions.Where(t => t.CreatedAt >= weekAgo).SumAsync(t => t.PlatformFee);
 
         _logger.LogInformation("WeeklyReport: {NewUsers} nouveaux users, {Trips} trajets, {Revenue}$ revenus",
             newUsers, tripsCompleted, revenue);
@@ -170,20 +186,23 @@ public class WeeklyReportJob
 /// </summary>
 public class AccountLifecycleJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<AccountLifecycleJob> _logger;
 
-    public AccountLifecycleJob(AppDbContext db, ILogger<AccountLifecycleJob> logger)
+    public AccountLifecycleJob(IServiceScopeFactory scopeFactory, ILogger<AccountLifecycleJob> logger)
     {
-        _db = db;
+        _scopeFactory = scopeFactory;
         _logger = logger;
     }
 
     public async Task ExecuteAsync()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         var cutoff = DateTimeOffset.UtcNow.AddMonths(-6);
 
-        var inactiveUsers = await _db.Users
+        var inactiveUsers = await db.Users
             .Where(u =>
                 u.Status == Domain.Enums.UserStatus.Active &&
                 u.Role != Domain.Enums.UserRole.Admin &&
@@ -208,7 +227,7 @@ public class AccountLifecycleJob
             user.UpdatedAt = now;
         }
 
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
         _logger.LogInformation("AccountLifecycle: {Count} comptes inactifs (>6 mois) supprimés", inactiveUsers.Count);
     }
 }
@@ -218,20 +237,23 @@ public class AccountLifecycleJob
 /// </summary>
 public class BadgeAwardCheckJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<BadgeAwardCheckJob> _logger;
-    public BadgeAwardCheckJob(AppDbContext db, ILogger<BadgeAwardCheckJob> logger) { _db = db; _logger = logger; }
+    public BadgeAwardCheckJob(IServiceScopeFactory scopeFactory, ILogger<BadgeAwardCheckJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
-        var badges = await _db.Badges.Where(b => b.IsActive).ToListAsync();
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var badges = await db.Badges.Where(b => b.IsActive).ToListAsync();
         var awarded = 0;
 
         // Exemple: badge "Premier Trajet"
         var firstTripBadge = badges.FirstOrDefault(b => b.Name == "Premier Trajet");
         if (firstTripBadge != null)
         {
-            var usersWithTrips = await _db.Trips
+            var usersWithTrips = await db.Trips
                 .Where(t => t.Status == Domain.Enums.TripStatus.Completed)
                 .Select(t => t.DriverId)
                 .Distinct()
@@ -239,10 +261,10 @@ public class BadgeAwardCheckJob
 
             foreach (var userId in usersWithTrips)
             {
-                var hasBadge = await _db.UserBadges.AnyAsync(ub => ub.UserId == userId && ub.BadgeId == firstTripBadge.Id);
+                var hasBadge = await db.UserBadges.AnyAsync(ub => ub.UserId == userId && ub.BadgeId == firstTripBadge.Id);
                 if (!hasBadge)
                 {
-                    _db.UserBadges.Add(new Domain.Entities.UserBadge
+                    db.UserBadges.Add(new Domain.Entities.UserBadge
                     {
                         Id = Guid.NewGuid(),
                         UserId = userId,
@@ -256,7 +278,7 @@ public class BadgeAwardCheckJob
 
         if (awarded > 0)
         {
-            await _db.SaveChangesAsync();
+            await db.SaveChangesAsync();
             _logger.LogInformation("BadgeAwardCheck: {Count} badges attribués", awarded);
         }
     }
@@ -268,14 +290,17 @@ public class BadgeAwardCheckJob
 /// </summary>
 public class OtpExpiryJob
 {
-    private readonly AppDbContext _db;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<OtpExpiryJob> _logger;
-    public OtpExpiryJob(AppDbContext db, ILogger<OtpExpiryJob> logger) { _db = db; _logger = logger; }
+    public OtpExpiryJob(IServiceScopeFactory scopeFactory, ILogger<OtpExpiryJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
 
     public async Task ExecuteAsync()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
         var cutoff = DateTimeOffset.UtcNow.AddDays(-30);
-        var expired = await _db.Users
+        var expired = await db.Users
             .Where(u => u.DisabledOtp && u.DisabledOtpAt.HasValue && u.DisabledOtpAt.Value < cutoff)
             .ToListAsync();
 
@@ -288,7 +313,7 @@ public class OtpExpiryJob
             user.UpdatedAt = DateTimeOffset.UtcNow;
         }
 
-        await _db.SaveChangesAsync();
+        await db.SaveChangesAsync();
         _logger.LogInformation("OtpExpiryJob: {Count} comptes remis en 2FA OTP", expired.Count);
     }
 }

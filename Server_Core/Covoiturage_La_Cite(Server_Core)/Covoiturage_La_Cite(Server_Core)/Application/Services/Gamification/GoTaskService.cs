@@ -119,21 +119,14 @@ public class GoTaskService : IGoTaskService
 
     public async Task<GoBoardResponseDto> GetGoBoardAsync(Guid userId, CancellationToken ct = default)
     {
-        // Données en parallèle
-        var userTask    = _userRepo.GetWithProfileAsync(userId, ct);
-        var goTasksTask = GetAllWithProgressionAsync(userId, ct);
-        var topUsersTask = _userRepo.GetTopByGoScoreAsync(50, ct);
-        var challengesTask = _db.ChallengeParticipations
+        // Séquentiel — Task.WhenAll interdit sur un même DbContext (concurrence EF Core)
+        var user         = await _userRepo.GetWithProfileAsync(userId, ct);
+        var goTasks      = await GetAllWithProgressionAsync(userId, ct);
+        var topUsers     = await _userRepo.GetTopByGoScoreAsync(50, ct);
+        var myChallenges = await _db.ChallengeParticipations
             .Include(p => p.EcoChallenge)
             .Where(p => p.UserId == userId)
             .ToListAsync(ct);
-
-        await Task.WhenAll(userTask, goTasksTask, topUsersTask, challengesTask);
-
-        var user      = await userTask;
-        var goTasks   = await goTasksTask;
-        var topUsers  = await topUsersTask;
-        var myChallenges = await challengesTask;
 
         var goScore = user?.GoScore ?? 0;
         var tier    = ScoreTier(goScore);

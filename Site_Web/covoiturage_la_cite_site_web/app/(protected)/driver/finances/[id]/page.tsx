@@ -59,21 +59,11 @@ export default function DriverFinancesRoutePage() {
   }, [loadData, params.id, user, periode]);
 
   // SSE : mise à jour temps réel lorsque les finances changent
+  // Polling 30s — db-watch SSE désactivé (503)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    // Surveiller les comptes conducteur, comptes bancaires et pénalités
-    const entities = ["driver_finance_accounts", "bank_accounts", "penalites"];
-    const sources = entities.map((entity) => {
-      const es = new EventSource(`/api/sse/db-watch/${entity}`);
-      let isFirst = true;
-      es.addEventListener("update", () => {
-        // Ignorer le premier événement (contenu initial envoyé à la connexion)
-        if (isFirst) { isFirst = false; return; }
-        void loadData(periode);
-      });
-      return es;
-    });
-    return () => sources.forEach((es) => es.close());
+    const id = setInterval(() => void loadData(periode), 30_000);
+    return () => clearInterval(id);
   }, [user, params.id, loadData, periode]);
 
   // Callback retrait — appel backend puis rafraîchissement des données

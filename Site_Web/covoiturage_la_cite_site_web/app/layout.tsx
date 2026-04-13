@@ -9,11 +9,15 @@ import { LoaderProvider } from "@/core/context/loader.context";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: false,
 });
 export const viewport = {
   width: 'device-width',

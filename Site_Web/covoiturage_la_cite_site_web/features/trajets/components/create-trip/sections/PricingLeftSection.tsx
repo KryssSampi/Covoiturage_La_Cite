@@ -15,7 +15,7 @@ interface PricingLeftSectionProps {
 const PREFERENCES = [
   { key: 'baggageAllowed' as const, label: 'Bagages autorises',  icon: <FaSuitcase size={14} color="#08316e" /> },
   { key: 'petsAllowed'    as const, label: 'Animaux acceptes',    icon: <FaPaw      size={14} color="#08316e" /> },
-  { key: 'smokingAllowed' as const, label: 'Non-fumeur',          icon: <FaBan      size={14} color="#08316e" /> },
+  { key: 'smokingAllowed' as const, label: 'Fumeur',          icon: <FaBan      size={14} color="#08316e" /> },
   { key: 'musicAllowed'   as const, label: 'Musique autorisee',   icon: <FaMusic    size={14} color="#08316e" /> },
 ];
 

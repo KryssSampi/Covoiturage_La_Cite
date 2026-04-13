@@ -20,8 +20,20 @@ export interface TripTimeInfo {
  * - features/dashboard/converters/dashboard.converter.ts
  */
 export function isImminent(trip: TripTimeInfo): boolean {
+  if (!trip || !trip.departureDate || !trip.departureTime) return false;
+
   const now = new Date();
-  const departureDateTime = new Date(`${trip.departureDate}T${trip.departureTime}:00`);
+
+  // Try to interpret server-provided date/time as UTC (frontend contract: server sends UTC)
+  const utcIso = `${trip.departureDate}T${trip.departureTime}:00Z`;
+  let departureDateTime = new Date(utcIso);
+
+  // Fallback: if parsing failed, try local parsing for backwards compatibility
+  if (isNaN(departureDateTime.getTime())) {
+    departureDateTime = new Date(`${trip.departureDate}T${trip.departureTime}:00`);
+    if (isNaN(departureDateTime.getTime())) return false;
+  }
+
   const diffMs = departureDateTime.getTime() - now.getTime();
   const diffHours = diffMs / (1000 * 60 * 60);
   return diffHours >= 0 && diffHours <= 2;

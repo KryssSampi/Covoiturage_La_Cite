@@ -5,6 +5,7 @@
 
 import { NextResponse } from 'next/server';
 import { TripService } from '@/server/services/TripService';
+import { fetchPhotonSuggestions } from '@/core/services/location-suggestion.server';
 import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
@@ -44,6 +45,20 @@ export async function POST(req: Request) {
 
     const raw = await req.json();
 
+    // Si le frontend a envoyé l'offset timezone, convertir la date/heure locale en UTC
+    let departureDateValue = raw.departureDate;
+    let departureTimeValue = raw.departureTime;
+    try {
+      if (raw.utcOffsetMinutes != null && raw.departureDate && raw.departureTime) {
+        const d = new Date(`${raw.departureDate}T${raw.departureTime}:00`);
+        d.setMinutes(d.getMinutes() + Number(raw.utcOffsetMinutes));
+        departureDateValue = d.toISOString().slice(0, 10);
+        departureTimeValue = d.toISOString().slice(11, 16);
+      }
+    } catch (e) {
+      // noop — garder les valeurs envoyées
+    }
+
     // Transformation frontend → Server Core CreateTrajetDto
     const body = {
       vehicleId:        raw.vehicleId,
@@ -57,9 +72,9 @@ export async function POST(req: Request) {
       arrivalAddress:   raw.arrival?.fullAddress ?? raw.arrivalAddress ?? '',
       arrivalLat:       raw.arrival?.coordinates?.lat ?? raw.arrivalLat,
       arrivalLng:       raw.arrival?.coordinates?.lng ?? raw.arrivalLng,
-      // Horaire
-      departureDate:    raw.departureDate,
-      departureTime:    raw.departureTime,
+      // Horaire (déjà converti en UTC si frontend a renseigné `utcOffsetMinutes`)
+      departureDate:    departureDateValue,
+      departureTime:    departureTimeValue,
       // Capacité
       maxPassengers:    raw.maxPassengers,
       pricePerPassenger: raw.pricePerPassenger,
@@ -73,8 +88,39 @@ export async function POST(req: Request) {
       smokingAllowed:   raw.preferences?.smokingAllowed  ?? raw.smokingAllowed  ?? false,
       musicAllowed:     raw.preferences?.musicAllowed    ?? raw.musicAllowed    ?? true,
       conversationLevel: raw.preferences?.conversationLevel ?? raw.conversationLevel ?? 'moderate',
-      driverNote:       raw.preferences?.driverNote      ?? raw.notes,
+      driverNote:               raw.preferences?.driverNote ?? raw.notes,
+      // Données géo calculées par ORS côté client
+      estimatedDurationMinutes: raw.estimatedDurationMinutes ?? raw.estimatedDuration ?? 0,
+      estimatedDistanceKm:      raw.estimatedDistanceKm ?? raw.estimatedDistance ?? 0,
+      polyline:                 raw.polyline ? JSON.stringify(raw.polyline) : null,
     };
+
+    // Si les coordonnées sont manquantes ou nulles, tenter un geocodage Photon
+    try {
+      if ((!body.departureLat || !body.departureLng) && (body.departureAddress || body.departureLabel)) {
+        const q = body.departureAddress || body.departureLabel;
+        const suggestions = await fetchPhotonSuggestions(q);
+        if (suggestions.length > 0) {
+          // Photon renvoie [lng, lat]
+          const [lng, lat] = suggestions[0].coordinates;
+          body.departureLat = lat;
+          body.departureLng = lng;
+        }
+      }
+
+      if ((!body.arrivalLat || !body.arrivalLng) && (body.arrivalAddress || body.arrivalLabel)) {
+        const q = body.arrivalAddress || body.arrivalLabel;
+        const suggestions = await fetchPhotonSuggestions(q);
+        if (suggestions.length > 0) {
+          const [lng, lat] = suggestions[0].coordinates;
+          body.arrivalLat = lat;
+          body.arrivalLng = lng;
+        }
+      }
+    } catch (e) {
+      // Ne bloque pas la création si Photon échoue; on logue et on continue
+      console.warn('[api/trips] geocoding fallback failed:', e);
+    }
 
     const result = await TripService.create(body, auth);
 

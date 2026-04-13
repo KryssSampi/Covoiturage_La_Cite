@@ -131,10 +131,12 @@ function PassengerListing({
   const isFR = appState.lang === Language.FR;
 
   const blockedTripsMatchingGeo = useMemo(() => {
-    if (!departureCoords || !arrivalCoords) return [];
+    // Sans coords de recherche : afficher tous les blockedTrips sans filtre géo
+    if (!departureCoords || !arrivalCoords) return blockedTrips;
 
     return blockedTrips.filter((trip) => {
-      if (!trip.departureCoords || !trip.arrivalCoords) return false;
+      // Trip sans coords stockées : afficher quand même (coords manquantes ≠ hors zone)
+      if (!trip.departureCoords || !trip.arrivalCoords) return true;
 
       const departureDistance = haversineMeters(departureCoords, trip.departureCoords);
       const arrivalDistance = haversineMeters(arrivalCoords, trip.arrivalCoords);
@@ -169,10 +171,10 @@ function PassengerListing({
     return next;
   }, [bestTrips, otherTrips, blockedTripsMatchingGeo]);
 
-  // Calculer le nombre initial de sections ouvertes basé sur les meilleurs résultats
+  // Ouvrir la première section disponible (best, other ou blocked)
   const initialOpenedCount = useMemo(
-    () => (bestTrips.length > 0 ? 1 : 0),
-    [bestTrips.length]
+    () => (sections.length > 0 ? 1 : 0),
+    [sections.length]
   );
   const [openedCount, setOpenedCount] = useState(initialOpenedCount);
 

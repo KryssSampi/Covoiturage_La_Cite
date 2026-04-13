@@ -9,7 +9,7 @@ import { FaLocationDot } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { getCityImage } from "@/core/lib/unsplash";
-import { formatDate } from "@/core/utils/date.utils";
+import { formatDate, utcToLocalDateIso, utcToLocalTime } from "@/core/utils/date.utils";
 import type { DraftTrip } from "@/features/brouillons/types";
 
 const DEFAULT_CITY_IMAGE = "/assets/destinations-pictures/default-city.png";
@@ -158,7 +158,11 @@ function DraftCard({ draft }: { draft: DraftTrip }) {
         <span className="text-xl font-semibold text-black">
           {isFR ? "Pour : " : "For : "}
           {draft.departureDate
-            ? `${formatDate(draft.departureDate, appState.lang)} : ${draft.departureTime}`
+            ? (() => {
+                const localIso = utcToLocalDateIso(draft.departureDate, draft.departureTime);
+                const localTime = utcToLocalTime(draft.departureDate, draft.departureTime);
+                return `${formatDate(localIso, appState.lang, localTime)} : ${localTime}`;
+              })()
             : isFR ? "Date non definie" : "Date not set"}
         </span>
 

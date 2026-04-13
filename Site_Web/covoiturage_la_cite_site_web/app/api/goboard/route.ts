@@ -16,7 +16,9 @@ export async function GET(req: Request) {
     if (!result.success) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
-    return NextResponse.json(result.data);
+    // Server Core GoBoardResponseDto n'expose pas encore GoEvents — normaliser à []
+    const payload = { goEvents: [], pointsPerdus: 0, ...result.data };
+    return NextResponse.json(payload);
   } catch (err) {
     console.error('[api/goboard]', err);
     return NextResponse.json(

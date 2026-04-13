@@ -47,7 +47,15 @@ export function formatDate(dateString: string, lang: Language, time?: string): s
   // pour éviter qu'un trajet imminent (ex: 00h30 demain, dans 1h) affiche « Demain »
   if (time) {
     const [h, m] = time.split(":").map(Number);
-    const departure = new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m);
+    // Interpréter l'heure fournie comme UTC pour rester cohérent
+    // avec le backend / BFF qui envoie les heures en UTC.
+    let departure = new Date(`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(h)}:${pad(m)}:00Z`);
+
+    // Si la construction UTC a échoué (date invalide), retomber sur la construction locale
+    if (isNaN(departure.getTime())) {
+      departure = new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m);
+    }
+
     const diffMs = departure.getTime() - now.getTime();
     const diffHours = diffMs / (1000 * 60 * 60);
 
@@ -133,4 +141,51 @@ function parseDisplayDate(dateString: string): Date {
   }
 
   return new Date(dateString);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Helpers UTC → local
+// ──────────────────────────────────────────────────────────────────────────────
+
+function pad(n: number) {
+  return String(n).padStart(2, '0');
+}
+
+/**
+ * Retourne la date locale (ISO YYYY-MM-DD) correspondant au couple UTC
+ * fourni par le serveur.
+ */
+export function utcToLocalDateIso(utcDate: string, utcTime: string): string {
+  try {
+    const dt = new Date(`${utcDate}T${utcTime}:00Z`);
+    if (isNaN(dt.getTime())) return utcDate;
+    return `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}`;
+  } catch {
+    return utcDate;
+  }
+}
+
+/**
+ * Retourne l'heure locale formatée `HH:mm` pour affichage.
+ */
+export function utcToLocalTime(utcDate: string, utcTime: string): string {
+  try {
+    const dt = new Date(`${utcDate}T${utcTime}:00Z`);
+    if (isNaN(dt.getTime())) return utcTime ?? '';
+    const hh = pad(dt.getHours());
+    const mm = pad(dt.getMinutes());
+    return `${hh}:${mm}`;
+  } catch {
+    return utcTime;
+  }
+}
+
+export function utcToLocalDate(utcDate: string, utcTime: string): string {
+  try {
+    const dt = new Date(`${utcDate}T${utcTime}:00Z`);
+    if (isNaN(dt.getTime())) return utcDate;
+    return dt.toLocaleDateString();
+  } catch {
+    return utcDate;
+  }
 }

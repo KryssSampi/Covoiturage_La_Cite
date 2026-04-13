@@ -15,7 +15,7 @@ export async function GET(req: Request) {
       if (!result.success) {
         return NextResponse.json({ error: result.message }, { status: 500 });
       }
-      return NextResponse.json(result.data ?? []);
+      return NextResponse.json((result.data ?? []).map((n) => ({ ...n, message: n.body })));
     }
 
     const result = await NotificationService.getAll(1, 50, auth);
@@ -23,7 +23,9 @@ export async function GET(req: Request) {
     if (!result.success) {
       return NextResponse.json({ error: result.message }, { status: 500 });
     }
-    return NextResponse.json(result.data ?? []);
+    // Map Server Core field `body` → `message` expected by NotificationModel
+    const mapped = (result.data ?? []).map((n) => ({ ...n, message: n.body }));
+    return NextResponse.json(mapped);
   } catch (err) {
     console.error('[api/notifications]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

@@ -85,7 +85,8 @@ public class TrajetRepository : ITrajetRepository
         var query = _db.Trips
             .Include(t => t.Driver)
             .Include(t => t.Vehicle)
-            .Where(t => t.Status == TripStatus.Published || t.Status == TripStatus.Confirmed);
+            .Where(t => t.Status == TripStatus.Published
+                     || (t.Status == TripStatus.InProgress && t.ActualStartedAt == null));
 
         // Filtre par date
         if (criteria.Date.HasValue)
@@ -131,7 +132,8 @@ public class TrajetRepository : ITrajetRepository
     public async Task<int> SearchCountAsync(TripSearchCriteria criteria, CancellationToken ct = default)
     {
         var query = _db.Trips
-            .Where(t => t.Status == TripStatus.Published || t.Status == TripStatus.Confirmed);
+            .Where(t => t.Status == TripStatus.Published
+                     || (t.Status == TripStatus.InProgress && t.ActualStartedAt == null));
 
         if (criteria.Date.HasValue)
             query = query.Where(t => t.DepartureDate == criteria.Date.Value);
