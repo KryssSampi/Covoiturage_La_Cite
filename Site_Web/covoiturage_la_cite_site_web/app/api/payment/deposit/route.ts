@@ -33,7 +33,8 @@ export async function POST(req: Request) {
       userId: body.userId,
       montant: body.montant,
     });
-  } catch {
+  } catch (err) {
+    console.error('[api/payment/deposit]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

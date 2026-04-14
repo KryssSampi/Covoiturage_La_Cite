@@ -16,6 +16,7 @@ interface WaypointListProps {
   activeCircuitIdx: number;
   isLoading: boolean;
   scores: Map<string, MatchingScore>;
+  serverScores?: Map<string, number>;
   selectedTripId: string | null;
   onSelectTrip: (trip: Trip) => void;
   onSelectCircuit: (idx: number) => void;
@@ -43,6 +44,7 @@ export function WaypointList({
   activeCircuitIdx,
   isLoading,
   scores,
+  serverScores,
   selectedTripId,
   onSelectTrip,
   onSelectCircuit,
@@ -92,6 +94,7 @@ export function WaypointList({
           activeCircuitIdx={activeCircuitIdx}
           isLoading={isLoading}
           scores={scores}
+          serverScores={serverScores}
           selectedTripId={selectedTripId}
           onSelectTrip={onSelectTrip}
           onSelectCircuit={onSelectCircuit}

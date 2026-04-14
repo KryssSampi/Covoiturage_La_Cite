@@ -41,7 +41,8 @@ export async function POST(req: Request) {
       departure: trip.departure,
       arrival: trip.arrival,
     });
-  } catch {
+  } catch (err) {
+    console.error('[api/admin/simulate/autoplay]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -60,7 +61,8 @@ export async function DELETE(req: Request) {
     });
 
     return NextResponse.json({ ok: true });
-  } catch {
+  } catch (err) {
+    console.error('[api/admin/simulate/autoplay]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

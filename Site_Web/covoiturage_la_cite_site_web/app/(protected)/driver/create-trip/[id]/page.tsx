@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { CreateTripForm } from "@/features/trajets";
 import type { TripWayPrefill } from "@/features/trajets/types";
 import type { MockVehicle } from "@/features/trajets/constants/trip.constants";
+import { vehicleToMockVehicle } from '@/core/utils/vehicle.mapper';
 
 interface VehicleRecord {
   id: string;
@@ -51,7 +52,8 @@ export default function CreateTripPage() {
         accessIsValid =
           parsed.source === "tripway-search-selection" &&
           parsed.userId === driverId;
-      } catch {
+      } catch (e) {
+        console.error('[driver/create-trip] Invalid createTripAccess JSON', e);
         accessIsValid = false;
       }
     }
@@ -64,21 +66,18 @@ export default function CreateTripPage() {
 
     // Récupération des véhicules du conducteur
     fetch(`/api/vehicles?driverId=${encodeURIComponent(driverId)}`)
-      .then((r) => r.ok ? r.json() as Promise<VehicleRecord[]> : Promise.resolve([]))
+      .then((r) => {
+        if (!r.ok) throw new Error(`Failed to fetch vehicles: ${r.status}`);
+        return r.json() as Promise<VehicleRecord[]>;
+      })
       .then((data) => {
-        // Transformation des données des véhicules pour le formulaire
-        setVehicles(
-          data.map((v) => ({
-            id: v.id,
-            label: `${v.make} ${v.model}${v.year ? ` ${v.year}` : ""}`,
-            maxPassengers: v.maxSeats,
-            color: v.color,
-          }))
-        );
+        // Transformation des données des véhicules pour le formulaire (centralisée)
+        setVehicles(data.map((v) => vehicleToMockVehicle(v as any)));
         // Validation de l'accès une fois les véhicules chargés
         setIsAccessValidated(true);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('[driver/create-trip] Failed to load vehicles:', error);
         setIsAccessValidated(true);
       });
   }, [driverId, initialValues.arrivalLocation, initialValues.departureLocation, router]);

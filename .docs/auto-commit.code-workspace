@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".docs/auto-commit"
+		},
+		{
+			"path": "App_Mobile/Covoiturage_la_cite_(App_Mobile)/Covoiturage_la_cite_(App_Mobile)/.docs/auto-commit"
+		},
+		{
+			"path": "Site_Web/covoiturage_la_cite_site_web/scripts/auto-commit"
+		},
+		{
+			"path": "Server_Core/Covoiturage_La_Cite(Server_Core)/Covoiturage_La_Cite(Server_Core)/.docs/auto-commit"
+		}
+	],
+	"settings": {}
+}

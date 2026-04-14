@@ -21,7 +21,7 @@
  */
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DEFAULT_SEARCH_FILTERS,
   DriverSortKey,
@@ -31,6 +31,7 @@ import {
   SearchRole,
   SortKey,
   TripWithCoords,
+  MatchingScore,
   getDRIVER_SORT_OPTIONS,
   getPASSENGER_SORT_OPTIONS,
 } from "@/features/search/types/search.feature.types";
@@ -51,6 +52,7 @@ export interface RouteMapSearchProps {
   /** Trajets disponibles (passager) */
   availableTrips?:  Trip[];
   blockedTrips?:    TripWithCoords[];
+  serverScores?:    Map<string, number>;
   /** Carte tripId → statut de la réservation active du passager connecté */
   userReservations?: Map<string, string>;
   onPassengerSearch?: (params: {
@@ -81,6 +83,7 @@ export function RouteMapSearch({
   initialValues,
   availableTrips = [],
   blockedTrips = [],
+  serverScores,
   userReservations,
   onPassengerSearch,
   onPublishCircuit,
@@ -145,14 +148,29 @@ export function RouteMapSearch({
     ? (() => { const [h, m] = routeMap.departureTime.split(":").map(Number); return h + m / 60; })()
     : undefined;
 
+  // En mode passager, le serveur a déjà appliqué le filtre géographique.
+  // On passe null pour éviter un double-filtrage client avec un rayon plus strict.
+  const passengerCoordsForFilter = role === 'passenger' ? null : routeMap.departureCoords;
+  const passengerArrivalForFilter = role === 'passenger' ? null : routeMap.arrivalCoords;
+
   const { filteredTrips, totalCount, scores } = usePassengerSearch({
     trips: availableTrips,
-    departureCoords: routeMap.departureCoords,
-    arrivalCoords: routeMap.arrivalCoords,
+    departureCoords: passengerCoordsForFilter,
+    arrivalCoords: passengerArrivalForFilter,
     filters,
     sortKey: sortKey as PassengerSortKey,
     desiredHour,
   });
+
+  const mergedScores = useMemo(() => {
+    if (!serverScores || serverScores.size === 0) return scores;
+    const merged = new Map(scores);
+    for (const [id, total] of serverScores) {
+      const existing = merged.get(id);
+      merged.set(id, { ...(existing ?? {}), total } as MatchingScore);
+    }
+    return merged;
+  }, [scores, serverScores]);
 
   const [activeCircuitIdx, setActiveCircuitIdx] = useState(0);
   const sortedCircuits = driverSearch.filteredAndSortedCircuits(sortKey as DriverSortKey, filters);
@@ -339,7 +357,8 @@ export function RouteMapSearch({
         blockedTrips={blockedTrips}
         activeCircuitIdx={activeCircuitIdx}
         isLoading={isLoading}
-        scores={scores}
+        scores={mergedScores}
+        serverScores={serverScores}
         selectedTripId={selectedTripId}
         onSelectTrip={handleSelectTrip}
         onSelectCircuit={setActiveCircuitIdx}
@@ -357,3 +376,4 @@ export function RouteMapSearch({
     </div>
   );
 }
+

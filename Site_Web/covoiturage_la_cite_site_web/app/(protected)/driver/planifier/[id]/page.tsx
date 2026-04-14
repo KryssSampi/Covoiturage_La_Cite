@@ -3,16 +3,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FaCalendarDays } from "react-icons/fa6";
 
-import { useDb } from "@/core/context/db.context";
 import { useLoader } from "@/core/context/loader.context";
 import type { IndisponibilityDateRange } from "@/core/models/IndisponibilityModel";
-import type { UserModel } from "@/core/models/UserModel";
 import { useAppState } from "@/core/state/app_state";
-import { tripModelToPublishedTrip } from "@/features/dashboard/converters/dashboard.converter";
 import type { PublishedTrip } from "@/features/dashboard/types";
+import { PublishedTripStatus } from "@/features/dashboard/types";
 import SuperCalendar from "@/features/planner/components/shared/calendar";
 import { Hero } from "@/features/planner/components/shared/hero";
 import { RideArea } from "@/features/planner/components/shared/rides.area";
@@ -129,15 +127,66 @@ export default function PlannerPage() {
   const { setActiveLoader } = useLoader();
   const routeId = typeof params.id === "string" ? params.id : params.id?.[0];
   const userRole = userConnected?.role?.toString().toLowerCase();
-  const {
-    trips,
-    reservations,
-    users,
-    myIndisponibility,
-    refreshTrips,
-    refreshReservations,
-    refreshIndisponibilities,
-  } = useDb();
+
+  const [plannerRidesRaw, setPlannerRidesRaw] = useState<PublishedTrip[]>([]);
+
+  // Normalise le statut serveur (PascalCase / snake_case) → valeur enum frontend
+  function normalizeStatus(raw: string): PublishedTripStatus {
+    const map: Record<string, PublishedTripStatus> = {
+      published:   PublishedTripStatus.Published,
+      Published:   PublishedTripStatus.Published,
+      full:        PublishedTripStatus.Full,
+      Full:        PublishedTripStatus.Full,
+      confirmed:   PublishedTripStatus.Confirmed,
+      Confirmed:   PublishedTripStatus.Confirmed,
+      in_progress: PublishedTripStatus.InProgress,
+      InProgress:  PublishedTripStatus.InProgress,
+      'in-progress': PublishedTripStatus.InProgress,
+      completed:   PublishedTripStatus.Completed,
+      Completed:   PublishedTripStatus.Completed,
+      cancelled:   PublishedTripStatus.Cancelled,
+      Cancelled:   PublishedTripStatus.Cancelled,
+      no_show:     PublishedTripStatus.NoShow,
+      NoShow:      PublishedTripStatus.NoShow,
+    };
+    return map[raw] ?? PublishedTripStatus.Published;
+  }
+  const myIndisponibility: { dates?: IndisponibilityDateRange[] } = { dates: [] };
+  const refreshReservations = async () => {};
+  const refreshIndisponibilities = async () => {};
+
+  const refreshTrips = useCallback(async () => {
+    if (!userConnected?.id) return;
+    try {
+      const res = await fetch(`/api/trips?driverId=${userConnected.id}`);
+      if (!res.ok) return;
+      const items: Record<string, unknown>[] = await res.json();
+      const mapped: PublishedTrip[] = items.map((t, i) => ({
+        id:              String(t.id ?? i),
+        driverId:        String(t.driverId ?? ''),
+        departure:       String(t.departureLabel ?? t.departureAddress ?? ''),
+        destination:     String(t.arrivalLabel   ?? t.arrivalAddress   ?? ''),
+        date:            String(t.departureDate  ?? ''),
+        time:            String(t.departureTime  ?? ''),
+        duration:        Number(t.estimatedDurationMinutes ?? 0) || 30,
+        maxPassengers:   Number(t.maxPassengers  ?? 1),
+        passengers:      [],
+        price:           Number(t.pricePerPassenger ?? 0),
+        pendingRequests: 0,
+        status:          normalizeStatus(String(t.status ?? 'published')),
+        departureCoords: t.departureLat != null && t.departureLng != null
+          ? [Number(t.departureLng), Number(t.departureLat)]
+          : undefined,
+        arrivalCoords: t.arrivalLat != null && t.arrivalLng != null
+          ? [Number(t.arrivalLng), Number(t.arrivalLat)]
+          : undefined,
+        isImminent: false,
+      }));
+      setPlannerRidesRaw(mapped);
+    } catch (err) {
+      console.error("[driver/planifier] refreshTrips", err);
+    }
+  }, [userConnected?.id]);
   const newTripId = searchParams.get("newTripId");
 
   useEffect(() => {
@@ -154,45 +203,32 @@ export default function PlannerPage() {
     }
 
     const timer = setTimeout(() => setActiveLoader(false), 300);
+    void refreshTrips();
     return () => clearTimeout(timer);
-  }, [routeId, router, setActiveLoader, userConnected, userRole]);
+  }, [routeId, router, setActiveLoader, userConnected, userRole, refreshTrips]);
 
   useEffect(() => {
     if (!newTripId || !userConnected?.id) return;
+    void refreshTrips().catch((error) => {
+      console.error("[driver/planifier] refresh after newTripId", error);
+    });
+  }, [newTripId, refreshTrips, userConnected?.id]);
 
-    void Promise.all([refreshTrips(), refreshReservations()]);
-  }, [newTripId, refreshReservations, refreshTrips, userConnected?.id]);
-
-  const plannerRides = useMemo<PublishedTrip[]>(() => {
-    if (!userConnected) return [];
-
-    return trips
-      .filter((trip) => trip.driverId === userConnected.id)
-      .map((trip) => {
-        const tripReservations = reservations.filter((reservation) => reservation.tripId === trip.id);
-        const passengers = tripReservations
-          .filter((reservation) => reservation.status === "confirmed" || reservation.status === "completed")
-          .map((reservation) => users.find((user) => user.id === reservation.passengerId))
-          .filter(Boolean);
-
-        const pendingCount = tripReservations.filter((reservation) => reservation.status === "pending").length;
-
-        return tripModelToPublishedTrip(trip, passengers as UserModel[], pendingCount);
-      });
-  }, [reservations, trips, userConnected, users]);
 
   const handleStartTrip = useCallback(async (tripId: string) => {
     try {
-      const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/status`, {
+      const res = await fetch(`/api/trips/${encodeURIComponent(tripId)}/start`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "start" }),
       });
-      if (res.ok) {
-        await Promise.all([refreshTrips(), refreshReservations()]);
-        router.push(`/trajet-en-cours/${tripId}`);
+      if (!res.ok) {
+        console.error(`[driver/planifier] handleStartTrip - tripId: ${tripId} - response not ok`, res.status, res.statusText);
+        return;
       }
-    } catch { /* silencieux */ }
+      await Promise.all([refreshTrips(), refreshReservations()]);
+      router.push(`/trajet-en-cours/${tripId}`);
+    } catch (error) {
+      console.error(`[driver/planifier] handleStartTrip - tripId: ${tripId}`, error);
+    }
   }, [refreshTrips, refreshReservations, router]);
 
   const handleCancelTrip = useCallback(async (tripId: string) => {
@@ -203,30 +239,51 @@ export default function PlannerPage() {
         body: JSON.stringify({ action: "cancel" }),
       });
 
-      if (!response.ok) return false;
+      if (!response.ok) {
+        console.error(`[driver/planifier] handleCancelTrip - tripId: ${tripId} - response not ok`, response.status, response.statusText);
+        return false;
+      }
 
       await Promise.all([refreshTrips(), refreshReservations()]);
       return true;
-    } catch {
+    } catch (error) {
+      console.error(`[driver/planifier] handleCancelTrip - tripId: ${tripId}`, error);
       return false;
     }
   }, [refreshReservations, refreshTrips]);
 
   const handleRefresh = useCallback(async () => {
-    await Promise.all([refreshTrips(), refreshReservations()]);
+    try {
+      await Promise.all([refreshTrips(), refreshReservations()]);
+    } catch (error) {
+      console.error("[driver/planifier] handleRefresh", error);
+    }
   }, [refreshTrips, refreshReservations]);
 
   // Gère la sauvegarde des périodes d'indisponibilité du conducteur
   const handleSaveIndisponibilities = useCallback(async (dates: IndisponibilityDateRange[]) => {
     if (!userConnected?.id) return;
 
-    await fetch(`/api/indisponibilities/${encodeURIComponent(userConnected.id)}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dates }),
-    });
+    try {
+      const response = await fetch(`/api/indisponibilities/${encodeURIComponent(userConnected.id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dates }),
+      });
 
-    await refreshIndisponibilities();
+      if (!response.ok) {
+        console.error(
+          `[driver/planifier] handleSaveIndisponibilities - userId: ${userConnected.id} - response not ok`,
+          response.status,
+          response.statusText,
+        );
+        return;
+      }
+
+      await refreshIndisponibilities();
+    } catch (error) {
+      console.error(`[driver/planifier] handleSaveIndisponibilities - userId: ${userConnected.id}`, error);
+    }
   }, [refreshIndisponibilities, userConnected]);
 
   if (userConnected?.id !== routeId || userRole !== "driver") {
@@ -237,7 +294,7 @@ export default function PlannerPage() {
     <PlannerFeatureProvider
       lang={lang}
       isDriver
-      rides={plannerRides}
+      rides={plannerRidesRaw}
       indisponibilities={myIndisponibility?.dates ?? []}
       onSaveIndisponibilities={handleSaveIndisponibilities}
       onCancelTrip={handleCancelTrip}

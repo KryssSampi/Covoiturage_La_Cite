@@ -46,7 +46,8 @@ const AddLieuOverlay: React.FC<AddLieuOverlayProps> = ({ open, onClose, onAdd })
       try {
         const results = await getProposals(value.trim());
         setSuggestions(results);
-      } catch {
+      } catch (err) {
+        console.error('[AddLieuOverlay] getProposals', err);
         setSuggestions([]);
       }
     }, 300);

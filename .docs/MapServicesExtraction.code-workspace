@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "MapServicesExtraction"
+		},
+		{
+			"path": "Site_Web"
+		},
+		{
+			"path": "App_Mobile"
+		}
+	],
+	"settings": {}
+}

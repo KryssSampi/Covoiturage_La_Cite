@@ -9,7 +9,6 @@ import { GoScoreDial } from "@/shared/ui/goscoredial";
 
 import { useGoBoard } from "../../hooks/useGoBoard";
 import type { GoTask } from "../../types/goboard.types";
-import { FIXTURE_GO_TASKS } from "@/tests/fixtures/dashboard/goboard.fixtures";
 
 export interface GoTaskView {
   task: GoTask;
@@ -33,7 +32,7 @@ function GoTasksSkeleton({ isDriver }: { isDriver: boolean }) {
 
 export function GoBoard({
   currentScore = 820,
-  tasks = FIXTURE_GO_TASKS,
+  tasks = [],
   isLoading = false,
   error = null,
 }: {

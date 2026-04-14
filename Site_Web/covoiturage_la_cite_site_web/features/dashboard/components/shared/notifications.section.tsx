@@ -15,6 +15,7 @@
  * @uses FIXTURE_NOTIFICATIONS — données de test (à remplacer par API)
  */
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaStar } from "react-icons/fa";
@@ -37,17 +38,39 @@ import { Notification, NotificationType } from "../../types/notification.types";
  *   TODO: Brancher sur GET /api/users/{userId}/notifications?limit=6&unreadFirst=true
  */
 export function NotificationsSection({
-  notifications: rawNotifications,
+  notifications: rawNotifications = [],
 }: {
-  notifications: Notification[];
+  notifications?: Notification[];
 }) {
   const appState = useAppState();
   const router = useRouter();
   const isFR = appState.lang === Language.FR;
   const isDriver = appState.userConnected?.role === "driver";
 
+  // Si aucune notification passée en prop, tenter une récupération BFF + polling léger
+  const [localNotifications, setLocalNotifications] = useState<Notification[]>(rawNotifications);
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchNotifications() {
+      try {
+        const res = await fetch('/api/notifications', { credentials: 'same-origin' });
+        if (!res.ok || cancelled) return;
+        const data: Notification[] = await res.json();
+        if (!cancelled) setLocalNotifications(data);
+      } catch (err) {
+        console.error('[NotificationsSection] fetch', err);
+      }
+    }
+    if ((rawNotifications ?? []).length === 0 && appState.userConnected) {
+      void fetchNotifications();
+      const id = setInterval(fetchNotifications, 30_000);
+      return () => { cancelled = true; clearInterval(id); };
+    }
+    return () => { cancelled = true; };
+  }, [rawNotifications, appState.userConnected]);
+
   const { unreadCount, unreadBadgeLabel, displayedNotifications, isImportant } =
-    useNotifications(rawNotifications);
+    useNotifications(localNotifications);
 
   return (
     <section

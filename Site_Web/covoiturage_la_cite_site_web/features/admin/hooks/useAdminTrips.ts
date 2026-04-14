@@ -212,7 +212,8 @@ export function useAdminTrips() {
       }, 2000);
 
       autoplayRefs.current.set(tripId, intervalId);
-    } catch {
+    } catch (err) {
+      console.error("[useAdminTrips]", err);
       setAutoplayStates((prev) => ({ ...prev, [tripId]: 'error' }));
     }
   }, [stopAutoplay, loadTrips]);

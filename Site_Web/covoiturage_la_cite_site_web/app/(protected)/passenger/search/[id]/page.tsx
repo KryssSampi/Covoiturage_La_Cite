@@ -33,6 +33,7 @@ export default function PassengerSearchPage() {
 
   const [availableTrips, setAvailableTrips] = useState<TripWithCoords[]>([]);
   const [blockedTrips, setBlockedTrips] = useState<TripWithCoords[]>([]);
+  const [serverScoresMap, setServerScoresMap] = useState<Map<string, number>>(new Map());
   // Ref pour éviter les appels en cascade lors du changement de dépendances
   const hasFetchedRef = useRef(false);
 
@@ -72,7 +73,7 @@ export default function PassengerSearchPage() {
         }
       }
       setUserReservations(map);
-    } catch { /* erreur réseau silencieuse */ }
+    } catch (err) { console.error('[passenger/search] fetchUserReservations', err); }
   }, [user]);
 
   // Handler du bouton OK du toast — redirige vers planifier et scrolle vers ride area
@@ -100,14 +101,15 @@ export default function PassengerSearchPage() {
     // Mode survey : trips pré-calculés en sessionStorage → on les utilise directement
     try {
       const raw = sessionStorage.getItem("surveyMatchingTrips");
+      sessionStorage.removeItem("surveyMatchingTrips");
       if (raw) {
         const parsed: TripWithCoords[] = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
           setAvailableTrips(parsed);
           setBlockedTrips([]);
+          setServerScoresMap(new Map());
+          return; // only short-circuit when we actually have data
         }
-        sessionStorage.removeItem("surveyMatchingTrips");
-        return;
       }
     } catch { /* sessionStorage indisponible ou JSON invalide */ }
 
@@ -128,6 +130,7 @@ export default function PassengerSearchPage() {
         body.desiredHour = h + (m ?? 0) / 60;
       }
       if (effectiveDate) {
+        body.date = effectiveDate; // filtre exact sur la date
         const day = new Date(effectiveDate).getDay(); // 0=dim … 6=sam
         body.desiredWeekday = day;
       }
@@ -146,10 +149,16 @@ export default function PassengerSearchPage() {
 
       if (!res.ok) return;
 
-      const data = await res.json() as { trips: TripSearchDTO[]; blockedTrips?: TripSearchDTO[] };
-      setAvailableTrips(data.trips.map(tripSearchDTOToTripWithCoords));
+      const data = await res.json() as {
+        trips?: TripSearchDTO[];
+        blockedTrips?: TripSearchDTO[];
+        serverScores?: Record<string, number>;
+      };
+      setAvailableTrips((data.trips ?? []).map(tripSearchDTOToTripWithCoords));
       setBlockedTrips((data.blockedTrips ?? []).map(tripSearchDTOToTripWithCoords));
-    } catch { /* erreur réseau silencieuse */ }
+      if (data.serverScores) setServerScoresMap(new Map(Object.entries(data.serverScores)));
+      else setServerScoresMap(new Map());
+    } catch (err) { console.error('[passenger/search] fetchTrips', err); }
   }, [user, depLat, depLng, arrLat, arrLng, dateParam, timeParam]);
 
   // Déclenche le fetch une seule fois au montage du composant
@@ -206,6 +215,7 @@ export default function PassengerSearchPage() {
         initialValues={initialValues}
         availableTrips={availableTrips}
         blockedTrips={blockedTrips}
+        serverScores={serverScoresMap}
         userReservations={userReservations}
         onPassengerSearch={async ({ departureCoords, arrivalCoords, departureDate, departureTime, maxPrice, minSeatsAvailable, departureRadiusMeters, arrivalRadiusMeters }) => {
           await fetchTrips({

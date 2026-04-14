@@ -56,13 +56,12 @@ export default function DriverReservationsRoutePage() {
   // SSE : mise à jour temps réel lorsque les réservations changent
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const es = new EventSource("/api/sse/db-watch/reservations");
-    let isFirst = true;
-    es.addEventListener("update", () => {
-      if (isFirst) { isFirst = false; return; }
+    // SSE endpoint /api/sse/db-watch/* is deprecated and returns 503.
+    // Use a light polling fallback to avoid calling the disabled SSE route.
+    const interval = setInterval(() => {
       void loadData();
-    });
-    return () => es.close();
+    }, 30000); // 30s
+    return () => clearInterval(interval);
   }, [user, params.id, loadData]);
 
   // Accepter une demande de réservation
@@ -75,7 +74,8 @@ export default function DriverReservationsRoutePage() {
       if (!res.ok) return false;
       await loadData();
       return true;
-    } catch {
+    } catch (err) {
+      console.error("[driver/reservations/page]", err);
       return false;
     } finally {
       setIsActionLoading(false);
@@ -86,13 +86,14 @@ export default function DriverReservationsRoutePage() {
   const handleRejectRequest = useCallback(async (id: string) => {
     setIsActionLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/reject`, { method: "POST",
+      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/refuse`, { method: "POST",
         headers: { "x-caller-id": `${user?.id}` }
       });
       if (!res.ok) return false;
       await loadData();
       return true;
-    } catch {
+    } catch (err) {
+      console.error("[driver/reservations/page]", err);
       return false;
     } finally {
       setIsActionLoading(false);

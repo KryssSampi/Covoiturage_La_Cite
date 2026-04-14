@@ -4,15 +4,16 @@ import { promises as fs } from 'fs';
 import path from 'path';
 
 // ==================== CONFIGURATION ====================
-const CONFIG =  {
-    host: "pg-26d8eb52-covoituragelacitev1.f.aivencloud.com",
-    user: "avnadmin",
-    password: "AVNS_5zaAhNTniiqcp-TNb6-",
-    port:15099,
-    database: "Covoiturage_la_Cite",
-  ssl: {
-    rejectUnauthorized: false  // Pour connexions distantes
-  }
+// Les valeurs sont lues depuis .env.local (voir .env.example)
+const CONFIG = {
+    host: process.env.AIVEN_PG_HOST,
+    user: process.env.AIVEN_PG_USER,
+    password: process.env.AIVEN_PG_PASSWORD,
+    port: parseInt(process.env.AIVEN_PG_PORT ?? '15099', 10),
+    database: process.env.AIVEN_PG_DATABASE ?? 'Covoiturage_la_Cite',
+    ssl: {
+        rejectUnauthorized: false, // Pour connexions distantes
+    },
 };
 
 const OUTPUT_DIR = './app/models';

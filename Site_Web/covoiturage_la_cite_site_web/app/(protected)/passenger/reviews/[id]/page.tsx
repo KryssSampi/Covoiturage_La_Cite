@@ -51,16 +51,11 @@ export default function PassengerReviewsRoutePage() {
     void loadData();
   }, [loadData, params.id, user]);
 
-  // SSE : mise à jour temps réel lorsque les avis changent
+  // Polling 60s — SSE db-watch désactivé (Server Core)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const es = new EventSource("/api/sse/db-watch/reviews");
-    let isFirst = true;
-    es.addEventListener("update", () => {
-      if (isFirst) { isFirst = false; return; }
-      void loadData();
-    });
-    return () => es.close();
+    const id = setInterval(() => { void loadData(); }, 60_000);
+    return () => clearInterval(id);
   }, [user, params.id, loadData]);
 
   if (user?.id !== params.id || user?.role?.toString().toLowerCase() !== "passenger") return null;

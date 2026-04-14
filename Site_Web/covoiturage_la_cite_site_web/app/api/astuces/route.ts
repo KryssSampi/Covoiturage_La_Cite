@@ -1,20 +1,24 @@
-import { NextResponse } from "next/server";
-import { persistenceManager } from "@/tests/PersistenceManager";
-import type { Tip } from "@/features/dashboard/types/lacite_astuces.types";
+import { NextResponse } from 'next/server';
+import { ContentService } from '@/server/services/ContentService';
+import { astuceResponseDtosToTips } from '@/features/dashboard/converters/tip.converter';
 
 /**
- * GET /api/astuces
- * Retourne la liste complète des astuces La Cité depuis la base JSON.
- * Données statiques modifiables uniquement par l'administrateur (édition directe du fichier JSON).
+ * GET /api/astuces — Astuces actives depuis Server Core (MongoDB).
+ * Route publique — pas d'auth requise.
+ *
+ * Pipeline : Astuce (MongoDB) → AstuceResponseDto (DTO) → Tip (type UI via converter)
  */
 export async function GET() {
   try {
-    const tips = persistenceManager.readAll<Tip>("astuces");
+    const result = await ContentService.getAstuces();
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
+    }
+    // Conversion des DTOs Server Core en Tip pour le frontend
+    const tips = astuceResponseDtosToTips(result.data ?? []);
     return NextResponse.json(tips);
-  } catch {
-    return NextResponse.json(
-      { error: "Impossible de lire les astuces" },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error('[api/astuces]', err);
+    return NextResponse.json({ error: 'Impossible de lire les astuces' }, { status: 500 });
   }
 }

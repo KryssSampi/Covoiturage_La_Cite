@@ -16,6 +16,7 @@ export interface ConnectedUser {
   lastName:     string;
   avatarUrl:    string | null;
   canBeDriver:  boolean;
+  onboardingCompleted?: boolean;
 }
 
 // ── Observable pattern ────────────────────────────────────────────────────────

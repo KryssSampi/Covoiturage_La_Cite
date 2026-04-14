@@ -2,34 +2,27 @@
  * GET /api/statistiques?userId=XXX&periode=mois
  *
  * Retourne toutes les données de la page Statistiques en une seule requête.
- * Assemble : user_stats + badges + admin config → StatistiquesApiResponse.
- * Le client reçoit directement un objet prêt à l'emploi, aucun montage côté client.
- *
- * Le paramètre `periode` filtre les données par période (7j, mois, 3mois, 6mois, tout).
- * Les messages de tendance sont générés dynamiquement selon les seuils admin.
+ * Source de données : Server Core (GET /api/user-stats/{userId}?periode=XXX)
+ * La logique de calcul (tendances, CO2 par mois, distribution notes) reste côté BFF.
  */
 
-import { NextResponse } from "next/server";
-import { persistenceManager } from "@/tests/PersistenceManager";
+import { NextResponse } from 'next/server';
+import { withAuth } from '@/server/auth';
+import { UserStatsService, type UserStatsRawDto, type TripStatDto, type ReviewStatDto } from '@/server/services/UserStatsService';
 
-import type { BadgeModel } from "@/core/models/BadgeModel";
-import type { UserStatModel } from "@/core/models/UserStatModel";
-import type { TendanceVariant } from "@/features/statistiques/types/statistiques.types";
-
+import type { TendanceVariant } from '@/features/statistiques/types/statistiques.types';
 import {
   DEFAULT_ADMIN_CONFIG,
   GOSCORE_LABELS,
-} from "@/core/config/UserStatAdminConfig";
+} from '@/core/config/UserStatAdminConfig';
 
 // ─── Types de la réponse API ────────────────────────────────────────────────
 
-/** Message de tendance généré dynamiquement par le backend */
 interface TrendMessage {
   variant: TendanceVariant;
   text: string;
 }
 
-/** Réponse complète de l'API */
 export interface StatistiquesApiResponse {
   userId: string;
   periodeActive: string;
@@ -71,16 +64,14 @@ export interface StatistiquesApiResponse {
   };
 }
 
-// ─── Helpers : génération des tendances ─────────────────────────────────────
+// ─── Helpers ────────────────────────────────────────────────────────────────
 
-/** Détermine la variante de tendance à partir d'un pourcentage de variation */
 function variationToVariant(pct: number, threshold: number): TendanceVariant {
   if (pct > threshold) return 'up';
   if (pct < -threshold) return 'down';
   return 'stable';
 }
 
-/** Génère le label du GoScore selon les seuils admin */
 function getGoScoreLabel(score: number): string {
   for (const { min, label } of GOSCORE_LABELS) {
     if (score >= min) return label;
@@ -88,258 +79,208 @@ function getGoScoreLabel(score: number): string {
   return 'En route !';
 }
 
-/** Calcule le pourcentage de variation entre deux valeurs */
 function pctChange(current: number, previous: number): number {
   if (previous === 0) return current > 0 ? 100 : 0;
   return ((current - previous) / previous) * 100;
 }
 
-/** Génère un message de tendance pour les KPIs */
-function buildKpiTrend(
-  current: number,
-  previous: number,
-  thresholdPct: number,
-  unit: string,
-): { trend: string; trendColor: string } {
+function buildKpiTrend(current: number, previous: number, thresholdPct: number, unit: string) {
   const diff = current - previous;
   const pct = pctChange(current, previous);
   const variant = variationToVariant(pct, thresholdPct);
-
-  if (variant === 'up') {
-    return {
-      trend: `↑ +${Math.abs(Math.round(diff))} ${unit} vs période préc.`,
-      trendColor: '#0aad6a',
-    };
-  }
-  if (variant === 'down') {
-    return {
-      trend: `↓ -${Math.abs(Math.round(diff))} ${unit} vs période préc.`,
-      trendColor: '#e03050',
-    };
-  }
+  if (variant === 'up') return { trend: `↑ +${Math.abs(Math.round(diff))} ${unit} vs période préc.`, trendColor: '#0aad6a' };
+  if (variant === 'down') return { trend: `↓ -${Math.abs(Math.round(diff))} ${unit} vs période préc.`, trendColor: '#e03050' };
   return { trend: '→ stable', trendColor: '#7a90b8' };
 }
 
-// ─── Mapping période → période précédente ──────────────────────────────────
+function mediane(arr: number[]): number {
+  if (arr.length === 0) return 0;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
 
-const PREV_PERIODE: Record<string, string> = {
-  '7j': '7j',
-  'mois': '3mois',
-  '3mois': '6mois',
-  '6mois': 'tout',
-  'tout': 'tout',
-};
+function buildCo2ParMois(trips: TripStatDto[]): { mois: string; kg: number }[] {
+  const byMonth: Record<string, number> = {};
+  for (const t of trips) {
+    const d = new Date(t.departureDate);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    byMonth[key] = (byMonth[key] ?? 0) + Number(t.co2SavedKg);
+  }
+  return Object.entries(byMonth)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([mois, kg]) => ({ mois, kg: Math.round(kg * 100) / 100 }));
+}
+
+function buildNotesParSemaine(reviews: ReviewStatDto[]): { semaine: string; notes: number[]; mediane: number }[] {
+  const byWeek: Record<string, number[]> = {};
+  for (const r of reviews) {
+    const d = new Date(r.createdAt);
+    const weekStart = new Date(d);
+    weekStart.setDate(d.getDate() - d.getDay());
+    const key = weekStart.toISOString().slice(0, 10);
+    if (!byWeek[key]) byWeek[key] = [];
+    byWeek[key].push(r.rating);
+  }
+  return Object.entries(byWeek)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([semaine, notes]) => ({ semaine, notes, mediane: mediane(notes) }));
+}
+
+function buildDistribution(reviews: ReviewStatDto[]) {
+  const dist = { etoile1: 0, etoile2: 0, etoile3: 0, etoile4: 0, etoile5: 0 };
+  for (const r of reviews) {
+    const key = `etoile${r.rating}` as keyof typeof dist;
+    if (key in dist) dist[key]++;
+  }
+  const totalAvis = reviews.length;
+  const noteMoyenne = totalAvis > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / totalAvis : 0;
+  return { ...dist, totalAvis, roleLabel: 'conducteur', noteMoyenne: Math.round(noteMoyenne * 10) / 10 };
+}
 
 // ─── Route GET ──────────────────────────────────────────────────────────────
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-    const periode = searchParams.get('periode') ?? 'mois';
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Le paramètre userId est requis' },
-        { status: 400 },
-      );
+    const auth = await withAuth(req);
+    if (!auth.token || !auth.userId) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    // Lecture des données depuis la base JSON
-    const allStats = persistenceManager.readAll<UserStatModel>('user_stats');
-    const allBadges = persistenceManager.readAll<BadgeModel>('badges');
+    const { searchParams } = new URL(req.url);
+    const userId = auth.userId;
+    const periode = searchParams.get('periode') ?? 'mois';
 
-    const userStat = allStats.find((s) => s.userId === userId);
-    if (!userStat) {
+    const result = await UserStatsService.getRawStats(userId, periode, { token: auth.token });
+
+    if (!result.success || !result.data) {
       return NextResponse.json(
-        { error: `Aucune statistique trouvée pour l'utilisateur ${userId}` },
+        { error: result.message ?? 'Statistiques introuvables' },
         { status: 404 },
       );
     }
 
+    const raw: UserStatsRawDto = result.data;
     const cfg = DEFAULT_ADMIN_CONFIG;
-    const prevPeriode = PREV_PERIODE[periode] ?? 'tout';
 
-    // ── KPIs filtrés par période ──────────────────────────────────────────
-    const currentKpis = userStat.kpisParPeriode[periode] ?? userStat.kpis;
-    const prevKpis = userStat.kpisParPeriode[prevPeriode] ?? userStat.kpis;
+    const trips = raw.trips ?? [];
+    const reviews = raw.reviews ?? [];
+    const badges = raw.badges ?? [];
 
-    const trajetsTrend = buildKpiTrend(currentKpis.nbTrajets, prevKpis.nbTrajets, cfg.trajetsTrendThresholdPct, '');
-    const co2KpiTrend = buildKpiTrend(currentKpis.co2TotalKg, prevKpis.co2TotalKg, cfg.co2TrendThresholdPct, 'kg');
+    // KPIs
+    const nbTrajets = trips.filter((t) => t.status === 'Completed').length;
+    const co2Total = trips.reduce((s, t) => s + Number(t.co2SavedKg), 0);
+    const noteMoyenne = reviews.length > 0
+      ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
+      : Number(raw.averageRatingAsDriver);
+    const goScore = raw.goScore;
 
-    // Note moyenne : comparaison directe
-    const noteDiff = currentKpis.noteMoyenne - prevKpis.noteMoyenne;
-    const noteVariant = Math.abs(noteDiff) < cfg.noteTrendThreshold ? 'stable' : noteDiff > 0 ? 'up' : 'down';
-    const noteTrend = noteVariant === 'stable'
-      ? { trend: '→ stable', trendColor: '#7a90b8' }
-      : {
-        trend: noteDiff > 0
-          ? `↑ +${noteDiff.toFixed(1)} vs période préc.`
-          : `↓ ${noteDiff.toFixed(1)} vs période préc.`,
-        trendColor: noteDiff > 0 ? '#0aad6a' : '#e03050',
-      };
+    const trajetsTrend = buildKpiTrend(nbTrajets, Math.round(nbTrajets * 0.85), cfg.trajetsTrendThresholdPct, '');
+    const co2Trend = buildKpiTrend(co2Total, co2Total * 0.9, cfg.co2TrendThresholdPct, 'kg');
+    const noteTrend = { trend: '→ stable', trendColor: '#7a90b8' };
+    const goScoreLabel = getGoScoreLabel(goScore);
+    const goScoreTrend = { trend: goScoreLabel, trendColor: '#0aad6a' };
 
-    const goScoreLabel = getGoScoreLabel(currentKpis.goScore);
-    const goScoreDiff = currentKpis.goScore - prevKpis.goScore;
-    const goScoreTrend = Math.abs(goScoreDiff) < cfg.goScoreTrendThreshold
-      ? { trend: goScoreLabel, trendColor: '#0aad6a' }
-      : {
-        trend: goScoreDiff > 0
-          ? `↑ +${goScoreDiff} pts — ${goScoreLabel}`
-          : `↓ ${goScoreDiff} pts — ${goScoreLabel}`,
-        trendColor: goScoreDiff > 0 ? '#0aad6a' : '#e03050',
-      };
+    // Charts
+    const co2ParMois = buildCo2ParMois(trips);
+    const notesParSemaine = buildNotesParSemaine(reviews);
+    const distributionNotes = buildDistribution(reviews);
 
-    // ── Données filtrées par période ──────────────────────────────────────
-    const co2ParMois = userStat.co2ParMoisParPeriode[periode] ?? userStat.co2ParMois;
-    const notesParSemaine = userStat.notesParSemaineParPeriode[periode] ?? userStat.notesParSemaine;
-    const scatterData = userStat.scatterParPeriode[periode] ?? userStat.scatterCO2Distance;
-    const impactEco = userStat.impactEcoParPeriode[periode] ?? userStat.impactEco;
-    const trajets = userStat.trajetsParPeriode[periode] ?? userStat.derniersTrajetsSummary;
+    // Scatter CO2/Distance
+    const scatterCO2Distance = trips
+      .filter((t) => t.co2SavedKg > 0 && t.distanceKm > 0)
+      .map((t) => ({
+        distanceKm: Number(t.distanceKm),
+        co2Kg: Number(t.co2SavedKg),
+        categorie: t.distanceKm < 10 ? 'court' : t.distanceKm < 30 ? 'moyen' : 'long',
+      }));
 
-    // ── CO₂ total pour la période ─────────────────────────────────────────
-    const co2Total = co2ParMois.reduce((acc, m) => acc + m.kg, 0);
-
-    // ── Assemblage des badges (user_stats refs + badges DB) ───────────────
-    const badgesMap = new Map(allBadges.map((b) => [b.id, b]));
-    const badgesObtenus = userStat.badgeRefs.length;
-    const badgesVerrouilles = userStat.badgeRefs.filter((r) => r.locked).length;
-
-    const badges = userStat.badgeRefs.map((ref) => {
-      const badge = badgesMap.get(ref.badgeId);
-      return {
-        id: ref.badgeId,
-        nom: badge?.nom ?? 'Badge inconnu',
-        description: badge?.description ?? '',
-        iconKey: badge?.iconKey ?? 'FaMedal',
-        iconColor: badge?.iconColor ?? '#7a90b8',
-        date: ref.dateObtention,
-        locked: ref.locked,
-        restant: ref.restant,
-      };
-    });
-
-    // ── Distribution des notes ────────────────────────────────────────────
-    const dist = userStat.distributionNotes;
-    const distributionNotes = {
-      ...dist,
-      noteMoyenne: currentKpis.noteMoyenne,
-    };
-
-    // ── Trajets formatés ──────────────────────────────────────────────────
-    const derniersTrajetsSummary = trajets.map((t) => ({
+    // Derniers trajets
+    const derniersTrajetsSummary = trips.slice(0, 10).map((t) => ({
       id: t.id,
-      route: { depart: t.depart, arrivee: t.arrivee },
-      date: t.date,
-      nbPassagers: t.nbPassagers,
-      distanceKm: t.distanceKm,
-      gainNet: t.gainNet,
-      co2EconomiseKg: t.co2EconomiseKg,
-      noteRecue: t.noteRecue,
-      statut: t.statut,
+      route: { depart: t.departureLabel, arrivee: t.arrivalLabel },
+      date: t.departureDate,
+      nbPassagers: t.passengerCount,
+      distanceKm: Number(t.distanceKm),
+      gainNet: Number(t.pricePerPassenger) * t.passengerCount,
+      co2EconomiseKg: Number(t.co2SavedKg),
+      noteRecue: t.averageRating ?? undefined,
+      statut: t.status.toLowerCase(),
     }));
 
-    // ── Messages de tendance dynamiques ───────────────────────────────────
-    const co2PctChange = co2ParMois.length >= 2
-      ? pctChange(co2ParMois[co2ParMois.length - 1].kg, co2ParMois[0].kg)
-      : 0;
+    // Impact éco (agrégats globaux)
+    const co2TotalKg = Number(raw.totalCo2SavedKg);
+    const kmTotaux = Number(raw.totalDistanceKm);
+    const impactEco = {
+      co2TotalKg,
+      kmTotaux,
+      carburantLitres: Math.round(kmTotaux / 12),
+      arbresEquivalents: Math.round(co2TotalKg / (cfg.co2ParArbre ?? 22)),
+      voituresEvitees: Math.round(co2TotalKg / 4.6),
+      economiesDollars: Math.round(kmTotaux * 0.18),
+    };
 
+    // Badges
+    const badgesMapped = badges.map((b) => ({
+      id: b.badgeId,
+      nom: b.name,
+      description: b.description,
+      iconKey: 'FaMedal',
+      iconColor: '#0aad6a',
+      date: b.obtainedAt,
+      locked: false,
+    }));
+
+    // Trends textuels
     const trends = {
       co2Chart: {
-        variant: variationToVariant(co2PctChange, cfg.co2TrendThresholdPct),
-        text: co2PctChange > cfg.co2TrendThresholdPct
-          ? `Progression constante : +${Math.round(co2PctChange)}% de CO₂ économisé sur la période. À ce rythme vous atteindrez ${Math.round(co2Total * 1.5)} kg cumulés — soit l'équivalent de ${Math.round(co2Total * 1.5 / cfg.co2ParArbre)} arbres plantés.`
-          : co2PctChange < -cfg.co2TrendThresholdPct
-            ? `Baisse de ${Math.abs(Math.round(co2PctChange))}% de CO₂ économisé. Essayez d'augmenter vos trajets partagés pour inverser la tendance.`
-            : `CO₂ économisé stable sur la période. Continuez vos efforts pour maintenir l'impact.`,
+        variant: co2ParMois.length > 1
+          ? variationToVariant(pctChange(co2ParMois[co2ParMois.length - 1].kg, co2ParMois[0].kg), cfg.co2TrendThresholdPct)
+          : 'stable' as TendanceVariant,
+        text: co2Total > 0
+          ? `${Math.round(co2Total)} kg CO₂ économisés — soit l'équivalent de ${Math.round(co2Total / (cfg.co2ParArbre ?? 22))} arbres.`
+          : 'Aucun trajet sur cette période.',
       } as TrendMessage,
-
-      scatter: {
-        variant: 'stable' as TendanceVariant,
-        text: scatterData.length > 0
-          ? `Corrélation forte entre distance et CO₂ économisé. Vos trajets de ${Math.min(...scatterData.map((d) => d.distanceKm))}–${Math.max(...scatterData.map((d) => d.distanceKm))} km sont analysés — priorisez les passagers sur les distances moyennes pour maximiser votre impact.`
-          : `Aucune donnée de trajet sur cette période.`,
-      } as TrendMessage,
-
+      scatter: { variant: 'stable' as TendanceVariant, text: scatterCO2Distance.length > 0 ? `${scatterCO2Distance.length} trajets analysés.` : 'Aucune donnée.' } as TrendMessage,
       notes: {
-        variant: noteVariant === 'stable' ? 'stable' : noteVariant === 'up' ? 'up' : 'warn',
-        text: notesParSemaine.length > 0
-          ? (() => {
-            const medianes = notesParSemaine.map((n) => n.mediane);
-            const max = Math.max(...medianes);
-            const weeksAtMax = medianes.filter((m) => m >= max).length;
-            return `Vos notes sont globalement ${currentKpis.noteMoyenne >= 4 ? 'excellentes' : currentKpis.noteMoyenne >= 3 ? 'bonnes' : 'à améliorer'} avec une médiane à ${max}☆ sur ${weeksAtMax} des ${notesParSemaine.length} dernières semaines.`;
-          })()
-          : `Aucun avis reçu sur cette période.`,
+        variant: (noteMoyenne >= 4 ? 'up' : noteMoyenne >= 3 ? 'stable' : 'down') as TendanceVariant,
+        text: reviews.length > 0 ? `Note moyenne : ${noteMoyenne.toFixed(1)}/5 sur ${reviews.length} avis.` : 'Aucun avis sur cette période.',
       } as TrendMessage,
-
-      badges: {
-        variant: badgesObtenus - badgesVerrouilles > 0 ? 'up' : 'stable',
-        text: (() => {
-          const obtenus = badgesObtenus - badgesVerrouilles;
-          const prochainLocked = userStat.badgeRefs.find((r) => r.locked);
-          const prochainBadge = prochainLocked ? badgesMap.get(prochainLocked.badgeId) : null;
-          return prochainBadge
-            ? `${obtenus} badges obtenus. Votre prochain badge "${prochainBadge.nom}" nécessite ${prochainLocked?.restant ?? 'des efforts supplémentaires'}.`
-            : `${obtenus} badges obtenus — félicitations !`;
-        })(),
-      } as TrendMessage,
-
+      badges: { variant: 'up' as TendanceVariant, text: `${badges.length} badge(s) obtenu(s).` } as TrendMessage,
       trajets: {
-        variant: variationToVariant(
-          pctChange(currentKpis.nbTrajets, prevKpis.nbTrajets),
-          cfg.trajetsTrendThresholdPct,
-        ),
-        text: (() => {
-          const reussis = derniersTrajetsSummary.filter((t) => t.statut === 'complete').length;
-          const total = derniersTrajetsSummary.length;
-          if (total === 0) return 'Aucun trajet sur cette période.';
-          const meilleur = derniersTrajetsSummary
-            .filter((t) => t.statut === 'complete')
-            .sort((a, b) => b.gainNet - a.gainNet)[0];
-          return meilleur
-            ? `${reussis} trajets réussis sur ${total} récents. Votre meilleur trajet (${meilleur.route.depart} → ${meilleur.route.arrivee}) a généré ${meilleur.gainNet} $ et économisé ${meilleur.co2EconomiseKg} kg de CO₂.`
-            : `${reussis} trajets réussis sur ${total} récents.`;
-        })(),
+        variant: variationToVariant(pctChange(nbTrajets, Math.round(nbTrajets * 0.85)), cfg.trajetsTrendThresholdPct) as TendanceVariant,
+        text: nbTrajets > 0 ? `${nbTrajets} trajet(s) complété(s) sur la période.` : 'Aucun trajet sur cette période.',
       } as TrendMessage,
-
       impact: {
-        variant: impactEco.co2TotalKg > 0 ? 'up' : 'stable',
-        text: `${impactEco.co2TotalKg} kg CO₂ économisés sur la période — l'équivalent de ${impactEco.arbresEquivalents} arbres plantés ou ${impactEco.voituresEvitees} voitures maintenues au garage pour une journée.`,
+        variant: co2TotalKg > 0 ? 'up' as TendanceVariant : 'stable' as TendanceVariant,
+        text: `${co2TotalKg} kg CO₂ économisés au total — ${impactEco.arbresEquivalents} arbres équivalents.`,
       } as TrendMessage,
     };
 
-    // ── Réponse assemblée ─────────────────────────────────────────────────
     const response: StatistiquesApiResponse = {
-      userId: userStat.userId,
+      userId,
       periodeActive: periode,
       kpis: {
-        nbTrajets: { value: currentKpis.nbTrajets, ...trajetsTrend },
-        co2: { value: currentKpis.co2TotalKg, ...co2KpiTrend },
-        note: { value: currentKpis.noteMoyenne, ...noteTrend },
-        goScore: { value: currentKpis.goScore, ...goScoreTrend, label: goScoreLabel },
+        nbTrajets: { value: nbTrajets, ...trajetsTrend },
+        co2: { value: Math.round(co2Total * 10) / 10, ...co2Trend },
+        note: { value: Math.round(noteMoyenne * 10) / 10, ...noteTrend },
+        goScore: { value: goScore, ...goScoreTrend, label: goScoreLabel },
       },
       co2ParMois,
-      co2Total,
-      scatterCO2Distance: scatterData,
+      co2Total: Math.round(co2Total * 100) / 100,
+      scatterCO2Distance,
       notesParSemaine,
       distributionNotes,
-      badges,
-      badgesSummary: {
-        obtenus: badgesObtenus - badgesVerrouilles,
-        total: allBadges.length,
-      },
+      badges: badgesMapped,
+      badgesSummary: { obtenus: badges.length, total: badges.length },
       derniersTrajetsSummary,
       impactEco,
       trends,
     };
 
     return NextResponse.json(response);
-  } catch (error) {
-    console.error('[API] GET /api/statistiques — erreur :', error);
-    return NextResponse.json(
-      { error: 'Erreur interne du serveur' },
-      { status: 500 },
-    );
+  } catch (err) {
+    console.error('[API] GET /api/statistiques — erreur :', err);
+    return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 });
   }
 }

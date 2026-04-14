@@ -18,7 +18,7 @@ export default function NotificationsRoutePage() {
     let cancelled = false;
     async function fetchData() {
       try {
-        const res = await fetch(`/api/notifications?userId=${encodeURIComponent(userConnected!.id)}`);
+        const res = await fetch("/api/notifications", { credentials: 'same-origin' });
         if (!res.ok || cancelled) return;
         const data: NotificationModel[] = await res.json();
         if (!cancelled) setItems(data);
@@ -30,21 +30,16 @@ export default function NotificationsRoutePage() {
     return () => { cancelled = true; };
   }, [userConnected, version]);
 
-  // SSE : rechargement sur changement DB
+  // Polling 30s — SSE db-watch désactivé (Server Core SSE sur /api/sse/notifications)
   useEffect(() => {
     if (!userConnected) return;
-    const es = new EventSource("/api/sse/db-watch/notifications");
-    let isFirst = true;
-    es.addEventListener("update", () => {
-      if (isFirst) { isFirst = false; return; }
-      reload();
-    });
-    return () => es.close();
+    const id = setInterval(reload, 30_000);
+    return () => clearInterval(id);
   }, [userConnected, reload]);
 
   const onRead = useCallback(async (id: string) => {
     try {
-      await fetch(`/api/notifications/${id}/read`, { method: "PATCH" });
+      await fetch(`/api/notifications/${id}/read`, { method: "PATCH", credentials: 'same-origin' });
       reload();
     } catch (err) {
       console.error("[notifications] onRead", err);

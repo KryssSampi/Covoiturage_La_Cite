@@ -10,17 +10,20 @@ import {
 import { FaLifeRing, FaCircleCheck } from 'react-icons/fa6';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { SignalementOverlayProps } from '../types/progression-signalement.types';
-import { useSignalement } from '../hooks/index.hooks';
+import { useSignalement } from '../hooks/useSignalement';
 import { Language, useAppState } from '@/core/state/app_state';
 
 // Sous-composants et données extraits
 import {
   C, getMOTIFS, getSEV_LABELS, SEV_COLORS, getCIBLES,
-  getSEV_OPTIONS, getSTEP_LABELS, Option,
+  getSEV_OPTIONS, getSTEP_LABELS,
 } from './signalement-overlay-data';
-import { SignalementConfirmation } from './SignalementConfirmation';
-import { SignalementStepDetails } from './SignalementStepDetails';
-import { SignalementStepOptions } from './SignalementStepOptions';
+import {
+  SignalementConfirmation,
+  SignalementStepDetails,
+  SignalementStepOptions,
+  SignalementStepSelector,
+} from './signalement';
 
 
 // ── Composant principal ──────────────────────────────────
@@ -124,12 +127,12 @@ export function SignalementOverlay({
           flexShrink: 0,
         }}>
           <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 16, color: C.text }}>
-            {estSoumis ? <><FaCircleCheck size={14} color={C.green} style={{ marginRight: 6 }} />Signalement envoyé</>
-              : etapeActuelle === 1 ? <><FiAlertTriangle size={14} color={C.gold} style={{ marginRight: 6 }} />Signaler un problème</>
-              : etapeActuelle === 2 ? <><FiAlertTriangle size={14} color={C.gold} style={{ marginRight: 6 }} />Nature du problème</>
-              : etapeActuelle === 3 ? <><FaLifeRing size={14} color={C.red} style={{ marginRight: 6 }} />Évaluation de sécurité</>
-              : etapeActuelle === 4 ? <><FaClipboardList size={14} color={C.p} style={{ marginRight: 6 }} />Détails & preuves</>
-              : <><FaCircleCheck size={14} color={C.green} style={{ marginRight: 6 }} />Finaliser</>}
+            {estSoumis ? <><FaCircleCheck size={14} color={C.green} style={{ marginRight: 6 }} />{isFR ? 'Signalement envoyé' : 'Report sent'}</>
+              : etapeActuelle === 1 ? <><FiAlertTriangle size={14} color={C.gold} style={{ marginRight: 6 }} />{isFR ? 'Signaler un problème' : 'Report an issue'}</>
+              : etapeActuelle === 2 ? <><FiAlertTriangle size={14} color={C.gold} style={{ marginRight: 6 }} />{isFR ? 'Nature du problème' : 'Nature of the problem'}</>
+              : etapeActuelle === 3 ? <><FaLifeRing size={14} color={C.red} style={{ marginRight: 6 }} />{isFR ? 'Évaluation de sécurité' : 'Safety assessment'}</>
+              : etapeActuelle === 4 ? <><FaClipboardList size={14} color={C.p} style={{ marginRight: 6 }} />{isFR ? 'Détails & preuves' : 'Details & evidence'}</>
+              : <><FaCircleCheck size={14} color={C.green} style={{ marginRight: 6 }} />{isFR ? 'Finaliser' : 'Finalize'}</>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {!estSoumis && (
@@ -210,52 +213,41 @@ export function SignalementOverlay({
 
               {/* ═ ÉTAPE 1 : Cible ═ */}
               {etapeActuelle === 1 && (
-                <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: C.p, letterSpacing: '.6px', textTransform: 'uppercase', marginBottom: 9, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ display: 'inline-block', width: 3, height: 12, background: C.red, borderRadius: 2 }} />
-                    {isFR ? 'Que souhaitez-vous signaler ?' : 'What do you want to report?'}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                    {CIBLES.map((c) => (
-                      <Option
-                        key={c.id}
-                        label={c.label}
-                        sub={c.sub}
-                        icone={c.icone}
-                        selected={signalement.cible === c.id}
-                        onClick={() => setCible(c.id)}
-                      />
-                    ))}
-                  </div>
-                </div>
+                <SignalementStepSelector
+                  options={CIBLES.map((c) => ({
+                    id: c.id,
+                    label: c.label,
+                    sub: c.sub,
+                    icone: c.icone,
+                  }))}
+                  selectedId={signalement.cible}
+                  onSelect={(id) => setCible(id as Exclude<typeof signalement.cible, null>)}
+                  title={isFR ? 'Que souhaitez-vous signaler ?' : 'What do you want to report?'}
+                />
               )}
 
               {/* ═ ÉTAPE 2 : Motif ═ */}
               {etapeActuelle === 2 && signalement.cible && (
-                <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: C.p, letterSpacing: '.6px', textTransform: 'uppercase', marginBottom: 9, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ display: 'inline-block', width: 3, height: 12, background: C.red, borderRadius: 2 }} />
-                    {isFR ? 'Quel est le problème précis ?' : 'What is the exact problem?'}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                    {(MOTIFS[signalement.cible] ?? []).map((m) => {
-                      const sc = SEV_COLORS[m.severite];
-                      return (
-                        <Option
-                          key={m.id}
-                          label={m.label}
-                          sub={m.description}
-                          icone={m.icone}
-                          selected={signalement.motifId === m.id}
-                          onClick={() => setMotif(m.id, m.label)}
-                          badge={SEV_LABELS[m.severite]}
-                          badgeBg={sc.bg}
-                          badgeColor={sc.color}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
+                <SignalementStepSelector
+                  options={(MOTIFS[signalement.cible] ?? []).map((m) => {
+                    const sc = SEV_COLORS[m.severite];
+                    return {
+                      id: m.id,
+                      label: m.label,
+                      sub: m.description,
+                      icone: m.icone,
+                      badge: SEV_LABELS[m.severite],
+                      badgeBg: sc.bg,
+                      badgeColor: sc.color,
+                    };
+                  })}
+                  selectedId={signalement.motifId}
+                  onSelect={(id) => {
+                    const motif = (MOTIFS[signalement.cible!] ?? []).find((m) => m.id === id);
+                    if (motif) setMotif(motif.id, motif.label);
+                  }}
+                  title={isFR ? 'Quel est le problème précis ?' : 'What is the exact problem?'}
+                />
               )}
 
               {/* ═ ÉTAPE 3 : Sécurité ═ */}

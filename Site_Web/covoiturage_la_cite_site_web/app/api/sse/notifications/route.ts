@@ -1,91 +1,110 @@
 /**
- * GET /api/sse/notifications?userId=X
+ * GET /api/sse/notifications
  *
- * Endpoint SSE dédié aux notifications en temps réel d'un utilisateur spécifique.
+ * Proxy SSE réel vers le Server Core (GET /api/sse/notifications).
+ * Transmet le JWT du cookie sc_token dans l'header Authorization du Server Core.
+ * Événements relayés au client web :
+ *   - "notification" : NotificationResponseDto
+ *   - "ping"         : heartbeat toutes les 25 s
  *
- * Comportement :
- * 1. Envoi immédiat du nombre de notifications non lues + la plus récente.
- * 2. À chaque écriture dans notifications.json, filtre par userId et pousse :
- *    - unreadCount : nombre de notifs non lues
- *    - latest : la notification la plus récente non lue (ou null)
- * 3. Heartbeat toutes les 30 s pour maintenir la connexion active.
- *
- * Le client peut ainsi afficher l'alerte toast sans poll.
+ * Le client ouvre : new EventSource('/api/sse/notifications')
+ * (les cookies sont transmis automatiquement — le JWT est extrait côté BFF)
  */
 
-import { persistenceManager, dbEventEmitter } from '@/tests/PersistenceManager';
-import type { NotificationModel } from '@/core/models/NotificationModel';
+import { NextRequest } from 'next/server';
+import { SERVER_CORE_URL } from '@/server/config';
+import { extractToken } from '@/server/auth';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
-function buildPayload(userId: string) {
-  const all = persistenceManager.readAll<NotificationModel>('notifications');
-  const mine = all.filter((n) => n.userId === userId);
-  const unread = mine.filter((n) => !n.isRead);
-  const latest = unread.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  )[0] ?? null;
+export async function GET(req: NextRequest) {
+  const token = await extractToken(req);
 
-  return { unreadCount: unread.length, latest };
-}
-
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get('userId');
-
-  if (!userId) {
-    return new Response('userId requis', { status: 400 });
+  if (!token) {
+    return new Response(
+      'event: error\ndata: {"error":"Non autorisé"}\n\n',
+      {
+        status: 401,
+        headers: { 'Content-Type': 'text/event-stream' },
+      },
+    );
   }
 
-  // Active la surveillance fs.watch pour les notifications
-  persistenceManager.watchEntity('notifications');
+  // Connexion vers Server Core SSE
+  const coreUrl = `${SERVER_CORE_URL}/api/sse/notifications`;
+  let coreResponse: Response;
 
+  try {
+    coreResponse = await fetch(coreUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'text/event-stream',
+        'Cache-Control': 'no-cache',
+      },
+      // @ts-expect-error — duplex requis par fetch pour les streams
+      duplex: 'half',
+      signal: req.signal,
+    });
+  } catch (err) {
+    console.error('[api/sse/notifications] Server Core unreachable:', err);
+    return new Response(
+      'event: error\ndata: {"error":"Server Core inaccessible","code":"SSE_UNAVAILABLE"}\n\n',
+      {
+        status: 503,
+        headers: { 'Content-Type': 'text/event-stream' },
+      },
+    );
+  }
+
+  if (!coreResponse.ok || !coreResponse.body) {
+    const status = coreResponse.status;
+    const errorData = JSON.stringify({
+      error: status === 401 ? 'Session expirée' : `Server Core SSE ${status}`,
+      code: status === 401 ? 'SSE_UNAUTHORIZED' : 'SSE_ERROR',
+      httpStatus: status,
+    });
+
+    console.error(`[api/sse/notifications] Server Core responded ${status}`);
+
+    return new Response(
+      `event: error\ndata: ${errorData}\n\n`,
+      {
+        status: status === 401 ? 401 : 502,
+        headers: { 'Content-Type': 'text/event-stream' },
+      },
+    );
+  }
+
+  // Relay du flux SSE Server Core → client web
   const stream = new ReadableStream({
-    start(controller) {
-      const encoder = new TextEncoder();
-
-      function send(eventName: string, data: unknown) {
-        const payload = `event: ${eventName}\ndata: ${JSON.stringify(data)}\n\n`;
-        try {
-          controller.enqueue(encoder.encode(payload));
-        } catch {
-          /* stream fermé côté client */
+    async start(controller) {
+      const reader = coreResponse.body!.getReader();
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          controller.enqueue(value);
         }
+      } catch (err) {
+    console.error('[api/sse/notifications]', err);
+        // client déconnecté ou signal abort
+      } finally {
+        reader.releaseLock();
+        controller.close();
       }
-
-      // Envoi immédiat de l'état actuel
-      send('notification', buildPayload(userId));
-
-      // Écoute les changements dans notifications.json
-      function onChange() {
-        send('notification', buildPayload(userId));
-      }
-
-      dbEventEmitter.on('change:notifications', onChange);
-
-      // Heartbeat 30 s
-      const heartbeat = setInterval(() => {
-        try {
-          controller.enqueue(encoder.encode(': heartbeat\n\n'));
-        } catch {
-          clearInterval(heartbeat);
-        }
-      }, 30_000);
-
-      // Nettoyage à la fermeture
-      req.signal.addEventListener('abort', () => {
-        dbEventEmitter.off('change:notifications', onChange);
-        clearInterval(heartbeat);
-        try { controller.close(); } catch { /* déjà fermé */ }
-      });
+    },
+    cancel() {
+      coreResponse.body?.cancel();
     },
   });
 
   return new Response(stream, {
     headers: {
-      'Content-Type':  'text/event-stream',
+      'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
-      Connection:      'keep-alive',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no',
     },
   });
 }

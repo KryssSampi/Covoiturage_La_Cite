@@ -1,0 +1,46 @@
+# Talki — Cité-Covoiturage Support Bot v2
+# Stack 100% locale, zéro API externe payante
+
+# ── Serveur API
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+httpx==0.27.0
+pydantic==2.8.0
+
+# ── CamemBERT + NLLB-200 (HuggingFace)
+transformers>=4.44.0
+torch==2.9.0
+sentencepiece==0.2.0
+protobuf==4.25.0
+
+# ── Sentence Transformers (NOUVEAU — couche sémantique multilingue)
+# Modèle : paraphrase-multilingual-mpnet-base-v2
+# ~400 MB — BIEN mieux que camembert seul pour le matching sémantique
+sentence-transformers>=3.0.0
+
+# ── Détection de langue
+langdetect==1.0.9
+
+# ── Machine Learning
+scikit-learn==1.5.0
+numpy==1.26.0
+
+# ── Utilitaires
+python-dotenv==1.0.0
+
+# ── Base de données (SQLite inclus dans Python standard)
+# ── Pas d'Anthropic SDK — intentionnel
+
+# TAILLES DES MODÈLES (téléchargement unique au premier démarrage) :
+#
+# camembert-base                          ~440 MB  (classification FR)
+# paraphrase-multilingual-mpnet-base-v2   ~400 MB  (sémantique multilingue) ← NOUVEAU
+# facebook/nllb-200-distilled-600M        ~600 MB  (traduction 200 langues)
+#
+# Total : ~1.4 GB
+# Comparé à Ollama (12 GB + GPU) ou une API payante → rien du tout.
+#
+# Le Sentence Transformer est la clé :
+# Il comprend naturellement FR + EN + AR + ES + autres sans traduction préalable.
+# Quand un utilisateur écrit en anglais, le SentenceTransformer l'encode directement
+# dans le même espace vectoriel que les textes français → matching correct.

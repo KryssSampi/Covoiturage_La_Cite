@@ -1,17 +1,16 @@
 'use client';
 // ═══════════════════════════════════════════════════════════════════
-// ProgressionSection — Barre de progression temps réel
-// Messagerie — Composant de messagerie en temps réel
+// ProgressionMessagerie — Assemblage de ProgressionSection et Messagerie
 // ═══════════════════════════════════════════════════════════════════
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect } from 'react';
 import { FaMapMarkedAlt, FaCheck, FaSyncAlt } from 'react-icons/fa';
 import { ProgressionSectionProps } from '../types/progression-signalement.types';
 import { MessagerieProps } from '../types/messagerie.types';
 import { useProgression } from '../hooks/index.hooks';
 import { Language, useAppState } from '@/core/state/app_state';
-import { ConversationHeader } from './ConversationHeader';
-import { MessageBubble } from './MessageBubble';
-import { MessageInput } from './MessageInput';
+
+// Imports de la messagerie
+import { ConversationHeader, MessageList, MessageInput } from './messagerie';
 
 // Palette de couleurs partagée
 const C = {
@@ -55,8 +54,6 @@ export function ProgressionSection({ fixture, mapState }: ProgressionSectionProp
     const etaTexte = eta.toLocaleTimeString(isFR ? 'fr-CA' : 'en-CA', { hour: '2-digit', minute: '2-digit' });
 
     // Statuts des waypoints basés sur la distance réelle GPS (normalisée en %)
-    // On compare le % parcouru vs le % de chaque étape dans la fixture,
-    // ce qui reste exact même si la distance OSRM diffère de la fixture.
     const fixtureTotal = activeFixture.distanceTotaleKm > 0 ? activeFixture.distanceTotaleKm : 1;
     const statutsEtapes: string[] = activeFixture.etapes.map(() => 'en_attente');
     for (let i = 0; i < activeFixture.etapes.length; i++) {
@@ -272,12 +269,8 @@ export function ProgressionSection({ fixture, mapState }: ProgressionSectionProp
 
 
 // ═══════════════════════════════════════════════════════════════════
-// Messagerie
+// Messagerie — Assemblage des sous-composants de messagerie
 // ═══════════════════════════════════════════════════════════════════
-
-function isSameDay(a: Date, b: Date): boolean {
-  return a.toDateString() === b.toDateString();
-}
 
 export function Messagerie({
   roleMoi,
@@ -291,40 +284,16 @@ export function Messagerie({
   onBroadcast,
   onRefresh,
 }: MessagerieProps) {
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
-  // Résoudre le correspondant actif : d'abord depuis activeConversation,
-  // sinon depuis correspondants[0] (fallback quand aucun message n'existe encore)
+  // Résoudre le correspondant actif
   const activeCorrespondantId = activeConversation
     ? (activeConversation.participantIds.find((pid) => pid !== moi.id) ?? (correspondants[0]?.id ?? ''))
     : (correspondants[0]?.id ?? '');
   const correspondantActif = correspondants.find(
     (c) => c.id === activeCorrespondantId,
   );
-  const messages = messagesActifs;
-
-  // Scroll interne au conteneur messages — ne tire plus la page vers le bas
-  useEffect(() => {
-    const el = messagesContainerRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
-  }, [messages]);
-
-  // Pré-calcule les IDs de messages qui doivent afficher un séparateur de date
-  const dateDividerIds = useMemo(() => {
-    const ids = new Set<string>();
-    let prev: Date | null = null;
-    for (const msg of messages) {
-      const d = new Date(msg.timestamp);
-      if (!prev || !isSameDay(prev, d)) {
-        ids.add(msg.id);
-      }
-      prev = d;
-    }
-    return ids;
-  }, [messages]);
 
   return (
     <div style={{
@@ -375,55 +344,13 @@ export function Messagerie({
         </div>
       )}
 
-      {/* ── Messages ── */}
-      <div ref={messagesContainerRef} style={{
-        flex: 1, overflowY: 'auto', padding: '12px 14px',
-        marginTop : 0,
-        display: 'flex', flexDirection: 'column', gap: 10,
-        background: '#f7f9fc', minHeight: 0, maxHeight: 400,
-      }}>
-        {messages.length === 0 ? (
-          /* ── Empty state style WhatsApp ── */
-          <div style={{
-            flex: 1, display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            padding: '32px 20px', gap: 10,
-            pointerEvents: 'none',
-          }}>
-            <div style={{
-              width: 52, height: 52, borderRadius: '50%',
-              background: 'rgba(8,49,110,0.07)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 24,
-            }}>
-              💬
-            </div>
-            <div style={{ fontWeight: 700, fontSize: 13, color: '#0d1f3c', textAlign: 'center' }}>
-              {correspondantActif
-                ? (isFR ? `Aucun message avec ${correspondantActif.prenom}` : `No messages with ${correspondantActif.prenom}`)
-                : (isFR ? 'Aucune conversation' : 'No conversations yet')}
-            </div>
-            <div style={{ fontSize: 11, color: '#7a90b8', textAlign: 'center', lineHeight: 1.5 }}>
-              {isFR
-                ? 'Envoyez le premier message pour démarrer la conversation.'
-                : 'Send the first message to start the conversation.'}
-            </div>
-          </div>
-        ) : messages.map((msg) => {
-          const isMoi = msg.senderId === moi.id;
-          return (
-            <MessageBubble
-              key={msg.id}
-              msg={msg}
-              isMoi={isMoi}
-              moi={moi}
-              correspondantActif={correspondantActif}
-              showDateDivider={dateDividerIds.has(msg.id)}
-              isFR={isFR}
-            />
-          );
-        })}
-      </div>
+      {/* ── Messages (composant extrait) ── */}
+      <MessageList
+        messages={messagesActifs}
+        moi={moi}
+        correspondantActif={correspondantActif}
+        isFR={isFR}
+      />
 
       {/* ── Zone de saisie (composant extrait) ── */}
       <MessageInput onSend={onSendMessage} isFR={isFR} />

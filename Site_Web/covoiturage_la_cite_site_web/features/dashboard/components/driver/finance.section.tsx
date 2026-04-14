@@ -5,10 +5,9 @@ import Link from "next/link";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import type { DriverFinanceSummary } from "@/features/dashboard/types";
-import { FIXTURE_DRIVER_FINANCE } from "@/tests/fixtures/dashboard/finance.fixtures";
 
 export function FinanceSection({
-  finance = FIXTURE_DRIVER_FINANCE,
+  finance = null,
   isLoading = false,
   error = null,
 }: {
@@ -19,7 +18,13 @@ export function FinanceSection({
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
 
-  const financeData = finance ?? FIXTURE_DRIVER_FINANCE;
+  const financeData: DriverFinanceSummary = finance ?? {
+    soldeDisponible: 0,
+    currency: "CAD",
+    weeklyProfit: 0,
+    weeklyPendingProfit: 0,
+    penalties: 0,
+  };
   const fmt = (amount: number) =>
     `${amount.toFixed(2)} ${financeData.currency ?? "CAD"}`;
 

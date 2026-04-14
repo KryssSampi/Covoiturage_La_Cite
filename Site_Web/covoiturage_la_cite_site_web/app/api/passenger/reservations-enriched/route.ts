@@ -1,54 +1,90 @@
 /**
- * GET /api/passenger/reservations-enriched?passengerId=XXX
- *
- * Retourne les réservations d'un passager,
- * enrichies avec les infos du trajet et du conducteur.
- * Le client reçoit directement des Reservation[] prêts à l'emploi.
+ * GET /api/passenger/reservations-enriched
+ * Delegue au Server Core -> GET api/passenger/reservations-enriched
+ * Normalize en Reservation[] pour le frontend.
  */
+import { NextResponse } from 'next/server';
+import { ReservationService, type ReservationEnrichedDto } from '@/server/services/ReservationService';
+import { withAuth } from '@/server/auth';
+import { ReservationStatus, type Reservation } from '@/features/dashboard/types';
 
-import { NextResponse } from "next/server";
-import { persistenceManager } from "@/tests/PersistenceManager";
+function mapStatus(raw?: string): ReservationStatus {
+  const value = (raw ?? '').toLowerCase();
+  if (value === 'confirmed') return ReservationStatus.Confirmed;
+  if (value === 'in_progress') return ReservationStatus.InProgress;
+  if (value === 'completed') return ReservationStatus.Completed;
+  if (value === 'cancelled') return ReservationStatus.Cancelled;
+  if (value === 'refused') return ReservationStatus.Rejected;
+  return ReservationStatus.Pending;
+}
 
-import type { ReservationModel } from "@/core/models/ReservationModel";
-import type { TripModel } from "@/core/models/TripModel";
-import type { UserModel } from "@/core/models/UserModel";
+function toPassengerReservation(dto: ReservationEnrichedDto): Reservation {
+  // Nested format (Server Core actuel)
+  if (dto.reservation && dto.trip && dto.driver) {
+    return {
+      id: dto.reservation.id,
+      tripId: dto.reservation.tripId,
+      departure: dto.trip.departureLabel ?? '',
+      destination: dto.trip.arrivalLabel ?? '',
+      date: (dto.trip.departureDate ?? '').slice(0, 10),
+      time: dto.trip.departureTime ?? '',
+      duration: dto.trip.estimatedDurationMinutes ?? null,
+      maxPassengers: dto.trip.maxPassengers ?? 0,
+      passengers: [],
+      driver: {
+        id: dto.driver.id,
+        pictureUrl: dto.driver.avatarUrl ?? '',
+        name: `${dto.driver.firstName} ${dto.driver.lastName}`.trim(),
+        rating: dto.driver.averageRating ?? 0,
+        tripsCount: dto.driver.totalTripsAsDriver ?? 0,
+      },
+      status: mapStatus(dto.reservation.status),
+      doneDate: dto.reservation.status?.toLowerCase() === 'completed'
+        ? (dto.reservation.updatedAt ?? null)
+        : null,
+      isImminent: false,
+    };
+  }
 
-import { reservationToPassengerView } from "@/features/reservations/converters/reservation.converter";
+  // Flat fallback (retro-compat)
+  return {
+    id: dto.id ?? '',
+    tripId: dto.tripId ?? '',
+    departure: dto.tripDepartureAddress ?? '',
+    destination: dto.tripArrivalAddress ?? '',
+    date: (dto.tripDepartureDate ?? '').slice(0, 10),
+    time: (dto.tripDepartureDate ?? '').length >= 16 ? (dto.tripDepartureDate ?? '').slice(11, 16) : '',
+    duration: null,
+    maxPassengers: 0,
+    passengers: [],
+    driver: {
+      id: '',
+      pictureUrl: '',
+      name: '',
+      rating: 0,
+      tripsCount: 0,
+    },
+    status: ReservationStatus.Pending,
+    doneDate: null,
+    isImminent: false,
+  };
+}
 
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const passengerId = searchParams.get("passengerId");
+    const auth = await withAuth(req);
+    const result = await ReservationService.getPassengerEnriched(undefined, auth);
 
-    if (!passengerId) {
-      return NextResponse.json(
-        { error: "Le paramètre passengerId est requis" },
-        { status: 400 }
-      );
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
     }
 
-    // Lecture des données depuis la base JSON
-    const allReservations = persistenceManager.readAll<ReservationModel>("reservations");
-    const allTrips = persistenceManager.readAll<TripModel>("trips");
-    const allUsers = persistenceManager.readAll<UserModel>("users");
+    const enriched = (result.data ?? []) as ReservationEnrichedDto[];
+    const payload = enriched.map(toPassengerReservation);
 
-    const tripsMap = new Map(allTrips.map((t) => [t.id, t]));
-    const usersMap = new Map(allUsers.map((u) => [u.id, u]));
-
-    // Filtrer les réservations du passager, enrichir avec trajet et conducteur
-    const result = allReservations
-      .filter((r) => r.passengerId === passengerId)
-      .map((r) => {
-        const trip = tripsMap.get(r.tripId);
-        const driver = usersMap.get(r.driverId);
-        if (!trip || !driver) return null;
-        return reservationToPassengerView(r, trip, driver);
-      })
-      .filter(Boolean);
-
-    return NextResponse.json(result);
+    return NextResponse.json(payload);
   } catch (err) {
-    console.error("[api/passenger/reservations-enriched]", err);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    console.error('[api/passenger/reservations-enriched]', err);
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

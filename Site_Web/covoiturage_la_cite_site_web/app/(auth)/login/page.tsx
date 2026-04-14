@@ -1,47 +1,60 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-
-import { LoginArea } from "@/features/auth";
-import { useLoader } from "@/core/context/loader.context";
-import type { CoreUserResponse } from "@/features/auth/hooks/useloginForm";
+import { useEffect } from 'react';
+import { AuthSessionLogin } from '@/features/auth/components/AuthSessionLogin';
+import { useAppState, type ConnectedUser } from '@/core/state/app_state';
+import { useRouter } from 'next/navigation';
+import { useLoader } from '@/core/context/loader.context';
+import type { AuthLoginUser } from '@/features/auth/hooks/useAuthSession';
 
 export default function LoginPage() {
+  const appState = useAppState();
+  const router = useRouter();
   const { setActiveLoader } = useLoader();
 
   useEffect(() => {
     setActiveLoader(false);
   }, [setActiveLoader]);
 
-  const handleLogin = async (email: string): Promise<CoreUserResponse> => {
-    const res = await fetch("/api/auth/signin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-
-    const payload = await res.json();
-    if (!res.ok) {
-      throw new Error(payload?.error ?? "Erreur de connexion");
+  // Redirection si déjà connecté
+  useEffect(() => {
+    if (appState.userConnected) {
+      const { role, id, onboardingCompleted } = appState.userConnected;
+      setActiveLoader(true);
+      (async () => {
+        try {
+          if (!onboardingCompleted) {
+            await router.replace(`/onboarding/${id}`);
+          } else {
+            await router.replace(`/${role}/${id}`);
+          }
+        } finally {
+          setActiveLoader(false);
+        }
+      })();
     }
+  }, [appState.userConnected, router, setActiveLoader]);
 
-    return payload as CoreUserResponse;
+  const handleLoginSuccess = (user: AuthLoginUser) => {
+    const connected: ConnectedUser = {
+      id: user.id,
+      role: String(user.role).toLowerCase(),
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatarUrl: user.avatarUrl ?? null,
+      canBeDriver: user.canBeDriver,
+      onboardingCompleted: user.onboardingCompleted,
+    };
+
+    appState.login(connected);
+    // Navigation centralisée dans le useEffect (évite les courses concurrents)
   };
 
   return (
-    <div
-      className="bg-white"
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <main className="inline-flex flex-col max-w-md p-8 bg-transparent rounded-lg">
-        <LoginArea onLogin={handleLogin} />
-      </main>
+    <div className="flex items-center justify-center px-4">
+      <div className="w-full">
+        <AuthSessionLogin onLoginSuccess={handleLoginSuccess} />
+      </div>
     </div>
   );
 }

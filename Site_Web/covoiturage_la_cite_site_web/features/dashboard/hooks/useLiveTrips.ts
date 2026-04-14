@@ -100,8 +100,8 @@ export function useLiveTrips(driverId: string | undefined): UseLiveTripsResult {
       try {
         rawTripsRef.current = JSON.parse(event.data) as RawTrip[];
         recalculate();
-      } catch {
-        console.error("[useLiveTrips] Erreur de parsing SSE trips");
+      } catch (err) {
+        console.error("[useLiveTrips] Erreur de parsing SSE trips", err);
       }
     });
 
@@ -120,8 +120,8 @@ export function useLiveTrips(driverId: string | undefined): UseLiveTripsResult {
       try {
         rawReservationsRef.current = JSON.parse(event.data) as RawReservation[];
         recalculate();
-      } catch {
-        console.error("[useLiveTrips] Erreur de parsing SSE reservations");
+      } catch (err) {
+        console.error("[useLiveTrips] Erreur de parsing SSE reservations", err);
       }
     });
 

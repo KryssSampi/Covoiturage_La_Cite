@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { Language, useAppState } from "@/core/state/app_state";
 import { useRecommendedRides } from "../../hooks/useRecommendedRides";
 import type { Trip } from "../../types";
-import { formatDate } from "@/core/utils/date.utils";
+import { formatDate, utcToLocalDateIso, utcToLocalTime } from "@/core/utils/date.utils";
 import { PassengerAvatars } from "@/shared/components/PassengerAvatars";
 
 // ─── Constante de fallback pour les photos de profil ─────────────────────────
@@ -47,6 +47,8 @@ interface TripCardProps {
 function TripCard({ trip, isPassengerListOpen, onTogglePassengerList, onClosePassengerList }: TripCardProps) {
   const { lang } = useAppState();
   const router   = useRouter();
+  const localIso = utcToLocalDateIso(trip.date, trip.time);
+  const localTime = utcToLocalTime(trip.date, trip.time);
 
   return (
     <div className="w-full flex flex-row justify-between items-center gap-x-4 rounded-xl shadow-xl bg-gray-100 p-4 mb-4 hover:shadow-2xl hover:scale-105 transition-all active:scale-95">
@@ -62,7 +64,7 @@ function TripCard({ trip, isPassengerListOpen, onTogglePassengerList, onClosePas
           <div className="flex flex-col w-full">
             {/* Date et heure du trajet */}
             <span className="text-xl font-semibold text-black">
-              {formatDate(trip.date, lang)} : {trip.time}
+              {formatDate(localIso, lang, localTime)} : {localTime}
             </span>
 
             {/* Informations sur le conducteur : nom, note et nombre de trajets */}

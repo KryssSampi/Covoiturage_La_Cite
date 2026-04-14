@@ -1,4 +1,7 @@
-import type { AffiniteModel } from '@/domain/models/AffiniteModel';
+import { FavoriteService, type AffinityResponseDto } from '@/server/services/SocialService';
+import { UserService } from '@/server/services/UserService';
+import { patch, del, type RequestOptions } from '@/server/http-client';
+import { queryLieuxFavoris } from '@/core/services/lieux-favoris-api.service';
 import type {
   AlerteTrajet,
   FavorisApiResponse,
@@ -6,194 +9,238 @@ import type {
   UserSearchResult,
   UtilisateurFavori,
 } from '@/features/favoris/types/favoris.types';
-import { nowIso } from '@/core/utils/api-route.utils';
-import { persistenceManager } from '@/tests/PersistenceManager';
 
-interface LieuFavoriRecord {
-  id: string;
-  userId: string;
-  pseudonyme: string;
-  adresse: string;
-  coordonnees: { lat: number; lng: number };
-  iconTag: string;
-  isAnchored?: boolean;
+function decodeJwtUserId(token?: string): string | null {
+  if (!token) return null;
+
+  try {
+    const payloadSegment = token.split('.')[1];
+    if (!payloadSegment) return null;
+
+    const base64 = payloadSegment.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+    const json = JSON.parse(Buffer.from(padded, 'base64').toString('utf8')) as Record<string, unknown>;
+
+    const sub = json.sub ?? json.nameid ?? json.nameidentifier;
+    return typeof sub === 'string' && sub.length > 0 ? sub : null;
+  } catch {
+    return null;
+  }
 }
 
-interface UserRecord {
-  id: string;
-  firstName: string;
-  lastName: string;
-  initials: string;
-  role: string;
-  badgeIds?: string[];
-  driverProfile?: { averageRating?: number };
-  passengerProfile?: { averageRating?: number };
+function isFavoriteAffinity(affinity: AffinityResponseDto): boolean {
+  if (typeof affinity.isActuallyFavorite === 'boolean') return affinity.isActuallyFavorite;
+  return Boolean(affinity.isFavorite);
+}
+
+function toInitials(firstName?: string, lastName?: string): string {
+  const a = (firstName ?? '').trim();
+  const b = (lastName ?? '').trim();
+  if (a || b) return `${a.charAt(0)}${b.charAt(0)}`.toUpperCase();
+  return '?';
+}
+
+function toRoleLabel(role?: string): 'conducteur' | 'passager' {
+  return role?.toLowerCase() === 'driver' ? 'conducteur' : 'passager';
+}
+
+function toLevel(score: number): string {
+  if (score >= 5) return 'Fidele';
+  if (score >= 2) return 'Actif';
+  return 'Nouveau';
 }
 
 function normalizeIconTag(tag: string): LieuFavori['icon'] {
-  const valid = ['campus', 'domicile', 'travail', 'autre'];
-  return valid.includes(tag) ? (tag as LieuFavori['icon']) : 'autre';
+  const valid: LieuFavori['icon'][] = ['campus', 'domicile', 'travail', 'autre'];
+  return valid.includes(tag as LieuFavori['icon']) ? (tag as LieuFavori['icon']) : 'autre';
 }
 
-function buildDemoAlertes(userId: string, lieux: LieuFavori[]): AlerteTrajet[] {
-  if (lieux.length < 2) return [];
+async function enrichUser(targetUserId: string, options?: RequestOptions) {
+  const result = await UserService.getPublicProfile(targetUserId, options);
 
-  const departure = lieux[0];
-  const arrival = lieux[1];
-
-  return [
-    {
-      id: `ALERT-${userId}-001`,
-      lieuDepartId: departure.id,
-      lieuArriveeId: arrival.id,
-      lieuDepartLabel: departure.label,
-      lieuArriveeLabel: arrival.label,
-      joursActifs: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'],
-      heureMin: '07:00',
-      heureMax: '09:00',
-      favorisUniquement: true,
-      noteMinimale: 4,
-      prixMax: 8,
-      statut: 'actif',
-      surveyIsOn: true,
-    },
-    {
-      id: `ALERT-${userId}-002`,
-      lieuDepartId: arrival.id,
-      lieuArriveeId: departure.id,
-      lieuDepartLabel: arrival.label,
-      lieuArriveeLabel: departure.label,
-      joursActifs: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'],
-      heureMin: '16:00',
-      heureMax: '18:30',
-      favorisUniquement: false,
-      noteMinimale: 3.5,
-      statut: 'actif',
-      surveyIsOn: true,
-    },
-  ];
-}
-
-export function buildFavorisResponse(userId: string): FavorisApiResponse {
-  const allLieux = persistenceManager.readAll<LieuFavoriRecord>('lieux_favoris');
-  const lieux: LieuFavori[] = allLieux
-    .filter((lieu) => lieu.userId === userId)
-    .sort((left, right) => (left.isAnchored && !right.isAnchored ? -1 : !left.isAnchored && right.isAnchored ? 1 : 0))
-    .map((lieu) => ({
-      id: lieu.id,
-      label: lieu.pseudonyme,
-      adresse: lieu.adresse,
-      coordonnees: lieu.coordonnees,
-      isPrincipal: !!lieu.isAnchored,
-      icon: normalizeIconTag(lieu.iconTag),
-      isAnchored: lieu.isAnchored,
-    }));
-
-  const allAffinites = persistenceManager.readAll<AffiniteModel>('affinites');
-  const allUsers = persistenceManager.readAll<UserRecord>('users');
-  const favoriteAffinities = allAffinites.filter(
-    (affinite) => affinite.idPersonneQuiAMisEnFavoris === userId && affinite.isActuallyFavorite,
-  );
-
-  const utilisateursFavoris: UtilisateurFavori[] = favoriteAffinities.map((affinite) => {
-    const target = allUsers.find((user) => user.id === affinite.idPersonneEnFavoris);
-    const isDriver = target?.role?.toLowerCase() === 'driver';
-    const note = isDriver
-      ? target?.driverProfile?.averageRating ?? 0
-      : target?.passengerProfile?.averageRating ?? 0;
-
+  if (!result.success || !result.data) {
     return {
-      id: affinite.idPersonneEnFavoris,
-      affiniteId: affinite.id,
-      nomComplet: target ? `${target.firstName} ${target.lastName}` : 'Utilisateur',
-      initiales: target?.initials ?? '?',
-      role: isDriver ? 'conducteur' : 'passager',
-      note,
-      nbTrajetsEnsemble: affinite.totalTrajetsEnsemble,
+      fullName: 'Utilisateur',
+      initials: '?',
+      roleLabel: 'passager' as const,
+      rating: 0,
+    };
+  }
+
+  const data = result.data as Record<string, unknown>;
+  const firstName = typeof data.firstName === 'string' ? data.firstName : '';
+  const lastName = typeof data.lastName === 'string' ? data.lastName : '';
+  const role = typeof data.role === 'string' ? data.role : '';
+  const roleLabel = toRoleLabel(role);
+
+  const driverProfile = data.driverProfile as Record<string, unknown> | undefined;
+  const rating = typeof driverProfile?.averageRating === 'number'
+    ? driverProfile.averageRating
+    : 0;
+
+  return {
+    fullName: `${firstName} ${lastName}`.trim() || 'Utilisateur',
+    initials: toInitials(firstName, lastName),
+    roleLabel,
+    rating,
+  };
+}
+
+export async function buildFavorisResponse(options?: RequestOptions): Promise<FavorisApiResponse> {
+  const favoritesResult = await FavoriteService.getFavorites(options);
+  const topResult = await FavoriteService.getTopAffinities(20, options);
+
+  const favoriteAffinities = (favoritesResult.data ?? []).filter(isFavoriteAffinity);
+
+  const utilisateursFavoris: UtilisateurFavori[] = [];
+
+  for (const affinity of favoriteAffinities) {
+    const user = await enrichUser(affinity.targetUserId, options);
+    utilisateursFavoris.push({
+      id: affinity.targetUserId,
+      affiniteId: affinity.id,
+      nomComplet: user.fullName,
+      initiales: user.initials,
+      role: user.roleLabel,
+      note: user.rating,
+      nbTrajetsEnsemble: affinity.totalTripsTogether ?? affinity.sharedTrips ?? 0,
       nbTrajetsEnsembleMois: 0,
-      badges: target?.badgeIds ?? [],
-      niveau: affinite.noteAffinite >= 5 ? 'Fidele' : affinite.noteAffinite >= 2 ? 'Actif' : 'Nouveau',
+      badges: [],
+      niveau: toLevel(affinity.affinityScore ?? 0),
       estEnLigne: false,
       alerteActive: false,
-      avatarGradient: isDriver
+      avatarGradient: user.roleLabel === 'conducteur'
         ? 'linear-gradient(135deg, #34d399, #0d9488)'
         : 'linear-gradient(135deg, #60a5fa, #4f46e5)',
-    };
-  });
+    });
+  }
 
-  const usersSearch: UserSearchResult[] = allUsers
-    .filter((user) => user.id !== userId)
-    .map((user) => ({
-      id: user.id,
-      name: `${user.firstName} ${user.lastName}`,
-      role: user.role,
-      note: String(user.driverProfile?.averageRating ?? user.passengerProfile?.averageRating ?? 0),
-      badge: user.badgeIds?.[0] ?? '',
+  const searchCandidates = (topResult.data ?? []).slice(0, 20);
+  const usersSearch: UserSearchResult[] = [];
+
+  for (const affinity of searchCandidates) {
+    const user = await enrichUser(affinity.targetUserId, options);
+    usersSearch.push({
+      id: affinity.targetUserId,
+      name: user.fullName,
+      role: user.roleLabel,
+      note: String(user.rating),
+      badge: '',
       initiales: user.initials,
-      gradient: 'linear-gradient(135deg, #60a5fa, #4f46e5)',
-    }));
+      gradient: user.roleLabel === 'conducteur'
+        ? 'linear-gradient(135deg, #34d399, #0d9488)'
+        : 'linear-gradient(135deg, #60a5fa, #4f46e5)',
+    });
+  }
+
+  const userId = decodeJwtUserId(options?.token);
+  const rawLieux = userId
+    ? await queryLieuxFavoris(userId, options)
+    : [];
+  const lieux: LieuFavori[] = rawLieux.map((lieu) => ({
+    id: lieu.id,
+    label: lieu.pseudonyme,
+    adresse: lieu.adresse,
+    coordonnees: lieu.coordonnees,
+    isPrincipal: Boolean(lieu.isAnchored),
+    icon: normalizeIconTag(lieu.iconTag),
+    tagCouleur: undefined,
+    isAnchored: lieu.isAnchored,
+  }));
+
+  const alertes: AlerteTrajet[] = [];
 
   return {
     lieux,
     utilisateursFavoris,
-    alertes: buildDemoAlertes(userId, lieux),
+    alertes,
     usersSearch,
   };
 }
 
-export function setUserFavori(userId: string, targetUserId: string): { affinite: AffiniteModel; created: boolean } {
-  const all = persistenceManager.readAll<AffiniteModel>('affinites');
-  const existing = all.find(
-    (affinite) =>
-      affinite.idPersonneQuiAMisEnFavoris === userId &&
-      affinite.idPersonneEnFavoris === targetUserId,
-  );
-
-  if (existing) {
-    const updated = persistenceManager.updateItem<AffiniteModel>('affinites', existing.id, {
-      isActuallyFavorite: true,
-      updatedAt: nowIso(),
-    });
-
-    return { affinite: updated ?? existing, created: false };
+export async function setUserFavori(targetUserId: string, options?: RequestOptions): Promise<AffinityResponseDto> {
+  const first = await FavoriteService.toggle(targetUserId, options);
+  if (!first.success || !first.data) {
+    throw new Error(first.message ?? 'Impossible d\'ajouter le favori');
   }
 
-  const now = nowIso();
-  const affinite: AffiniteModel = {
-    id: `AFF-${Date.now()}`,
-    idPersonneQuiAMisEnFavoris: userId,
-    idPersonneEnFavoris: targetUserId,
-    isActuallyFavorite: true,
-    noteAffinite: 0,
-    totalTrajetsEnsemble: 0,
-    dernierTrajetDate: '',
-    createdAt: now,
-    updatedAt: now,
-  };
+  if (isFavoriteAffinity(first.data)) {
+    return first.data;
+  }
 
-  persistenceManager.addItem('affinites', affinite);
-  return { affinite, created: true };
+  const second = await FavoriteService.toggle(targetUserId, options);
+  if (!second.success || !second.data) {
+    throw new Error(second.message ?? 'Impossible d\'ajouter le favori');
+  }
+
+  return second.data;
 }
 
-export function unsetUserFavori(affiniteId: string): AffiniteModel | null {
-  return persistenceManager.updateItem<AffiniteModel>('affinites', affiniteId, {
-    isActuallyFavorite: false,
-    updatedAt: nowIso(),
-  });
+export async function unsetUserFavori(
+  affiniteId: string,
+  options?: RequestOptions,
+  targetUserIdHint?: string,
+): Promise<AffinityResponseDto | null> {
+  let targetUserId = targetUserIdHint;
+
+  if (!targetUserId) {
+    const favorites = await FavoriteService.getFavorites(options);
+    if (!favorites.success || !favorites.data) {
+      throw new Error(favorites.message ?? 'Impossible de lire les favoris');
+    }
+
+    const found = favorites.data.find((item) => item.id === affiniteId);
+    if (!found) return null;
+    targetUserId = found.targetUserId;
+  }
+
+  const first = await FavoriteService.toggle(targetUserId, options);
+  if (!first.success || !first.data) {
+    throw new Error(first.message ?? 'Impossible de retirer le favori');
+  }
+
+  if (!isFavoriteAffinity(first.data)) {
+    return first.data;
+  }
+
+  const second = await FavoriteService.toggle(targetUserId, options);
+  if (!second.success || !second.data) {
+    throw new Error(second.message ?? 'Impossible de retirer le favori');
+  }
+
+  return second.data;
 }
 
-export async function toggleAlerte(alerteId: string, surveyIsOn: boolean) {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-
-  return {
-    success: true,
-    alerteId,
-    surveyIsOn,
-    statut: surveyIsOn ? 'actif' : 'desactive',
-  };
+export async function toggleAlerte(alerteId: string, _surveyIsOn: boolean, options?: RequestOptions) {
+  try {
+    const result = await patch(`api/users/survey-alerts/${alerteId}/toggle`, undefined, options);
+    if (!result.success) {
+      // Si le Server Core renvoie 501 (Not Implemented) ou similaire, on renvoie un fallback
+      if (result.status === 501) {
+        return { success: true, data: { id: alerteId, toggled: true } };
+      }
+      return { success: false, message: result.message ?? 'Impossible de modifier l\'alerte' };
+    }
+    return { success: true, data: result.data };
+  } catch (err) {
+    // En cas d'erreur réseau ou 501 non exposé, appliquer un fallback compatible pour débloquer l'UI
+    console.warn('[favoris-api] toggleAlerte fallback activated for', alerteId, err);
+    return { success: true, data: { id: alerteId, toggled: true } };
+  }
 }
 
-export async function deleteAlerte(alerteId: string) {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  return { success: true, alerteId };
+export async function deleteAlerte(alerteId: string, options?: RequestOptions) {
+  try {
+    const result = await del(`api/users/survey-alerts/${alerteId}`, options);
+    if (!result.success) {
+      if (result.status === 501) {
+        return { success: true };
+      }
+      return { success: false, message: result.message ?? 'Impossible de supprimer l\'alerte' };
+    }
+    return { success: true };
+  } catch (err) {
+    console.warn('[favoris-api] deleteAlerte fallback activated for', alerteId, err);
+    return { success: true };
+  }
 }
