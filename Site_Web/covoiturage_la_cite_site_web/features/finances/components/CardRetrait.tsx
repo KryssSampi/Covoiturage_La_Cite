@@ -77,7 +77,8 @@ function CardRetrait({ soldeDisponible, bankAccounts, onWithdraw }: CardRetraitP
         setErreur(result.msg);
         setConfirmVisible(false);
       }
-    } catch {
+    } catch (err) {
+      console.error('[CardRetrait] handleConfirm', err);
       setErreur("Erreur de communication avec le serveur");
       setConfirmVisible(false);
     } finally {

@@ -1,14 +1,33 @@
 import { NextResponse } from 'next/server';
-import { queryNotifications } from '@/core/services/notification-api.service';
+import { NotificationService } from '@/server/services/NotificationService';
+import { withAuth } from '@/server/auth';
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId');
-    const isReadParam = searchParams.get('isRead');
-    const isRead = isReadParam === 'true' ? true : isReadParam === 'false' ? false : null;
-    return NextResponse.json(queryNotifications(userId, isRead));
-  } catch {
+    const isRead = searchParams.get('isRead');
+    // L'utilisateur est déterminé via le JWT (withAuth), pas via query param.
+    const auth = await withAuth(req);
+
+    // Si isRead=false demandé (ex : useNotificationPush au login) → uniquement les non lues
+    if (isRead === 'false') {
+      const result = await NotificationService.getUnread(auth);
+      if (!result.success) {
+        return NextResponse.json({ error: result.message }, { status: 500 });
+      }
+      return NextResponse.json((result.data ?? []).map((n) => ({ ...n, message: n.body })));
+    }
+
+    const result = await NotificationService.getAll(1, 50, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 500 });
+    }
+    // Map Server Core field `body` → `message` expected by NotificationModel
+    const mapped = (result.data ?? []).map((n) => ({ ...n, message: n.body }));
+    return NextResponse.json(mapped);
+  } catch (err) {
+    console.error('[api/notifications]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

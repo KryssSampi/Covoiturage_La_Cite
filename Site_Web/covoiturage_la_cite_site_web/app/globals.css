@@ -378,6 +378,15 @@ body {
   border-radius: 2px;
 }
 
+/* === Uniform forms for onboarding & registration === */
+.uniform-form {
+  max-width: 640px;
+  width: 100%;
+  min-height: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* Scrollbar fine pour les conteneurs avec zoom */
 .zoom-wrap::-webkit-scrollbar { width: 4px; height: 4px; }
 .zoom-wrap::-webkit-scrollbar-thumb {

@@ -99,7 +99,8 @@ export function useReservationRequests(
         return false;
       }
       return true;
-    } catch {
+    } catch (err) {
+      console.error('[useReservationRequests] acceptRequest', err);
       setRemovedIds((prev) => {
         const next = new Set(prev);
         next.delete(id);
@@ -127,7 +128,8 @@ export function useReservationRequests(
         return false;
       }
       return true;
-    } catch {
+    } catch (err) {
+      console.error('[useReservationRequests] rejectRequest', err);
       setRemovedIds((prev) => {
         const next = new Set(prev);
         next.delete(id);

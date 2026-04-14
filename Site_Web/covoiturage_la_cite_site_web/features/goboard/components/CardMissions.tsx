@@ -14,10 +14,11 @@ import type { GoTask } from "../types/goboard.types";
 
 function CardMissions({ goTasks, userId }: { goTasks: GoTask[]; userId: string }) {
   // Filtrer les tâches pertinentes et calculer la complétion pour l'utilisateur
-  const tasksWithStatus = goTasks.map((task) => {
-    const prog = task.progression.find((p) => p.userId === userId);
-    return { ...task, isDone: prog?.isDone ?? false };
-  });
+  // Server Core résout déjà la progression par utilisateur → isCompleted direct
+  const tasksWithStatus = goTasks.map((task) => ({
+    ...task,
+    isDone: task.isCompleted,
+  }));
   const completed = tasksWithStatus.filter((t) => t.isDone).length;
   const potentialPoints = tasksWithStatus
     .filter((t) => !t.isDone)
@@ -50,8 +51,8 @@ function CardMissions({ goTasks, userId }: { goTasks: GoTask[]; userId: string }
             </div>
             {/* Contenu */}
             <div className="flex-1">
-              <div className="font-semibold text-xs text-[#0d1f3c]">{t.titlefr}</div>
-              <div className="text-[#7a90b8] text-[10px] mt-0.5">{t.descriptionfr}</div>
+              <div className="font-semibold text-xs text-[#0d1f3c]">{t.titleFr}</div>
+              <div className="text-[#7a90b8] text-[10px] mt-0.5">{t.descriptionFr}</div>
             </div>
             {/* Points récompense */}
             <div

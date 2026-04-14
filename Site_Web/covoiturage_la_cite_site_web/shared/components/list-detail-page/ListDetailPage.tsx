@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiSearch, FiMousePointer } from "react-icons/fi";
 import Image from "next/image";
 import { useIsMobileOrTablet } from "@/shared/hooks/useismobileortable";
+import { Language, useAppState } from "@/core/state/app_state";
 import { ListDetailPageProps }       from "./types";
 import { useListDetail }             from "./hooks/useListDetail";
 import { FilterDropdown }            from "./components/FilterDropdown";
@@ -34,6 +35,8 @@ export function ListDetailPage<T extends { id: string | number }>({
   skeletonCount = 4,
   itemParamKey,
 }: ListDetailPageProps<T>) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
   const {
     query, setQuery,
     selectedId, selectedItem, selectItem,
@@ -103,7 +106,7 @@ export function ListDetailPage<T extends { id: string | number }>({
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Rechercher..."
+                placeholder={isFR ? "Rechercher..." : "Search..."}
                 disabled={isLoading || isEmpty}
                 className="w-full h-12 pl-8 text-black pr-3 rounded-lg border bg-white text-lg outline-none transition-colors disabled:opacity-40"
                 style={{ borderColor: query ? "#08316e" : "#e5e7eb" }}
@@ -128,7 +131,9 @@ export function ListDetailPage<T extends { id: string | number }>({
 
           {!isLoading && (
             <p className="text-xs shrink-0 text-white">
-              {filteredItems.length} {filteredItems.length === 1 ? "element" : "elements"}
+              {filteredItems.length} {filteredItems.length === 1
+                ? (isFR ? "élément" : "item")
+                : (isFR ? "éléments" : "items")}
             </p>
           )}
 
@@ -224,7 +229,9 @@ export function ListDetailPage<T extends { id: string | number }>({
                         <FiMousePointer size={36} style={{ color: "#08316e", opacity: 0.2 }} />
                       </motion.div>
                       <p className="text-xs" style={{ color: "#9ca3af" }}>
-                        Selectionnez un element<br />dans la liste pour voir les details
+                        {isFR
+                          ? <>Sélectionnez un élément<br />dans la liste pour voir les détails</>
+                          : <>Select an item<br />from the list to see details</>}
                       </p>
                     </motion.div>
                   ) : (

@@ -55,7 +55,7 @@ function ScatterProgression({ scale, goEvents, currentScore, containerRef }: Sca
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>({ threshold: 0.15 });
 
   const chart = useMemo(() => {
-    if (!goEvents.length) return null;
+    if (!goEvents?.length) return null;
 
     // 1. Tri chronologique ascendant
     const sorted = [...goEvents].sort(

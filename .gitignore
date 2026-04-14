@@ -1,6 +1,42 @@
-.\docs
-docs/
-logs/
-*.log
+# Dossiers personnels et outils IA
 .roo/
-TalkiChatbot/
+docs/
+.vscode/
+.idea/
+logs/
+temp/
+.cache/
+
+# Fichiers temporaires
+*.tmp
+*.bak
+*.swp
+*~
+
+# Fichiers de logs
+*.log
+*.trace
+
+# Fichiers de configuration personnelle
+*.user
+*.userprefs
+.env
+.env.*
+!.env.example
+
+# Fichiers systeme
+.DS_Store
+Thumbs.db
+
+# Dossiers de build
+node_modules/
+bin/
+obj/
+.vs/
+__pycache__/
+dist/
+build/
+.next/
+coverage/
+.turbo/
+.output/

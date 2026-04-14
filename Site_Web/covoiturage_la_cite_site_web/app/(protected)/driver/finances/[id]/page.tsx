@@ -41,7 +41,8 @@ export default function DriverFinancesRoutePage() {
     if (!user) return;
     try {
       const res = await fetch(
-        `/api/finances?userId=${encodeURIComponent(user.id)}&role=driver&periode=${encodeURIComponent(p)}`,
+        `/api/finances?role=driver&periode=${encodeURIComponent(p)}`,
+        { credentials: 'same-origin' },
       );
       if (!res.ok) return;
       setData(await res.json());
@@ -58,21 +59,11 @@ export default function DriverFinancesRoutePage() {
   }, [loadData, params.id, user, periode]);
 
   // SSE : mise à jour temps réel lorsque les finances changent
+  // Polling 30s — db-watch SSE désactivé (503)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    // Surveiller les comptes conducteur, comptes bancaires et pénalités
-    const entities = ["driver_finance_accounts", "bank_accounts", "penalites"];
-    const sources = entities.map((entity) => {
-      const es = new EventSource(`/api/sse/db-watch/${entity}`);
-      let isFirst = true;
-      es.addEventListener("update", () => {
-        // Ignorer le premier événement (contenu initial envoyé à la connexion)
-        if (isFirst) { isFirst = false; return; }
-        void loadData(periode);
-      });
-      return es;
-    });
-    return () => sources.forEach((es) => es.close());
+    const id = setInterval(() => void loadData(periode), 30_000);
+    return () => clearInterval(id);
   }, [user, params.id, loadData, periode]);
 
   // Callback retrait — appel backend puis rafraîchissement des données
@@ -81,15 +72,17 @@ export default function DriverFinancesRoutePage() {
     try {
       const res = await fetch("/api/payment/withdraw", {
         method: "POST",
+        credentials: 'same-origin',
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ driverId: user.id, montant, bankAccountId }),
+        body: JSON.stringify({ montant, bankAccountId }),
       });
       const body = await res.json();
       if (!res.ok) return { ok: false, msg: body.error || "Erreur lors du retrait" };
       // Rafraîchir les données après retrait réussi
       void loadData(periode);
       return { ok: true, msg: body.message || "Retrait effectué" };
-    } catch {
+    } catch (err) {
+      console.error("[driver/finances/page]", err);
       return { ok: false, msg: "Erreur réseau" };
     }
   }, [user, loadData, periode]);

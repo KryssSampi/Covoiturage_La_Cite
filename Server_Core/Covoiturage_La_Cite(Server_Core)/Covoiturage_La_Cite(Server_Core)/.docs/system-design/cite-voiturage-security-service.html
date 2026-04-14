@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cité-Voiturage — SecurityService · Protocole Complet</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0A0C10;
+  --ink2:#12161E;
+  --ink3:#1A2030;
+  --ink4:#222A3C;
+  --line:#2A3448;
+  --line2:#3A4860;
+  --gold:#C8A84B;
+  --gold2:#E8C870;
+  --gold3:#F5E0A0;
+  --gold-dim:rgba(200,168,75,0.12);
+  --gold-mid:rgba(200,168,75,0.25);
+  --red:#D94F4F;
+  --red2:#F07070;
+  --red-dim:rgba(217,79,79,0.12);
+  --teal:#3AAFA9;
+  --teal2:#60CFC9;
+  --teal-dim:rgba(58,175,169,0.12);
+  --blue:#4A7FD4;
+  --blue2:#7AA8F0;
+  --blue-dim:rgba(74,127,212,0.12);
+  --amber:#D48A3A;
+  --amber2:#F0B060;
+  --amber-dim:rgba(212,138,58,0.12);
+  --violet:#8A5CD4;
+  --violet2:#B090F0;
+  --violet-dim:rgba(138,92,212,0.12);
+  --text:#E8EEF8;
+  --text2:#9AAABF;
+  --text3:#5A6A80;
+  --text4:#3A4A60;
+  --mono:'IBM Plex Mono',monospace;
+  --serif:'Instrument Serif',serif;
+  --sans:'DM Sans',sans-serif;
+}
+
+html{scroll-behavior:smooth;}
+body{
+  background:var(--ink);
+  color:var(--text);
+  font-family:var(--sans);
+  font-size:14px;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--ink);}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px;}
+
+/* ── BACKGROUND TEXTURE ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 20%,rgba(200,168,75,0.04) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 60% at 80% 80%,rgba(58,175,169,0.04) 0%,transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap{
+  max-width:1360px;margin:0 auto;
+  padding:0 40px;
+  position:relative;z-index:1;
+}
+
+/* ── HEADER ── */
+header{
+  border-bottom:1px solid var(--line);
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,12,16,0.95);
+  backdrop-filter:blur(24px);
+}
+.header-inner{
+  max-width:1360px;margin:0 auto;
+  padding:14px 40px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo-group{display:flex;align-items:center;gap:14px;}
+.logo-shield{
+  width:36px;height:36px;
+  background:var(--gold-mid);
+  border:1.5px solid var(--gold);
+  border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.logo-text{
+  font-family:var(--serif);
+  font-size:17px;
+  color:var(--text);
+}
+.logo-sub{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--gold);
+  margin-top:-2px;
+}
+.header-nav{display:flex;gap:4px;flex-wrap:wrap;}
+.header-nav a{
+  font-family:var(--mono);font-size:11px;
+  color:var(--text3);text-decoration:none;
+  padding:4px 10px;border-radius:5px;
+  border:1px solid transparent;
+  transition:all .2s;
+}
+.header-nav a:hover{color:var(--gold2);border-color:var(--line2);}
+
+/* ── HERO ── */
+.hero{
+  padding:80px 0 64px;
+  position:relative;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:2px;
+  color:var(--gold);
+  margin-bottom:24px;
+}
+.hero-eyebrow::before{
+  content:'';width:24px;height:1px;background:var(--gold);
+}
+.hero h1{
+  font-family:var(--serif);
+  font-size:clamp(42px,5vw,72px);
+  line-height:1.0;
+  font-weight:400;
+  color:var(--text);
+  margin-bottom:8px;
+}
+.hero h1 em{
+  font-style:italic;color:var(--gold2);
+}
+.hero-rule{
+  width:60px;height:2px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  margin:20px 0 24px;
+}
+.hero-desc{
+  font-size:16px;color:var(--text2);
+  max-width:680px;line-height:1.7;
+  margin-bottom:40px;
+}
+.hero-pillars{
+  display:flex;gap:12px;flex-wrap:wrap;
+}
+.pillar{
+  display:flex;align-items:center;gap:8px;
+  background:var(--ink3);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:10px 16px;
+  font-family:var(--mono);font-size:12px;
+  color:var(--text2);
+}
+.pillar-dot{width:8px;height:8px;border-radius:50%;}
+.pd-gold{background:var(--gold);}
+.pd-teal{background:var(--teal);}
+.pd-red{background:var(--red);}
+.pd-blue{background:var(--blue);}
+.pd-violet{background:var(--violet);}
+.pd-amber{background:var(--amber);}
+
+/* ── SECTION ── */
+section{padding:56px 0;}
+.sec-header{
+  display:flex;align-items:center;gap:20px;
+  margin-bottom:40px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--line);
+}
+.sec-num{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  color:var(--text4);
+  width:28px;flex-shrink:0;
+}
+.sec-tag{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;
+  padding:3px 10px;border-radius:4px;
+  white-space:nowrap;
+}
+.tag-gold{background:var(--gold-dim);color:var(--gold2);border:1px solid rgba(200,168,75,0.3);}
+.tag-teal{background:var(--teal-dim);color:var(--teal2);border:1px solid rgba(58,175,169,0.3);}
+.tag-red{background:var(--red-dim);color:var(--red2);border:1px solid rgba(217,79,79,0.3);}
+.tag-blue{background:var(--blue-dim);color:var(--blue2);border:1px solid rgba(74,127,212,0.3);}
+.tag-amber{background:var(--amber-dim);color:var(--amber2);border:1px solid rgba(212,138,58,0.3);}
+.tag-violet{background:var(--violet-dim);color:var(--violet2);border:1px solid rgba(138,92,212,0.3);}
+
+.sec-title{
+  font-family:var(--serif);
+  font-size:26px;font-weight:400;
+  color:var(--text);flex:1;
+}
+.sec-rule{flex:1;height:1px;background:var(--line);}
+
+/* ── CONCEPT CARDS ── */
+.concept-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+  gap:16px;
+  margin-bottom:40px;
+}
+.concept-card{
+  background:var(--ink2);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:22px 24px;
+  position:relative;
+  overflow:hidden;
+  transition:border-color .25s;
+}
+.concept-card:hover{border-color:var(--line2);}
+.concept-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+}
+.cc-gold::before{background:linear-gradient(90deg,var(--gold),transparent);}
+.cc-teal::before{background:linear-gradient(90deg,var(--teal),transparent);}
+.cc-red::before{background:linear-gradient(90deg,var(--red),transparent);}
+.cc-blue::before{background:linear-gradient(90deg,var(--blue),transparent);}
+.cc-violet::before{background:linear-gradient(90deg,var(--violet),transparent);}
+.cc-amber::before{background:linear-gradient(90deg,var(--amber),transparent);}
+
+.concept-icon{
+  font-size:22px;margin-bottom:12px;
+}
+.concept-title{
+  font-family:var(--mono);font-weight:700;font-size:14px;
+  margin-bottom:8px;
+}
+.cc-gold .concept-title{color:var(--gold2);}
+.cc-teal .concept-title{color:var(--teal2);}
+.cc-red .concept-title{color:var(--red2);}
+.cc-blue .concept-title{color:var(--blue2);}
+.cc-violet .concept-title{color:var(--violet2);}
+.cc-amber .concept-title{color:var(--amber2);}
+
+.concept-desc{font-size:13px;color:var(--text2);line-height:1.6;}
+.concept-note{
+  margin-top:12px;
+  font-family:var(--mono);font-size:11px;
+  color:var(--text4);
+  padding-top:10px;
+  border-top:1px solid var(--line);
+}
+
+/* ── SEQUENCE FLOW ── */
+.sequence-block{
+  margin-bottom:32px;
+}
+.seq-source{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:20px;
+}
+.seq-source-badge{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;
+  padding:4px 12px;border-radius:999px;
+}
+.sb-mobile{background:var(--violet-dim);color:var(--violet2);border:1px solid rgba(138,92,212,0.4);}
+.sb-web{background:var(--blue-dim);color:var(--blue2);border:1px solid rgba(74,127,212,0.4);}
+.sb-core{background:var(--gold-dim);color:var(--gold2);border:1px solid rgba(200,168,75,0.4);}
+.sb-external{background:var(--red-dim);color:var(--red2);border:1px solid rgba(217,79,79,0.4);}
+.seq-source-label{font-size:13px;color:var(--text2);font-family:var(--mono);}
+
+.flow-steps{
+  display:flex;flex-direction:column;gap:0;
+  position:relative;
+  padding-left:28px;
+}
+.flow-steps::before{
+  content:'';
+  position:absolute;left:9px;top:20px;bottom:20px;
+  width:1px;
+  background:linear-gradient(to bottom,var(--line2),var(--line),transparent);
+}
+
+.flow-step{
+  display:flex;gap:20px;align-items:flex-start;
+  padding:12px 0;
+  position:relative;
+}
+.flow-step-num{
+  width:18px;height:18px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  flex-shrink:0;
+  position:absolute;left:-28px;top:14px;
+}
+.fn-gold{background:var(--gold);color:var(--ink);}
+.fn-teal{background:var(--teal);color:var(--ink);}
+.fn-red{background:var(--red);color:white;}
+.fn-blue{background:var(--blue);color:white;}
+.fn-violet{background:var(--violet);color:white;}
+.fn-amber{background:var(--amber);color:var(--ink);}
+.fn-gray{background:var(--line2);color:var(--text2);}
+
+.flow-content{flex:1;}
+.flow-action{
+  font-family:var(--mono);font-weight:600;font-size:12.5px;
+  color:var(--text);margin-bottom:4px;
+}
+.flow-detail{font-size:12.5px;color:var(--text2);line-height:1.55;}
+.flow-code{
+  display:inline-block;
+  font-family:var(--mono);font-size:11px;
+  background:var(--ink3);
+  border:1px solid var(--line);
+  border-radius:4px;
+  padding:1px 7px;
+  color:var(--teal2);
+  margin:1px 1px;
+}
+.flow-code.red{color:var(--red2);}
+.flow-code.gold{color:var(--gold2);}
+.flow-code.blue{color:var(--blue2);}
+.flow-code.violet{color:var(--violet2);}
+.flow-code.amber{color:var(--amber2);}
+
+.flow-branch{
+  margin-top:8px;
+  display:flex;flex-direction:column;gap:4px;
+}
+.branch-item{
+  display:flex;align-items:flex-start;gap:8px;
+  font-size:12px;color:var(--text2);
+  padding-left:12px;
+  border-left:2px solid var(--line2);
+}
+.branch-ok::before{content:'✓';color:var(--teal);font-weight:700;flex-shrink:0;}
+.branch-fail::before{content:'✗';color:var(--red);font-weight:700;flex-shrink:0;}
+.branch-warn::before{content:'⚡';flex-shrink:0;}
+.branch-note::before{content:'→';color:var(--text3);flex-shrink:0;}
+
+.flow-separator{
+  height:1px;background:var(--line);
+  margin:20px 0 20px -28px;
+}
+
+/* ── C# MODEL BOX ── */
+.model-box{
+  background:var(--ink2);
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:20px;
+}
+.model-box-header{
+  padding:14px 20px;
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:12px;
+}
+.model-box-name{
+  font-family:var(--mono);font-weight:700;font-size:14px;
+  color:var(--text);
+}
+.model-box-table{
+  font-family:var(--mono);font-size:10px;
+  color:var(--text4);
+}
+.model-fields{list-style:none;}
+.model-field{
+  display:grid;
+  grid-template-columns:200px 130px 1fr;
+  gap:0;padding:7px 20px;
+  border-bottom:1px solid rgba(42,52,72,0.6);
+  font-family:var(--mono);font-size:11.5px;
+  transition:background .12s;
+  align-items:start;
+}
+.model-field:hover{background:rgba(255,255,255,0.015);}
+.model-field:last-child{border-bottom:none;}
+.mf-name{color:var(--teal2);font-weight:500;}
+.mf-type{color:var(--gold2);}
+.mf-type.nullable::after{content:'?';color:var(--text4);}
+.mf-desc{color:var(--text3);font-size:11px;font-family:var(--sans);}
+.mf-pk{display:inline-block;font-size:9px;font-weight:700;background:rgba(200,168,75,0.15);color:var(--gold);border-radius:3px;padding:0 4px;margin-left:4px;}
+.mf-fk{display:inline-block;font-size:9px;font-weight:700;background:rgba(138,92,212,0.15);color:var(--violet2);border-radius:3px;padding:0 4px;margin-left:4px;}
+.mf-idx{display:inline-block;font-size:9px;font-weight:700;background:rgba(58,175,169,0.12);color:var(--teal2);border-radius:3px;padding:0 4px;margin-left:4px;}
+.mf-section{
+  padding:5px 20px 3px;
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text4);
+  background:rgba(255,255,255,0.015);
+  border-bottom:1px solid var(--line);
+}
+
+/* ── PARALLEL THREADS ── */
+.thread-diagram{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:2px;
+  border-radius:10px;overflow:hidden;
+  border:1px solid var(--line);
+  margin:20px 0;
+}
+.thread{
+  background:var(--ink2);
+  padding:20px;
+}
+.thread-label{
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;
+  margin-bottom:14px;
+  display:flex;align-items:center;gap:6px;
+}
+.tl-gold{color:var(--gold2);}
+.tl-teal{color:var(--teal2);}
+.thread-steps{display:flex;flex-direction:column;gap:8px;}
+.thread-step{
+  font-size:12.5px;color:var(--text2);
+  display:flex;align-items:flex-start;gap:8px;
+  padding-left:10px;border-left:2px solid var(--line2);
+}
+.thread-step.ts-gold{border-left-color:var(--gold);}
+.thread-step.ts-teal{border-left-color:var(--teal);}
+
+.sync-bar{
+  grid-column:1/-1;
+  background:var(--ink3);
+  border-top:1px solid var(--line);
+  padding:14px 20px;
+  display:flex;align-items:center;gap:12px;
+  font-size:13px;color:var(--text2);
+}
+.sync-icon{
+  font-family:var(--mono);font-size:11px;font-weight:700;
+  color:var(--gold2);
+}
+
+/* ── KILL SWITCH TABLE ── */
+.decision-table{
+  width:100%;border-collapse:collapse;
+  background:var(--ink2);border:1px solid var(--line);
+  border-radius:10px;overflow:hidden;
+  margin:20px 0;
+}
+.decision-table th{
+  padding:10px 16px;
+  font-family:var(--mono);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text3);
+  background:rgba(255,255,255,0.025);
+  text-align:left;
+  border-bottom:1px solid var(--line);
+}
+.decision-table td{
+  padding:10px 16px;
+  border-bottom:1px solid rgba(42,52,72,0.5);
+  font-size:12.5px;vertical-align:top;
+}
+.decision-table tr:last-child td{border-bottom:none;}
+.decision-table tr:hover td{background:rgba(255,255,255,0.012);}
+.dt-trigger{font-family:var(--mono);font-size:11.5px;color:var(--text);}
+.dt-verdict{font-family:var(--mono);font-weight:700;}
+.v-pass{color:var(--teal2);}
+.v-warn{color:var(--amber2);}
+.v-fail{color:var(--red2);}
+.dt-action{color:var(--text2);font-size:12px;}
+.severity-badge{
+  display:inline-block;
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;
+  padding:2px 7px;border-radius:3px;
+}
+.sv-low{background:var(--teal-dim);color:var(--teal2);}
+.sv-med{background:var(--amber-dim);color:var(--amber2);}
+.sv-high{background:var(--red-dim);color:var(--red2);}
+.sv-crit{background:#D94F4F;color:white;}
+
+/* ── ROTATION TIMELINE ── */
+.rotation-timeline{
+  position:relative;
+  padding-left:40px;
+  margin:24px 0;
+}
+.rotation-timeline::before{
+  content:'';
+  position:absolute;left:14px;top:0;bottom:0;
+  width:2px;
+  background:linear-gradient(to bottom,var(--gold),var(--teal),var(--red-dim));
+}
+.rt-event{
+  position:relative;
+  padding:14px 0 14px 20px;
+  border-bottom:1px solid rgba(42,52,72,0.4);
+}
+.rt-event:last-child{border-bottom:none;}
+.rt-dot{
+  position:absolute;left:-20px;top:17px;
+  width:10px;height:10px;border-radius:50%;
+}
+.rt-d-gold{background:var(--gold);}
+.rt-d-teal{background:var(--teal);}
+.rt-d-red{background:var(--red);}
+.rt-d-blue{background:var(--blue);}
+.rt-d-amber{background:var(--amber);}
+.rt-d-violet{background:var(--violet);}
+.rt-label{
+  font-family:var(--mono);font-weight:700;font-size:12px;
+  margin-bottom:4px;
+}
+.rt-desc{font-size:12.5px;color:var(--text2);line-height:1.55;}
+
+/* ── SUMMARY FORTRESS ── */
+.fortress{
+  background:var(--ink2);
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  margin-top:40px;
+}
+.fortress-header{
+  padding:24px 28px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,rgba(200,168,75,0.06),transparent);
+}
+.fortress-title{
+  font-family:var(--serif);font-size:22px;font-weight:400;
+  color:var(--gold2);margin-bottom:6px;
+}
+.fortress-sub{font-size:13px;color:var(--text3);}
+.fortress-layers{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+}
+.fortress-layer{
+  padding:20px 22px;
+  border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.fortress-layer:nth-child(n+5){border-bottom:none;}
+.fl-num{
+  font-family:var(--mono);font-size:28px;font-weight:700;
+  margin-bottom:6px;
+}
+.fl-n-gold{color:rgba(200,168,75,0.3);}
+.fl-label{
+  font-family:var(--mono);font-weight:700;font-size:12px;
+  margin-bottom:6px;
+}
+.fl-label.gold{color:var(--gold2);}
+.fl-label.teal{color:var(--teal2);}
+.fl-label.blue{color:var(--blue2);}
+.fl-label.violet{color:var(--violet2);}
+.fl-label.red{color:var(--red2);}
+.fl-label.amber{color:var(--amber2);}
+.fl-desc{font-size:12px;color:var(--text3);line-height:1.5;}
+
+/* ── FOOTER ── */
+footer{
+  padding:40px 0;
+  border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;
+  color:var(--text4);
+  text-align:center;
+}
+footer strong{color:var(--gold2);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-group">
+      <div class="logo-shield">🛡</div>
+      <div>
+        <div class="logo-text">Cité-Voiturage</div>
+        <div class="logo-sub">SecurityService · Protocole Zero-Trust Propriétaire</div>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="#concepts">Concepts</a>
+      <a href="#models">Modèles</a>
+      <a href="#mobile-seq">Mobile</a>
+      <a href="#web-seq">Web</a>
+      <a href="#core-seq">Core</a>
+      <a href="#rotation">Rotation</a>
+      <a href="#killswitch">Kill Switch</a>
+      <a href="#fortress">Synthèse</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <div class="hero-eyebrow">Service Transversal Prioritaire</div>
+  <h1>Security<br><em>Service</em></h1>
+  <div class="hero-rule"></div>
+  <p class="hero-desc">Protocole de sécurité propriétaire Zero-Trust à certificats auto-générés rotatifs. Présent dans les trois tiers, déclenché selon des séquences rigoureuses et ordonnées. Ce service est la couche la plus critique de l'architecture Cité-Voiturage — il opère en silence, en parallèle de la logique métier, et conditionne chaque réponse du système.</p>
+  <div class="hero-pillars">
+    <div class="pillar"><div class="pillar-dot pd-gold"></div>Certificats ECC auto-générés</div>
+    <div class="pillar"><div class="pillar-dot pd-teal"></div>Rotation irrégulière imprévisible</div>
+    <div class="pillar"><div class="pillar-dot pd-violet"></div>Identité machine + institution</div>
+    <div class="pillar"><div class="pillar-dot pd-blue"></div>Heartbeat mobile (état clé)</div>
+    <div class="pillar"><div class="pillar-dot pd-red"></div>Kill Switch & Cache-Purge</div>
+    <div class="pillar"><div class="pillar-dot pd-amber"></div>Threads parallèles (0 latence)</div>
+  </div>
+</div>
+
+<!-- ══════════ SECTION 1 — CONCEPTS FONDAMENTAUX ══════════ -->
+<section id="concepts">
+  <div class="sec-header">
+    <span class="sec-num">01</span>
+    <span class="sec-tag tag-gold">Fondations</span>
+    <h2 class="sec-title">Concepts Fondamentaux</h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="concept-grid">
+
+    <div class="concept-card cc-gold">
+      <div class="concept-icon">🔐</div>
+      <div class="concept-title">Double Verrou — Hardware + Identité</div>
+      <div class="concept-desc">Deux barrières indépendantes qui ne fonctionnent <strong>jamais</strong> l'une sans l'autre. L'authentification institutionnelle (JWT via OTP envoyé à @lacitec.on.ca) prouve <em>qui</em> est l'utilisateur. Le certificat cryptographique dans l'enclave matérielle du téléphone prouve <em>avec quel appareil précis</em> il communique. Un attaquant possédant l'un sans l'autre ne peut rien faire.</div>
+      <div class="concept-note">Propriété: Non-répudiation totale · Imputabilité légale garantie</div>
+    </div>
+
+    <div class="concept-card cc-teal">
+      <div class="concept-icon">📜</div>
+      <div class="concept-title">Certificat Propriétaire Auto-Généré</div>
+      <div class="concept-desc">Pas un SSL classique. Le Core Server est l'Autorité de Certification (CA) du système. Il génère des paires de clés <strong>ECC (Elliptic Curve Cryptography)</strong> — sécurité RSA-4096 équivalente avec des clés 10× plus courtes, optimisées pour mobile. Chaque certificat signe les requêtes et authentifie l'origine. Le Core possède la clé publique du client. Le client possède sa clé privée dans l'enclave matérielle (Keystore Android / Keychain iOS). La clé privée ne quitte jamais l'appareil.</div>
+      <div class="concept-note">Standard: ECC-P256 · Stockage: Hardware Secure Element</div>
+    </div>
+
+    <div class="concept-card cc-violet">
+      <div class="concept-icon">💓</div>
+      <div class="concept-title">Heartbeat Mobile — Éclaireur</div>
+      <div class="concept-desc">Avant chaque requête métier, le mobile vérifie l'état de sa clé publique auprès du Core via un ping signé léger. Si la clé a tourné (<span style="color:var(--violet2);font-family:var(--mono);font-size:12px;">HasGotNewPublicKey = false</span>), le mobile bloque la transaction, déclenche l'authentification, et attend la nouvelle clé publique avant de continuer. L'utilisateur ne voit qu'un spinner — la sécurité opère en coulisses.</div>
+      <div class="concept-note">Fréquence: avant chaque session active · Délai: &lt; 200ms</div>
+    </div>
+
+    <div class="concept-card cc-red">
+      <div class="concept-icon">🔄</div>
+      <div class="concept-title">Rotation Irrégulière (Cible Mouvante)</div>
+      <div class="concept-desc">Les certificats ne changent pas selon un calendrier prévisible. La rotation est déclenchée de façon <strong>aléatoire et irrégulière</strong> par le Core (quotidien / hebdomadaire / mensuel — personne ne sait quand). Cela élimine toute fenêtre d'anticipation pour un attaquant. Lors d'une rotation, tous les clients sont simultanément passés à <span style="color:var(--red2);font-family:var(--mono);font-size:12px;">HasGotNewPublicKey = false</span>. Ils récupèrent la nouvelle clé publique lors de leur prochain Heartbeat confirmé.</div>
+      <div class="concept-note">Forward Secrecy: les sessions passées restent protégées même si une clé est compromise</div>
+    </div>
+
+    <div class="concept-card cc-amber">
+      <div class="concept-icon">⚡</div>
+      <div class="concept-title">Threads Parallèles — Zéro Latence</div>
+      <div class="concept-desc">Le Core ne met pas la logique métier <em>en attente</em> de la validation sécuritaire. Deux threads s'exécutent en parallèle dès réception de la requête. <strong>Thread A (Métier)</strong> prépare la réponse SQL. <strong>Thread B (Sécurité)</strong> vérifie signature + comportement + clé. Au point de synchronisation, si B valide → on envoie. Si B échoue → Kill Switch, Thread A annulé, ressources libérées. L'attaquant ne peut pas mesurer le délai pour déduire quelle couche a rejeté sa requête (anti-timing-attack).</div>
+      <div class="concept-note">C#: Task.WhenAll + CancellationToken · Anti-Timing-Attack natif</div>
+    </div>
+
+    <div class="concept-card cc-blue">
+      <div class="concept-icon">🏛</div>
+      <div class="concept-title">Core Invisible — VPN + DNS Privé</div>
+      <div class="concept-desc">Le Core Server n'a pas d'adresse IP dans les clients. Seul un <strong>nom de domaine privé</strong> (ex: <span style="color:var(--blue2);font-family:var(--mono);font-size:12px;">core.lacite.internal</span>) est embarqué. Ce domaine ne se résout que depuis l'intérieur du tunnel VPN. Pour le reste d'Internet, ce serveur n'existe pas. Le mobile utilise un VPN Always-on transparent pour l'utilisateur, avec Split-Tunneling : seul le trafic vers le Core passe par le tunnel. Un scan de port global ne trouvera jamais l'adresse du Core.</div>
+      <div class="concept-note">Mobile: VPN App-layer Always-on · Web: Whitelist IP interne + mTLS Serveur→Core</div>
+    </div>
+
+    <div class="concept-card cc-red">
+      <div class="concept-icon">🔥</div>
+      <div class="concept-title">Cache-Purge & State Recovery</div>
+      <div class="concept-desc">En cas d'anomalie critique, l'App mobile vide intégralement son cache local — clés, tokens, données utilisateur, préférences. L'appareil redevient une coquille vide. Un voleur qui forcerait l'accès ne trouverait <strong>aucune donnée exploitable</strong>. Mais le Core conserve l'état valide de l'utilisateur. Dès que l'authentification institutionnelle est re-confirmée, des requêtes de background recovery restaurent automatiquement l'état complet. Pour l'utilisateur légitime : reconnexion = retour à l'état normal.</div>
+      <div class="concept-note">Principe: l'App est jetable · Les données résident sur le Core · La clé réside dans l'enclave</div>
+    </div>
+
+    <div class="concept-card cc-teal">
+      <div class="concept-icon">📊</div>
+      <div class="concept-title">Journal Comportemental (UserActivity)</div>
+      <div class="concept-desc">Chaque session enrichit le profil comportemental de l'utilisateur : lieu, heure, appareil, état des clés, compteur de requêtes étranges. Ce journal est la mémoire long-terme du Security Service. Il permet de distinguer un bug réseau légitime (même IP, même heure habituelle) d'une tentative malveillante (IP inconnue, heure 3h du matin, clé invalide). La non-répudiation devient alors un fait mathématique prouvable devant l'institution.</div>
+      <div class="concept-note">Stockage: SQL optimisé (ACID) · Rétention: 7 ans (PIPEDA) · Anti-Timing: comportement + machine</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════ SECTION 2 — MODÈLES C# ══════════ -->
+<section id="models">
+  <div class="sec-header">
+    <span class="sec-num">02</span>
+    <span class="sec-tag tag-gold">C# / EF Core</span>
+    <h2 class="sec-title">Modèles du Security Service</h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <!-- ClientCertificate -->
+  <div class="model-box">
+    <div class="model-box-header">
+      <div>
+        <div class="model-box-name">ClientCertificate</div>
+        <div class="model-box-table">TABLE: client_certificates · Clé pivot du protocole</div>
+      </div>
+      <span class="sec-tag tag-gold">Core</span>
+    </div>
+    <ul class="model-fields">
+      <div class="mf-section">Identité</div>
+      <li class="model-field"><span class="mf-name">Id<span class="mf-pk">PK</span></span><span class="mf-type">Guid</span><span class="mf-desc">UUID v7</span></li>
+      <li class="model-field"><span class="mf-name">UserId<span class="mf-fk">FK</span><span class="mf-idx">IDX</span></span><span class="mf-type">Guid</span><span class="mf-desc">→ users.Id · Unique composite (UserId, DeviceFingerprint)</span></li>
+      <li class="model-field"><span class="mf-name">DeviceFingerprint</span><span class="mf-type">string</span><span class="mf-desc">Hash SHA-512 des params matériels (Android ID + Build fingerprint / iOS DeviceCheck token)</span></li>
+      <div class="mf-section">Clés Publiques (Paire Actuelle + Précédente)</div>
+      <li class="model-field"><span class="mf-name">CurrentPublicKeyPem</span><span class="mf-type">string</span><span class="mf-desc">Clé publique ECC-P256 active (format PEM). Signée par le Core lors de l'enrôlement.</span></li>
+      <li class="model-field"><span class="mf-name">PreviousPublicKeyPem</span><span class="mf-type nullable">string</span><span class="mf-desc">Clé précédente conservée · Valide pour Handshake de rotation uniquement · Null si premier enrôlement</span></li>
+      <li class="model-field"><span class="mf-name">CurrentKeyIssuedAt</span><span class="mf-type">DateTimeOffset</span><span class="mf-desc">Date émission clé courante</span></li>
+      <li class="model-field"><span class="mf-name">PreviousKeyRetiredAt</span><span class="mf-type nullable">DateTimeOffset</span><span class="mf-desc">La clé précédente est invalidée dès l'ACK de rotation confirmé</span></li>
+      <div class="mf-section">État de Synchronisation</div>
+      <li class="model-field"><span class="mf-name">HasGotNewPublicKey</span><span class="mf-type">bool</span><span class="mf-desc">false = en attente de rotation · Mis à true dès ACK mobile reçu · Reset global lors rotation</span></li>
+      <li class="model-field"><span class="mf-name">LastHeartbeatAt</span><span class="mf-type nullable">DateTimeOffset</span><span class="mf-desc">Dernier ping Heartbeat reçu et validé</span></li>
+      <li class="model-field"><span class="mf-name">LastSuccessfulRequestAt</span><span class="mf-type nullable">DateTimeOffset</span><span class="mf-desc">Dernière requête métier validée avec succès</span></li>
+      <div class="mf-section">Sécurité</div>
+      <li class="model-field"><span class="mf-name">Status</span><span class="mf-type">CertificateStatus</span><span class="mf-desc">active | pending_rotation | revoked | cooldown | blocked</span></li>
+      <li class="model-field"><span class="mf-name">CooldownUntil</span><span class="mf-type nullable">DateTimeOffset</span><span class="mf-desc">Période de refroidissement post-incident · Déconnexion forcée maintenue jusqu'à cette date</span></li>
+      <li class="model-field"><span class="mf-name">RequiresServiceDesk</span><span class="mf-type">bool</span><span class="mf-desc">true = faille critique · Seul un appel au service client débloque le compte</span></li>
+      <li class="model-field"><span class="mf-name">FailedValidationCount</span><span class="mf-type">int</span><span class="mf-desc">Compteur signatures invalides depuis dernière validation réussie · Seuil → CoolDown</span></li>
+      <div class="mf-section">Metadata</div>
+      <li class="model-field"><span class="mf-name">EnrolledAt</span><span class="mf-type">DateTimeOffset</span><span class="mf-desc">Premier enrôlement (1er login sur cet appareil)</span></li>
+      <li class="model-field"><span class="mf-name">UpdatedAt</span><span class="mf-type">DateTimeOffset</span><span class="mf-desc"></span></li>
+    </ul>
+  </div>
+
+  <!-- UserSecurityActivity -->
+  <div class="model-box">
+    <div class="model-box-header">
+      <div>
+        <div class="model-box-name">UserSecurityActivity</div>
+        <div class="model-box-table">TABLE: user_security_activity · Journal comportemental (extension de UserActivityModel)</div>
+      </div>
+      <span class="sec-tag tag-teal">Audit</span>
+    </div>
+    <ul class="model-fields">
+      <div class="mf-section">Identité</div>
+      <li class="model-field"><span class="mf-name">Id<span class="mf-pk">PK</span></span><span class="mf-type">long</span><span class="mf-desc">Auto-incrément séquentiel (append-only)</span></li>
+      <li class="model-field"><span class="mf-name">UserId<span class="mf-fk">FK</span><span class="mf-idx">IDX</span></span><span class="mf-type">Guid</span><span class="mf-desc">Index composite (UserId, RecordedAt)</span></li>
+      <li class="model-field"><span class="mf-name">CertificateId<span class="mf-fk">FK</span></span><span class="mf-type nullable">Guid</span><span class="mf-desc">→ client_certificates.Id · Null si tentative sans certificat</span></li>
+      <div class="mf-section">Contexte Requête</div>
+      <li class="model-field"><span class="mf-name">RequestOrigin</span><span class="mf-type">RequestOrigin</span><span class="mf-desc">mobile_vpn | web_internal | unknown</span></li>
+      <li class="model-field"><span class="mf-name">IpAddress</span><span class="mf-type">string</span><span class="mf-desc">IP VPN tunnel (mobile) ou IP réseau interne (web)</span></li>
+      <li class="model-field"><span class="mf-name">GeoLocation</span><span class="mf-type nullable">string</span><span class="mf-desc">Ville approximative depuis IP · Alerte si hors zone habituelle</span></li>
+      <li class="model-field"><span class="mf-name">UserAgent</span><span class="mf-type nullable">string</span><span class="mf-desc"></span></li>
+      <li class="model-field"><span class="mf-name">RecordedAt</span><span class="mf-type">DateTimeOffset</span><span class="mf-desc"><span class="mf-idx">IDX</span> UTC — partition TimescaleDB par jour</span></li>
+      <div class="mf-section">Validation Sécurité</div>
+      <li class="model-field"><span class="mf-name">ValidationResult</span><span class="mf-type">ValidationResult</span><span class="mf-desc">success | invalid_signature | expired_key | no_certificate | schema_rejected | vpn_bypass_attempt</span></li>
+      <li class="model-field"><span class="mf-name">UsedKeyVersion</span><span class="mf-type">string</span><span class="mf-desc">current | previous | unknown · Permet de retracer l'historique des rotations</span></li>
+      <li class="model-field"><span class="mf-name">WasAnomaly</span><span class="mf-type">bool</span><span class="mf-desc">true → alerte admin déclenchée</span></li>
+      <li class="model-field"><span class="mf-name">AnomalyType</span><span class="mf-type nullable">string</span><span class="mf-desc">unusual_location | unusual_time | replay_attempt | brute_force | schema_injection</span></li>
+      <div class="mf-section">Action Système</div>
+      <li class="model-field"><span class="mf-name">ActionTaken</span><span class="mf-type">SecurityAction</span><span class="mf-desc">allowed | warned | cooldown_applied | force_logout | cache_purge | service_desk_required</span></li>
+    </ul>
+  </div>
+
+  <!-- WebSessionKey -->
+  <div class="model-box">
+    <div class="model-box-header">
+      <div>
+        <div class="model-box-name">WebSessionKey</div>
+        <div class="model-box-table">TABLE: web_session_keys · Certificat éphémère navigateur</div>
+      </div>
+      <span class="sec-tag tag-blue">Web</span>
+    </div>
+    <ul class="model-fields">
+      <li class="model-field"><span class="mf-name">Id<span class="mf-pk">PK</span></span><span class="mf-type">Guid</span><span class="mf-desc"></span></li>
+      <li class="model-field"><span class="mf-name">UserId<span class="mf-fk">FK</span><span class="mf-idx">IDX</span></span><span class="mf-type">Guid</span><span class="mf-desc">Une seule clé active par utilisateur</span></li>
+      <li class="model-field"><span class="mf-name">KeyHash</span><span class="mf-type">string</span><span class="mf-desc">SHA-512 de la clé · Stocké en cookie HttpOnly, Secure, SameSite=Strict</span></li>
+      <li class="model-field"><span class="mf-name">Status</span><span class="mf-type">WebKeyStatus</span><span class="mf-desc">active | expired | revoked</span></li>
+      <li class="model-field"><span class="mf-name">IssuedAt</span><span class="mf-type">DateTimeOffset</span><span class="mf-desc">Génération au login SSO confirmé</span></li>
+      <li class="model-field"><span class="mf-name">ExpiresAt</span><span class="mf-type">DateTimeOffset</span><span class="mf-desc">Courte durée — rotation forcée à chaque session ou inactivité &gt; 2h</span></li>
+      <li class="model-field"><span class="mf-name">LastUsedAt</span><span class="mf-type nullable">DateTimeOffset</span><span class="mf-desc">Sliding expiration</span></li>
+      <li class="model-field"><span class="mf-name">ServerSignature</span><span class="mf-type">string</span><span class="mf-desc">Le Web Server signe la clé avec son propre certificat serveur avant de l'envoyer au Core</span></li>
+    </ul>
+  </div>
+
+  <!-- RotationEvent -->
+  <div class="model-box">
+    <div class="model-box-header">
+      <div>
+        <div class="model-box-name">CertificateRotationEvent</div>
+        <div class="model-box-table">TABLE: certificate_rotation_events · Log des rotations globales</div>
+      </div>
+      <span class="sec-tag tag-amber">Rotation</span>
+    </div>
+    <ul class="model-fields">
+      <li class="model-field"><span class="mf-name">Id<span class="mf-pk">PK</span></span><span class="mf-type">Guid</span><span class="mf-desc"></span></li>
+      <li class="model-field"><span class="mf-name">TriggeredBy</span><span class="mf-type">string</span><span class="mf-desc">scheduled_irregular | anomaly_detected | admin_forced | security_breach</span></li>
+      <li class="model-field"><span class="mf-name">AffectedClientsCount</span><span class="mf-type">int</span><span class="mf-desc">Nombre de ClientCertificates passés à HasGotNewPublicKey = false</span></li>
+      <li class="model-field"><span class="mf-name">NewPublicKeyGeneratedAt</span><span class="mf-type">DateTimeOffset</span><span class="mf-desc">Timestamp précis de génération par le Core CA</span></li>
+      <li class="model-field"><span class="mf-name">PropagationCompletedAt</span><span class="mf-type nullable">DateTimeOffset</span><span class="mf-desc">Quand tous les clients ont reçu ACK · Null si en cours</span></li>
+      <li class="model-field"><span class="mf-name">Note</span><span class="mf-type nullable">string</span><span class="mf-desc">Raison si déclenchement forcé par admin</span></li>
+      <li class="model-field"><span class="mf-name">CreatedAt</span><span class="mf-type">DateTimeOffset</span><span class="mf-desc"></span></li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ══════════ SECTION 3 — SÉQUENCE MOBILE ══════════ -->
+<section id="mobile-seq">
+  <div class="sec-header">
+    <span class="sec-num">03</span>
+    <span class="sec-tag tag-violet">Tiers Mobile</span>
+    <h2 class="sec-title">Séquences Security Service — App Mobile</h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <!-- SEQ 3.1 : Premier Enrôlement -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-mobile">Mobile → Core via VPN</span>
+      <span class="seq-source-label">Séquence 3.1 · Premier Enrôlement (installation + 1er login)</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-violet">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Activation VPN Always-on</div>
+          <div class="flow-detail">Dès le lancement de l'App, le tunnel VPN est activé silencieusement en arrière-plan (Split-Tunneling : seul le trafic Core passe par le tunnel). Le nom de domaine <span class="flow-code blue">core.lacite.internal</span> devient résolvable.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Authentification Institutionnelle (JWT via OTP)</div>
+          <div class="flow-detail">L'utilisateur entre son email institutionnel @lacitec.on.ca et reçoit un code OTP par email. Aucun certificat n'est encore présent — c'est la seule barrière active à ce stade. Le Core génère un token d'enrôlement temporaire (TTL: 5 minutes) après vérification du code OTP.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-violet">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Génération de la paire de clés ECC-P256 dans l'enclave matérielle</div>
+          <div class="flow-detail">L'App utilise <span class="flow-code violet">Android Keystore / iOS Secure Enclave</span> pour générer une paire (Clé Privée / Clé Publique). La clé privée est générée <em>dans</em> l'enclave — elle ne peut pas être exportée, même par l'App elle-même. La clé publique est récupérable.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">4</div>
+        <div class="flow-content">
+          <div class="flow-action">Envoi de la Clé Publique au Core (Enrôlement)</div>
+          <div class="flow-detail">L'App envoie au Core : <span class="flow-code gold">DeviceFingerprint</span> + <span class="flow-code gold">PublicKeyPem</span> + <span class="flow-code gold">EnrollmentToken</span>. Le Core crée un enregistrement <span class="flow-code">ClientCertificate</span> avec <span class="flow-code violet">HasGotNewPublicKey = true</span>.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">5</div>
+        <div class="flow-content">
+          <div class="flow-action">Réception de la Clé Publique du Core (Bidirectionnel)</div>
+          <div class="flow-detail">Le Core renvoie <em>sa propre</em> clé publique signée (le Core a aussi une paire). L'App la stocke dans son coffre local pour vérifier les réponses signées du serveur. La communication devient <strong>entièrement bidirectionnellement signée</strong>.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">6</div>
+        <div class="flow-content">
+          <div class="flow-action">Configuration du mot de passe local (optionnel mais recommandé)</div>
+          <div class="flow-detail">L'utilisateur peut configurer un mot de passe local de l'App (stocké localement, réinitialisable uniquement via authentification institutionnelle complète). Dès que l'App passe en arrière-plan, elle se scelle. Le cache peut être configuré pour se purger si l'App reste fermée &gt; X minutes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-separator"></div>
+
+  <!-- SEQ 3.2 : Requête Normale -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-mobile">Mobile → Core via VPN</span>
+      <span class="seq-source-label">Séquence 3.2 · Requête Métier Standard (session active, clé synchronisée)</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-violet">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Heartbeat pré-requête (éclaireur)</div>
+          <div class="flow-detail">Avant d'envoyer la requête métier, l'App envoie un ping signé léger au Core pour vérifier l'état de sa clé : <span class="flow-code violet">GET /security/heartbeat</span> signé avec la clé privée. Le Core répond : <span class="flow-code teal">key_valid</span> ou <span class="flow-code red">rotation_required</span>. Si rotation required → basculer vers Séquence 3.3.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Construction de la requête signée</div>
+          <div class="flow-detail">L'App signe l'empreinte SHA-512 de la requête (URL + body + timestamp) avec sa clé privée ECC via l'enclave matérielle. La requête est envoyée avec le header <span class="flow-code gold">X-Cite-Signature</span> + <span class="flow-code gold">X-Cite-Timestamp</span> + <span class="flow-code gold">X-Cite-UserId</span>. Le timestamp empêche les attaques par rejeu (TTL signature: 30 secondes).</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Core — Threads parallèles (métier + sécurité simultanés)</div>
+          <div class="flow-detail">Voir Séquence 5.1 (Core). Le Thread A prépare la réponse. Le Thread B valide la signature + comportement + timestamp. Point de synchronisation avant envoi.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">4</div>
+        <div class="flow-content">
+          <div class="flow-action">Réception de la réponse signée par le Core</div>
+          <div class="flow-detail">L'App vérifie la signature du Core sur la réponse avec la clé publique du Core stockée localement. Si la signature est invalide, la réponse est <strong>rejetée silencieusement</strong> et l'anomalie est loggée localement pour le prochain Heartbeat.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-separator"></div>
+
+  <!-- SEQ 3.3 : Rotation -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-mobile">Mobile ↔ Core</span>
+      <span class="seq-source-label">Séquence 3.3 · Rotation de Clé (Heartbeat détecte HasGotNewPublicKey = false)</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-amber">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Heartbeat retourne rotation_required</div>
+          <div class="flow-detail">Le Core a déclenché une rotation irrégulière. Tous les clients sont en <span class="flow-code amber">HasGotNewPublicKey = false</span>. Le mobile reçoit ce signal — aucune requête métier ne sera traitée tant que la rotation n'est pas confirmée. L'utilisateur voit un spinner neutre.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-amber">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Vérification silencieuse — l'ancienne clé est-elle encore valide ?</div>
+          <div class="flow-detail">Le Core accepte l'ancienne clé uniquement pour le handshake de rotation. Si l'ancienne clé est valide (<span class="flow-code gold">PreviousPublicKeyPem</span> correspond) → rotation fluide (Étape 3). Si la clé n'est ni l'actuelle ni la précédente → Kill Switch immédiat (Séquence 3.5).</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Génération de la nouvelle paire ECC dans l'enclave</div>
+          <div class="flow-detail">L'App génère une nouvelle paire (Privée B / Publique B) dans le Keystore. La requête de rotation est signée avec l'<strong>ancienne Clé Privée A</strong> pour prouver la continuité légitime de l'appareil.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">4</div>
+        <div class="flow-content">
+          <div class="flow-action">Envoi atomique de la nouvelle Clé Publique B au Core</div>
+          <div class="flow-detail">Le Core effectue une transaction atomique : il vérifie la signature avec l'ancienne clé A, puis remplace immédiatement A par B dans <span class="flow-code">ClientCertificate</span>. L'ancienne clé A devient <span class="flow-code">PreviousPublicKeyPem</span> (conservée 24h pour éventuelle désynchronisation réseau uniquement).</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">5</div>
+        <div class="flow-content">
+          <div class="flow-action">ACK de rotation + réception de la nouvelle Clé Publique du Core</div>
+          <div class="flow-detail">Le Core confirme la rotation et renvoie sa propre nouvelle clé publique (le Core tourne aussi). L'App met à jour son coffre local, détruit l'ancienne clé privée A, passe <span class="flow-code teal">HasGotNewPublicKey = true</span>. La rotation est terminée.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-separator"></div>
+
+  <!-- SEQ 3.4 : Login re-auth -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-mobile">Mobile → Institution → Core</span>
+      <span class="seq-source-label">Séquence 3.4 · Certificat expiré hors période précédente (Re-enrôlement forcé)</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Clé invalide — ni actuelle, ni précédente</div>
+          <div class="flow-detail">Le Core rejette la requête. Le certificat est trop vieux ou corrompu. Aucune information n'est fournie au client sur la raison (anti-devin). L'App reçoit simplement un <span class="flow-code red">401 CERT_INVALID</span>.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Purge de cache locale déclenchée</div>
+          <div class="flow-detail">L'App purge son cache local — clés, tokens, données session. L'appareil ne sait plus rien. Si l'App était ouverte : écran de reconnexion immédiat. Si en background : notification silencieuse + verrouillage à la prochaine ouverture.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Authentification institutionnelle complète obligatoire</div>
+          <div class="flow-detail">Pas de shortcut. L'utilisateur doit passer par le flux OTP complet avec son email @lacitec.on.ca. C'est l'institution qui ré-autorise. Si le compte est en <span class="flow-code red">RequiresServiceDesk = true</span>, l'authentification OTP est refusée et un message institutionnel s'affiche.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">4</div>
+        <div class="flow-content">
+          <div class="flow-action">Re-enrôlement complet → Séquence 3.1 (étapes 3 à 6)</div>
+          <div class="flow-detail">Une fois l'institution validée, le processus d'enrôlement repart de zéro. Nouvelle paire de clés générée. Le Core reconstruit l'état depuis la base de données. Les requêtes background recovery restaurent l'état de l'utilisateur.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-separator"></div>
+
+  <!-- SEQ 3.5 : Kill Switch Mobile -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-mobile">Mobile — Déclenchement Kill Switch</span>
+      <span class="seq-source-label">Séquence 3.5 · Anomalie critique détectée (côté mobile ou réponse Core)</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Signal Kill Switch reçu du Core (ou détection locale)</div>
+          <div class="flow-detail">Le Core envoie <span class="flow-code red">FORCE_LOGOUT + PURGE_CACHE</span> dans la réponse (ou via notification push silencieuse si l'App est en background). Localement : si la vérification de la signature de la réponse du Core échoue, l'App déclenche elle-même le Kill Switch.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Purge intégrale du cache en &lt; 500ms</div>
+          <div class="flow-detail">Suppression : clé privée locale (révocable dans Keystore), tokens JWT, données utilisateur, cache SQLite, préférences session. L'appareil redevient une coquille vide. Aucune donnée sensible ne subsiste.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-amber">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Affichage du Cooldown (selon gravité)</div>
+          <div class="flow-detail">
+            <div class="flow-branch">
+              <div class="branch-item branch-note"><strong>Niveau 1 (suspicion faible)</strong> : Avertissement discret + possibilité de reconnexion immédiate via SSO</div>
+              <div class="branch-item branch-warn"><strong>Niveau 2 (incident)</strong> : Cooldown X minutes · Compte à rebours visible · SSO possible après délai</div>
+              <div class="branch-item branch-fail"><strong>Niveau 3 (critique)</strong> : Blocage total · Appel au service client obligatoire · Vérification physique d'identité institutionnelle</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">4</div>
+        <div class="flow-content">
+          <div class="flow-action">Après Cooldown — Re-enrôlement → Séquence 3.4</div>
+          <div class="flow-detail">La nouvelle clé publique est transmise uniquement après confirmation de l'authentification institutionnelle. Les requêtes background recovery restaurent l'état sans que l'utilisateur ne perde ses données métier.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════ SECTION 4 — SÉQUENCE WEB ══════════ -->
+<section id="web-seq">
+  <div class="sec-header">
+    <span class="sec-num">04</span>
+    <span class="sec-tag tag-blue">Tiers Web</span>
+    <h2 class="sec-title">Séquences Security Service — Client Web</h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <!-- SEQ 4.1 : Login Web -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-web">Navigateur → Web Server → Core</span>
+      <span class="seq-source-label">Séquence 4.1 · Authentification et émission OpenWebSessionKey</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-blue">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Login JWT via OTP institutionnel</div>
+          <div class="flow-detail">L'utilisateur entre son email @lacitec.on.ca et reçoit un code OTP. Après vérification du code, le Web Server génère un JWT. Pas de VPN nécessaire côté web — le Web Server est sur le réseau interne, le Core n'est accessible qu'à lui.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-blue">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Web Server génère l'OpenWebSessionKey</div>
+          <div class="flow-detail">Le Web Server génère une clé aléatoire cryptographiquement sûre (CSPRNG, 256 bits). Il la signe avec son propre certificat serveur (<span class="flow-code blue">ServerSignature</span>) et la stocke en base (<span class="flow-code">WebSessionKey</span>). Elle est envoyée au navigateur dans un cookie <span class="flow-code blue">HttpOnly + Secure + SameSite=Strict</span>. Le JavaScript de la page ne peut jamais lire cette clé.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-blue">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Web Server s'authentifie auprès du Core (Serveur-à-Serveur)</div>
+          <div class="flow-detail">Le Web Server possède son propre certificat de confiance enregistré sur le Core (un <span class="flow-code">ClientCertificate</span> de type <span class="flow-code gold">web_server</span>). Chaque requête vers le Core est signée avec ce certificat + l'ID de l'utilisateur. Pour le Core, il n'existe qu'un seul interlocuteur Web légitime : ce Web Server précis.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-separator"></div>
+
+  <!-- SEQ 4.2 : Requête Web Standard -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-web">Navigateur → Web Server (TS) → Core</span>
+      <span class="seq-source-label">Séquence 4.2 · Requête Métier Standard (session active)</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-blue">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Navigateur envoie requête avec cookie OpenWebSessionKey</div>
+          <div class="flow-detail">Le cookie est automatiquement joint par le navigateur. Le JavaScript n'y a jamais accès (HttpOnly). Protection CSRF intégrée : l'OpenWebSessionKey sert aussi de jeton anti-CSRF pour les requêtes mutables (POST/PUT/PATCH/DELETE).</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-blue">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Web Server — Validation TypeScript en amont</div>
+          <div class="flow-detail">Avant tout appel au Core : (1) Vérification <span class="flow-code">OpenWebSessionKey</span> valide en base. (2) Validation de schéma Zod stricte du body — toute propriété inconnue est rejetée (typage runtime). (3) Vérification CSRF token. Toute donnée "incomprise" est supprimée ici, le Core ne la voit jamais.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Web Server re-signe et transmet au Core</div>
+          <div class="flow-detail">Le Web Server construit une requête interne avec : <span class="flow-code gold">X-Cite-WebServer-Signature</span> (certificat serveur) + <span class="flow-code gold">X-Cite-UserId</span> + <span class="flow-code gold">X-Cite-RequestHash</span> (intégrité). Le Core vérifie l'IP source (Whitelist : seul le Web Server) ET la signature du certificat Web Server.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">4</div>
+        <div class="flow-content">
+          <div class="flow-action">Retour réponse → Web Server filtre → Navigateur</div>
+          <div class="flow-detail">Le Web Server vérifie la réponse du Core (signature). Filtre les champs sensibles selon le rôle utilisateur (TypeScript). Renvoie uniquement ce que le client web est autorisé à voir.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-separator"></div>
+
+  <!-- SEQ 4.3 : Kill Switch Web -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-web">Web — Kill Switch</span>
+      <span class="seq-source-label">Séquence 4.3 · Anomalie Web détectée (côté Web Server ou ordre du Core)</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Détection anomalie (Web Server ou signal Core)</div>
+          <div class="flow-detail">Triggers : OpenWebSessionKey invalide / expirée · Trop de requêtes malformées (<span class="flow-code">FailedValidationCount &gt; seuil</span>) · IP inhabituelle · Schéma Zod rejeté 3x de suite · Ordre FORCE_LOGOUT du Core.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Invalidation immédiate de l'OpenWebSessionKey en base</div>
+          <div class="flow-detail">Status → <span class="flow-code red">revoked</span>. Le cookie devient inutilisable même s'il est encore présent dans le navigateur. Toutes les requêtes suivantes avec cet ancien cookie sont rejetées instantanément.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Réponse HTTP : Clear-Cookie + Redirection page institutionnelle</div>
+          <div class="flow-detail">Le cookie est effacé via <span class="flow-code">Set-Cookie: expires=past</span>. Le navigateur est redirigé vers une page d'erreur institutionnelle (pas d'information sur la raison — anti-devin). Cooldown appliqué selon gravité.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">4</div>
+        <div class="flow-content">
+          <div class="flow-action">Re-authentification SSO → Séquence 4.1</div>
+          <div class="flow-detail">Après cooldown, l'utilisateur refait le SSO institutionnel complet. Nouvelle OpenWebSessionKey émise. Journal comportemental mis à jour.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════ SECTION 5 — SÉQUENCE CORE ══════════ -->
+<section id="core-seq">
+  <div class="sec-header">
+    <span class="sec-num">05</span>
+    <span class="sec-tag tag-gold">Tiers Core C#</span>
+    <h2 class="sec-title">Séquences Security Service — Core Server</h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <!-- Thread parallèle -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-core">Core — Traitement Toute Requête Entrante</span>
+      <span class="seq-source-label">Séquence 5.1 · Middleware de Validation Parallèle (toutes provenances)</span>
+    </div>
+
+    <div class="thread-diagram">
+      <div class="thread">
+        <div class="thread-label tl-gold">⚙️ Thread A — Métier</div>
+        <div class="thread-steps">
+          <div class="thread-step ts-gold">Parse DTO + validation schéma C# (DataAnnotations + FluentValidation)</div>
+          <div class="thread-step ts-gold">Construction requête SQL optimisée (EF Core + index)</div>
+          <div class="thread-step ts-gold">Exécution requête DB en mémoire de travail</div>
+          <div class="thread-step ts-gold">Sérialisation réponse JSON</div>
+          <div class="thread-step ts-gold">⏸ EN ATTENTE du feu vert Thread B</div>
+        </div>
+      </div>
+      <div class="thread">
+        <div class="thread-label tl-teal">🛡 Thread B — Sécurité</div>
+        <div class="thread-steps">
+          <div class="thread-step ts-teal">Extraction headers X-Cite-Signature + X-Cite-Timestamp + X-Cite-UserId</div>
+          <div class="thread-step ts-teal">Vérification Timestamp (TTL 30s → anti-replay)</div>
+          <div class="thread-step ts-teal">Récupération CurrentPublicKeyPem (Redis cache L1 → SQL)</div>
+          <div class="thread-step ts-teal">Vérification signature ECDSA avec clé courante</div>
+          <div class="thread-step ts-teal">Si échec → essai PreviousPublicKeyPem (handshake rotation)</div>
+          <div class="thread-step ts-teal">Consultation UserSecurityActivity (comportement)</div>
+          <div class="thread-step ts-teal">Vérification HasGotNewPublicKey + CooldownUntil</div>
+          <div class="thread-step ts-teal">✅ ou ✗ → signal vers Thread A</div>
+        </div>
+      </div>
+      <div class="sync-bar">
+        <div class="sync-icon">⚡ POINT DE SYNCHRONISATION</div>
+        <div>Si B valide → Thread A envoie la réponse + potentiellement nouvelle clé publique si rotation en cours. Si B échoue → <strong>CancellationToken.Cancel()</strong> · Thread A stoppé · Ressources libérées · Kill Switch déclenché · Log créé.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-separator"></div>
+
+  <!-- SEQ 5.2 : Déclenchement Rotation -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-core">Core — Déclenchement Rotation Irrégulière</span>
+      <span class="seq-source-label">Séquence 5.2 · Rotation globale des certificats (irrégulière, imprévisible)</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Déclenchement (aléatoire ou forcé)</div>
+          <div class="flow-detail">Triggers : job Hangfire à interval aléatoire · Anomalie généralisée détectée · Décision admin · Brèche de sécurité. Le Core génère une nouvelle paire de clés ECC pour lui-même via <span class="flow-code">System.Security.Cryptography.ECDsa</span>.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-gold">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Reset global : tous les clients passent à HasGotNewPublicKey = false</div>
+          <div class="flow-detail">UPDATE batch atomique sur <span class="flow-code">client_certificates</span>. Création d'un <span class="flow-code amber">CertificateRotationEvent</span> logué. Invalidation du cache Redis des clés publiques (TTL forcé à 0).</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-amber">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Distribution progressive — Lazy Pull (pas de Push)</div>
+          <div class="flow-detail">Le Core ne "pousse" pas la nouvelle clé. Les clients la récupèrent lors de leur prochain Heartbeat. Séquence 3.3 côté mobile. Séquence 4.1 côté web (nouvelle OpenWebSessionKey). Cela crée une propagation naturelle sans surcharge serveur.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">4</div>
+        <div class="flow-content">
+          <div class="flow-action">ACK client → HasGotNewPublicKey = true</div>
+          <div class="flow-detail">Dès qu'un client confirme la réception et le stockage de la nouvelle clé publique, son flag repasse à true. L'ancienne clé du client (<span class="flow-code">PreviousPublicKeyPem</span>) est conservée 24h puis supprimée définitivement.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-separator"></div>
+
+  <!-- SEQ 5.3 : Kill Switch Core -->
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-core">Core — Kill Switch Décisionnel</span>
+      <span class="seq-source-label">Séquence 5.3 · Décision de sanction selon gravité (Thread B → Kill Switch)</span>
+    </div>
+
+    <table class="decision-table">
+      <thead>
+        <tr>
+          <th>Trigger détecté</th>
+          <th>Gravité</th>
+          <th>Verdict</th>
+          <th>Action Système</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="dt-trigger">Signature valide · Clé à jour · Comportement normal</td>
+          <td><span class="severity-badge sv-low">Normal</span></td>
+          <td class="dt-verdict v-pass">✓ PASS</td>
+          <td class="dt-action">Réponse envoyée · Log success · LastSuccessfulRequestAt mis à jour</td>
+        </tr>
+        <tr>
+          <td class="dt-trigger">Clé précédente (rotation en cours) · Comportement normal</td>
+          <td><span class="severity-badge sv-low">Handshake</span></td>
+          <td class="dt-verdict v-pass">✓ PASS + ROTATE</td>
+          <td class="dt-action">Réponse envoyée + nouvelle clé publique jointe · Rotation Séquence 3.3 déclenchée</td>
+        </tr>
+        <tr>
+          <td class="dt-trigger">Timestamp invalide (TTL 30s dépassé) · 1re occurrence</td>
+          <td><span class="severity-badge sv-low">Faible</span></td>
+          <td class="dt-verdict v-warn">⚠ WARN</td>
+          <td class="dt-action">Requête rejetée · FailedValidationCount +1 · Log warning · Pas de notification</td>
+        </tr>
+        <tr>
+          <td class="dt-trigger">Signature invalide · Comportement habituel</td>
+          <td><span class="severity-badge sv-med">Moyen</span></td>
+          <td class="dt-verdict v-warn">⚠ WARN</td>
+          <td class="dt-action">Rejet · FailedValidationCount +1 · Log anomalie · Avertissement push utilisateur</td>
+        </tr>
+        <tr>
+          <td class="dt-trigger">FailedValidationCount ≥ 3 · Même session</td>
+          <td><span class="severity-badge sv-med">Moyen</span></td>
+          <td class="dt-verdict v-fail">✗ COOLDOWN</td>
+          <td class="dt-action">Force logout · Purge cache mobile · CooldownUntil = Now + 30min · Log · Alerte admin</td>
+        </tr>
+        <tr>
+          <td class="dt-trigger">Clé inconnue (ni actuelle, ni précédente) · IP habituelle</td>
+          <td><span class="severity-badge sv-high">Élevé</span></td>
+          <td class="dt-verdict v-fail">✗ FORCE LOGOUT</td>
+          <td class="dt-action">Kill Switch · Purge cache · Re-enrôlement obligatoire · CooldownUntil = Now + 1h · Log critique</td>
+        </tr>
+        <tr>
+          <td class="dt-trigger">IP inconnue + clé invalide + heure anormale</td>
+          <td><span class="severity-badge sv-high">Critique</span></td>
+          <td class="dt-verdict v-fail">✗ BLOCK</td>
+          <td class="dt-action">Kill Switch · Purge cache · Compte suspendu · Alerte admin immédiate · CooldownUntil = Now + 24h</td>
+        </tr>
+        <tr>
+          <td class="dt-trigger">FailedValidationCount ≥ 10 sur 24h · Patterns répétitifs</td>
+          <td><span class="severity-badge sv-crit">Brèche</span></td>
+          <td class="dt-verdict v-fail">✗ SERVICE DESK</td>
+          <td class="dt-action">Compte bloqué indéfiniment · RequiresServiceDesk = true · Rotation globale forcée · Alerte institutionnelle</td>
+        </tr>
+        <tr>
+          <td class="dt-trigger">Tentative hors VPN (résolution DNS Core échoue)</td>
+          <td><span class="severity-badge sv-crit">Hors Système</span></td>
+          <td class="dt-verdict v-fail">✗ SILENCE</td>
+          <td class="dt-action">Le serveur Core ne répond pas — il n'existe pas pour cette requête. Aucune information divulguée.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
+<!-- ══════════ SECTION 6 — ROTATION TIMELINE ══════════ -->
+<section id="rotation">
+  <div class="sec-header">
+    <span class="sec-num">06</span>
+    <span class="sec-tag tag-amber">Cycle de Vie Clé</span>
+    <h2 class="sec-title">Chronologie d'une Rotation Complète</h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="rotation-timeline">
+    <div class="rt-event">
+      <div class="rt-dot rt-d-gold"></div>
+      <div class="rt-label" style="color:var(--gold2);">T₀ — Déclenchement Rotation Core (irrégulier, imprévisible)</div>
+      <div class="rt-desc">Le Core génère de nouvelles clés ECC. Toutes les <span class="flow-code">ClientCertificate.HasGotNewPublicKey</span> passent à <span class="flow-code red">false</span> en une transaction atomique. Un <span class="flow-code">CertificateRotationEvent</span> est créé. Le cache Redis des clés publiques est invalidé. Les clients ne savent pas encore que la rotation a eu lieu.</div>
+    </div>
+    <div class="rt-event">
+      <div class="rt-dot rt-d-blue"></div>
+      <div class="rt-label" style="color:var(--blue2);">T₀ + Δ — Prochain Heartbeat Mobile (Lazy Pull)</div>
+      <div class="rt-desc">Au prochain Heartbeat du client mobile, le Core répond <span class="flow-code amber">rotation_required</span>. Le mobile bloque ses requêtes métier, génère une nouvelle paire de clés ECC dans l'enclave, signe la demande avec l'ancienne clé encore valide. Séquence 3.3 complète.</div>
+    </div>
+    <div class="rt-event">
+      <div class="rt-dot rt-d-teal"></div>
+      <div class="rt-label" style="color:var(--teal2);">T₀ + Δ + ε — ACK Mobile → HasGotNewPublicKey = true</div>
+      <div class="rt-desc">Le Core reçoit l'ACK de confirmation. La nouvelle clé publique B remplace A. L'ancienne clé A passe en <span class="flow-code">PreviousPublicKeyPem</span> — uniquement disponible pour une éventuelle désynchronisation réseau pendant 24h. Le mobile peut reprendre ses requêtes normalement.</div>
+    </div>
+    <div class="rt-event">
+      <div class="rt-dot rt-d-amber"></div>
+      <div class="rt-label" style="color:var(--amber2);">T₀ + 24h — Purge de l'ancienne clé A</div>
+      <div class="rt-desc"><span class="flow-code">PreviousPublicKeyPem = null</span>. L'ancienne clé A n'existe plus nulle part dans le système. Tout appareil qui tenterait de se connecter avec A après ce point déclenchera un Kill Switch Niveau Élevé (Séquence 3.4). Forward Secrecy garantie : même si A était compromise, elle est maintenant inexploitable.</div>
+    </div>
+    <div class="rt-event">
+      <div class="rt-dot rt-d-violet"></div>
+      <div class="rt-label" style="color:var(--violet2);">Clients Hors-Ligne Prolongés (absents pendant Δ)</div>
+      <div class="rt-desc">L'ancienne clé A dans leur Keystore est toujours là — mais le Core ne l'accepte plus (après 24h). À leur retour, leur Heartbeat recevra <span class="flow-code red">rotation_required</span>. Ils devront passer par la Séquence 3.3 (si dans les 24h) ou la Séquence 3.4 (re-enrôlement complet si après 24h).</div>
+    </div>
+    <div class="rt-event">
+      <div class="rt-dot rt-d-red"></div>
+      <div class="rt-label" style="color:var(--red2);">T_N — Prochaine Rotation (timing imprévisible)</div>
+      <div class="rt-desc">La prochaine rotation sera déclenchée à un moment aléatoire décidé par le Core. Personne — ni les développeurs, ni les utilisateurs, ni un attaquant qui observerait le trafic — ne peut prédire quand. C'est la cible mouvante : la fenêtre de vulnérabilité tend vers zéro.</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════ SECTION 7 — KILL SWITCH ══════════ -->
+<section id="killswitch">
+  <div class="sec-header">
+    <span class="sec-num">07</span>
+    <span class="sec-tag tag-red">Kill Switch</span>
+    <h2 class="sec-title">Protocole Kill Switch — Déconnexion Forcée</h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="sequence-block">
+    <div class="seq-source">
+      <span class="seq-source-badge sb-core">Core → Mobile + Web</span>
+      <span class="seq-source-label">Séquence 7.1 · Kill Switch Universel — Toute Provenance</span>
+    </div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">1</div>
+        <div class="flow-content">
+          <div class="flow-action">Thread B lève CancellationToken (anomalie validée)</div>
+          <div class="flow-detail">Thread A stoppé immédiatement via <span class="flow-code red">CancellationToken.Cancel()</span>. Toutes les ressources SQL allouées sont libérées. La réponse métier préparée est détruite sans avoir été envoyée.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">2</div>
+        <div class="flow-content">
+          <div class="flow-action">Core marque le certificat selon la gravité</div>
+          <div class="flow-detail"><span class="flow-code">CertificateStatus → cooldown | blocked</span>. <span class="flow-code">CooldownUntil</span> calculé. <span class="flow-code">RequiresServiceDesk</span> si critique. Increment <span class="flow-code">FailedValidationCount</span>. Log <span class="flow-code">UserSecurityActivity</span> avec <span class="flow-code amber">ActionTaken</span>.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-red">3</div>
+        <div class="flow-content">
+          <div class="flow-action">Réponse minimale envoyée au client (anti-devin)</div>
+          <div class="flow-detail">Toujours <span class="flow-code red">HTTP 401</span> ou <span class="flow-code red">403</span> — jamais d'explication sur la raison précise du rejet. Le corps de la réponse contient uniquement : <span class="flow-code">FORCE_LOGOUT</span> + <span class="flow-code">PURGE_CACHE</span> + timestamp cooldown fin (si applicable). Pas d'information exploitable pour un attaquant.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-amber">4</div>
+        <div class="flow-content">
+          <div class="flow-action">Alerte Admin (si Moyen → Critique)</div>
+          <div class="flow-detail">Notification push admin en temps réel via SignalR (dashboard admin). Email institutionnel si critique. L'incident est référencé dans <span class="flow-code">AuditLog</span> (7 ans de rétention). Pour les niveaux brèche : alerte au responsable informatique de La Cité.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-step-num fn-teal">5</div>
+        <div class="flow-content">
+          <div class="flow-action">Après Cooldown : Chemin de retour selon gravité</div>
+          <div class="flow-detail">
+            <div class="flow-branch">
+              <div class="branch-item branch-ok"><strong>Faible/Moyen</strong> : Re-authentification OTP → Séquence 3.4 · Nouvelle clé publique transmise après confirmation</div>
+              <div class="branch-item branch-warn"><strong>Critique</strong> : Re-enrôlement + vérification comportementale renforcée (30j de monitoring intensif)</div>
+              <div class="branch-item branch-fail"><strong>RequiresServiceDesk</strong> : Appel téléphonique au service client La Cité · Vérification identité physique · Déblocage manuel par admin · Nouveau certificat émis en présence</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════ SECTION 8 — SYNTHÈSE FORTERESSE ══════════ -->
+<section id="fortress">
+  <div class="sec-header">
+    <span class="sec-num">08</span>
+    <span class="sec-tag tag-gold">Synthèse</span>
+    <h2 class="sec-title">La Forteresse — 6 Couches de Défense en Profondeur</h2>
+    <div class="sec-rule"></div>
+  </div>
+
+  <div class="fortress">
+    <div class="fortress-header">
+      <div class="fortress-title">Protocole "Imprenable" de La Cité</div>
+      <div class="fortress-sub">Chaque couche est indépendante. Un attaquant doit franchir toutes les 6 simultanément. La probabilité tombe vers zéro à chaque couche.</div>
+    </div>
+    <div class="fortress-layers">
+      <div class="fortress-layer">
+        <div class="fl-num fl-n-gold">01</div>
+        <div class="fl-label gold">Identité Institutionnelle</div>
+        <div class="fl-desc">JWT via OTP @lacitec.on.ca. L'email institutionnel vérifié authentifie. Sans appartenir à La Cité, impossible de recevoir le code OTP. Si une infraction est commise, La Cité identifie physiquement la personne.</div>
+      </div>
+      <div class="fortress-layer">
+        <div class="fl-num fl-n-gold">02</div>
+        <div class="fl-label teal">Réseau Invisible</div>
+        <div class="fl-desc">VPN Always-on (mobile) + DNS privé. Le Core Server n'existe pas sur Internet public. Whitelist IP stricte (web server uniquement). Un scan de port mondial ne trouve rien.</div>
+      </div>
+      <div class="fortress-layer">
+        <div class="fl-num fl-n-gold">03</div>
+        <div class="fl-label blue">Certificat Machine Éphémère</div>
+        <div class="fl-desc">ECC-P256 auto-généré dans l'enclave matérielle. Clé privée non-exportable. Rotation irrégulière imprévisible. La clé précédente disparaît en 24h. Forward Secrecy garantie.</div>
+      </div>
+      <div class="fortress-layer">
+        <div class="fl-num fl-n-gold">04</div>
+        <div class="fl-label violet">Intégrité des Données</div>
+        <div class="fl-desc">C# + TypeScript typage strict + Zod runtime. Toute donnée "incomprise" est détruite avant d'atteindre la logique métier. Les injections SQL/XSS n'ont aucune surface d'attaque.</div>
+      </div>
+      <div class="fortress-layer">
+        <div class="fl-num fl-n-gold">05</div>
+        <div class="fl-label amber">Validation Parallèle</div>
+        <div class="fl-desc">Threads A (métier) + B (sécurité) simultanés. Zéro latence ajoutée. CancellationToken coupe tout si sécurité échoue. Anti-Timing-Attack natif : impossible de déduire quelle couche a rejeté.</div>
+      </div>
+      <div class="fortress-layer">
+        <div class="fl-num fl-n-gold">06</div>
+        <div class="fl-label red">Intelligence Comportementale</div>
+        <div class="fl-desc">Journal comportemental (lieu, heure, clé, erreurs). Cooldown progressif. Kill Switch adaptatif. Service Desk pour cas critiques. Non-répudiation mathématiquement prouvable devant tribunal.</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <strong>Cité-Voiturage — SecurityService · Protocole Zero-Trust Propriétaire v1.0</strong><br>
+    6 couches de défense · 3 tiers · ECC-P256 · Rotation irrégulière · Threads parallèles · Non-répudiation légale<br>
+    <span style="color:var(--text4);font-size:10px;">C# System.Security.Cryptography.ECDsa · Android Keystore / iOS Secure Enclave · Hangfire · SignalR · SQL ACID</span>
+  </div>
+</footer>
+
+</body>
+</html>

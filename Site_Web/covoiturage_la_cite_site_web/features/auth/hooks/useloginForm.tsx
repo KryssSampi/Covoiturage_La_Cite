@@ -26,7 +26,7 @@ export interface CoreUserResponse {
 export function coreToConnectedUser(core: CoreUserResponse): ConnectedUser {
   return {
     id:          core.id,
-    role:        core.role.toLowerCase(),
+    role:        String(core.role).toLowerCase(),
     firstName:   core.firstName,
     lastName:    core.lastName,
     avatarUrl:   core.avatarUrl ?? null,
@@ -74,8 +74,12 @@ export function useLoginForm(onLogin?: OnLoginCallback) {
 
       appState.login(connected);
 
-      setActiveLoader(true);
-      router.push(`/${connected.role}/${connected.id}`);
+        setActiveLoader(true);
+        try {
+          await router.push(`/${connected.role}/${connected.id}`);
+        } finally {
+          setActiveLoader(false);
+        }
     } catch (err) {
       setError(
         err instanceof Error

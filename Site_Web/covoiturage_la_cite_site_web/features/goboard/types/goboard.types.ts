@@ -18,17 +18,22 @@ export interface GoTaskProgression {
   completeAt?: string;
 }
 
-/** GoTask stockée en base JSON */
+/** GoTask — aligné sur GoTaskResponseDto du Server Core */
 export interface GoTask {
   id: string;
-  titlefr: string;
-  titleen: string;
-  descriptionfr: string;
-  descriptionen: string;
-  category: "mixte" | "driverOnly" | "passengerOnly";
-  link: string;
+  taskKey: string;
+  titleFr: string;
+  titleEn: string;
+  descriptionFr: string;
+  descriptionEn: string;
+  category: string;
+  link?: string | null;
   points: number;
-  progression: GoTaskProgression[];
+  /** Progression résolue par le Server Core pour l'utilisateur courant */
+  isCompleted: boolean;
+  completedAt?: string | null;
+  /** Legacy — tableau de progressions (non renvoyé par le Server Core) */
+  progression?: GoTaskProgression[];
 }
 
 /** GoEvent — entrée dans l'historique des points (GoTasks complétées + autres événements) */

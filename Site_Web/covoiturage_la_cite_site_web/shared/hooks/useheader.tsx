@@ -15,12 +15,14 @@ import {
   type NavItem,
 } from "../types/header.types";
 
+
 function useClickOutside(
   ref: React.RefObject<HTMLElement | null>,
   onClose: () => void,
 ) {
   useEffect(() => {
     const handler = (e: MouseEvent) => {
+
       if (ref.current && !ref.current.contains(e.target as Node)) {
         onClose();
       }
@@ -29,6 +31,7 @@ function useClickOutside(
     return () => document.removeEventListener("mousedown", handler);
   }, [onClose, ref]);
 }
+
 
 export interface UseHeaderReturn {
   isFR: boolean;
@@ -56,8 +59,7 @@ export interface UseHeaderReturn {
 }
 
 const AVATAR_FALLBACK =
-  "https://static.vecteezy.com/system/resources/thumbnails/048/216/761/small/modern-male-avatar-with-black-hair-and-hoodie-illustration-free-png.png";
-
+"/assets/placeholder/placeholer-profile-picture.png"
 export function useHeader(externalNotifCount?: number): UseHeaderReturn {
   const appState = useAppState();
   const isMobile = useIsMobileOrTablet();
@@ -117,7 +119,7 @@ export function useHeader(externalNotifCount?: number): UseHeaderReturn {
 
     let cancelled = false;
 
-    fetch(`/api/notifications?userId=${encodeURIComponent(id)}`)
+    fetch(`/api/notifications`, { credentials: 'same-origin' })
       .then((res) => {
         if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
         return res.json();
@@ -176,9 +178,17 @@ export function useHeader(externalNotifCount?: number): UseHeaderReturn {
   const toggleAvatar = useCallback(() => setIsAvatarOpen((prev) => !prev), []);
 
   const handleLogout = useCallback(() => {
-    setActiveLoader(true);
-    router.push("/login");
+    // Vider le state en premier — login page ne verra plus userConnected
     appState.logout();
+    setActiveLoader(true);
+    void (async () => {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+      } catch {
+        // ignore
+      }
+      router.replace('/login');
+    })();
   }, [appState, router, setActiveLoader]);
 
   const activePageTitle = useMemo(() => {

@@ -9,7 +9,8 @@ export async function GET(
   try {
     const { id } = await params;
     return NextResponse.json(getOrCreateEmptyIndisponibility(id) satisfies IndisponibilityModel);
-  } catch {
+  } catch (err) {
+    console.error('[api/indisponibilities/[id]]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
@@ -24,7 +25,8 @@ export async function PUT(
     const dates = Array.isArray(body.dates) ? (body.dates as IndisponibilityDateRange[]) : [];
     const { record, created } = saveIndisponibility(id, dates);
     return NextResponse.json(record, { status: created ? 201 : 200 });
-  } catch {
+  } catch (err) {
+    console.error('[api/indisponibilities/[id]]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }

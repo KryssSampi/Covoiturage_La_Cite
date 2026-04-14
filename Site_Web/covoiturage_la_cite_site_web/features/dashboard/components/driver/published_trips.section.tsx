@@ -28,7 +28,7 @@ import { FaArrowRight } from "react-icons/fa";
 import { FaLocationDot, FaBan, FaArrowsRotate } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
-import { formatDate } from "@/core/utils/date.utils";
+import { formatDate, utcToLocalDateIso, utcToLocalTime } from "@/core/utils/date.utils";
 
 import { usePublishedTrips } from "../../hooks/usePublishedTrips";
 import {
@@ -270,20 +270,18 @@ export function PublishedTripCard({
   };
 
   // Démarrage du trajet — bloque si un autre trajet est déjà en cours
-  const handleStartTrip = (e: React.MouseEvent) => {
+  const handleStartTrip = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (hasInProgressTrip) {
-       try {
-          onStartTrip(trip.id);
-        } catch (err) {
-          console.error('[PublishedTripCard] Erreur démarrage:', err);
-        } finally {
-        onBlockStart();
-        router.push(`/trajet-en-cours/${trip.id}`);
-        }
+      onBlockStart();
       return;
     }
-  
+
+    try {
+      await onStartTrip(trip.id);
+    } catch (err) {
+      console.error('[PublishedTripCard] Erreur démarrage:', err);
+    }
   };
 
   // Annulation du trajet — envoie PATCH /api/trips/{id}/status { action: 'cancel' }
@@ -333,9 +331,15 @@ export function PublishedTripCard({
         {/* Date, itinéraire, places */}
         <div className="w-full justify-between flex items-center mt-2">
           <div className="flex flex-col items-start w-full">
-            <span className="text-xl font-semibold text-black">
-              {formatDate(trip.date, appState.lang, trip.time)} : {trip.time}
-            </span>
+            {(() => {
+              const localIso = utcToLocalDateIso(trip.date, trip.time);
+              const localTime = utcToLocalTime(trip.date, trip.time);
+              return (
+                <span className="text-xl font-semibold text-black">
+                  {formatDate(localIso, appState.lang, localTime)} : {localTime}
+                </span>
+              );
+            })()}
             <p className="flex gap-1 text-[#08316e] items-baseline text-2xl">
               <FaLocationDot />
               <span className="truncate max-w-30 text-black font-bold">{trip.departure}</span>

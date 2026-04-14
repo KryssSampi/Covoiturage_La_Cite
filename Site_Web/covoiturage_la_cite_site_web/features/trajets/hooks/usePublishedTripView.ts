@@ -126,7 +126,11 @@ export function usePublishedTripView({
       const res = await fetch('/api/reservations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tripId: trip.id, passengerId }),
+        body: JSON.stringify({
+          tripId: trip.id,
+          seatsRequested: 1,
+          pickupNote: '',
+        }),
       });
 
       const data = await res.json() as { id?: string; error?: string };
@@ -141,7 +145,8 @@ export function usePublishedTripView({
           message: data.error ?? 'Erreur serveur',
         });
       }
-    } catch {
+    } catch (err) {
+      console.error('[usePublishedTripView] handleReservationRequest', err);
       setReservationToast({ isOpen: true, success: false, message: 'Erreur réseau' });
     } finally {
       setIsSubmitting(false);

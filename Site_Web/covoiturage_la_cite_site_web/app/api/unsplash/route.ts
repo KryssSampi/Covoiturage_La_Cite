@@ -20,8 +20,12 @@ export async function GET(req: Request) {
   );
 
   if (!res.ok) {
-    console.log("Unsplash error:", res.status, res.statusText);
-    return Response.json({ error: "Unsplash failed" }, { status: 500 });
+    if (res.status === 401) {
+      // Clé API manquante ou invalide — retourner null sans erreur pour ne pas bloquer l'UI
+      return Response.json({ image: null });
+    }
+    console.error("Unsplash error:", res.status, res.statusText);
+    return Response.json({ image: null });
   }
 
   const data = await res.json();

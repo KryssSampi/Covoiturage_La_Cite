@@ -1,8 +1,9 @@
 // features/dashboard/hooks/useRecommendedRides.ts
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import type { Trip } from "../types";
+import type { TrajetResponseDto } from "@/server/services/TripService";
 
 interface UseRecommendedRidesReturn {
   trips: Trip[];
@@ -13,13 +14,67 @@ interface UseRecommendedRidesReturn {
 }
 
 export function useRecommendedRides(): UseRecommendedRidesReturn {
-  // Source unique : DashboardContext — les fixtures sont chargées une seule fois dans le provider
-  // TODO: Remplacer par un appel API dans DashboardContext
   const { recommendedTrips: rawTrips } = useDashboardContext();
+  const [apiTrips, setApiTrips] = useState<Trip[] | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const toTrip = (dto: TrajetResponseDto): Trip => {
+      const departure = dto.departureLabel || dto.departureAddress || "";
+      const destination = dto.arrivalLabel || dto.arrivalAddress || "";
+      const driverName = dto.driver
+        ? `${dto.driver.firstName} ${dto.driver.lastName}`.trim()
+        : "Conducteur";
+
+      return {
+        id: dto.id,
+        departure,
+        destination,
+        date: dto.departureDate ?? "",
+        time: dto.departureTime ?? "",
+        price: Number(dto.pricePerPassenger ?? 0),
+        maxPassengers: Number(dto.maxPassengers ?? 0),
+        passengers: [],
+        driver: {
+          id: dto.driverId,
+          pictureUrl: dto.driver?.avatarUrl ?? "",
+          name: driverName,
+          rating: Number(dto.driver?.averageRating ?? 0),
+          tripsCount: 0,
+        },
+        doneDate: null,
+        departureCoords:
+          dto.departureLng != null && dto.departureLat != null
+            ? [Number(dto.departureLng), Number(dto.departureLat)]
+            : undefined,
+        arrivalCoords:
+          dto.arrivalLng != null && dto.arrivalLat != null
+            ? [Number(dto.arrivalLng), Number(dto.arrivalLat)]
+            : undefined,
+      };
+    };
+
+    (async () => {
+      try {
+        const res = await fetch("/api/trips/recommended", { credentials: "same-origin" });
+        if (!res.ok || cancelled) return;
+        const payload = (await res.json()) as unknown;
+        if (!Array.isArray(payload) || cancelled) return;
+        setApiTrips((payload as TrajetResponseDto[]).map(toTrip));
+      } catch (error) {
+        console.error("[useRecommendedRides] fetch", error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const trips = useMemo(
-    () => [...rawTrips].sort((a, b) => a.date.localeCompare(b.date)),
-    [rawTrips]
+    () => [...(apiTrips ?? rawTrips)].sort((a, b) => a.date.localeCompare(b.date)),
+    [apiTrips, rawTrips]
   );
 
   const [openPassengerLists, setOpenPassengerLists] = useState<boolean[]>(

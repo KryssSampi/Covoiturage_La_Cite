@@ -75,6 +75,17 @@ export function Header() {
               active={isActive(item.href)}
             />
           ))}
+          {/* Titre de la page active — visible si la page n'est pas dans la barre de nav */}
+          {activePageTitle && (
+            <>
+              <Separator />
+              <span className="relative text-sm lg:text-base font-semibold px-1 py-1 text-blue-200 whitespace-nowrap">
+                {isFR ? activePageTitle.fr : activePageTitle.en}
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-300 rounded-full" />
+              </span>
+            </>
+          )}
+
             {/* Burger */}
           <div className="relative" ref={menuRef}>
             <button
@@ -109,16 +120,19 @@ export function Header() {
                   label={isFR ? item.labelFR : item.labelEN}
                 />
               ))}
+              {/* Liens pages publiques dans le burger */}
+              <div className="border-t border-gray-100 mt-1 pt-1">
+                <DropdownLink href="/about" label={isFR ? "À propos" : "About"} />
+                <DropdownLink href="/contact" label="Contact" />
+                <DropdownLink href="/comment-ca-marche" label={isFR ? "Comment ça marche" : "How it works"} />
+                <DropdownLink href="/securite" label={isFR ? "Sécurité" : "Safety"} />
+                <DropdownLink href="/conditions" label={isFR ? "Conditions" : "Terms"} />
+                <DropdownLink href="/confidentialite" label={isFR ? "Confidentialité" : "Privacy"} />
+                <DropdownLink href="/accessibilite" label={isFR ? "Accessibilité" : "Accessibility"} />
+              </div>
             </Dropdown>
           </div>
 
-          {/* Titre de la page active — visible uniquement si absent de la barre de nav */}
-          {activePageTitle && (
-            <span className="relative text-sm lg:text-base font-semibold px-1 py-1 text-blue-200">
-              {isFR ? activePageTitle.fr : activePageTitle.en}
-              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-300 rounded-full" />
-            </span>
-          )}
         </nav>
 
         {/* ── Actions droite ───────────────────────────────────────────────── */}

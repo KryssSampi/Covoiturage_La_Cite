@@ -6,10 +6,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import { FaCalendarDays } from "react-icons/fa6";
 
-import { useDb } from "@/core/context/db.context";
 import { useLoader } from "@/core/context/loader.context";
-import type { IndisponibilityDateRange } from "@/core/models/IndisponibilityModel";
-import { useAppState } from "@/core/state/app_state";
+import type { IndisponibilityDateRange, IndisponibilityModel } from "@/core/models/IndisponibilityModel";
+import { Language, useAppState } from "@/core/state/app_state";
 import { isDashboardTripBlockedByIndisponibility } from "@/core/utils/indisponibility.utils";
 import { tripModelToReservation } from "@/features/dashboard/converters/dashboard.converter";
 import type { Reservation } from "@/features/dashboard/types";
@@ -40,8 +39,18 @@ const mapVariants = {
 const transition = { duration: 0.45, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] };
 
 function PlannerContent({ onRefresh }: { onRefresh?: () => Promise<void> }) {
+  const appState = useAppState();
+  const isFR = appState.lang === Language.FR;
   const { plannerSearchActive, plannerSearchValues, exitPlannerSearch } = useHeroSearchBar();
-  const { trips, users, myIndisponibility } = useDb();
+  // DbProvider supprimé — données vides, la map utilise les trajets de l'API search
+  const trips: import("@/core/models/TripModel").TripModel[] = [];
+  const users: import("@/core/models/UserModel").UserModel[] = [];
+  const myIndisponibility: IndisponibilityModel = {
+    id: "planner-passenger-empty",
+    dates: [],
+    createdAt: "",
+    updatedAt: "",
+  };
 
   // Scroll + refresh automatique vers la zone trajets si demandé par la page réservation
   useEffect(() => {
@@ -82,12 +91,14 @@ function PlannerContent({ onRefresh }: { onRefresh?: () => Promise<void> }) {
               className="inline-flex items-center gap-2 rounded-lg bg-[#08316e] px-4 py-2 text-sm font-semibold text-white shadow transition-colors duration-200 hover:bg-[#0a4a9e]"
             >
               <FaCalendarDays size={14} />
-              Retour au calendrier
+              {isFR ? 'Retour au calendrier' : 'Back to calendar'}
             </button>
             <span className="text-sm text-gray-500">
               {plannerSearchValues?.departureLabel && plannerSearchValues?.arrivalLabel
-                ? `Resultats : ${plannerSearchValues.departureLabel} vers ${plannerSearchValues.arrivalLabel}`
-                : "Remplissez le formulaire ci-dessus pour rechercher un trajet"}
+                ? `${isFR ? 'Résultats' : 'Results'} : ${plannerSearchValues.departureLabel} ${isFR ? 'vers' : 'to'} ${plannerSearchValues.arrivalLabel}`
+                : isFR
+                  ? "Remplissez le formulaire ci-dessus pour rechercher un trajet"
+                  : "Fill out the form above to search for a trip"}
             </span>
           </motion.div>
         )}
@@ -139,15 +150,19 @@ export default function PlannerPage() {
   const { setActiveLoader } = useLoader();
   const routeId = typeof params.id === "string" ? params.id : params.id?.[0];
   const userRole = userConnected?.role?.toString().toLowerCase();
-  const {
-    trips,
-    reservations,
-    users,
-    myIndisponibility,
-    refreshTrips,
-    refreshReservations,
-    refreshIndisponibilities,
-  } = useDb();
+  // DbProvider supprimé — les données viennent des appels fetch directs
+  const trips: import("@/core/models/TripModel").TripModel[] = [];
+  const reservations: import("@/core/models/ReservationModel").ReservationModel[] = [];
+  const users: import("@/core/models/UserModel").UserModel[] = [];
+  const myIndisponibility: IndisponibilityModel = {
+    id: "planner-passenger-empty",
+    dates: [],
+    createdAt: "",
+    updatedAt: "",
+  };
+  const refreshTrips = async () => {};
+  const refreshReservations = async () => {};
+  const refreshIndisponibilities = async () => {};
 
   useEffect(() => {
     if (!userConnected) {
@@ -192,11 +207,19 @@ export default function PlannerPage() {
         body: JSON.stringify({ raison }),
       });
 
-      if (!response.ok) return false;
+      if (!response.ok) {
+        console.error(
+          `[passenger/planifier] handleCancelReservation - reservationId: ${reservationId} - response not ok`,
+          response.status,
+          response.statusText,
+        );
+        return false;
+      }
 
       await Promise.all([refreshReservations(), refreshTrips()]);
       return true;
-    } catch {
+    } catch (error) {
+      console.error(`[passenger/planifier] handleCancelReservation - reservationId: ${reservationId}`, error);
       return false;
     }
   }, [refreshReservations, refreshTrips, userConnected]);
@@ -210,12 +233,20 @@ export default function PlannerPage() {
         },
       });
 
-      if (!response.ok) return null;
+      if (!response.ok) {
+        console.error(
+          `[passenger/planifier] handleStartReservation - reservationId: ${reservationId} - response not ok`,
+          response.status,
+          response.statusText,
+        );
+        return null;
+      }
 
       const payload = await response.json();
       await Promise.all([refreshReservations(), refreshTrips()]);
       return typeof payload.tripId === "string" ? payload.tripId : null;
-    } catch {
+    } catch (error) {
+      console.error(`[passenger/planifier] handleStartReservation - reservationId: ${reservationId}`, error);
       return null;
     }
   }, [refreshReservations, refreshTrips, userConnected]);
@@ -223,18 +254,35 @@ export default function PlannerPage() {
   const handleSaveIndisponibilities = useCallback(async (dates: IndisponibilityDateRange[]) => {
     if (!userConnected?.id) return;
 
-    await fetch(`/api/indisponibilities/${encodeURIComponent(userConnected.id)}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dates }),
-    });
+    try {
+      const response = await fetch(`/api/indisponibilities/${encodeURIComponent(userConnected.id)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dates }),
+      });
 
-    await refreshIndisponibilities();
+      if (!response.ok) {
+        console.error(
+          `[passenger/planifier] handleSaveIndisponibilities - userId: ${userConnected.id} - response not ok`,
+          response.status,
+          response.statusText,
+        );
+        return;
+      }
+
+      await refreshIndisponibilities();
+    } catch (error) {
+      console.error(`[passenger/planifier] handleSaveIndisponibilities - userId: ${userConnected.id}`, error);
+    }
   }, [refreshIndisponibilities, userConnected]);
 
   // Rafraîchit trips + réservations depuis la page (respecte la règle : aucun composant ne fetch)
   const handleRefresh = useCallback(async () => {
-    await Promise.all([refreshTrips(), refreshReservations()]);
+    try {
+      await Promise.all([refreshTrips(), refreshReservations()]);
+    } catch (error) {
+      console.error("[passenger/planifier] handleRefresh", error);
+    }
   }, [refreshTrips, refreshReservations]);
 
   if (userConnected?.id !== routeId || userRole !== "passenger") {

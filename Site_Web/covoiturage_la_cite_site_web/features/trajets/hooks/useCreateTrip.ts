@@ -15,6 +15,7 @@ import { buildDateRange, buildTripModelDateRange, doDateRangesOverlap, isDateRan
 import type { IndisponibilityModel } from '@/core/models/IndisponibilityModel';
 import type { TripModel } from '@/core/models/TripModel';
 import { buildTripPayload, hasGeoPoint, readTripGeoFromSession } from '@/core/utils/create-trip-form.utils';
+import { apiClient } from '@/core/services/api.client';
 
 export interface CreateTripFormErrors {
   departureLocation?: string;
@@ -223,6 +224,7 @@ export function useCreateTrip(
       arrivalCoords,
       waypoints,
       polyline,
+      // leave date/time in local form; apiClient.postJson will normalize to UTC
       departureDate: form.departureDate,
       departureTime: form.departureTime,
       availableSeats: form.availableSeats,
@@ -238,31 +240,26 @@ export function useCreateTrip(
     });
 
     try {
-      const response = await fetch('/api/trips', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(tripPayload),
-      });
+      const { ok, status, data } = await apiClient.postJson('/api/trips', tripPayload);
 
-      const data = await response.json() as { id?: string; error?: string };
-
-      if (response.ok) {
+      if (ok) {
         setTripToast({
           isOpen: true,
           success: true,
           title: 'Trajet publie',
           message: 'Votre trajet a ete publie et sera visible dans votre planificateur.',
-          redirectTripId: data.id,
+          redirectTripId: data?.id,
         });
       } else {
         setTripToast({
           isOpen: true,
           success: false,
           title: 'Publication impossible',
-          message: data.error ?? 'Erreur lors de la publication.',
+          message: data?.error ?? 'Erreur lors de la publication.',
         });
       }
-    } catch {
+    } catch (err) {
+      console.error('[useCreateTrip] doPublish', err);
       setTripToast({
         isOpen: true,
         success: false,
@@ -291,8 +288,8 @@ export function useCreateTrip(
           return;
         }
       }
-    } catch {
-      // optional preflight check
+    } catch (err) {
+      console.error('[useCreateTrip] handlePublish indisponibilité preflight', err);
     }
 
     // ── 2. Vérification de conflit avec les trajets existants ─────────────
@@ -324,8 +321,8 @@ export function useCreateTrip(
           }
         }
       }
-    } catch {
-      // optional preflight check
+    } catch (err) {
+      console.error('[useCreateTrip] handlePublish conflict preflight', err);
     }
 
     await doPublish();
@@ -347,6 +344,7 @@ export function useCreateTrip(
     setIsSubmitting(true);
 
     const now = new Date().toISOString();
+    // Leave draft date/time local; apiClient will normalize on save
     const draftPayload = {
       driverId: currentUser.id,
       departureLocation: form.departureLocation,
@@ -366,15 +364,12 @@ export function useCreateTrip(
     };
 
     try {
-      const response = await fetch('/api/drafts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draftPayload),
-      });
+      const utcOffsetMinutes = new Date().getTimezoneOffset();
+      const finalDraft = { ...draftPayload, utcOffsetMinutes };
 
-      const data = await response.json() as { id?: string; error?: string };
+      const { ok, status, data } = await apiClient.postJson('/api/drafts', finalDraft);
 
-      if (response.ok) {
+      if (ok) {
         setTripToast({
           isOpen: true,
           success: true,
@@ -386,10 +381,11 @@ export function useCreateTrip(
           isOpen: true,
           success: false,
           title: 'Sauvegarde impossible',
-          message: data.error ?? 'Erreur lors de la sauvegarde.',
+          message: data?.error ?? 'Erreur lors de la sauvegarde.',
         });
       }
-    } catch {
+    } catch (err) {
+      console.error('[useCreateTrip] handleSaveDraft', err);
       setTripToast({
         isOpen: true,
         success: false,

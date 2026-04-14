@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../Site_Web/covoiturage_la_cite_site_web"
+		},
+		{
+			"path": "../App_Mobile/Covoiturage_la_cite_(App_Mobile)/Covoiturage_la_cite_(App_Mobile)"
+		},
+		{
+			"path": "../Server_Core/Covoiturage_La_Cite(Server_Core)/Covoiturage_La_Cite(Server_Core)"
+		}
+	],
+	"settings": {}
+}

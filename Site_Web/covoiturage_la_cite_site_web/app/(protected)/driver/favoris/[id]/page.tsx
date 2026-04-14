@@ -37,7 +37,7 @@ export default function DriverFavorisRoutePage() {
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/favoris?userId=${encodeURIComponent(user.id)}`);
+      const res = await fetch(`/api/favoris`, { credentials: 'same-origin' });
       if (!res.ok) return;
       setData(await res.json());
     } catch (error) {
@@ -52,20 +52,11 @@ export default function DriverFavorisRoutePage() {
     void loadData();
   }, [loadData, params.id, user]);
 
-  // SSE : mise à jour temps réel lorsque les favoris changent
+  // Polling 30s — SSE db-watch désactivé (Server Core)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const entities = ["lieux_favoris", "affinites"];
-    const sources = entities.map((entity) => {
-      const es = new EventSource(`/api/sse/db-watch/${entity}`);
-      let isFirst = true;
-      es.addEventListener("update", () => {
-        if (isFirst) { isFirst = false; return; }
-        void loadData();
-      });
-      return es;
-    });
-    return () => sources.forEach((es) => es.close());
+    const id = setInterval(() => { void loadData(); }, 30_000);
+    return () => clearInterval(id);
   }, [user, params.id, loadData]);
 
   // ─── Callbacks CRUD ────────────────────────────────────────────────────
@@ -76,20 +67,21 @@ export default function DriverFavorisRoutePage() {
       try {
         const res = await fetch("/api/lieux-favoris", {
           method: "POST",
+          credentials: 'same-origin',
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...d, userId: user.id }),
+          body: JSON.stringify(d),
         });
         if (res.ok) { void loadData(); return { ok: true }; }
-      } catch { /* ignore */ }
+      } catch (err) { console.error("[driver/favoris/page]", err); }
       return { ok: false };
     }, [user, loadData]),
 
     onDeleteLieu: useCallback(async (id: string) => {
       if (!user) return { ok: false };
       try {
-        const res = await fetch(`/api/lieux-favoris?id=${encodeURIComponent(id)}&userId=${encodeURIComponent(user.id)}`, { method: "DELETE" });
+        const res = await fetch(`/api/lieux-favoris?id=${encodeURIComponent(id)}`, { method: "DELETE", credentials: 'same-origin' });
         if (res.ok) { void loadData(); return { ok: true }; }
-      } catch { /* ignore */ }
+      } catch (err) { console.error("[driver/favoris/page]", err); }
       return { ok: false };
     }, [user, loadData]),
 
@@ -98,20 +90,21 @@ export default function DriverFavorisRoutePage() {
       try {
         const res = await fetch("/api/favoris/user-favori", {
           method: "POST",
+          credentials: 'same-origin',
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: user.id, targetUserId }),
+          body: JSON.stringify({ targetUserId }),
         });
         if (res.ok) { void loadData(); return { ok: true }; }
-      } catch { /* ignore */ }
+      } catch (err) { console.error("[driver/favoris/page]", err); }
       return { ok: false };
     }, [user, loadData]),
 
     onDeleteUserFavori: useCallback(async (affiniteId: string) => {
       if (!user) return { ok: false };
       try {
-        const res = await fetch(`/api/favoris/user-favori?affiniteId=${encodeURIComponent(affiniteId)}`, { method: "DELETE" });
+        const res = await fetch(`/api/favoris/user-favori?affiniteId=${encodeURIComponent(affiniteId)}`, { method: "DELETE", credentials: 'same-origin' });
         if (res.ok) { void loadData(); return { ok: true }; }
-      } catch { /* ignore */ }
+      } catch (err) { console.error("[driver/favoris/page]", err); }
       return { ok: false };
     }, [user, loadData]),
 
@@ -123,7 +116,7 @@ export default function DriverFavorisRoutePage() {
           body: JSON.stringify({ alerteId, surveyIsOn: newState }),
         });
         if (res.ok) return { ok: true };
-      } catch { /* ignore */ }
+      } catch (err) { console.error("[driver/favoris/page]", err); }
       return { ok: false };
     }, []),
 
@@ -131,7 +124,7 @@ export default function DriverFavorisRoutePage() {
       try {
         const res = await fetch(`/api/favoris/alerte-toggle?alerteId=${encodeURIComponent(alerteId)}`, { method: "DELETE" });
         if (res.ok) { void loadData(); return { ok: true }; }
-      } catch { /* ignore */ }
+      } catch (err) { console.error("[driver/favoris/page]", err); }
       return { ok: false };
     }, [loadData]),
   };

@@ -36,7 +36,7 @@ export default function BrouillonsRoutePage() {
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/drafts?driverId=${encodeURIComponent(user.id)}`);
+      const res = await fetch('/api/drafts');
       if (!res.ok) return;
       const drafts: DraftTrip[] = await res.json();
       setItems(drafts);
@@ -52,16 +52,11 @@ export default function BrouillonsRoutePage() {
     void loadData();
   }, [loadData, params.id, user]);
 
-  // SSE : mise à jour temps réel lorsque les brouillons changent
+  // Polling 30s — db-watch SSE désactivé (503)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const es = new EventSource("/api/sse/db-watch/drafts");
-    let isFirst = true;
-    es.addEventListener("update", () => {
-      if (isFirst) { isFirst = false; return; }
-      void loadData();
-    });
-    return () => es.close();
+    const id = setInterval(() => void loadData(), 30_000);
+    return () => clearInterval(id);
   }, [user, params.id, loadData]);
 
   // Suppression d'un brouillon via l'API

@@ -124,7 +124,8 @@ export function useNotificationPush(
     async function loadUnread() {
       try {
         const res = await fetch(
-          `/api/notifications?userId=${encodeURIComponent(userId!)}&isRead=false`,
+          `/api/notifications?isRead=false`,
+          { credentials: 'same-origin' },
         );
         if (!res.ok) return;
         const unread: NotificationModel[] = await res.json();
@@ -157,38 +158,76 @@ export function useNotificationPush(
     };
   }, [userId, userRole, playSound]);
 
-  // ── SSE : nouvelles notifications en cours de session ─────────────────────
+  // ── Polling : remplacer SSE désactivé par un polling périodique
   useEffect(() => {
     if (!userId) return;
 
-    const source = new EventSource(
-      `/api/sse/notifications?userId=${encodeURIComponent(userId)}`,
-    );
+    let cancelled = false;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let backoff = 10_000; // ms
 
-    source.addEventListener("notification", (e: MessageEvent) => {
-      const data = JSON.parse(e.data) as {
-        unreadCount: number;
-        latest: NotificationModel | null;
-      };
+    async function poll() {
+      if (cancelled) return;
+      try {
+        const res = await fetch(`/api/notifications?isRead=false`, { credentials: 'same-origin' });
+        if (res.status === 401 || res.status === 403) {
+          console.warn('[useNotificationPush] Session expirée, redirection vers /login');
+          window.location.href = '/login';
+          return;
+        }
 
-      setUnreadCount(data.unreadCount);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      if (data.latest && data.latest.id !== lastSeenIdRef.current) {
-        lastSeenIdRef.current = data.latest.id;
+        const unread: NotificationModel[] = await res.json();
+        setUnreadCount(unread.length);
 
-        setQueue((prev) => {
-          const updated = [...prev, data.latest!];
-          if (prev.length === 0) {
-            setCurrent(data.latest!);
-            setHasAlert(true);
+        if (unread.length > 0) {
+          const sorted = [...unread].sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          );
+
+          // Si nouvelle notification depuis la dernière vue, l'ajouter à la queue
+          if (sorted[0].id !== lastSeenIdRef.current) {
+            lastSeenIdRef.current = sorted[0].id;
+
+            setQueue((prev) => {
+              // Ajouter seulement les éléments non présents
+              const newItems = sorted.filter((s) => !prev.find((p) => p.id === s.id));
+              const updated = [...prev, ...newItems];
+              if (prev.length === 0 && updated.length > 0) {
+                setCurrent(updated[0]);
+                setHasAlert(true);
+              }
+              return updated;
+            });
           }
-          return updated;
-        });
-      }
-    });
+        }
 
-    source.onerror = () => {};
-    return () => source.close();
+        // reset backoff on success
+        backoff = 10_000;
+      } catch (err) {
+        if (cancelled) return;
+        console.error('[useNotificationPush] polling error:', err);
+        // Exponential backoff with cap
+        const wait = Math.min(backoff, 300_000);
+        backoff = Math.min(backoff * 2, 300_000);
+        if (intervalId) clearInterval(intervalId);
+        // schedule resume after wait
+        setTimeout(() => {
+          if (cancelled) return;
+          intervalId = setInterval(poll, 15_000);
+        }, wait);
+      }
+    }
+
+    // démarrer immédiatement puis toutes les 15s
+    void poll();
+    intervalId = setInterval(poll, 15_000);
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [userId, playSound]);
 
   return { unreadCount, current, hasAlert, queueLength: queue.length, dismissCurrent };

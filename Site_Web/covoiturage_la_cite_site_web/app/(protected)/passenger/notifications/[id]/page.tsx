@@ -35,7 +35,7 @@ export default function PassengerNotificationsRoutePage() {
     let cancelled = false;
     async function fetchData() {
       try {
-        const res = await fetch(`/api/notifications?userId=${encodeURIComponent(user!.id)}`);
+        const res = await fetch(`/api/notifications`, { credentials: 'same-origin' });
         if (!res.ok || cancelled) return;
         const data: NotificationModel[] = await res.json();
         if (!cancelled) setItems(data);
@@ -47,21 +47,18 @@ export default function PassengerNotificationsRoutePage() {
     return () => { cancelled = true; };
   }, [user, params.id, version]);
 
-  // SSE
+  // Polling 30s (remplacement SSE db-watch 503)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const es = new EventSource("/api/sse/db-watch/notifications");
-    let isFirst = true;
-    es.addEventListener("update", () => {
-      if (isFirst) { isFirst = false; return; }
+    const intervalId = setInterval(() => {
       reload();
-    });
-    return () => es.close();
+    }, 30_000);
+    return () => clearInterval(intervalId);
   }, [user, params.id, reload]);
 
   const onRead = useCallback(async (id: string) => {
     try {
-      await fetch(`/api/notifications/${id}/read`, { method: "PATCH" });
+      await fetch(`/api/notifications/${id}/read`, { method: "PATCH", credentials: 'same-origin' });
       reload();
     } catch (err) {
       console.error("[passenger/notifications] onRead", err);

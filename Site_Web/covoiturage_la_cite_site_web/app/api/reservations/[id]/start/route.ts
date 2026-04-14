@@ -1,28 +1,21 @@
 import { NextResponse } from 'next/server';
-import { startReservationWorkflow } from '@/core/services/reservation-lifecycle-api.service';
+import { ReservationService } from '@/server/services/ReservationService';
+import { withAuth } from '@/server/auth';
 
 type Context = { params: Promise<{ id: string }> };
 
 export async function POST(req: Request, { params }: Context) {
   try {
     const { id } = await params;
+    const auth = await withAuth(req);
 
-    const callerId = req.headers.get('x-caller-id');
-    console.log(`[API] Start reservation ${id} called by ${callerId}`);
-    if (callerId === 'undefined' || typeof callerId !== 'string') {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 });
+    const result = await ReservationService.boardingPassenger(id, auth);
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.message }, { status: 400 });
     }
 
-    const result = startReservationWorkflow(id, callerId);
-
-    if (!result.reservation) {
-      return NextResponse.json({ error: result.error }, { status: result.status ?? 400 });
-    }
-
-    return NextResponse.json({
-      reservation: result.reservation,
-      tripId: result.tripId,
-    });
+    return NextResponse.json(result.data);
   } catch (error) {
     console.error('[start]', error);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

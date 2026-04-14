@@ -9,9 +9,8 @@ import { FaLocationDot } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { getCityImage } from "@/core/lib/unsplash";
-import { formatDate } from "@/core/utils/date.utils";
+import { formatDate, utcToLocalDateIso, utcToLocalTime } from "@/core/utils/date.utils";
 import type { DraftTrip } from "@/features/brouillons/types";
-import { FIXTURE_DRAFTS } from "@/tests/fixtures/brouillons/drafts.fixtures";
 
 const DEFAULT_CITY_IMAGE = "/assets/destinations-pictures/default-city.png";
 
@@ -29,7 +28,7 @@ function DraftsSkeleton() {
 }
 
 export function QuickPlanSection({
-  drafts = FIXTURE_DRAFTS,
+  drafts = [],
   isLoading = false,
   error = null,
 }: {
@@ -39,7 +38,7 @@ export function QuickPlanSection({
 }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
-  const safeDrafts = drafts ?? FIXTURE_DRAFTS;
+  const safeDrafts = drafts ?? [];
 
   return (
     <section className="w-full py-5 flex flex-col items-center border rounded-lg shadow-md mx-5 text-white bg-[#08316ee5]">
@@ -159,7 +158,11 @@ function DraftCard({ draft }: { draft: DraftTrip }) {
         <span className="text-xl font-semibold text-black">
           {isFR ? "Pour : " : "For : "}
           {draft.departureDate
-            ? `${formatDate(draft.departureDate, appState.lang)} : ${draft.departureTime}`
+            ? (() => {
+                const localIso = utcToLocalDateIso(draft.departureDate, draft.departureTime);
+                const localTime = utcToLocalTime(draft.departureDate, draft.departureTime);
+                return `${formatDate(localIso, appState.lang, localTime)} : ${localTime}`;
+              })()
             : isFR ? "Date non definie" : "Date not set"}
         </span>
 
