@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/messaging/views/components/ConversationCard.xaml
+  Carte de liste — une conversation.
+  BindingContext = ConversationCardDisplayModel
+  Tap géré depuis le code-behind (TapGestureRecognizer.Tapped).
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.messaging.views.components.ConversationCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:ConversationCardDisplayModel">
+
+    <Border BackgroundColor="White"
+            StrokeThickness="0"
+            Margin="0,0,0,1">
+        <Border.StrokeShape><RoundRectangle CornerRadius="0"/></Border.StrokeShape>
+
+        <Grid ColumnDefinitions="56,*,Auto"
+              ColumnSpacing="12"
+              Padding="16,12">
+
+            <!-- ── Avatar ── -->
+            <Frame Grid.Column="0"
+                   WidthRequest="48" HeightRequest="48"
+                   CornerRadius="24" Padding="0"
+                   BackgroundColor="#e8eef7"
+                   BorderColor="Transparent"
+                   HasShadow="False"
+                   VerticalOptions="Center">
+                <Grid>
+                    <!-- Initiale -->
+                    <Label Text="{Binding AvatarInitial}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="20" TextColor="#08316e"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"/>
+                    <!-- Badge non-lu -->
+                    <Frame WidthRequest="18" HeightRequest="18"
+                           CornerRadius="9" Padding="0"
+                           BackgroundColor="#dc2626"
+                           BorderColor="White"
+                           HasShadow="False"
+                           HorizontalOptions="End"
+                           VerticalOptions="Start"
+                           IsVisible="{Binding HasUnread}">
+                        <Label Text="{Binding UnreadLabel}"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="10" TextColor="White"
+                               HorizontalTextAlignment="Center"
+                               VerticalTextAlignment="Center"/>
+                    </Frame>
+                </Grid>
+            </Frame>
+
+            <!-- ── Contenu central ── -->
+            <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+
+                <!-- Nom + rôle -->
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="{Binding OtherPersonName}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="14" TextColor="#0D1624"/>
+                    <Border BackgroundColor="#EEF0F5" StrokeThickness="0"
+                            Padding="5,2" VerticalOptions="Center">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="6"/></Border.StrokeShape>
+                        <Label Text="{Binding OtherPersonRole}"
+                               FontSize="10" TextColor="#3D4A5C"/>
+                    </Border>
+                </HorizontalStackLayout>
+
+                <!-- Route trajet -->
+                <Label Text="{Binding TripRoute}"
+                       FontSize="11" TextColor="#7A879A"
+                       LineBreakMode="TailTruncation"/>
+
+                <!-- Dernier message -->
+                <Label Text="{Binding LastMessageSnippet}"
+                       FontSize="13" TextColor="#4b5563"
+                       LineBreakMode="TailTruncation"/>
+            </VerticalStackLayout>
+
+            <!-- ── Heure + badge ── -->
+            <VerticalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center"
+                                 HorizontalOptions="End">
+                <Label Text="{Binding LastMessageAtStr}"
+                       FontSize="11" TextColor="#9ca3af"
+                       HorizontalOptions="End"/>
+                <Label Text="{Binding TripDateStr}"
+                       FontSize="10" TextColor="#b0bec5"
+                       HorizontalOptions="End"/>
+            </VerticalStackLayout>
+
+        </Grid>
+
+    </Border>
+
+</ContentView>

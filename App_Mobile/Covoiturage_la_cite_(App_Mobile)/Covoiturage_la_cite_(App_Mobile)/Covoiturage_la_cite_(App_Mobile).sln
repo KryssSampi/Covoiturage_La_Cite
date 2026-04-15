@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Covoiturage_la_cite_(App_Mobile)", "Covoiturage_la_cite_(App_Mobile).csproj", "{D56FB6A7-AA12-BA10-DB24-86918105DD40}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D56FB6A7-AA12-BA10-DB24-86918105DD40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D56FB6A7-AA12-BA10-DB24-86918105DD40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D56FB6A7-AA12-BA10-DB24-86918105DD40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D56FB6A7-AA12-BA10-DB24-86918105DD40}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2E9F2514-95B6-48DF-BE53-DF3F6D367DE9}
+	EndGlobalSection
+EndGlobal

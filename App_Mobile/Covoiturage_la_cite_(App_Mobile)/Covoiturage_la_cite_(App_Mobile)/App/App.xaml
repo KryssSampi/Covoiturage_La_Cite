@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Application 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:comp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.components"
+    xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Converters"
+    xmlns:plannerconv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.planner.converters"
+    xmlns:searchcomp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.search.Views.Components"
+    xmlns:behaviors="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Behaviors"
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.App">
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="/Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <conv:StringNotEmptyToBoolConverter x:Key="StringNotEmptyToBool"/>
+            <conv:MaterialIconConverter x:Key="MaterialIconConverter"/>
+            <conv:NotNullToBoolConverter x:Key="NotNullToBool"/>
+            <conv:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <conv:InverseBoolConverter x:Key="InvertBool"/>
+            <conv:BoolToOpacityConverter x:Key="BoolToOpacityConverter"/>
+            <conv:ListToStringConverter x:Key="ListToStringConverter" Separator=" - "/>
+            <conv:RatioToWidthConverter x:Key="RatioToWidth"/>
+            <conv:RatioToHeightConverter x:Key="RatioToHeight"/>
+            <conv:StarRatingConverter x:Key="StarRatingConverter"/>
+            <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
+            <searchcomp:IsFavoriteConverter x:Key="IsFavoriteConverter"/>
+
+            <!-- Form / trip converters -->
+            <conv:NullToColorConverter x:Key="NullToColor"/>
+            <conv:StringToDateConverter x:Key="StringToDate"/>
+            <conv:StringToTimeConverter x:Key="StringToTime"/>
+            <conv:BoolToPublishLabelConverter x:Key="BoolToPublishLabel"/>
+            <conv:BoolToSuccessEmojiConverter x:Key="BoolToSuccessEmoji"/>
+            <conv:BoolToBlueConverter x:Key="BoolToBlue"/>
+            <conv:InvertBoolToBlueConverter x:Key="InvertBoolToBlue"/>
+            <conv:BoolToWhiteGrayConverter x:Key="BoolToWhiteGray"/>
+            <conv:BoolToGrayWhiteConverter x:Key="BoolToGrayWhite"/>
+
+            <plannerconv:DriverStatusBackgroundConverter x:Key="DriverStatusBgConverter"/>
+            <plannerconv:DriverStatusForegroundConverter x:Key="DriverStatusFgConverter"/>
+            <plannerconv:DriverStatusLabelConverter x:Key="DriverStatusLabelConverter"/>
+            <plannerconv:PassengerStatusBackgroundConverter x:Key="PassengerStatusBgConverter"/>
+            <plannerconv:PassengerStatusForegroundConverter x:Key="PassengerStatusFgConverter"/>
+            <plannerconv:PassengerStatusLabelConverter x:Key="PassengerStatusLabelConverter"/>
+            <plannerconv:TripCountToColorConverter x:Key="TripCountToColorConverter"/>
+            <plannerconv:TripCountToBoolConverter x:Key="TripCountToBoolConverter"/>
+
+            <Style TargetType="ScrollView">
+                <Setter Property="behaviors:ScrollChevron.IsEnabled" Value="True"/>
+            </Style>
+            <Style TargetType="CollectionView">
+                <Setter Property="behaviors:ScrollChevron.IsEnabled" Value="True"/>
+            </Style>
+       
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
+

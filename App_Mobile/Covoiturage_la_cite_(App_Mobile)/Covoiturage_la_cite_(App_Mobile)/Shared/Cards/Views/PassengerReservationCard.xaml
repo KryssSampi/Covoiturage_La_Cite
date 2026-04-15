@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Shared/Cards/views/PassengerReservationCard.xaml
+  Réservation passager — 5 états
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Shared.Cards.Views.PassengerReservationCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons">
+
+    <Frame BackgroundColor="White" CornerRadius="16" BorderColor="#12000000"
+           HasShadow="True" Padding="0" IsClippedToBounds="True">
+        <VerticalStackLayout>
+
+            <!-- Bandeau confirmée (teal) -->
+              <HorizontalStackLayout x:Name="ConfirmedBanner" IsVisible="False"
+                        BackgroundColor="#E1F5EE" Padding="14,7" Spacing="7">
+              <mi:MauiIcon Icon="{mi:Material Icon=Check}"
+                     IconSize="14" IconColor="#0F6E56"/>
+                <Label Text="Réservation confirmée" FontFamily="OpenSansSemibold"
+                       FontSize="12" FontAttributes="Bold" TextColor="#0F6E56"/>
+            </HorizontalStackLayout>
+
+            <!-- Bandeau en cours (bleu) -->
+            <Grid x:Name="InProgressBanner" IsVisible="False"
+                  BackgroundColor="#1A56CC" Padding="14,9">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <HorizontalStackLayout Spacing="8">
+                    <Ellipse WidthRequest="8" HeightRequest="8"
+                             Fill="#7EFFD4" VerticalOptions="Center"/>
+                    <Label Text="Trajet en cours" FontFamily="OpenSansSemibold"
+                           FontSize="12" FontAttributes="Bold"
+                           TextColor="White" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+                <Label Grid.Column="1"
+                       Text="{Binding EtaLabel}"
+                       FontFamily="OpenSansSemibold" FontSize="14"
+                       FontAttributes="Bold" TextColor="White"/>
+            </Grid>
+
+            <!-- Corps principal -->
+            <Grid Padding="12,12,12,10" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="44"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Avatar conducteur -->
+                <Frame Grid.Column="0" WidthRequest="44" HeightRequest="44"
+                       CornerRadius="22" Padding="0" BorderColor="Transparent"
+                       BackgroundColor="{Binding DriverAvatar.BackgroundHex}">
+                    <Label Text="{Binding DriverAvatar.Initials}"
+                           FontFamily="OpenSansSemibold" FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{Binding DriverAvatar.ForegroundHex}"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"/>
+                </Frame>
+
+                <!-- Infos -->
+                <VerticalStackLayout Grid.Column="1" Spacing="3">
+                    <Label Text="{Binding TimeLabel}"
+                           FontFamily="OpenSansSemibold" FontSize="13"
+                           FontAttributes="Bold" TextColor="#3D4A5C"/>
+                    <HorizontalStackLayout Spacing="4">
+                        <Label Text="Avec : " FontSize="13" TextColor="#3D4A5C"/>
+                        <Label Text="{Binding DriverName}"
+                               FontSize="13" FontAttributes="Bold" TextColor="#1A56CC"/>
+                           <mi:MauiIcon Icon="{mi:Material Icon=Star}" IconSize="11" IconColor="#F59E0B" VerticalOptions="Center" HorizontalOptions="Start"/>
+                        <Label Text="{Binding DriverRating, StringFormat='{0:F1}'}"
+                               FontSize="12" TextColor="#BA7517"/>
+                    </HorizontalStackLayout>
+                    <!-- Route -->
+                    <HorizontalStackLayout Spacing="5">
+                        <Ellipse WidthRequest="7" HeightRequest="7"
+                                 Fill="#1A56CC" VerticalOptions="Center"/>
+                        <Label Text="{Binding Route.FromLabel}"
+                               FontSize="12" TextColor="#3D4A5C"/>
+                           <mi:MauiIcon Icon="{mi:Material Icon=ChevronRight}"
+                                  IconSize="12" IconColor="#8A95A8"/>
+                        <Ellipse WidthRequest="7" HeightRequest="7"
+                                 Fill="#E24B4A" VerticalOptions="Center"/>
+                        <Label Text="{Binding Route.ToLabel}"
+                               FontSize="12" TextColor="#3D4A5C"/>
+                    </HorizontalStackLayout>
+                    <!-- Véhicule (InProgress) -->
+                    <Label Text="{Binding VehicleLabel}"
+                           FontSize="12" TextColor="#7A879A"
+                           x:Name="VehicleInfo" IsVisible="False"/>
+                </VerticalStackLayout>
+
+                <!-- Badge statut + prix -->
+                <VerticalStackLayout Grid.Column="2" Spacing="6" HorizontalOptions="End">
+                    <Frame Padding="7,3" CornerRadius="10"
+                           BorderColor="Transparent" HorizontalOptions="End"
+                           HasShadow="False">
+                        <Label x:Name="StatusBadgeLabel"
+                               FontFamily="OpenSansSemibold" FontSize="10"
+                               FontAttributes="Bold"/>
+                        <Frame.Triggers>
+                            <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="Pending">
+                                <Setter Property="BackgroundColor" Value="#FAEEDA"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="Confirmed">
+                                <Setter Property="BackgroundColor" Value="#E1F5EE"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="Completed">
+                                <Setter Property="BackgroundColor" Value="#EEF0F5"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Frame" Binding="{Binding Status}" Value="Refused">
+                                <Setter Property="BackgroundColor" Value="#FCEBEB"/>
+                            </DataTrigger>
+                        </Frame.Triggers>
+                    </Frame>
+                    <Label Text="{Binding Price, StringFormat='{0:F0} CAD'}"
+                           FontFamily="OpenSansSemibold" FontSize="15"
+                           FontAttributes="Bold" TextColor="#1A56CC"
+                           HorizontalTextAlignment="End"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Actions (Confirmed) -->
+            <BoxView HeightRequest="1" BackgroundColor="#0D000000"/>
+            <Grid Padding="12,9,12,11" ColumnSpacing="8"
+                  x:Name="ActionButtons">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" x:Name="MessageButton"
+                        Text="Message"
+                        BackgroundColor="#EEF0F5" TextColor="#3D4A5C"
+                        FontFamily="OpenSansSemibold" FontSize="12"
+                        CornerRadius="10" HeightRequest="38" IsVisible="False"/>
+                <Button Grid.Column="1" x:Name="CancelButton"
+                        Text="Annuler"
+                        BackgroundColor="Transparent" TextColor="#E24B4A"
+                        FontFamily="OpenSansSemibold" FontSize="12"
+                        BorderColor="#E24B4A" BorderWidth="1.5"
+                        CornerRadius="10" HeightRequest="38"
+                        IsVisible="False"/>
+                <Button Grid.Column="1" x:Name="TrackButton"
+                        Text="Suivre"
+                        BackgroundColor="#1A56CC" TextColor="White"
+                        FontFamily="OpenSansSemibold" FontSize="12"
+                        CornerRadius="10" HeightRequest="38"
+                        IsVisible="False"/>
+                <Button Grid.ColumnSpan="2" x:Name="RateButton"
+                        Text="Évaluer"
+                        BackgroundColor="#EEF0F5" TextColor="#3D4A5C"
+                        FontFamily="OpenSansSemibold" FontSize="12"
+                        CornerRadius="10" HeightRequest="38"
+                        IsVisible="False"/>
+            </Grid>
+
+        </VerticalStackLayout>
+    </Frame>
+</ContentView>
+

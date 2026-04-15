@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/notifications/views/components/NotificationCard.xaml
+  Carte de liste — un item de la liste de notifications.
+  BindingContext = NotificationCardDisplayModel
+
+  Tap géré depuis le code-behind via GestureRecognizer.Tapped (event).
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.notifications.views.components.NotificationCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.notifications.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:NotificationCardDisplayModel">
+
+    <Frame BackgroundColor="White"
+           CornerRadius="14"
+           BorderColor="#0D000000"
+           HasShadow="False"
+           Padding="14,12"
+           Margin="16,0">
+
+        <Grid ColumnDefinitions="44,*,Auto" ColumnSpacing="12">
+
+            <!-- ── Point coloré / icône ── -->
+            <Frame Grid.Column="0"
+                   WidthRequest="40" HeightRequest="40"
+                   CornerRadius="20" Padding="0"
+                   BackgroundColor="{Binding IconBgColor}"
+                   BorderColor="Transparent"
+                   HasShadow="False"
+                   VerticalOptions="Start">
+                <!-- Dot lu/non-lu -->
+                <Ellipse WidthRequest="10" HeightRequest="10"
+                         Fill="{Binding DotColor}"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center"/>
+            </Frame>
+
+            <!-- ── Contenu ── -->
+            <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+
+                <Label Text="{Binding TypeLabel}"
+                       FontFamily="OpenSansSemibold"
+                       FontSize="10"
+                       TextColor="#7A879A"
+                       CharacterSpacing="0.5"/>
+
+                <Label Text="{Binding Title}"
+                       FontFamily="OpenSansSemibold"
+                       FontSize="14"
+                       TextColor="{Binding TitleColor}"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="1"/>
+
+                <Label Text="{Binding Snippet}"
+                       FontSize="12"
+                       TextColor="#7A879A"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="2"/>
+
+            </VerticalStackLayout>
+
+            <!-- ── Date ── -->
+            <Label Grid.Column="2"
+                   Text="{Binding DateStr}"
+                   FontSize="11"
+                   TextColor="#9ca3af"
+                   VerticalOptions="Start"/>
+
+        </Grid>
+
+        <!-- Bande non-lu (bord gauche bleu) -->
+        <Frame.Triggers>
+            <DataTrigger TargetType="Frame" Binding="{Binding IsRead}" Value="False">
+                <Setter Property="BorderColor" Value="#08316e"/>
+            </DataTrigger>
+        </Frame.Triggers>
+
+    </Frame>
+</ContentView>

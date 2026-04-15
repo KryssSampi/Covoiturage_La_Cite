@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  App/Mobilepages/conversationpage/view/ConversationPage.xaml
+  Page de conversation (Shell, hors-MainView).
+  Route : conversation?conversationId={id}  ou  conversation?tripId={id}
+  BindingContext = ConversationDetailDisplayModel
+  Structure :
+    ┌─────────────────────────────────────────┐
+    │  Sub-header (trajet + interlocuteur)    │
+    ├─────────────────────────────────────────┤
+    │  ScrollView : bulles de messages        │
+    │    ← Other   Self →                     │
+    ├─────────────────────────────────────────┤
+    │  Barre de saisie + bouton Envoyer       │
+    └─────────────────────────────────────────┘
+-->
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.view.ConversationPage"
+    x:DataType="dm:ConversationDetailDisplayModel"
+    BackgroundColor="#F2F5FA"
+    Shell.NavBarIsVisible="True"
+    Title="{Binding PageTitle}">
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="True" IsEnabled="True"/>
+    </Shell.BackButtonBehavior>
+
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto,*,Auto">
+
+            <!-- ── Loading ────────────────────────────────── -->
+            <ActivityIndicator
+                Grid.RowSpan="3"
+                IsRunning="{Binding IsLoading}"
+                IsVisible="{Binding IsLoading}"
+                Color="#08316e"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"
+                ZIndex="10"/>
+
+            <!-- ── Sub-header : trajet ────────────────────── -->
+            <Border
+                Grid.Row="0"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                Padding="16,10">
+                <Border.StrokeShape><RoundRectangle CornerRadius="0"/></Border.StrokeShape>
+                <VerticalStackLayout Spacing="2">
+                    <Label
+                        Text="{Binding TripRoute}"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="13"
+                        TextColor="#08316e"
+                        LineBreakMode="TailTruncation"/>
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="{Binding OtherPersonName}"
+                               FontSize="12" TextColor="#4b5563"/>
+                        <Label Text="·" FontSize="12" TextColor="#9ca3af"/>
+                        <Label Text="{Binding OtherPersonRole}"
+                               FontSize="12" TextColor="#9ca3af"/>
+                        <Label Text="·" FontSize="12" TextColor="#9ca3af"/>
+                        <Label Text="{Binding TripDateStr}"
+                               FontSize="12" TextColor="#9ca3af"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── Liste des bulles ───────────────────────── -->
+            <ScrollView
+                Grid.Row="1"
+                x:Name="BubblesScroll"
+                IsVisible="{Binding IsLoading, Converter={StaticResource InvertBool}}"
+                Padding="12,8">
+                <VerticalStackLayout
+                    x:Name="BubblesStack"
+                    Spacing="8"
+                    BindableLayout.ItemsSource="{Binding Messages}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="dm:MessageBubbleDisplayModel">
+                            <!--
+                              Chaque ligne est une grille 3 colonnes :
+                                [spacer][bulle][spacer]
+                              Pour Self  : Col 0 = *, Col 1 = Auto, Col 2 = 8 → bulle à droite
+                              Pour Other : Col 0 = 8, Col 1 = Auto, Col 2 = * → bulle à gauche
+                              On cache/montre les spacers selon IsSelf.
+                            -->
+                            <Grid ColumnDefinitions="*,Auto,8">
+
+                                <!-- Spacer gauche (visible seulement pour Self = aligne droite) -->
+                                <BoxView Grid.Column="0"
+                                         IsVisible="{Binding IsSelf}"
+                                         Color="Transparent"/>
+
+                                <!-- Bulle de message -->
+                                <Border
+                                    Grid.Column="1"
+                                    Padding="12,8"
+                                    MaximumWidthRequest="270"
+                                    StrokeThickness="0"
+                                    BackgroundColor="{Binding BubbleBgHex}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="16"/>
+                                    </Border.StrokeShape>
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label
+                                            Text="{Binding Content}"
+                                            FontSize="14"
+                                            TextColor="{Binding TextColorHex}"
+                                            LineBreakMode="WordWrap"/>
+                                        <Label
+                                            Text="{Binding TimeStr}"
+                                            FontSize="10"
+                                            TextColor="{Binding TimeColorHex}"
+                                            HorizontalOptions="End"/>
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- Spacer droit (visible seulement pour Other = aligne gauche) -->
+                                <BoxView Grid.Column="2"
+                                         IsVisible="{Binding IsSelf, Converter={StaticResource InvertBool}}"
+                                         Color="Transparent"/>
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- ── Barre de saisie ────────────────────────── -->
+            <Border
+                Grid.Row="2"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                Padding="12,8">
+                <Border.StrokeShape><RoundRectangle CornerRadius="0"/></Border.StrokeShape>
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+
+                    <!-- Zone de saisie -->
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="#F2F5FA"
+                        StrokeThickness="0"
+                        Padding="12,0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="20"/>
+                        </Border.StrokeShape>
+                        <Entry
+                            x:Name="DraftEntry"
+                            Text="{Binding DraftText}"
+                            Placeholder="Écrire un message…"
+                            PlaceholderColor="#9ca3af"
+                            FontSize="14"
+                            TextColor="#0D1624"
+                            VerticalOptions="Center"
+                            ReturnType="Send"
+                            Completed="OnDraftEntryCompleted"/>
+                    </Border>
+
+                    <!-- Bouton envoyer -->
+                    <Border
+                        Grid.Column="1"
+                        BackgroundColor="#08316e"
+                        StrokeThickness="0"
+                        WidthRequest="44" HeightRequest="44"
+                        VerticalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="22"/>
+                        </Border.StrokeShape>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSendTapped"/>
+                        </Border.GestureRecognizers>
+                        <Label
+                            Text="↑"
+                            FontSize="20"
+                            FontFamily="OpenSansSemibold"
+                            TextColor="White"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"/>
+                    </Border>
+
+                </Grid>
+            </Border>
+
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    NotificationDetailPanel.xaml
+    Composant pure-view : affiche le détail d'une notification.
+    BindingContext = NotificationDetailDisplayModel (fourni par NotificationsDisplayController)
+    Aucune logique dans ce fichier — tout passe par le DisplayModel.
+-->
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.notifications.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.notifications.views.components.NotificationDetailPanel"
+    x:DataType="dm:NotificationDetailDisplayModel"
+    BackgroundColor="#F2F5FA">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+
+            <!-- ── EN-TÊTE ─────────────────────────────────────────── -->
+            <Border
+                BackgroundColor="White"
+                Padding="16,16,16,14"
+                StrokeThickness="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="0,0,16,16"/>
+                </Border.StrokeShape>
+
+                <VerticalStackLayout Spacing="12">
+
+                    <!-- Icône + Type + De -->
+                    <HorizontalStackLayout Spacing="12" VerticalOptions="Start">
+
+                        <!-- Cercle icône -->
+                        <Border
+                            WidthRequest="44" HeightRequest="44"
+                            BackgroundColor="{Binding IconBgColor}"
+                            StrokeThickness="0"
+                            VerticalOptions="Start">
+                            <Border.StrokeShape>
+                                <Ellipse/>
+                            </Border.StrokeShape>
+                            <!-- Icône générique — à remplacer par MauiIcons si disponible -->
+                            <Label
+                                Text="🔔"
+                                FontSize="20"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"/>
+                        </Border>
+
+                        <VerticalStackLayout Spacing="2" HorizontalOptions="FillAndExpand">
+                            <Label
+                                Text="{Binding TypeLabel}"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="15"
+                                TextColor="{Binding HeaderColor}"
+                                LineBreakMode="TailTruncation"/>
+                            <Label
+                                Text="De : La Cité Covoiturage"
+                                FontSize="11"
+                                TextColor="#9ca3af"/>
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+
+                    <!-- Date / Heure / Statut lu -->
+                    <FlexLayout Wrap="Wrap" JustifyContent="Start" AlignItems="Center">
+
+                        <HorizontalStackLayout Spacing="4" Margin="0,0,16,4">
+                            <Label Text="📅" FontSize="11" VerticalOptions="Center"/>
+                            <Label Text="{Binding DateStr}" FontSize="11" TextColor="#6b7280" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <HorizontalStackLayout Spacing="4" Margin="0,0,16,4">
+                            <Label Text="🕐" FontSize="11" VerticalOptions="Center"/>
+                            <Label Text="{Binding TimeStr}" FontSize="11" TextColor="#6b7280" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <HorizontalStackLayout Spacing="4" Margin="0,0,0,4">
+                            <Label Text="✉️" FontSize="11" VerticalOptions="Center"/>
+                            <Label
+                                Text="{Binding ReadStatusLabel}"
+                                FontSize="11"
+                                TextColor="{Binding ReadStatusColor}"
+                                FontFamily="OpenSansSemibold"
+                                VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </FlexLayout>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- ── CORPS ───────────────────────────────────────────── -->
+            <VerticalStackLayout Padding="16,12" Spacing="12">
+
+                <!-- Message principal -->
+                <Label
+                    Text="{Binding Message}"
+                    FontSize="14"
+                    TextColor="#374151"
+                    LineHeight="1.5"/>
+
+                <!-- Payload : détails trajet -->
+                <Border
+                    IsVisible="{Binding HasTripDetails}"
+                    BackgroundColor="White"
+                    Padding="12"
+                    StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="TRAJET CONCERNÉ"
+                            FontSize="10"
+                            FontFamily="OpenSansSemibold"
+                            TextColor="#08316e"
+                            CharacterSpacing="1"
+                            Margin="0,0,0,4"/>
+                        <CollectionView ItemsSource="{Binding TripRows}" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <HorizontalStackLayout Spacing="8" Padding="0,2">
+                                        <Label Text="•" FontSize="12" TextColor="#08316e" VerticalOptions="Center" WidthRequest="12"/>
+                                        <Label Text="{Binding Label}" FontSize="11" TextColor="#6b7280" WidthRequest="60"/>
+                                        <Label Text="{Binding Value}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+                                    </HorizontalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Payload : parties concernées (réservation) -->
+                <Border
+                    IsVisible="{Binding HasReservationDetails}"
+                    BackgroundColor="White"
+                    Padding="12"
+                    StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="PARTIES CONCERNÉES"
+                            FontSize="10"
+                            FontFamily="OpenSansSemibold"
+                            TextColor="#08316e"
+                            CharacterSpacing="1"
+                            Margin="0,0,0,4"/>
+                        <CollectionView ItemsSource="{Binding Persons}" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <HorizontalStackLayout Spacing="8" Padding="0,2">
+                                        <Label Text="👤" FontSize="11" VerticalOptions="Center"/>
+                                        <Label Text="{Binding Label}" FontSize="11" TextColor="#6b7280" WidthRequest="60"/>
+                                        <Label Text="{Binding Name}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+                                    </HorizontalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Payload : avis reçu -->
+                <Border
+                    IsVisible="{Binding HasReviewDetails}"
+                    BackgroundColor="#fffbeb"
+                    Padding="12"
+                    StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            Text="AVIS REÇU"
+                            FontSize="10"
+                            FontFamily="OpenSansSemibold"
+                            TextColor="#92400e"
+                            CharacterSpacing="1"/>
+                        <Label Text="⭐⭐⭐⭐⭐" FontSize="14"/>
+                        <Label
+                            Text="{Binding Review.Comment}"
+                            FontSize="12"
+                            TextColor="#4b5563"
+                            FontAttributes="Italic"/>
+                        <Label
+                            Text="{Binding Review.ReviewerName, StringFormat='Par {0}'}"
+                            FontSize="10"
+                            TextColor="#9ca3af"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Payload : alerte sécurité -->
+                <Border
+                    IsVisible="{Binding HasSecurityDetails}"
+                    BackgroundColor="#fef2f2"
+                    Padding="12"
+                    StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="4">
+                        <Label
+                            Text="DÉTAILS DE CONNEXION"
+                            FontSize="10"
+                            FontFamily="OpenSansSemibold"
+                            TextColor="#dc2626"
+                            CharacterSpacing="1"/>
+                        <Label
+                            Text="{Binding Security.ClientTypeLabel, StringFormat='Type : {0}'}"
+                            FontSize="12"
+                            TextColor="#4b5563"/>
+                        <Label
+                            Text="{Binding Security.Location, StringFormat='Lieu : {0}'}"
+                            FontSize="12"
+                            TextColor="#4b5563"
+                            IsVisible="{Binding Security.Location, Converter={StaticResource StringNotEmpty}}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <!-- ── PIED ─────────────────────────────────────────────── -->
+            <Border
+                Padding="16,12"
+                BackgroundColor="White"
+                StrokeThickness="0"
+                Margin="0,4,0,0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12,12,0,0"/>
+                </Border.StrokeShape>
+                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                    <Label Text="•" FontSize="8" TextColor="{Binding ReadStatusColor}" VerticalOptions="Center"/>
+                    <Label
+                        Text="Notification automatique — La Cité Covoiturage"
+                        FontSize="10"
+                        TextColor="#9ca3af"/>
+                </HorizontalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

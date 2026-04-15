@@ -1,6 +1,7 @@
-﻿using Foundation;
+﻿using Covoiturage_la_cite__App_Mobile_.App;
+using Foundation;
 
-namespace Covoiturage_la_cite__App_Mobile_
+namespace Covoiturage_la_cite__App_Mobile_.Platforms.iOS
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

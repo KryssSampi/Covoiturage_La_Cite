@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/favoris/Views/Components/FavoritePersonCard.xaml
+  Carte personne favorite — BindingContext : FavoriteCardDisplayModel (Type=Person)
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.favoris.Views.Components.FavoritePersonCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.favoris.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:FavoriteCardDisplayModel">
+
+    <Border BackgroundColor="White" StrokeThickness="1" Margin="12,5">
+        <Border.Stroke><SolidColorBrush Color="#12000000"/></Border.Stroke>
+        <Border.StrokeShape><RoundRectangle CornerRadius="14"/></Border.StrokeShape>
+        <Border.Shadow><Shadow Brush="#0A000000" Offset="0,1" Radius="4" Opacity="1"/></Border.Shadow>
+
+        <Grid ColumnDefinitions="52,*,Auto" ColumnSpacing="12" Padding="14,12">
+
+            <!-- Avatar -->
+            <Frame Grid.Column="0"
+                   WidthRequest="44" HeightRequest="44" CornerRadius="22"
+                   Padding="0" BackgroundColor="#DFF2EA"
+                   BorderColor="Transparent" HasShadow="False"
+                   VerticalOptions="Center">
+                <Label Text="{Binding PersonInitial}"
+                       FontFamily="OpenSansSemibold" FontSize="16"
+                       TextColor="#0F6E56"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"/>
+            </Frame>
+
+            <!-- Infos -->
+            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                <Label Text="{Binding Name}"
+                       FontFamily="OpenSansSemibold" FontSize="14"
+                       TextColor="#0D1624" FontAttributes="Bold"/>
+                <HorizontalStackLayout Spacing="6">
+                    <Border Padding="6,2" StrokeThickness="0">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="99"/></Border.StrokeShape>
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border"
+                                         Binding="{Binding PersonIsDriver}" Value="True">
+                                <Setter Property="BackgroundColor" Value="#E1F5EE"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Border"
+                                         Binding="{Binding PersonIsDriver}" Value="False">
+                                <Setter Property="BackgroundColor" Value="#EEF0F5"/>
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding PersonRoleLabel}" FontSize="10"
+                               FontFamily="OpenSansSemibold">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label"
+                                             Binding="{Binding PersonIsDriver}" Value="True">
+                                    <Setter Property="TextColor" Value="#0F6E56"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label"
+                                             Binding="{Binding PersonIsDriver}" Value="False">
+                                    <Setter Property="TextColor" Value="#545D6E"/>
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </Border>
+                    <Label Text="{Binding PersonLastTripStr}"
+                           FontSize="11" TextColor="#9CA3AF" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Actions : message + supprimer -->
+            <VerticalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center"
+                                 HorizontalOptions="End">
+                <!-- Message -->
+                <Frame WidthRequest="30" HeightRequest="30" CornerRadius="15"
+                       Padding="0" BackgroundColor="#EEF3FB"
+                       BorderColor="Transparent" HasShadow="False">
+                    <Frame.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnMessageTapped"/>
+                    </Frame.GestureRecognizers>
+                    <Label Text="✉" FontSize="13" TextColor="#1A56CC"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"/>
+                </Frame>
+                <!-- Supprimer -->
+                <Label Text="✕" FontSize="13" TextColor="#8A95A8"
+                       HorizontalOptions="Center" Padding="4">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnDeleteTapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </VerticalStackLayout>
+
+        </Grid>
+    </Border>
+</ContentView>

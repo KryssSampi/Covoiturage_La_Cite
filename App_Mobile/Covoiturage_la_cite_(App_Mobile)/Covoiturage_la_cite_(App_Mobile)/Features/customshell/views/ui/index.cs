@@ -1,0 +1,1 @@
+﻿[assembly: XmlnsDefinition("Shell.ui", "clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.ui")]
