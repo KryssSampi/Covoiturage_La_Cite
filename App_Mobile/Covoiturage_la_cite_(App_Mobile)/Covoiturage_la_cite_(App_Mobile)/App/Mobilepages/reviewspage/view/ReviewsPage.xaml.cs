@@ -1,0 +1,36 @@
+// ============================================================
+//  App/Mobilepages/reviewspage/view/ReviewsPage.xaml.cs
+// ============================================================
+
+using System.Windows.Input;
+using Covoiturage_la_cite__App_Mobile_.Features.reviews.DisplayControler;
+
+namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reviewspage.view
+{
+    public partial class ReviewsPage : ContentPage
+    {
+        private bool _isLoaded;
+
+        public ICommand GoBackCommand { get; } =
+            new Command(async () => await Shell.Current.GoToAsync(".."));
+
+        public ReviewsPage()
+        {
+            InitializeComponent();
+            BindingContext = this;
+        }
+
+        // ?????????????????????????????????????????????????????????????
+        //  Chargement différé — libère le UI thread au démarrage
+        // ?????????????????????????????????????????????????????????????
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            if (_isLoaded) return;
+            _isLoaded = true;
+
+            var ctrl = new ReviewsListDisplayController();
+            ReviewsList.SetController(ctrl.ListController);
+        }
+    }
+}

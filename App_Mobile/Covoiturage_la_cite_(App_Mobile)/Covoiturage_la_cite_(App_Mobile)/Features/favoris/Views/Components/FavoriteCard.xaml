@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/favoris/Views/Components/FavoriteCard.xaml
+  Carte unifiée pour les 3 types de favoris.
+  BindingContext : FavoriteCardDisplayModel
+  Les sections spécifiques à chaque type sont masquées via IsVisible + DataTrigger.
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.favoris.Views.Components.FavoriteCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.favoris.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:FavoriteCardDisplayModel">
+
+    <Border BackgroundColor="White"
+            StrokeThickness="0"
+            Margin="0,0,0,1">
+        <Border.StrokeShape><RoundRectangle CornerRadius="0"/></Border.StrokeShape>
+
+        <Grid ColumnDefinitions="52,*,Auto"
+              ColumnSpacing="12"
+              Padding="16,14">
+
+            <!-- ── Icône / Avatar (colonne 0) ─────────────────────────────── -->
+
+            <!-- Lieu & Alerte : cercle avec emoji -->
+            <Frame Grid.Column="0"
+                   WidthRequest="44" HeightRequest="44"
+                   CornerRadius="22" Padding="0"
+                   BackgroundColor="#EEF3FB"
+                   BorderColor="Transparent" HasShadow="False"
+                   VerticalOptions="Center">
+                <Frame.Triggers>
+                    <DataTrigger TargetType="Frame" Binding="{Binding Type}" Value="Person">
+                        <Setter Property="BackgroundColor" Value="#DFF2EA"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="Frame" Binding="{Binding Type}" Value="Alert">
+                        <Setter Property="BackgroundColor" Value="#FFF4E0"/>
+                    </DataTrigger>
+                </Frame.Triggers>
+                <Grid>
+                    <!-- Emoji (Lieu / Alerte) -->
+                    <Label Text="{Binding Emoji}"
+                           FontSize="20"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding Type}" Value="Person">
+                                <Setter Property="IsVisible" Value="False"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+
+                    <!-- Initiale (Personne) -->
+                    <Label Text="{Binding PersonInitial}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="16" TextColor="#0F6E56"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"
+                           IsVisible="False">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding Type}" Value="Person">
+                                <Setter Property="IsVisible" Value="True"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Grid>
+            </Frame>
+
+            <!-- ── Contenu central (colonne 1) ───────────────────────────── -->
+            <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+
+                <!-- Nom -->
+                <Label Text="{Binding Name}"
+                       FontFamily="OpenSansSemibold"
+                       FontSize="14" TextColor="#0D1624"/>
+
+                <!-- ── LIEU ─────────────────────────────────────────────── -->
+                <VerticalStackLayout Spacing="2" IsVisible="False">
+                    <VerticalStackLayout.Triggers>
+                        <DataTrigger TargetType="VerticalStackLayout"
+                                     Binding="{Binding Type}" Value="Place">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                    </VerticalStackLayout.Triggers>
+                    <Label Text="{Binding PlaceAddress}"
+                           FontSize="12" TextColor="#7A879A"
+                           LineBreakMode="TailTruncation"/>
+                    <HorizontalStackLayout Spacing="4">
+                        <Label Text="🕐" FontSize="11"/>
+                        <Label Text="{Binding PlaceEstimatedTime}"
+                               FontSize="12" TextColor="#1A56CC"
+                               FontFamily="OpenSansSemibold"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- ── PERSONNE ─────────────────────────────────────────── -->
+                <VerticalStackLayout Spacing="2" IsVisible="False">
+                    <VerticalStackLayout.Triggers>
+                        <DataTrigger TargetType="VerticalStackLayout"
+                                     Binding="{Binding Type}" Value="Person">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                    </VerticalStackLayout.Triggers>
+                    <HorizontalStackLayout Spacing="6">
+                        <Border Padding="5,2" StrokeThickness="0">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="6"/></Border.StrokeShape>
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding PersonIsDriver}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="#E8F5EE"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding PersonIsDriver}" Value="False">
+                                    <Setter Property="BackgroundColor" Value="#EEF0F5"/>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="{Binding PersonRoleLabel}"
+                                   FontSize="11" FontFamily="OpenSansSemibold">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding PersonIsDriver}" Value="True">
+                                        <Setter Property="TextColor" Value="#0F6E56"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding PersonIsDriver}" Value="False">
+                                        <Setter Property="TextColor" Value="#3D4A5C"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding PersonLastTripStr}"
+                           FontSize="11" TextColor="#9CA3AF"/>
+                </VerticalStackLayout>
+
+                <!-- ── ALERTE ───────────────────────────────────────────── -->
+                <VerticalStackLayout Spacing="2" IsVisible="False">
+                    <VerticalStackLayout.Triggers>
+                        <DataTrigger TargetType="VerticalStackLayout"
+                                     Binding="{Binding Type}" Value="Alert">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                    </VerticalStackLayout.Triggers>
+                    <HorizontalStackLayout Spacing="4">
+                        <Label Text="{Binding AlertOrigin}"
+                               FontSize="12" TextColor="#0D1624"
+                               FontFamily="OpenSansSemibold"/>
+                        <Label Text="→" FontSize="12" TextColor="#7A879A"/>
+                        <Label Text="{Binding AlertDestination}"
+                               FontSize="12" TextColor="#0D1624"
+                               FontFamily="OpenSansSemibold"/>
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding AlertFrequency}"
+                           FontSize="11" TextColor="#7A879A"/>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+            <!-- ── Indicateur droit (colonne 2) ───────────────────────────── -->
+            <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" HorizontalOptions="End"
+                                 Spacing="4">
+
+                <!-- Lieu : chevron -->
+                <Label Text="›" FontSize="20" TextColor="#D8DBE5" IsVisible="False">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding Type}" Value="Place">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+
+                <!-- Personne : chevron -->
+                <Label Text="›" FontSize="20" TextColor="#D8DBE5" IsVisible="False">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding Type}" Value="Person">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+
+                <!-- Alerte : badge actif / inactif -->
+                <Border Padding="8,4" StrokeThickness="0" IsVisible="False">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding Type}" Value="Alert">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding AlertIsActive}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#E8F5EE"/>
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border" Binding="{Binding AlertIsActive}" Value="False">
+                            <Setter Property="BackgroundColor" Value="#F1F3F5"/>
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label FontSize="11" FontFamily="OpenSansSemibold">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding AlertIsActive}" Value="True">
+                                <Setter Property="Text" Value="Active"/>
+                                <Setter Property="TextColor" Value="#0F6E56"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Label" Binding="{Binding AlertIsActive}" Value="False">
+                                <Setter Property="Text" Value="Inactive"/>
+                                <Setter Property="TextColor" Value="#7A879A"/>
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+
+            </VerticalStackLayout>
+
+        </Grid>
+    </Border>
+
+</ContentView>

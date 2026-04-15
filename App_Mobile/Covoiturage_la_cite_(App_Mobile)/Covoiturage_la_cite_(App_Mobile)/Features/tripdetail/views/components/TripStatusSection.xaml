@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.tripdetail.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.tripdetail.views.components.TripStatusSection"
+    x:DataType="dm:TripStatusSectionDisplayModel">
+
+    <Border BackgroundColor="White" Padding="14" StrokeThickness="0">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="12"/>
+        </Border.StrokeShape>
+        <VerticalStackLayout Spacing="8">
+
+            <Label
+                Text="Informations"
+                FontFamily="OpenSansSemibold"
+                FontSize="12"
+                TextColor="#08316e"
+                Margin="0,0,0,4"/>
+
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="Type" FontSize="11" TextColor="#6b7280" WidthRequest="70"/>
+                <Label Text="{Binding TripTypeLabel}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8" IsVisible="{Binding IsRecurrent}">
+                <Label Text="Récurrence" FontSize="11" TextColor="#6b7280" WidthRequest="70"/>
+                <Label Text="Oui" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8" IsVisible="{Binding HasDetour}">
+                <Label Text="Détour" FontSize="11" TextColor="#6b7280" WidthRequest="70"/>
+                <Label Text="{Binding MaxDetourLabel}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="Mis à jour" FontSize="11" TextColor="#6b7280" WidthRequest="70"/>
+                <Label Text="{Binding LastUpdated}" FontSize="11" TextColor="#1f2937" FontFamily="OpenSansSemibold"/>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/reservationrequest/views/components/ReservationCard.xaml
+  Carte de liste — un item de la liste des réservations / demandes.
+  BindingContext = ReservationListCardDisplayModel
+
+  Affiche les informations communes : trajet, statut, personne (conducteur ou passager).
+  Tap géré depuis le code-behind via GestureRecognizer.Tapped.
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.views.components.ReservationCard"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:ReservationListCardDisplayModel">
+
+    <Frame BackgroundColor="White"
+           CornerRadius="14"
+           BorderColor="#0D000000"
+           HasShadow="False"
+           Padding="14,12"
+           Margin="16,0">
+
+        <VerticalStackLayout Spacing="10">
+
+            <!-- ── En-tête : trajet + statut ── -->
+            <Grid ColumnDefinitions="*,Auto">
+
+                <!-- Trajet De → Vers -->
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="{Binding Departure}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="14" TextColor="#0D1624"
+                           LineBreakMode="TailTruncation"/>
+                    <Label Text="&#x2192;" FontSize="11" TextColor="#7A879A"/>
+                    <Label Text="{Binding Destination}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="14" TextColor="#0D1624"
+                           LineBreakMode="TailTruncation"/>
+                </VerticalStackLayout>
+
+                <!-- Badge statut -->
+                <Border Grid.Column="1"
+                        Padding="8,4"
+                        BackgroundColor="{Binding StatusColorHex}"
+                        StrokeThickness="0"
+                        VerticalOptions="Start">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                    <Label Text="{Binding StatusLabel}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="11"
+                           TextColor="White"/>
+                </Border>
+            </Grid>
+
+            <!-- ── Date et heure ── -->
+            <HorizontalStackLayout Spacing="6">
+                <mi:MauiIcon Icon="{mi:Material Icon=Timer}"
+                             IconSize="13" IconColor="#7A879A"
+                             VerticalOptions="Center"/>
+                <Label FontSize="12" TextColor="#7A879A" VerticalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding Date}"/>
+                            <Span Text=" à "/>
+                            <Span Text="{Binding Time}"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </HorizontalStackLayout>
+
+            <!-- ── Personne (conducteur / passager selon le rôle) ── -->
+            <BoxView HeightRequest="1" BackgroundColor="#EEF0F5"/>
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                <!-- Avatar initiales -->
+                <Frame Grid.Column="0"
+                       WidthRequest="32" HeightRequest="32"
+                       CornerRadius="16" Padding="0"
+                       BackgroundColor="#e8eef7" BorderColor="Transparent"
+                       HasShadow="False">
+                    <Label Text="{Binding PersonName[0]}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="13" TextColor="#08316e"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center"/>
+                </Frame>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                    <Label Text="{Binding PersonName}"
+                           FontFamily="OpenSansSemibold"
+                           FontSize="13" TextColor="#0D1624"/>
+                    <Label Text="{Binding PersonRoleLabel}"
+                           FontSize="11" TextColor="#7A879A"/>
+                </VerticalStackLayout>
+
+                <Label Grid.Column="2"
+                       Text="{Binding RatingLabel}"
+                       FontFamily="OpenSansSemibold"
+                       FontSize="13"
+                       TextColor="#d97706"
+                       VerticalOptions="Center"/>
+            </Grid>
+
+        </VerticalStackLayout>
+
+    </Frame>
+</ContentView>

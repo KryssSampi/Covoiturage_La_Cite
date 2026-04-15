@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/statistiques/Views/Components/RecentTripsView.xaml
+  BindingContext : RecentTripsDisplayModel
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.statistiques.Views.Components.RecentTripsView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.statistiques.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:RecentTripsDisplayModel">
+
+    <VerticalStackLayout Spacing="0">
+        <Grid Padding="16,18,16,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <HorizontalStackLayout Grid.Column="0" Spacing="8">
+                <Label Text="🕐" FontSize="14" VerticalOptions="Center"/>
+                <Label Text="Derniers trajets" FontFamily="OpenSansSemibold" FontSize="14"
+                       FontAttributes="Bold" TextColor="#0D1624" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <Frame BackgroundColor="White" CornerRadius="16" BorderColor="#12000000"
+               Padding="0" Margin="16,0" HasShadow="True">
+            <VerticalStackLayout>
+                <CollectionView ItemsSource="{Binding Trips}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="dm:RecentTripDisplayModel">
+                            <Grid Padding="12,10" ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Frame Grid.Column="0" WidthRequest="32" HeightRequest="32"
+                                       CornerRadius="10" Padding="0"
+                                       BackgroundColor="#E8F0FE" BorderColor="Transparent">
+                                    <Label Text="🚗" FontSize="14"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center"/>
+                                </Frame>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{Binding Route}"
+                                           FontFamily="OpenSansSemibold" FontSize="13"
+                                           FontAttributes="Bold" TextColor="#0D1624"
+                                           LineBreakMode="TailTruncation"/>
+                                    <Label Text="{Binding MetaLine}"
+                                           FontFamily="OpenSansRegular" FontSize="11"
+                                           TextColor="#7A879A"/>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="2" Spacing="2" HorizontalOptions="End">
+                                    <Label Text="{Binding AmountLabel}"
+                                           FontFamily="OpenSansSemibold" FontSize="13"
+                                           FontAttributes="Bold" TextColor="#1D9E75"
+                                           HorizontalTextAlignment="End"/>
+                                    <Label Text="{Binding Co2Label}"
+                                           FontSize="11" TextColor="#1D9E75"
+                                           FontAttributes="Bold" HorizontalTextAlignment="End"/>
+                                    <Label Text="{Binding StarRating, Converter={StaticResource StarRatingConverter}}"
+                                           TextColor="#F59E0B" FontSize="11"
+                                           HorizontalTextAlignment="End"/>
+                                </VerticalStackLayout>
+
+                                <BoxView Grid.ColumnSpan="3" HeightRequest="1"
+                                         BackgroundColor="#0D000000"
+                                         VerticalOptions="End" Margin="-12,0"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Label Padding="16,10"
+                       Text="{Binding FooterLabel}"
+                       HorizontalTextAlignment="Center"
+                       FontSize="12" FontAttributes="Bold" TextColor="#1A56CC"/>
+            </VerticalStackLayout>
+        </Frame>
+    </VerticalStackLayout>
+</ContentView>

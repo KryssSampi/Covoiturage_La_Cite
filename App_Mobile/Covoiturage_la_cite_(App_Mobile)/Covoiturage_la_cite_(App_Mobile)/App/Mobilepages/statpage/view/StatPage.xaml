@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  App/Mobilepages/statpage/view/StatPage.xaml
+  Page agrégat : GoBoard / Statistiques / Finances
+  BindingContext : StatsPageController
+  Tab Finances masqué si !CanBeDriver.
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.statpage.view.StatPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:gb="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.goboard.Views.Components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:st="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.statistiques.Views.Components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:fi="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.finances.Views.Components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:ctrl="clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.statpage.DisplayControler;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="ctrl:StatsPageController"
+    BackgroundColor="#F2F5FA">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ── Toggler 3 tabs (sticky) ────────────────────── -->
+        <Grid Grid.Row="0" BackgroundColor="White" Padding="12,10,12,12">
+            <Grid.Shadow>
+                <Shadow Brush="#12000000" Offset="0,4" Radius="8" Opacity="1"/>
+            </Grid.Shadow>
+
+            <Frame BackgroundColor="#EEF0F5" CornerRadius="14"
+                   Padding="4" BorderColor="Transparent" HasShadow="False">
+                <Grid ColumnSpacing="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- GoBoard -->
+                    <Button Grid.Column="0" Text="GoBoard"
+                            Command="{Binding SelectTabCommand}" CommandParameter="0"
+                            FontFamily="OpenSansSemibold" FontSize="12"
+                            FontAttributes="Bold" CornerRadius="10"
+                            HeightRequest="40" Padding="4,0">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="0">
+                                <Setter Property="BackgroundColor" Value="#0F6E56"/>
+                                <Setter Property="TextColor"       Value="White"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="1">
+                                <Setter Property="BackgroundColor" Value="Transparent"/>
+                                <Setter Property="TextColor"       Value="#7A879A"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="2">
+                                <Setter Property="BackgroundColor" Value="Transparent"/>
+                                <Setter Property="TextColor"       Value="#7A879A"/>
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <!-- Statistiques -->
+                    <Button Grid.Column="1" Text="Statistiques"
+                            Command="{Binding SelectTabCommand}" CommandParameter="1"
+                            FontFamily="OpenSansSemibold" FontSize="12"
+                            FontAttributes="Bold" CornerRadius="10"
+                            HeightRequest="40" Padding="4,0">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="0">
+                                <Setter Property="BackgroundColor" Value="Transparent"/>
+                                <Setter Property="TextColor"       Value="#7A879A"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="1">
+                                <Setter Property="BackgroundColor" Value="#1A56CC"/>
+                                <Setter Property="TextColor"       Value="White"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="2">
+                                <Setter Property="BackgroundColor" Value="Transparent"/>
+                                <Setter Property="TextColor"       Value="#7A879A"/>
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                    <!-- Finances (visible si canBeDriver) -->
+                    <Button Grid.Column="2" Text="Finances"
+                            Command="{Binding SelectTabCommand}" CommandParameter="2"
+                            FontFamily="OpenSansSemibold" FontSize="12"
+                            FontAttributes="Bold" CornerRadius="10"
+                            HeightRequest="40" Padding="4,0"
+                            IsVisible="{Binding CanBeDriver}">
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="0">
+                                <Setter Property="BackgroundColor" Value="Transparent"/>
+                                <Setter Property="TextColor"       Value="#7A879A"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="1">
+                                <Setter Property="BackgroundColor" Value="Transparent"/>
+                                <Setter Property="TextColor"       Value="#7A879A"/>
+                            </DataTrigger>
+                            <DataTrigger TargetType="Button" Binding="{Binding SelectedTab}" Value="2">
+                                <Setter Property="BackgroundColor" Value="#BA7517"/>
+                                <Setter Property="TextColor"       Value="White"/>
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+
+                </Grid>
+            </Frame>
+        </Grid>
+
+        <!-- ── Contenu scrollable ─────────────────────────── -->
+        <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Spacing="0">
+
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                   IsVisible="{Binding IsLoading}"
+                                   Color="#1A56CC" Margin="0,40"/>
+
+                <!-- PANEL GOBOARD -->
+                <VerticalStackLayout Spacing="0" IsVisible="{Binding IsGoBoardVisible}">
+                    <gb:GoScoreHeroView BindingContext="{Binding Goboard.GoScoreHero}"/>
+                    <gb:GoTaskListView  BindingContext="{Binding Goboard.TaskList}"/>
+                    <gb:LeaderboardView BindingContext="{Binding Goboard.Leaderboard}"/>
+                    <gb:EcoChallengesView BindingContext="{Binding Goboard.EcoChallenges}"/>
+                    <gb:ScoreHistoryView  BindingContext="{Binding Goboard.ScoreHistory}"/>
+                    <BoxView HeightRequest="12"/>
+                </VerticalStackLayout>
+
+                <!-- PANEL STATISTIQUES -->
+                <VerticalStackLayout Spacing="0" IsVisible="{Binding IsStatsVisible}">
+
+                    <!-- Sélecteur de période -->
+                    <ScrollView Orientation="Horizontal"
+                                HorizontalScrollBarVisibility="Never"
+                                Padding="16,14,16,10">
+                        <HorizontalStackLayout Spacing="6">
+                            <Button Text="7 jours"
+                                    Command="{Binding Stats.SelectPeriodCommand}"
+                                    CommandParameter="SevenDays"
+                                    FontFamily="OpenSansSemibold" FontSize="12"
+                                    CornerRadius="18" HeightRequest="34" Padding="14,0"
+                                    BackgroundColor="White" TextColor="#7A879A"
+                                    BorderColor="#D8DBE5" BorderWidth="1.5"/>
+                            <Button Text="Ce mois"
+                                    Command="{Binding Stats.SelectPeriodCommand}"
+                                    CommandParameter="CurrentMonth"
+                                    FontFamily="OpenSansSemibold" FontSize="12"
+                                    CornerRadius="18" HeightRequest="34" Padding="14,0"
+                                    BackgroundColor="#08316e" TextColor="White"/>
+                            <Button Text="3 mois"
+                                    Command="{Binding Stats.SelectPeriodCommand}"
+                                    CommandParameter="ThreeMonths"
+                                    FontFamily="OpenSansSemibold" FontSize="12"
+                                    CornerRadius="18" HeightRequest="34" Padding="14,0"
+                                    BackgroundColor="White" TextColor="#7A879A"
+                                    BorderColor="#D8DBE5" BorderWidth="1.5"/>
+                            <Button Text="Tout"
+                                    Command="{Binding Stats.SelectPeriodCommand}"
+                                    CommandParameter="All"
+                                    FontFamily="OpenSansSemibold" FontSize="12"
+                                    CornerRadius="18" HeightRequest="34" Padding="14,0"
+                                    BackgroundColor="White" TextColor="#7A879A"
+                                    BorderColor="#D8DBE5" BorderWidth="1.5"/>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+
+                    <st:KpiGridView     BindingContext="{Binding Stats.KpiGrid}"/>
+                    <st:EvaluationView  BindingContext="{Binding Stats.Evaluations}"/>
+                    <st:RecentTripsView BindingContext="{Binding Stats.RecentTrips}"/>
+                    <st:BadgeGridView   BindingContext="{Binding Stats.Badges}"/>
+                    <BoxView HeightRequest="12"/>
+                </VerticalStackLayout>
+
+                <!-- PANEL FINANCES (conducteurs uniquement) -->
+                <VerticalStackLayout Spacing="0" IsVisible="{Binding IsFinanceVisible}">
+
+                    <fi:BalanceHeroView BindingContext="{Binding Finance.Balance}"
+                                        x:Name="BalanceHero"/>
+
+                    <ScrollView Orientation="Horizontal"
+                                HorizontalScrollBarVisibility="Never"
+                                Padding="16,14,16,10">
+                        <HorizontalStackLayout Spacing="6">
+                            <Button Text="7 jours"
+                                    Command="{Binding Finance.SelectPeriodCommand}"
+                                    CommandParameter="SevenDays"
+                                    FontFamily="OpenSansSemibold" FontSize="12"
+                                    CornerRadius="18" HeightRequest="34" Padding="14,0"
+                                    BackgroundColor="White" TextColor="#7A879A"
+                                    BorderColor="#D8DBE5" BorderWidth="1.5"/>
+                            <Button Text="Ce mois"
+                                    Command="{Binding Finance.SelectPeriodCommand}"
+                                    CommandParameter="CurrentMonth"
+                                    FontFamily="OpenSansSemibold" FontSize="12"
+                                    CornerRadius="18" HeightRequest="34" Padding="14,0"
+                                    BackgroundColor="#BA7517" TextColor="White"/>
+                            <Button Text="3 mois"
+                                    Command="{Binding Finance.SelectPeriodCommand}"
+                                    CommandParameter="ThreeMonths"
+                                    FontFamily="OpenSansSemibold" FontSize="12"
+                                    CornerRadius="18" HeightRequest="34" Padding="14,0"
+                                    BackgroundColor="White" TextColor="#7A879A"
+                                    BorderColor="#D8DBE5" BorderWidth="1.5"/>
+                            <Button Text="Tout"
+                                    Command="{Binding Finance.SelectPeriodCommand}"
+                                    CommandParameter="All"
+                                    FontFamily="OpenSansSemibold" FontSize="12"
+                                    CornerRadius="18" HeightRequest="34" Padding="14,0"
+                                    BackgroundColor="White" TextColor="#7A879A"
+                                    BorderColor="#D8DBE5" BorderWidth="1.5"/>
+                        </HorizontalStackLayout>
+                    </ScrollView>
+
+                    <fi:FinanceResumeView  BindingContext="{Binding Finance.Resume}"/>
+                    <fi:RevenueChartView   BindingContext="{Binding Finance.Chart}"/>
+                    <fi:TransactionListView BindingContext="{Binding Finance.Transactions}"/>
+                    <BoxView HeightRequest="12"/>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+</ContentView>

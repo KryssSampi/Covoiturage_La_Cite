@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace Covoiturage_la_cite__App_Mobile_
+namespace Covoiturage_la_cite__App_Mobile_.Platforms.MacCatalyst
 {
     public class Program
     {

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/finances/Views/Components/RevenueChartView.xaml
+  BindingContext : RevenueChartDisplayModel
+  Hauteur des barres via RatioToHeight converter.
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.finances.Views.Components.RevenueChartView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.finances.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:RevenueChartDisplayModel">
+
+    <VerticalStackLayout Spacing="0">
+        <Grid Padding="16,18,16,10">
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="📊" FontSize="14" VerticalOptions="Center"/>
+                <Label Text="Revenus hebdomadaires" FontFamily="OpenSansSemibold" FontSize="14"
+                       FontAttributes="Bold" TextColor="#0D1624" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <Frame BackgroundColor="White" CornerRadius="16" BorderColor="#12000000"
+               Padding="16" Margin="16,0" HasShadow="True">
+            <VerticalStackLayout Spacing="10">
+
+                <CollectionView ItemsSource="{Binding Bars}" SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="6"/>
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="dm:RevenueBarDisplayModel">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Fill" WidthRequest="54">
+
+                                <Label Text="{Binding Amount, StringFormat='{0:N1}$'}"
+                                       FontSize="9" TextColor="#7A879A"
+                                       HorizontalTextAlignment="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsNegative}" Value="True">
+                                            <Setter Property="Text"      Value="—"/>
+                                            <Setter Property="TextColor" Value="#E24B4A"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+
+                                <BoxView CornerRadius="4,4,0,0" HorizontalOptions="Fill"
+                                         BackgroundColor="#1D9E75"
+                                         HeightRequest="{Binding HeightRatio,
+                                             Converter={StaticResource RatioToHeight},
+                                             ConverterParameter='80'}">
+                                    <BoxView.Triggers>
+                                        <DataTrigger TargetType="BoxView" Binding="{Binding IsNegative}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="#FCEBEB"/>
+                                        </DataTrigger>
+                                    </BoxView.Triggers>
+                                </BoxView>
+
+                                <Label Text="{Binding PeriodLabel}"
+                                       FontSize="9" TextColor="#7A879A" FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"/>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Frame BackgroundColor="#E1F5EE" CornerRadius="10"
+                       BorderColor="Transparent" Padding="8" HasShadow="False">
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="📈" FontSize="14"/>
+                        <Label Text="{Binding InsightText}"
+                               FontSize="12" TextColor="#0F6E56"
+                               LineBreakMode="WordWrap" HorizontalOptions="Fill"/>
+                    </HorizontalStackLayout>
+                </Frame>
+            </VerticalStackLayout>
+        </Frame>
+    </VerticalStackLayout>
+</ContentView>

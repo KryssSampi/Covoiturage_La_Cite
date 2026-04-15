@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/goboard/Views/Components/GoScoreHeroView.xaml
+  BindingContext : GoScoreHeroDisplayModel
+  Largeur de la jauge calculée en code-behind.
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.goboard.Views.Components.GoScoreHeroView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.goboard.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:DataType="dm:GoScoreHeroDisplayModel">
+
+    <Grid BackgroundColor="#0F6E56">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <BoxView Grid.RowSpan="3" Color="#1D9E75" Opacity="0.35"/>
+
+        <!-- Score + Rang -->
+        <Grid Grid.Row="0" Padding="16,20,16,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                <Label Text="Mon GoScore"
+                       FontFamily="OpenSansRegular" FontSize="12"
+                       TextColor="#99FFFFFF" CharacterSpacing="0.7"/>
+                <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                    <Label Text="{Binding Score}"
+                           FontFamily="OpenSansSemibold" FontSize="44"
+                           FontAttributes="Bold" TextColor="White" LineHeight="1"/>
+                    <Label Text="/ 1000"
+                           FontFamily="OpenSansRegular" FontSize="18"
+                           TextColor="#80FFFFFF" VerticalOptions="End"
+                           Margin="0,0,0,8"/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <Frame Grid.Column="1"
+                   BackgroundColor="#26FFFFFF" CornerRadius="20" Padding="12,8"
+                   BorderColor="Transparent" VerticalOptions="Center">
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="{Binding RankEmoji}" FontSize="20"/>
+                    <Label Text="{Binding RankLabel}"
+                           FontFamily="OpenSansSemibold" FontSize="13"
+                           FontAttributes="Bold" TextColor="White" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </Frame>
+        </Grid>
+
+        <!-- Jauge (track + fill mis à jour en code-behind) -->
+        <Grid Grid.Row="1" Padding="16,0,16,6" x:Name="GaugeGrid">
+            <BoxView HeightRequest="10" CornerRadius="5"
+                     BackgroundColor="#33FFFFFF" HorizontalOptions="Fill"/>
+            <BoxView x:Name="GaugeFill"
+                     HeightRequest="10" CornerRadius="5"
+                     BackgroundColor="White" Opacity="0.85"
+                     HorizontalOptions="Start" WidthRequest="0"/>
+        </Grid>
+
+        <!-- Labels jauge -->
+        <Grid Grid.Row="2" Padding="16,0,16,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Text="0"        FontSize="11" TextColor="#80FFFFFF"/>
+            <Label Grid.Column="2"
+                   Text="{Binding LevelLabel}"
+                   FontSize="11" TextColor="#80FFFFFF" HorizontalOptions="Center"/>
+            <Label Grid.Column="4" Text="1000"     FontSize="11" TextColor="#80FFFFFF"/>
+        </Grid>
+    </Grid>
+</ContentView>

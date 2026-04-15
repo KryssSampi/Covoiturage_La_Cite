@@ -66,11 +66,6 @@ export function useDriverSearch({
   const [isLoading,   setIsLoading]   = useState<boolean>(false);
   const [error,       setError]       = useState<string | null>(null);
 
-  const TARGET_COUNT = 6;
-  const SHOW_PARTIAL_AFTER_MS = 60_000;
-  const TARGET_COUNT_DEADLINE_MS = 120_000;
-  const MAX_SEARCH_MS = 360_000; // 6 minutes
-  const RETRY_DELAY_MS = 5_000;
 
   async function runSearchWithTimeout(
     dep: [number, number],
@@ -79,36 +74,44 @@ export function useDriverSearch({
     arrLabel: string,
     onCancel?: () => boolean,
   ): Promise<void> {
-    const startedAt = Date.now();
-    let lastError: string | null = null;
+    const TARGET_COUNT             = 6;
+    const SHOW_PARTIAL_AFTER_MS    = 60_000;
+    const TARGET_COUNT_DEADLINE_MS = 120_000;
+    const MAX_SEARCH_MS            = 360_000;
+    const RETRY_DELAY_MS           = 5_000;
+
+    const startedAt  = Date.now();
     let bestResult: MapCircuit[] = [];
     let partialShown = false;
+    let lastError: string | null = null;
+
+    const apiUrl = `/api/circuits?dep=${dep.join(",")}&arr=${arr.join(",")}&depLabel=${encodeURIComponent(depLabel)}&arrLabel=${encodeURIComponent(arrLabel)}`;
 
     while (Date.now() - startedAt < MAX_SEARCH_MS) {
       const elapsed = Date.now() - startedAt;
       if (onCancel?.()) return;
+
       try {
-        const result = await fetchCircuits(dep, arr, depLabel, arrLabel);
+        const res    = await fetch(apiUrl);
+        if (!res.ok) throw new Error(`API HTTP ${res.status}`);
+        const result = await res.json() as MapCircuit[];
+
         if (onCancel?.()) return;
+
         if (result.length > bestResult.length) {
           bestResult = result;
-          if (bestResult.length > 0) {
-            setCircuits(bestResult);
-          }
+          if (bestResult.length > 0) setCircuits(bestResult);
         }
 
-        if (bestResult.length >= TARGET_COUNT && elapsed <= TARGET_COUNT_DEADLINE_MS) {
-          return;
-        }
+        if (bestResult.length >= TARGET_COUNT && elapsed <= TARGET_COUNT_DEADLINE_MS) return;
 
         if (!partialShown && elapsed >= SHOW_PARTIAL_AFTER_MS && bestResult.length > 0) {
           partialShown = true;
           setIsLoading(false);
         }
 
-        if (elapsed >= TARGET_COUNT_DEADLINE_MS && bestResult.length > 0) {
-          return;
-        }
+        if (elapsed >= TARGET_COUNT_DEADLINE_MS && bestResult.length > 0) return;
+
         lastError = "Aucun circuit trouvé entre ces deux points.";
       } catch (err) {
         lastError = err instanceof Error ? err.message : "Erreur lors de la recherche de circuits.";

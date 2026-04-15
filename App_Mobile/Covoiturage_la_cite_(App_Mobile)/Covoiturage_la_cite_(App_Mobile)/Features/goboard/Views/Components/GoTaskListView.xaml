@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Features/goboard/Views/Components/GoTaskListView.xaml
+  BindingContext : GoTaskListDisplayModel
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.goboard.Views.Components.GoTaskListView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.goboard.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    x:DataType="dm:GoTaskListDisplayModel">
+
+    <VerticalStackLayout Spacing="0">
+
+        <!-- En-tête -->
+        <Grid Padding="16,18,16,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <HorizontalStackLayout Grid.Column="0" Spacing="8">
+                <Label Text="✅" FontSize="14" VerticalOptions="Center"/>
+                <Label Text="Go!Tâches" FontFamily="OpenSansSemibold" FontSize="14"
+                       FontAttributes="Bold" TextColor="#0D1624" VerticalOptions="Center"/>
+            </HorizontalStackLayout>
+            <Label Grid.Column="1"
+                   Text="{Binding PotentialPoints, StringFormat='{0} pts à portée'}"
+                   FontSize="12" TextColor="#7A879A"/>
+        </Grid>
+
+        <!-- Carte liste -->
+        <Frame BackgroundColor="White" CornerRadius="16" BorderColor="#12000000"
+               Padding="0" Margin="16,0" HasShadow="True">
+            <CollectionView ItemsSource="{Binding Tasks}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="dm:GoTaskDisplayModel">
+                        <Grid Padding="14,12" ColumnSpacing="12" BackgroundColor="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="26"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Icône état -->
+                            <Frame Grid.Column="0"
+                                   WidthRequest="22" HeightRequest="22"
+                                   CornerRadius="11" Padding="0"
+                                   BorderColor="Transparent"
+                                   VerticalOptions="Start" Margin="0,2,0,0">
+                                <Frame.Triggers>
+                                    <DataTrigger TargetType="Frame" Binding="{Binding Status}"
+                                                 Value="Done">
+                                        <Setter Property="BackgroundColor" Value="#1D9E75"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Frame" Binding="{Binding Status}"
+                                                 Value="Todo">
+                                        <Setter Property="BackgroundColor" Value="Transparent"/>
+                                        <Setter Property="BorderColor"     Value="#D8DBE5"/>
+                                    </DataTrigger>
+                                </Frame.Triggers>
+                                <Label FontSize="12" TextColor="White"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Status}"
+                                                     Value="Done">
+                                            <Setter Property="Text" Value="✓"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Status}"
+                                                     Value="Todo">
+                                            <Setter Property="Text" Value=""/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Frame>
+
+                            <!-- Texte -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding Title}"
+                                       FontFamily="OpenSansSemibold" FontSize="13"
+                                       FontAttributes="Bold" TextColor="#0D1624">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label"
+                                                     Binding="{Binding Status}" Value="Done">
+                                            <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                            <Setter Property="TextColor"       Value="#7A879A"/>
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding Description}"
+                                       FontFamily="OpenSansRegular" FontSize="11"
+                                       TextColor="#7A879A" LineBreakMode="WordWrap"/>
+                            </VerticalStackLayout>
+
+                            <!-- Points -->
+                            <Label Grid.Column="2"
+                                   FontFamily="OpenSansSemibold" FontSize="13"
+                                   FontAttributes="Bold" VerticalOptions="Start" Margin="0,2,0,0">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding Status}" Value="Done">
+                                        <Setter Property="Text"      Value="{Binding Points, StringFormat='+{0} ✓'}"/>
+                                        <Setter Property="TextColor" Value="#1D9E75"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding Status}" Value="Todo">
+                                        <Setter Property="Text"      Value="{Binding Points, StringFormat='+{0}'}"/>
+                                        <Setter Property="TextColor" Value="#1A56CC"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+
+                            <BoxView Grid.ColumnSpan="3" HeightRequest="1"
+                                     BackgroundColor="#0D000000"
+                                     VerticalOptions="End" Margin="-14,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Frame>
+
+        <!-- Tip banner -->
+        <Frame BackgroundColor="#FAEEDA" CornerRadius="16" BorderColor="#33BA7517"
+               Padding="12,10" Margin="16,12,16,0" HasShadow="False">
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="ℹ" FontSize="14" TextColor="#BA7517" VerticalOptions="Start" Margin="0,1,0,0"/>
+                <Label FontFamily="OpenSansRegular" FontSize="12" TextColor="#854F0B"
+                       LineBreakMode="WordWrap" HorizontalOptions="Fill">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{Binding PotentialPoints, StringFormat='{0} points potentiels'}"
+                                  FontAttributes="Bold"/>
+                            <Span Text=" à portée de main. Complétez vos tâches pour grimper dans le classement."/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </HorizontalStackLayout>
+        </Frame>
+    </VerticalStackLayout>
+</ContentView>

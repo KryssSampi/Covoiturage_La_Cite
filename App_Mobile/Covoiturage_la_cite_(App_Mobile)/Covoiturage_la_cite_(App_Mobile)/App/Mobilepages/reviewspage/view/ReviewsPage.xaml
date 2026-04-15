@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  App/Mobilepages/reviewspage/view/ReviewsPage.xaml
+  Avis reçus / laissés — Shell detail.
+-->
+<ContentPage
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reviewspage.view.ReviewsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:list="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.ItemList.Views;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:revcomp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.reviews.Views.Components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:revdm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.reviews.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    Title="Mes avis"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F2F5FA">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" BackgroundColor="White" Padding="16,14,16,12"
+              ColumnDefinitions="Auto,*">
+            <Grid.Shadow>
+                <Shadow Brush="#0D000000" Offset="0,2" Radius="6" Opacity="1"/>
+            </Grid.Shadow>
+            <Button Grid.Column="0"
+                    Text="‹"
+                    FontSize="22" TextColor="#1A56CC"
+                    BackgroundColor="Transparent"
+                    Padding="0" WidthRequest="36"
+                    Command="{Binding GoBackCommand}"/>
+            <Label Grid.Column="1"
+                   Text="Mes avis"
+                   FontFamily="OpenSansSemibold" FontSize="18"
+                   TextColor="#0D1624" FontAttributes="Bold"
+                   VerticalOptions="Center" Margin="8,0,0,0"/>
+        </Grid>
+
+        <!-- Liste -->
+        <list:ItemListView Grid.Row="1" x:Name="ReviewsList">
+            <list:ItemListView.ItemTemplate>
+                <DataTemplate x:DataType="revdm:ReviewsCardDisplayModel">
+                    <revcomp:ReviewCard/>
+                </DataTemplate>
+            </list:ItemListView.ItemTemplate>
+        </list:ItemListView>
+
+    </Grid>
+</ContentPage>

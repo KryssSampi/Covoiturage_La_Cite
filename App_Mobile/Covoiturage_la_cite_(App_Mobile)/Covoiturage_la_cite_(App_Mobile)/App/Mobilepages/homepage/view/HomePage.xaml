@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.view.HomePage"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:cards="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.Views"
+             xmlns:cardDm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels"
+             xmlns:controllers="clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayControler"
+             xmlns:stats="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.statistiques.Views.Components"
+             xmlns:home="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.homepage.views.components"
+             BackgroundColor="#F2F5FA"
+             x:DataType="controllers:HomePageDisplayController">
+
+    <Grid>
+        <!-- Background image + gradient -->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid HorizontalOptions="Fill" Grid.Row="0">
+                <Image Source="homepagebackground.png"
+                       Aspect="AspectFill"
+                       HorizontalOptions="Fill"
+                       VerticalOptions="Start"
+                       TranslationY="-100"/>
+
+                <BoxView HorizontalOptions="Fill" VerticalOptions="Fill"
+                         TranslationY="-100">
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="Transparent" Offset="0.5" />
+                            <GradientStop Color="#F2F5FA" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
+            </Grid>
+            <Border Grid.Row="1" StrokeThickness="0"
+                    BackgroundColor="#F2F5FA" Opacity="0.6"/>
+        </Grid>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="350"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid HeightRequest="110" VerticalOptions="Start" Grid.Row="0">
+                <BoxView HorizontalOptions="Fill" VerticalOptions="Fill">
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                            <GradientStop Color="Transparent" Offset="0.05" />
+                            <GradientStop Color="#F2F5FA" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
+
+                <VerticalStackLayout Padding="5" Spacing="5" Margin="0,15,0,0">
+                    <Label FontFamily="OpenSansSemibold"
+                           FontSize="22"
+                           HorizontalOptions="End"
+                           TextColor="#0D1624">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Bienvenue, "/>
+                                <Span Text="{Binding DisplayModel.User.FirstName}"
+                                      FontAttributes="Bold"
+                                      TextColor="#08316e"/>
+                                <Span Text=" !"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label Text="Content de vous voir,"
+                           TextColor="#515151"
+                           HorizontalOptions="End"
+                           FontSize="18"/>
+                    <Label Text="Où allons-nous aujourd'hui ?"
+                           FontAttributes="Bold"
+                           TextColor="#08316e"
+                           FontSize="18"
+                           HorizontalOptions="End"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Search bar (composant) -->
+            <home:HomeSearchBar x:Name="SearchBarView"
+                                Grid.Row="1"
+                                Margin="20,0"
+                                BindingContext="{Binding HomepageFeature}"/>
+
+            <!-- Content -->
+            <ScrollView x:Name="MainScrollView"
+                        Orientation="Vertical"
+                        Grid.Row="2"
+                        Margin="0,10,0,0"
+                        Padding="20"
+                        Scrolled="OnMainScrollViewScrolled">
+                <VerticalStackLayout Spacing="20">
+
+                    <Grid RowSpacing="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Text="TRAJET EN COURS"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="Gray"/>
+                        <cards:LiveTrackingCard Grid.Row="1"
+                                                Model="{Binding DisplayModel.LiveTrip}"
+                                                IsVisible="{Binding DisplayModel.HasLiveTrip}"/>
+                    </Grid>
+
+                    <Grid RowSpacing="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Text="MES STATISTIQUES"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="Gray"/>
+                        <stats:KpiGridView Grid.Row="1"
+                                           BindingContext="{Binding DisplayModel.StatsKpis}"/>
+                    </Grid>
+
+
+                    <!-- Section Demandes / Notifications -->
+                    <Grid RowSpacing="8"
+                          IsVisible="{Binding DisplayModel.HasRequestsOrNotifications}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <Label Grid.Row="0"
+                               Text="{Binding DisplayModel.RequestsSectionTitle}"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="Gray"/>
+
+                        <!-- Demandes entrantes (conducteur) -->
+                        <CollectionView Grid.Row="1"
+                                        ItemsSource="{Binding DisplayModel.IncomingRequests}"
+                                        HeightRequest="210"
+                                        HorizontalScrollBarVisibility="Never"
+                                        IsVisible="{Binding DisplayModel.ShowIncomingRequests}">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="14"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="cardDm:IncomingReservationRequestCardDisplayModel">
+                                    <cards:IncomingReservationRequestCard
+                                        WidthRequest="320"
+                                        HeightRequest="200"
+                                        Model="{Binding .}"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <!-- Notifications (passager) -->
+                        <CollectionView Grid.Row="2"
+                                        ItemsSource="{Binding DisplayModel.Notifications}"
+                                        HeightRequest="160"
+                                        HorizontalScrollBarVisibility="Never"
+                                        IsVisible="{Binding DisplayModel.ShowNotifications}">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="12"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="cardDm:NotificationCardDisplayModel">
+                                    <cards:NotificationCard
+                                        HeightRequest="150"
+                                        Model="{Binding .}"/>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Grid>
+
+                    <Grid RowSpacing="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Text="PLUS DE FONCTIONNALITÉS"
+                               FontFamily="OpenSansSemibold"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="Gray"/>
+                        <home:HomeQuickNavGrid Grid.Row="1"
+                                               BindingContext="{Binding HomepageFeature}"/>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Grid>
+</ContentView>

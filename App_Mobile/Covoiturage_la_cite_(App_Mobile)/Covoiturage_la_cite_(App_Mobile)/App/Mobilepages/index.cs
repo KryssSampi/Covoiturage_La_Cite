@@ -1,0 +1,7 @@
+﻿[assembly: XmlnsDefinition("http://mobile.pages", "clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.view")]
+[assembly: XmlnsDefinition("http://mobile.pages", "clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.searchpage.view")]
+[assembly: XmlnsDefinition("http://mobile.pages", "clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.plannerpage.view")]
+[assembly: XmlnsDefinition("http://mobile.pages", "clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.favorispage.view")]
+[assembly: XmlnsDefinition("http://mobile.pages", "clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.statpage.view")]
+[assembly: XmlnsDefinition("http://mobile.pages", "clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationpage.view")]
+[assembly: XmlnsDefinition("http://mobile.pages", "clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationpage.view")]

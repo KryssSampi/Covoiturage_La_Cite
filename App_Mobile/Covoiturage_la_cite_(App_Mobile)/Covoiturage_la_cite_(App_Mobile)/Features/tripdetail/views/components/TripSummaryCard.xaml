@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    TripSummaryCard.xaml
+    Composant pure-view : carte résumé du trajet.
+    BindingContext = TripSummaryCardDisplayModel
+    Miroir de TripSummaryCard (web).
+-->
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.tripdetail.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.Features.tripdetail.views.components.TripSummaryCard"
+    x:DataType="dm:TripSummaryCardDisplayModel">
+
+    <Border
+        BackgroundColor="White"
+        Margin="16,-24,16,0"
+        Padding="16"
+        StrokeThickness="0">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="16"/>
+        </Border.StrokeShape>
+
+        <VerticalStackLayout Spacing="12">
+
+            <!-- Conducteur + Véhicule -->
+            <HorizontalStackLayout Spacing="12">
+                <Border
+                    WidthRequest="52" HeightRequest="52"
+                    StrokeThickness="2" Stroke="#e5e7eb">
+                    <Border.StrokeShape><Ellipse/></Border.StrokeShape>
+                    <Image Source="{Binding DriverAvatarUrl}" Aspect="AspectFill"/>
+                </Border>
+                <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                    <Label Text="{Binding DriverFirstName}" FontFamily="OpenSansSemibold" FontSize="15" TextColor="#1f2937"/>
+                    <HorizontalStackLayout Spacing="4">
+                        <Label Text="★" TextColor="#f59e0b" FontSize="12"/>
+                        <Label Text="{Binding DriverRating, StringFormat='{0:F1}'}" FontSize="12" TextColor="#4b5563"/>
+                        <Label Text="{Binding DriverTripCount, StringFormat='• {0} trajets'}" FontSize="12" TextColor="#9ca3af"/>
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding VehicleLabel}" FontSize="11" TextColor="#6b7280"/>
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+
+            <!-- Séparateur -->
+            <BoxView HeightRequest="1" BackgroundColor="#f3f4f6"/>
+
+            <!-- Date + Heure + Durée + Distance -->
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="Date" FontSize="10" TextColor="#9ca3af"/>
+                    <Label Text="{Binding DepartureDate}" FontSize="12" FontFamily="OpenSansSemibold" TextColor="#1f2937"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                    <Label Text="Heure" FontSize="10" TextColor="#9ca3af"/>
+                    <Label Text="{Binding DepartureTime}" FontSize="12" FontFamily="OpenSansSemibold" TextColor="#1f2937"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2" Spacing="2">
+                    <Label Text="Durée" FontSize="10" TextColor="#9ca3af"/>
+                    <Label Text="{Binding DurationLabel}" FontSize="12" FontFamily="OpenSansSemibold" TextColor="#1f2937"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="3" Spacing="2">
+                    <Label Text="Distance" FontSize="10" TextColor="#9ca3af"/>
+                    <Label Text="{Binding DistanceLabel}" FontSize="12" FontFamily="OpenSansSemibold" TextColor="#1f2937"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Séparateur -->
+            <BoxView HeightRequest="1" BackgroundColor="#f3f4f6"/>
+
+            <!-- Prix + Places + Paiement -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="Prix" FontSize="10" TextColor="#9ca3af"/>
+                    <Label Text="{Binding PriceLabel}" FontSize="16" FontFamily="OpenSansSemibold" TextColor="#16a34a"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                    <Label Text="Places" FontSize="10" TextColor="#9ca3af"/>
+                    <Label Text="{Binding SeatsLabel}" FontSize="12" FontFamily="OpenSansSemibold" TextColor="#1f2937"/>
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2" Spacing="2">
+                    <Label Text="Paiement" FontSize="10" TextColor="#9ca3af"/>
+                    <Label Text="{Binding PaymentMethodLabel}" FontSize="11" FontFamily="OpenSansSemibold" TextColor="#1f2937"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Bouton Réserver / Gérer (via commande de la page) -->
+            <Button
+                Text="{Binding ReserveButton.Label}"
+                BackgroundColor="{Binding ReserveButton.BackgroundHex}"
+                TextColor="{Binding ReserveButton.TextColorHex}"
+                IsEnabled="{Binding ReserveButton.IsEnabled}"
+                FontFamily="OpenSansSemibold"
+                FontSize="14"
+                CornerRadius="12"
+                HeightRequest="48"
+                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReserveCommand}"/>
+
+            <!-- Bouton Annuler (conditionnel) -->
+            <Button
+                Text="{Binding CancelLabel}"
+                IsVisible="{Binding ShowCancelButton}"
+                BackgroundColor="Transparent"
+                TextColor="#dc2626"
+                FontSize="12"
+                HeightRequest="36"
+                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CancelCommand}"/>
+
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

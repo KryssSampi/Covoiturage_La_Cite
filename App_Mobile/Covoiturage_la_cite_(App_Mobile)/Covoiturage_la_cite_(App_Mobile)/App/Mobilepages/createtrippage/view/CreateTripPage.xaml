@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    CreateTripPage.xaml
+    Page hors-MainView (Shell) — back arrow natif.
+    Formulaire de création de trajet (conducteur seulement).
+    Route : //createtrip?driverId={id}&departure={...}&arrival={...}&date={...}&time={...}
+
+    BindingContext = CreateTripPageDisplayModel
+    Sections :
+      1. Informations de base (départ, arrivée, date, heure, type)
+      2. Véhicule + places
+      3. Tarif + mode de paiement
+      4. Préférences
+      Boutons : Publier / Enregistrer comme brouillon / Retour
+-->
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.App.Mobilepages.createtrippage.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.createtrippage.view.CreateTripPage"
+    x:DataType="dm:CreateTripPageDisplayModel"
+    xmlns:sys="clr-namespace:System;assembly=netstandard"
+    BackgroundColor="#f0f4f8"
+    Shell.NavBarIsVisible="True"
+    Title="{Binding PageTitle}">
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="True" IsEnabled="True"/>
+    </Shell.BackButtonBehavior>
+
+    <ContentPage.Content>
+        <Grid>
+
+            <!-- ── Loading ──────────────────────────────────── -->
+            <ActivityIndicator
+                IsRunning="{Binding IsLoading}"
+                IsVisible="{Binding IsLoading}"
+                Color="#08316e"
+                HorizontalOptions="Center"
+                VerticalOptions="Center"/>
+
+            <!-- ── Formulaire ────────────────────────────────── -->
+            <ScrollView IsVisible="{Binding IsLoading, Converter={StaticResource InvertBool}}">
+                <VerticalStackLayout Padding="16,12" Spacing="14">
+
+                    <!-- Titre personnalisé -->
+                    <Label
+                        Text="{Binding WelcomeLabel}"
+                        FontFamily="OpenSansSemibold"
+                        FontSize="18"
+                        TextColor="#1f2937"
+                        LineBreakMode="WordWrap"/>
+
+                    <!-- ── SECTION 1 : Informations de base ──── -->
+                    <Border BackgroundColor="White" Padding="16" StrokeThickness="0">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="12">
+
+                            <Label Text="Informations de base" FontFamily="OpenSansSemibold" FontSize="14" TextColor="#08316e"/>
+
+                            <!-- Départ (read-only si prérempli) -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Lieu de départ" FontSize="12" TextColor="#4b5563"/>
+                                <Border BackgroundColor="#f9fafb" Padding="12,10" StrokeThickness="1" Stroke="{Binding BasicInfo.ErrorDeparture, Converter={StaticResource NullToColor}, ConverterParameter='#d1d5db|#ef4444'}">
+                                    <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                                    <Label Text="{Binding BasicInfo.DepartureLocation}" FontSize="13" TextColor="#1f2937"/>
+                                </Border>
+                                <Label Text="{Binding BasicInfo.ErrorDeparture}" FontSize="10" TextColor="#ef4444" IsVisible="{Binding BasicInfo.HasErrorDeparture}"/>
+                            </VerticalStackLayout>
+
+                            <!-- Arrivée (read-only si prérempli) -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Lieu d'arrivée" FontSize="12" TextColor="#4b5563"/>
+                                <Border BackgroundColor="#f9fafb" Padding="12,10" StrokeThickness="1" Stroke="{Binding BasicInfo.ErrorArrival, Converter={StaticResource NullToColor}, ConverterParameter='#d1d5db|#ef4444'}">
+                                    <Border.StrokeShape><RoundRectangle CornerRadius="8"/></Border.StrokeShape>
+                                    <Label Text="{Binding BasicInfo.ArrivalLocation}" FontSize="13" TextColor="#1f2937"/>
+                                </Border>
+                                <Label Text="{Binding BasicInfo.ErrorArrival}" FontSize="10" TextColor="#ef4444" IsVisible="{Binding BasicInfo.HasErrorArrival}"/>
+                            </VerticalStackLayout>
+
+                            <!-- Date + Heure -->
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Text="Date de départ" FontSize="12" TextColor="#4b5563"/>
+                                    <DatePicker
+                                        Format="yyyy-MM-dd"
+                                        MinimumDate="{x:Static sys:DateTime.Today}"
+                                        Date="{Binding BasicInfo.DepartureDate, Converter={StaticResource StringToDate}}"
+                                        FontSize="13"
+                                        TextColor="#1f2937"/>
+                                    <Label Text="{Binding BasicInfo.ErrorDate}" FontSize="10" TextColor="#ef4444" IsVisible="{Binding BasicInfo.HasErrorDate}"/>
+                                </VerticalStackLayout>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                    <Label Text="Heure de départ" FontSize="12" TextColor="#4b5563"/>
+                                    <TimePicker
+                                        Time="{Binding BasicInfo.DepartureTime, Converter={StaticResource StringToTime}}"
+                                        FontSize="13"
+                                        TextColor="#1f2937"/>
+                                    <Label Text="{Binding BasicInfo.ErrorTime}" FontSize="10" TextColor="#ef4444" IsVisible="{Binding BasicInfo.HasErrorTime}"/>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Type de trajet -->
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Type de trajet" FontSize="12" TextColor="#4b5563"/>
+                                <HorizontalStackLayout Spacing="16">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <RadioButton IsChecked="{Binding BasicInfo.IsUnique}" CheckedChanged="OnTripTypeUniqueChanged"/>
+                                        <Label Text="Unique" FontSize="13" TextColor="#1f2937" VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="8">
+                                        <RadioButton IsChecked="{Binding BasicInfo.IsUnique, Converter={StaticResource InvertBool}}" CheckedChanged="OnTripTypeRecurrentChanged"/>
+                                        <Label Text="Récurrent" FontSize="13" TextColor="#1f2937" VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ── SECTION 2 : Véhicule + places ────── -->
+                    <Border BackgroundColor="White" Padding="16" StrokeThickness="0">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="12">
+
+                            <Label Text="Véhicule et places" FontFamily="OpenSansSemibold" FontSize="14" TextColor="#08316e"/>
+
+                            <!-- Picker véhicule -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Mon véhicule" FontSize="12" TextColor="#4b5563"/>
+                                <Picker
+                                    ItemsSource="{Binding Vehicle.Vehicles}"
+                                    SelectedItem="{Binding Vehicle.SelectedVehicle}"
+                                    ItemDisplayBinding="{Binding Label}"
+                                    Title="Sélectionner un véhicule"
+                                    FontSize="13"
+                                    TextColor="#1f2937"/>
+                                <Label Text="{Binding Vehicle.ErrorVehicle}" FontSize="10" TextColor="#ef4444" IsVisible="{Binding Vehicle.HasErrorVehicle}"/>
+                            </VerticalStackLayout>
+
+                            <!-- Stepper places -->
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Places disponibles" FontSize="12" TextColor="#4b5563"/>
+                                <HorizontalStackLayout Spacing="16" HorizontalOptions="Start">
+                                    <Button
+                                        Text="−" WidthRequest="40" HeightRequest="40"
+                                        CornerRadius="8"
+                                        BackgroundColor="#f3f4f6" TextColor="#1f2937"
+                                        FontSize="18"
+                                        Command="{Binding DecrementSeatsCommand}"/>
+                                    <Label
+                                        Text="{Binding Vehicle.SeatsLabel}"
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="15"
+                                        TextColor="#1f2937"
+                                        VerticalOptions="Center"
+                                        WidthRequest="80"
+                                        HorizontalTextAlignment="Center"/>
+                                    <Button
+                                        Text="+" WidthRequest="40" HeightRequest="40"
+                                        CornerRadius="8"
+                                        BackgroundColor="#f3f4f6" TextColor="#1f2937"
+                                        FontSize="18"
+                                        Command="{Binding IncrementSeatsCommand}"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ── SECTION 3 : Tarif + paiement ─────── -->
+                    <Border BackgroundColor="White" Padding="16" StrokeThickness="0">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="12">
+
+                            <Label Text="Tarif et paiement" FontFamily="OpenSansSemibold" FontSize="14" TextColor="#08316e"/>
+
+                            <!-- Stepper prix -->
+                            <HorizontalStackLayout Spacing="16" HorizontalOptions="Start">
+                                <Button
+                                    Text="−" WidthRequest="40" HeightRequest="40"
+                                    CornerRadius="8"
+                                    BackgroundColor="#f3f4f6" TextColor="#1f2937"
+                                    FontSize="18"
+                                    Command="{Binding DecrementPriceCommand}"/>
+                                <VerticalStackLayout VerticalOptions="Center">
+                                    <Label Text="{Binding Pricing.PriceLabel}" FontFamily="OpenSansSemibold" FontSize="20" TextColor="#16a34a" HorizontalOptions="Center"/>
+                                    <Label Text="{Binding Pricing.PassengerPriceLabel}" FontSize="10" TextColor="#9ca3af" HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                                <Button
+                                    Text="+" WidthRequest="40" HeightRequest="40"
+                                    CornerRadius="8"
+                                    BackgroundColor="#f3f4f6" TextColor="#1f2937"
+                                    FontSize="18"
+                                    Command="{Binding IncrementPriceCommand}"/>
+                            </HorizontalStackLayout>
+
+                            <!-- Mode de paiement -->
+                            <HorizontalStackLayout Spacing="10">
+                                <Button
+                                    Text="En espèces"
+                                    BackgroundColor="{Binding Pricing.IsCash, Converter={StaticResource BoolToBlue}}"
+                                    TextColor="{Binding Pricing.IsCash, Converter={StaticResource BoolToWhiteGray}}"
+                                    CornerRadius="8" FontSize="12" HeightRequest="36"
+                                    Command="{Binding SetPaymentCashCommand}"/>
+                                <Button
+                                    Text="Interac"
+                                    BackgroundColor="{Binding Pricing.IsCash, Converter={StaticResource InvertBoolToBlue}}"
+                                    TextColor="{Binding Pricing.IsCash, Converter={StaticResource BoolToGrayWhite}}"
+                                    CornerRadius="8" FontSize="12" HeightRequest="36"
+                                    Command="{Binding SetPaymentInteracCommand}"/>
+                            </HorizontalStackLayout>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ── SECTION 4 : Préférences ───────────── -->
+                    <Border BackgroundColor="White" Padding="16" StrokeThickness="0">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="10">
+
+                            <Label Text="Préférences" FontFamily="OpenSansSemibold" FontSize="14" TextColor="#08316e"/>
+
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                <!-- Bagages -->
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="8">
+                                    <Switch IsToggled="{Binding Pricing.BaggageAllowed}" Scale="0.8"/>
+                                    <Label Text="Bagages" FontSize="12" TextColor="#4b5563" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                                <!-- Animaux -->
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="8">
+                                    <Switch IsToggled="{Binding Pricing.PetsAllowed}" Scale="0.8"/>
+                                    <Label Text="Animaux" FontSize="12" TextColor="#4b5563" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                                <!-- Fumeurs -->
+                                <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="8">
+                                    <Switch IsToggled="{Binding Pricing.SmokingAllowed}" Scale="0.8"/>
+                                    <Label Text="Fumeurs" FontSize="12" TextColor="#4b5563" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                                <!-- Musique -->
+                                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="8">
+                                    <Switch IsToggled="{Binding Pricing.MusicAllowed}" Scale="0.8"/>
+                                    <Label Text="Musique" FontSize="12" TextColor="#4b5563" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                                <!-- Itinéraire flexible -->
+                                <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Spacing="8">
+                                    <Switch IsToggled="{Binding Pricing.FlexibleItinerary}" Scale="0.8"/>
+                                    <Label Text="Itinéraire flexible" FontSize="12" TextColor="#4b5563" VerticalOptions="Center"/>
+                                </HorizontalStackLayout>
+                            </Grid>
+
+                            <!-- Note conducteur -->
+                            <Label Text="Message aux passagers (optionnel)" FontSize="12" TextColor="#4b5563" Margin="0,4,0,0"/>
+                            <Editor
+                                Text="{Binding Pricing.DriverNote}"
+                                Placeholder="Ex : Soyez ponctuels !"
+                                PlaceholderColor="#9ca3af"
+                                FontSize="13"
+                                HeightRequest="72"
+                                BackgroundColor="#f9fafb"/>
+
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ── BOUTONS D'ACTION ───────────────────── -->
+                    <VerticalStackLayout Spacing="10" Padding="0,4">
+
+                        <Button
+                            Text="{Binding IsSubmitting, Converter={StaticResource BoolToPublishLabel}}"
+                            BackgroundColor="#08316e"
+                            TextColor="White"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="15"
+                            CornerRadius="12"
+                            HeightRequest="50"
+                            IsEnabled="{Binding IsSubmitting, Converter={StaticResource InvertBool}}"
+                            Command="{Binding PublishCommand}"/>
+
+                        <Button
+                            Text="Enregistrer comme brouillon"
+                            BackgroundColor="#f3f4f6"
+                            TextColor="#374151"
+                            FontSize="14"
+                            CornerRadius="12"
+                            HeightRequest="44"
+                            IsEnabled="{Binding IsSubmitting, Converter={StaticResource InvertBool}}"
+                            Command="{Binding SaveDraftCommand}"/>
+
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- ── Toast publication ─────────────────────────── -->
+            <Grid
+                IsVisible="{Binding Toast.IsOpen}"
+                BackgroundColor="#80000000"
+                ZIndex="10">
+                <Border
+                    BackgroundColor="White"
+                    Padding="24"
+                    Margin="24"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="360"
+                    StrokeThickness="0">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="{Binding Toast.IsSuccess, Converter={StaticResource BoolToSuccessEmoji}}"
+                            FontSize="36" HorizontalOptions="Center"/>
+                        <Label
+                            Text="{Binding Toast.Title}"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="17"
+                            TextColor="#08316e"
+                            HorizontalOptions="Center"/>
+                        <Label
+                            Text="{Binding Toast.Message}"
+                            FontSize="13"
+                            TextColor="#4b5563"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"/>
+                        <Button
+                            Text="{Binding Toast.OkLabel}"
+                            BackgroundColor="#08316e"
+                            TextColor="White"
+                            CornerRadius="10"
+                            FontSize="14"
+                            HorizontalOptions="Center"
+                            WidthRequest="180"
+                            Command="{Binding DismissToastCommand}"/>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- ── Modale avertissement indisponibilité ────────── -->
+            <Grid
+                IsVisible="{Binding ShowIndispoWarning}"
+                BackgroundColor="#80000000"
+                ZIndex="20">
+                <Border
+                    BackgroundColor="White"
+                    Padding="24"
+                    Margin="32"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    MaximumWidthRequest="340"
+                    StrokeThickness="0">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="16"/></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="⚠️" FontSize="36" HorizontalOptions="Center"/>
+                        <Label
+                            Text="Vous êtes déclaré indisponible"
+                            FontFamily="OpenSansSemibold"
+                            FontSize="16"
+                            TextColor="#08316e"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"/>
+                        <Label
+                            Text="Ce trajet est prévu durant une période d'indisponibilité. Voulez-vous quand même le créer ?"
+                            FontSize="13"
+                            TextColor="#4b5563"
+                            HorizontalTextAlignment="Center"/>
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Button
+                                Text="Annuler"
+                                BackgroundColor="#f3f4f6"
+                                TextColor="#374151"
+                                CornerRadius="10"
+                                FontSize="13"
+                                Command="{Binding DismissIndispoCommand}"/>
+                            <Button
+                                Text="Créer quand même"
+                                BackgroundColor="#08316e"
+                                TextColor="White"
+                                CornerRadius="10"
+                                FontSize="13"
+                                Command="{Binding ConfirmDespiteIndispoCommand}"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
+
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

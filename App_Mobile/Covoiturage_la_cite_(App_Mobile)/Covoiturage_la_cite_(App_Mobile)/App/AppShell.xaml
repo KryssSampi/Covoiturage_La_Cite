@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+═══════════════════════════════════════════════════════════════════════
+ AppShell.xaml — Shell avec Flyout custom
+
+ ARCHITECTURE :
+   • MainView = page principale avec TopBar + TabBar custom
+   • Flyout = SideNav (ouvert via TopBar custom, pas l'icône native)
+   • Pages détail = poussées via Shell.GoToAsync() avec NavBar native
+
+ NAVIGATION :
+   • Onglets MainView → NavigationService (custom)
+   • SideNav → Shell.FlyoutIsPresented (via TopBar)
+   • Pages hors-wrapper → Shell natif avec back button
+═══════════════════════════════════════════════════════════════════════
+-->
+<Shell
+    x:Class="Covoiturage_la_cite__App_Mobile_.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:main="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.customshell.views.components"
+    xmlns:ui="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.ui"
+    Shell.FlyoutBehavior="Flyout"
+    Shell.FlyoutWidth="300"
+    FlyoutBackgroundColor="White"
+    Shell.NavBarIsVisible="True"
+    Shell.TabBarIsVisible="False"
+    x:Name="AppShellRoot">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         FLYOUT CUSTOM (SideNav)
+    ═══════════════════════════════════════════════════════════════ -->
+    <Shell.FlyoutHeader>
+        <ui:SideNavHeader/>
+    </Shell.FlyoutHeader>
+
+    <Shell.FlyoutContent>
+        <ui:SideNavContent/>
+    </Shell.FlyoutContent>
+
+    <Shell.FlyoutFooter>
+        <ui:SideNavFooter/>
+    </Shell.FlyoutFooter>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         RESSOURCES
+    ═══════════════════════════════════════════════════════════════ -->
+    <Shell.Resources>
+        <ResourceDictionary>
+            <Color x:Key="PrimaryBlue">#1A56CC</Color>
+            <Color x:Key="PrimaryBlueDark">#08316e</Color>
+            <Color x:Key="SurfaceColor">#FFFFFF</Color>
+            <Color x:Key="BackgroundColor">#F2F5FA</Color>
+            <Color x:Key="Gray400">#8A95A8</Color>
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         POINT D'ENTRÉE — MainView
+         TopBar + TabBar custom, NavBar Shell désactivée.
+         FlyoutIcon caché car TopBar gère l'ouverture du menu.
+    ═══════════════════════════════════════════════════════════════ -->
+    <ShellContent
+        ContentTemplate="{DataTemplate main:MainView}"
+        Route="main"
+        Shell.NavBarIsVisible="False"
+        FlyoutItemIsVisible="False"/>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PAGES DÉTAIL (via GoToAsync)
+         NavBar Shell = back button natif.
+         Routes enregistrées dans AppShell.xaml.cs
+    ═══════════════════════════════════════════════════════════════ -->
+
+</Shell>

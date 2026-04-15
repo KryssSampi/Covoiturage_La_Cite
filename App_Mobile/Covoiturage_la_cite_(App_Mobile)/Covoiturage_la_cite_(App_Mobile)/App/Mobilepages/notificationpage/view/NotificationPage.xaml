@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  App/Mobilepages/notificationpage/view/NotificationPage.xaml
+  Liste de notifications (onglet MainView).
+  Utilise le composant générique ItemList.
+  Les cartes utilisent NotificationCard.
+  Tap sur une carte → Shell.GoToAsync("notificationdetail?notificationId={id}")
+-->
+<ContentView
+    x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationpage.view.NotificationPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:list="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.ItemList.Views;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:notifcomp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.notifications.views.components;assembly=Covoiturage_la_cite_(App_Mobile)"
+    xmlns:notifdm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.notifications.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
+    BackgroundColor="#F2F5FA">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- En-tête -->
+        <Label Grid.Row="0"
+               Text="Notifications"
+               FontFamily="OpenSansSemibold"
+               FontSize="22"
+               TextColor="#0D1624"
+               Padding="16,16,16,8"/>
+
+        <!-- Composant liste générique -->
+        <list:ItemListView
+            Grid.Row="1"
+            x:Name="NotifList">
+            <list:ItemListView.ItemTemplate>
+                <DataTemplate x:DataType="notifdm:NotificationCardDisplayModel">
+                    <notifcomp:NotificationCard x:Name="CardView">
+                        <notifcomp:NotificationCard.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="OnNotificationCardTapped"/>
+                        </notifcomp:NotificationCard.GestureRecognizers>
+                    </notifcomp:NotificationCard>
+                </DataTemplate>
+            </list:ItemListView.ItemTemplate>
+        </list:ItemListView>
+
+    </Grid>
+</ContentView>
