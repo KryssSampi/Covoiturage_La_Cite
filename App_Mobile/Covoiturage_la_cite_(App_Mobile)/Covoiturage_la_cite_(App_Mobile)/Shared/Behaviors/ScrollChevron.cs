@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace Covoiturage_la_cite__App_Mobile_.Shared.Behaviors
 {
     public static class ScrollChevron
@@ -99,41 +101,51 @@ namespace Covoiturage_la_cite__App_Mobile_.Shared.Behaviors
             SetState(bindable, null);
         }
 
-        private static Label CreateChevronLabel()
+        private static View? CreateChevronIcon(string materialIcon)
         {
-            return new Label
+            try
             {
-                FontSize = 16,
-                TextColor = Color.FromArgb("#3D4A5C"),
-                Opacity = 0.9,
-                InputTransparent = true,
-                IsVisible = false
-            };
-        }
+                // Build a tiny XAML snippet that creates a MauiIcon from the registered provider.
+                var xaml = $"<mi:MauiIcon xmlns=\"http://schemas.microsoft.com/dotnet/2021/maui\" xmlns:mi=\"http://www.aathifmahir.com/dotnet/2022/maui/icons\" Icon=\"{{mi:Material Icon={materialIcon}}}\" IconSize=\"16\" IconColor=\"#3D4A5C\" Opacity=\"0.35\" InputTransparent=\"True\" IsVisible=\"False\" />";
 
-        private static void ConfigureChevrons(ScrollOrientation orientation, Label startChevron, Label endChevron)
-        {
-            if (orientation == ScrollOrientation.Horizontal)
-            {
-                startChevron.Text = "<";
-                endChevron.Text = ">";
-                startChevron.HorizontalOptions = LayoutOptions.Start;
-                endChevron.HorizontalOptions = LayoutOptions.End;
-                startChevron.VerticalOptions = LayoutOptions.Center;
-                endChevron.VerticalOptions = LayoutOptions.Center;
-                startChevron.Margin = new Thickness(6, 0);
-                endChevron.Margin = new Thickness(6, 0);
+                // Attempt to locate the internal XamlLoader via reflection and invoke its Load method.
+                Type? loaderType = null;
+                foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    try
+                    {
+                        loaderType = asm.GetType("Microsoft.Maui.Controls.Xaml.XamlLoader", throwOnError: false, ignoreCase: false);
+                    }
+                    catch
+                    {
+                        loaderType = null;
+                    }
+                    if (loaderType != null)
+                        break;
+                }
+
+                if (loaderType != null)
+                {
+                    var loadMethod = loaderType.GetMethod(
+                        "Load",
+                        BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic,
+                        binder: null,
+                        types: new[] { typeof(string) },
+                        modifiers: null);
+
+                    if (loadMethod != null)
+                    {
+                        var obj = loadMethod.Invoke(null, new object[] { xaml });
+                        return obj as View;
+                    }
+                }
+
+                // If reflection failed, fall back to null so caller will use the Label fallback.
+                return null;
             }
-            else
+            catch
             {
-                startChevron.Text = "^";
-                endChevron.Text = "v";
-                startChevron.HorizontalOptions = LayoutOptions.Center;
-                endChevron.HorizontalOptions = LayoutOptions.Center;
-                startChevron.VerticalOptions = LayoutOptions.Start;
-                endChevron.VerticalOptions = LayoutOptions.End;
-                startChevron.Margin = new Thickness(0, 6);
-                endChevron.Margin = new Thickness(0, 6);
+                return null;
             }
         }
 
@@ -194,10 +206,6 @@ namespace Covoiturage_la_cite__App_Mobile_.Shared.Behaviors
 
             state.StartChevron.IsVisible = first > 0;
             state.EndChevron.IsVisible = last < count - 1;
-
-            ConfigureChevrons(orientation == ItemsLayoutOrientation.Horizontal
-                ? ScrollOrientation.Horizontal
-                : ScrollOrientation.Vertical, state.StartChevron, state.EndChevron);
         }
 
         private static void AttachScrollView(ScrollView scrollView)
@@ -205,10 +213,33 @@ namespace Covoiturage_la_cite__App_Mobile_.Shared.Behaviors
             if (GetState(scrollView) != null)
                 return;
 
-            var startChevron = CreateChevronLabel();
-            var endChevron = CreateChevronLabel();
+            // Choose material icons based on orientation
+            var (startIcon, endIcon) = scrollView.Orientation == ScrollOrientation.Horizontal
+                ? ("ChevronLeft", "ChevronRight")
+                : ("KeyboardArrowUp", "KeyboardArrowDown");
 
-            ConfigureChevrons(scrollView.Orientation, startChevron, endChevron);
+            var startChevron = CreateChevronIcon(startIcon) ?? new Label();
+            var endChevron = CreateChevronIcon(endIcon) ?? new Label();
+
+            // Apply placement and margins similar to previous implementation
+            if (scrollView.Orientation == ScrollOrientation.Horizontal)
+            {
+                startChevron.HorizontalOptions = LayoutOptions.Start;
+                endChevron.HorizontalOptions = LayoutOptions.End;
+                startChevron.VerticalOptions = LayoutOptions.Center;
+                endChevron.VerticalOptions = LayoutOptions.Center;
+                startChevron.Margin = new Thickness(6, 0);
+                endChevron.Margin = new Thickness(6, 0);
+            }
+            else
+            {
+                startChevron.HorizontalOptions = LayoutOptions.Center;
+                endChevron.HorizontalOptions = LayoutOptions.Center;
+                startChevron.VerticalOptions = LayoutOptions.Start;
+                endChevron.VerticalOptions = LayoutOptions.End;
+                startChevron.Margin = new Thickness(0, 6);
+                endChevron.Margin = new Thickness(0, 6);
+            }
 
             if (!TryAddOverlay(scrollView, startChevron, endChevron, out var host, out var parentChanged))
                 return;
@@ -242,13 +273,32 @@ namespace Covoiturage_la_cite__App_Mobile_.Shared.Behaviors
             if (GetState(collectionView) != null)
                 return;
 
-            var startChevron = CreateChevronLabel();
-            var endChevron = CreateChevronLabel();
-
             var orientation = GetItemsOrientation(collectionView.ItemsLayout);
-            ConfigureChevrons(orientation == ItemsLayoutOrientation.Horizontal
-                ? ScrollOrientation.Horizontal
-                : ScrollOrientation.Vertical, startChevron, endChevron);
+            var (startIcon, endIcon) = orientation == ItemsLayoutOrientation.Horizontal
+                ? ("ChevronLeft", "ChevronRight")
+                : ("KeyboardArrowUp", "KeyboardArrowDown");
+
+            var startChevron = CreateChevronIcon(startIcon) ?? new Label();
+            var endChevron = CreateChevronIcon(endIcon) ?? new Label();
+
+            if (orientation == ItemsLayoutOrientation.Horizontal)
+            {
+                startChevron.HorizontalOptions = LayoutOptions.Start;
+                endChevron.HorizontalOptions = LayoutOptions.End;
+                startChevron.VerticalOptions = LayoutOptions.Center;
+                endChevron.VerticalOptions = LayoutOptions.Center;
+                startChevron.Margin = new Thickness(6, 0);
+                endChevron.Margin = new Thickness(6, 0);
+            }
+            else
+            {
+                startChevron.HorizontalOptions = LayoutOptions.Center;
+                endChevron.HorizontalOptions = LayoutOptions.Center;
+                startChevron.VerticalOptions = LayoutOptions.Start;
+                endChevron.VerticalOptions = LayoutOptions.End;
+                startChevron.Margin = new Thickness(0, 6);
+                endChevron.Margin = new Thickness(0, 6);
+            }
 
             if (!TryAddOverlay(collectionView, startChevron, endChevron, out var host, out var parentChanged))
                 return;
@@ -281,7 +331,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Shared.Behaviors
             UpdateVisibility(collectionView);
         }
 
-        private static bool TryAddOverlay(View view, Label startChevron, Label endChevron, out Grid? host, out EventHandler? parentChanged)
+        private static bool TryAddOverlay(View view, View startChevron, View endChevron, out Grid? host, out EventHandler? parentChanged)
         {
             host = null;
             parentChanged = null;
@@ -292,12 +342,12 @@ namespace Covoiturage_la_cite__App_Mobile_.Shared.Behaviors
                 Grid.SetRow(startChevron, Grid.GetRow(view));
                 Grid.SetColumn(startChevron, Grid.GetColumn(view));
                 Grid.SetRowSpan(startChevron, Grid.GetRowSpan(view));
-                Grid.SetColumnSpan(startChevron, Grid.GetColumnSpan(view));
+                Grid.SetColumnSpan(startChevron, Grid.GetColumn(view));
 
                 Grid.SetRow(endChevron, Grid.GetRow(view));
                 Grid.SetColumn(endChevron, Grid.GetColumn(view));
                 Grid.SetRowSpan(endChevron, Grid.GetRowSpan(view));
-                Grid.SetColumnSpan(endChevron, Grid.GetColumnSpan(view));
+                Grid.SetColumnSpan(endChevron, Grid.GetColumn(view));
 
                 startChevron.ZIndex = 99;
                 endChevron.ZIndex = 99;
@@ -375,8 +425,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Shared.Behaviors
         private sealed class ChevronState
         {
             public Grid? Host { get; set; }
-            public Label? StartChevron { get; set; }
-            public Label? EndChevron { get; set; }
+            public View? StartChevron { get; set; }
+            public View? EndChevron { get; set; }
             public ScrollView? ScrollView { get; set; }
             public CollectionView? CollectionView { get; set; }
             public EventHandler<ScrolledEventArgs>? ScrolledHandler { get; set; }

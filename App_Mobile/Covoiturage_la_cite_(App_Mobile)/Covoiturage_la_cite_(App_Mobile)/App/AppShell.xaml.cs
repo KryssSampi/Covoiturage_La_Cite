@@ -15,8 +15,11 @@ using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.historiquepage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.brouillonspage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reviewspage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.nouveautespage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.view;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.views.components;
+using Covoiturage_la_cite__App_Mobile_.Services.Auth;
 using Covoiturage_la_cite__App_Mobile_.Services.navigation;
 
 namespace Covoiturage_la_cite__App_Mobile_
@@ -26,12 +29,15 @@ namespace Covoiturage_la_cite__App_Mobile_
         private readonly ShellControler _shellControler;
         private readonly NavigationService _navService;
 
-        public AppShell(ShellControler shellControler, NavigationService navService)
+        private readonly IAuthService _authService;
+
+        public AppShell(ShellControler shellControler, NavigationService navService, IAuthService authService)
         {
             InitializeComponent();
 
             _shellControler = shellControler;
             _navService = navService;
+            _authService = authService;
 
             BindingContext = shellControler;
 
@@ -39,6 +45,16 @@ namespace Covoiturage_la_cite__App_Mobile_
             FlyoutIcon = new FileImageSource(); // Icône vide
 
             RegisterRoutes();
+        }
+
+        /// <summary>
+        /// Vérifie l'état d'auth au démarrage et redirige si nécessaire.
+        /// Appelé depuis App.xaml.cs après que le Shell est affiché.
+        /// </summary>
+        public async Task CheckAuthAndRedirectAsync()
+        {
+            if (!_authService.IsLoggedIn)
+                await GoToAsync("login");
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -68,8 +84,8 @@ namespace Covoiturage_la_cite__App_Mobile_
             Routing.RegisterRoute("nouveautes",               typeof(NouveautesPage));
             // Routing.RegisterRoute("payment",                  typeof(PaymentPage));
             // Routing.RegisterRoute("avis",                     typeof(AvisPage));
-            // Routing.RegisterRoute("login",                    typeof(LoginPage));
-            // Routing.RegisterRoute("onboarding",               typeof(OnboardingPage));
+            Routing.RegisterRoute("login",   typeof(LoginPage));
+            Routing.RegisterRoute("otp",     typeof(OtpPage));
         }
 
         // ─────────────────────────────────────────────────────────────

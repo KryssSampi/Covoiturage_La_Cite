@@ -1,10 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!-- Shared/Cards/Views/LiveTrackingCard.xaml -->
 <ContentView
     x:Class="Covoiturage_la_cite__App_Mobile_.Shared.Cards.Views.LiveTrackingCard"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     x:DataType="dm:LiveTrackingCardDisplayModel">
 
     <Frame BackgroundColor="White" CornerRadius="16" BorderColor="#12000000"
@@ -62,8 +63,9 @@
                         <Label Text="{Binding DriverName}"
                            FontFamily="OpenSansSemibold" FontSize="14"
                            FontAttributes="Bold" TextColor="#0D1624"/>
-                        <Label Text="&#x2605;" FontFamily="FluentFilledIcons"
-                               FontSize="15" TextColor="#F59E0B" Margin="0,-4,0,0"/>
+                           <mi:MauiIcon Icon="{mi:Material Icon=Star}"
+                                  IconSize="15" IconColor="#F59E0B"
+                                  Margin="0,-4,0,0"/>
                         <Label Text="{Binding DriverRating, StringFormat='{0:F1}'}"
                                FontSize="12" TextColor="#7A879A"/>
                     </HorizontalStackLayout>

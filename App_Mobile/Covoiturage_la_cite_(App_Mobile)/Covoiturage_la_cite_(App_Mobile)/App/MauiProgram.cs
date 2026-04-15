@@ -26,6 +26,10 @@ using Covoiturage_la_cite__App_Mobile_.Features.search.Services;
 using Covoiturage_la_cite__App_Mobile_.Features.search.Utils;
 using Covoiturage_la_cite__App_Mobile_.Core.Models;
 using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.DisplayController;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.DisplayController;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.view;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.planner.DisplayController;
@@ -37,6 +41,9 @@ using Covoiturage_la_cite__App_Mobile_.Features.finances.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.finances.Services;
 using Covoiturage_la_cite__App_Mobile_.Features.statistiques.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.statistiques.Services;
+using Covoiturage_la_cite__App_Mobile_.Services.Api;
+using Covoiturage_la_cite__App_Mobile_.Services.Auth;
+using Covoiturage_la_cite__App_Mobile_.Services.Cache;
 using Covoiturage_la_cite__App_Mobile_.Services.Map;
 using Covoiturage_la_cite__App_Mobile_.Services.navigation;
 using MauiIcons.Cupertino;
@@ -57,7 +64,7 @@ namespace Covoiturage_la_cite__App_Mobile_.App
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                fonts.AddFont("FluentSystemIcons-Regular.ttf", "FluentRegularIcons");
+                fonts.AddFont("FluentSystemIcons-Regular.ttf", "MauiIcons");
                 fonts.AddFont("FluentSystemIcons-Filled.ttf", "FluentFilledIcons");
                 fonts.AddFont("FluentSystemIcons-Resizable.ttf", "FluentResizableIcons");
                 fonts.AddFont("FluentSystemIcons-Light.ttf", "FluentLightIcons");
@@ -66,12 +73,25 @@ namespace Covoiturage_la_cite__App_Mobile_.App
              .UseCupertinoMauiIcons()
             .UseFontAwesomeMauiIcons()
             .UseFluentFilledMauiIcons();
+            // -- Infrastructure : API + Cache + Auth --
+            builder.Services.AddSingleton<IApiService, ApiService>();
+            builder.Services.AddSingleton<ISQLiteService, SQLiteService>();
+            builder.Services.AddSingleton<IJsonCacheService, JsonCacheService>();
+            builder.Services.AddSingleton<IAuthService, AuthService>();
+
             // -- Singletons Shell (vivent pour toute la dur�e de l'app) --
             builder.Services.AddSingleton<ShellControler>();
             builder.Services.AddSingleton<NavigationService>();
             builder.Services.AddSingleton<AppShell>();
             builder.Services.AddSingleton<MainPage>();
-            builder.Services.AddSingleton<UserViewModel>();
+            builder.Services.AddSingleton<UserViewModel>(sp =>
+            {
+                var vm = new UserViewModel();
+                // ApiService sera injecté après construction pour éviter la dépendance circulaire
+                var api = sp.GetRequiredService<IApiService>();
+                vm.SetApiService(api);
+                return vm;
+            });
             builder.Services.AddSingleton<IStatistiquesService, StatistiquesService>();
             builder.Services.AddSingleton<StatistiquesDisplayController>();
             builder.Services.AddSingleton<IGoboardService, GoboardService>();
@@ -139,6 +159,12 @@ namespace Covoiturage_la_cite__App_Mobile_.App
             // -- Feature Messaging (ConversationPage pour les détails) --
             builder.Services.AddTransient<ConversationPageDisplayController>();
             builder.Services.AddTransient<ConversationPage>();
+
+            // -- Pages Auth --
+            builder.Services.AddTransient<LoginPageDisplayController>();
+            builder.Services.AddTransient<LoginPage>();
+            builder.Services.AddTransient<OtpPageDisplayController>();
+            builder.Services.AddTransient<OtpPage>();
 
             // -- Pages hors-MainView : historique, brouillons, reviews, nouveautés --
             builder.Services.AddTransient<HistoriquePage>();

@@ -19,7 +19,8 @@
     x:Class="Covoiturage_la_cite__App_Mobile_.Shared.ItemList.Views.ItemListView"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons">
 
     <Grid RowSpacing="0">
         <Grid.RowDefinitions>
@@ -53,28 +54,24 @@
             </Grid.ColumnDefinitions>
 
             <!-- ── Bouton Filtre ── -->
-            <Button Grid.Column="0"
-                    x:Name="FilterButton"
-                    WidthRequest="42" HeightRequest="42"
-                    Padding="0" CornerRadius="12"
-                    BackgroundColor="#EEF0F5"
-                    Command="{Binding ToggleFilterMenuCommand}">
-                <!-- Icône Fluent "Filter" -->
-                <Button.ImageSource>
-                    <FontImageSource
-                        FontFamily="FluentRegularIcons"
-                        Glyph="&#xF230;"
-                        Size="20"
-                        Color="#3D4A5C"/>
-                </Button.ImageSource>
-                <!-- Change couleur si filtre actif -->
-                <Button.Triggers>
-                    <DataTrigger TargetType="Button"
-                                 Binding="{Binding HasActiveFiltersOrSort}" Value="True">
-                        <Setter Property="BackgroundColor" Value="#08316e"/>
-                    </DataTrigger>
-                </Button.Triggers>
-            </Button>
+            <Grid Grid.Column="0" WidthRequest="42" HeightRequest="42">
+                <Button x:Name="FilterButton"
+                        WidthRequest="42" HeightRequest="42"
+                        Padding="0" CornerRadius="12"
+                        BackgroundColor="#EEF0F5"
+                        Command="{Binding ToggleFilterMenuCommand}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button"
+                                     Binding="{Binding HasActiveFiltersOrSort}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#08316e"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+                <mi:MauiIcon Icon="{mi:Material Icon=FilterList}"
+                             IconSize="20" IconColor="#3D4A5C"
+                             HorizontalOptions="Center" VerticalOptions="Center"
+                             InputTransparent="True"/>
+            </Grid>
 
             <!-- ── Barre de recherche ── -->
             <Frame Grid.Column="1"
@@ -95,13 +92,13 @@
                         <ColumnDefinition Width="36"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Icône loupe -->
-                    <Label Grid.Column="0"
-                           Text="&#xF1EB;"
-                           FontFamily="FluentRegularIcons"
-                           FontSize="18" TextColor="#8A95A8"
-                           HorizontalTextAlignment="Center"
-                           VerticalTextAlignment="Center"/>
+                          <!-- Icône loupe -->
+                          <mi:MauiIcon Grid.Column="0"
+                                 Icon="{mi:Material Icon=Search}"
+                                 IconSize="18"
+                                 IconColor="#8A95A8"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"/>
 
                     <!-- Input -->
                     <Entry Grid.Column="1"
@@ -117,43 +114,39 @@
                            Text="{Binding SearchText, Mode=TwoWay}"/>
 
                     <!-- Clear button -->
-                    <Button Grid.Column="2"
-                            x:Name="ClearSearchButton"
-                            BackgroundColor="Transparent"
-                            Padding="0"
-                            IsVisible="False">
-                        <Button.ImageSource>
-                            <FontImageSource
-                                FontFamily="FluentFilledIcons"
-                                Glyph="&#xE8BB;"
-                                Size="16"
-                                Color="#8A95A8"/>
-                        </Button.ImageSource>
-                    </Button>
+                    <Grid Grid.Column="2" WidthRequest="36">
+                        <Button x:Name="ClearSearchButton"
+                                BackgroundColor="Transparent"
+                                Padding="0"
+                                IsVisible="False"/>
+                        <mi:MauiIcon Icon="{mi:Material Icon=Close}"
+                                     IconSize="16" IconColor="#8A95A8"
+                                     HorizontalOptions="Center" VerticalOptions="Center"
+                                     InputTransparent="True"
+                                     IsVisible="{Binding IsVisible, Source={x:Reference ClearSearchButton}}"/>
+                    </Grid>
                 </Grid>
             </Frame>
 
             <!-- ── Bouton Tri ── -->
-            <Button Grid.Column="2"
-                    x:Name="SortButton"
-                    WidthRequest="42" HeightRequest="42"
-                    Padding="0" CornerRadius="12"
-                    BackgroundColor="#EEF0F5"
-                    Command="{Binding ToggleSortMenuCommand}">
-                <Button.ImageSource>
-                    <FontImageSource
-                        FontFamily="FluentRegularIcons"
-                        Glyph="&#xF1F7;"
-                        Size="20"
-                        Color="#3D4A5C"/>
-                </Button.ImageSource>
-                <Button.Triggers>
-                    <DataTrigger TargetType="Button"
-                                 Binding="{Binding HasActiveFiltersOrSort}" Value="True">
-                        <Setter Property="BackgroundColor" Value="#08316e"/>
-                    </DataTrigger>
-                </Button.Triggers>
-            </Button>
+            <Grid Grid.Column="2" WidthRequest="42" HeightRequest="42">
+                <Button x:Name="SortButton"
+                        WidthRequest="42" HeightRequest="42"
+                        Padding="0" CornerRadius="12"
+                        BackgroundColor="#EEF0F5"
+                        Command="{Binding ToggleSortMenuCommand}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button"
+                                     Binding="{Binding HasActiveFiltersOrSort}" Value="True">
+                            <Setter Property="BackgroundColor" Value="#08316e"/>
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+                <mi:MauiIcon Icon="{mi:Material Icon=Sort}"
+                             IconSize="20" IconColor="#3D4A5C"
+                             HorizontalOptions="Center" VerticalOptions="Center"
+                             InputTransparent="True"/>
+            </Grid>
         </Grid>
 
         <!-- ══════════════════════════════════════════════════════
@@ -238,12 +231,10 @@
                                                             <Setter Property="BorderColor"     Value="#08316e"/>
                                                         </DataTrigger>
                                                     </Frame.Triggers>
-                                                    <Label Text="&#xF297;"
-                                                           FontFamily="FluentFilledIcons"
-                                                           FontSize="12" TextColor="White"
-                                                           HorizontalTextAlignment="Center"
-                                                           VerticalTextAlignment="Center"
-                                                           IsVisible="{Binding IsActive}"/>
+                                                       <mi:MauiIcon Icon="{mi:Material Icon=Check}"
+                                                                    IconSize="12" IconColor="White"
+                                                                    HorizontalOptions="Center" VerticalOptions="Center"
+                                                                    IsVisible="{Binding IsActive}"/>
                                                 </Frame>
 
                                                 <!-- Tap sur toute la ligne -->
@@ -375,15 +366,13 @@
                              HorizontalOptions="Center"
                              Spacing="12" Padding="32">
             <!-- Icône -->
-            <Frame WidthRequest="64" HeightRequest="64" CornerRadius="32"
-                   BackgroundColor="#EEF0F5" BorderColor="Transparent"
-                   HasShadow="False" HorizontalOptions="Center">
-                <Label Text="{Binding EmptyIconGlyph}"
-                       FontFamily="FluentRegularIcons"
-                       FontSize="30" TextColor="#8A95A8"
-                       HorizontalTextAlignment="Center"
-                       VerticalTextAlignment="Center"/>
-            </Frame>
+                     <Frame WidthRequest="64" HeightRequest="64" CornerRadius="32"
+                         BackgroundColor="#EEF0F5" BorderColor="Transparent"
+                         HasShadow="False" HorizontalOptions="Center">
+                     <mi:MauiIcon Icon="{Binding EmptyIconGlyph}"
+                                      IconSize="30" IconColor="#8A95A8"
+                                      HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Frame>
             <Label Text="{Binding EmptyTitle}"
                    FontFamily="OpenSansSemibold" FontSize="16"
                    FontAttributes="Bold" TextColor="#3D4A5C"
@@ -400,15 +389,13 @@
                              VerticalOptions="Center"
                              HorizontalOptions="Center"
                              Spacing="12" Padding="32">
-            <Frame WidthRequest="64" HeightRequest="64" CornerRadius="32"
-                   BackgroundColor="#FCEBEB" BorderColor="Transparent"
-                   HasShadow="False" HorizontalOptions="Center">
-                <Label Text="{Binding NoInternetIconGlyph}"
-                       FontFamily="FluentRegularIcons"
-                       FontSize="30" TextColor="#E24B4A"
-                       HorizontalTextAlignment="Center"
-                       VerticalTextAlignment="Center"/>
-            </Frame>
+                     <Frame WidthRequest="64" HeightRequest="64" CornerRadius="32"
+                         BackgroundColor="#FCEBEB" BorderColor="Transparent"
+                         HasShadow="False" HorizontalOptions="Center">
+                     <mi:MauiIcon Icon="{Binding NoInternetIconGlyph}"
+                                      IconSize="30" IconColor="#E24B4A"
+                                      HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Frame>
             <Label Text="{Binding NoInternetTitle}"
                    FontFamily="OpenSansSemibold" FontSize="16"
                    FontAttributes="Bold" TextColor="#3D4A5C"

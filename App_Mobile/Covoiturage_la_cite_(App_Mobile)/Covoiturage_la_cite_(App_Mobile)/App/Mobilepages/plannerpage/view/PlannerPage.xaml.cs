@@ -8,6 +8,7 @@
 //   - Charger les données fixtures (à remplacer par API)
 // ════════════════════════════════════════════════════════════════════════
 
+using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
 using Covoiturage_la_cite__App_Mobile_.Features.planner.DisplayController;
 using Covoiturage_la_cite__App_Mobile_.Features.planner.DisplayModels;
 using Covoiturage_la_cite__App_Mobile_.Features.planner.Fixtures;
@@ -66,13 +67,25 @@ public partial class PlannerPage : ContentView
 
     private void LoadData()
     {
-        // Rôle simulé : changer en UserRole.Passenger pour tester
-        const UserRole role = UserRole.Driver;
-
-        var items = role == UserRole.Driver
+        var userVm = IPlatformApplication.Current.Services.GetRequiredService<UserViewModel>();
+        
+        // Correction : remplacer l'expression switch par une instruction switch classique
+        UserRole role;
+        switch (userVm.Role)
+        {
+            case (Core.Models.UserRole)UserRole.Driver:
+                role = UserRole.Driver;
+                break;
+            case (Core.Models.UserRole)UserRole.Passenger:
+                role = UserRole.Passenger;
+                break;
+            default:
+                role = UserRole.Passenger; // fallback
+                break;
+        }
+        var items = userVm.Role == (Core.Models.UserRole)UserRole.Driver
             ? PlannerFixtures.DriverItems()
             : PlannerFixtures.PassengerItems();
-
         _controller.SetData(role, items);
 
         // TODO : charger depuis API
@@ -333,7 +346,4 @@ public class PlannerItemListController : Covoiturage_la_cite__App_Mobile_.Shared
     public event EventHandler<IReadOnlyList<string>>? FilterChanged;
     public event EventHandler<string>?                SortChanged;
 }
-
-
-
 

@@ -29,6 +29,9 @@ namespace Covoiturage_la_cite__App_Mobile_.Services.navigation
             "stats",
             "profil",
             "favoris",
+            "trajets",
+            "demandes",
+            "conducteurs_favoris",
         };
 
         // Routes poussées au Shell natif (back natif, pas de chrome custom)

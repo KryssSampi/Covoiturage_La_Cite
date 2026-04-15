@@ -103,6 +103,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Config.Shell
                 },
                 Label      = "Demande",
                 Route      = "demandes",
+                RequiredRole = "Driver",
             },
             new()
             {
@@ -113,16 +114,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Config.Shell
                 },
                 Label      = "Conducteurs favoris",
                 Route      = "conducteurs_favoris",
-            },
-            new()
-            {
-                IconFactory = new MauiIcon
-                {
-                    Icon = FluentFilledIcons.Shield20Filled,
-                    IconSize = 22,
-                },
-                Label      = "Sécurité & Urgence",
-                Route      = "urgence",
+                RequiredRole = "Passenger",
             },
             new()
             {
@@ -132,32 +124,12 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Config.Shell
                     IconSize = 22,
                 },
                 Label      = "Mon profil",
-                Route      = "//profil",
+                Route      = "profil",
             },
         };
 
         public static readonly IReadOnlyList<SideNavFooterItem> FooterItems =
         [
-            new()
-            {
-                IconFactory = new MauiIcon
-                {
-                    Icon = FluentFilledIcons.Settings20Filled,
-                    IconSize = 22,
-                },
-                Label      = "Paramètres",
-                Route      = "parametres",
-            },
-            new()
-            {
-                IconFactory = new MauiIcon
-                {
-                    Icon = FluentFilledIcons.Info20Filled,
-                    IconSize = 22,
-                },
-                Label      = "À propos",
-                Route      = "apropos",
-            },
             new()
             {
                 IconFactory = new MauiIcon

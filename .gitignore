@@ -4,3 +4,13 @@ auto-commit.code-workspace
 *.code-workspace
 *.code-search
 *.code-snippets 
+*.code-workspace
+*.code-search
+*.code-snippets
+.vscode/
+.idea/
+*.sln
+.roo/
+Talkichatbot/
+logs/
+docs/

@@ -7,17 +7,18 @@
     x:Class="Covoiturage_la_cite__App_Mobile_.Shared.Cards.Views.PassengerReservationCard"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels">
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons">
 
     <Frame BackgroundColor="White" CornerRadius="16" BorderColor="#12000000"
            HasShadow="True" Padding="0" IsClippedToBounds="True">
         <VerticalStackLayout>
 
             <!-- Bandeau confirmée (teal) -->
-            <HorizontalStackLayout x:Name="ConfirmedBanner" IsVisible="False"
-                                   BackgroundColor="#E1F5EE" Padding="14,7" Spacing="7">
-                <Label Text="&#xF297;" FontFamily="FluentFilledIcons"
-                       FontSize="14" TextColor="#0F6E56"/>
+              <HorizontalStackLayout x:Name="ConfirmedBanner" IsVisible="False"
+                        BackgroundColor="#E1F5EE" Padding="14,7" Spacing="7">
+              <mi:MauiIcon Icon="{mi:Material Icon=Check}"
+                     IconSize="14" IconColor="#0F6E56"/>
                 <Label Text="Réservation confirmée" FontFamily="OpenSansSemibold"
                        FontSize="12" FontAttributes="Bold" TextColor="#0F6E56"/>
             </HorizontalStackLayout>
@@ -71,8 +72,7 @@
                         <Label Text="Avec : " FontSize="13" TextColor="#3D4A5C"/>
                         <Label Text="{Binding DriverName}"
                                FontSize="13" FontAttributes="Bold" TextColor="#1A56CC"/>
-                        <Label Text="&#xF6E0;" FontFamily="FluentFilledIcons"
-                               FontSize="11" TextColor="#F59E0B"/>
+                           <mi:MauiIcon Icon="{mi:Material Icon=Star}" IconSize="11" IconColor="#F59E0B" VerticalOptions="Center" HorizontalOptions="Start"/>
                         <Label Text="{Binding DriverRating, StringFormat='{0:F1}'}"
                                FontSize="12" TextColor="#BA7517"/>
                     </HorizontalStackLayout>
@@ -82,8 +82,8 @@
                                  Fill="#1A56CC" VerticalOptions="Center"/>
                         <Label Text="{Binding Route.FromLabel}"
                                FontSize="12" TextColor="#3D4A5C"/>
-                        <Label Text="&#xE90F;" FontFamily="FluentRegularIcons"
-                               FontSize="12" TextColor="#8A95A8"/>
+                           <mi:MauiIcon Icon="{mi:Material Icon=ChevronRight}"
+                                  IconSize="12" IconColor="#8A95A8"/>
                         <Ellipse WidthRequest="7" HeightRequest="7"
                                  Fill="#E24B4A" VerticalOptions="Center"/>
                         <Label Text="{Binding Route.ToLabel}"

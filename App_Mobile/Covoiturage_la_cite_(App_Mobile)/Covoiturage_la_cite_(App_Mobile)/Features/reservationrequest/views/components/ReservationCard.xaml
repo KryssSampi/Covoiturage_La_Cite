@@ -11,6 +11,7 @@
     x:Class="Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.views.components.ReservationCard"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.DisplayModels;assembly=Covoiturage_la_cite_(App_Mobile)"
     x:DataType="dm:ReservationListCardDisplayModel">
 
@@ -55,9 +56,9 @@
 
             <!-- ── Date et heure ── -->
             <HorizontalStackLayout Spacing="6">
-                <Label Text="&#xF150;" FontFamily="FluentRegularIcons"
-                       FontSize="13" TextColor="#7A879A"
-                       VerticalOptions="Center"/>
+                <mi:MauiIcon Icon="{mi:Material Icon=Timer}"
+                             IconSize="13" IconColor="#7A879A"
+                             VerticalOptions="Center"/>
                 <Label FontSize="12" TextColor="#7A879A" VerticalOptions="Center">
                     <Label.FormattedText>
                         <FormattedString>

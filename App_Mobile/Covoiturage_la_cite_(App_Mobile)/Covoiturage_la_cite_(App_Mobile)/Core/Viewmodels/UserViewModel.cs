@@ -1,11 +1,18 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using Covoiturage_la_cite__App_Mobile_.Core.Models;
+using Covoiturage_la_cite__App_Mobile_.Services.Api;
 
 namespace Covoiturage_la_cite__App_Mobile_.Core.Viewmodels
 {
     public class UserViewModel : INotifyPropertyChanged
     {
+        private IApiService? _api;
+
+        /// <summary>Injecte l'ApiService après construction (évite la dépendance circulaire DI).</summary>
+        public void SetApiService(IApiService api) => _api = api;
+
         private string _firstName = "";
         private string _lastName = "";
         private string _initials = "";
@@ -33,14 +40,25 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Viewmodels
             default, // CreatedAt
             default // UpdatedAt
         );
-        private UserRole _role = UserRole.Passenger;
+private UserRole? _role;
+public UserRole Role
+{
+    get => _role ?? UserRole.Driver;
+    set
+    {
+        if (_role != value)
+        {
+            _role = value;
+            OnPropertyChanged();
+        }
+    }
+}
 
         public string FirstName { get => _firstName; set => SetField(ref _firstName, value); }
         public string LastName { get => _lastName; set => SetField(ref _lastName, value); }
         public string Initials { get => _initials; set => SetField(ref _initials, value); }
         public string Email { get => _email; set => SetField(ref _email, value); }
         public string AvatarUrl { get => _avatarUrl; set => SetField(ref _avatarUrl, value); }
-        public UserRole Role { get => _role; set => SetField(ref _role, value); }
 
         public UserModel User
         {
@@ -56,6 +74,29 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Viewmodels
             ? FirstName
             : $"{FirstName} {LastName}";
 
+        /// <summary>
+        /// Charge le profil depuis le Server Core et peuple le ViewModel.
+        /// Appelé juste après un login réussi.
+        /// </summary>
+        public async Task LoadFromServerAsync(string userId)
+        {
+            if (_api == null) return;
+            try
+            {
+                var dto = await _api.GetAsync<UserDto>("api/users/me");
+                if (dto == null) return;
+
+                FirstName = dto.FirstName ?? "";
+                LastName = dto.LastName ?? "";
+                Initials = dto.Initials ?? $"{dto.FirstName?[0]}{dto.LastName?[0]}".ToUpper();
+                Email = dto.Email ?? "";
+                AvatarUrl = dto.AvatarUrl ?? "";
+                Role = dto.Role == "Driver" ? UserRole.Driver : UserRole.Passenger;
+                OnPropertyChanged(nameof(DisplayName));
+            }
+            catch { /* Si offline, le VM reste avec le state précédent */ }
+        }
+
         public void Load(UserModel model)
         {
             FirstName = model.FirstName;
@@ -63,7 +104,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Viewmodels
             Initials = model.Initials;
             Email = model.Email;
             AvatarUrl = model.AvatarUrl ?? "";
-            Role = model.Role;
+            _role = model.Role;
             OnPropertyChanged(nameof(DisplayName));
         }
 

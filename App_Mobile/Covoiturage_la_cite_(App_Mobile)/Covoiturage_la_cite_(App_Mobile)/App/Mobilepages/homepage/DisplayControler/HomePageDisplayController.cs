@@ -1,9 +1,9 @@
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayModels;
-using Covoiturage_la_cite__App_Mobile_.Core.Models;
 using Covoiturage_la_cite__App_Mobile_.Core.Config;
+using Covoiturage_la_cite__App_Mobile_.Core.Models;
 using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
-using Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayConverters;
 using Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayConverters;
 using Covoiturage_la_cite__App_Mobile_.Features.statistiques.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.statistiques.Fixtures;
 using Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels;
@@ -69,7 +69,7 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayContr
                 DriverAvatar: new AvatarDisplayModel("AL", "#E8F0FE", "#1A56CC"),
                 DriverName: "Alex Lavoie",
                 DriverRating: 4.8,
-                VehicleLabel: "Toyota Corolla · Noire · ABC-4521",
+                VehicleLabel: "Toyota Corolla ï¿½ Noire ï¿½ ABC-4521",
                 EtaMinutes: 7,
                 MapImageSource: "homepagebackground.png"
             );
@@ -84,18 +84,18 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayContr
                     PassengerName: "Marie Lefebvre",
                     PassengerRating: 4.6,
                     PassengerTripCount: 12,
-                    Route: new RouteDisplayModel("Barrhaven", "Campus La Cité"),
-                    TripTimeLabel: "Demain · 07:40",
+                    Route: new RouteDisplayModel("Barrhaven", "Campus La Citï¿½"),
+                    TripTimeLabel: "Demain ï¿½ 07:40",
                     Price: 12,
                     SeatsInfo: 3
                 ),
                 new(
                     PassengerAvatar: new AvatarDisplayModel("TP", "#E1F5EE", "#0F6E56"),
-                    PassengerName: "Thomas Piché",
+                    PassengerName: "Thomas Pichï¿½",
                     PassengerRating: 4.9,
                     PassengerTripCount: 28,
-                    Route: new RouteDisplayModel("Orléans", "Campus La Cité"),
-                    TripTimeLabel: "Mercredi · 08:15",
+                    Route: new RouteDisplayModel("Orlï¿½ans", "Campus La Citï¿½"),
+                    TripTimeLabel: "Mercredi ï¿½ 08:15",
                     Price: 10,
                     SeatsInfo: 2
                 )
@@ -109,7 +109,7 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayContr
                 new(
                     Avatar: new AvatarDisplayModel("JL", "#E8F0FE", "#1A56CC"),
                     SenderName: "Julie Landry",
-                    Message: "Votre demande a été acceptée.",
+                    Message: "Votre demande a ï¿½tï¿½ acceptï¿½e.",
                     TimeLabel: "Il y a 3 min",
                     Type: NotificationType.Confirmed,
                     Route: new RouteDisplayModel("Campus", "ByWard"),
@@ -119,7 +119,7 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayContr
                 new(
                     Avatar: new AvatarDisplayModel("RP", "#FAEEDA", "#F59E0B"),
                     SenderName: "Rachid P.",
-                    Message: "Votre trajet a été annulé.",
+                    Message: "Votre trajet a ï¿½tï¿½ annulï¿½.",
                     TimeLabel: "Il y a 12 min",
                     Type: NotificationType.Cancelled,
                     Route: new RouteDisplayModel("Gatineau", "Campus"),
@@ -134,7 +134,7 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayContr
             bool isDriver = _userViewModel.Role == UserRole.Driver;
             DisplayModel.RequestsSectionTitle = isDriver
                 ? "NOUVELLES DEMANDES"
-                : "MISE À JOUR SUR VOS DEMANDES";
+                : "MISE ï¿½ JOUR SUR VOS DEMANDES";
             DisplayModel.ShowIncomingRequests = isDriver;
             DisplayModel.ShowNotifications = !isDriver;
         }

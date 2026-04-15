@@ -163,4 +163,5 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler
             return true;
         }
     }
+
 }

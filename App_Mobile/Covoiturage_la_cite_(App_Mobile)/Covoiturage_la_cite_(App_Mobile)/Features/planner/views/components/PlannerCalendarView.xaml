@@ -11,6 +11,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.planner.DisplayModels"
     xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.planner.converters"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     BackgroundColor="White">
 
     <ContentView.Resources>
@@ -32,14 +33,13 @@
             <Frame Grid.Column="0" WidthRequest="32" HeightRequest="32"
                    CornerRadius="16" BackgroundColor="#F8F9FC"
                    BorderColor="#D8DBE5" Padding="0" HasShadow="False">
-                <Label Text="&#xE90C;" FontFamily="FluentRegularIcons"
-                       FontSize="16" TextColor="#3D4A5C"
-                       HorizontalTextAlignment="Center"
-                       VerticalTextAlignment="Center">
-                    <Label.GestureRecognizers>
+                <mi:MauiIcon Icon="{mi:Material Icon=ChevronLeft}"
+                             IconSize="16" IconColor="#3D4A5C"
+                             HorizontalOptions="Center" VerticalOptions="Center">
+                    <mi:MauiIcon.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding PreviousMonthCommand}"/>
-                    </Label.GestureRecognizers>
-                </Label>
+                    </mi:MauiIcon.GestureRecognizers>
+                </mi:MauiIcon>
             </Frame>
 
             <!-- Mois + Année (tapable) -->
@@ -54,14 +54,13 @@
             <Frame Grid.Column="2" WidthRequest="32" HeightRequest="32"
                    CornerRadius="16" BackgroundColor="#F8F9FC"
                    BorderColor="#D8DBE5" Padding="0" HasShadow="False">
-                <Label Text="&#xE90F;" FontFamily="FluentRegularIcons"
-                       FontSize="16" TextColor="#3D4A5C"
-                       HorizontalTextAlignment="Center"
-                       VerticalTextAlignment="Center">
-                    <Label.GestureRecognizers>
+                <mi:MauiIcon Icon="{mi:Material Icon=ChevronRight}"
+                             IconSize="16" IconColor="#3D4A5C"
+                             HorizontalOptions="Center" VerticalOptions="Center">
+                    <mi:MauiIcon.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding NextMonthCommand}"/>
-                    </Label.GestureRecognizers>
-                </Label>
+                    </mi:MauiIcon.GestureRecognizers>
+                </mi:MauiIcon>
             </Frame>
         </Grid>
 

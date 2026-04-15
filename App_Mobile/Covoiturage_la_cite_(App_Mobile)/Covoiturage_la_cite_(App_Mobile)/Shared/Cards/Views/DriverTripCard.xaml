@@ -8,7 +8,8 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels"
-    xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Converters">
+    xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Converters"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons">
 
     <Frame BackgroundColor="White" CornerRadius="16" BorderColor="#12000000"
            HasShadow="True" Padding="0" IsClippedToBounds="True">
@@ -48,10 +49,7 @@
                 <Frame Grid.Column="0" WidthRequest="52" HeightRequest="52"
                        CornerRadius="12" Padding="0"
                        BackgroundColor="#E8F0FE" BorderColor="Transparent">
-                    <Label Text="&#xF51C;" FontFamily="FluentFilledIcons"
-                           FontSize="28" TextColor="#1A56CC"
-                           HorizontalTextAlignment="Center"
-                           VerticalTextAlignment="Center"/>
+                          <mi:MauiIcon Icon="{mi:Material Icon=DirectionsCar}" IconSize="28" IconColor="#1A56CC" HorizontalOptions="Center" VerticalOptions="Center" />
                 </Frame>
 
                 <!-- Infos trajet -->
@@ -75,8 +73,8 @@
                                  Fill="#1A56CC" VerticalOptions="Center"/>
                         <Label Text="{Binding Route.FromLabel}"
                                FontSize="12" TextColor="#3D4A5C"/>
-                        <Label Text="&#xE90F;" FontFamily="FluentRegularIcons"
-                               FontSize="12" TextColor="#8A95A8"/>
+                           <mi:MauiIcon Icon="{mi:Material Icon=ChevronRight}"
+                                  IconSize="12" IconColor="#8A95A8"/>
                         <Ellipse WidthRequest="7" HeightRequest="7"
                                  Fill="#E24B4A" VerticalOptions="Center"/>
                         <Label Text="{Binding Route.ToLabel}"
@@ -87,8 +85,7 @@
                            BackgroundColor="#E8F0FE" BorderColor="Transparent"
                            HorizontalOptions="Start" HasShadow="False">
                         <HorizontalStackLayout Spacing="4">
-                            <Label Text="&#xF3D8;" FontFamily="FluentRegularIcons"
-                                   FontSize="11" TextColor="#1A56CC"/>
+                            <mi:MauiIcon Icon="{mi:Material Icon=Person}" IconSize="11" IconColor="#1A56CC" VerticalOptions="Center" HorizontalOptions="Start"/>
                             <Label Text="{Binding PassengerLabel}"
                                    FontSize="11" FontAttributes="Bold" TextColor="#1A56CC"/>
                         </HorizontalStackLayout>

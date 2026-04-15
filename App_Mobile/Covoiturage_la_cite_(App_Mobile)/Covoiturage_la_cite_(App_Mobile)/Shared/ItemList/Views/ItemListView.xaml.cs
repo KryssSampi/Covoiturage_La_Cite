@@ -176,7 +176,7 @@ public partial class ItemListView : ContentView
                 row.Add(new Label
                 {
                     Text       = chip.IsSortChip ? "\uF1F7" : "\uF230",
-                    FontFamily = "FluentRegularIcons",
+                    FontFamily = "MauiIcons",
                     FontSize   = 12,
                     TextColor  = chip.IsSortChip ? Colors.White : Color.FromArgb("#1A56CC"),
                     VerticalTextAlignment = TextAlignment.Center,
@@ -196,7 +196,7 @@ public partial class ItemListView : ContentView
                 var closeLabel = new Label
                 {
                     Text       = "\uE8BB",
-                    FontFamily = "FluentRegularIcons",
+                    FontFamily = "MauiIcons",
                     FontSize   = 12,
                     TextColor  = chip.IsSortChip ? Colors.White : Color.FromArgb("#1A56CC"),
                     VerticalTextAlignment = TextAlignment.Center,
