@@ -8,7 +8,8 @@
     x:Class="Covoiturage_la_cite__App_Mobile_.Features.search.Views.Components.MapCircuitCard"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.search.DisplayModels">
+    xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.search.DisplayModels"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons">
 
     <Frame BackgroundColor="White" CornerRadius="16"
            BorderColor="#12000000" HasShadow="True"
@@ -112,9 +113,9 @@
                 </Grid.ColumnDefinitions>
 
                 <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
-                    <Label Text="&#xF150;" FontFamily="FluentFilledIcons"
-                           FontSize="18" TextColor="#1A56CC"
-                           HorizontalTextAlignment="Center"/>
+                          <mi:MauiIcon Icon="{mi:Material Icon=Timer}"
+                                 IconSize="18" IconColor="#1A56CC"
+                                 HorizontalOptions="Center"/>
                     <Label Text="{Binding DurationMinutes, StringFormat='{0}'}"
                            FontFamily="OpenSansSemibold" FontSize="14"
                            FontAttributes="Bold" TextColor="#0D1624"
@@ -127,9 +128,9 @@
                          BackgroundColor="#0D000000" VerticalOptions="Fill"/>
 
                 <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
-                    <Label Text="&#xF1EB;" FontFamily="FluentFilledIcons"
-                           FontSize="18" TextColor="#0F6E56"
-                           HorizontalTextAlignment="Center"/>
+                          <mi:MauiIcon Icon="{mi:Material Icon=Map}" 
+                                 IconSize="18" IconColor="#0F6E56"
+                                 HorizontalOptions="Center"/>
                     <Label Text="{Binding DistanceKm, StringFormat='{0:F1} km'}"
                            FontFamily="OpenSansSemibold" FontSize="14"
                            FontAttributes="Bold" TextColor="#0D1624"

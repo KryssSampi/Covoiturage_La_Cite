@@ -17,6 +17,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayModels
 
         /// <summary>Couleur de l'icône (optionnel - null = couleur thème)</summary>
         public string? IconColor { get; init; }
+
+        public string? RequiredRole { get; set; } // "Driver", "Passenger", or null
     }
 
     // ─────────────────────────────────────────────────────────────

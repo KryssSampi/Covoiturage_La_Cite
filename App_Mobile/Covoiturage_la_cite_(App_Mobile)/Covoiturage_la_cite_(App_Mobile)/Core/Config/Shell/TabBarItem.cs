@@ -9,13 +9,13 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Config.Shell
         //  Placez IsHome = true sur l'item central (index 2 sur 5).
         //  Icônes : https://fonts.google.com/icons  (noms PascalCase)
         // ──────────────────────────────────────────────────────────────────
-        public static readonly IReadOnlyList<TabBarItem> Items = new List<TabBarItem>
+public static IReadOnlyList<TabBarItem> CommonItems = new List<TabBarItem>
     {
         new()
         {
-            MaterialIcon = "Checklist",
+            MaterialIcon = "AssignmentTurnedIn",
             Label        = "Demande",
-            Route        = "Demande",
+            Route        = "demandes",
         },
         new()
         {
@@ -62,5 +62,79 @@ namespace Covoiturage_la_cite__App_Mobile_.Core.Config.Shell
         public const double RegularIconSize = 24;   // taille icône items normaux
         public const double HomeIconSize = 32;   // taille icône Home
         public const double LabelFontSize = 10;   // taille texte label
+
+        public static IReadOnlyList<TabBarItem> ForDriver() => new List<TabBarItem>
+        {
+            new()
+            {
+                MaterialIcon = "AssignmentTurnedIn",
+                Label = "Demande",
+                Route = "demandes",
+            },
+            new()
+            {
+                MaterialIcon = "CalendarToday",
+                Label = "planifier",
+                Route = "planifier",
+            },
+
+            new()
+            {
+                MaterialIcon = "Home",
+                Label = "Accueil",
+                Route = "accueil",
+                IsHome = true,
+            },
+
+            new()
+            {
+                MaterialIcon = "Chat",
+                Label = "Messages",
+                Route = "messages",
+            },
+            new()
+            {
+                MaterialIcon = "Person",
+                Label = "Profil",
+                Route = "profil",
+            },
+        };
+
+        public static IReadOnlyList<TabBarItem> ForPassenger() => new List<TabBarItem>
+        {
+            new()
+            {
+                MaterialIcon = "BarChart",
+                Label = "Stats",
+                Route = "stats",
+            },
+            new()
+            {
+                MaterialIcon = "CalendarToday",
+                Label = "planifier",
+                Route = "planifier",
+            },
+
+            new()
+            {
+                MaterialIcon = "Home",
+                Label = "Accueil",
+                Route = "accueil",
+                IsHome = true,
+            },
+
+            new()
+            {
+                MaterialIcon = "Chat",
+                Label = "Messages",
+                Route = "messages",
+            },
+            new()
+            {
+                MaterialIcon = "Person",
+                Label = "Profil",
+                Route = "profil",
+            },
+        };
     }
 }

@@ -4,6 +4,7 @@
 // Le composant est instancié UNE SEULE FOIS dans MainPage.
 
 using Covoiturage_la_cite__App_Mobile_.Core.Config.Shell;
+using Covoiturage_la_cite__App_Mobile_.Core.Models;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayModels;
 using Covoiturage_la_cite__App_Mobile_.Services.navigation;
@@ -16,7 +17,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.shell.views.components;
 public partial class CustomTabBar : ContentView
 {
     // ── Références visuelles ──
-    private readonly List<TabCell> _cells = [];
+private readonly List<TabCell> _cells = [];
+    private IReadOnlyList<TabBarItem> _currentItems;
     private int _selectedIndex = -1;
 
     // ── Services ──
@@ -30,11 +32,12 @@ public partial class CustomTabBar : ContentView
         _vm = IPlatformApplication.Current?.Services.GetService<ShellControler>();
         _navService = IPlatformApplication.Current?.Services.GetService<NavigationService>();
 
+        _currentItems = TabBarConfig.CommonItems;
         BuildColumns();
         BuildItems();
 
         // ── Sélection initiale ──
-        var homeIdx = TabBarConfig.Items
+        var homeIdx = _currentItems
             .Select((item, i) => (item, i))
             .First(x => x.item.IsHome).i;
         SelectTab(homeIdx, navigate: false);
@@ -51,7 +54,7 @@ public partial class CustomTabBar : ContentView
     // ─────────────────────────────────────────────────────────────────
     private void OnExternalNavigation(MainNavRequest request)
     {
-        var idx = TabBarConfig.Items
+        var idx = _currentItems
             .Select((item, i) => (item, i))
             .FirstOrDefault(x => x.item.Route == request.Route).i;
 
@@ -64,8 +67,8 @@ public partial class CustomTabBar : ContentView
     // ─────────────────────────────────────────────────────────────────
     private void BuildColumns()
     {
-        RootTabGrid.ColumnDefinitions.Clear();
-        foreach (var _ in TabBarConfig.Items)
+RootTabGrid.ColumnDefinitions.Clear();
+        foreach (var _ in _currentItems)
             RootTabGrid.ColumnDefinitions.Add(
                 new ColumnDefinition { Width = GridLength.Star });
     }
@@ -75,9 +78,9 @@ public partial class CustomTabBar : ContentView
     // ─────────────────────────────────────────────────────────────────
     private void BuildItems()
     {
-        for (int i = 0; i < TabBarConfig.Items.Count; i++)
+for (int i = 0; i < _currentItems.Count; i++)
         {
-            var config = TabBarConfig.Items[i];
+            var config = _currentItems[i];
             var cell = config.IsHome
                 ? BuildHomeCell(config, i)
                 : BuildRegularCell(config, i);
@@ -265,13 +268,13 @@ public partial class CustomTabBar : ContentView
 
         if (navigate && _navService is not null)
         {
-            var route = TabBarConfig.Items[index].Route;
+            var route = _currentItems[index].Route;
 
             // ── Passe par le NavigationService ──
             _navService.GoTo(route);
 
             // Mise à jour du titre
-            _vm?.UpdateTitle(TabBarConfig.Items[index].Label);
+_vm?.UpdateTitle(_currentItems[index].Label);
         }
     }
 
@@ -280,7 +283,7 @@ public partial class CustomTabBar : ContentView
     // ─────────────────────────────────────────────────────────────────
     public void SelectByRoute(string route)
     {
-        var idx = TabBarConfig.Items
+        var idx = _currentItems
             .Select((item, i) => (item, i))
             .FirstOrDefault(x => x.item.Route == route).i;
         SelectTab(idx, navigate: false);
@@ -304,6 +307,32 @@ public partial class CustomTabBar : ContentView
             return result;
         return MaterialIcons.Circle;
     }
+
+
+    public void ApplyRole(UserRole role)
+    {
+        _currentItems = role == UserRole.Driver ? TabBarConfig.ForDriver() : TabBarConfig.ForPassenger();
+        RootTabGrid.ColumnDefinitions.Clear();
+        RootTabGrid.Children.Clear();
+        _cells.Clear();
+        _selectedIndex = -1;
+        BuildColumns();
+        BuildItems();
+        // Select current route if possible
+        if (_navService != null)
+        {
+            var currentRoute = _navService.CurrentMainRoute;
+            var idx = _currentItems.Select((item, i) => (item, i)).FirstOrDefault(x => x.item.Route == currentRoute).i;
+            if (idx >= 0)
+                SelectTab(idx, navigate: false);
+            else
+            {
+                var homeIdx = _currentItems.Select((item, i) => (item, i)).First(x => x.item.IsHome).i;
+                SelectTab(homeIdx, navigate: false);
+            }
+        }
+    }
+
 
     // ─────────────────────────────────────────────────────────────────
     //  Modèle interne cellule

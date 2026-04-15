@@ -1,9 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!-- Shared/Cards/Views/IncomingReservationRequestCard.xaml -->
 <ContentView
     x:Class="Covoiturage_la_cite__App_Mobile_.Shared.Cards.Views.IncomingReservationRequestCard"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels"
     x:DataType="dm:IncomingReservationRequestCardDisplayModel">
 
@@ -32,8 +33,9 @@
                         <Label Text="{Binding PassengerName}"
                                FontFamily="OpenSansSemibold" FontSize="14"
                                FontAttributes="Bold" TextColor="#1A56CC"/>
-                        <Label Text="&#x2605;" FontFamily="FluentFilledIcons"
-                               FontSize="15" TextColor="#F59E0B" Margin="0,-4,0,0"/>
+                        <mi:MauiIcon Icon="{mi:Material Icon=Star}"
+                                     IconSize="15" IconColor="#F59E0B"
+                                     Margin="0,-4,0,0"/>
                         <Label Text="{Binding PassengerRating, StringFormat='{0:F1}'}"
                                FontSize="12" TextColor="#BA7517"/>
                         <Label Text="{Binding PassengerTripCount, StringFormat='({0} trajets)'}"
@@ -46,19 +48,19 @@
                                  Fill="#1A56CC" VerticalOptions="Center"/>
                         <Label Text="{Binding Route.FromLabel}"
                                FontSize="12" TextColor="#3D4A5C"/>
-                        <Label Text="&#xE90F;" FontFamily="FluentRegularIcons"
-                               FontSize="12" TextColor="#8A95A8"/>
+                        <mi:MauiIcon Icon="{mi:Material Icon=ChevronRight}"
+                                     IconSize="12" IconColor="#8A95A8"/>
                         <Ellipse WidthRequest="7" HeightRequest="7"
                                  Fill="#E24B4A" VerticalOptions="Center"/>
                         <Label Text="{Binding Route.ToLabel}"
                                FontSize="12" TextColor="#3D4A5C"/>
-                        <Label Text="{Binding SeatsInfo, StringFormat='· 0/{0}'}"
+                        <Label Text="{Binding SeatsInfo, StringFormat='� 0/{0}'}"
                                FontSize="12" TextColor="#7A879A"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Spacing="6">
                         <Label Text="{Binding TripTimeLabel}"
                                FontSize="12" TextColor="#7A879A"/>
-                        <Label Text="·" FontSize="12" TextColor="#7A879A"/>
+                        <Label Text="�" FontSize="12" TextColor="#7A879A"/>
                         <Label Text="{Binding Price, StringFormat='{0:F0} CAD'}"
                                FontFamily="OpenSansSemibold" FontSize="12"
                                FontAttributes="Bold" TextColor="#1A56CC"/>

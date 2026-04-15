@@ -98,6 +98,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10" />
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.Core" Version="5.0.0" />
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.Cupertino" Version="5.0.0" />
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.Fluent.Filled" Version="5.0.0" />
@@ -225,6 +227,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="App\Mobilepages\loginpage\view\LoginPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="App\Mobilepages\otppage\view\OtpPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="App\App.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

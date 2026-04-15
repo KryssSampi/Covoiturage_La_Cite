@@ -1,10 +1,11 @@
-using System.Windows.Input;
-using Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayModels;
+using Covoiturage_la_cite__App_Mobile_.Core.Models;
+using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayModels;
 using Covoiturage_la_cite__App_Mobile_.Services.navigation;
-
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler
 {
@@ -34,10 +35,15 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler
 
         public HomepageDisplayController(
             NavigationService navigationService,
-            ShellControler shellControler)
+            ShellControler shellControler,
+            UserViewModel userVm)
         {
             _navigationService = navigationService;
             _shellControler = shellControler;
+            _userVm = userVm;
+            Role = _userVm.Role;
+            OnPropertyChanged(nameof(IsDriver));
+            OnPropertyChanged(nameof(IsPassenger));
 
             _searchBar = new HomeSearchBarDisplayModel();
             _quickNav = new HomeQuickNavGridDisplayModel(Array.Empty<HomeQuickNavItemDisplayModel>());
@@ -46,15 +52,15 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler
             SelectChipCommand = new Command<HomeSearchChipDisplayModel>(async chip =>
             {
                 if (chip is null) return;
-                
+
                 // Effet visuel de clic
                 chip.IsPressed = true;
                 await Task.Delay(120); // Durée de l'effet pressed
                 chip.IsPressed = false;
-                
+
                 // Autofill avec l'adresse (Value), pas le label
                 SearchBar.Query = chip.Address;
-                
+
                 // Lance la recherche
                 ExecuteSearch();
             });
@@ -105,6 +111,12 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private readonly UserViewModel _userVm;
+        public UserRole Role { get; private set; } = UserRole.Driver;
+
+        public bool IsDriver => Role == UserRole.Driver;
+        public bool IsPassenger => Role == UserRole.Passenger;
 
         private bool SetField<T>(ref T field, T value, [CallerMemberName] string? name = null)
         {

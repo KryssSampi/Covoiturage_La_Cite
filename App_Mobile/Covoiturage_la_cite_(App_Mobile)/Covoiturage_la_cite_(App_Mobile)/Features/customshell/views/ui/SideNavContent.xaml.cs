@@ -1,4 +1,5 @@
 ﻿using Covoiturage_la_cite__App_Mobile_.Core.Config.Shell;
+using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayModels;
 using MauiIcons.Core;
 namespace Covoiturage_la_cite__App_Mobile_.Features.shell.views.ui
@@ -14,7 +15,9 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.shell.views.ui
 
         private void BuildNavItems()
         {
-            foreach (var item in SideNavConfig.MainItems)
+            var userVm = IPlatformApplication.Current.Services.GetRequiredService<UserViewModel>();
+            var role = userVm.Role;
+            foreach (var item in SideNavConfig.MainItems.Where(i => i.RequiredRole == null || i.RequiredRole == role.ToString()))
             {
                 NavItemsContainer.Add(CreateNavItem(item));
             }

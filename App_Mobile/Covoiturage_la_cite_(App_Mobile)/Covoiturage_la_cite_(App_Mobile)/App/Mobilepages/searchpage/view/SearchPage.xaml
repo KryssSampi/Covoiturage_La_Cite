@@ -23,6 +23,7 @@
     xmlns:cards="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Cards.Views"
     xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.search.DisplayModels"
     xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Converters"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     Title="Rechercher"
     BackgroundColor="#F2F5FA"
     Shell.NavBarIsVisible="False">
@@ -124,15 +125,14 @@
                             </Border>
 
                             <!-- Croix — retire le chip -->
-                            <Label Grid.Column="2"
-                                   Text="&#xE8BB;" FontFamily="FluentRegularIcons"
-                                   FontSize="16" TextColor="#8A95A8"
-                                   HorizontalTextAlignment="Center"
-                                   VerticalTextAlignment="Center">
-                                <Label.GestureRecognizers>
+                            <mi:MauiIcon Grid.Column="2"
+                                         Icon="{mi:Material Icon=Close}"
+                                         IconSize="16" IconColor="#8A95A8"
+                                         HorizontalOptions="Center" VerticalOptions="Center">
+                                <mi:MauiIcon.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding ClearCurrentLocationCommand}"/>
-                                </Label.GestureRecognizers>
-                            </Label>
+                                </mi:MauiIcon.GestureRecognizers>
+                            </mi:MauiIcon>
                         </Grid>
                     </Frame>
 
@@ -178,16 +178,15 @@
                                    Text="{Binding FromText, Mode=TwoWay}"
                                    VerticalOptions="Center"/>
 
-                            <Label Grid.Column="2"
-                                   Text="&#xE8BB;" FontFamily="FluentRegularIcons"
-                                   FontSize="16" TextColor="#8A95A8"
-                                   HorizontalTextAlignment="Center"
-                                   VerticalTextAlignment="Center"
-                                   IsVisible="{Binding FromHasValue}">
-                                <Label.GestureRecognizers>
+                            <mi:MauiIcon Grid.Column="2"
+                                         Icon="{mi:Material Icon=Close}"
+                                         IconSize="16" IconColor="#8A95A8"
+                                         HorizontalOptions="Center" VerticalOptions="Center"
+                                         IsVisible="{Binding FromHasValue}">
+                                <mi:MauiIcon.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding ClearFromCommand}"/>
-                                </Label.GestureRecognizers>
-                            </Label>
+                                </mi:MauiIcon.GestureRecognizers>
+                            </mi:MauiIcon>
 
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding FocusFromCommand}"/>
@@ -217,14 +216,13 @@
                                HasShadow="False"
                                HorizontalOptions="Center"
                                VerticalOptions="Center">
-                            <Label Text="&#xE8D6;" FontFamily="FluentRegularIcons"
-                                   FontSize="15" TextColor="#545D6E"
-                                   HorizontalTextAlignment="Center"
-                                   VerticalTextAlignment="Center">
-                                <Label.GestureRecognizers>
+                            <mi:MauiIcon Icon="{mi:Material Icon=SwapHoriz}"
+                                         IconSize="15" IconColor="#545D6E"
+                                         HorizontalOptions="Center" VerticalOptions="Center">
+                                <mi:MauiIcon.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding SwapCommand}"/>
-                                </Label.GestureRecognizers>
-                            </Label>
+                                </mi:MauiIcon.GestureRecognizers>
+                            </mi:MauiIcon>
                         </Frame>
                     </Grid>
 
@@ -270,16 +268,15 @@
                                    Text="{Binding ToText, Mode=TwoWay}"
                                    VerticalOptions="Center"/>
 
-                            <Label Grid.Column="2"
-                                   Text="&#xE8BB;" FontFamily="FluentRegularIcons"
-                                   FontSize="16" TextColor="#8A95A8"
-                                   HorizontalTextAlignment="Center"
-                                   VerticalTextAlignment="Center"
-                                   IsVisible="{Binding ToHasValue}">
-                                <Label.GestureRecognizers>
+                            <mi:MauiIcon Grid.Column="2"
+                                         Icon="{mi:Material Icon=Close}"
+                                         IconSize="16" IconColor="#8A95A8"
+                                         HorizontalOptions="Center" VerticalOptions="Center"
+                                         IsVisible="{Binding ToHasValue}">
+                                <mi:MauiIcon.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding ClearToCommand}"/>
-                                </Label.GestureRecognizers>
-                            </Label>
+                                </mi:MauiIcon.GestureRecognizers>
+                            </mi:MauiIcon>
 
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding FocusToCommand}"/>
@@ -301,14 +298,13 @@
                            BorderColor="Transparent"
                            HasShadow="True"
                            IsVisible="{Binding ShowSearchButton}">
-                        <Label Text="&#xF1EB;" FontFamily="FluentFilledIcons"
-                               FontSize="24" TextColor="White"
-                               HorizontalTextAlignment="Center"
-                               VerticalTextAlignment="Center">
-                            <Label.GestureRecognizers>
+                        <mi:MauiIcon Icon="{mi:Material Icon=Search}"
+                                     IconSize="24" IconColor="White"
+                                     HorizontalOptions="Center" VerticalOptions="Center">
+                            <mi:MauiIcon.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding SearchCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
+                            </mi:MauiIcon.GestureRecognizers>
+                        </mi:MauiIcon>
                     </Frame>
 
                     <!-- ✓ CONFIRM focus -->
@@ -318,14 +314,13 @@
                            BorderColor="Transparent"
                            HasShadow="True"
                            IsVisible="{Binding ShowConfirmButton}">
-                        <Label Text="&#xF297;" FontFamily="FluentFilledIcons"
-                               FontSize="24" TextColor="White"
-                               HorizontalTextAlignment="Center"
-                               VerticalTextAlignment="Center">
-                            <Label.GestureRecognizers>
+                        <mi:MauiIcon Icon="{mi:Material Icon=Check}"
+                                     IconSize="24" IconColor="White"
+                                     HorizontalOptions="Center" VerticalOptions="Center">
+                            <mi:MauiIcon.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding ConfirmInputCommand}"/>
-                            </Label.GestureRecognizers>
-                        </Label>
+                            </mi:MauiIcon.GestureRecognizers>
+                        </mi:MauiIcon>
                     </Frame>
 
                 </VerticalStackLayout>
@@ -368,12 +363,11 @@
                                        CornerRadius="10" Padding="0"
                                        BackgroundColor="{Binding IconBgHex}"
                                        BorderColor="Transparent" HasShadow="False">
-                                    <Label Text="{Binding IconGlyph}"
-                                           FontFamily="FluentFilledIcons"
-                                           FontSize="18"
-                                           TextColor="{Binding IconFgHex}"
-                                           HorizontalTextAlignment="Center"
-                                           VerticalTextAlignment="Center"/>
+                                     <mi:MauiIcon Icon="{Binding IconGlyph}"
+                                            IconSize="18"
+                                            IconColor="{Binding IconFgHex}"
+                                            HorizontalOptions="Center"
+                                            VerticalOptions="Center"/>
                                 </Frame>
 
                                 <VerticalStackLayout Grid.Column="1" Spacing="2"
@@ -395,8 +389,9 @@
                                        BackgroundColor="#FEF3C7"
                                        IsVisible="{Binding Type,
                                            Converter={StaticResource IsFavoriteConverter}}">
-                                    <Label Text="&#xF6E0;" FontFamily="FluentFilledIcons"
-                                           FontSize="12" TextColor="#92400E"/>
+                                     <mi:MauiIcon Icon="{mi:Material Icon=Star}"
+                                            IconSize="12"
+                                            IconColor="#92400E"/>
                                 </Frame>
 
                                 <Grid.GestureRecognizers>
@@ -451,10 +446,7 @@
                         <Frame WidthRequest="72" HeightRequest="72" CornerRadius="36"
                                BackgroundColor="#FCEBEB" BorderColor="#FCEBEB"
                                HasShadow="False" HorizontalOptions="Center">
-                            <Label Text="&#xF4CB;" FontFamily="FluentRegularIcons"
-                                   FontSize="36" TextColor="#E24B4A"
-                                   HorizontalTextAlignment="Center"
-                                   VerticalTextAlignment="Center"/>
+                            <mi:MauiIcon Icon="{mi:Material Icon=WifiOff}" IconSize="36" IconColor="#E24B4A" HorizontalOptions="Center" VerticalOptions="Center" />
                         </Frame>
                         <Label Text="Pas de connexion"
                                FontFamily="OpenSansSemibold" FontSize="18"
@@ -481,10 +473,7 @@
                                BackgroundColor="#EEF0F5" BorderColor="#D8DBE5"
                                HasShadow="False"
                                HorizontalOptions="Center">
-                            <Label Text="&#xF51C;" FontFamily="FluentRegularIcons"
-                                   FontSize="36" TextColor="#8A95A8"
-                                   HorizontalTextAlignment="Center"
-                                   VerticalTextAlignment="Center"/>
+                            <mi:MauiIcon Icon="{mi:Material Icon=DirectionsCar}" IconSize="36" IconColor="#8A95A8" HorizontalOptions="Center" VerticalOptions="Center" />
                         </Frame>
                         <Label Text="Aucun résultat"
                                FontFamily="OpenSansSemibold" FontSize="18"

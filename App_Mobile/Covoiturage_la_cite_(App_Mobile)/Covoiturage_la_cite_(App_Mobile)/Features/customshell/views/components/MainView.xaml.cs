@@ -5,6 +5,7 @@ using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.plannerpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.profilpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.statpage.view;
 using Covoiturage_la_cite__App_Mobile_.Services.navigation;
+using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
 
 namespace Covoiturage_la_cite__App_Mobile_.Features.customshell.views.components;
@@ -24,6 +25,7 @@ public partial class MainView : ContentPage
     // ─────────────────────────────────────────────────────────────
     private readonly NavigationService _navService;
     private readonly ShellControler _shellControler;
+    private readonly UserViewModel _userViewModel;
 
     // ─────────────────────────────────────────────────────────────
     //  Cache des vues — PRÉ-CRÉÉES au démarrage, pas de Lazy
@@ -32,12 +34,13 @@ public partial class MainView : ContentPage
     private string _currentRoute = string.Empty;
     private bool _isInitialized;
 
-    public MainView(NavigationService navService, ShellControler shellControler)
+    public MainView(NavigationService navService, ShellControler shellControler, UserViewModel userViewModel)
     {
         InitializeComponent();
 
         _navService = navService;
         _shellControler = shellControler;
+        _userViewModel = userViewModel;
 
         // ── S'abonner AVANT d'initialiser les vues ──
         _navService.MainNavigationRequested += OnMainNavigationRequested;
@@ -61,6 +64,7 @@ public partial class MainView : ContentPage
 
         // ── Cache le loader et affiche l'accueil ──
         await HideLoaderAsync(animate: false);
+        TabBar.ApplyRole(_userViewModel.Role);
         SwapContent("accueil", animate: false);
     }
 
@@ -78,12 +82,16 @@ public partial class MainView : ContentPage
         {
             try
             {
-                _viewCache["accueil"] = services.GetRequiredService<HomePage>();
-                _viewCache["planifier"] = services.GetRequiredService<PlannerPage>();
-                _viewCache["messages"] = services.GetRequiredService<MessagePage>();
-                _viewCache["stats"] = services.GetRequiredService<StatPage>();
-                _viewCache["profil"] = services.GetRequiredService<ProfilPage>();
-                _viewCache["favoris"] = services.GetRequiredService<FavorisPage>();
+                _viewCache["accueil"]             = services.GetRequiredService<HomePage>();
+                _viewCache["planifier"]           = services.GetRequiredService<PlannerPage>();
+                _viewCache["messages"]            = services.GetRequiredService<MessagePage>();
+                _viewCache["stats"]               = services.GetRequiredService<StatPage>();
+                _viewCache["profil"]              = services.GetRequiredService<ProfilPage>();
+                _viewCache["favoris"]             = services.GetRequiredService<FavorisPage>();
+                // Routes SideNav → pages existantes
+                _viewCache["trajets"]             = _viewCache["planifier"];
+                _viewCache["demandes"]            = _viewCache["favoris"];
+                _viewCache["conducteurs_favoris"] = _viewCache["favoris"];
 
                 System.Diagnostics.Debug.WriteLine("[MainView] ✅ Toutes les vues pré-créées");
             }
@@ -177,12 +185,15 @@ public partial class MainView : ContentPage
     // ─────────────────────────────────────────────────────────────
     private static string RouteToTitle(string route) => route switch
     {
-        "accueil" => "La Cité Covoiturage",
-        "planifier" => "Planifier",
-        "messages" => "Messages",
-        "stats" => "Statistiques",
-        "favoris" => "Mes Favoris",
-        "profil" => "Mon Profil",
+        "accueil"             => "La Cité Covoiturage",
+        "planifier"           => "Planifier",
+        "messages"            => "Messages",
+        "stats"               => "Statistiques",
+        "favoris"             => "Mes Favoris",
+        "profil"              => "Mon Profil",
+        "trajets"             => "Mes Trajets",
+        "demandes"            => "Mes Demandes",
+        "conducteurs_favoris" => "Conducteurs Favoris",
         _ => "La Cité Covoiturage",
     };
 
