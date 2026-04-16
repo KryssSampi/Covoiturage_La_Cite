@@ -72,15 +72,15 @@ export default function OnboardingSlider({ userId, initialRole, startStep }: Pro
   const canGoBack = currentIndex > 0;
 
   return (
-    <div className="relative flex min-h-screen min-w-[90vw] rounded-4xl flex-col items-start justify-center bg-transparent ">
+    <div className="relative flex min-h-screen min-w-[90vw] md:min-w-[70vw] rounded-4xl flex-col items-start justify-center bg-transparent ">
       <div className="w-full -mt-60">
         {/* En-tête */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xl font-medium text-gray-500">
+            <span className="text-lg md:text-xl font-medium text-gray-500">
               {isFR ? 'Étape' : 'Step'} {currentIndex + 1} {isFR ? 'sur' : 'of'} {totalSteps}
             </span>
-            <span className="text-md font-semibold text-blue-600">
+            <span className="text-base md:text-md font-semibold text-blue-600">
               {STEP_LABELS[step]}
             </span>
           </div>
@@ -91,27 +91,23 @@ export default function OnboardingSlider({ userId, initialRole, startStep }: Pro
             <div
               className="h-3 rounded-full bg-blue-500 transition-all duration-500"
               style={{ width: `${progressPercent}%` }}
-        
             />
-            <div className= " flex justify-between -mt-5">
+          </div>
+          <div className="flex justify-between -mt-5 text-xs">
             {steps.map((s, idx) => (
               <div
                 key={s}
-                className={`flex h-8 w-8 rounded-full transition-colors ${
+                className={`flex h-6 w-6 md:h-8 md:w-8 rounded-full transition-colors ${
                   idx < currentIndex ? 'bg-blue-500' : idx === currentIndex ? 'bg-blue-600' : 'bg-gray-200'
                 }`}
               />
             ))}
           </div>
           </div>
-
-          {/* Pastilles d'étapes */}
-        
-          </div>
         </div>
 
         {/* Carte du contenu */}
-        <div className="rounded-2xl bg-white shadow-lg p-6">
+        <div className="rounded-2xl bg-white shadow-lg p-4 md:p-6">
           {/* Bouton retour */}
           {canGoBack && (
             <button
@@ -172,3 +168,4 @@ export default function OnboardingSlider({ userId, initialRole, startStep }: Pro
     </div>
   );
 }
+

@@ -140,7 +140,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ form, errors
               onClick={() => setShowArrivalInstruction(true)}
               className="text-xs font-semibold text-[#08316e] hover:underline"
             >
-              + Ajouter une instruction pour la zone d'arrivee
+              + Ajouter une instruction pour la zone d&apos;arrivee
             </button>
           )}
           {showArrivalInstruction && (

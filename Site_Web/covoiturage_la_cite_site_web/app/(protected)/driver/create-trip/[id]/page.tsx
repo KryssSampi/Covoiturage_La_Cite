@@ -72,7 +72,7 @@ export default function CreateTripPage() {
       })
       .then((data) => {
         // Transformation des données des véhicules pour le formulaire (centralisée)
-        setVehicles(data.map((v) => vehicleToMockVehicle(v as any)));
+        setVehicles(data.map((v) => vehicleToMockVehicle(v as unknown as Record<string, unknown>)));
         // Validation de l'accès une fois les véhicules chargés
         setIsAccessValidated(true);
       })

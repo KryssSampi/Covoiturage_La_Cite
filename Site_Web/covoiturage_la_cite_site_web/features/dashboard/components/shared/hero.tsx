@@ -83,11 +83,11 @@ export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }
       </div>
 
       <div className="relative z-10 mx-auto mt-20 flex flex-col px-3 lg:container lg:mt-0 lg:mb-0 lg:gap-y-8 lg:px-10">
-        <h1 className="text-5xl leading-tight font-bold text-white lg:text-8xl">
+        <h1 className="text-xl lg:text-5xl leading-tight font-bold text-white lg:text-8xl">
           {isFR ? `Bienvenue, ${firstName} !` : `Welcome, ${firstName} !`}
         </h1>
 
-        <p className="max-w-4xl text-3xl text-white lg:text-7xl">
+        <p className="max-w-4xl text-xl lg:text-3xl text-white lg:text-7xl">
           {headline} <span className="font-semibold text-blue-300">{headlineAccent}</span>
         </p>
 
@@ -99,7 +99,7 @@ export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }
                 className="relative flex items-center gap-0 overflow-hidden rounded-full border-4 border-white/30 bg-[#424243d4] backdrop-blur-sm transition-all duration-300 hover:border-white/60 hover:shadow-lg hover:shadow-blue-500/30"
               >
                 <span
-                  className={`min-w-fit rounded-full px-2 py-3 text-3xl font-semibold transition-all duration-300 lg:px-8 lg:py-8 lg:text-5xl ${
+                  className={`min-w-fit rounded-full px-2 py-3 text-xl lg:text-3xl font-semibold transition-all duration-300 lg:px-8 lg:py-8 lg:text-5xl ${
                     !isDriver ? "bg-[#08316e] text-white shadow-md" : "text-gray-400 hover:text-white"
                   }`}
                 >
@@ -107,7 +107,7 @@ export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }
                 </span>
 
                 <span
-                  className={`min-w-40 rounded-full px-3 py-3 text-3xl font-semibold transition-all duration-300 lg:min-w-80 lg:px-8 lg:py-8 lg:text-5xl ${
+                  className={`min-w-40 rounded-full px-3 py-3 text-xl lg:text-3xl font-semibold transition-all duration-300 lg:min-w-80 lg:px-8 lg:py-8 lg:text-5xl ${
                     isDriver ? "bg-[#08316e] text-white shadow-md" : "text-gray-400 hover:text-white"
                   }`}
                 >
@@ -124,7 +124,7 @@ export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }
                 // Start onboarding at vehicle step for driver intent
                 router.push(`/onboarding/${uid}?start=vehicle`);
               }}
-              className="absolute rounded-full border-2 border-white bg-[#08316ec6] px-2 py-4 font-semibold text-white transition-all duration-300 hover:scale-105 hover:bg-[#08316e] hover:shadow-2xl hover:shadow-blue-500/40 active:scale-95 lg:relative lg:self-start lg:mt-2 lg:-mb-10 lg:border-4 lg:px-15 lg:py-8 lg:text-5xl"
+              className="absolute rounded-full border-2 border-white bg-[#08316ec6] px-4 py-3 font-semibold text-base lg:text-lg text-white transition-all duration-300 hover:scale-105 hover:bg-[#08316e] hover:shadow-2xl hover:shadow-blue-500/40 active:scale-95 lg:relative lg:self-start lg:mt-2 lg:-mb-10 lg:border-4 lg:px-15 lg:py-8 lg:text-5xl"
             >
               {isFR ? "Devenir conducteur ?" : "Become a driver ?"}
             </button>
@@ -170,3 +170,4 @@ export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }
     </section>
   );
 }
+

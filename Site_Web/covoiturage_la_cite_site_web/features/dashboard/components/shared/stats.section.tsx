@@ -61,11 +61,11 @@ export function StatisticSection({ stats }: { stats: UserStatsSummary }) {
   })();
 
   return (
-    <section className="w-full flex flex-col py-16 rounded-lg border shadow-md p-6 items-start bg-white justify-between">
+    <section className="w-full flex flex-col py-4 md:py-8 lg:py-16 rounded-lg border shadow-md p-4 md:p-6 items-start bg-white justify-between">
 
       {/* ─── En-tête ───────────────────────────────────────────────────── */}
       <div className="-mt-10 justify-between flex relative w-full">
-        <h2 className="absolute top-0 left-1 text-2xl text-black font-bold">
+        <h2 className="absolute top-0 left-1 text-lg  lg:text-2xl text-black font-bold">
           {isFR ? "Mes Statistiques" : "My Statistics"}
         </h2>
         <Link
@@ -79,10 +79,7 @@ export function StatisticSection({ stats }: { stats: UserStatsSummary }) {
       <div className="w-full h-px my-4 mt-8 bg-black" />
 
       {/* ─── Grille 2×2 des statistiques ─────────────────────────────── */}
-      <div
-        className={`w-full h-full grid grid-cols-2 grid-rows-2 gap-0
-          ${isPassenger ? "scale-x-115 scale-y-105 -mb-5 border-collapse" : "scale-110"}`}
-      >
+      <div className="w-full h-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-2 md:gap-0">
         {/* Cellule 1 : Trajets partagés */}
         <div className="border border-gray-200 w-full h-full flex flex-col items-center justify-center p-4">
           <Image
@@ -92,7 +89,7 @@ export function StatisticSection({ stats }: { stats: UserStatsSummary }) {
             height={100}
             className="object-contain"
           />
-          <p className="text-xl text-center text-gray-900 font-light">
+          <p className="text-base lg:text-xl text-center text-gray-900 font-light">
             <span className="text-[#08316e] font-bold">{stats.tripsCount}</span>{" "}
             <span className="text-black font-semibold">
               {isFR ? "Trajets" : "Trips"}
@@ -111,7 +108,7 @@ export function StatisticSection({ stats }: { stats: UserStatsSummary }) {
             height={100}
             className="object-contain"
           />
-          <p className="text-xl text-center text-gray-900 font-light">
+          <p className="text-base lg:text-xl text-center text-gray-900 font-light">
             <span className="text-green-800 font-bold">{stats.co2SavedKg}</span>{" "}
             <span className="text-green-500 font-semibold">/kg Co₂</span>
             <br />
@@ -128,10 +125,10 @@ export function StatisticSection({ stats }: { stats: UserStatsSummary }) {
             height={100}
             className="object-contain"
           />
-          <p className="text-xl text-center text-gray-900 font-light">
+          <p className="text-base lg:text-xl text-center text-gray-900 font-light">
             <span className="text-amber-300 font-bold">
               {formattedRating} /{" "}
-              <span className="text-lg">5</span>
+              <span className="text-base lg:text-lg">5</span>
             </span>{" "}
             <span className="text-black font-semibold">
               {isFR ? "Notes" : "Rating"}
@@ -150,17 +147,18 @@ export function StatisticSection({ stats }: { stats: UserStatsSummary }) {
             height={100}
             className="object-contain"
           />
-          <p className="text-xl text-center text-gray-900 font-light">
+          <p className="text-base lg:text-xl text-center text-gray-900 font-light">
             <span className="text-blue-400 font-bold">{stats.goScore}</span>
             <br />
             <span className="text-blue-400 font-bold">GO!</span>
             <span className="text-black font-semibold">Score</span>
             <br />
             {/* Label dynamique calculé depuis le GoScore */}
-            <span className="text-green-500 text-lg font-bold">{goScoreLabel}</span>
+            <span className="text-green-500 text-base lg:text-lg font-bold">{goScoreLabel}</span>
           </p>
         </div>
       </div>
     </section>
   );
 }
+

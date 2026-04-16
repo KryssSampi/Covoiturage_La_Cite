@@ -1,5 +1,4 @@
-const fs = require("fs");
-const path = require("path");
+/* eslint-disable @typescript-eslint/no-require-imports */\n\nconst fs = require("fs");\nconst path = require("path");\n
 
 const DB_DIR = path.join(__dirname, "..", "tests", "db");
 

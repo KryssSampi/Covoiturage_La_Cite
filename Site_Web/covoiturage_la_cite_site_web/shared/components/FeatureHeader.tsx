@@ -25,7 +25,7 @@ export default function FeatureHeader({ breadcrumb, title, subtitle, children }:
   const isFR = appState.lang === Language.FR;
 
   return (
-    <div className="relative overflow-hidden px-6 md:px-10 pt-8 pb-7">
+    <div className="relative overflow-hidden px-4 md:px-10 pt-4 md:pt-8 pb-4 md:pb-7">
       {/* Image de fond couvrant tout le header */}
       <Image
         src="/img/list-detail-background.png"
@@ -44,17 +44,17 @@ export default function FeatureHeader({ breadcrumb, title, subtitle, children }:
       />
 
       {/* Bulle décorative */}
-      <div className="absolute -top-17.5 -right-17.5 w-70 h-70 rounded-full bg-[rgba(255,255,255,0.06)] pointer-events-none" />
+      <div className="absolute -top-[4.375rem] -right-[4.375rem] w-[17.5rem] h-[17.5rem] rounded-full bg-[rgba(255,255,255,0.06)] pointer-events-none" />
 
       {/* Contenu texte */}
       <div className="relative z-10">
         <div className="text-xs text-[rgba(255,255,255,0.65)] mb-2.5 tracking-wide">
           {isFR ? "Tableau de bord" : "Dashboard"} / <span className="text-white font-semibold">{breadcrumb}</span>
         </div>
-        <h1 className="font-['Syne',sans-serif] font-extrabold text-2xl md:text-[28px] text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+        <h1 className="font-['Syne',sans-serif] font-extrabold text-xl md:text-2xl lg:text-[28px] text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
           {title}
         </h1>
-        <p className="text-[rgba(255,255,255,0.75)] text-[13px] mt-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+        <p className="text-[rgba(255,255,255,0.75)] text-sm lg:text-[13px] mt-1.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
           {subtitle}
         </p>
         {children}
@@ -62,3 +62,4 @@ export default function FeatureHeader({ breadcrumb, title, subtitle, children }:
     </div>
   );
 }
+

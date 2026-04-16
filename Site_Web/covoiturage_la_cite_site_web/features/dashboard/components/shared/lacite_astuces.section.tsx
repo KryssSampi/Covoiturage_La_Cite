@@ -62,7 +62,6 @@ export function LaCiteAstucesSection({
   // Fetch les astuces au montage du composant
   useEffect(() => {
     let cancelled = false;
-    setIsFetching(true);
     fetchTips().then((data) => {
       if (!cancelled) {
         setFetchedTips(data);
@@ -97,6 +96,7 @@ export function LaCiteAstucesSection({
 
   useEffect(() => {
     if (index >= safeTips.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIndex(0);
     }
   }, [index, safeTips.length]);
@@ -165,3 +165,4 @@ export function LaCiteAstucesSection({
     </section>
   );
 }
+

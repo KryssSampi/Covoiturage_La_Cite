@@ -91,9 +91,9 @@ export default function ProfilePhotoStep({ onboarding }: Props) {
   }, [streamRef]);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4 md:gap-5">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900">
           {isFR ? 'Photo de profil' : 'Profile Photo'}
         </h2>
         <p className="mt-1 text-sm text-gray-500">
@@ -111,7 +111,7 @@ export default function ProfilePhotoStep({ onboarding }: Props) {
             <img
               src={preview}
               alt={isFR ? 'Photo de profil' : 'Profile photo'}
-              className="h-32 w-32 rounded-full object-cover border-4 border-blue-100"
+              className="h-28 md:h-32 w-28 md:w-32 rounded-full object-cover border-4 border-blue-100"
             />
             <button
               type="button"
@@ -123,8 +123,8 @@ export default function ProfilePhotoStep({ onboarding }: Props) {
             </button>
           </div>
         ) : (
-          <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gray-100 border-2 border-dashed border-gray-300">
-            <span className="text-4xl"><FaUser color="#08316e" /></span>
+          <div className="flex h-28 md:h-32 w-28 md:w-32 items-center justify-center rounded-full bg-gray-100 border-2 border-dashed border-gray-300">
+            <span className="text-3xl md:text-4xl"><FaUser color="#08316e" /></span>
           </div>
         )}
       </div>
@@ -133,13 +133,13 @@ export default function ProfilePhotoStep({ onboarding }: Props) {
       {cameraActive && (
         <div className="relative overflow-hidden flex w-full justify-center items-center rounded-xl">
           {!streamRef ? (
-            <div className="h-64 flex max-w-2xl items-center justify-center bg-black text-white">
+            <div className="h-56 md:h-64 flex max-w-2xl items-center justify-center bg-black text-white">
               {isFR ? 'Chargement du flux caméra...' : 'Loading camera stream...'}
             </div>
           ) : (
             <video
               ref={videoRef}
-              className="max-w-lg h-64 rounded-xl object-cover bg-black"
+              className="max-w-lg h-56 md:h-64 rounded-xl object-cover bg-black"
               autoPlay
               playsInline
               muted
@@ -149,14 +149,14 @@ export default function ProfilePhotoStep({ onboarding }: Props) {
             <button
               type="button"
               onClick={capturePhoto}
-              className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-gray-900 shadow-md hover:bg-gray-100"
+              className="rounded-full bg-white px-4 md:px-5 py-2 text-sm font-semibold text-gray-900 shadow-md hover:bg-gray-100"
             >
               <FaCamera className="inline-block mr-2" /> {isFR ? 'Capturer' : 'Capture'}
             </button>
             <button
               type="button"
               onClick={closeCamera}
-              className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-gray-500 shadow-md hover:bg-gray-100"
+              className="rounded-full bg-white px-4 md:px-5 py-2 text-sm font-semibold text-gray-500 shadow-md hover:bg-gray-100"
             >
               <FaTimes className="inline-block mr-2" /> {isFR ? 'Annuler' : 'Cancel'}
             </button>
@@ -171,14 +171,14 @@ export default function ProfilePhotoStep({ onboarding }: Props) {
 
       {/* Boutons choix */}
       {!cameraActive && (
-        <div className="grid  grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
             onClick={openCamera}
             className="flex flex-col items-center gap-2 rounded-xl border-2 border-gray-200 px-4 py-4 text-sm
                        hover:border-blue-300 hover:bg-blue-50 transition-all"
           >
-            <span className="text-2xl"><FaCamera color="#08316e" /></span>
+            <span className="text-xl md:text-2xl"><FaCamera color="#08316e" /></span>
             <span className="font-medium text-gray-700">
               {isFR ? 'Prendre une photo' : 'Take a photo'}
             </span>
@@ -189,7 +189,7 @@ export default function ProfilePhotoStep({ onboarding }: Props) {
             className="flex flex-col items-center gap-2 rounded-xl border-2 border-gray-200 px-4 py-4 text-sm
                        hover:border-blue-300 hover:bg-blue-50 transition-all"
           >
-            <span className="text-2xl"><FaFileImport color="#08316e" /></span>
+            <span className="text-xl md:text-2xl"><FaFileImport color="#08316e" /></span>
             <span className="font-medium text-gray-700">
               {isFR ? 'Choisir depuis la galerie' : 'Choose from gallery'}
             </span>
@@ -240,3 +240,4 @@ export default function ProfilePhotoStep({ onboarding }: Props) {
     </div>
   );
 }
+

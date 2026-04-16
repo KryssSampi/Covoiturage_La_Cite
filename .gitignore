@@ -44,3 +44,4 @@ Thumbs.db
 *.log
 *.trace
 __pycache__/
+TODO.md

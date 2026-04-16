@@ -33,6 +33,7 @@ export function useGoBoard(taskIds: string[]): UseGoBoardReturn {
     for (const id of taskIds) {
       init[id] = false;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDescriptionVisibles(init);
   }, [taskIds.join(",")]); // eslint-disable-line react-hooks/exhaustive-deps
 

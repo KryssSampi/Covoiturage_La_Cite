@@ -45,9 +45,9 @@ export default function RoleStep({ onboarding }: Props) {
   const SCHOOL_ROLES = getSchoolRoles(isFR);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 md:gap-6">
       <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900">
           {isFR ? 'Votre rôle' : 'Your role'}
         </h2>
         <p className="mt-1 text-sm text-gray-500">
@@ -64,13 +64,13 @@ export default function RoleStep({ onboarding }: Props) {
             key={r.value}
             type="button"
             onClick={() => setField('role', r.value)}
-            className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-center transition-all
+            className="flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-center transition-all
               ${formData.role === r.value
                 ? 'border-blue-500 bg-blue-50'
                 : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
+              }"
           >
-            <span className="text-3xl">{r.icon}</span>
+            <span className="text-2xl md:text-3xl">{r.icon}</span>
             <span className="font-semibold text-gray-900 text-sm">{r.label}</span>
             <span className="text-xs text-gray-500">{r.description}</span>
           </button>
@@ -103,3 +103,4 @@ export default function RoleStep({ onboarding }: Props) {
     </div>
   );
 }
+

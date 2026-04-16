@@ -16,11 +16,11 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 
 export default function AuthSessionLoginPage() {
   const params = useParams<{ id: string }>();
-  const router = useRouter();
   const publicId = params.id;
 
   const [sessionState, setSessionState] = useState<string>("loading");
@@ -160,7 +160,7 @@ export default function AuthSessionLoginPage() {
       <div className="max-w-md rounded-xl border border-gray-200 bg-white p-8 shadow-lg">
         <h2 className="text-xl font-bold">Lien invalide</h2>
         <p className="mt-2 text-gray-600">
-          Le lien de connexion ne contient pas d'identifiant de session.
+          Le lien de connexion ne contient pas d&apos;identifiant de session.
         </p>
       </div>
     );
@@ -183,12 +183,12 @@ export default function AuthSessionLoginPage() {
         <p className="mt-2 text-gray-600">
           Cette session a expiré ou est invalide. Veuillez scanner à nouveau le QR code.
         </p>
-        <a
+        <Link
           href="/login"
           className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700"
         >
           Retour à la connexion
-        </a>
+        </Link>
       </div>
     );
   }
