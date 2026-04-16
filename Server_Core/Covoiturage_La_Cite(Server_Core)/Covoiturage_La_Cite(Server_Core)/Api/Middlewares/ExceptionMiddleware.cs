@@ -45,6 +45,7 @@ public class ExceptionMiddleware
             FormatException               => (HttpStatusCode.BadRequest,           "Format de données invalide"),
             NotSupportedException e       => (HttpStatusCode.BadRequest,           e.Message),
             InvalidOperationException e   => (HttpStatusCode.Conflict,             e.Message),
+            TimeoutException              => (HttpStatusCode.ServiceUnavailable,   "Service temporairement indisponible. Réessayez."),
             _                             => (HttpStatusCode.InternalServerError,  "Une erreur interne est survenue")
         };
 
