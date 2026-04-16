@@ -480,15 +480,6 @@ public class AuthSessionService : IAuthSessionService
             await _repo.UpdateAsync(session, ct);
         }
 
-        // Vérifier cohérence IP + UserAgent
-        if (session.IpAddress != ipAddress || session.UserAgent != userAgent)
-        {
-            _logger.LogWarning(
-                "Incohérence contexte réseau pour session {PublicId}: IP attendue={Expected}, reçue={Actual}",
-                session.PublicId, session.IpAddress, ipAddress);
-            throw new InvalidOperationException("Contexte de connexion incohérent. Réessayez.");
-        }
-
         return session;
     }
 
