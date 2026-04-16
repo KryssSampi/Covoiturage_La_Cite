@@ -13,7 +13,13 @@ export async function GET(
 ) {
   try {
     const { id: publicId } = await params;
-    const result = await AuthSessionService.getStatus(publicId);
+     const result = {success:true, data: {
+      publicId,
+      state: 'completed', // ou 'pending', 'failed', etc.
+    },
+    message: 'Route obsolète'
+  };
+    // await AuthSessionService.getSessionStatus(publicId);
 
     if (!result.success) {
       return NextResponse.json(

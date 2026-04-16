@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     const sections = (result.data as any)?.data ?? (result.data as any) ?? [];
 
     // Format web allégé (compatible avec le frontend existant)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const items = Array.isArray(sections)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? sections.map((s: any) => ({

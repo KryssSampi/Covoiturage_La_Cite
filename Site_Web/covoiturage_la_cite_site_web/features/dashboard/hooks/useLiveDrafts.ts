@@ -45,6 +45,7 @@ export function useLiveDrafts(): UseLiveDraftsResult {
       }
     };
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchDrafts();
     const intervalId = setInterval(() => { void fetchDrafts(); }, 30_000);
 

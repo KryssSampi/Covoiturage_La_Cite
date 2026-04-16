@@ -241,6 +241,7 @@ export function useCreateTrip(
 
     try {
       const { ok, status, data } = await apiClient.postJson('/api/trips', tripPayload);
+      const res = data as { id?: string; error?: string } | null;
 
       if (ok) {
         setTripToast({
@@ -248,14 +249,14 @@ export function useCreateTrip(
           success: true,
           title: 'Trajet publie',
           message: 'Votre trajet a ete publie et sera visible dans votre planificateur.',
-          redirectTripId: data?.id,
+          redirectTripId: res?.id,
         });
       } else {
         setTripToast({
           isOpen: true,
           success: false,
           title: 'Publication impossible',
-          message: data?.error ?? 'Erreur lors de la publication.',
+          message: res?.error ?? 'Erreur lors de la publication.',
         });
       }
     } catch (err) {
@@ -368,20 +369,21 @@ export function useCreateTrip(
       const finalDraft = { ...draftPayload, utcOffsetMinutes };
 
       const { ok, status, data } = await apiClient.postJson('/api/drafts', finalDraft);
+      const res = data as { id?: string; error?: string } | null;
 
       if (ok) {
         setTripToast({
           isOpen: true,
           success: true,
           title: 'Brouillon sauvegarde',
-          message: `Le brouillon a bien ete sauvegarde${data.id ? ` (${data.id})` : ''}.`,
+          message: `Le brouillon a bien ete sauvegarde${res?.id ? ` (${res.id})` : ''}.`,
         });
       } else {
         setTripToast({
           isOpen: true,
           success: false,
           title: 'Sauvegarde impossible',
-          message: data?.error ?? 'Erreur lors de la sauvegarde.',
+          message: res?.error ?? 'Erreur lors de la sauvegarde.',
         });
       }
     } catch (err) {

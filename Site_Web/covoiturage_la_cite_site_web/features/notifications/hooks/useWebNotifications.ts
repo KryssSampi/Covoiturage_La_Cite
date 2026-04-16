@@ -37,6 +37,7 @@ export function useWebNotifications(userId: string | undefined) {
         badge: "/favicon.ico",
         // tag regroupe les notifs du même utilisateur (évite l'empilement)
         tag: `covoiturage-${userId ?? "app"}`,
+        // @ts-expect-error renotify is valid Web Notifications API but absent from TS lib
         renotify: true,
       });
 

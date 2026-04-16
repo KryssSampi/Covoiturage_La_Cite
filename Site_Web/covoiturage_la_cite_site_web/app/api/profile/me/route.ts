@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     if (!result.success) {
       return NextResponse.json(
         { error: result.message ?? 'Profil introuvable' },
-        { status: result.status ?? 404 },
+        { status: result.success ?  200 : 404 },
       );
     }
 
@@ -37,7 +37,7 @@ export async function PUT(req: Request) {
     if (!result.success) {
       return NextResponse.json(
         { error: result.message ?? 'Mise à jour impossible' },
-        { status: result.status ?? 400 },
+        { status: result.success ? 200 : 400 },
       );
     }
 

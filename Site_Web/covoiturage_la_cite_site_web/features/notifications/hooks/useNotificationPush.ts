@@ -221,6 +221,7 @@ export function useNotificationPush(
     }
 
     // démarrer immédiatement puis toutes les 15s
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void poll();
     intervalId = setInterval(poll, 15_000);
 

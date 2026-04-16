@@ -92,7 +92,7 @@ export async function POST(req: Request) {
       // Données géo calculées par ORS côté client
       estimatedDurationMinutes: raw.estimatedDurationMinutes ?? raw.estimatedDuration ?? 0,
       estimatedDistanceKm:      raw.estimatedDistanceKm ?? raw.estimatedDistance ?? 0,
-      polyline:                 raw.polyline ? JSON.stringify(raw.polyline) : null,
+      polyline:                 raw.polyline ? JSON.stringify(raw.polyline) : undefined,
     };
 
     // Si les coordonnées sont manquantes ou nulles, tenter un geocodage Photon

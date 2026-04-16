@@ -20,7 +20,7 @@ function makeGoEventId(taskId: string, userId: string): string {
 export function convertGoTaskToGoEvent(task: GoTask, userId: string, completeAt: string): GoEvent {
   return {
     id: makeGoEventId(task.id, userId),
-    titre: `Go!Tâche complétée — ${task.titlefr}`,
+    titre: `Go!Tâche complétée — ${task.titleFr}`,
     date: completeAt,
     points: task.points,
     utilisateurId: userId,
@@ -36,7 +36,7 @@ export function syncGoEventsFromTasks(): void {
   const newEvents: GoEvent[] = [];
 
   for (const task of tasks) {
-    for (const prog of task.progression) {
+    for (const prog of (task.progression ?? [])) {
       if (prog.isDone && prog.completeAt) {
         const eventId = makeGoEventId(task.id, prog.userId);
         if (!existingIds.has(eventId)) {
