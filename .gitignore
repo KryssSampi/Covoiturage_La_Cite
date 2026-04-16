@@ -1,25 +1,8 @@
-# Dossiers personnels et outils IA
-.roo/
-docs/
-.vscode/
-.idea/
-logs/
-temp/
-.cache/
+# ── Espace de travail privé ───────────────────────────────────────────────────
+.docs/
+**/.docs/
 
-# Fichiers temporaires
-*.tmp
-*.bak
-*.swp
-*~
-
-# Fichiers de logs
-*.log
-*.trace
-
-# Fichiers de configuration personnelle
-*.user
-*.userprefs
+# ── Environnements & secrets ──────────────────────────────────────────────────
 .env
 .env.*
 !.env.example
@@ -28,35 +11,36 @@ appsettings.*.json
 !appsettings.json
 !appsettings.Development.example.json
 
-# Fichiers systeme
-.DS_Store
-Thumbs.db
-
-# Dossiers de build
+# ── Build artifacts ───────────────────────────────────────────────────────────
 node_modules/
 bin/
 obj/
-.vs/
-__pycache__/
 dist/
 build/
 .next/
+out/
 coverage/
 .turbo/
 .output/
-.\docs
-MapServicesExtraction/
-auto-commit.code-workspace
-*.code-workspace
-*.code-search
-*.code-snippets 
+
+# ── Outils IDE ────────────────────────────────────────────────────────────────
+.vs/
+.vscode/
+.idea/
 *.code-workspace
 *.code-search
 *.code-snippets
-.vscode/
-.idea/
 *.sln
-.roo/
-Talkichatbot/
-logs/
-.docs/
+*.user
+*.userprefs
+
+# ── Système ───────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak
+*.swp
+*~
+*.log
+*.trace
+__pycache__/
