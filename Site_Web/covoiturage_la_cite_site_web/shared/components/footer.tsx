@@ -35,7 +35,7 @@ export function Footer() {
   const isbellowlg = useIsMobileOrTablet();
 
   return (
-    <div className="w-full h-100 flex flex-col items-center justify-center bg-[#08316E] text-white text-base lg:text-lg font-semibold">
+    <div className="w-full h-100 flex flex-col items-center justify-center bg-[#08316E] text-white text-lg font-semibold">
       <div className="flex w-full h-170">
         <div className="lg:scale-200 scale-150 h-30 items-center lg:mt-40 mt-35 lg:ml-40 ml-10">
           <MainLogo />
@@ -44,25 +44,25 @@ export function Footer() {
         {!isbellowlg && <div className="bg-gray-600 flex w-px h-75 lg:ml-40 mt-5" />}
 
         <div className="lg:ml-30 ml-15 lg:mt-20 text-center lg:text-left object-center lg:scale-100 scale-75">
-          <h2 className="text-violet-600 text-xl lg:text-3xl">{appState.lang === Language.FR ? "Lien Rapide" : "Short-cut Link"}</h2>
+          <h2 className="text-violet-600 text-3xl">{appState.lang === Language.FR ? "Lien Rapide" : "Short-cut Link"}</h2>
           <ul>
             <li>
-              <Link href="/about" className="text-base lg:text-lg hover:underline active:text-gray-400">
+              <Link href="/about" className="text-lg hover:underline active:text-gray-400">
                 {appState.lang === Language.FR ? "A propos" : "About"}
               </Link>
             </li>
             <li>
-              <Link href="/conditions" className="text-base lg:text-lg hover:underline active:text-gray-400">
+              <Link href="/conditions" className="text-lg hover:underline active:text-gray-400">
                 {appState.lang === Language.FR ? "Conditions D'utilisation" : "Usings Conditions"}
               </Link>
             </li>
             <li>
-              <Link href="/confidentialite" className="text-base lg:text-lg hover:underline active:text-gray-400">
+              <Link href="/confidentialite" className="text-lg hover:underline active:text-gray-400">
                 {appState.lang === Language.FR ? "Politique de Confidentialite" : "Privacy Policy"}
               </Link>
             </li>
             <li>
-              <Link href="/accessibilite" className="text-base lg:text-lg hover:underline active:text-gray-400">
+              <Link href="/accessibilite" className="text-lg hover:underline active:text-gray-400">
                 {appState.lang === Language.FR ? "Accessibilite" : "Accessibility"}
               </Link>
             </li>
@@ -71,15 +71,15 @@ export function Footer() {
 
         <div className="lg:ml-70 -ml-60 mr-10 lg:-mt-10 mt-35 lg:scale-100 scale-80 flex flex-col gap-y-20">
           <div className="lg:mt-20 mt-10 object-center">
-            <h2 className="text-violet-600 text-xl lg:text-3xl">{appState.lang === Language.FR ? "Support" : "Support"}</h2>
+            <h2 className="text-violet-600 text-3xl">{appState.lang === Language.FR ? "Support" : "Support"}</h2>
             <ul>
               <li>
-                <Link href="/faq" className="text-base lg:text-lg hover:underline active:text-gray-400">
+                <Link href="/faq" className="text-lg hover:underline active:text-gray-400">
                   {appState.lang === Language.FR ? "FAQ" : "FAQ"}
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-base lg:text-lg hover:underline active:text-gray-400">
+                <Link href="/contact" className="text-lg hover:underline active:text-gray-400">
                   {appState.lang === Language.FR ? "Infos de contact" : "Contact info panel"}
                 </Link>
               </li>
@@ -113,15 +113,14 @@ export function Footer() {
               whileHover={{ y: -5, scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
-              <FaArrowUp className="text-lg lg:text-xl" />
+              <FaArrowUp className="text-xl" />
             </motion.button>
           )}
         </AnimatePresence>
       </div>
 
       <div className="lg:w-full h-px bg-gray-600" />
-      <p className="text-gray-500 m-5 text-sm lg:text-lg"> &copy; Covoiturage la cite 2026 All Right Reserved </p>
+      <p className="text-gray-500 m-5 text-xs lg:text-lg"> &copy; Covoiturage la cite 2026 All Right Reserved </p>
     </div>
   );
 }
-
