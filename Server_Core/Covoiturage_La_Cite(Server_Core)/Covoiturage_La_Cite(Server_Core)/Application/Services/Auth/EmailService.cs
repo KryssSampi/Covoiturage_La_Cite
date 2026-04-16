@@ -89,8 +89,18 @@ public class EmailService : IEmailService
                 """
         };
 
+        var logOnly        = _configuration.GetValue<bool>("Smtp:LogOnly", false);
+        var timeoutSeconds = _configuration.GetValue("Smtp:TimeoutSeconds", 15);
+
+        if (logOnly)
+        {
+            _logger.LogWarning("[SMTP:LogOnly] OTP pour {Email} → {Code}", toEmail, otpCode);
+            return;
+        }
+
         using var client = new SmtpClient();
-        await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.StartTls, ct);
+        client.Timeout = timeoutSeconds * 1_000;
+        await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.Auto, ct);
         await client.AuthenticateAsync(smtpUser, smtpPass, ct);
         await client.SendAsync(message, ct);
         await client.DisconnectAsync(true, ct);
@@ -182,8 +192,18 @@ public class EmailService : IEmailService
                 """
         };
 
+        var logOnly        = _configuration.GetValue<bool>("Smtp:LogOnly", false);
+        var timeoutSeconds = _configuration.GetValue("Smtp:TimeoutSeconds", 15);
+
+        if (logOnly)
+        {
+            _logger.LogWarning("[SMTP:LogOnly] Notification pour {Email} : {Title}", toEmail, notificationTitle);
+            return;
+        }
+
         using var client = new SmtpClient();
-        await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.StartTls, ct);
+        client.Timeout = timeoutSeconds * 1_000;
+        await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.Auto, ct);
         await client.AuthenticateAsync(smtpUser, smtpPass, ct);
         await client.SendAsync(message, ct);
         await client.DisconnectAsync(true, ct);
