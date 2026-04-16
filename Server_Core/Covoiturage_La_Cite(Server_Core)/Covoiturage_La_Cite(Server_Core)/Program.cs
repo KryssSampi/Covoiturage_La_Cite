@@ -78,13 +78,17 @@ try
     builder.Services.AddJwtAuth(builder.Configuration);
 
     // ── Hangfire ─────────────────────────────────────────────────────────────
-    builder.Services.AddHangfire(config => config
-        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-        .UseSimpleAssemblyNameTypeSerializer()
-        .UseRecommendedSerializerSettings()
-        .UsePostgreSqlStorage(c =>
-            c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))));
-    builder.Services.AddHangfireServer();
+    var hangfireDisabled = builder.Configuration["HANGFIRE_DISABLED"] == "true";
+    if (!hangfireDisabled)
+    {
+        builder.Services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UsePostgreSqlStorage(c =>
+                c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))));
+        builder.Services.AddHangfireServer();
+    }
 
     // ── Redis (IDistributedCache) ─────────────────────────────────────────────
     builder.Services.AddStackExchangeRedisCache(options =>
