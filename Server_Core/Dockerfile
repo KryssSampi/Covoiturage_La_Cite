@@ -4,8 +4,11 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet restore "Covoiturage_La_Cite(Server_Core)/Covoiturage_La_Cite(Server_Core)/Covoiturage_La_Cite(Server_Core).csproj"
-RUN dotnet publish "Covoiturage_La_Cite(Server_Core)/Covoiturage_La_Cite(Server_Core)/Covoiturage_La_Cite(Server_Core).csproj" -c Release -o /app/publish /p:UseAppHost=false
+# Localise le .csproj dynamiquement — évite tout problème de chemin avec parenthèses
+RUN PROJ=$(find . -name "*.csproj" | head -1) && \
+    echo "Found project: $PROJ" && \
+    dotnet restore "$PROJ" && \
+    dotnet publish "$PROJ" -c Release -o /app/publish /p:UseAppHost=false
 
 # Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
