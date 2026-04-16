@@ -19,10 +19,14 @@ public class EmailService : IEmailService
     {
         var smtpHost = _configuration["Smtp:Host"] ?? "smtp.gmail.com";
         var smtpPort = _configuration.GetValue("Smtp:Port", 587);
-        var smtpUser = _configuration["Smtp:User"] ?? throw new InvalidOperationException("Smtp:User non configuré");
-        var smtpPass = _configuration["Smtp:Password"] ?? throw new InvalidOperationException("Smtp:Password non configuré");
+        var smtpUser = _configuration["Smtp:User"] ?? string.Empty;
+        var smtpPass = _configuration["Smtp:Password"] ?? string.Empty;
         var fromName = _configuration["Smtp:FromName"] ?? "Covoiturage La Cité";
         var fromEmail = _configuration["Smtp:FromEmail"] ?? smtpUser;
+
+        // Mode log : si Smtp:LogOnly=true OU si aucun compte SMTP n'est configuré
+        var logOnly = _configuration.GetValue<bool>("Smtp:LogOnly", false)
+                   || string.IsNullOrWhiteSpace(smtpUser);
 
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(fromName, fromEmail));
@@ -89,7 +93,6 @@ public class EmailService : IEmailService
                 """
         };
 
-        var logOnly        = _configuration.GetValue<bool>("Smtp:LogOnly", false);
         var timeoutSeconds = _configuration.GetValue("Smtp:TimeoutSeconds", 15);
 
         if (logOnly)
@@ -118,11 +121,14 @@ public class EmailService : IEmailService
     {
         var smtpHost  = _configuration["Smtp:Host"] ?? "smtp.gmail.com";
         var smtpPort  = _configuration.GetValue("Smtp:Port", 587);
-        var smtpUser  = _configuration["Smtp:User"] ?? throw new InvalidOperationException("Smtp:User non configuré");
-        var smtpPass  = _configuration["Smtp:Password"] ?? throw new InvalidOperationException("Smtp:Password non configuré");
+        var smtpUser  = _configuration["Smtp:User"] ?? string.Empty;
+        var smtpPass  = _configuration["Smtp:Password"] ?? string.Empty;
         var fromName  = _configuration["Smtp:FromName"] ?? "Covoiturage La Cité";
         var fromEmail = _configuration["Smtp:FromEmail"] ?? smtpUser;
         var webUrl    = _configuration["App:WebUrl"] ?? "http://localhost:3000";
+
+        var logOnly = _configuration.GetValue<bool>("Smtp:LogOnly", false)
+                   || string.IsNullOrWhiteSpace(smtpUser);
 
         var actionBlock = deepLink != null
             ? $"""
@@ -192,7 +198,6 @@ public class EmailService : IEmailService
                 """
         };
 
-        var logOnly        = _configuration.GetValue<bool>("Smtp:LogOnly", false);
         var timeoutSeconds = _configuration.GetValue("Smtp:TimeoutSeconds", 15);
 
         if (logOnly)
