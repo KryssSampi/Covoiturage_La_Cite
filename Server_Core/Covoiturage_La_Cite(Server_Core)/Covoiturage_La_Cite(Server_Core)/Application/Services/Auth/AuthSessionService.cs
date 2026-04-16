@@ -489,9 +489,16 @@ public class AuthSessionService : IAuthSessionService
         session.OtpCodeHash = HashToken(code);
         session.OtpExpiresAt = DateTimeOffset.UtcNow.AddMinutes(OtpLifetimeMinutes);
 
-        await _emailService.SendOtpAsync(session.Email!, code, ct);
-
-        _logger.LogDebug("OTP envoyé pour session {PublicId}", session.PublicId);
+        try
+        {
+            await _emailService.SendOtpAsync(session.Email!, code, ct);
+            _logger.LogDebug("OTP envoyé pour session {PublicId}", session.PublicId);
+        }
+        catch (Exception ex)
+        {
+            // L'envoi email échoue → l'OTP reste valide en session, on log le code pour déboguer
+            _logger.LogError(ex, "[OTP] Échec envoi email pour session {PublicId} — code: {Code}", session.PublicId, code);
+        }
     }
 
     private static void BlockSession(AuthSession session)
