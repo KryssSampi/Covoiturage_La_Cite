@@ -23,6 +23,10 @@ temp/
 .env
 .env.*
 !.env.example
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.example.json
 
 # Fichiers systeme
 .DS_Store
@@ -55,3 +59,4 @@ auto-commit.code-workspace
 .roo/
 Talkichatbot/
 logs/
+.docs/
