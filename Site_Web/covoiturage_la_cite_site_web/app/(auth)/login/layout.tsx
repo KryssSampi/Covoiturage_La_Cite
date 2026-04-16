@@ -115,7 +115,7 @@ export default function AuthLayout({
                 className="object-contain"
               />
             </div>
-            <h1 className="text-6xl md:text-6xl font-bold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+            <h1 className="text-2xl md:text-6xl font-bold text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
               Covoiturage <span className="text-blue-500">La Cité</span>
             </h1>
           </div>
