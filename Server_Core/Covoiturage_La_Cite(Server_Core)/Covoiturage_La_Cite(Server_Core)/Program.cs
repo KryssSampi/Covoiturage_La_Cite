@@ -260,6 +260,23 @@ try
     // ─────────────────────────────────────────────────────────────────────────
     var app = builder.Build();
 
+    // ── EF Core migrations ───────────────────────────────────────────────────
+    {
+        using var migScope = app.Services.CreateScope();
+        var migDb     = migScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var migLogger = migScope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("EFMigrations");
+        try
+        {
+            migDb.Database.Migrate();
+            migLogger.LogInformation("[EF] Migrations appliquées avec succès");
+        }
+        catch (Exception ex)
+        {
+            migLogger.LogError(ex, "[EF] Échec des migrations — arrêt du serveur");
+            throw;
+        }
+    }
+
     // ── MongoDB initialization (indexes + seed) ───────────────────────────────
     {
         var mongoCtx = app.Services.GetRequiredService<MongoDbContext>();
