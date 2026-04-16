@@ -74,6 +74,7 @@ export function useLiveGoTasks(
       }
     };
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchTasks();
     const intervalId = setInterval(() => { void fetchTasks(); }, 30_000);
 

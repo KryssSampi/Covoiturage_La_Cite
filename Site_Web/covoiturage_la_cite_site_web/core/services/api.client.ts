@@ -3,9 +3,6 @@
  * - Convertit localDate+localTime → UTC avant envoi quand présent
  * - Ajoute `utcOffsetMinutes` si absent
  */
-import { utcToLocalDateIso, utcToLocalTime } from '@/core/utils/date.utils';
-
-function pad(n: number) { return String(n).padStart(2, '0'); }
 
 function localDateTimeToUtcParts(date: string, time: string) {
   const localDt = new Date(`${date}T${time}:00`);
@@ -13,10 +10,10 @@ function localDateTimeToUtcParts(date: string, time: string) {
   return { date: iso.slice(0, 10), time: iso.slice(11, 16) };
 }
 
-async function postJson(path: string, body: any) {
+async function postJson(path: string, body: Record<string, unknown>) {
   const payload = { ...body };
 
-  if (payload && payload.departureDate && payload.departureTime) {
+  if (payload.departureDate && typeof payload.departureDate === 'string' && payload.departureTime && typeof payload.departureTime === 'string') {
     // Normaliser en UTC côté client et joindre offset
     try {
       const utc = localDateTimeToUtcParts(payload.departureDate, payload.departureTime);
@@ -27,7 +24,7 @@ async function postJson(path: string, body: any) {
     }
   }
 
-  if (payload && payload.arrivalDate && payload.arrivalTime) {
+  if (payload.arrivalDate && typeof payload.arrivalDate === 'string' && payload.arrivalTime && typeof payload.arrivalTime === 'string') {
     try {
       const utc = localDateTimeToUtcParts(payload.arrivalDate, payload.arrivalTime);
       payload.arrivalDate = utc.date;
@@ -43,7 +40,7 @@ async function postJson(path: string, body: any) {
     body: JSON.stringify(payload),
   });
 
-  let json: any = null;
+  let json: unknown = null;
   try { json = await res.json(); } catch { /* ignore */ }
 
   return { ok: res.ok, status: res.status, data: json };
@@ -51,7 +48,7 @@ async function postJson(path: string, body: any) {
 
 async function getJson(path: string) {
   const res = await fetch(path, { method: 'GET' });
-  let json: any = null;
+  let json: unknown = null;
   try { json = await res.json(); } catch { /* ignore */ }
   return { ok: res.ok, status: res.status, data: json };
 }
@@ -62,3 +59,4 @@ export const apiClient = {
 };
 
 export default apiClient;
+

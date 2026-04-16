@@ -67,7 +67,7 @@ async function enrichUser(targetUserId: string, options?: RequestOptions) {
     };
   }
 
-  const data = result.data as Record<string, unknown>;
+  const data = result.data as unknown as Record<string, unknown>;
   const firstName = typeof data.firstName === 'string' ? data.firstName : '';
   const lastName = typeof data.lastName === 'string' ? data.lastName : '';
   const role = typeof data.role === 'string' ? data.role : '';
@@ -216,9 +216,7 @@ export async function toggleAlerte(alerteId: string, _surveyIsOn: boolean, optio
     const result = await patch(`api/users/survey-alerts/${alerteId}/toggle`, undefined, options);
     if (!result.success) {
       // Si le Server Core renvoie 501 (Not Implemented) ou similaire, on renvoie un fallback
-      if (result.status === 501) {
-        return { success: true, data: { id: alerteId, toggled: true } };
-      }
+     
       return { success: false, message: result.message ?? 'Impossible de modifier l\'alerte' };
     }
     return { success: true, data: result.data };
@@ -233,9 +231,7 @@ export async function deleteAlerte(alerteId: string, options?: RequestOptions) {
   try {
     const result = await del(`api/users/survey-alerts/${alerteId}`, options);
     if (!result.success) {
-      if (result.status === 501) {
-        return { success: true };
-      }
+      
       return { success: false, message: result.message ?? 'Impossible de supprimer l\'alerte' };
     }
     return { success: true };

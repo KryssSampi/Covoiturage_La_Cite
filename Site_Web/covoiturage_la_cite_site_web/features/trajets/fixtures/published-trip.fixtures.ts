@@ -43,6 +43,7 @@ export const MOCK_PUBLISHED_TRIP: PublishedTripViewData = {
     lng: -75.5090,
   },
   pricePerPassenger: 6,
+  passengerPrice: 6.90,
   departureDate: "Aujourd'hui",
   departureTime: '03h30',
   estimatedDuration: 18,

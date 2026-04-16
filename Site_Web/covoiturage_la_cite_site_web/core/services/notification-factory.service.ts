@@ -11,7 +11,7 @@
  */
 
 import { generatePrefixedId, nowIso } from '@/core/utils/api-route.utils';
-import type { NotificationModel, NotificationType } from '@/core/models/NotificationModel';
+import type { NotificationModel } from '@/core/models/NotificationModel';
 import type { TripModel } from '@/core/models/TripModel';
 import type { ReservationModel } from '@/core/models/ReservationModel';
 import type { UserModel } from '@/core/models/UserModel';
@@ -20,14 +20,14 @@ import type { ReviewModel } from '@/core/models/ReviewModel';
 // ─── Base builder ─────────────────────────────────────────────────────────────
 
 function base(
-  fields: Omit<NotificationModel, 'id' | 'createdAt'> & Partial<Pick<NotificationModel, 'id' | 'createdAt'>>,
+  fields: Omit<NotificationModel, 'id' | 'createdAt' | 'isRead' | 'isImportant'> & Partial<Pick<NotificationModel, 'id' | 'createdAt' | 'isRead' | 'isImportant'>>,
 ): NotificationModel {
   return {
     id: fields.id ?? generatePrefixedId('NTF'),
     createdAt: fields.createdAt ?? nowIso(),
-    isRead: false,
     isImportant: false,
     ...fields,
+    isRead: false,
   };
 }
 
@@ -56,6 +56,7 @@ export function notifReservationReceived(params: {
       `le ${trip.departureDate} à ${trip.departureTime}. ` +
       `Consultez son profil et acceptez ou refusez la demande avant qu'elle expire.`,
     isImportant: true,
+    isRead: false,
     link: `/driver/reservations/${driverId}`,
     linkLabel: 'Voir les demandes',
     relatedTripId: trip.id,
@@ -441,7 +442,7 @@ export function notifNewReviewReceived(params: {
       reviewId: review.id,
       reviewerName: `${reviewer.firstName} ${reviewer.lastName}`,
       rating: review.rating,
-      comment: review.comment.slice(0, 120),
+      comment: review.comment?.slice(0, 120) ?? '',
     },
   });
 }

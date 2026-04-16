@@ -157,6 +157,7 @@ export function buildTripPayload(params: {
     recurrenceEndDate: params.recurrenceEndDate,
     estimatedDistanceKm: params.estimatedDistance,
     estimatedDurationMinutes: params.estimatedDuration,
+    passengerPrice: Math.round(params.pricePerPassenger * 1.15 * 100) / 100,
     notes: params.notes,
   };
 }

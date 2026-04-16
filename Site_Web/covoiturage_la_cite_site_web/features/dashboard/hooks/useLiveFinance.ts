@@ -40,6 +40,7 @@ export function useLiveFinance(driverId: string | undefined): UseLiveFinanceResu
       }
     };
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void fetchFinance();
     const intervalId = setInterval(() => { void fetchFinance(); }, 30_000);
 

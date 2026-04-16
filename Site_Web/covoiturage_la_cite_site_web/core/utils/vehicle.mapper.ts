@@ -5,14 +5,14 @@ import type { MockVehicle } from '@/features/trajets/constants/trip.constants';
  * Mappe un objet véhicule (VehicleModel ou shape similaire) en `MockVehicle`
  * Permet de centraliser le mapping utilisé par plusieurs pages.
  */
-export function vehicleToMockVehicle(v: Partial<VehicleModel> & { id?: string; maxSeats?: number } ): MockVehicle {
-  const id = v.id ?? String(Date.now());
-  const make = (v as any).make ?? '';
-  const model = (v as any).model ?? '';
-  const year = (v as any).year ? ` ${ (v as any).year }` : '';
+export function vehicleToMockVehicle(v: { id?: string; maxSeats?: number; [key: string]: unknown }): MockVehicle {
+  const id = (v.id as string | undefined) ?? String(Date.now());
+  const make = (v.make as string | undefined) ?? '';
+  const model = (v.model as string | undefined) ?? '';
+  const year = v.year ? ` ${v.year as string}` : '';
   const label = `${make} ${model}${year}`.trim();
-  const maxPassengers = v.maxSeats ?? ( (v as any).maxPassengers ?? 4 );
-  const color = (v as any).color;
+  const maxPassengers = v.maxSeats ?? ((v.maxPassengers as number | undefined) ?? 4);
+  const color = v.color as string | undefined;
 
   return {
     id,
@@ -23,5 +23,6 @@ export function vehicleToMockVehicle(v: Partial<VehicleModel> & { id?: string; m
 }
 
 export function vehicleModelToMockVehicle(v: VehicleModel): MockVehicle {
-  return vehicleToMockVehicle(v);
+  return vehicleToMockVehicle(v as unknown as Record<string, unknown>);
 }
+

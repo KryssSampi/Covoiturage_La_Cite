@@ -1,0 +1,30 @@
+# Étape 1 : Build de l'application
+# Utilisation de .NET 9.0 comme tu l'as spécifié
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+# 1. On copie le fichier projet à la racine de /src pour simplifier
+COPY ["Covoiturage_La_Cite(Server_Core).csproj", "./"]
+
+# 2. On restaure les dépendances (le chemin est maintenant direct)
+RUN dotnet restore "Covoiturage_La_Cite(Server_Core).csproj"
+
+# 3. On copie tout le reste du code source
+COPY . .
+
+# 4. On publie le projet
+RUN dotnet publish "Covoiturage_La_Cite(Server_Core).csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Étape 2 : Runtime final (image légère pour la prod)
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+WORKDIR /app
+
+# On récupère seulement le résultat du build
+COPY --from=build /app/publish .
+
+# Configuration spécifique pour Render (Port 10000)
+ENV ASPNETCORE_URLS=http://+:10000
+EXPOSE 10000
+
+# Lancement de la DLL
+ENTRYPOINT ["dotnet", "Covoiturage_La_Cite(Server_Core).dll"]

@@ -291,7 +291,7 @@ export function useIdentityVerification(
     return () => {
       video.removeEventListener('loadedmetadata', attachAndPlay);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [isStreaming, status]);
 
   // ── 3. Boucle de détection ──────────────────────────────────────────────────

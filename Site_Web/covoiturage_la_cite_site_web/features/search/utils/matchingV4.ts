@@ -479,7 +479,7 @@ export function runPassengerMatchingV4(params: PassengerSearchParams): Passenger
   // PHASE 2 — FILTRAGE ADDITIONNEL + TRI
   // ══════════════════════════════════════════════════════════════════════════
 
-  let result = trips.filter((t) => {
+  const result = trips.filter((t) => {
     if (!scores[t.id]) return false;
     if (maxPrice !== undefined && t.pricePerPassenger > maxPrice) return false;
     if (minSeatsAvailable !== undefined && (t.maxPassengers - t.currentPassengers) < minSeatsAvailable) return false;

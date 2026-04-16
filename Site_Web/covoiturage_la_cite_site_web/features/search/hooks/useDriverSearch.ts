@@ -139,7 +139,7 @@ export function useDriverSearch({
     setError(null);
     setActiveIndex(0);
 
-    let cancelled = false;
+    const cancelled = false;
     try {
       await runSearchWithTimeout(dep, arr, depLabel, arrLabel, () => cancelled);
     } finally {

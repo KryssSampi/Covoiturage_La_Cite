@@ -90,10 +90,10 @@ export async function GET(req: Request) {
 
     if (role === "driver") {
       const s = summaryRes.data as DriverFinanceSummaryDto | undefined;
-      const solde = s?.availableBalance ?? 0;
-      const transit = s?.pendingBalance ?? 0;
-      const penalties = s?.activePenalties ?? 0;
-      const earnings = s?.totalEarnings ?? 0;
+      const solde = s?.soldeDisponible ?? 0;
+      const transit = s?.soldeEnTransit ?? 0;
+      const penalties = s?.soldePenalites ?? 0;
+      const earnings = s?.gainMois ?? 0;
 
       const moisLabel = new Date().toLocaleDateString("fr-CA", { month: "long", year: "numeric" });
       driverData = {

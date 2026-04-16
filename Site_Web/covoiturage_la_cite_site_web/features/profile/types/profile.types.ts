@@ -67,6 +67,7 @@ export interface UserPublic {
 
 export type SettingsTab =
   | "profile"
+  | "settings"
   | "visibility"
   | "trip"
   | "notifications"
