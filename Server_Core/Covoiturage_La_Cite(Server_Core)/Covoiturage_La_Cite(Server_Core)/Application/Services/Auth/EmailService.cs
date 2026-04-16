@@ -22,9 +22,9 @@ public class EmailService : IEmailService
 
     private async Task SendAsync(string toEmail, string subject, string html, CancellationToken ct)
     {
-        var apiKey    = _configuration["Sendgrid:ApiKey"] ?? string.Empty;
-        var fromName  = _configuration["Sendgrid:FromName"]  ?? "Covoiturage La Cité";
-        var fromEmail = _configuration["Sendgrid:FromEmail"] ?? string.Empty;
+        var apiKey    = _configuration["Brevo:ApiKey"] ?? string.Empty;
+        var fromName  = _configuration["Brevo:FromName"]  ?? "Covoiturage La Cité";
+        var fromEmail = _configuration["Brevo:FromEmail"] ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(apiKey))
         {
@@ -34,28 +34,28 @@ public class EmailService : IEmailService
 
         var payload = JsonSerializer.Serialize(new
         {
-            personalizations = new[] { new { to = new[] { new { email = toEmail } } } },
-            from    = new { email = fromEmail, name = fromName },
+            sender  = new { name = fromName, email = fromEmail },
+            to      = new[] { new { email = toEmail } },
             subject,
-            content = new[] { new { type = "text/html", value = html } },
+            htmlContent = html,
         });
 
         var client = _http.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+        client.DefaultRequestHeaders.Add("api-key", apiKey);
 
         var response = await client.PostAsync(
-            "https://api.sendgrid.com/v3/mail/send",
+            "https://api.brevo.com/v3/smtp/email",
             new StringContent(payload, Encoding.UTF8, "application/json"),
             ct);
 
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync(ct);
-            _logger.LogError("[Sendgrid] {Status} — {Body}", (int)response.StatusCode, body);
-            throw new InvalidOperationException($"Sendgrid API error {(int)response.StatusCode}");
+            _logger.LogError("[Brevo] {Status} — {Body}", (int)response.StatusCode, body);
+            throw new InvalidOperationException($"Brevo API error {(int)response.StatusCode}");
         }
 
-        _logger.LogInformation("[Sendgrid] Email envoyé à {Email}", toEmail);
+        _logger.LogInformation("[Brevo] Email envoyé à {Email}", toEmail);
     }
 
     // ── IEmailService ─────────────────────────────────────────────────────
