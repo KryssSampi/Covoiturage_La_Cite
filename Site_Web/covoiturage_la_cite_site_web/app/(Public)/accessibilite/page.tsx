@@ -75,6 +75,9 @@ export default function AccessibilitePage() {
               <li className="flex items-center gap-2"><FaCircleCheck className="text-[#5E9FE9] shrink-0" /> {t(tr.typographyBullet3Fr, tr.typographyBullet3En, lang)}</li>
             </ul>
           </article>
+
+          <article className="group rounded-2xl border border-gray-200 bg-white p-4 md:p-7 shadow-xl hover:bg-gray-50 transition-all duration-300 w-full">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#5E9FE9]/10">
               <FaComments className="text-[#5E9FE9] text-2xl" />
             </div>
             <h3 className="text-xl font-semibold">{t(tr.formsTitleFr, tr.formsTitleEn, lang)}</h3>

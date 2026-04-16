@@ -86,7 +86,7 @@ const HOW_IT_WORKS_STEPS: Step[] = [
     descriptionFr: "avec votre adresse email du College la Cite et verifiez votre identite etudiante",
     descriptionEn: 'Create your account with your college email and verify your student identity.',
     linkText: { fr: 'Creer un compte ', en: 'Sign Up' },
-    linkHref: '/inscription',
+    linkHref: '/login',
   },
   {
     number: 2,
