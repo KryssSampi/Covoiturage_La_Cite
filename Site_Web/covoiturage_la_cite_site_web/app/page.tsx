@@ -66,7 +66,7 @@ export default function Home() {
             </p>
           </div>
           <div className="w-full h-50 z-20 flex flex-col items-center justify-center relative py-4 md:py-20">
-            <Link className="bg-white/60 text-[#08316E] w-full md:w-fit px-4 md:px-8 py-3 rounded-full text-lg lg:text-2xl font-semibold hover:bg-white block md:inline-block transition-all duration-300 hover:scale-105 active:scale-95 w-80 mx-auto" href="/login">
+            <Link className="bg-white/60 text-[#08316E] max-w-full md:w-fit px-4 md:px-8 py-3 rounded-full text-lg lg:text-2xl font-semibold hover:bg-white block md:inline-block transition-all duration-300 hover:scale-105 active:scale-95 w-80 mx-auto" href="/login">
               {t(HOME_TRANSLATIONS.ctaButtonFr, HOME_TRANSLATIONS.ctaButtonEn, appState.lang)}
             </Link>
             {isBellowlg ? (
