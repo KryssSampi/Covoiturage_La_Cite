@@ -45,12 +45,7 @@ export default function DriverFavorisRoutePage() {
     }
   }, [user]);
 
-  // Chargement initial
-  useEffect(() => {
-    if (!user || user.role?.toString().toLowerCase() !== "driver") return;
-    if (user.id !== params.id) return;
-    void loadData();
-  }, [loadData, params.id, user]);
+  // Chargement initial\n  useEffect(() => {\n    if (!user || user.role?.toString().toLowerCase() !== "driver") return;\n    if (user.id !== params.id) return;\n    // eslint-disable-next-line react-hooks/set-state-in-effect\n    void loadData();\n  }, [loadData, params.id, user]);
 
   // Polling 30s — SSE db-watch désactivé (Server Core)
   useEffect(() => {

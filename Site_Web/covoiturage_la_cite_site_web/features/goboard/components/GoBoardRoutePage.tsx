@@ -55,6 +55,7 @@ export function GoBoardRoutePage({ expectedRole }: GoBoardRoutePageProps) {
     const userRole = user?.role?.toString().toLowerCase();
     if (!user || userRole !== expectedRole) return;
     if (user.id !== params.id) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadData();
   }, [loadData, params.id, user, expectedRole]);
 

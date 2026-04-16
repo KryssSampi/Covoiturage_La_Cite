@@ -16,23 +16,18 @@ export default function CustomToggle({
   // C'est bindValue qui pilote tout.
 
   return (
-    <label className="relative inline-flex items-center cursor-pointer">
-      {/* On enlève le onClick d'ici */}
+    <label className="relative inline-flex items-center cursor-pointer w-full max-w-xs">
       <input
         type="checkbox"
         className="sr-only peer"
         checked={bindValue}
-        onChange={() => {onToggle(!bindValue) ; console.log("Toggle changed", !bindValue)}} // On inverse simplement la valeur actuelle
+        onChange={() => {onToggle(!bindValue); console.log("Toggle changed", !bindValue);}}
       />
-
-      {/* La piste */}
       <div
-        className={`w-14 h-7 rounded-full transition-all duration-300 ${
+        className={`w-14 min-h-[28px] max-w-full rounded-full transition-all duration-300 ${
           bindValue ? activeColor : "bg-gray-300"
         } peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-gray-400`}
       ></div>
-
-      {/* La bille */}
       <div
         className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out ${
           bindValue ? "translate-x-7" : "translate-x-0"

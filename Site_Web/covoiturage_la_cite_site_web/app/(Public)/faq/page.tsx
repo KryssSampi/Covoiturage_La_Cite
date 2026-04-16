@@ -37,14 +37,14 @@ export default function FAQPage() {
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.45)_0%,rgba(255,255,255,0.80)_60%,rgba(255,255,255,0.97)_100%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_center,rgba(8,49,110,0.06),transparent_60%)]" />
 
-        <div className="relative mx-auto max-w-6xl px-4 pt-28 pb-36 text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[#5E9FE9]/10 border border-[#5E9FE9]/20 shadow-md">
-            <FaCircleQuestion className="text-[#5E9FE9] text-3xl" />
+        <div className="relative mx-auto max-w-6xl px-4 pt-20 md:pt-28 pb-12 md:pb-36 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full bg-[#5E9FE9]/10 border border-[#5E9FE9]/20 shadow-md">
+            <FaCircleQuestion className="text-[#5E9FE9] text-xl md:text-3xl" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+          <h1 className="text-xl md:text-4xl lg:text-5xl font-bold tracking-tight">
             {isFr ? tr.faqHeroTitleFr : tr.faqHeroTitleEn}
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 leading-8">
+          <p className="mx-auto mt-6 max-w-2xl text-base md:text-lg text-gray-600 leading-8">
             {isFr ? tr.faqHeroSubtitleFr : tr.faqHeroSubtitleEn}
           </p>
         </div>
@@ -55,3 +55,4 @@ export default function FAQPage() {
     </>
   );
 }
+

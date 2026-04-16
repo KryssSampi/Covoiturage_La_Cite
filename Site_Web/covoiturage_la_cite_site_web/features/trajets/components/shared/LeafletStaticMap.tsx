@@ -1,26 +1,5 @@
 'use client';
 
-/**
- * @file LeafletStaticMap.tsx
- * @description Carte Leaflet réutilisable — supporte deux modes :
- *   - 'route'  : affiche une polyline complète avec marqueurs départ/arrivée
- *   - 'point'  : affiche un seul point (départ ou arrivée) centré sur la carte
- *
- * Ce composant ne doit PAS être importé directement dans les composants Next.js.
- * Il doit être chargé via `dynamic(() => import('./LeafletStaticMap'), { ssr: false })`
- * pour éviter les erreurs SSR liées à Leaflet.
- *
- * @param mode          'route' ou 'point'
- * @param latLngs       Tableau de coordonnées [[lat, lng], ...] pour le mode 'route'
- * @param centerPoint   Coordonnée [lat, lng] pour le mode 'point'
- * @param pointType     'departure' | 'arrival' — détermine l'icône affichée en mode 'point'
- * @param pointLabel    Label affiché dans le popup du marqueur (mode 'point')
- * @param departureLabel  Label du départ (mode 'route')
- * @param arrivalLabel    Label de l'arrivée (mode 'route')
- * @param height        Hauteur CSS du conteneur
- * @param interactive   Si false (défaut), désactive zoom/pan/scroll
- */
-
 import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -35,37 +14,21 @@ import {
   addFavoritesLayer,
 } from '@/features/map-service';
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 export interface LeafletStaticMapProps {
-  /** Mode d'affichage de la carte */
   mode: 'route' | 'point';
 
-  // — Mode 'route' —
-  /** Polyline du trajet au format [[lat, lng], ...] */
   latLngs?: [number, number][];
-  /** Label court du départ — affiché dans le marqueur */
   departureLabel?: string;
-  /** Label court de l'arrivée — affiché dans le marqueur */
   arrivalLabel?: string;
 
-  // — Mode 'point' —
-  /** Coordonnée [lat, lng] du point unique à centrer */
   centerPoint?: [number, number];
-  /** Type du point affiché : départ (vert) ou arrivée (rouge) */
   pointType?: 'departure' | 'arrival';
-  /** Label du popup du marqueur */
   pointLabel?: string;
 
-  /** Hauteur CSS du conteneur (défaut : 200px) */
   height?: number | string;
-  /** Si true → carte interactive (zoom/pan) ; si false → tout verrouillé */
   interactive?: boolean;
 }
 
-// ─── Icônes DivIcon personnalisées ────────────────────────────────────────────
-
-/** Marqueur circulaire vert — point de départ */
 const ICON_DEPARTURE = L.divIcon({
   className: '',
   html: `<div style="
@@ -79,7 +42,6 @@ const ICON_DEPARTURE = L.divIcon({
   popupAnchor: [0, -26],
 });
 
-/** Marqueur drapeau rouge — point d'arrivée */
 const ICON_ARRIVAL = L.divIcon({
   className: '',
   html: `<div style="position:relative;width:22px;height:30px;">
@@ -92,12 +54,6 @@ const ICON_ARRIVAL = L.divIcon({
   popupAnchor: [6, -30],
 });
 
-// ─── Composant interne : recadre la carte sur les données ─────────────────────
-
-/**
- * FitBounds — au montage, ajuste automatiquement le viewport sur les données.
- * Utilise une ref pour éviter le re-zoom lors des re-renders.
- */
 function FitBounds({
   latLngs,
   centerPoint,
@@ -113,10 +69,8 @@ function FitBounds({
     doneRef.current = true;
 
     if (centerPoint) {
-      // Centrer sur un point unique avec un zoom approprié
       map.setView(centerPoint, 15);
     } else if (latLngs && latLngs.length >= 2) {
-      // Englober toute la polyline avec padding
       const bounds = L.latLngBounds(latLngs.map(([lat, lng]) => L.latLng(lat, lng)));
       map.fitBounds(bounds, { padding: [32, 32] });
     }
@@ -135,6 +89,7 @@ function MapServiceLayers({ isFR, favorites }: { isFR: boolean; favorites: LieuF
 
     const mapAny = map as unknown as { _msOverlays?: boolean };
     if (mapAny._msOverlays) return;
+    // eslint-disable-next-line react-hooks/immutability
     mapAny._msOverlays = true;
 
     injectMapServiceCSS();
@@ -149,8 +104,6 @@ function MapServiceLayers({ isFR, favorites }: { isFR: boolean; favorites: LieuF
   return null;
 }
 
-// ─── Composant principal ──────────────────────────────────────────────────────
-
 export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
   mode,
   latLngs,
@@ -162,7 +115,6 @@ export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
   height = 200,
   interactive = false,
 }) => {
-  // ── Placeholder si données insuffisantes ───────────────────────────────────
   const hasRouteData = mode === 'route' && latLngs && latLngs.length >= 2;
   const hasPointData = mode === 'point' && centerPoint;
 
@@ -190,14 +142,11 @@ export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
     );
   }
 
-  // ── Centre initial de la carte ─────────────────────────────────────────────
-  // Utiliser le centre de la polyline ou le point unique comme centre initial
   const initialCenter: [number, number] = centerPoint
     ?? (latLngs && latLngs.length > 0
         ? latLngs[Math.floor(latLngs.length / 2)]
-        : [45.4215, -75.6972]); // Ottawa par défaut
+        : [45.4215, -75.6972]);
 
-  // ── Options Leaflet selon le mode interactif ──────────────────────────────
   const mapProps = interactive
     ? {}
     : {
@@ -218,7 +167,6 @@ export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
       style={{ height, width: '100%' }}
       {...mapProps}
     >
-      {/* Tuiles CARTO Voyager */}
       <TileLayer
         url={TILE_CONFIGS['carto-voyager'].url}
         attribution={TILE_CONFIGS['carto-voyager'].attribution}
@@ -226,25 +174,20 @@ export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
         maxZoom={TILE_CONFIGS['carto-voyager'].maxZoom}
       />
 
-      {/* Ajustement automatique du viewport */}
       <FitBounds latLngs={latLngs} centerPoint={centerPoint} />
       <MapServiceLayers isFR favorites={FIXTURE_LIEUX_FAVORIS} />
 
-      {/* ── Mode ROUTE : polyline + marqueurs départ/arrivée ─────────────── */}
       {mode === 'route' && latLngs && latLngs.length >= 2 && (
         <>
-          {/* Ombre portée de la polyline */}
           <Polyline
             positions={latLngs}
             pathOptions={{ color: '#08316e', weight: 6, opacity: 0.18 }}
           />
-          {/* Polyline principale bleue */}
           <Polyline
             positions={latLngs}
             pathOptions={{ color: '#2563eb', weight: 4, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }}
           />
 
-          {/* Marqueur départ (vert) */}
           <Marker position={latLngs[0]} icon={ICON_DEPARTURE}>
             {departureLabel && (
               <Popup>
@@ -253,7 +196,6 @@ export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
             )}
           </Marker>
 
-          {/* Marqueur arrivée (rouge) */}
           <Marker position={latLngs[latLngs.length - 1]} icon={ICON_ARRIVAL}>
             {arrivalLabel && (
               <Popup>
@@ -264,7 +206,6 @@ export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
         </>
       )}
 
-      {/* ── Mode POINT : un seul marqueur centré ─────────────────────────── */}
       {mode === 'point' && centerPoint && (
         <Marker
           position={centerPoint}
@@ -282,3 +223,4 @@ export const LeafletStaticMap: React.FC<LeafletStaticMapProps> = ({
 };
 
 export default LeafletStaticMap;
+

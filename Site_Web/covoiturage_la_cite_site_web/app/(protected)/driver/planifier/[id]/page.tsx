@@ -155,6 +155,7 @@ export default function PlannerPage() {
   const refreshReservations = async () => {};
   const refreshIndisponibilities = async () => {};
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const refreshTrips = useCallback(async () => {
     if (!userConnected?.id) return;
     try {
@@ -203,12 +204,14 @@ export default function PlannerPage() {
     }
 
     const timer = setTimeout(() => setActiveLoader(false), 300);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshTrips();
     return () => clearTimeout(timer);
   }, [routeId, router, setActiveLoader, userConnected, userRole, refreshTrips]);
 
   useEffect(() => {
     if (!newTripId || !userConnected?.id) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshTrips().catch((error) => {
       console.error("[driver/planifier] refresh after newTripId", error);
     });

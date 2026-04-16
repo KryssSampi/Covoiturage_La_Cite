@@ -57,20 +57,20 @@ export default function Home() {
           <div className="absolute inset-0 z-0">
             <Image src="/img/Rectangle.png" alt="Carpooling Illustration" className="object-cover" fill/>    
           </div>
-          <div className="w-full lg:h-50 h-30 z-20 flex flex-col items-center justify-center bg-[#08316E] relative py-20" style={{borderRadius : '0 0 100% 100% '}}>
-            <h2 className="lg:text-6xl text-2xl font-bold text-white mb-4">
+          <div className="w-full lg:h-50 h-30 z-20 flex flex-col items-center justify-center bg-[#08316E] relative py-4 md:py-20" style={{borderRadius : '0 0 100% 100% '}}>
+            <h2 className="text-2xl lg:text-6xl font-bold text-white mb-4">
               {t(HOME_TRANSLATIONS.ctaTitleFr, HOME_TRANSLATIONS.ctaTitleEn, appState.lang)}
             </h2>
-            <p className="text-2xs lg:text-2xl text-white mb-8 px-4">
+            <p className="text-xs lg:text-2xl text-white mb-8 px-4">
               {t(HOME_TRANSLATIONS.ctaSubtitleFr, HOME_TRANSLATIONS.ctaSubtitleEn, appState.lang)}
             </p>
           </div>
-          <div className="w-full h-50 z-20 flex flex-col items-center justify-center relative py-20">
-            <Link className="bg-white/60 text-[#08316E] lg:w-fit w-80 px-8 py-3 rounded-full text-[20px] lg:mb-2 lg:text-2xl font-semibold hover:bg-white inline-block transition-all duration-300 hover:scale-105 active:scale-95" href="/login">
+          <div className="w-full h-50 z-20 flex flex-col items-center justify-center relative py-4 md:py-20">
+            <Link className="bg-white/60 text-[#08316E] w-full md:w-fit px-4 md:px-8 py-3 rounded-full text-lg lg:text-2xl font-semibold hover:bg-white block md:inline-block transition-all duration-300 hover:scale-105 active:scale-95 w-80 mx-auto" href="/login">
               {t(HOME_TRANSLATIONS.ctaButtonFr, HOME_TRANSLATIONS.ctaButtonEn, appState.lang)}
             </Link>
             {isBellowlg ? (
-              <p className="text-xl text-white mb-8 px-4">
+              <p className="text-lg lg:text-xl text-white mb-8 px-4">
                 {t(HOME_TRANSLATIONS.ctaFooterTextFr, HOME_TRANSLATIONS.ctaFooterTextEn, appState.lang)}
               </p>
             ) : WarmSentence('white')}
@@ -81,3 +81,4 @@ export default function Home() {
     </div>
   );
 }
+

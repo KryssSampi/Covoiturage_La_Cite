@@ -39,8 +39,8 @@ export default function AdminTripsPanel({
     <section>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-700">
-            Trajets - Simulation d'evenements
+          <h2 className="text-base lg:text-lg font-semibold text-gray-700">
+            Trajets - Simulation d&apos;evenements
           </h2>
           <p className="text-xs text-gray-400 mt-0.5">
             Selectionnez un evenement pour simuler son impact reel sur les donnees et les paiements.
@@ -82,7 +82,7 @@ export default function AdminTripsPanel({
       )}
 
       {loading && (
-        <div className="flex items-center gap-3 py-8 text-gray-400">
+        <div className="flex items-center gap-3 py-4 md:py-8 text-gray-400">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-400" />
           <span>Chargement des trajets...</span>
         </div>
@@ -120,3 +120,4 @@ export default function AdminTripsPanel({
     </section>
   );
 }
+

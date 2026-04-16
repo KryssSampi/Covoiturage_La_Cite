@@ -54,19 +54,17 @@ export function Header() {
     // suppressHydrationWarning évite les faux positifs causés par les extensions navigateur (ex: MetaMask)
     <header
       suppressHydrationWarning
-      className={`sticky top-0 z-50 w-full bg-blue-800 transition-shadow duration-300 ${
-        mounted && scrolled ? "shadow-xl shadow-blue-950/50" : "shadow-md"
-      }`}
+      className="sticky top-0 z-50 w-full bg-blue-800 transition-shadow duration-300 shadow-md md:shadow-xl md:shadow-blue-950/50"
     >
-      <div className="flex items-center justify-between px-3 lg:px-6 h-14 lg:h-16">
+      <div className="flex items-center justify-between px-3 md:px-6 h-14 md:h-16">
 
         {/* ── Logo ─────────────────────────────────────────────────────────── */}
-        <div className="flex items-center shrink-0 scale-75 lg:scale-90 -ml-3 lg:ml-0">
+        <div className="flex items-center shrink-0 scale-75 md:scale-90 -ml-3 md:ml-0">
           <MainLogo />
         </div>
 
         {/* ── Navigation centrale ──────────────────────────────────────────── */}
-        <nav className="flex items-center gap-x-1 lg:gap-x-5 mx-2 lg:mx-6">
+        <nav className="flex items-center gap-x-1 md:gap-x-5 mx-2 md:mx-6">
           {visibleNavItems.map((item) => (
             <NavLink
               key={item.href}
@@ -79,7 +77,7 @@ export function Header() {
           {activePageTitle && (
             <>
               <Separator />
-              <span className="relative text-sm lg:text-base font-semibold px-1 py-1 text-blue-200 whitespace-nowrap">
+              <span className="relative text-sm md:text-base font-semibold px-1 py-1 text-blue-200 whitespace-nowrap">
                 {isFR ? activePageTitle.fr : activePageTitle.en}
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-300 rounded-full" />
               </span>
@@ -94,16 +92,16 @@ export function Header() {
               className="text-white p-1.5 rounded-md hover:bg-blue-700 transition-colors"
             >
               {isMenuOpen
-                ? <FiX    className="text-2xl transition-transform duration-200 rotate-90" />
-                : <FiMenu className="text-2xl transition-transform duration-200" />
+                ? <FiX    className="text-xl md:text-2xl transition-transform duration-200 rotate-90" />
+                : <FiMenu className="text-xl md:text-2xl transition-transform duration-200" />
               }
             </button>
 
             <Dropdown open={isMenuOpen} align="right" className="w-56">
               {/* Toggle conducteur dans le burger — mobile uniquement */}
               {isDriver && (
-                <div className="flex lg:hidden items-center justify-between px-4 py-2 border-b border-gray-100">
-                  <span className={`text-sm text-gray-700 ${isOngoingTrip ? 'opacity-50' : ''}`}>
+                <div className="flex md:hidden items-center justify-between px-4 py-2 border-b border-gray-100">
+                  <span className="text-sm text-gray-700 opacity-50">
                     {isFR ? "Mode actif" : "Active mode"}
                   </span>
                   <CustomToggle
@@ -136,7 +134,7 @@ export function Header() {
         </nav>
 
         {/* ── Actions droite ───────────────────────────────────────────────── */}
-        <div className="flex items-center gap-x-2 lg:gap-x-4 shrink-0">
+        <div className="flex items-center gap-x-2 md:gap-x-4 shrink-0">
 
           <ToggleLangButton />
           <Separator />
@@ -170,7 +168,7 @@ export function Header() {
 
           {/* Toggle conducteur actif — desktop uniquement */}
           {isDriver && (
-            <div className="hidden lg:flex flex-col items-center text-white text-xs leading-tight gap-y-0.5">
+            <div className="hidden md:flex flex-col items-center text-white text-xs leading-tight gap-y-0.5">
               <span className={isOngoingTrip ? 'opacity-50' : ''}>{isFR ? "Actif" : "Active"}</span>
               <CustomToggle
                 bindValue={isOngoingTrip ? false : isDriverActive}
@@ -179,7 +177,6 @@ export function Header() {
               />
             </div>
           )}
-       
 
         </div>
       </div>
@@ -193,14 +190,11 @@ function NavLink({ href, label, active }: { href: string; label: string; active:
   return (
     <Link
       href={href}
-      className={`relative text-sm lg:text-base font-semibold px-1 py-1 transition-colors duration-200 group ${
-        active ? "text-blue-200" : "text-white hover:text-blue-200"
-      }`}
+      className="relative text-base lg:text-base font-semibold px-1 py-1 transition-colors duration-200 group 
+        text-blue-200"
     >
       {label}
-      <span className={`absolute bottom-0 left-0 right-0 h-0.5 bg-blue-300 rounded-full transition-transform duration-200 origin-left ${
-        active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
-      }`} />
+      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-300 rounded-full transition-transform duration-200 origin-left scale-x-100" />
     </Link>
   );
 }
@@ -208,9 +202,9 @@ function NavLink({ href, label, active }: { href: string; label: string; active:
 function BellButton({ count }: { count: number }) {
   return (
     <Link href="/notifications" className="relative p-1 group" aria-label="Notifications">
-      <FaRegBell className="text-white text-2xl lg:text-3xl group-hover:text-blue-200 transition-colors duration-200" />
+      <FaRegBell className="text-white text-xl md:text-3xl group-hover:text-blue-200 transition-colors duration-200" />
       {count > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 lg:w-5 lg:h-5 rounded-full flex items-center justify-center leading-none">
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 md:w-5 md:h-5 rounded-full flex items-center justify-center leading-none">
           {count > 99 ? "99+" : count}
         </span>
       )}
@@ -225,7 +219,7 @@ function AvatarButton({ isActive, isOngoingTrip, avatarUrl, onClick }: { isActiv
     <button
       onClick={onClick}
       aria-label="Menu profil"
-      className="relative w-9 h-9 lg:w-11 lg:h-11 rounded-full ring-2 ring-blue-400 hover:ring-blue-200 transition-all duration-200"
+      className="relative w-9 h-9 md:w-11 md:h-11 rounded-full ring-2 ring-blue-400 hover:ring-blue-200 transition-all duration-200"
     >
       {/* onError : repli sur l'avatar générique si l'URL de profil est invalide ou introuvable */}
       <Image
@@ -237,11 +231,11 @@ function AvatarButton({ isActive, isOngoingTrip, avatarUrl, onClick }: { isActiv
       />
       {/* Indicateur de statut : sens interdit (rouge + barre) pendant un trajet, sinon cercle vert/gris */}
       {isOngoingTrip ? (
-        <span className="absolute bottom-0 right-0 w-3 h-3 lg:w-3.5 lg:h-3.5 rounded-full border-2 border-blue-800 bg-red-500 flex items-center justify-center">
+        <span className="absolute bottom-0 right-0 w-3 h-3 md:w-3.5 md:h-3.5 rounded-full border-2 border-blue-800 bg-red-500 flex items-center justify-center">
           <span className="block w-[60%] h-0.5 bg-white rounded-full" />
         </span>
       ) : (
-        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full border-2 border-blue-800 transition-colors duration-300 ${
+        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border-2 border-blue-800 transition-colors duration-300 ${
           isActive ? "bg-green-400" : "bg-gray-500"
         }`} />
       )}
@@ -251,11 +245,8 @@ function AvatarButton({ isActive, isOngoingTrip, avatarUrl, onClick }: { isActiv
 
 function Dropdown({ open, align, className, children }: { open: boolean; align: "left" | "right"; className?: string; children: React.ReactNode }) {
   return (
-    <div className={`absolute top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 transition-all duration-200 origin-top-right ${
-      align === "right" ? "right-0" : "left-0"
-    } ${className ?? ""} ${
-      open ? "opacity-100 scale-100 translate-y-0 pointer-events-auto" : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
-    }`}>
+    <div className="absolute top-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 transition-all duration-200 origin-top-right 
+      right-0 opacity-100 scale-100 translate-y-0 pointer-events-auto">
       <div className="py-1 w-full">{children}</div>
     </div>
   );
@@ -263,7 +254,7 @@ function Dropdown({ open, align, className, children }: { open: boolean; align: 
 
 function DropdownLink({ href, label }: Pick<NavItem, "href"> & { label: string }) {
   return (
-    <Link href={href} className="block px-4 py-2 text-center text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150">
+    <Link href={href} className="block px-4 py-2 text-center text-base lg:text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150">
       {label}
     </Link>
   );
@@ -272,3 +263,4 @@ function DropdownLink({ href, label }: Pick<NavItem, "href"> & { label: string }
 function Separator() {
   return <div className="w-px h-5 bg-blue-600 hidden lg:block" />;
 }
+

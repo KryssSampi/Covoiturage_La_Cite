@@ -155,13 +155,13 @@ export default function TripSimulationCard({
           {/* ── Sélecteur d'événement ─────────────────────────────────────── */}
           <div>
             <div className="text-[10px] text-[#7a90b8] uppercase tracking-wider font-semibold mb-1.5">
-              Simulation d'événement
+              Simulation d&apos;événement
             </div>
             <div className="flex flex-wrap gap-2.5 items-end">
               <select
                 value={selectedEvent}
                 onChange={(e) => setSelectedEvent(e.target.value as SimulationEvent | "")}
-                className="bg-white border-[1.5px] border-[rgba(8,49,110,0.18)] rounded-[9px] px-3 py-2 text-[#0d1f3c] text-xs font-medium outline-none min-w-[240px] cursor-pointer"
+                className="bg-white border-[1.5px] border-[rgba(8,49,110,0.18)] rounded-[9px] px-3 py-2 text-[#0d1f3c] text-xs font-medium outline-none min-w-60 cursor-pointer"
               >
                 <option value="">— Choisir un événement —</option>
                 {SIMULATION_EVENTS.map((ev) => (
@@ -181,7 +181,7 @@ export default function TripSimulationCard({
                 className="flex items-center gap-2 px-4 py-2 text-white border-none rounded-[9px] font-bold text-[12px] cursor-pointer disabled:opacity-40"
                 style={{ background: "linear-gradient(135deg,#08316e,#1a5cb0)" }}
               >
-                Simuler l'événement
+                Simuler l&apos;événement
               </button>
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function TripSimulationCard({
 
             {isRunning && (
               <div className="flex items-center gap-3">
-                <div className="flex-1 max-w-[200px]">
+                <div className="flex-1 max-w-50">
                   <div className="h-2 rounded-full bg-[rgba(8,49,110,0.1)] overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"

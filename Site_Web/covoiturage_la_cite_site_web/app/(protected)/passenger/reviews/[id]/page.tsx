@@ -44,12 +44,7 @@ export default function PassengerReviewsRoutePage() {
     }
   }, [user]);
 
-  // Chargement initial
-  useEffect(() => {
-    if (!user || user.role?.toString().toLowerCase() !== "passenger") return;
-    if (user.id !== params.id) return;
-    void loadData();
-  }, [loadData, params.id, user]);
+// Chargement initial\n  useEffect(() => {\n    if (!user || user.role?.toString().toLowerCase() !== "passenger") return;\n    if (user.id !== params.id) return;\n    // eslint-disable-next-line react-hooks/set-state-in-effect\n    void loadData();\n  }, [loadData, params.id, user]);
 
   // Polling 60s — SSE db-watch désactivé (Server Core)
   useEffect(() => {

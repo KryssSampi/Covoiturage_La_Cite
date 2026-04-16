@@ -71,7 +71,7 @@ export interface TripHeaderCardProps {
 
 // ── Composant étoiles ────────────────────────────────────────────────
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
-  <span className="flex items-center gap-0.5">
+  <span className="flex flex-wrap gap-0.5 min-w-0 flex-1 items-center">
     {[1, 2, 3, 4, 5].map((i) => (
       <FaStar
         key={i}

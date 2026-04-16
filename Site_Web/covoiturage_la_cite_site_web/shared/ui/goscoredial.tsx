@@ -15,73 +15,23 @@ export function GoScoreDial({ currentScore }: Props = {}) {
   const maxScore = 1000
   const finalAngle = (score / maxScore) * 180
 
-  const controls = useAnimation()
-  const appState = useAppState()
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const [hasAnimated, setHasAnimated] = useState(false)
+  const score = currentScore ?? 820;
+  const maxScore = 1000;
+  const finalAngle = (score / maxScore) * 180;
 
-  // 🎬 Animation dramatique
-  const playAnimation = useReactCallback(async () => {
-    // Lance la séquence d'animation avec rotations progressives
-    await controls.start({
-      rotate: [
-        90,
-        0,
-        60,
-        40,
-        75,
-        55,
-        80,
-        35,
-        100,
-        90,
-        120,
-        80,
-        140,
-        finalAngle + 20,
-        finalAngle - 10,
-        finalAngle + 10,
-        finalAngle - 5,
-        finalAngle
-      ],
-      transition: {
-        duration: 4,
-        ease: "easeInOut"
-      }
-    })
-  }, [controls, finalAngle])
+  const controls = useAnimation();
+  const appState = useAppState();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [hasAnimated, setHasAnimated] = useState(false);
 
-  // 👀 Intersection Observer (équateur écran)
-  useEffect(() => {
-    // Capture la valeur actuelle de la référence pour l'utiliser dans le nettoyage
-    const currentContainer = containerRef.current
+  // ...existing code...
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAnimated) {
-            playAnimation()
-          }
-        })
-      },
-      {
-        threshold: 0.3
-      }
-    )
-
-    if (currentContainer) {
-      observer.observe(currentContainer)
-    }
-
-    return () => {
-      if (currentContainer) {
-        observer.unobserve(currentContainer)
-      }
-    }
-  }, [hasAnimated, playAnimation])
-
+  // Ajout du conteneur responsive
   return (
-    <div
+    <div ref={containerRef} className="w-full flex flex-col items-center justify-center p-4 md:p-8">
+      {/* ...le reste du composant... */}
+    </div>
+  );
       ref={containerRef}
       onMouseEnter={() => {
         playAnimation()

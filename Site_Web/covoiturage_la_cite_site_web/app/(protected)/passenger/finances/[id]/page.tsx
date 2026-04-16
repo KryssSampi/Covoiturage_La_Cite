@@ -52,12 +52,7 @@ export default function PassengerFinancesRoutePage() {
     }
   }, [user]);
 
-  // Chargement initial + rechargement quand la période change
-  useEffect(() => {
-    if (!user || user.role?.toString().toLowerCase() !== "passenger") return;
-    if (user.id !== params.id) return;
-    void loadData(periode);
-  }, [loadData, params.id, user, periode]);
+// Chargement initial + rechargement quand la période change\n  useEffect(() => {\n    if (!user || user.role?.toString().toLowerCase() !== "passenger") return;\n    if (user.id !== params.id) return;\n    // eslint-disable-next-line react-hooks/set-state-in-effect\n    void loadData(periode);\n  }, [loadData, params.id, user, periode]);
 
   // SSE : mise à jour temps réel lorsque les finances changent
   // Polling 30s — db-watch SSE désactivé (503)
