@@ -287,9 +287,15 @@ try
     app.MapHub<CovoiturageHub>("/hubs/covoiturage");
 
     // ── Hangfire Jobs ─────────────────────────────────────────────────────────
-    using (var scope = app.Services.CreateScope())
+    try
     {
+        using var scope = app.Services.CreateScope();
         scope.ServiceProvider.GetRequiredService<IHangfireJobRegistrar>().RegisterAll();
+    }
+    catch (Exception ex)
+    {
+        var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();
+        startupLogger.LogWarning(ex, "[Hangfire] Enregistrement des jobs échoué — le serveur démarre sans jobs récurrents");
     }
 
     app.Run();
