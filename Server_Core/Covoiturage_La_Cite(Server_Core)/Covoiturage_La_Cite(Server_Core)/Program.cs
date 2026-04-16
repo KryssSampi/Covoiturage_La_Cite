@@ -149,6 +149,7 @@ try
     builder.Services.AddHostedService<SessionCodeCleanupService>();
     builder.Services.AddScoped<IAuthSessionRepository, AuthSessionRepository>();
     builder.Services.AddScoped<IAuthSessionService, AuthSessionService>();
+    builder.Services.AddHttpClient();
     builder.Services.AddScoped<IEmailService, EmailService>();
     builder.Services.AddHostedService<AuthSessionCleanupService>();
 
