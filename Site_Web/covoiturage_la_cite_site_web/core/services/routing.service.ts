@@ -11,9 +11,12 @@
 import type { MapCircuit } from '@/features/search/types/search.feature.types';
 import type { RouteResult } from '@/features/search/hooks/useRouteMap';
 
-const ORS_BASE = process.env.OPEN_ROUTES_SERVICE_URL
+const ORS_BASE = process.env.NEXT_PUBLIC_OPEN_ROUTES_SERVICE_URL
+  ?? process.env.OPEN_ROUTES_SERVICE_URL
   ?? 'https://api.openrouteservice.org/v2/directions/driving-car';
-const ORS_KEY  = process.env.OPEN_ROUTES_SERVICE_KEY ?? '';
+const ORS_KEY  = process.env.NEXT_PUBLIC_OPEN_ROUTES_SERVICE_KEY
+  ?? process.env.OPEN_ROUTES_SERVICE_KEY
+  ?? '';
 
 // Offsets cardinaux (degrés) pour waypoints alternatifs — ~1.5 km
 const WAYPOINT_OFFSETS: [number, number][] = [
