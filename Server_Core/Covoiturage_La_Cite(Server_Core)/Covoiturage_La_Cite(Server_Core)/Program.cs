@@ -49,6 +49,24 @@ using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
+// ── Connection string helper (URI → Npgsql key-value) ────────────────────────
+static string ToNpgsqlKeyValue(string? cs)
+{
+    if (string.IsNullOrWhiteSpace(cs)) return string.Empty;
+    cs = cs.Trim();
+    if (!cs.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) &&
+        !cs.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+        return cs;
+
+    var uri = new Uri(cs);
+    var parts = uri.UserInfo.Split(':', 2);
+    var user = Uri.UnescapeDataString(parts[0]);
+    var pass = parts.Length > 1 ? Uri.UnescapeDataString(parts[1]) : string.Empty;
+    var db   = uri.AbsolutePath.TrimStart('/');
+    var port = uri.IsDefaultPort ? 5432 : uri.Port;
+    return $"Host={uri.Host};Port={port};Database={db};Username={user};Password={pass};SSL Mode=Require;Trust Server Certificate=true";
+}
+
 // ── Serilog bootstrap ───────────────────────────────────────────────────────
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -64,10 +82,9 @@ try
         .WriteTo.Console());
 
     // ── PostgreSQL / EF Core ─────────────────────────────────────────────────
+    var connStr = ToNpgsqlKeyValue(builder.Configuration.GetConnectionString("DefaultConnection"));
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
-            o => o.UseNetTopologySuite())
+        options.UseNpgsql(connStr, o => o.UseNetTopologySuite())
         .ConfigureWarnings(w => w
             .Ignore(Microsoft.EntityFrameworkCore.Diagnostics.CoreEventId.PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning)));
 
@@ -85,8 +102,7 @@ try
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
             .UseRecommendedSerializerSettings()
-            .UsePostgreSqlStorage(c =>
-                c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))));
+            .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(connStr)));
         builder.Services.AddHangfireServer();
     }
 
