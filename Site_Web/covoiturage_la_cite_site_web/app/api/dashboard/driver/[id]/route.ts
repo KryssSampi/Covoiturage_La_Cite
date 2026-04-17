@@ -74,6 +74,37 @@ export async function GET(
       UserService.getMe(auth),
     ]);
 
+    const rawReservations = reservationsRes.data ?? [];
+
+    // Count pending reservation requests per trip
+    const pendingCountByTrip = new Map<string, number>();
+    for (const r of rawReservations) {
+      const tripId = r.trip?.id ?? r.tripId ?? '';
+      const status = (r.reservation?.status ?? r.status ?? '').toLowerCase();
+      if (tripId && status === 'pending') {
+        pendingCountByTrip.set(tripId, (pendingCountByTrip.get(tripId) ?? 0) + 1);
+      }
+    }
+
+    // Group confirmed passengers per trip
+    const passengersByTrip = new Map<string, { id: string; pictureUrl: string; name: string; rating: number; tripsCount: number }[]>();
+    for (const r of rawReservations) {
+      const tripId = r.trip?.id ?? r.tripId ?? '';
+      const status = (r.reservation?.status ?? r.status ?? '').toLowerCase();
+      if (tripId && (status === 'confirmed' || status === 'accepted')) {
+        const p = r.passenger;
+        const existing = passengersByTrip.get(tripId) ?? [];
+        existing.push({
+          id:         p?.id          ?? r.passengerId ?? '',
+          pictureUrl: p?.avatarUrl   ?? r.passengerAvatarUrl ?? '',
+          name:       p ? `${p.firstName} ${p.lastName}`.trim() : (r.passengerName ?? ''),
+          rating:     p?.averageRating        ?? 0,
+          tripsCount: p?.totalTripsAsPassenger ?? 0,
+        });
+        passengersByTrip.set(tripId, existing);
+      }
+    }
+
     // Transforme TrajetResponseDto (Server Core) → PublishedTrip (frontend)
     const rawTrips = tripsRes.data?.items ?? [];
     const publishedTrips = rawTrips.map((t) => ({
@@ -136,37 +167,6 @@ export async function GET(
         link:                 n.deepLink,
       };
     });
-
-    const rawReservations = reservationsRes.data ?? [];
-
-    // Count pending reservation requests per trip
-    const pendingCountByTrip = new Map<string, number>();
-    for (const r of rawReservations) {
-      const tripId = r.trip?.id ?? r.tripId ?? '';
-      const status = (r.reservation?.status ?? r.status ?? '').toLowerCase();
-      if (tripId && status === 'pending') {
-        pendingCountByTrip.set(tripId, (pendingCountByTrip.get(tripId) ?? 0) + 1);
-      }
-    }
-
-    // Group confirmed passengers per trip
-    const passengersByTrip = new Map<string, { id: string; pictureUrl: string; name: string; rating: number; tripsCount: number }[]>();
-    for (const r of rawReservations) {
-      const tripId = r.trip?.id ?? r.tripId ?? '';
-      const status = (r.reservation?.status ?? r.status ?? '').toLowerCase();
-      if (tripId && (status === 'confirmed' || status === 'accepted')) {
-        const p = r.passenger;
-        const existing = passengersByTrip.get(tripId) ?? [];
-        existing.push({
-          id:         p?.id          ?? r.passengerId ?? '',
-          pictureUrl: p?.avatarUrl   ?? r.passengerAvatarUrl ?? '',
-          name:       p ? `${p.firstName} ${p.lastName}`.trim() : (r.passengerName ?? ''),
-          rating:     p?.averageRating        ?? 0,
-          tripsCount: p?.totalTripsAsPassenger ?? 0,
-        });
-        passengersByTrip.set(tripId, existing);
-      }
-    }
 
     const reservationRequests = rawReservations.map((r) => ({
       id:               r.id,
