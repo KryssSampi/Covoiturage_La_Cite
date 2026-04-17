@@ -168,23 +168,30 @@ export async function GET(
       };
     });
 
-    const reservationRequests = rawReservations.map((r) => ({
-      id:               r.id,
-      applicant: {
-        id:        r.passengerId,
-        urlPicture: r.passengerAvatarUrl ?? '',
-        name:      r.passengerName ?? r.passengerId,
-        note:      r.passenger?.averageRating ?? 0,
-        doneTrips: r.passenger?.totalTripsAsPassenger ?? 0,
-      },
-      departure:        r.tripDepartureAddress ?? '',
-      destination:      r.tripArrivalAddress   ?? '',
-      date:             r.tripDepartureDate     ?? r.createdAt?.slice(0, 10) ?? '',
-      time:             '',
-      maxPassengers:    r.seatsReserved ?? 1,
-      currentPassengers:0,
-      price:            r.passengerPrice ?? 0,
-    }));
+    const reservationRequests = rawReservations.map((r) => {
+      const isNested = !!(r.reservation && r.trip && r.passenger);
+      return {
+        id:  isNested ? r.reservation!.id  : (r.id ?? ''),
+        applicant: {
+          id:         isNested ? r.passenger!.id        : (r.passengerId ?? ''),
+          urlPicture: isNested ? (r.passenger!.avatarUrl ?? '') : (r.passengerAvatarUrl ?? ''),
+          name:       isNested
+            ? `${r.passenger!.firstName} ${r.passenger!.lastName}`.trim()
+            : (r.passengerName ?? r.passengerId ?? ''),
+          note:      r.passenger?.averageRating        ?? 0,
+          doneTrips: r.passenger?.totalTripsAsPassenger ?? 0,
+        },
+        departure:         isNested ? (r.trip!.departureLabel ?? '') : (r.tripDepartureAddress ?? ''),
+        destination:       isNested ? (r.trip!.arrivalLabel   ?? '') : (r.tripArrivalAddress   ?? ''),
+        date:              isNested
+          ? (r.trip!.departureDate ?? '').slice(0, 10)
+          : (r.tripDepartureDate   ?? r.createdAt?.slice(0, 10) ?? ''),
+        time:              isNested ? (r.trip!.departureTime ?? '') : '',
+        maxPassengers:     isNested ? (r.trip!.maxPassengers ?? 0) : (r.seatsReserved ?? 1),
+        currentPassengers: 0,
+        price:             isNested ? r.reservation!.passengerPrice : (r.passengerPrice ?? 0),
+      };
+    });
 
     return NextResponse.json({
       publishedTrips,
