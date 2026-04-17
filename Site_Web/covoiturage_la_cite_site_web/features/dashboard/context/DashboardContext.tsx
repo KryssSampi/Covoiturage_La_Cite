@@ -15,9 +15,7 @@
 import { createContext, useContext, useMemo, useState, useEffect, type ReactNode } from "react";
 
 import { Language, useAppState }           from "@/core/state/app_state";
-import { isTripBlockedByIndisponibility } from "@/core/utils/indisponibility.utils";
 import {
-  tripModelToTrip,
   tripModelToReservation,
 }                                          from "@/features/dashboard/converters/dashboard.converter";
 import { FIXTURES_RECENT_DESTINATIONS }    from "@/tests/fixtures/dashboard/recentDestination.fixtures";
@@ -95,34 +93,8 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
       .filter((r): r is Reservation => r !== null);
   }, [myReservations, trips, usersMap]);
 
-  // Trajets recommandés pour le passager : trajets publiés/full convertis en Trip UI
-  // Exclut les trajets du passager connecté (conducteur ou déjà réservé)
-  const recommendedTrips = useMemo((): Trip[] => {
-    // IDs des trajets déjà réservés par le passager connecté (peu importe le statut)
-    const reservedTripIds = currentUserId
-      ? new Set(allReservations
-          .filter((r) => r.passengerId === currentUserId && r.status !== 'cancelled' && r.status !== 'refused')
-          .map((r) => r.tripId))
-      : new Set<string>();
+  const [recommendedTrips, setRecommendedTrips] = useState<Trip[]>([]);
 
-    return trips
-      .filter((t) =>
-        t.status === "published" &&              // uniquement les trajets avec places disponibles
-        t.driverId !== currentUserId &&          // pas ses propres trajets
-        !reservedTripIds.has(t.id) &&            // pas déjà réservé
-        t.passengerIds.length < t.maxPassengers && // pas complet
-        !isTripBlockedByIndisponibility(t, myIndisponibility)
-      )
-      .map((t) => {
-        const driver     = usersMap.get(t.driverId);
-        const passengers = t.passengerIds
-          .map((id) => usersMap.get(id))
-          .filter((u) => u !== undefined);
-        if (!driver) return null;
-        return tripModelToTrip(t, driver, passengers);
-      })
-      .filter((t): t is Trip => t !== null);
-  }, [trips, usersMap, currentUserId, allReservations, myIndisponibility]);
 
   // Destinations : tentative de lecture via API BFF, fallback fixtures si indisponible
   const [recentDestinations, setRecentDestinations] = useState<Destination[]>(() => FIXTURES_RECENT_DESTINATIONS);
@@ -161,7 +133,25 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
     return () => { cancelled = true; };
   }, [currentUserId]);
 
+  useEffect(() => {
+    if (!currentUserId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/trips/recommended', { credentials: 'same-origin' });
+        if (!cancelled && res.ok) {
+          const data = await res.json();
+          if (!cancelled && Array.isArray(data)) setRecommendedTrips(data);
+        }
+      } catch (err) {
+        console.error('[DashboardProvider] fetch recommended trips', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [currentUserId]);
+
   const value: DashboardContextType = {
+
     lang,
     isDriver,
     reservations,
