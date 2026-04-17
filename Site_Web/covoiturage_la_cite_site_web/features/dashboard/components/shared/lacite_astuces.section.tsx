@@ -6,23 +6,16 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { Tip } from "../../types/lacite_astuces.types";
-import { LACITE_TIPS } from "@/tests/fixtures/dashboard/lacite_astuces.fixtures";
 
-/**
- * Fetch les astuces depuis l'API et les convertit au format Tip.
- * Retourne les données de l'API ou fallback sur LACITE_TIPS si erreur/vide.
- */
 async function fetchTips(): Promise<Tip[]> {
   try {
     const response = await fetch("/api/astuces");
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data: Tip[] = await response.json();
-    return data.length > 0 ? data : LACITE_TIPS;
+    return Array.isArray(data) ? data : [];
   } catch (err) {
-    console.warn("[LaCiteAstuces] Impossible de charger les astuces, fallback sur fixtures.", err);
-    return LACITE_TIPS;
+    console.warn("[LaCiteAstuces] Impossible de charger les astuces.", err);
+    return [];
   }
 }
 
@@ -71,12 +64,7 @@ export function LaCiteAstucesSection({
     return () => { cancelled = true; };
   }, []);
 
-  // Priorité : propTips > fetchedTips > LACITE_TIPS (fallback)
-  const safeTips = (propTips && propTips.length > 0)
-    ? propTips
-    : fetchedTips.length > 0
-      ? fetchedTips
-      : LACITE_TIPS;
+  const safeTips = (propTips && propTips.length > 0) ? propTips : fetchedTips;
 
   const isLoading = propIsLoading || isFetching;
 

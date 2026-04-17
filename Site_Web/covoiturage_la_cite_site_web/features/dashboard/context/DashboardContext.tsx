@@ -18,9 +18,6 @@ import { Language, useAppState }           from "@/core/state/app_state";
 import {
   tripModelToReservation,
 }                                          from "@/features/dashboard/converters/dashboard.converter";
-import { FIXTURES_RECENT_DESTINATIONS }    from "@/tests/fixtures/dashboard/recentDestination.fixtures";
-import { FIXTURES_USUAL_DESTINATIONS }     from "@/tests/fixtures/dashboard/usualDestination.fixtures";
-import { FIXTURES_SURVEY_RECENT, FIXTURES_SURVEY_USUAL, FIXTURES_SURVEY_WISHING } from "@/tests/fixtures/dashboard/surveyDestination.fixtures";
 import type { Reservation }                from "@/features/dashboard/types";
 import type { Trip }                       from "@/features/dashboard/types";
 import type { Destination }                from "@/features/dashboard/types";
@@ -97,11 +94,11 @@ export function DashboardProvider({ children }: DashboardProviderProps) {
 
 
   // Destinations : tentative de lecture via API BFF, fallback fixtures si indisponible
-  const [recentDestinations, setRecentDestinations] = useState<Destination[]>(() => FIXTURES_RECENT_DESTINATIONS);
-  const [usualDestinations, setUsualDestinations] = useState<Destination[]>(() => FIXTURES_USUAL_DESTINATIONS);
-  const surveyRecent        = useMemo(() => FIXTURES_SURVEY_RECENT,        []);
-  const surveyUsual         = useMemo(() => FIXTURES_SURVEY_USUAL,         []);
-  const surveyWishing       = useMemo(() => FIXTURES_SURVEY_WISHING,       []);
+  const [recentDestinations, setRecentDestinations] = useState<Destination[]>([]);
+  const [usualDestinations, setUsualDestinations] = useState<Destination[]>([]);
+  const surveyRecent  = useMemo(() => [] as SurveyDestination[], []);
+  const surveyUsual   = useMemo(() => [] as SurveyDestination[], []);
+  const surveyWishing = useMemo(() => [] as SurveyDestination[], []);
 
   useEffect(() => {
     if (!currentUserId) return;

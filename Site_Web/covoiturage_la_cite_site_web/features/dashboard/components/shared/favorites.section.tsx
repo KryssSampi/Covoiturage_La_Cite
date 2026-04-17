@@ -7,14 +7,13 @@ import { useEffect, useState } from "react";
 
 import { Language, useAppState } from "@/core/state/app_state";
 import { useIsMobileOrTablet } from "@/shared/hooks/useismobileortable";
-import { FIXTURE_LIEUX_FAVORIS } from "@/shared/fixtures/favoris.fixtures";
 import { getLieuFavoriIcon } from "@/shared/utils/lieu-favori-icon";
 import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
 
 import { useFavorites } from "../../hooks/useFavorites";
 
 export function FavoritesSection({
-  favorites: initialFavorites = FIXTURE_LIEUX_FAVORIS,
+  favorites: initialFavorites = [],
   onDeleteFavorite,
 }: {
   favorites?: LieuFavoriUnifie[];

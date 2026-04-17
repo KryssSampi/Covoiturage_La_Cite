@@ -17,8 +17,6 @@ import {
   type DecisionType,
   type DecisionDetails,
 } from "@/shared/components/ReservationDecisionToast";
-import { FIXTURE_RESERVATION_REQUESTS } from "@/tests/fixtures/dashboard/reservationrequest.fixtures";
-
 const AVATAR_FALLBACK = "/assets/placeholder/placeholer-profile-picture.png";
 
 function organizeRequests(requests: ReservationRequest[]): ReservationRequest[] {
@@ -44,7 +42,7 @@ export function ReservationRequestsSection({
   const isFR = appState.lang === Language.FR;
 
   // Données visibles — dérivées directement des props
-  const visibleRequests = requests ?? FIXTURE_RESERVATION_REQUESTS;
+  const visibleRequests = requests ?? [];
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
 
   const requestModels = useMemo<ReservationRequestCardModel[]>(
