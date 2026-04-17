@@ -28,23 +28,13 @@ import {
 } from "react-icons/fa";
 
 import { Language, useAppState } from "@/core/state/app_state";
-import { FIXTURE_LIEUX_FAVORIS } from "@/shared/fixtures/favoris.fixtures";
 import { getLieuFavoriIcon } from "@/shared/utils/lieu-favori-icon";
 
 import { useSuperSearch } from "../../hooks";
 import { LocationSuggestion, SuperSearchSectionProps } from "../../types/search.types";
 import { DateTimePicker } from "./DateTimePicker";
 
-// ─── Destinations favorites par défaut ───────────────────────────────────────
-// Générées depuis la fixture unifiée des lieux favoris.
-
-const DEFAULT_FAV_DESTINATIONS: SuperSearchSectionProps["favDestinations"] =
-  FIXTURE_LIEUX_FAVORIS.map((fav) => ({
-    label: fav.pseudonyme,
-    value: fav.adresse,
-    icon:  getLieuFavoriIcon(fav.iconTag, ""),
-    coordonnees: fav.coordonnees,
-  }));
+const DEFAULT_FAV_DESTINATIONS: SuperSearchSectionProps["favDestinations"] = [];
 
 // ─── Portal de suggestions ───────────────────────────────────────────────────
 
