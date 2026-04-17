@@ -16,6 +16,7 @@ export interface UserResponseDto {
   role: string;
   status: string;
   phone?: string;
+  notificationEmail?: string;
   avatarUrl?: string;
   bio?: string;
   microsoftSsoId?: string;
@@ -58,8 +59,10 @@ export interface UpdateUserDto {
   phoneNumber?: string;
   avatarUrl?: string;
   bio?: string;
+  notificationEmail?: string;
   language?: string;
   languagesSpoken?: string[];
+  canBeDriver?: boolean;
   preferences?: UpdatePreferencesDto;
 }
 

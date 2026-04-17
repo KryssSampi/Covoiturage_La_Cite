@@ -34,6 +34,8 @@ export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }
   const [mounted, setMounted] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
 
+  const [toggling, setToggling] = useState(false);
+
   useEffect(() => {
     startTransition(() => {
       setMounted(true);
@@ -49,11 +51,24 @@ export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }
 
   if (!mounted) return null;
 
-  const toggleRole = () => {
-    if (!appState.userConnected) return;
+  const toggleRole = async () => {
+    if (!appState.userConnected || toggling) return;
     const newRole = isDriver ? UserRole.PASSENGER : UserRole.DRIVER;
-    appState.login({ ...appState.userConnected, role: newRole });
-    router.push(`/${newRole}/${appState.userConnected.id}`);
+    setToggling(true);
+    try {
+      const res = await fetch('/api/users/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ canBeDriver: newRole === UserRole.DRIVER }),
+      });
+      if (!res.ok) { console.error('[hero] toggleRole failed', res.status); return; }
+      appState.login({ ...appState.userConnected, role: newRole });
+      router.push(`/${newRole}/${appState.userConnected.id}`);
+    } catch (err) {
+      console.error('[hero] toggleRole', err);
+    } finally {
+      setToggling(false);
+    }
   };
 
   const headline = isDriver
@@ -95,7 +110,8 @@ export function Hero({ favDestinations }: { favDestinations?: FavDestination[] }
           {canBeDriver ? (
             <div className="relative self-start -mt-2 -mb-25 lg:mt-2 lg:mb-0">
               <button
-                onClick={toggleRole}
+                onClick={() => { void toggleRole(); }}
+                disabled={toggling}
                 className="relative flex items-center gap-0 overflow-hidden rounded-full border-4 border-white/30 bg-[#424243d4] backdrop-blur-sm transition-all duration-300 hover:border-white/60 hover:shadow-lg hover:shadow-blue-500/30"
               >
                 <span

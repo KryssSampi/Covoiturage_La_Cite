@@ -14,6 +14,9 @@ public class User
     public string? AvatarUrl { get; set; }
     public string? PhoneNumber { get; set; }
     public string? Bio { get; set; }
+
+    /// <summary>Courriel secondaire pour les notifications (optionnel).</summary>
+    public string? NotificationEmail { get; set; }
     public UserRole Role { get; set; }
     public SchoolRole SchoolRole { get; set; } = SchoolRole.Etudiant;
     public UserStatus Status { get; set; }

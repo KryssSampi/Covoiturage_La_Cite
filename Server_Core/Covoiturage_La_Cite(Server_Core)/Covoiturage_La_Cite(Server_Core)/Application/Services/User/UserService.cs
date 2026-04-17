@@ -392,8 +392,14 @@ public class UserService : IUserService
         if (dto.PhoneNumber != null) user.PhoneNumber = dto.PhoneNumber;
         if (dto.AvatarUrl != null) user.AvatarUrl = dto.AvatarUrl;
         if (dto.Bio != null) user.Bio = dto.Bio;
+        if (dto.NotificationEmail != null) user.NotificationEmail = dto.NotificationEmail;
         if (dto.Language != null) user.Language = dto.Language;
         if (dto.LanguagesSpoken != null) user.LanguagesSpoken = dto.LanguagesSpoken;
+        if (dto.CanBeDriver.HasValue)
+        {
+            user.CanBeDriver = dto.CanBeDriver.Value;
+            user.Role = dto.CanBeDriver.Value ? UserRole.Driver : UserRole.Passenger;
+        }
 
         if (dto.Preferences != null && user.Preferences != null)
         {
@@ -494,6 +500,7 @@ public class UserService : IUserService
             LastName = user.LastName,
             AvatarUrl = user.AvatarUrl,
             PhoneNumber = user.PhoneNumber,
+            NotificationEmail = user.NotificationEmail,
             Role = user.Role,
             SchoolRole = user.SchoolRole,
             Status = user.Status,

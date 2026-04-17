@@ -11,6 +11,8 @@ import { FinanceService } from '@/server/services/FinanceService';
 import { GoTaskService } from '@/server/services/GamificationService';
 import { withAuth } from '@/server/auth';
 
+import { fetchReviewerProfiles, toDashboardReview } from '@/server/utils/review-enricher';
+
 /** Mappe NotificationType C# → NotificationType frontend */
 function mapNotifType(serverType: string): string {
   const map: Record<string, string> = {
@@ -90,20 +92,19 @@ export async function GET(
       isImminent:      false,
     }));
 
-    // Transforme ReviewResponseDto (Server Core) → Review (frontend)
+
     const rawReviews = reviewsRes.data ?? [];
-    const reviews = rawReviews.map((r) => ({
-      id:           r.id,
-      reviewer:     r.reviewerId,           // UUID — le nom complet n'est pas dans le DTO
-      reviewerId:   r.reviewerId,
-      revieweeId:   r.revieweeId,
-      reviewerpicture: '',
-      rating:       r.rating,
-      date:         r.createdAt?.slice(0, 10) ?? '',
-      comment:      r.comment ?? '',
-      tags:         r.tags ?? [],
-      tripId:       r.tripId ?? null,
-    }));
+    const reviewerProfiles = await fetchReviewerProfiles(
+      rawReviews.map((r) => String(r.reviewerId)),
+      auth,
+    );
+    const reviews = rawReviews.map((r) =>
+      toDashboardReview(
+        { ...r, id: String(r.id), reviewerId: String(r.reviewerId), revieweeId: String(r.revieweeId), createdAt: String(r.createdAt) },
+        String(r.revieweeId),
+        reviewerProfiles.get(String(r.reviewerId)),
+      )
+    );
     const avgRating = reviews.length > 0
       ? reviews.reduce((sum: number, r) => sum + r.rating, 0) / reviews.length
       : 0;

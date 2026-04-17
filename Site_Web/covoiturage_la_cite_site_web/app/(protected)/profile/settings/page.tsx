@@ -282,6 +282,7 @@ export default function ProfileSettingsPage() {
         phone: profileData?.phone,
         avatarUrl: profileData?.avatarUrl,
         bio: profileData?.bio,
+        notificationEmail: profileData?.notificationEmail ?? null,
         language: profileData?.language,
         languagesSpoken: profileData?.languagesSpoken,
         preferences: {
@@ -334,6 +335,7 @@ export default function ProfileSettingsPage() {
           phone: dto.phone,
           avatarUrl: dto.avatarUrl,
           bio: dto.bio,
+          notificationEmail: dto.notificationEmail,
           language: 'fr',
           languagesSpoken: ['FR'],
           schoolRole: String(dto.schoolRole ?? '').toLowerCase(),
