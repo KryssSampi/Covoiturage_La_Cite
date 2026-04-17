@@ -17,6 +17,7 @@ public class UserService : IUserService
     private readonly TokenService _tokenService;
     private readonly INotificationService _notificationService;
     private readonly IUserProvisioningService _provisioning;
+    private readonly IEmailService _emailService;
     private readonly AppDbContext _db;
     private readonly ILogger<UserService> _logger;
 
@@ -26,6 +27,7 @@ public class UserService : IUserService
         TokenService tokenService,
         INotificationService notificationService,
         IUserProvisioningService provisioning,
+        IEmailService emailService,
         AppDbContext db,
         ILogger<UserService> logger)
     {
@@ -34,6 +36,7 @@ public class UserService : IUserService
         _tokenService = tokenService;
         _notificationService = notificationService;
         _provisioning = provisioning;
+        _emailService = emailService;
         _db = db;
         _logger = logger;
     }
@@ -479,6 +482,10 @@ public class UserService : IUserService
                 IsImportant = false,
                 DeepLink = "/onboarding/how-it-works"
             }, ct);
+
+            // Email de bienvenue complet (welcome message + how it works + tips)
+            var emailAddr = string.IsNullOrWhiteSpace(user.NotificationEmail) ? user.Email : user.NotificationEmail;
+            await _emailService.SendWelcomeEmailAsync(emailAddr, user.FirstName, ct);
 
             _logger.LogInformation("Notifications de bienvenue envoyées à {UserId}", user.Id);
         }

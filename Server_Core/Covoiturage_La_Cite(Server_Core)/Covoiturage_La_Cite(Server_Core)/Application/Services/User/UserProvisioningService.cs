@@ -62,9 +62,11 @@ public class UserProvisioningService : IUserProvisioningService
         {
             _db.UserStats.Add(new UserStat
             {
-                Id             = Guid.NewGuid(),
-                UserId         = userId,
-                RecomputedAt   = now,
+                Id                       = Guid.NewGuid(),
+                UserId                   = userId,
+                AverageRatingAsDriver    = 3.5m,
+                AverageRatingAsPassenger = 3.5m,
+                RecomputedAt             = now,
             });
         }
 
@@ -119,7 +121,7 @@ public class UserProvisioningService : IUserProvisioningService
                     Title      = "Bienvenue sur Covoiturage La Cité ! 🎉",
                     Body       = $"Vous avez gagné {WelcomePoints} GoPoints en rejoignant la communauté.",
                     IsImportant = true,
-                    DeepLink   = "/driver/{id}/goboard",
+                    DeepLink   = $"/goboard",
                     CreatedAt  = now,
                 });
             }
