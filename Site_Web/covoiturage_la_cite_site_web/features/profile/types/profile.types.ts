@@ -111,6 +111,7 @@ export interface UserPreferences {
 
 export interface MeData {
   id: string;
+  email?: string;
   firstName: string;
   lastName: string;
   phone?: string;
