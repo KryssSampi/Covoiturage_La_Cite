@@ -17,7 +17,25 @@ export async function GET(req: Request) {
 
     const raw = result.data as unknown;
     const entries = Array.isArray(raw) ? raw : ((raw as { items?: unknown[] } | null)?.items ?? []);
-    return NextResponse.json(entries);
+    const mapped = (entries as Array<{
+      tripId?: string; origin?: string; destination?: string;
+      departureTime?: string; status?: string; price?: number; passengers?: number;
+    }>).map((e) => ({
+      id:              e.tripId ?? '',
+      driverId:        '',
+      departure:       e.origin ?? '',
+      destination:     e.destination ?? '',
+      date:            (e.departureTime ?? '').slice(0, 10),
+      time:            (e.departureTime ?? '').length >= 16 ? (e.departureTime ?? '').slice(11, 16) : '',
+      duration:        null,
+      maxPassengers:   e.passengers ?? 0,
+      passengers:      [],
+      price:           e.price ?? 0,
+      pendingRequests: 0,
+      status:          (e.status ?? 'completed').toLowerCase().replace('_', '-'),
+      isImminent:      false,
+    }));
+    return NextResponse.json(mapped);
   } catch (err) {
     console.error('[api/driver/historique]', err);
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });

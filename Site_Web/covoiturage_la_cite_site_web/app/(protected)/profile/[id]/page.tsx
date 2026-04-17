@@ -154,9 +154,12 @@ export default function PublicProfilePage() {
         if (profileRes.status === 'fulfilled' && profileRes.value.ok) {
           const data = await profileRes.value.json();
           setProfile(data);
+          setPublishedTrips(Array.isArray(data.recentPublishedTrips) ? data.recentPublishedTrips : []);
+          setUsualTrips(Array.isArray(data.usualTrips) ? data.usualTrips : []);
           setLikeCount(data.likesCount ?? 0);
           setIsLiked(data.isLikedByMe ?? false);
           setIsFavorite(data.isFavorite ?? false);
+
         }
 
         if (reviewsRes.status === 'fulfilled' && reviewsRes.value.ok) {
