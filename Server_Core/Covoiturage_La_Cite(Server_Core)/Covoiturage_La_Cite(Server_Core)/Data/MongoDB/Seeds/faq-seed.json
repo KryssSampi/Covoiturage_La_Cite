@@ -1,0 +1,101 @@
+[
+  {
+    "externalId": "inscription-connexion",
+    "sujetFr": "Inscription & Connexion",
+    "sujetEn": "Registration & Login",
+    "categorie": "Compte",
+    "order": 1,
+    "items": [
+      { "order": 1, "questionFr": "Comment créer un compte sur Covoiturage La Cité ?", "questionEn": "How do I create an account on Covoiturage La Cité?", "reponseFr": "Pour créer un compte, rendez-vous sur la page d'accueil et cliquez sur « S'inscrire ». Vous devez utiliser votre adresse email institutionnelle du Collège La Cité (se terminant par @lacitec.on.ca). Complétez le formulaire avec votre nom, prénom, rôle (étudiant, enseignant ou personnel) et définissez un mot de passe sécurisé. Un email de confirmation vous sera envoyé pour activer votre compte.", "reponseEn": "To create an account, go to the home page and click 'Sign up'. You must use your La Cité institutional email (@lacitec.on.ca). Complete the form with your name, role (student, teacher or staff) and set a secure password. A confirmation email will be sent to activate your account." },
+      { "order": 2, "questionFr": "J'ai oublié mon mot de passe, comment le réinitialiser ?", "questionEn": "I forgot my password, how do I reset it?", "reponseFr": "Sur la page de connexion, cliquez sur « Mot de passe oublié ? ». Saisissez votre adresse email institutionnelle et un lien de réinitialisation vous sera envoyé dans les 5 minutes. Ce lien est unique et expire après 30 minutes.", "reponseEn": "On the login page, click 'Forgot password?'. Enter your institutional email and a reset link will be sent within 5 minutes. This link is unique and expires after 30 minutes." },
+      { "order": 3, "questionFr": "Comment modifier mes informations de profil ?", "questionEn": "How do I edit my profile?", "reponseFr": "Accédez à votre profil en cliquant sur votre avatar dans le coin supérieur droit, puis sélectionnez « Profil ». Vous pouvez y modifier votre photo de profil, votre numéro de téléphone, votre biographie et vos préférences de covoiturage.", "reponseEn": "Access your profile by clicking your avatar in the top-right corner, then select 'Profile'. You can edit your profile picture, phone number, bio and carpooling preferences." },
+      { "order": 4, "questionFr": "Puis-je avoir un compte conducteur et passager à la fois ?", "questionEn": "Can I be both a driver and a passenger?", "reponseFr": "Oui ! Votre compte unique vous permet de basculer entre les modes conducteur et passager. Depuis votre tableau de bord, utilisez le bouton de basculement de mode pour passer du mode passager au mode conducteur, à condition d'avoir fourni les informations nécessaires (permis de conduire, informations sur le véhicule).", "reponseEn": "Yes! Your single account lets you switch between driver and passenger modes. From your dashboard, use the mode toggle button, provided you have submitted the required information (driver's licence, vehicle details)." }
+    ]
+  },
+  {
+    "externalId": "chercher-covoiturage",
+    "sujetFr": "Chercher un covoiturage",
+    "sujetEn": "Finding a ride",
+    "categorie": "Trajets",
+    "order": 2,
+    "items": [
+      { "order": 1, "questionFr": "Comment rechercher un trajet disponible ?", "questionEn": "How do I search for an available trip?", "reponseFr": "Depuis votre tableau de bord passager, cliquez sur « Planifier » ou utilisez la barre de recherche. Saisissez votre point de départ, votre destination et la date souhaitée. Les trajets correspondant à votre itinéraire s'afficheront avec les détails du conducteur, l'heure de départ, les places disponibles et le tarif.", "reponseEn": "From your passenger dashboard, click 'Plan' or use the search bar. Enter your departure, destination and desired date. Matching trips will appear with driver details, departure time, available seats and fare." },
+      { "order": 2, "questionFr": "Je ne trouve pas de trajet vers mon adresse, que faire ?", "questionEn": "I can't find a trip to my address, what should I do?", "reponseFr": "Si aucun trajet ne correspond, essayez d'élargir le rayon de recherche ou de modifier légèrement votre point d'arrivée. Activez les notifications pour être averti dès qu'un nouveau trajet correspondant à vos critères est publié.", "reponseEn": "If no trip matches, try widening the search radius or slightly adjusting your destination. Enable notifications to be alerted as soon as a matching trip is published." },
+      { "order": 3, "questionFr": "Comment voir les détails d'un trajet avant de réserver ?", "questionEn": "How do I view trip details before booking?", "reponseFr": "Cliquez sur un trajet dans les résultats pour accéder à sa page de détail : profil complet du conducteur avec évaluations, tracé de l'itinéraire sur la carte, points de départ et d'arrivée exacts, règles du trajet et tarif.", "reponseEn": "Click on a trip in the results to open its detail page: full driver profile with ratings, route map, exact pickup and drop-off points, trip rules and fare." },
+      { "order": 4, "questionFr": "Comment sont calculés les prix des trajets ?", "questionEn": "How are trip prices calculated?", "reponseFr": "Les tarifs sont suggérés par notre système en fonction de la distance, du nombre de passagers et des coûts estimés du carburant. Chaque conducteur peut ajuster le prix dans une fourchette raisonnable. L'objectif est le partage des frais et non la réalisation d'un bénéfice.", "reponseEn": "Fares are suggested by our system based on distance, number of passengers and estimated fuel costs. Each driver can adjust the price within a reasonable range. The goal is cost-sharing, not profit." }
+    ]
+  },
+  {
+    "externalId": "proposer-trajet",
+    "sujetFr": "Proposer un trajet",
+    "sujetEn": "Offering a ride",
+    "categorie": "Trajets",
+    "order": 3,
+    "items": [
+      { "order": 1, "questionFr": "Comment créer un trajet en tant que conducteur ?", "questionEn": "How do I create a trip as a driver?", "reponseFr": "Passez en mode conducteur depuis votre tableau de bord, puis cliquez sur « Nouveau trajet ». Définissez votre départ, destination, date, heure, nombre de places et tarif. Vous pouvez aussi sauvegarder le trajet comme brouillon avant de le publier.", "reponseEn": "Switch to driver mode from your dashboard, then click 'New trip'. Set your departure, destination, date, time, seats and fare. You can also save the trip as a draft before publishing." },
+      { "order": 2, "questionFr": "Comment gérer les demandes de mes passagers ?", "questionEn": "How do I manage passenger requests?", "reponseFr": "Toutes les demandes de réservation apparaissent dans la section « Demandes » de votre tableau de bord. Pour chaque demande, vous voyez le profil du passager et son évaluation. Vous pouvez accepter ou refuser chaque demande.", "reponseEn": "All reservation requests appear in the 'Requests' section of your dashboard. For each request you see the passenger's profile and rating. You can accept or decline each request." },
+      { "order": 3, "questionFr": "Comment annuler un trajet que j'ai publié ?", "questionEn": "How do I cancel a trip I published?", "reponseFr": "Rendez-vous dans votre historique ou sur la page du trajet, puis cliquez sur « Annuler le trajet ». Tous les passagers acceptés seront automatiquement notifiés. Les annulations répétées à la dernière minute peuvent affecter votre évaluation.", "reponseEn": "Go to your history or the trip page, then click 'Cancel trip'. All accepted passengers will be automatically notified. Repeated last-minute cancellations may affect your rating." },
+      { "order": 4, "questionFr": "Qu'est-ce que le système de brouillons ?", "questionEn": "What is the drafts system?", "reponseFr": "Le système de brouillons vous permet de préparer un trajet récurrent sans le publier immédiatement. Créez un trajet, enregistrez-le comme brouillon, puis publiez-le quand vous êtes prêt. Idéal pour les trajets hebdomadaires vers le campus.", "reponseEn": "The drafts system lets you prepare a recurring trip without publishing it right away. Create a trip, save it as a draft, then publish when ready. Ideal for weekly campus commutes." }
+    ]
+  },
+  {
+    "externalId": "reservations-demandes",
+    "sujetFr": "Réservations & Demandes",
+    "sujetEn": "Reservations & Requests",
+    "categorie": "Réservations",
+    "order": 4,
+    "items": [
+      { "order": 1, "questionFr": "Comment réserver une place dans un trajet ?", "questionEn": "How do I book a seat in a trip?", "reponseFr": "Depuis la page de détail d'un trajet, cliquez sur « Réserver une place ». Vous pouvez ajouter un message au conducteur. Votre demande sera soumise au conducteur qui devra l'accepter ou la refuser. Vous serez notifié de sa décision.", "reponseEn": "From a trip's detail page, click 'Book a seat'. You can add a message to the driver. Your request will be submitted to the driver for acceptance or refusal. You will be notified of their decision." },
+      { "order": 2, "questionFr": "Comment savoir si ma demande de réservation est confirmée ?", "questionEn": "How do I know if my booking is confirmed?", "reponseFr": "Vous recevrez une notification dès que le conducteur répond. Le statut est visible dans « Mes trajets » : En attente (jaune), Confirmée (verte) ou Refusée (rouge).", "reponseEn": "You will receive a notification as soon as the driver responds. The status is visible in 'My trips': Pending (yellow), Confirmed (green) or Refused (red)." },
+      { "order": 3, "questionFr": "Comment annuler ma réservation ?", "questionEn": "How do I cancel my reservation?", "reponseFr": "Dans votre tableau de bord, section « Mes trajets », cliquez sur le trajet et sélectionnez « Annuler ma réservation ». Prévenez le conducteur le plus tôt possible. Les annulations répétées de dernière minute impactent votre GoScore.", "reponseEn": "In your dashboard, 'My trips' section, click the trip and select 'Cancel my reservation'. Notify the driver as early as possible. Repeated last-minute cancellations impact your GoScore." },
+      { "order": 4, "questionFr": "Que se passe-t-il si le conducteur annule après ma confirmation ?", "questionEn": "What if the driver cancels after my confirmation?", "reponseFr": "Vous recevrez une notification immédiate. Si des frais ont été engagés, le remboursement est automatique dans les 3 à 5 jours ouvrables.", "reponseEn": "You will receive an immediate notification. If fees were charged, the refund is processed automatically within 3 to 5 business days." }
+    ]
+  },
+  {
+    "externalId": "securite-verification",
+    "sujetFr": "Sécurité & Vérification",
+    "sujetEn": "Safety & Verification",
+    "categorie": "Sécurité",
+    "order": 5,
+    "items": [
+      { "order": 1, "questionFr": "Comment les profils des membres sont-ils vérifiés ?", "questionEn": "How are member profiles verified?", "reponseFr": "Tous les comptes sont liés à une adresse email institutionnelle La Cité. Pour les conducteurs, une vérification supplémentaire est requise : permis de conduire valide et informations sur le véhicule. Ces documents sont examinés par notre équipe avant l'activation du mode conducteur.", "reponseEn": "All accounts are linked to a La Cité institutional email. Drivers undergo additional verification: valid driver's licence and vehicle information reviewed by our team before driver mode is activated." },
+      { "order": 2, "questionFr": "Que faire en cas d'incident pendant un trajet ?", "questionEn": "What to do in case of an incident during a trip?", "reponseFr": "En cas d'urgence immédiate, composez le 911. Pour tout incident lié à l'application, utilisez « Signaler un incident » depuis la page du trajet en cours ou votre historique. Notre équipe traitera votre signalement dans les 24 heures.", "reponseEn": "For immediate emergencies, call 911. For app-related incidents, use 'Report an incident' from the active trip page or your history. Our team will handle your report within 24 hours." },
+      { "order": 3, "questionFr": "Comment signaler un comportement inapproprié ?", "questionEn": "How do I report inappropriate behavior?", "reponseFr": "Depuis le profil d'un utilisateur ou les détails d'un trajet, cliquez sur « Signaler ». Choisissez la raison et décrivez la situation. Vos coordonnées ne seront pas partagées avec la personne signalée.", "reponseEn": "From a user's profile or trip details, click 'Report'. Choose the reason and describe the situation. Your contact details will not be shared with the reported person." },
+      { "order": 4, "questionFr": "Comment fonctionne le système d'évaluations ?", "questionEn": "How does the rating system work?", "reponseFr": "Après chaque trajet, conducteurs et passagers peuvent se noter mutuellement de 1 à 5 étoiles et laisser un commentaire. Ces évaluations alimentent le GoScore, notre indicateur de réputation.", "reponseEn": "After each trip, drivers and passengers can rate each other from 1 to 5 stars and leave a comment. These ratings feed the GoScore, our reputation indicator." }
+    ]
+  },
+  {
+    "externalId": "donnees-confidentialite",
+    "sujetFr": "Données & Confidentialité",
+    "sujetEn": "Data & Privacy",
+    "categorie": "Données",
+    "order": 6,
+    "items": [
+      { "order": 1, "questionFr": "Quelles données personnelles sont collectées ?", "questionEn": "What personal data is collected?", "reponseFr": "Nous collectons les données nécessaires au fonctionnement du service : nom, prénom, email institutionnel, numéro de téléphone (optionnel), photo de profil (optionnelle), historique des trajets et évaluations. Aucune donnée n'est vendue à des tiers.", "reponseEn": "We collect data necessary for the service: name, institutional email, phone number (optional), profile photo (optional), trip history and ratings. No data is sold to third parties." },
+      { "order": 2, "questionFr": "Comment supprimer mon compte et mes données ?", "questionEn": "How do I delete my account and data?", "reponseFr": "Accédez à « Paramètres » → « Compte » → « Supprimer mon compte ». La suppression est définitive. Vos données personnelles sont effacées dans un délai de 30 jours, conformément à la loi PIPEDA.", "reponseEn": "Go to 'Settings' → 'Account' → 'Delete my account'. Deletion is permanent. Your personal data is erased within 30 days in compliance with PIPEDA." },
+      { "order": 3, "questionFr": "L'application partage-t-elle ma position GPS en permanence ?", "questionEn": "Does the app share my GPS location at all times?", "reponseFr": "Non. La géolocalisation n'est activée que pendant un trajet en cours et uniquement avec votre consentement. En dehors des trajets actifs, votre position n'est pas trackée.", "reponseEn": "No. Geolocation is only active during an ongoing trip and only with your consent. Outside of active trips, your location is not tracked." }
+    ]
+  },
+  {
+    "externalId": "paiements-finances",
+    "sujetFr": "Paiements & Finances",
+    "sujetEn": "Payments & Finances",
+    "categorie": "Paiements",
+    "order": 7,
+    "items": [
+      { "order": 1, "questionFr": "Comment fonctionnent les paiements sur la plateforme ?", "questionEn": "How do payments work on the platform?", "reponseFr": "Les paiements s'effectuent directement dans l'application. Le montant est prélevé lors de la confirmation et versé au conducteur après l'arrivée. Les conducteurs consultent leur solde dans la section « Finances » de leur tableau de bord.", "reponseEn": "Payments are made directly in the app. The amount is charged at confirmation and transferred to the driver after arrival. Drivers view their balance in the 'Finances' section of their dashboard." },
+      { "order": 2, "questionFr": "Que faire si je conteste un paiement ?", "questionEn": "What if I dispute a payment?", "reponseFr": "Contactez notre support dans les 7 jours via la section « Contact » ou par email à support@lacitec.on.ca. Décrivez la situation avec le numéro de trajet et le montant. Notre équipe examine les contestations dans les 48 heures.", "reponseEn": "Contact our support within 7 days via the 'Contact' section or by email at support@lacitec.on.ca. Describe the situation with the trip number and amount. Our team reviews disputes within 48 hours." }
+    ]
+  },
+  {
+    "externalId": "support-technique",
+    "sujetFr": "Support Technique",
+    "sujetEn": "Technical Support",
+    "categorie": "Technique",
+    "order": 8,
+    "items": [
+      { "order": 1, "questionFr": "L'application ne fonctionne pas correctement, que faire ?", "questionEn": "The app is not working correctly, what should I do?", "reponseFr": "Vérifiez votre connexion internet, videz le cache de votre navigateur (Ctrl+Shift+Delete) et rechargez la page. Si le problème persiste, déconnectez-vous puis reconnectez-vous. Contactez notre support avec une capture d'écran de l'erreur.", "reponseEn": "Check your internet connection, clear your browser cache (Ctrl+Shift+Delete) and reload the page. If the issue persists, log out and log back in. Contact our support with a screenshot of the error." },
+      { "order": 2, "questionFr": "Comment contacter le support technique ?", "questionEn": "How do I contact technical support?", "reponseFr": "Vous pouvez nous contacter via le formulaire de contact sur l'application, ou par email à support@lacitec.on.ca avec un délai de réponse de 24-48h.", "reponseEn": "You can reach us via the contact form in the app, or by email at support@lacitec.on.ca with a 24-48h response time." }
+    ]
+  }
+]
