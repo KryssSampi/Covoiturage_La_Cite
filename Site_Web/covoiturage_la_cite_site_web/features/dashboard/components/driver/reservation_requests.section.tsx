@@ -7,7 +7,7 @@ import { FaUserFriends, FaArrowRight, FaStar } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
-import { formatDate } from "@/core/utils/date.utils";
+import { formatDate, utcToLocalDateIso, utcToLocalTime } from "@/core/utils/date.utils";
 import type {
   ReservationRequest,
   ReservationRequestCardModel,
@@ -222,7 +222,7 @@ function ReservationRequestCard({
         <div className="w-full text-black justify-between flex items-center">
           <span className="text-xl font-semibold text-black">
             {isFR ? "De : " : "Of : "}
-            {formatDate(request.date, appState.lang)} : {request.time}
+            {formatDate(utcToLocalDateIso(request.date, request.time), appState.lang)} : {utcToLocalTime(request.date, request.time)}
           </span>
           <div className="w-fit flex gap-2 items-center">
             <span className="text-black font-bold text-xl">{isFR ? "Frais" : "Fee"} :</span>

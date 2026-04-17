@@ -8,7 +8,7 @@ import { FaUserFriends, FaStar, FaArrowRight } from "react-icons/fa";
 import { FaLocationDot, FaBan } from "react-icons/fa6";
 
 import { Language, useAppState } from "@/core/state/app_state";
-import { formatDate } from "@/core/utils/date.utils";
+import { formatDate, utcToLocalDateIso, utcToLocalTime } from "@/core/utils/date.utils";
 import { CancelConfirmToast } from "@/shared/components/CancelConfirmToast";
 import { PassengerAvatars } from "@/shared/components/PassengerAvatars";
 import { getReservationStatusClasses, getReservationStatusLabel } from "@/shared/utils/status.utils";
@@ -75,7 +75,7 @@ export function ReservationCard({
 
         <div className="flex flex-col relative items-start w-full">
           <span className="text-xl font-semibold text-black">
-            {formatDate(reservation.date, lang)} : {reservation.time}
+            {formatDate(utcToLocalDateIso(reservation.date, reservation.time), lang)} : {utcToLocalTime(reservation.date, reservation.time)}
           </span>
 
           <div className="flex items-center text-black text-2xl gap-2">
