@@ -1,3 +1,5 @@
+using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
+using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +47,35 @@ public class TripAutoStartJob
             {
                 await db.SaveChangesAsync();
                 _logger.LogInformation("TripAutoStart: {Count} trajets démarrés", trips.Count);
+
+                // Notifier les passagers confirmés pour chaque trip auto-démarré
+                foreach (var trip in trips)
+                {
+                    var confirmedPassengerIds = await db.Reservations
+                        .Where(r => r.TripId == trip.Id && r.Status == ReservationStatus.Confirmed)
+                        .Select(r => r.PassengerId)
+                        .ToListAsync();
+
+                    var departure = trip.DepartureLabel ?? "";
+                    var destination = trip.ArrivalLabel ?? "";
+
+                    foreach (var passengerId in confirmedPassengerIds)
+                    {
+                        try
+                        {
+                            await scope.ServiceProvider.GetRequiredService<INotificationService>().CreateAsync(new CreateNotificationDto
+                            {
+                                UserId = passengerId,
+                                Type = NotificationType.TripStarted,
+                                Title = "Votre trajet a démarré !",
+                                Body = $"Le trajet {departure} → {destination} est en cours. Retrouvez votre conducteur au point de départ.",
+                                IsImportant = true,
+                                DeepLink = $"/trajet-en-cours/{trip.Id}",
+                            });
+                        }
+                        catch { /* non bloquant */ }
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -70,15 +101,58 @@ public class ReservationExpiryJob
             using var scope = _scopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var cutoff = DateTimeOffset.UtcNow.AddMinutes(-30);
+            var now = DateTimeOffset.UtcNow;
             var expired = await db.Reservations
-                .Where(r => r.Status == ReservationStatus.Pending && r.CreatedAt < cutoff)
+                .Where(r => r.Status == ReservationStatus.Pending && r.ExpiresAt <= now)
+                .Include(r => r.Trip)
                 .ToListAsync();
 
             foreach (var r in expired)
             {
                 r.Status = ReservationStatus.Expired;
                 r.UpdatedAt = DateTimeOffset.UtcNow;
+
+                // Notifier passager — demande expirée
+                try
+                {
+                    if (r.Trip != null)
+                    {
+                        var departure = r.Trip.DepartureLabel ?? "";
+                        var destination = r.Trip.ArrivalLabel ?? "";
+
+                        await scope.ServiceProvider.GetRequiredService<INotificationService>().CreateAsync(new CreateNotificationDto
+                        {
+                            UserId = r.PassengerId,
+                            Type = NotificationType.ReservationCancelled,
+                            Title = "Demande expirée",
+                            Body = $"Votre demande de réservation pour le trajet {departure} → {destination} a expiré. Le conducteur n'a pas répondu dans les délais.",
+                            IsImportant = false,
+                            DeepLink = "/search",
+                        });
+                    }
+                }
+                catch { /* non bloquant */ }
+
+                // Notifier conducteur — demande non traitée
+                try
+                {
+                    if (r.Trip != null)
+                    {
+                        var departure = r.Trip.DepartureLabel ?? "";
+                        var destination = r.Trip.ArrivalLabel ?? "";
+
+                        await scope.ServiceProvider.GetRequiredService<INotificationService>().CreateAsync(new CreateNotificationDto
+                        {
+                            UserId = r.Trip.DriverId,
+                            Type = NotificationType.ReservationCancelled,
+                            Title = "Demande de réservation expirée",
+                            Body = $"Une demande pour votre trajet {departure} → {destination} a expiré faute de réponse.",
+                            IsImportant = false,
+                            DeepLink = "/driver/reservations",
+                        });
+                    }
+                }
+                catch { /* non bloquant */ }
             }
 
             if (expired.Count > 0)
@@ -108,6 +182,7 @@ public class TripAutoCompleteJob
     {
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var notifications = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
         var now = DateTimeOffset.UtcNow;
         var trips = await db.Trips
@@ -124,6 +199,39 @@ public class TripAutoCompleteJob
 
             if (now - trip.ActualStartedAt!.Value > timeout)
             {
+                // Cascade : annuler toutes les réservations actives
+                var activeReservations = await db.Reservations
+                    .Where(r => r.TripId == trip.Id &&
+                                (r.Status == ReservationStatus.Pending ||
+                                 r.Status == ReservationStatus.Confirmed ||
+                                 r.Status == ReservationStatus.InProgress))
+                    .ToListAsync();
+
+                var departure = trip.DepartureLabel ?? "";
+                var destination = trip.ArrivalLabel ?? "";
+                var tripDate = $"{trip.DepartureDate:dd MMM yyyy}";
+
+                foreach (var reservation in activeReservations)
+                {
+                    reservation.Status = ReservationStatus.Cancelled;
+                    reservation.CancelledAt = now;
+                    reservation.CancellationReason = "Trajet annulé automatiquement (timeout)";
+
+                    try
+                    {
+                        await notifications.CreateAsync(new CreateNotificationDto
+                        {
+                            UserId = reservation.PassengerId,
+                            Type = NotificationType.TripCancelled,
+                            Title = "Trajet annulé automatiquement",
+                            Body = $"Le trajet {departure} → {destination} du {tripDate} a été interrompu. Nous nous en excusons.",
+                            IsImportant = true,
+                            DeepLink = "/search",
+                        });
+                    }
+                    catch { /* non bloquant */ }
+                }
+
                 trip.Status = TripStatus.Cancelled;
                 trip.UpdatedAt = now;
                 cancelled++;
