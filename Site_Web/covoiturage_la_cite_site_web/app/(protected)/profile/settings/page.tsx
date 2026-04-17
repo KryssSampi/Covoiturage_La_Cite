@@ -330,6 +330,7 @@ export default function ProfileSettingsPage() {
         const role = String(dto.role ?? '').toLowerCase();
         const meData: MeData = {
           id: dto.id,
+          email: dto.email,
           firstName: dto.firstName,
           lastName: dto.lastName,
           phone: dto.phone,
