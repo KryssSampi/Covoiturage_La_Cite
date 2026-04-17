@@ -1,6 +1,6 @@
 # architecture_core.md — Tiers Core (ASP.NET)
 # Racine : D:\Covoiturage_La_Cite\Server_Core\Covoiturage_La_Cite(Server_Core)\Covoiturage_La_Cite(Server_Core)
-# Généré le 2026-04-12 23:00 | 294 fichiers indexés
+# Généré le 2026-04-16 23:00 | 294 fichiers indexés
 # Format : chemin/relatif|description
 
 .gitignore|Fichier C# — gitignore
@@ -226,6 +226,7 @@ Data/PostgreSQL/Repositories/TrajetRepository/TrajetRepository.cs|Fichier C# —
 Data/PostgreSQL/Repositories/UserRepository/UserRepository.cs|Fichier C# — user repository
 Data/PostgreSQL/Repositories/VehiculeRepository/VehiculeRepository.cs|Fichier C# — vehicule repository
 Data/PostgreSQL/Seeding/DatabaseSeeder.cs|Fichier C# — database seeder
+Dockerfile|Fichier C# — dockerfile
 Domain/Entities/Affinity.cs|Fichier C# — affinity
 Domain/Entities/AuditLog.cs|Fichier C# — audit log
 Domain/Entities/Badge.cs|Fichier C# — badge
@@ -294,6 +295,5 @@ Migrations/AppDbContextModelSnapshot.cs|Fichier C# — app db context model snap
 Program.cs|Fichier C# — program
 Properties/launchSettings.json|Fichier C# — launch settings
 appsettings.Development.example.json|Configuration — appsettings.Development.example
-appsettings.Development.json|Configuration — appsettings.Development
 appsettings.json|Configuration ASP.NET Core — variables d'environnement
 docs/IMPLEMENTATION_DOC.md|Fichier C# — i m p l e m e n t a t i o n  d o c

@@ -9,6 +9,7 @@ import { NotificationService } from '@/server/services/NotificationService';
 import { ReviewService } from '@/server/services/SocialService';
 import { FinanceService } from '@/server/services/FinanceService';
 import { GoTaskService } from '@/server/services/GamificationService';
+import { UserService } from '@/server/services/UserService';
 import { withAuth } from '@/server/auth';
 
 import { fetchReviewerProfiles, toDashboardReview } from '@/server/utils/review-enricher';
@@ -63,13 +64,14 @@ export async function GET(
     await params;
     const auth = await withAuth(req);
 
-    const [tripsRes, reservationsRes, notificationsRes, reviewsRes, financeRes, goBoardRes] = await Promise.all([
+    const [tripsRes, reservationsRes, notificationsRes, reviewsRes, financeRes, goBoardRes, meRes] = await Promise.all([
       TripService.getMyDriverTrips(undefined, 1, 50, auth),
       ReservationService.getDriverRequests(auth),
       NotificationService.getAll(1, 50, auth),
       ReviewService.getReceived(auth),
       FinanceService.getDriverSummary(auth),
       GoTaskService.getGoBoard(auth),
+      UserService.getMe(auth),
     ]);
 
     // Transforme TrajetResponseDto (Server Core) → PublishedTrip (frontend)
@@ -83,9 +85,9 @@ export async function GET(
       time:            String(t.departureTime  ?? ''),
       duration:        t.estimatedDurationMinutes || 30,
       maxPassengers:   t.maxPassengers,
-      passengers:      [],
+      passengers:      passengersByTrip.get(t.id) ?? [],
       price:           Number(t.pricePerPassenger ?? 0),
-      pendingRequests: 0,
+      pendingRequests: pendingCountByTrip.get(t.id) ?? 0,
       status:          normalizeStatus(t.status ?? 'published'),
       departureCoords: t.departureLat != null ? [t.departureLng, t.departureLat] as [number, number] : undefined,
       arrivalCoords:   t.arrivalLat   != null ? [t.arrivalLng,   t.arrivalLat]   as [number, number] : undefined,
@@ -112,6 +114,8 @@ export async function GET(
     const finance = financeRes.data;
     const board = goBoardRes.data;
 
+    const driverProfile = meRes.data?.driverProfile as { co2SavedKg?: number } | undefined;
+
     // Transforme NotificationResponseDto (Server Core) → Notification (frontend)
     const rawNotifs = notificationsRes.data ?? [];
     const notifications = rawNotifs.map((n) => {
@@ -133,16 +137,45 @@ export async function GET(
       };
     });
 
-    // Transforme ReservationEnrichedDto (Server Core) → ReservationRequest (frontend)
     const rawReservations = reservationsRes.data ?? [];
+
+    // Count pending reservation requests per trip
+    const pendingCountByTrip = new Map<string, number>();
+    for (const r of rawReservations) {
+      const tripId = r.trip?.id ?? r.tripId ?? '';
+      const status = (r.reservation?.status ?? r.status ?? '').toLowerCase();
+      if (tripId && status === 'pending') {
+        pendingCountByTrip.set(tripId, (pendingCountByTrip.get(tripId) ?? 0) + 1);
+      }
+    }
+
+    // Group confirmed passengers per trip
+    const passengersByTrip = new Map<string, { id: string; pictureUrl: string; name: string; rating: number; tripsCount: number }[]>();
+    for (const r of rawReservations) {
+      const tripId = r.trip?.id ?? r.tripId ?? '';
+      const status = (r.reservation?.status ?? r.status ?? '').toLowerCase();
+      if (tripId && (status === 'confirmed' || status === 'accepted')) {
+        const p = r.passenger;
+        const existing = passengersByTrip.get(tripId) ?? [];
+        existing.push({
+          id:         p?.id          ?? r.passengerId ?? '',
+          pictureUrl: p?.avatarUrl   ?? r.passengerAvatarUrl ?? '',
+          name:       p ? `${p.firstName} ${p.lastName}`.trim() : (r.passengerName ?? ''),
+          rating:     p?.averageRating        ?? 0,
+          tripsCount: p?.totalTripsAsPassenger ?? 0,
+        });
+        passengersByTrip.set(tripId, existing);
+      }
+    }
+
     const reservationRequests = rawReservations.map((r) => ({
       id:               r.id,
       applicant: {
         id:        r.passengerId,
         urlPicture: r.passengerAvatarUrl ?? '',
         name:      r.passengerName ?? r.passengerId,
-        note:      0,
-        doneTrips: 0,
+        note:      r.passenger?.averageRating ?? 0,
+        doneTrips: r.passenger?.totalTripsAsPassenger ?? 0,
       },
       departure:        r.tripDepartureAddress ?? '',
       destination:      r.tripArrivalAddress   ?? '',
@@ -160,7 +193,7 @@ export async function GET(
       reviews: reviews,
       stats: {
         tripsCount:    tripsRes.data?.totalCount ?? 0,
-        co2SavedKg:    0,
+        co2SavedKg:    driverProfile?.co2SavedKg ?? 0,
         averageRating: Math.round(avgRating * 10) / 10,
         goScore:       board?.goScore ?? 0,
       },
