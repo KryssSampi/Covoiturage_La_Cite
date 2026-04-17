@@ -1,7 +1,10 @@
+using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Reservation;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Reservation;
 
@@ -10,17 +13,23 @@ public class ReservationService : IReservationService
     private readonly IReservationRepository _repo;
     private readonly ITrajetRepository _trajetRepo;
     private readonly IGoTaskService _goTasks;
+    private readonly INotificationService _notifications;
+    private readonly AppDbContext _db;
     private readonly ILogger<ReservationService> _logger;
 
     public ReservationService(
         IReservationRepository repo,
         ITrajetRepository trajetRepo,
         IGoTaskService goTasks,
+        INotificationService notifications,
+        AppDbContext db,
         ILogger<ReservationService> logger)
     {
         _repo = repo;
         _trajetRepo = trajetRepo;
         _goTasks = goTasks;
+        _notifications = notifications;
+        _db = db;
         _logger = logger;
     }
 
@@ -89,7 +98,7 @@ public class ReservationService : IReservationService
         if (trip.DriverId == passengerId)
             throw new InvalidOperationException("Impossible de réserver son propre trajet");
 
-        if (trip.Status == TripStatus.Cancelled || trip.Status == TripStatus.Completed)
+        if (trip.Status == TripStatus.Cancelled || trip.Status == TripStatus.Completed || trip.Status == TripStatus.Full)
             throw new InvalidOperationException("Trajet non disponible pour réservation");
 
         if (trip.ActualStartedAt != null)
@@ -121,10 +130,41 @@ public class ReservationService : IReservationService
             UpdatedAt = now
         };
 
+        var passengerFullName = await _db.Users
+            .Where(u => u.Id == passengerId)
+            .Select(u => u.FirstName + " " + u.LastName)
+            .FirstOrDefaultAsync(ct) ?? "Un passager";
+
         await _repo.AddAsync(reservation, ct);
-        _logger.LogInformation("Reservation créée: {ReservationId} (Trip {TripId})", reservation.Id, trip.Id);
-        // GoTask trigger — GT-012 : première réservation passager
-        _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
+_logger.LogInformation("Reservation créée: {ReservationId} (Trip {TripId})", reservation.Id, trip.Id);
+
+// Notifier le conducteur de la nouvelle demande
+try
+{
+    if (trip is not null)
+    {
+        var departure   = trip.DepartureLabel ?? "";
+        var destination = trip.ArrivalLabel   ?? "";
+        var tripDate    = $"{trip.DepartureDate:dd MMM yyyy} à {trip.DepartureTime:HH\\:mm}";
+
+        await _notifications.CreateAsync(new CreateNotificationDto
+        {
+            UserId      = trip.DriverId,
+            Type        = NotificationType.ReservationReceived,
+            Title       = $"Nouvelle demande de réservation",
+            Body        = $"{passengerFullName} souhaite rejoindre votre trajet {departure} → {destination} du {tripDate}.",
+            IsImportant = true,
+            DeepLink    = $"/driver/reservations",
+        }, ct);
+    }
+}
+catch (Exception ex)
+{
+    _logger.LogError(ex, "[ReservationService] Erreur notification conducteur — réservation {Id}", reservation.Id);
+}
+
+// GoTask trigger — GT-012 : première réservation passager
+_ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
 
         return MapToResponse(reservation);
     }
@@ -158,6 +198,33 @@ public class ReservationService : IReservationService
         await _repo.UpdateAsync(reservation, ct);
         await _trajetRepo.UpdateAsync(trip, ct);
 
+        // Notifier le passager — réservation confirmée
+        try
+        {
+            var departure   = trip.DepartureLabel ?? "";
+            var destination = trip.ArrivalLabel   ?? "";
+            var tripDate    = $"{trip.DepartureDate:dd MMM yyyy} à {trip.DepartureTime:HH\\:mm}";
+
+            var driverName = await _db.Users
+                .Where(u => u.Id == trip.DriverId)
+                .Select(u => u.FirstName + " " + u.LastName)
+                .FirstOrDefaultAsync(ct) ?? "le conducteur";
+
+            await _notifications.CreateAsync(new CreateNotificationDto
+            {
+                UserId      = reservation.PassengerId,
+                Type        = NotificationType.ReservationAccepted,
+                Title       = "Réservation confirmée ! 🎉",
+                Body        = $"{driverName} a accepté votre demande pour le trajet {departure} → {destination} du {tripDate}. Bonne route !",
+                IsImportant = true,
+                DeepLink    = $"/trajets/{reservation.TripId}?source=reservation&status=confirmed&role=passenger&alreadyReserved=1",
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ReservationService] Erreur notification passager acceptation — {Id}", reservation.Id);
+        }
+
         return MapToResponse(reservation);
     }
 
@@ -178,6 +245,31 @@ public class ReservationService : IReservationService
         reservation.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _repo.UpdateAsync(reservation, ct);
+
+        // Notifier le passager — réservation refusée
+        try
+        {
+            var trip = await _trajetRepo.GetByIdAsync(reservation.TripId, ct);
+            if (trip is not null)
+            {
+                var departure   = trip.DepartureLabel   ?? trip.DepartureAddress ?? "";
+                var destination = trip.ArrivalLabel     ?? trip.ArrivalAddress   ?? "";
+
+                await _notifications.CreateAsync(new CreateNotificationDto
+                {
+                    UserId      = reservation.PassengerId,
+                    Type        = NotificationType.ReservationRefused,
+                    Title       = "Demande non retenue",
+                    Body        = $"Votre demande pour le trajet {departure} → {destination} n'a pas été retenue. Cherchez un autre trajet disponible.",
+                    IsImportant = false,
+                    DeepLink    = "/search",
+                }, ct);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ReservationService] Erreur notification passager refus — {Id}", reservation.Id);
+        }
 
         return MapToResponse(reservation);
     }
@@ -218,6 +310,54 @@ public class ReservationService : IReservationService
             }
 
             await _trajetRepo.UpdateAsync(trip, ct);
+        }
+
+        // Notifier l'autre partie de l'annulation
+        try
+        {
+            var trip = await _trajetRepo.GetByIdAsync(reservation.TripId, ct);
+            if (trip is not null)
+            {
+                var departure   = trip.DepartureLabel ?? "";
+                var destination = trip.ArrivalLabel   ?? "";
+                var tripDate    = $"{trip.DepartureDate:dd MMM yyyy} à {trip.DepartureTime:HH\\:mm}";
+
+                // Si c'est le passager qui annule → notifier le conducteur
+                if (userId == reservation.PassengerId)
+                {
+                    var passengerName = await _db.Users
+                        .Where(u => u.Id == reservation.PassengerId)
+                        .Select(u => u.FirstName + " " + u.LastName)
+                        .FirstOrDefaultAsync(ct) ?? "Un passager";
+
+                    await _notifications.CreateAsync(new CreateNotificationDto
+                    {
+                        UserId      = trip.DriverId,
+                        Type        = NotificationType.ReservationCancelled,
+                        Title       = "Annulation de réservation",
+                        Body        = $"{passengerName} a annulé sa réservation pour le trajet {departure} → {destination} du {tripDate}.",
+                        IsImportant = false,
+                        DeepLink    = "/driver/reservations",
+                    }, ct);
+                }
+                else
+                {
+                    // Conducteur ou admin annule → notifier le passager
+                    await _notifications.CreateAsync(new CreateNotificationDto
+                    {
+                        UserId      = reservation.PassengerId,
+                        Type        = NotificationType.ReservationCancelled,
+                        Title       = "Réservation annulée",
+                        Body        = $"Votre réservation pour le trajet {departure} → {destination} du {tripDate} a été annulée.",
+                        IsImportant = true,
+                        DeepLink    = "/search",
+                    }, ct);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ReservationService] Erreur notification annulation — {Id}", reservation.Id);
         }
 
         return MapToResponse(reservation);
