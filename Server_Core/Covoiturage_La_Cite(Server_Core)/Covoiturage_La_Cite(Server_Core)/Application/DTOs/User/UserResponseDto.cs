@@ -13,6 +13,7 @@ public record UserResponseDto
     public string LastName { get; init; } = string.Empty;
     public string? AvatarUrl { get; init; }
     public string? PhoneNumber { get; init; }
+    public string? NotificationEmail { get; init; }
     public UserRole Role { get; init; }
     public SchoolRole SchoolRole { get; init; }
     public UserStatus Status { get; init; }

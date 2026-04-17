@@ -20,6 +20,8 @@ const translations = {
     description: "Gérez vos données de base visibles par les autres membres.",
     firstName: "Prénom",
     lastName: "Nom",
+    phone: "Téléphone",
+    phonePlaceholder: "ex: 613-555-0101",
     schoolRole: "Rôle à l'école",
     bio: "Bio",
     bioPlaceholder: "Ajoutez une bio pour vous présenter...",
@@ -35,6 +37,8 @@ const translations = {
     description: "Manage your base data visible to other members.",
     firstName: "First Name",
     lastName: "Last Name",
+    phone: "Phone",
+    phonePlaceholder: "e.g. 613-555-0101",
     schoolRole: "School Role",
     bio: "Bio",
     bioPlaceholder: "Add a bio to introduce yourself...",
@@ -94,6 +98,32 @@ export function ProfileTab({ user, onChange }: ProfileTabProps) {
     <div>
       <p className="mb-4 text-sm text-gray-500">{t.description}</p>
 
+      {/* Email institutionnel (lecture seule) */}
+      <div className="mb-4">
+        <label className="mb-1 block text-sm font-medium text-gray-700">Courriel institutionnel</label>
+        <input
+          value={user.email || ''}
+          readOnly
+          className="w-full rounded-xl border border-gray-300 bg-gray-50 px-4 py-2.5 text-sm"
+        />
+      </div>
+
+      {/* Courriel notification (éditable) */}
+      <div className="mb-4">
+        <label className="mb-1 block text-sm font-medium text-gray-700">{isFR ? "Courriel de notification (optionnel)" : "Notification email (optional)"}</label>
+        <div className="relative">
+          <input
+            type="email"
+            value={user.notificationEmail || ''}
+            onChange={(e) => onChange({ notificationEmail: e.target.value || undefined })}
+            placeholder="ex: mon.email@gmail.com"
+            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
+          />
+          <FaPencil size={12} className="absolute right-3 top-3 text-gray-400" />
+        </div>
+        <p className="mt-1 text-xs text-gray-500">Recevez vos notifications sur ce courriel secondaire.</p>
+      </div>
+
       {/* Prénom et Nom */}
       <div className="mb-4 grid grid-cols-2 gap-4">
         <div>
@@ -117,6 +147,21 @@ export function ProfileTab({ user, onChange }: ProfileTabProps) {
             />
             <FaPencil size={12} className="absolute right-3 top-3 text-gray-400" />
           </div>
+      </div>
+      </div>
+
+      {/* Téléphone */}
+      <div className="mb-4">
+        <label className="mb-1 block text-sm font-medium text-gray-700">{t.phone}</label>
+        <div className="relative">
+          <input
+            type="tel"
+            value={user.phone ?? ""}
+            onChange={(e) => onChange({ phone: e.target.value })}
+            placeholder={t.phonePlaceholder}
+            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:border-blue-400 focus:outline-none"
+          />
+          <FaPencil size={12} className="absolute right-3 top-3 text-gray-400" />
         </div>
       </div>
 

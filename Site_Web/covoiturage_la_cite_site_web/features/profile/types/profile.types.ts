@@ -116,6 +116,7 @@ export interface MeData {
   phone?: string;
   avatarUrl?: string;
   bio?: string;
+  notificationEmail?: string;
   language: string;
   languagesSpoken: string[];
   schoolRole: SchoolRoleEditable;

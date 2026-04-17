@@ -8,6 +8,8 @@ import { NotificationService } from '@/server/services/NotificationService';
 import { ReviewService } from '@/server/services/SocialService';
 import { withAuth } from '@/server/auth';
 
+import { fetchReviewerProfiles, toDashboardReview } from '@/server/utils/review-enricher';
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -22,10 +24,22 @@ export async function GET(
       ReviewService.getReceived(auth),
     ]);
 
+    const rawReviews = reviewsRes.data ?? [];
+    const reviewerProfiles = await fetchReviewerProfiles(
+      rawReviews.map((r) => String(r.reviewerId)),
+      auth,
+    );
+    const reviews = rawReviews.map((r) =>
+      toDashboardReview(
+        { ...r, id: String(r.id), reviewerId: String(r.reviewerId), revieweeId: String(r.revieweeId), createdAt: String(r.createdAt) },
+        String(r.revieweeId),
+        reviewerProfiles.get(String(r.reviewerId)),
+      )
+    );
     return NextResponse.json({
       reservations: reservationsRes.data ?? [],
       notifications: notificationsRes.data ?? [],
-      reviews: reviewsRes.data ?? [],
+      reviews,
       stats: {
         tripsCount: Array.isArray(reservationsRes.data) ? reservationsRes.data.length : 0,
         co2SavedKg: 0,

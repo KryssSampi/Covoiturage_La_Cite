@@ -22,11 +22,18 @@ public record UpdateUserDto
     [MaxLength(500)]
     public string? Bio { get; init; }
 
+    [EmailAddress]
+    [MaxLength(255)]
+    public string? NotificationEmail { get; init; }
+
     [MaxLength(5)]
     public string? Language { get; init; }
 
     /// <summary>Langues parlées (remplace la liste existante).</summary>
     public string[]? LanguagesSpoken { get; init; }
+
+    /// <summary>Active ou désactive le mode conducteur. Quand true → Role = Driver. Quand false → Role = Passenger.</summary>
+    public bool? CanBeDriver { get; init; }
 
     public UpdatePreferencesDto? Preferences { get; init; }
 }
