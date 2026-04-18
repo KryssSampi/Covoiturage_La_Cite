@@ -1,7 +1,3 @@
-// ============================================================
-//  Features/brouillons/DisplayControler/BrouillonsListDisplayController.cs
-// ============================================================
-
 using Covoiturage_la_cite__App_Mobile_.Features.brouillons.DisplayModels;
 using Covoiturage_la_cite__App_Mobile_.Features.brouillons.Fixtures;
 using Covoiturage_la_cite__App_Mobile_.Shared.ItemList;
@@ -17,23 +13,20 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.brouillons.DisplayControler
 
         public BrouillonsListDisplayController()
         {
+var items = BrouillonsFixtures.Cards();
+
             var config = new ItemListConfig<BrouillonCardDisplayModel>
             {
-                Items        = BrouillonsFixtures.Cards().ToList(),
-                SearchFields = c => new[]
-                {
-                    c.Route.FromLabel,
-                    c.Route.ToLabel,
-                    c.ScheduleLabel,
-                },
-                EmptyStateTitle    = "Aucun brouillon",
-                EmptyStateSubtitle = "Vos trajets enregistrés en brouillon apparaîtront ici.",
+                Items = items,
+SearchFields = c => new[] { c.Route.FromLabel, c.Route.ToLabel, c.ScheduleLabel },
+                EmptyStateTitle = "Aucun brouillon",
+                EmptyStateSubtitle = "Créez votre premier brouillon de trajet.",
             };
 
             ListController = new ItemListController<BrouillonCardDisplayModel>(config);
         }
 
-        public void HandleCardTap(BrouillonCardDisplayModel card) =>
-            OnCardTap?.Invoke(card);
+        public void HandleCardTap(BrouillonCardDisplayModel card) => OnCardTap?.Invoke(card);
     }
 }
+

@@ -2,40 +2,30 @@
 //  App/Mobilepages/historiquepage/view/HistoriquePage.xaml.cs
 // ============================================================
 
-using System.Windows.Input;
-using Covoiturage_la_cite__App_Mobile_.Core.Models;
-using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
-using Covoiturage_la_cite__App_Mobile_.Features.historique.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.historiquepage.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Features.historique.DisplayModels;
 
 namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.historiquepage.view
 {
-    public partial class HistoriquePage : ContentPage
+public partial class HistoriquePage : ContentPage
+{
+    private readonly HistoriquePageDisplayController _controller;
+
+    public HistoriquePage(HistoriquePageDisplayController controller)
     {
-        private readonly UserViewModel _userViewModel;
-        private bool _isLoaded;
+        InitializeComponent();
+        _controller = controller;
+        BindingContext = _controller;
+        HistList.SetController(_controller.ListController);
+    }
 
-        public ICommand GoBackCommand { get; } =
-            new Command(async () => await Shell.Current.GoToAsync(".."));
-
-        public HistoriquePage(UserViewModel userViewModel)
+    private async void OnHistoryCardTapped(object sender, TappedEventArgs e)
+    {
+        if (sender is VisualElement ve && ve.BindingContext is HistoriqueCardDisplayModel card)
         {
-            InitializeComponent();
-            BindingContext = this;
-            _userViewModel = userViewModel;
-        }
-
-        // ?????????????????????????????????????????????????????????????
-        //  Chargement différé — libère le UI thread au démarrage
-        // ?????????????????????????????????????????????????????????????
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            if (_isLoaded) return;
-            _isLoaded = true;
-
-            var canBeDriver = _userViewModel.Role == UserRole.Driver;
-            var ctrl = new HistoriqueListDisplayController(canBeDriver);
-            HistList.SetController(ctrl.ListController);
+            _controller.HandleCardTap(card);
         }
     }
 }
+}
+

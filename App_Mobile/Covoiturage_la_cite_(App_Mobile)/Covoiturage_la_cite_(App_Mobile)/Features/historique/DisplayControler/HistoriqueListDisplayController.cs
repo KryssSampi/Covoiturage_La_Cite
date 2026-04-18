@@ -1,8 +1,3 @@
-// ============================================================
-//  Features/historique/DisplayControler/HistoriqueListDisplayController.cs
-//  2 onglets (Passager / Conducteur) si canBeDriver.
-// ============================================================
-
 using Covoiturage_la_cite__App_Mobile_.Features.historique.DisplayModels;
 using Covoiturage_la_cite__App_Mobile_.Features.historique.Fixtures;
 using Covoiturage_la_cite__App_Mobile_.Shared.ItemList;
@@ -13,6 +8,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.historique.DisplayControler
     public class HistoriqueListDisplayController
     {
         public ItemListController<HistoriqueCardDisplayModel> ListController { get; }
+
+        public Action<HistoriqueCardDisplayModel>? OnCardTap { get; set; }
 
         public HistoriqueListDisplayController(bool canBeDriver)
         {
@@ -44,5 +41,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.historique.DisplayControler
 
             ListController = new ItemListController<HistoriqueCardDisplayModel>(config);
         }
+
+        public void HandleCardTap(HistoriqueCardDisplayModel card) => OnCardTap?.Invoke(card);
     }
 }
+

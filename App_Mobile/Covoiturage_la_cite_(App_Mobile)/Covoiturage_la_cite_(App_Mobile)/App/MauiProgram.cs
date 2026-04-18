@@ -1,46 +1,44 @@
 using CommunityToolkit.Maui;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.createtrippage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.createtrippage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.historiquepage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.DisplayController;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationdetailpage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationdetailpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.nouveautespage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.DisplayController;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.plannerpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationrequestdetailpage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationrequestdetailpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reviewspage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.searchpage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.statpage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.view;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.DisplayControler;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.view;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.messagepage.view;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.historiquepage.view;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.brouillonspage.view;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reviewspage.view;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.nouveautespage.view;
+using Covoiturage_la_cite__App_Mobile_.Core.Models;
+using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
 using Covoiturage_la_cite__App_Mobile_.Features.createtrip.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Features.finances.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Features.finances.Services;
+using Covoiturage_la_cite__App_Mobile_.Features.goboard.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Features.goboard.Services;
+using Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.notifications.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Features.planner.DisplayController;
+using Covoiturage_la_cite__App_Mobile_.Features.planner.Services;
 using Covoiturage_la_cite__App_Mobile_.Features.reservationrequest.DisplayControler;
-using Covoiturage_la_cite__App_Mobile_.Features.tripdetail.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.search.DisplayController;
 using Covoiturage_la_cite__App_Mobile_.Features.search.Services;
 using Covoiturage_la_cite__App_Mobile_.Features.search.Utils;
-using Covoiturage_la_cite__App_Mobile_.Core.Models;
-using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.DisplayController;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.view;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.DisplayController;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.view;
-using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
-using Covoiturage_la_cite__App_Mobile_.Features.homepage.DisplayControler;
-using Covoiturage_la_cite__App_Mobile_.Features.planner.DisplayController;
-using Covoiturage_la_cite__App_Mobile_.Features.planner.Services;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.statpage.DisplayControler;
-using Covoiturage_la_cite__App_Mobile_.Features.goboard.DisplayControler;
-using Covoiturage_la_cite__App_Mobile_.Features.goboard.Services;
-using Covoiturage_la_cite__App_Mobile_.Features.finances.DisplayControler;
-using Covoiturage_la_cite__App_Mobile_.Features.finances.Services;
 using Covoiturage_la_cite__App_Mobile_.Features.statistiques.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.statistiques.Services;
+using Covoiturage_la_cite__App_Mobile_.Features.tripdetail.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Services.Api;
 using Covoiturage_la_cite__App_Mobile_.Services.Auth;
 using Covoiturage_la_cite__App_Mobile_.Services.Cache;
@@ -100,9 +98,9 @@ namespace Covoiturage_la_cite__App_Mobile_.App
             builder.Services.AddSingleton<FinancesDisplayController>();
             builder.Services.AddSingleton<StatsPageController>(sp =>
             {
-                var userVm  = sp.GetRequiredService<UserViewModel>();
+                var userVm = sp.GetRequiredService<UserViewModel>();
                 var goboard = sp.GetRequiredService<GoboardDisplayController>();
-                var stats   = sp.GetRequiredService<StatistiquesDisplayController>();
+                var stats = sp.GetRequiredService<StatistiquesDisplayController>();
                 var finance = sp.GetRequiredService<FinancesDisplayController>();
                 return new StatsPageController(goboard, stats, finance,
                     canBeDriver: userVm.Role == UserRole.Driver);
@@ -122,19 +120,40 @@ namespace Covoiturage_la_cite__App_Mobile_.App
             builder.Services.AddSingleton<ISearchService, SearchService>();
             builder.Services.AddSingleton<SearchDisplayController>();
             builder.Services.AddTransient<SearchPage>();
-            
+
             // -- Pages Tab (Singleton car cachées dans MainView) --
             builder.Services.AddSingleton<Mobilepages.homepage.view.HomePage>();
-            builder.Services.AddSingleton<Mobilepages.messagepage.view.MessagePage>();
+            builder.Services.AddTransient<Mobilepages.messagepage.DisplayControler.MessagePageDisplayController>(sp =>
+                new Mobilepages.messagepage.DisplayControler.MessagePageDisplayController(
+                    sp.GetRequiredService<Core.Viewmodels.UserViewModel>()
+                ));
+            builder.Services.AddSingleton<Mobilepages.messagepage.view.MessagePage>(sp =>
+                new Mobilepages.messagepage.view.MessagePage(
+                    sp.GetRequiredService<Mobilepages.messagepage.DisplayControler.MessagePageDisplayController>()
+                ));
             builder.Services.AddSingleton<Mobilepages.statpage.view.StatPage>();
             builder.Services.AddSingleton<Mobilepages.favorispage.view.FavorisPage>();
             builder.Services.AddSingleton<Mobilepages.profilpage.view.ProfilPage>();
             builder.Services.AddSingleton<PlannerPage>();
-            
+
             // -- Pages secondaires (existantes) --
             //builder.Services.AddTransient<Mobilepages.trajet_detail.view.TrajetDetailPage>();
-            builder.Services.AddTransient<Mobilepages.reservationpage.view.ReservationPage>();
-            builder.Services.AddTransient<Mobilepages.notificationpage.view.NotificationPage>();
+            builder.Services.AddTransient<Mobilepages.reservationpage.DisplayControler.ReservationPageDisplayController>(sp =>
+                new Mobilepages.reservationpage.DisplayControler.ReservationPageDisplayController(
+                    sp.GetRequiredService<Core.Viewmodels.UserViewModel>()
+                ));
+            builder.Services.AddTransient<Mobilepages.reservationpage.view.ReservationPage>(sp =>
+                new Mobilepages.reservationpage.view.ReservationPage(
+                    sp.GetRequiredService<Mobilepages.reservationpage.DisplayControler.ReservationPageDisplayController>()
+                ));
+            builder.Services.AddTransient<Mobilepages.notificationpage.DisplayControler.NotificationPageDisplayController>(sp =>
+                new Mobilepages.notificationpage.DisplayControler.NotificationPageDisplayController(
+                    sp.GetRequiredService<Core.Viewmodels.UserViewModel>()
+                ));
+            builder.Services.AddTransient<Mobilepages.notificationpage.view.NotificationPage>(sp =>
+                new Mobilepages.notificationpage.view.NotificationPage(
+                    sp.GetRequiredService<Mobilepages.notificationpage.DisplayControler.NotificationPageDisplayController>()
+                ));
             //builder.Services.AddTransient<Mobilepages.parametres.view.ParametresPage>();
             //builder.Services.AddTransient<Mobilepages.apropos.view.AProposPage>();
 
@@ -168,8 +187,33 @@ namespace Covoiturage_la_cite__App_Mobile_.App
 
             // -- Pages hors-MainView : historique, brouillons, reviews, nouveautés --
             builder.Services.AddTransient<HistoriquePage>();
-            builder.Services.AddTransient<BrouillonsPage>();
+            builder.Services.AddTransient<Mobilepages.brouillonspage.DisplayControler.BrouillonsPageDisplayController>(sp =>
+                new Mobilepages.brouillonspage.DisplayControler.BrouillonsPageDisplayController(
+                    sp.GetRequiredService<Core.Viewmodels.UserViewModel>()
+                ));
+            builder.Services.AddTransient<Mobilepages.brouillonspage.view.BrouillonsPage>(sp =>
+                new Mobilepages.brouillonspage.view.BrouillonsPage(
+                    sp.GetRequiredService<Mobilepages.brouillonspage.DisplayControler.BrouillonsPageDisplayController>()
+                ));
+            builder.Services.AddTransient<Mobilepages.brouillonspage.DisplayControler.BrouillonsPageDisplayController>(sp =>
+                new Mobilepages.brouillonspage.DisplayControler.BrouillonsPageDisplayController(
+                    sp.GetRequiredService<Core.Viewmodels.UserViewModel>()
+                ));
+            builder.Services.AddTransient<Mobilepages.brouillonspage.view.BrouillonsPage>(sp =>
+                new Mobilepages.brouillonspage.view.BrouillonsPage(
+                    sp.GetRequiredService<Mobilepages.brouillonspage.DisplayControler.BrouillonsPageDisplayController>()
+                ));
+
             builder.Services.AddTransient<ReviewsPage>();
+            builder.Services.AddTransient<Mobilepages.historiquepage.DisplayControler.HistoriquePageDisplayController>(sp =>
+                new Mobilepages.historiquepage.DisplayControler.HistoriquePageDisplayController(
+                    sp.GetRequiredService<Core.Viewmodels.UserViewModel>()
+                ));
+            builder.Services.AddTransient<Mobilepages.historiquepage.view.HistoriquePage>(sp =>
+                new Mobilepages.historiquepage.view.HistoriquePage(
+                    sp.GetRequiredService<Mobilepages.historiquepage.DisplayControler.HistoriquePageDisplayController>()
+                ));
+
             builder.Services.AddTransient<NouveautesPage>();
 
             // Enregistrement explicite de IAnimationManager si n�cessaire

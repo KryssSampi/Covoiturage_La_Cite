@@ -72,7 +72,8 @@ public static class PlannerFixtures
                 TimeLabel: "07:40",
                 Route: new RouteDisplayModel("Campus…", "Place d'Orléans", "07:40","08:15"),
                 Price: 5m,
-                Status: PassengerReservationStatus.Pending),
+                Status: PassengerReservationStatus.Pending,
+                TripId: "trip-001"),
             Status: PassengerReservationStatusEnum.Pending,
             Date: Today),
 
@@ -85,7 +86,8 @@ public static class PlannerFixtures
                 Route: new RouteDisplayModel("Stationnement B","La Cité","08:00","08:35"),
                 Price: 8m,
                 Status: PassengerReservationStatus.Confirmed,
-                VehicleLabel: "Honda Civic · Grise · ABC-4521"),
+                VehicleLabel: "Honda Civic · Grise · ABC-4521",
+                TripId: "trip-002"),
             Status: PassengerReservationStatusEnum.Confirmed,
             Date: Today),
 
@@ -98,7 +100,8 @@ public static class PlannerFixtures
                 Route: new RouteDisplayModel("Avenue Laurier","La Cité","17:00","17:35"),
                 Price: 7m,
                 Status: PassengerReservationStatus.Completed,
-                CanRate: true),
+                CanRate: true,
+                TripId: "trip-003"),
             Status: PassengerReservationStatusEnum.Completed,
             Date: Today.AddDays(-1)),
     };

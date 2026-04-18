@@ -84,20 +84,22 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayContr
                     PassengerName: "Marie Lefebvre",
                     PassengerRating: 4.6,
                     PassengerTripCount: 12,
-                    Route: new RouteDisplayModel("Barrhaven", "Campus La Cit�"),
-                    TripTimeLabel: "Demain � 07:40",
+                    Route: new RouteDisplayModel("Barrhaven", "Campus La Cit\u00e9"),
+                    TripTimeLabel: "Demain \u00e0 07:40",
                     Price: 12,
-                    SeatsInfo: 3
+                    SeatsInfo: 3,
+                    TripId: "trip-001"
                 ),
                 new(
                     PassengerAvatar: new AvatarDisplayModel("TP", "#E1F5EE", "#0F6E56"),
-                    PassengerName: "Thomas Pich�",
+                    PassengerName: "Thomas Pich\u00e9",
                     PassengerRating: 4.9,
                     PassengerTripCount: 28,
-                    Route: new RouteDisplayModel("Orl�ans", "Campus La Cit�"),
-                    TripTimeLabel: "Mercredi � 08:15",
+                    Route: new RouteDisplayModel("Orl\u00e9ans", "Campus La Cit\u00e9"),
+                    TripTimeLabel: "Mercredi \u00e0 08:15",
                     Price: 10,
-                    SeatsInfo: 2
+                    SeatsInfo: 2,
+                    TripId: "trip-001"
                 )
             };
         }

@@ -159,7 +159,11 @@
                                     <cards:IncomingReservationRequestCard
                                         WidthRequest="320"
                                         HeightRequest="200"
-                                        Model="{Binding .}"/>
+                                        Model="{Binding .}">
+                                        <cards:IncomingReservationRequestCard.GestureRecognizers>
+                                            <TapGestureRecognizer Tapped="OnIncomingRequestTapped"/>
+                                        </cards:IncomingReservationRequestCard.GestureRecognizers>
+                                    </cards:IncomingReservationRequestCard>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>

@@ -1,5 +1,6 @@
 
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Shared.Cards.DisplayModels;
 
 namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.view
 {
@@ -80,6 +81,17 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.view
             base.OnParentSet();
             if (Parent is not null)
                 await _controller.InitializeAsync();
+        }
+
+        private async void OnIncomingRequestTapped(object sender, TappedEventArgs e)
+        {
+            if (sender is not VisualElement ve) return;
+            if (ve.BindingContext is not IncomingReservationRequestCardDisplayModel card) return;
+            if (string.IsNullOrEmpty(card.TripId)) return;
+
+            var tripId = Uri.EscapeDataString(card.TripId);
+            await Shell.Current.GoToAsync(
+                $"tripdetail?tripId={tripId}&viewerRole=driver_owner&source=home");
         }
     }
 }

@@ -24,6 +24,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.historique.DisplayModels
         string              StatusColorHex,
         // Note reçue pour ce trajet (null = pas encore évalué)
         int?                MyRatingReceived,
-        string?             RatingSourceLabel  // "Par Marie T."
+        string?             RatingSourceLabel, // "Par Marie T."
+        // Identifiant du trajet pour navigation vers TripDetail
+        string              TripId = ""
     );
 }
