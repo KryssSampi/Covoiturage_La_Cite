@@ -14,7 +14,9 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.DisplayModels;
 using Covoiturage_la_cite__App_Mobile_.Core.Models;
+using Covoiturage_la_cite__App_Mobile_.Core.Viewmodels;
 using Covoiturage_la_cite__App_Mobile_.Features.tripdetail.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.Services.Api;
 using Covoiturage_la_cite__App_Mobile_.Test.Fixtures;
 
 namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.DisplayControler
@@ -27,6 +29,8 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.Displa
     {
         private readonly TripDetailDisplayController _featureController;
         private readonly TripDetailPageDisplayModel  _pageModel;
+        private readonly IApiService                 _apiService;
+        private readonly UserViewModel               _userViewModel;
 
         private string? _tripId;
         private string? _viewerRole;
@@ -38,9 +42,14 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.Displa
         public ICommand GoBackCommand { get; } =
             new Command(async () => await Shell.Current.GoToAsync(".."));
 
-        public TripDetailPageDisplayController(TripDetailDisplayController featureController)
+        public TripDetailPageDisplayController(
+            TripDetailDisplayController featureController,
+            IApiService apiService,
+            UserViewModel userViewModel)
         {
             _featureController = featureController;
+            _apiService = apiService;
+            _userViewModel = userViewModel;
             _pageModel = new TripDetailPageDisplayModel
             {
                 ReserveCommand       = featureController.ReserveCommand,
@@ -116,9 +125,16 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.Displa
                 // Injection des handlers API
                 _featureController.OnReserve = async id =>
                 {
-                    // TODO : POST /api/reservations { tripId: id, passengerId: currentUser.id }
-                    await Task.Delay(400);
-                    return true;
+                    var passengerId = _userViewModel.User.Id;
+                    var response = await _apiService.PostAsync<object, ApiEnvelope<ReservationResponse>>(
+                        "api/reservations",
+                        new { tripId = id, passengerId });
+
+                    var success = response?.Success == true || response?.Data is not null;
+                    if (success)
+                        await Shell.Current.DisplayAlert("Succès", "Réservation envoyée !", "OK");
+
+                    return success;
                 };
                 _featureController.OnCancelReservation = async id =>
                 {
@@ -147,5 +163,8 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.tripdetailpage.Displa
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private sealed record ApiEnvelope<T>(bool Success, T? Data, string? Message, string[]? Errors);
+        private sealed record ReservationResponse(string? Id);
     }
 }

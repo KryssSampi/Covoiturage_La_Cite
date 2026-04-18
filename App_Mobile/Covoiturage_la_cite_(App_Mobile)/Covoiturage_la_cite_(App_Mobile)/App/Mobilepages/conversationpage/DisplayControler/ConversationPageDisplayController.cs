@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayConverters;
 using Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayModels;
+using Covoiturage_la_cite__App_Mobile_.Services.Api;
 using Covoiturage_la_cite__App_Mobile_.Test.Fixtures;
 
 namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.DisplayControler
@@ -22,6 +23,7 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.Disp
     public class ConversationPageDisplayController : INotifyPropertyChanged
     {
         private readonly ConversationDetailDisplayModel _pageModel = new();
+        private readonly IApiService _apiService;
 
         public ConversationDetailDisplayModel PageModel => _pageModel;
 
@@ -30,11 +32,18 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.Disp
 
         public ICommand SendCommand { get; }
 
-        public ConversationPageDisplayController()
+        public ConversationPageDisplayController(IApiService apiService)
         {
+            _apiService = apiService;
             SendCommand = new Command(
-                execute: () =>
+                execute: async () =>
                 {
+                    if (!_pageModel.IsChatAvailable)
+                    {
+                        await Shell.Current.DisplayAlert("Information", "Le chat sera disponible 2h avant le départ.", "OK");
+                        return;
+                    }
+
                     // TODO : POST /api/messages { conversationId, content: DraftText }
                     _pageModel.DraftText = "";
                 },
@@ -92,6 +101,9 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.Disp
 
                 if (conv is null) return;
 
+                var tripAvailability = await ResolveChatAvailabilityAsync(conv);
+                _pageModel.IsChatAvailable = tripAvailability;
+
                 var detail = MessagingDisplayConverter.ToDetail(conv);
                 _pageModel.TripRoute       = detail.TripRoute;
                 _pageModel.TripDateStr     = detail.TripDateStr;
@@ -104,6 +116,32 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.conversationpage.Disp
                 _pageModel.IsLoading = false;
             }
         }
+
+        private async Task<bool> ResolveChatAvailabilityAsync(Core.Models.ConversationModel conv)
+        {
+            if (!string.IsNullOrWhiteSpace(conv.TripId))
+            {
+                var endpoint = $"api/trips/{Uri.EscapeDataString(conv.TripId)}";
+                var envelope = await _apiService.GetAsync<ApiEnvelope<TripChatApiDto>>(endpoint);
+                var trip = envelope?.Data;
+                if (trip?.DepartureDateTime is DateTime departureDateTime)
+                {
+                    var departure = departureDateTime;
+                    return (departure - DateTime.UtcNow).TotalHours <= 2 || trip.IsActive;
+                }
+            }
+
+            // Fallback fixtures/local state
+            if (DateTime.TryParse($"{conv.TripDate} {conv.TripTime}", out var parsedDeparture))
+            {
+                return (parsedDeparture.ToUniversalTime() - DateTime.UtcNow).TotalHours <= 2;
+            }
+
+            return false;
+        }
+
+        private sealed record ApiEnvelope<T>(bool Success, T? Data, string? Message, string[]? Errors);
+        private sealed record TripChatApiDto(DateTime? DepartureDateTime, bool IsActive);
 
         public event PropertyChangedEventHandler? PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string? name = null)

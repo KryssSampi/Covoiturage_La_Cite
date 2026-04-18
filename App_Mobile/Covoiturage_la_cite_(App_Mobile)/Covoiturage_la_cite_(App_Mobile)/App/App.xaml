@@ -4,10 +4,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:comp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.shell.views.components"
     xmlns:conv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Converters"
+    xmlns:conv_profile="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.profile.Converters"
     xmlns:plannerconv="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.planner.converters"
     xmlns:searchcomp="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.search.Views.Components"
     xmlns:behaviors="clr-namespace:Covoiturage_la_cite__App_Mobile_.Shared.Behaviors"
     x:Class="Covoiturage_la_cite__App_Mobile_.App.App">
+
 
     <Application.Resources>
         <ResourceDictionary>
@@ -55,7 +57,24 @@
             <Style TargetType="CollectionView">
                 <Setter Property="behaviors:ScrollChevron.IsEnabled" Value="True"/>
             </Style>
-       
+
+            <!-- Profile Converters -->
+            <conv_profile:BoolToAmbianceColorConverter x:Key="BoolToAmbianceColorConverter"/>
+            <conv_profile:BoolToTabColorConverter x:Key="BoolToTabColorConverter"/>
+            <conv_profile:BoolToTabTextColorConverter x:Key="BoolToTabTextColorConverter"/>
+            <conv_profile:ActiveBadgeColorConverter x:Key="ActiveBadgeColorConverter"/>
+            <conv_profile:ActiveBadgeTextColorConverter x:Key="ActiveBadgeTextColorConverter"/>
+            <conv_profile:ValidatedBadgeColorConverter x:Key="ValidatedBadgeColorConverter"/>
+            <conv_profile:ValidatedBadgeTextColorConverter x:Key="ValidatedBadgeTextColorConverter"/>
+            <conv_profile:ValidatedOpacityConverter x:Key="ValidatedOpacityConverter"/>
+            <conv_profile:DocStatusIconConverter x:Key="DocStatusIconConverter"/>
+            <conv_profile:BoolToStrikethroughConverter x:Key="BoolToStrikethroughConverter"/>
+            <conv_profile:SubmittedTextColorConverter x:Key="SubmittedTextColorConverter"/>
+            <conv_profile:RatingToStarsConverter x:Key="RatingToStarsConverter"/>
+            <conv_profile:SubscribedColorConverter x:Key="SubscribedColorConverter"/>
+            <conv_profile:SubscribedTextColorConverter x:Key="SubscribedTextColorConverter"/>
+            <conv_profile:NullToPlaceholderConverter x:Key="NullToPlaceholderConverter"/>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

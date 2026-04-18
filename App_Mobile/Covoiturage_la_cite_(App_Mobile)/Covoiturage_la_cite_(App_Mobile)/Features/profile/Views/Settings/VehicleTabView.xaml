@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.profile.Views.Settings.VehicleTabView">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+
+            <!-- No vehicle state -->
+            <VerticalStackLayout x:Name="NoVehicleSection" Spacing="12" IsVisible="False" HorizontalOptions="Center">
+                <Label x:Name="NoVehicleLabelEl" FontSize="16" FontAttributes="Bold" TextColor="#0D1624" HorizontalOptions="Center"/>
+                <Label x:Name="NoVehicleDescLabelEl" FontSize="13" TextColor="#7A879A" HorizontalOptions="Center"/>
+                <Button x:Name="AddVehicleBtn" BackgroundColor="#1A56CC" TextColor="White"
+                        CornerRadius="10" Clicked="OnAddVehicle"/>
+            </VerticalStackLayout>
+
+            <!-- Vehicle form -->
+            <VerticalStackLayout x:Name="VehicleFormSection" Spacing="14" IsVisible="False">
+
+                <!-- Vehicle list horizontal scroll -->
+                <Label x:Name="YourVehiclesLabelEl" FontSize="14" FontAttributes="Bold" TextColor="#0D1624"/>
+                <ScrollView Orientation="Horizontal" HeightRequest="90">
+                    <HorizontalStackLayout x:Name="VehiclesScrollLayout" Spacing="8" Padding="4">
+                        <Button Text="+" WidthRequest="80" HeightRequest="80" CornerRadius="12"
+                                BackgroundColor="#E8ECF3" TextColor="#1A56CC" FontSize="24"
+                                Clicked="OnAddVehicle"/>
+                    </HorizontalStackLayout>
+                </ScrollView>
+
+                <!-- Active toggle -->
+                <Border Stroke="#E8ECF3" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                    <HorizontalStackLayout Padding="16">
+                        <Label x:Name="ToggleActiveLabelEl" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch x:Name="ActiveSwitch" Toggled="OnVehicleActiveToggled"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Form fields -->
+                <Label x:Name="MakeLabelEl" FontSize="13" TextColor="#7A879A"/>
+                <Picker x:Name="MakePicker" SelectedIndexChanged="OnMakeChanged"/>
+
+                <Label x:Name="ModelLabelEl" FontSize="13" TextColor="#7A879A"/>
+                <Picker x:Name="ModelPicker" SelectedIndexChanged="OnModelChanged"/>
+
+                <Label x:Name="YearLabelEl" FontSize="13" TextColor="#7A879A"/>
+                <Picker x:Name="YearPicker" SelectedIndexChanged="OnYearChanged"/>
+
+                <Label x:Name="ColorLabelEl" FontSize="13" TextColor="#7A879A"/>
+                <Picker x:Name="ColorPicker" SelectedIndexChanged="OnColorChanged"/>
+
+                <Label x:Name="SeatsLabelEl" FontSize="13" TextColor="#7A879A"/>
+                <Picker x:Name="SeatsPicker" SelectedIndexChanged="OnSeatsChanged"/>
+
+                <!-- Documents -->
+                <Label x:Name="DocumentsListLabelEl" FontSize="14" FontAttributes="Bold" TextColor="#0D1624"/>
+                <CollectionView ItemsSource="{Binding Documents}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout Padding="4,6" Spacing="8">
+                                <Label Text="•" FontSize="14" TextColor="#7A879A"/>
+                                <Label Text="{Binding LabelFr}" FontSize="13" TextColor="#0D1624"/>
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Button x:Name="UploadDocsBtn" BackgroundColor="#0F6E56" TextColor="White"
+                        CornerRadius="10" Clicked="OnUploadDocuments"/>
+                <Button x:Name="SaveBtn" BackgroundColor="#1A56CC" TextColor="White"
+                        CornerRadius="10" Clicked="OnSave"/>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

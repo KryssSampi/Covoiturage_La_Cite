@@ -20,6 +20,8 @@ public partial class BrouillonsPage : ContentPage
         BrouillonsList.SetController(_controller.ListController);
     }
 
+    private void OnNewDraftTapped(object sender, TappedEventArgs e) => _controller.HandleNewDraft();
+
     private async void OnBrouillonCardTapped(object sender, TappedEventArgs e)
     {
         if (sender is VisualElement ve && ve.BindingContext is BrouillonCardDisplayModel card)

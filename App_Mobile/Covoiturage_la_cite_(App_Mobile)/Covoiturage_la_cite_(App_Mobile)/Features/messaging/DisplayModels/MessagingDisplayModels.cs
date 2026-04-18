@@ -51,6 +51,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayModels
     {
         private bool   _isLoading = true;
         private string _draftText = "";
+        private bool   _isChatAvailable = true;
         private IReadOnlyList<MessageBubbleDisplayModel> _messages = Array.Empty<MessageBubbleDisplayModel>();
 
         public string TripRoute       { get; set; } = "";
@@ -59,6 +60,15 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayModels
         public string OtherPersonRole { get; set; } = "";
 
         public bool   IsLoading { get => _isLoading; set => Set(ref _isLoading, value); }
+        public bool   IsChatAvailable
+        {
+            get => _isChatAvailable;
+            set
+            {
+                if (Set(ref _isChatAvailable, value))
+                    OnPropertyChanged(nameof(CanSend));
+            }
+        }
 
         public IReadOnlyList<MessageBubbleDisplayModel> Messages
         {
@@ -72,7 +82,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayModels
             set { Set(ref _draftText, value); OnPropertyChanged(nameof(CanSend)); }
         }
 
-        public bool CanSend => !string.IsNullOrWhiteSpace(DraftText);
+        public bool CanSend => IsChatAvailable && !string.IsNullOrWhiteSpace(DraftText);
 
         public string PageTitle => OtherPersonName;
 

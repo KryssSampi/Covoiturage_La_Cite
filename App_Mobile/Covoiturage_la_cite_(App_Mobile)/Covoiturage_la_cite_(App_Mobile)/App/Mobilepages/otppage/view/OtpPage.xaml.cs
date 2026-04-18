@@ -1,22 +1,21 @@
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.DisplayController;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.DisplayControler;
 
-namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.view
+namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.view;
+
+[QueryProperty(nameof(EmailParam), "email")]
+public partial class OtpPage : ContentPage
 {
-    [QueryProperty(nameof(Phone), "phone")]
-    public partial class OtpPage : ContentPage
+    private readonly OtpPageDisplayControler _controller;
+
+    public string EmailParam
     {
-        private readonly OtpPageDisplayController _controller;
+        set => _controller.SetEmail(Uri.UnescapeDataString(value ?? ""));
+    }
 
-        public string Phone
-        {
-            set => _controller.PhoneNumber = Uri.UnescapeDataString(value ?? "");
-        }
-
-        public OtpPage(OtpPageDisplayController controller)
-        {
-            InitializeComponent();
-            _controller = controller;
-            BindingContext = controller;
-        }
+    public OtpPage(OtpPageDisplayControler controller)
+    {
+        InitializeComponent();
+        _controller = controller;
+        BindingContext = _controller;
     }
 }

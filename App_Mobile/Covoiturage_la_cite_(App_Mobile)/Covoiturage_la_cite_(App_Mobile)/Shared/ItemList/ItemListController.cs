@@ -13,7 +13,21 @@ using Covoiturage_la_cite__App_Mobile_.Shared.ItemList.DisplayModels;
 
 namespace Covoiturage_la_cite__App_Mobile_.Shared.ItemList;
 
-public class ItemListController<T> : INotifyPropertyChanged where T : class
+/// <summary>Interface non-générique exposée à ItemListView pour éviter l'adaptateur object.</summary>
+public interface IItemListController : INotifyPropertyChanged
+{
+    string SearchText { get; set; }
+    bool IsFilterMenuOpen { get; set; }
+    bool IsSortMenuOpen   { get; set; }
+    bool HasTabs          { get; }
+    IReadOnlyList<string> TabLabels    { get; }
+    int  ActiveTabIndex   { get; }
+    ICommand SelectTabCommand  { get; }
+    IReadOnlyList<ActiveChip> ActiveChips { get; }
+    ICommand RemoveChipCommand { get; }
+}
+
+public class ItemListController<T> : IItemListController, INotifyPropertyChanged where T : class
 {
     private readonly ItemListConfig<T> _config;
     private List<T> _sourceItems = new();

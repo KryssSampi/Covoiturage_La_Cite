@@ -46,6 +46,12 @@ namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.brouillonspage.Displa
         }
 
         public void HandleCardTap(BrouillonCardDisplayModel card) => _listCtrl.HandleCardTap(card);
+
+        public async void HandleNewDraft()
+        {
+            var driverId = Uri.EscapeDataString(UserViewModel.FirstName);
+            await Shell.Current.GoToAsync($"createtrip?driverId={driverId}");
+        }
     }
 }
 

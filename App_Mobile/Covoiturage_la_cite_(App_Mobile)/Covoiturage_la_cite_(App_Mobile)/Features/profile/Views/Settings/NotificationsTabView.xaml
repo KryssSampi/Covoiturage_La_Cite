@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.profile.Views.Settings.NotificationsTabView">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <!-- Section Email -->
+            <Label x:Name="EmailSectionLabel" FontSize="15" FontAttributes="Bold" TextColor="#0D1624"/>
+            <Border Stroke="#E8ECF3" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <HorizontalStackLayout>
+                        <Label x:Name="PrimordialesLabel" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding EmailPrimordiales}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label x:Name="SecondairesLabel" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding EmailSecondaires}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label x:Name="NegligeablesLabel" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding EmailNegligeables}"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Section Push -->
+            <Label x:Name="PushSectionLabel" FontSize="15" FontAttributes="Bold" TextColor="#0D1624"/>
+            <Border Stroke="#E8ECF3" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <HorizontalStackLayout>
+                        <Label x:Name="PushPrimordialesLabel" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding PushPrimordiales}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label x:Name="PushSecondairesLabel" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding PushSecondaires}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label x:Name="PushNegligeablesLabel" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding PushNegligeables}"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

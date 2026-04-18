@@ -11,7 +11,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Shared.ItemList.Views;
 
 public partial class ItemListView : ContentView
 {
-    private ItemListController<object>? _controller;
+    private IItemListController? _controller;
 
     // ── BindableProperty : DataTemplate pour les items ────────────────
     public static readonly BindableProperty ItemTemplateProperty =
@@ -86,17 +86,14 @@ public partial class ItemListView : ContentView
     /// </summary>
     public void SetController<T>(ItemListController<T> controller) where T : class
     {
-        // On passe par object pour garder le XAML générique
-        _controller  = controller as ItemListController<object>
-            ?? new ObjectAdapterController<T>(controller);
-        BindingContext = _controller;
+        _controller    = controller;
+        BindingContext = controller;
 
-        // Écoute les changements via PropertyChanged
         _controller.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(ItemListController<object>.ActiveChips))
+            if (e.PropertyName == nameof(IItemListController.ActiveChips))
                 RebuildChips();
-            if (e.PropertyName == nameof(ItemListController<object>.ActiveTabIndex))
+            if (e.PropertyName == nameof(IItemListController.ActiveTabIndex))
                 RebuildTabs();
         };
         RebuildChips();
@@ -224,18 +221,3 @@ public partial class ItemListView : ContentView
     private void Refresh() { /* Force re-evaluation des bindings ShowNoInternet */ }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Adaptateur interne pour uniformiser ItemListController<T> → <object>
-// ─────────────────────────────────────────────────────────────────────────────
-
-file class ObjectAdapterController<T> : ItemListController<object> where T : class
-{
-    // On réutilise directement le controller typé via un proxy léger.
-    // En pratique, si T = object le cast direct suffit.
-    // Ce wrapper existe uniquement pour la sécurité de type.
-    public ObjectAdapterController(ItemListController<T> inner) : base(null!)
-    {
-        // Non utilisé — le SetController passe directement si T = object.
-        // Pour la version production, utiliser un IItemListController non-générique.
-    }
-}

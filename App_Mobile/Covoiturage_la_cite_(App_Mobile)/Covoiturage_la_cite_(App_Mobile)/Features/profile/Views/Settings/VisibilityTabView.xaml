@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.profile.Views.Settings.VisibilityTabView">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Label Text="Choisissez ce que les autres membres peuvent voir sur votre profil." TextColor="#7A879A" FontSize="13"/>
+            <Border Stroke="#E8ECF3" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <HorizontalStackLayout>
+                        <Label Text="GoScore" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding GoScore}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Nombre de trajets" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding TripsCount}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Note globale" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding GlobalRating}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="CO₂ économisé" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding Co2Saved}"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

@@ -1,6 +1,7 @@
 ﻿using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.favorispage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.messagepage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.plannerpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.profilpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.statpage.view;
@@ -59,8 +60,8 @@ public partial class MainView : ContentPage
         // ── Affiche le loader d'initialisation ──
         ShowLoader("Préparation...");
 
-        // ── Pré-crée toutes les vues en background ──
-        await Task.Run(() => PreCreateAllViews());
+        // ── Pré-crée les vues une par une, Task.Yield() libère le UI thread entre chaque ──
+        await PreCreateAllViewsAsync();
 
         // ── Cache le loader et affiche l'accueil ──
         await HideLoaderAsync(animate: false);
@@ -71,35 +72,40 @@ public partial class MainView : ContentPage
     // ─────────────────────────────────────────────────────────────
     //  Pré-création de toutes les vues (eager loading)
     // ─────────────────────────────────────────────────────────────
-    private void PreCreateAllViews()
+    private async Task PreCreateAllViewsAsync()
     {
         var services = IPlatformApplication.Current?.Services;
         if (services is null) return;
 
-        // Crée les vues sur le UI thread (obligatoire pour XAML)
-        // mais les données sont chargées en lazy dans OnLoaded de chaque vue
-        MainThread.InvokeOnMainThreadAsync(() =>
-        {
-            try
-            {
-                _viewCache["accueil"]             = services.GetRequiredService<HomePage>();
-                _viewCache["planifier"]           = services.GetRequiredService<PlannerPage>();
-                _viewCache["messages"]            = services.GetRequiredService<MessagePage>();
-                _viewCache["stats"]               = services.GetRequiredService<StatPage>();
-                _viewCache["profil"]              = services.GetRequiredService<ProfilPage>();
-                _viewCache["favoris"]             = services.GetRequiredService<FavorisPage>();
-                // Routes SideNav → pages existantes
-                _viewCache["trajets"]             = _viewCache["planifier"];
-                _viewCache["demandes"]            = _viewCache["favoris"];
-                _viewCache["conducteurs_favoris"] = _viewCache["favoris"];
+        // Task.Yield() entre chaque vue = UI thread libéré = pas de freeze
+        await Cache(services, "accueil",       s => s.GetRequiredService<HomePage>());
+        await Cache(services, "planifier",     s => s.GetRequiredService<PlannerPage>());
+        await Cache(services, "messages",      s => s.GetRequiredService<MessagePage>());
+        await Cache(services, "notifications", s => s.GetRequiredService<NotificationPage>());
+        await Cache(services, "stats",         s => s.GetRequiredService<StatPage>());
+        await Cache(services, "profil",        s => s.GetRequiredService<ProfilPage>());
+        await Cache(services, "favoris",       s => s.GetRequiredService<FavorisPage>());
 
-                System.Diagnostics.Debug.WriteLine("[MainView] ✅ Toutes les vues pré-créées");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[MainView] ❌ Erreur pré-création: {ex.Message}");
-            }
-        }).Wait();
+        if (_viewCache.TryGetValue("planifier", out var p)) _viewCache["trajets"] = p;
+        if (_viewCache.TryGetValue("favoris",   out var f))
+        {
+            _viewCache["demandes"]            = f;
+            _viewCache["conducteurs_favoris"] = f;
+        }
+    }
+
+    private async Task Cache(IServiceProvider services, string route,
+        Func<IServiceProvider, ContentView> factory)
+    {
+        try
+        {
+            _viewCache[route] = factory(services);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MainView] ERR {route}: {ex.Message}");
+        }
+        await Task.Yield(); // Libère le UI thread — évite le freeze
     }
 
     // ─────────────────────────────────────────────────────────────

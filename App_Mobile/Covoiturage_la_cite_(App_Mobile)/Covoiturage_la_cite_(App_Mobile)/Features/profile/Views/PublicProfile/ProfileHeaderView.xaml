@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.profile.Views.PublicProfile.ProfileHeaderView">
+    <Grid Padding="16" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Avatar (initials fallback) -->
+        <Frame Grid.Row="0" Grid.Column="0" WidthRequest="64" HeightRequest="64" CornerRadius="32" BackgroundColor="#EEF0F5" HasShadow="False" VerticalOptions="Start">
+            <Image Source="{Binding AvatarUrl}" Aspect="AspectFill" IsVisible="{Binding AvatarUrl, Converter={StaticResource NullToPlaceholderConverter}}"/>
+            <Label Text="{Binding Initials}" FontSize="28" FontAttributes="Bold" TextColor="#1A56CC" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding AvatarUrl, Converter={StaticResource NullToPlaceholderConverter}, ConverterParameter=true}"/>
+        </Frame>
+
+        <!-- FullName + SchoolRole -->
+        <StackLayout Grid.Row="0" Grid.Column="1" Orientation="Vertical" Spacing="2" VerticalOptions="Center">
+            <Label Text="{Binding FullName}" FontSize="20" FontAttributes="Bold" TextColor="#0D1624"/>
+            <Label Text="{Binding SchoolRoleLabel}" FontSize="13" TextColor="#7A879A"/>
+        </StackLayout>
+
+        <!-- GoScore -->
+        <StackLayout Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalOptions="Center">
+            <Label Text="GoScore :" FontSize="13" TextColor="#3D4A5C"/>
+            <Label Text="{Binding GoScore}" FontSize="13" FontAttributes="Bold" TextColor="#1A56CC"/>
+        </StackLayout>
+
+        <!-- Badges -->
+        <CollectionView Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Badges}" ItemsLayout="HorizontalList" HeightRequest="40">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame CornerRadius="20" Padding="10,6" BackgroundColor="#E8F0FE" HasShadow="False" Margin="0,0,8,0">
+                        <Label Text="{Binding NameFr}" FontSize="12" FontAttributes="Bold" TextColor="#1A56CC"/>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Langues -->
+        <CollectionView Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Languages}" ItemsLayout="HorizontalList" HeightRequest="36">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame CornerRadius="20" Padding="10,5" BackgroundColor="#EEF0F5" HasShadow="False" Margin="0,0,8,0">
+                        <Label Text="{Binding .}" FontSize="12" FontAttributes="Bold" TextColor="#545D6E"/>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentView>

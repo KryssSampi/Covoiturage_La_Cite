@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.profile.Views.Settings.AccessibilityTabView">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+            <Label Text="Taille du texte" FontSize="13" TextColor="#7A879A"/>
+            <Picker x:Name="FontSizePicker" SelectedIndexChanged="OnFontSizeChanged">
+                <Picker.Items>
+                    <x:String>Petit</x:String>
+                    <x:String>Moyen</x:String>
+                    <x:String>Grand</x:String>
+                </Picker.Items>
+            </Picker>
+
+            <Border Stroke="#E8ECF3" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <HorizontalStackLayout>
+                        <Label Text="Contraste élevé" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding HighContrast}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Réduire les animations" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding ReducedMotion}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Optimisé lecteur d'écran" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding ScreenReaderOptimized}"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>
