@@ -38,6 +38,12 @@ public class ReviewService : IReviewService
         if (dto.Rating is < 1 or > 5)
             throw new ArgumentException("La note doit être entre 1 et 5");
 
+        // Déterminer le rôle de l'évalué : Driver si c'est le conducteur du trajet, sinon Passenger
+        var tripForRole = await _db.Trips.FirstOrDefaultAsync(t => t.Id == dto.TripId, ct);
+        var revieweeRole = (tripForRole != null && dto.RevieweeId == tripForRole.DriverId)
+            ? UserRole.Driver
+            : UserRole.Passenger;
+
         var review = new Review
         {
             Id = Guid.NewGuid(),
@@ -45,7 +51,7 @@ public class ReviewService : IReviewService
             ReservationId = dto.ReservationId,
             ReviewerId = reviewerId,
             RevieweeId = dto.RevieweeId,
-            RevieweeRole = UserRole.Passenger, // sera ajusté selon le contexte
+            RevieweeRole = revieweeRole,
             Rating = dto.Rating,
             Comment = dto.Comment,
             Tags = dto.Tags,
