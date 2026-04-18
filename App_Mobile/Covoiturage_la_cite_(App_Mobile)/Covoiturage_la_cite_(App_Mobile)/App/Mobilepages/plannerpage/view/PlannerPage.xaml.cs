@@ -126,12 +126,23 @@ public class PlannerDataTemplateSelector : DataTemplateSelector
         card.SetBinding(DriverTripCard.ModelProperty,
             new Binding(nameof(DriverRideItem.Card)));
 
-        // Abonnement aux événements — la page ou un parent peut les écouter
-        // ici on délègue au controller via message ou event global
         card.CancelClicked += (s, e) =>
         {
             // TODO : déclencher commande via MessagingCenter ou EventAggregator
         };
+
+        card.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(async () =>
+            {
+                var tripId = card.Model?.TripId;
+                if (string.IsNullOrEmpty(tripId)) return;
+                var escaped = Uri.EscapeDataString(tripId);
+                await Shell.Current.GoToAsync(
+                    $"tripdetail?tripId={escaped}&viewerRole=driver_owner&source=planner");
+            })
+        });
+
         return card;
     });
 
@@ -147,6 +158,19 @@ public class PlannerDataTemplateSelector : DataTemplateSelector
         card.MessageClicked += (s, e) => { };
         card.TrackClicked   += (s, e) => { };
         card.RateClicked    += (s, e) => { };
+
+        card.GestureRecognizers.Add(new TapGestureRecognizer
+        {
+            Command = new Command(async () =>
+            {
+                var tripId = card.Model?.TripId;
+                if (string.IsNullOrEmpty(tripId)) return;
+                var escaped = Uri.EscapeDataString(tripId);
+                await Shell.Current.GoToAsync(
+                    $"tripdetail?tripId={escaped}&viewerRole=passenger&source=planner");
+            })
+        });
+
         return card;
     });
 }

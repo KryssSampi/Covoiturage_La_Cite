@@ -1,10 +1,3 @@
-// ============================================================
-//  Features/messaging/DisplayControler/MessagingListDisplayController.cs
-//  Contrôleur de liste des conversations.
-//  Wraps ItemListController<ConversationCardDisplayModel>.
-//  2 onglets (Passager / Conducteur) si canBeDriver.
-// ============================================================
-
 using Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayConverters;
 using Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayModels;
 using Covoiturage_la_cite__App_Mobile_.Shared.ItemList;
@@ -17,7 +10,6 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayControler
     {
         public ItemListController<ConversationCardDisplayModel> ListController { get; }
 
-        /// <summary>Appelé quand l'utilisateur tape sur une carte.</summary>
         public Action<ConversationCardDisplayModel>? OnCardTap { get; set; }
 
         public MessagingListDisplayController(bool canBeDriver)
@@ -51,7 +43,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.messaging.DisplayControler
             ListController = new ItemListController<ConversationCardDisplayModel>(config);
         }
 
-        public void HandleCardTap(ConversationCardDisplayModel card) =>
-            OnCardTap?.Invoke(card);
+        public void HandleCardTap(ConversationCardDisplayModel card) => OnCardTap?.Invoke(card);
     }
 }
+

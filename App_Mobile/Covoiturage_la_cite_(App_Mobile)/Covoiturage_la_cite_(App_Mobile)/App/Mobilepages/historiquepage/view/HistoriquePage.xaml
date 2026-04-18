@@ -41,7 +41,11 @@
         <list:ItemListView Grid.Row="1" x:Name="HistList">
             <list:ItemListView.ItemTemplate>
                 <DataTemplate x:DataType="histdm:HistoriqueCardDisplayModel">
-                    <histcomp:HistoryTripCard/>
+                    <histcomp:HistoryTripCard>
+                        <histcomp:HistoryTripCard.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnHistoryCardTapped"/>
+                        </histcomp:HistoryTripCard.GestureRecognizers>
+                    </histcomp:HistoryTripCard>
                 </DataTemplate>
             </list:ItemListView.ItemTemplate>
         </list:ItemListView>

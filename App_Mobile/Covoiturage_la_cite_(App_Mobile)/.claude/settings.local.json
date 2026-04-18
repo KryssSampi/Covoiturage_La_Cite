@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/Covoiturage_La_Cite/**)",
+      "Read(//d/Covoiturage_La_cite/**)",
+      "Bash(cmd *)",
+      "Bash(powershell *)"
+    ]
+  }
+}

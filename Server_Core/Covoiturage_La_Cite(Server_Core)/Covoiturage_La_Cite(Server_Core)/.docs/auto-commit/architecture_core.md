@@ -1,6 +1,6 @@
 # architecture_core.md — Tiers Core (ASP.NET)
 # Racine : D:\Covoiturage_La_Cite\Server_Core\Covoiturage_La_Cite(Server_Core)\Covoiturage_La_Cite(Server_Core)
-# Généré le 2026-04-16 23:00 | 294 fichiers indexés
+# Généré le 2026-04-17 23:04 | 298 fichiers indexés
 # Format : chemin/relatif|description
 
 .gitignore|Fichier C# — gitignore
@@ -209,7 +209,9 @@ Data/MongoDB/Models/UserActivity.cs|Fichier C# — user activity
 Data/MongoDB/MongoDbContext.cs|Fichier C# — mongo db context
 Data/MongoDB/MongoDbInitializer.cs|Fichier C# — mongo db initializer
 Data/MongoDB/Repositories/.gitkeep|Fichier C# — gitkeep
+Data/MongoDB/Seeds/faq-seed.json|Fichier C# — faq seed
 Data/PostgreSQL/AppDbContext.cs|Fichier C# — app db context
+Data/PostgreSQL/AppDbContextFactory.cs|Fichier C# — app db context factory
 Data/PostgreSQL/Repositories/AdminRepository/AdminRepositories.cs|Fichier C# — admin repositories
 Data/PostgreSQL/Repositories/CampusRepository/CampusRepositories.cs|Fichier C# — campus repositories
 Data/PostgreSQL/Repositories/FinanceRepository/FinanceRepositories.cs|Fichier C# — finance repositories
@@ -291,6 +293,8 @@ Domain/Enums/UserStatus.cs|Fichier C# — user status
 Domain/Interfaces/IRepository.cs|Fichier C# — i repository
 Migrations/20260408130241_Initialization.Designer.cs|Fichier C# — 20260408130241  initialization  designer
 Migrations/20260408130241_Initialization.cs|Fichier C# — 20260408130241  initialization
+Migrations/20260417045548_AddNotificationEmail.Designer.cs|Fichier C# — 20260417045548  add notification email  designer
+Migrations/20260417045548_AddNotificationEmail.cs|Fichier C# — 20260417045548  add notification email
 Migrations/AppDbContextModelSnapshot.cs|Fichier C# — app db context model snapshot
 Program.cs|Fichier C# — program
 Properties/launchSettings.json|Fichier C# — launch settings

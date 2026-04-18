@@ -88,7 +88,8 @@ public record PassengerReservationCardDisplayModel(
     PassengerReservationStatus Status,
     string?  VehicleLabel   = null,
     string?  EtaLabel       = null,
-    bool     CanRate        = false
+    bool     CanRate        = false,
+    string   TripId         = ""
 );
 
 public record IncomingReservationRequestCardDisplayModel(
@@ -99,7 +100,8 @@ public record IncomingReservationRequestCardDisplayModel(
     RouteDisplayModel  Route,
     string             TripTimeLabel,
     decimal            Price,
-    int                SeatsInfo
+    int                SeatsInfo,
+    string             TripId = ""
 );
 
 public enum NotificationType

@@ -25,7 +25,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.historique.Fixtures
                 StatusLabel:         "Complété",
                 StatusColorHex:      "#0F6E56",
                 MyRatingReceived:    5,
-                RatingSourceLabel:   "Par Jean D."),
+                RatingSourceLabel:   "Par Jean D.",
+                TripId:              "trip-001"),
 
             new("h2", HistoriqueRole.Passenger,
                 DateTimeLabel:       "Lun. 24 mars · 17h30",
@@ -38,7 +39,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.historique.Fixtures
                 StatusLabel:         "Complété",
                 StatusColorHex:      "#0F6E56",
                 MyRatingReceived:    4,
-                RatingSourceLabel:   "Par Sophie L."),
+                RatingSourceLabel:   "Par Sophie L.",
+                TripId:              "trip-002"),
 
             new("h3", HistoriqueRole.Passenger,
                 DateTimeLabel:       "Mer. 19 mars · 08h00",
@@ -51,7 +53,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.historique.Fixtures
                 StatusLabel:         "Annulé",
                 StatusColorHex:      "#DC2626",
                 MyRatingReceived:    null,
-                RatingSourceLabel:   null),
+                RatingSourceLabel:   null,
+                TripId:              "trip-003"),
         ];
 
         public static IReadOnlyList<HistoriqueCardDisplayModel> AsDriver() =>
@@ -67,7 +70,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.historique.Fixtures
                 StatusLabel:         "Complété",
                 StatusColorHex:      "#0F6E56",
                 MyRatingReceived:    5,
-                RatingSourceLabel:   "Par vos passagers"),
+                RatingSourceLabel:   "Par vos passagers",
+                TripId:              "trip-001"),
 
             new("h5", HistoriqueRole.Driver,
                 DateTimeLabel:       "Jeu. 20 mars · 08h00",
@@ -80,7 +84,8 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.historique.Fixtures
                 StatusLabel:         "Complété",
                 StatusColorHex:      "#0F6E56",
                 MyRatingReceived:    null,
-                RatingSourceLabel:   null),
+                RatingSourceLabel:   null,
+                TripId:              "trip-002"),
         ];
     }
 }
