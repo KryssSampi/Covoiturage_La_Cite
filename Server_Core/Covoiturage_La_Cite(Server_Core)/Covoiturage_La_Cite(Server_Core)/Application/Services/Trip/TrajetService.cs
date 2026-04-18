@@ -2,7 +2,9 @@ using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Trip;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using UserEntity = Covoiturage_La_Cite_Server_Core_.Domain.Entities.User;
 using VehicleEntity = Covoiturage_La_Cite_Server_Core_.Domain.Entities.Vehicle;
@@ -16,14 +18,16 @@ public class TrajetService : ITrajetService
     private readonly IGoTaskService _goTasks;
     private readonly INotificationService _notifications;
     private readonly ILogger<TrajetService> _logger;
+    private readonly AppDbContext _db;
     private static readonly GeometryFactory _gf = new(new PrecisionModel(), 4326);
 
-    public TrajetService(ITrajetRepository repo, IGoTaskService goTasks, INotificationService notifications, ILogger<TrajetService> logger)
+    public TrajetService(ITrajetRepository repo, IGoTaskService goTasks, INotificationService notifications, ILogger<TrajetService> logger, AppDbContext db)
     {
         _repo = repo;
         _goTasks = goTasks;
         _notifications = notifications;
         _logger = logger;
+        _db = db;
     }
 
     // ── Lecture ───────────────────────────────────────────────────────────────
@@ -217,6 +221,9 @@ public class TrajetService : ITrajetService
             }
         }, ct);
 
+        // Notifier les abonnés SurveyTripAlert
+        FireSurveyTripAlertNotifications(trip, ct);
+
         return MapToResponse(trip);
     }
 
@@ -286,8 +293,54 @@ public class TrajetService : ITrajetService
         _logger.LogInformation("Trajet publié: {TripId}", tripId);
         // GoTask trigger — GT-010 : premier trajet publié comme conducteur
         _ = Task.Run(() => _goTasks.TryCompleteAsync(driverId, "GT-010", ct), ct);
+
+        // Notifier les abonnés SurveyTripAlert
+        FireSurveyTripAlertNotifications(trip, ct);
         return MapToResponse(trip);
     }
+
+    // Notifier les abonnés SurveyTripAlert à la publication d'un trajet
+    private void FireSurveyTripAlertNotifications(TripEntity trip, CancellationToken ct)
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    var subscribers = await _db.SurveyTripAlerts
+                        .Where(s => s.DriverId == trip.DriverId && s.IsActive)
+                        .Select(s => s.UserId)
+                        .ToListAsync();
+
+                    if (subscribers.Count == 0) return;
+
+                    var departure   = trip.DepartureLabel ?? "";
+                    var destination = trip.ArrivalLabel   ?? "";
+                    var tripDate    = $"{trip.DepartureDate:dd MMM} à {trip.DepartureTime:HH\\:mm}";
+
+                    var driverName = await _db.Users
+                        .Where(u => u.Id == trip.DriverId)
+                        .Select(u => u.FirstName + " " + u.LastName)
+                        .FirstOrDefaultAsync() ?? "Votre conducteur favori";
+
+                    foreach (var subscriberId in subscribers)
+                    {
+                        await _notifications.CreateAsync(new CreateNotificationDto
+                        {
+                            UserId      = subscriberId,
+                            Type        = NotificationType.RecommendedTrip,
+                            Title       = $"{driverName} a publié un nouveau trajet !",
+                            Body        = $"Trajet {departure} → {destination} le {tripDate}. Réservez avant que les places soient prises.",
+                            IsImportant = false,
+                            DeepLink    = $"/trajets/{trip.Id}",
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "[TrajetService] Erreur SurveyTripAlert — trip {Id}", trip.Id);
+                }
+            }, CancellationToken.None);
+        }
 
     public async Task<TrajetResponseDto> StartAsync(Guid tripId, Guid driverId, CancellationToken ct = default)
     {
@@ -300,6 +353,36 @@ public class TrajetService : ITrajetService
         trip.ActualStartedAt = DateTimeOffset.UtcNow;
         trip.UpdatedAt = DateTimeOffset.UtcNow;
         await _repo.UpdateAsync(trip, ct);
+
+        // Notifier tous les passagers confirmés — trajet démarré
+        try
+        {
+            var confirmedPassengerIds = await _db.Reservations
+                .Where(r => r.TripId == trip.Id && r.Status == ReservationStatus.Confirmed)
+                .Select(r => r.PassengerId)
+                .ToListAsync(ct);
+
+            var departure   = trip.DepartureLabel ?? "";
+            var destination = trip.ArrivalLabel   ?? "";
+
+            foreach (var passengerId in confirmedPassengerIds)
+            {
+                await _notifications.CreateAsync(new CreateNotificationDto
+                {
+                    UserId      = passengerId,
+                    Type        = NotificationType.TripStarted,
+                    Title       = "Votre conducteur a démarré !",
+                    Body        = $"Le trajet {departure} → {destination} est en cours. Rejoignez votre conducteur au point de départ.",
+                    IsImportant = true,
+                    DeepLink    = $"/trajet-en-cours/{trip.Id}",
+                }, ct);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[TrajetService] Erreur notifications démarrage — trip {Id}", trip.Id);
+        }
+
         _logger.LogInformation("Trajet démarré: {TripId}", tripId);
         return MapToResponse(trip);
     }
@@ -323,6 +406,65 @@ public class TrajetService : ITrajetService
         _logger.LogInformation("Trajet terminé: {TripId}, CO2 sauvé: {Co2}kg", tripId, trip.Co2SavedKg);
         // GoTask triggers — GT-002 : premier trajet terminé
         _ = Task.Run(() => _goTasks.TryCompleteAsync(driverId, "GT-002", ct), ct);
+
+        // GoTask GT-001 + UserStat + notif pour chaque passager
+        try
+        {
+            var confirmedReservations = await _db.Reservations
+                .Where(r => r.TripId == trip.Id && r.Status == ReservationStatus.Confirmed)
+                .ToListAsync(ct);
+
+            var departure   = trip.DepartureLabel ?? "";
+            var destination = trip.ArrivalLabel   ?? "";
+            var passengerCount = Math.Max(1, confirmedReservations.Count);
+
+            foreach (var reservation in confirmedReservations)
+            {
+                // Marquer réservation comme complétée
+                reservation.Status      = ReservationStatus.Completed;
+                reservation.CompletedAt = DateTimeOffset.UtcNow;
+
+                // GoTask GT-001 — premier trajet en passager
+                _ = Task.Run(() => _goTasks.TryCompleteAsync(reservation.PassengerId, "GT-001", ct), ct);
+
+                // Mettre à jour UserStat du passager
+                var stat = await _db.UserStats.FirstOrDefaultAsync(s => s.UserId == reservation.PassengerId, ct);
+                if (stat is not null)
+                {
+                    stat.TotalTripsAsPassenger++;
+                    stat.TotalDistanceKm += trip.EstimatedDistanceKm;
+                    stat.TotalCo2SavedKg += (trip.Co2SavedKg ?? 0) / passengerCount;
+                    stat.RecomputedAt     = DateTimeOffset.UtcNow;
+                }
+
+                // Notification "Laissez un avis"
+                await _notifications.CreateAsync(new CreateNotificationDto
+                {
+                    UserId      = reservation.PassengerId,
+                    Type        = NotificationType.TripCompleted,
+                    Title       = "Trajet terminé — laissez un avis !",
+                    Body        = $"Votre trajet {departure} → {destination} est terminé. Prenez 30 secondes pour évaluer votre conducteur.",
+                    IsImportant = false,
+                    DeepLink    = $"/trajets/{trip.Id}/review",
+                }, ct);
+            }
+
+            // Mettre à jour UserStat du conducteur
+            var driverStat = await _db.UserStats.FirstOrDefaultAsync(s => s.UserId == trip.DriverId, ct);
+            if (driverStat is not null)
+            {
+                driverStat.TotalTripsAsDriver++;
+                driverStat.TotalDistanceKm += trip.EstimatedDistanceKm;
+                driverStat.TotalCo2SavedKg += trip.Co2SavedKg ?? 0;
+                driverStat.RecomputedAt     = DateTimeOffset.UtcNow;
+            }
+
+            await _db.SaveChangesAsync(ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[TrajetService] Erreur side effects complétion — trip {Id}", trip.Id);
+        }
         return MapToResponse(trip);
     }
 
@@ -337,6 +479,49 @@ public class TrajetService : ITrajetService
         trip.DriverNote = reason ?? trip.DriverNote;
         trip.UpdatedAt = DateTimeOffset.UtcNow;
         await _repo.UpdateAsync(trip, ct);
+
+        // Cascade : annuler toutes les réservations actives + notifier les passagers
+        try
+        {
+            var activeReservations = await _db.Reservations
+                .Where(r => r.TripId == trip.Id &&
+                            (r.Status == ReservationStatus.Pending ||
+                             r.Status == ReservationStatus.Confirmed))
+                .ToListAsync(ct);
+
+            if (activeReservations.Count > 0)
+            {
+                var departure   = trip.DepartureLabel ?? "";
+                var destination = trip.ArrivalLabel   ?? "";
+                var tripDate    = $"{trip.DepartureDate:dd MMM yyyy} à {trip.DepartureTime:HH\\:mm}";
+                var now         = DateTimeOffset.UtcNow;
+
+                foreach (var reservation in activeReservations)
+                {
+                    reservation.Status      = ReservationStatus.Cancelled;
+                    reservation.CancelledAt = now;
+                    reservation.CancellationReason = "Trajet annulé par le conducteur";
+
+                    await _notifications.CreateAsync(new CreateNotificationDto
+                    {
+                        UserId      = reservation.PassengerId,
+                        Type        = NotificationType.TripCancelled,
+                        Title       = "Trajet annulé ⚠️",
+                        Body        = $"Le trajet {departure} → {destination} du {tripDate} a été annulé par le conducteur. Cherchez une alternative.",
+                        IsImportant = true,
+                        DeepLink    = "/search",
+                    }, ct);
+                }
+
+                await _db.SaveChangesAsync(ct);
+                _logger.LogInformation("[TrajetService] {Count} réservations annulées en cascade — trip {Id}", activeReservations.Count, trip.Id);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[TrajetService] Erreur cascade annulation — trip {Id}", trip.Id);
+        }
+
         _logger.LogInformation("Trajet annulé: {TripId}, raison: {Reason}", tripId, reason);
     }
 

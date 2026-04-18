@@ -1,3 +1,4 @@
+using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Onboarding;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
@@ -13,6 +14,7 @@ public class OnboardingService : IOnboardingService
     private readonly IVehiculeRepository _vehicleRepo;
     private readonly AppDbContext _db;
     private readonly ILogger<OnboardingService> _logger;
+    private readonly INotificationService _notifications;
 
     // Documents obligatoires pour un conducteur (hors ProfilePhoto)
     private static readonly DocumentType[] RequiredDriverDocs =
@@ -27,12 +29,14 @@ public class OnboardingService : IOnboardingService
         IUserRepository userRepo,
         IVehiculeRepository vehicleRepo,
         AppDbContext db,
-        ILogger<OnboardingService> logger)
+        ILogger<OnboardingService> logger,
+        INotificationService notifications)
     {
         _userRepo = userRepo;
         _vehicleRepo = vehicleRepo;
         _db = db;
         _logger = logger;
+        _notifications = notifications;
     }
 
     // ── Statut ─────────────────────────────────────────────────────────────
@@ -81,6 +85,27 @@ public class OnboardingService : IOnboardingService
 
         user.UpdatedAt = DateTimeOffset.UtcNow;
         await _userRepo.UpdateAsync(user, ct);
+
+        // Notifier l'utilisateur si le mode conducteur est activé
+        if (user.CanBeDriver)
+        {
+            try
+            {
+                await _notifications.CreateAsync(new CreateNotificationDto
+                {
+                    UserId      = userId,
+                    Type        = NotificationType.System,
+                    Title       = "Mode conducteur activé !",
+                    Body        = "Vous êtes maintenant en mode conducteur. Soumettez vos documents (permis, assurance, carte grise) pour commencer à proposer des trajets.",
+                    IsImportant = true,
+                    DeepLink    = "/onboarding/documents",
+                }, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[OnboardingService] Erreur notification conducteur — {UserId}", userId);
+            }
+        }
 
         _logger.LogInformation("Utilisateur {UserId} a défini son rôle : {Role} / {SchoolRole}.",
             userId, user.Role, user.SchoolRole);

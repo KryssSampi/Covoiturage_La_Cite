@@ -1,3 +1,6 @@
+using Covoiturage_La_Cite_Server_Core_.Data.MongoDB;
+using Covoiturage_La_Cite_Server_Core_.Data.MongoDB.Models;
+using MongoDB.Driver;
 using System.Security.Cryptography;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Auth;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
@@ -16,6 +19,7 @@ public class AuthSessionService : IAuthSessionService
     private readonly IUserProvisioningService _provisioning;
     private readonly AppDbContext _db;
     private readonly ILogger<AuthSessionService> _logger;
+    private readonly MongoDbContext _mongo;
 
     private const int SessionLifetimeMinutes = 60;
     private const int OtpLifetimeMinutes = 5;
@@ -31,6 +35,7 @@ public class AuthSessionService : IAuthSessionService
         TokenService tokenService,
         IUserProvisioningService provisioning,
         AppDbContext db,
+        MongoDbContext mongo,
         ILogger<AuthSessionService> logger)
     {
         _repo = repo;
@@ -39,6 +44,7 @@ public class AuthSessionService : IAuthSessionService
         _tokenService = tokenService;
         _provisioning = provisioning;
         _db = db;
+        _mongo = mongo;
         _logger = logger;
     }
 
@@ -234,6 +240,7 @@ public class AuthSessionService : IAuthSessionService
             user.LastLoginAt = now;
             await _userRepo.UpdateAsync(user, ct);
             await _repo.UpdateAsync(session, ct);
+            await UpdateUserActivityAsync(user.Id, userAgent, session.IpAddress ?? "");
             _logger.LogInformation("Login sans OTP (DisabledOtp) pour {Email}", user.Email);
             return new LoginResultDto
             {
@@ -293,6 +300,7 @@ public class AuthSessionService : IAuthSessionService
         user.LastLoginAt = DateTimeOffset.UtcNow;
         await _userRepo.UpdateAsync(user, ct);
         await _repo.UpdateAsync(session, ct);
+        await UpdateUserActivityAsync(user.Id, userAgent, session.IpAddress ?? "");
 
         _logger.LogInformation("Login réussi pour {Email}, session {PublicId}", user.Email, session.PublicId);
 
@@ -316,6 +324,36 @@ public class AuthSessionService : IAuthSessionService
                 OnboardingCompleted = user.OnboardingCompleted,
             },
         };
+    }
+
+    private async Task UpdateUserActivityAsync(Guid userId, string userAgent, string ipAddress)
+    {
+        try
+        {
+            var filter = Builders<UserActivity>.Filter.Eq(a => a.UserId, userId);
+            var now = DateTimeOffset.UtcNow;
+
+            var record = new ConnectionRecord
+            {
+                Type        = "web",
+                ConnectedAt = now,
+                UserAgent   = userAgent,
+                IpAddress   = ipAddress,
+                Role        = "web",
+            };
+
+            var update = Builders<UserActivity>.Update
+                .Set(a => a.LastSeenAt, now)
+                .Set(a => a.IsCurrentlyConnectedOnWeb, true)
+                .Push(a => a.ConnectionHistory, record)
+                .SetOnInsert(a => a.UserId, userId);
+
+            await _mongo.UserActivities.UpdateOneAsync(
+                filter,
+                update,
+                new UpdateOptions { IsUpsert = true });
+        }
+        catch { /* non bloquant — ne pas casser le login */ }
     }
 
     // ── Refresh access token via refresh token ─────────────────────────────
