@@ -31,6 +31,7 @@ public class HangfireJobRegistrar : IHangfireJobRegistrar
         // ── Toutes les 15 minutes ────────────────────────────────────────
         RecurringJob.AddOrUpdate<GpsCleanupJob>("gps-cleanup", j => j.ExecuteAsync(), "*/15 * * * *");
         RecurringJob.AddOrUpdate<TripAutoCompleteJob>("trip-auto-complete", j => j.ExecuteAsync(), "*/15 * * * *");
+        RecurringJob.AddOrUpdate<TripReminderJob>("trip-reminder", j => j.ExecuteAsync(), "*/15 * * * *");
 
         // ── Toutes les heures ────────────────────────────────────────────
         RecurringJob.AddOrUpdate<PenaltyExpiryJob>("penalty-expiry", j => j.ExecuteAsync(), Cron.Hourly);

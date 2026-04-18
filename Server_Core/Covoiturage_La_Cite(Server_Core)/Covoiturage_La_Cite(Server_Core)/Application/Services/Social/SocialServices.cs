@@ -1,3 +1,6 @@
+using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
+using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
+using Microsoft.EntityFrameworkCore;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Social;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 using Covoiturage_La_Cite_Server_Core_.Domain.Entities;
@@ -9,12 +12,21 @@ namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Social;
 
 public class ReviewService : IReviewService
 {
+
     private readonly IReviewRepository _repo;
     private readonly IGoTaskService _goTasks;
+    private readonly AppDbContext _db;
+    private readonly INotificationService _notifications;
     private readonly ILogger<ReviewService> _logger;
 
-    public ReviewService(IReviewRepository repo, IGoTaskService goTasks, ILogger<ReviewService> logger)
-    { _repo = repo; _goTasks = goTasks; _logger = logger; }
+    public ReviewService(IReviewRepository repo, IGoTaskService goTasks, AppDbContext db, INotificationService notifications, ILogger<ReviewService> logger)
+    {
+        _repo = repo;
+        _goTasks = goTasks;
+        _db = db;
+        _notifications = notifications;
+        _logger = logger;
+    }
 
     public async Task<ReviewResponseDto> CreateAsync(Guid reviewerId, CreateReviewDto dto, CancellationToken ct = default)
     {
@@ -45,6 +57,60 @@ public class ReviewService : IReviewService
         _logger.LogInformation("Avis créé: {ReviewId} par {ReviewerId} pour {RevieweeId}", review.Id, reviewerId, dto.RevieweeId);
         // GoTask trigger — GT-006 : premier avis laissé
         _ = Task.Run(() => _goTasks.TryCompleteAsync(reviewerId, "GT-006", ct), ct);
+        // Mettre à jour la note moyenne du reviewee dans UserStat
+        try
+        {
+            var stat = await _db.UserStats.FirstOrDefaultAsync(s => s.UserId == dto.RevieweeId, ct);
+            if (stat is not null)
+            {
+                // Recalculer la moyenne depuis toutes les notes reçues
+                var allRatings = await _db.Reviews
+                    .Where(r => r.RevieweeId == dto.RevieweeId && r.IsPublished)
+                    .Select(r => r.Rating)
+                    .ToListAsync(ct);
+
+                if (allRatings.Count > 0)
+                {
+                    var avg = (decimal)allRatings.Average();
+                    // RevieweeRole.Driver → AverageRatingAsDriver ; sinon → AverageRatingAsPassenger
+                    if (review.RevieweeRole == UserRole.Driver)
+                        stat.AverageRatingAsDriver = avg;
+                    else
+                        stat.AverageRatingAsPassenger = avg;
+
+                    stat.RecomputedAt = DateTimeOffset.UtcNow;
+                    await _db.SaveChangesAsync(ct);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ReviewService] Erreur mise à jour UserStat reviewee {Id}", dto.RevieweeId);
+        }
+
+        // Notifier la personne évaluée
+        try
+        {
+            var reviewerName = await _db.Users
+                .Where(u => u.Id == reviewerId)
+                .Select(u => u.FirstName + " " + u.LastName)
+                .FirstOrDefaultAsync(ct) ?? "Un utilisateur";
+
+            await _notifications.CreateAsync(new CreateNotificationDto
+            {
+                UserId      = dto.RevieweeId,
+                Type        = NotificationType.NewReview,
+                Title       = "Vous avez reçu un avis !",
+                Body        = $"{reviewerName} vous a laissé une note de {dto.Rating}/5.",
+                IsImportant = false,
+                DeepLink    = $"/profil/{dto.RevieweeId}/avis",
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ReviewService] Erreur notification reviewee {Id}", dto.RevieweeId);
+        }
+
         return MapReview(review);
     }
 

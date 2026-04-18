@@ -247,6 +247,89 @@ public class TripAutoCompleteJob
 }
 
 /// <summary>
+/// Rappelle conducteur + passagers confirmés ~1h avant le départ.
+/// Tourne toutes les 15 min — fenêtre de détection : [45min, 75min] avant départ.
+/// </summary>
+public class TripReminderJob
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger<TripReminderJob> _logger;
+    public TripReminderJob(IServiceScopeFactory scopeFactory, ILogger<TripReminderJob> logger) { _scopeFactory = scopeFactory; _logger = logger; }
+
+    public async Task ExecuteAsync()
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var db            = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var notifications = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+            var now     = DateTimeOffset.UtcNow;
+            var today   = DateOnly.FromDateTime(now.UtcDateTime);
+            var in45min = TimeOnly.FromDateTime(now.AddMinutes(45).UtcDateTime);
+            var in75min = TimeOnly.FromDateTime(now.AddMinutes(75).UtcDateTime);
+
+            var trips = await db.Trips
+                .Where(t => (t.Status == TripStatus.Published || t.Status == TripStatus.Full)
+                    && t.DepartureDate == today
+                    && t.DepartureTime >= in45min
+                    && t.DepartureTime <= in75min)
+                .ToListAsync();
+
+            foreach (var trip in trips)
+            {
+                var departure   = trip.DepartureLabel ?? "";
+                var destination = trip.ArrivalLabel   ?? "";
+                var timeStr     = trip.DepartureTime.ToString("HH:mm");
+
+                try
+                {
+                    await notifications.CreateAsync(new CreateNotificationDto
+                    {
+                        UserId      = trip.DriverId,
+                        Type        = NotificationType.TripReminder,
+                        Title       = "Rappel : votre trajet démarre bientôt",
+                        Body        = $"Votre trajet {departure} → {destination} démarre à {timeStr}. Soyez prêt !",
+                        IsImportant = true,
+                        DeepLink    = $"/driver/trajet/{trip.Id}",
+                    });
+                }
+                catch { /* non bloquant */ }
+
+                var confirmedPassengerIds = await db.Reservations
+                    .Where(r => r.TripId == trip.Id && r.Status == ReservationStatus.Confirmed)
+                    .Select(r => r.PassengerId)
+                    .ToListAsync();
+
+                foreach (var passengerId in confirmedPassengerIds)
+                {
+                    try
+                    {
+                        await notifications.CreateAsync(new CreateNotificationDto
+                        {
+                            UserId      = passengerId,
+                            Type        = NotificationType.TripReminder,
+                            Title       = "Rappel : votre trajet démarre bientôt",
+                            Body        = $"Le trajet {departure} → {destination} démarre à {timeStr}. Rejoignez votre conducteur au point de départ.",
+                            IsImportant = true,
+                            DeepLink    = $"/trajet-en-cours/{trip.Id}",
+                        });
+                    }
+                    catch { /* non bloquant */ }
+                }
+            }
+
+            if (trips.Count > 0)
+                _logger.LogInformation("TripReminder: rappels envoyés pour {Count} trajets", trips.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "TripReminderJob: erreur non critique — {Message}", ex.Message);
+        }
+    }
+}
+
+/// <summary>
 /// Nettoie les positions GPS de plus de 30 jours (PIPEDA).
 /// </summary>
 public class GpsCleanupJob

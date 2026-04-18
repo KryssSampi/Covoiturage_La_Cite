@@ -20,6 +20,7 @@ public class UserService : IUserService
     private readonly IEmailService _emailService;
     private readonly AppDbContext _db;
     private readonly ILogger<UserService> _logger;
+    private readonly IGoTaskService _goTasks;
 
     public UserService(
         IUserRepository userRepository,
@@ -29,7 +30,8 @@ public class UserService : IUserService
         IUserProvisioningService provisioning,
         IEmailService emailService,
         AppDbContext db,
-        ILogger<UserService> logger)
+        ILogger<UserService> logger,
+        IGoTaskService goTasks)
     {
         _userRepository = userRepository;
         _ssoService = ssoService;
@@ -39,6 +41,7 @@ public class UserService : IUserService
         _emailService = emailService;
         _db = db;
         _logger = logger;
+        _goTasks = goTasks;
     }
 
     // ── Auth SSO ─────────────────────────────────────────────────────────────
@@ -425,6 +428,14 @@ public class UserService : IUserService
 
         user.UpdatedAt = DateTimeOffset.UtcNow;
         await _userRepository.UpdateAsync(user, ct);
+
+        // GoTask GT-003 — Profil complet (AvatarUrl + PhoneNumber + Bio)
+        if (!string.IsNullOrWhiteSpace(user.AvatarUrl) &&
+            !string.IsNullOrWhiteSpace(user.PhoneNumber) &&
+            !string.IsNullOrWhiteSpace(user.Bio))
+        {
+            _ = Task.Run(() => _goTasks.TryCompleteAsync(userId, "GT-003", ct), ct);
+        }
 
         return MapToResponse(user);
     }
