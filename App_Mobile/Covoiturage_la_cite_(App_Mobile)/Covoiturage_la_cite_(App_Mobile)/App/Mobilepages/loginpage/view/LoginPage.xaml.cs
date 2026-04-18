@@ -1,13 +1,12 @@
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.DisplayController;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.DisplayControler;
 
-namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.view
+namespace Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.view;
+
+public partial class LoginPage : ContentPage
 {
-    public partial class LoginPage : ContentPage
+    public LoginPage(LoginPageDisplayControler controller)
     {
-        public LoginPage(LoginPageDisplayController controller)
-        {
-            InitializeComponent();
-            BindingContext = controller;
-        }
+        InitializeComponent();
+        BindingContext = controller;
     }
 }

@@ -5,12 +5,12 @@ using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.createtrippage.DisplayCon
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.createtrippage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.historiquepage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.homepage.DisplayControler;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.DisplayController;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationdetailpage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationdetailpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.nouveautespage.view;
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.DisplayController;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.plannerpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationrequestdetailpage.DisplayControler;
@@ -42,8 +42,17 @@ using Covoiturage_la_cite__App_Mobile_.Features.tripdetail.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Services.Api;
 using Covoiturage_la_cite__App_Mobile_.Services.Auth;
 using Covoiturage_la_cite__App_Mobile_.Services.Cache;
+using Covoiturage_la_cite__App_Mobile_.Services.language;
 using Covoiturage_la_cite__App_Mobile_.Services.Map;
 using Covoiturage_la_cite__App_Mobile_.Services.navigation;
+using Covoiturage_la_cite__App_Mobile_.Features.profile.Services;
+using Covoiturage_la_cite__App_Mobile_.Features.profile.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.profilesettingspage.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.profilesettingspage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.publicprofilepage.DisplayControler;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.publicprofilepage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.addvehiclepage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.documentuploadpage.view;
 using MauiIcons.Cupertino;
 using MauiIcons.Fluent.Filled;
 using MauiIcons.FontAwesome;
@@ -75,7 +84,7 @@ namespace Covoiturage_la_cite__App_Mobile_.App
             builder.Services.AddSingleton<IApiService, ApiService>();
             builder.Services.AddSingleton<ISQLiteService, SQLiteService>();
             builder.Services.AddSingleton<IJsonCacheService, JsonCacheService>();
-            builder.Services.AddSingleton<IAuthService, AuthService>();
+            builder.Services.AddSingleton<IAuthService, AuthServiceHttp>();
 
             // -- Singletons Shell (vivent pour toute la dur�e de l'app) --
             builder.Services.AddSingleton<ShellControler>();
@@ -105,7 +114,7 @@ namespace Covoiturage_la_cite__App_Mobile_.App
                 return new StatsPageController(goboard, stats, finance,
                     canBeDriver: userVm.Role == UserRole.Driver);
             });
-            builder.Services.AddSingleton<IPlannerService, PlannerService>();
+            builder.Services.AddSingleton<IPlannerService, PlannerServiceHttp>();
             builder.Services.AddSingleton<PlannerDisplayController>();
             // PlannerPage enregistré plus bas avec les autres pages Tab
             builder.Services.AddTransient<HomepageDisplayController>();
@@ -117,7 +126,7 @@ namespace Covoiturage_la_cite__App_Mobile_.App
             // -- Feature Search --
             builder.Services.AddSingleton<IConnectivity>(Connectivity.Current);
             builder.Services.AddSingleton<ICheckConnexionUtils, CheckConnexionUtils>();
-            builder.Services.AddSingleton<ISearchService, SearchService>();
+            builder.Services.AddSingleton<ISearchService, SearchServiceHttp>();
             builder.Services.AddSingleton<SearchDisplayController>();
             builder.Services.AddTransient<SearchPage>();
 
@@ -180,9 +189,9 @@ namespace Covoiturage_la_cite__App_Mobile_.App
             builder.Services.AddTransient<ConversationPage>();
 
             // -- Pages Auth --
-            builder.Services.AddTransient<LoginPageDisplayController>();
+            builder.Services.AddTransient<LoginPageDisplayControler>();
             builder.Services.AddTransient<LoginPage>();
-            builder.Services.AddTransient<OtpPageDisplayController>();
+            builder.Services.AddTransient<OtpPageDisplayControler>();
             builder.Services.AddTransient<OtpPage>();
 
             // -- Pages hors-MainView : historique, brouillons, reviews, nouveautés --
@@ -218,6 +227,30 @@ namespace Covoiturage_la_cite__App_Mobile_.App
 
             // Enregistrement explicite de IAnimationManager si n�cessaire
             builder.Services.AddSingleton<IAnimationManager, AnimationManager>();
+
+            // -- Services langue --
+            builder.Services.AddSingleton<ILanguageService, DefaultLanguageService>();
+
+            // -- Feature Profile : services (stubs connectables REST) --
+            builder.Services.AddSingleton<ProfileServiceHttp>();
+            builder.Services.AddSingleton<IProfileService>(sp => sp.GetRequiredService<ProfileServiceHttp>());
+            builder.Services.AddSingleton<IVehicleService>(sp => sp.GetRequiredService<ProfileServiceHttp>());
+            builder.Services.AddSingleton<IDocumentService>(sp => sp.GetRequiredService<ProfileServiceHttp>());
+            builder.Services.AddSingleton<IFavoritesService, FavoritesServiceHttp>();
+
+            // -- Feature Profile : DisplayControlers --
+            builder.Services.AddTransient<ProfileSettingsDisplayControler>();
+            builder.Services.AddTransient<PublicProfileDisplayControler>();
+
+            // -- Pages Profile : Page controllers + pages --
+            builder.Services.AddTransient<ProfileSettingsPageDisplayControler>();
+            builder.Services.AddTransient<PublicProfilePageDisplayControler>();
+            builder.Services.AddTransient<ProfileSettingsPage>();
+            builder.Services.AddTransient<PublicProfilePage>();
+
+            // -- Placeholder pages overlay (ajout véhicule, upload docs) --
+            builder.Services.AddTransient<AddVehiclePage>();
+            builder.Services.AddTransient<DocumentUploadPage>();
 
 
 #if DEBUG

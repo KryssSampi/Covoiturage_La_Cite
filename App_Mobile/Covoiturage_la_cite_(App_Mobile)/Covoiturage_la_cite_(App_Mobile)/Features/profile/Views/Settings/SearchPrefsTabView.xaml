@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.profile.Views.Settings.SearchPrefsTabView">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="14">
+            <Label Text="Préférences de recherche par défaut" FontSize="15" FontAttributes="Bold" TextColor="#0D1624"/>
+
+            <Label Text="Rayon de départ (mètres)" FontSize="13" TextColor="#7A879A"/>
+            <Stepper Minimum="500" Maximum="10000" Increment="500" Value="{Binding DefaultDepartureRadiusMeters}" HorizontalOptions="Start"/>
+
+            <Label Text="Rayon d'arrivée (mètres)" FontSize="13" TextColor="#7A879A"/>
+            <Stepper Minimum="500" Maximum="10000" Increment="500" Value="{Binding DefaultArrivalRadiusMeters}" HorizontalOptions="Start"/>
+
+            <Label Text="Tolérance horaire (minutes)" FontSize="13" TextColor="#7A879A"/>
+            <Stepper Minimum="0" Maximum="120" Increment="15" Value="{Binding DefaultTimeToleranceMinutes}" HorizontalOptions="Start"/>
+
+            <Border Stroke="#E8ECF3" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <HorizontalStackLayout>
+                        <Label Text="Conducteur vérifié seulement" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding RequireVerifiedDriver}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Message passager requis" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding RequirePassengerMessage}"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

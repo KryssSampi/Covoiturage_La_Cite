@@ -14,6 +14,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Services.Api
     {
         Task<T?> GetAsync<T>(string endpoint, CancellationToken ct = default);
         Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest body, CancellationToken ct = default);
+        Task<TResponse?> PutAsync<TRequest, TResponse>(string endpoint, TRequest body, CancellationToken ct = default);
         Task<TResponse?> PatchAsync<TRequest, TResponse>(string endpoint, TRequest body, CancellationToken ct = default);
         Task<bool> DeleteAsync(string endpoint, CancellationToken ct = default);
         void SetAuthToken(string token);
@@ -54,6 +55,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Services.Api
 
         public async Task<T?> GetAsync<T>(string endpoint, CancellationToken ct = default)
         {
+            await EnsureStoredJwtAsync();
             return await ExecuteWithRetry(async () =>
             {
                 var response = await _http.GetAsync(endpoint, ct);
@@ -65,6 +67,7 @@ namespace Covoiturage_la_cite__App_Mobile_.Services.Api
 
         public async Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest body, CancellationToken ct = default)
         {
+            await EnsureStoredJwtAsync();
             return await ExecuteWithRetry(async () =>
             {
                 var content = new StringContent(JsonSerializer.Serialize(body, _json), Encoding.UTF8, "application/json");
@@ -75,8 +78,22 @@ namespace Covoiturage_la_cite__App_Mobile_.Services.Api
             });
         }
 
+        public async Task<TResponse?> PutAsync<TRequest, TResponse>(string endpoint, TRequest body, CancellationToken ct = default)
+        {
+            await EnsureStoredJwtAsync();
+            return await ExecuteWithRetry(async () =>
+            {
+                var content = new StringContent(JsonSerializer.Serialize(body, _json), Encoding.UTF8, "application/json");
+                var response = await _http.PutAsync(endpoint, content, ct);
+                response.EnsureSuccessStatusCode();
+                var json = await response.Content.ReadAsStringAsync(ct);
+                return JsonSerializer.Deserialize<TResponse>(json, _json);
+            });
+        }
+
         public async Task<TResponse?> PatchAsync<TRequest, TResponse>(string endpoint, TRequest body, CancellationToken ct = default)
         {
+            await EnsureStoredJwtAsync();
             return await ExecuteWithRetry(async () =>
             {
                 var content = new StringContent(JsonSerializer.Serialize(body, _json), Encoding.UTF8, "application/json");
@@ -90,11 +107,28 @@ namespace Covoiturage_la_cite__App_Mobile_.Services.Api
 
         public async Task<bool> DeleteAsync(string endpoint, CancellationToken ct = default)
         {
+            await EnsureStoredJwtAsync();
             return await ExecuteWithRetry(async () =>
             {
                 var response = await _http.DeleteAsync(endpoint, ct);
                 return response.IsSuccessStatusCode;
             });
+        }
+
+        private async Task EnsureStoredJwtAsync()
+        {
+            try
+            {
+                var token = await SecureStorage.GetAsync("jwt");
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    SetAuthToken(token);
+                }
+            }
+            catch
+            {
+                // SecureStorage can fail on some platforms in debug mode.
+            }
         }
 
         private static async Task<T?> ExecuteWithRetry<T>(Func<Task<T?>> action)

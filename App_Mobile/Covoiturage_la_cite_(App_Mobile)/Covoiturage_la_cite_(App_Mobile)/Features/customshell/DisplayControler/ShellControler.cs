@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Covoiturage_la_cite__App_Mobile_.Services.navigation;
 
 namespace Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler
 {/// <summary>
@@ -118,10 +119,13 @@ namespace Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler
         public ICommand OpenMenuCommand { get; }
         public ICommand LogoutCommand { get; }
 
-        public ShellControler()
+        private readonly NavigationService _navService;
+
+        public ShellControler(NavigationService navService)
         {
-            OpenNotificationsCommand = new Command(async () =>
-                await Shell.Current.GoToAsync("notifications"));
+            _navService = navService;
+            OpenNotificationsCommand = new Command(() =>
+                _navService.GoTo("notifications"));
 
             OpenMenuCommand = new Command(() =>
                 Shell.Current.FlyoutIsPresented = true);

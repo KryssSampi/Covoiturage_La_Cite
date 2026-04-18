@@ -7,91 +7,75 @@
              Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <VerticalStackLayout Padding="32,60,32,32" Spacing="0">
+        <VerticalStackLayout Padding="32,80,32,32" Spacing="24">
 
-            <!-- Logo / Hero -->
+            <!-- Logo -->
             <Image Source="appicon.png"
-                   HeightRequest="80"
-                   WidthRequest="80"
+                   HeightRequest="80" WidthRequest="80"
                    HorizontalOptions="Center"
                    Margin="0,0,0,16" />
 
             <Label Text="Covoiturage La Cité"
-                   FontFamily="OpenSansSemibold"
-                   FontSize="24"
-                   HorizontalOptions="Center"
-                   TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#FFFFFF}"
-                   Margin="0,0,0,8" />
+                    FontFamily="OpenSansSemibold" FontSize="24" FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#FFFFFF}"
+                    Margin="0,0,0,8" />
 
-            <Label Text="Connectez-vous pour continuer"
-                   FontFamily="OpenSansRegular"
-                   FontSize="14"
-                   HorizontalOptions="Center"
-                   TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}"
-                   Margin="0,0,0,48" />
+            <Label Text="Entrez votre courriel institutionnel"
+                    FontFamily="OpenSansRegular" FontSize="16"
+                    HorizontalOptions="Center"
+                    TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}"
+                    Margin="0,0,0,40" />
 
-            <!-- Phone Field -->
-            <Label Text="Numéro de téléphone"
-                   FontFamily="OpenSansSemibold"
-                   FontSize="13"
-                   TextColor="{AppThemeBinding Light=#374151, Dark=#D1D5DB}"
-                   Margin="0,0,0,8" />
+            <!-- Email Field -->
+            <Label Text="Courriel institutionnel"
+                    FontFamily="OpenSansSemibold" FontSize="14"
+                    TextColor="{AppThemeBinding Light=#374151, Dark=#D1D5DB}"
+                    Margin="0,0,0,8" />
 
             <Border StrokeShape="RoundRectangle 12"
                     Stroke="{AppThemeBinding Light=#E5E7EB, Dark=#374151}"
-                    StrokeThickness="1.5"
-                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F2937}"
-                    Padding="16,0"
-                    Margin="0,0,0,24">
-                <Entry x:Name="PhoneEntry"
-                       Placeholder="+33 6 00 00 00 00"
-                       Keyboard="Telephone"
-                       FontFamily="OpenSansRegular"
-                       FontSize="16"
-                       HeightRequest="52"
-                       TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}"
-                       PlaceholderColor="{AppThemeBinding Light=#9CA3AF, Dark=#6B7280}"
-                       Text="{Binding PhoneNumber}"
-                       ReturnType="Done"
-                       ReturnCommand="{Binding SendOtpCommand}" />
+                    StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}"
+                    Padding="20,16">
+                <Entry Placeholder="nom@collegelacite.ca"
+                        Keyboard="Email"
+                        FontFamily="OpenSansRegular" FontSize="16"
+                        Text="{Binding Email}"
+                        TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}"
+                        PlaceholderColor="{AppThemeBinding Light=#9CA3AF, Dark=#6B7280}"
+                        ReturnType="Done"
+                        ReturnCommand="{Binding SendOtpCommand}"
+                        HeightRequest="56" />
             </Border>
 
-            <!-- Error message -->
+            <!-- Error -->
             <Label Text="{Binding ErrorMessage}"
-                   FontFamily="OpenSansRegular"
-                   FontSize="13"
-                   TextColor="#EF4444"
+                   FontFamily="OpenSansRegular" FontSize="14"
+                   TextColor="Red"
                    IsVisible="{Binding HasError}"
-                   Margin="0,-16,0,16" />
-
-            <!-- CTA Button -->
-            <Button Text="Recevoir le code"
-                    Command="{Binding SendOtpCommand}"
-                    IsEnabled="{Binding IsNotLoading}"
-                    BackgroundColor="#4F46E5"
-                    TextColor="White"
-                    FontFamily="OpenSansSemibold"
-                    FontSize="16"
-                    HeightRequest="52"
-                    CornerRadius="12"
-                    Margin="0,0,0,16" />
-
-            <!-- Loading indicator -->
-            <ActivityIndicator IsRunning="{Binding IsLoading}"
-                               IsVisible="{Binding IsLoading}"
-                               Color="#4F46E5"
-                               HorizontalOptions="Center" />
-
-            <!-- Info text -->
-            <Label Text="Un code à 6 chiffres vous sera envoyé par SMS."
-                   FontFamily="OpenSansRegular"
-                   FontSize="12"
                    HorizontalOptions="Center"
-                   TextColor="{AppThemeBinding Light=#9CA3AF, Dark=#6B7280}"
-                   HorizontalTextAlignment="Center"
-                   Margin="0,24,0,0" />
+                   Margin="0,-12,0,16" />
+
+            <!-- Send Button -->
+            <Button Text="Envoyer le code"
+                     Command="{Binding SendOtpCommand}"
+                     IsEnabled="{Binding IsNotLoading}"
+                     BackgroundColor="#4F46E5" TextColor="White"
+                     FontFamily="OpenSansSemibold" FontSize="16" FontAttributes="Bold"
+                     CornerRadius="12" HeightRequest="56"
+                     Margin="0,0,0,24" />
+
+            <!-- Loader -->
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
+                               Color="#4F46E5" HorizontalOptions="Center" />
+
+            <Label Text="@collegelacite.ca ou @lacitec.on.ca uniquement"
+                    FontFamily="OpenSansRegular" FontSize="12"
+                    HorizontalOptions="Center"
+                    TextColor="{AppThemeBinding Light=#9CA3AF, Dark=#6B7280}"
+                    Margin="0,32,0,0" />
 
         </VerticalStackLayout>
     </ScrollView>
-
 </ContentPage>

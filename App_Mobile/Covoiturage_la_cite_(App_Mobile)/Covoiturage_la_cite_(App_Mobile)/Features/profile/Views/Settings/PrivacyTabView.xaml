@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Covoiturage_la_cite__App_Mobile_.Features.profile.Views.Settings.PrivacyTabView">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Border Stroke="#E8ECF3" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <HorizontalStackLayout>
+                        <Label Text="Afficher mon numéro de téléphone" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding ShowPhoneNumber}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Afficher mon nom de famille" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding ShowLastName}"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout>
+                        <Label Text="Autoriser le suivi d'affinité" VerticalOptions="Center" FontSize="14" TextColor="#0D1624" HorizontalOptions="FillAndExpand"/>
+                        <Switch IsToggled="{Binding AllowAffinityTracking}"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

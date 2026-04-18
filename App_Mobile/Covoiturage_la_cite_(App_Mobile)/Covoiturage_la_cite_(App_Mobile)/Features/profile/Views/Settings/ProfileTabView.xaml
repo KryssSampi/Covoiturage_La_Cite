@@ -1,0 +1,73 @@
+<ContentView x:Class="Covoiturage_la_cite__App_Mobile_.Features.profile.Views.Settings.ProfileTabView"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dm="clr-namespace:Covoiturage_la_cite__App_Mobile_.Features.profile.DisplayModels">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="16" Padding="20">
+            <Label Text="{Binding DescriptionText}"
+                   FontSize="16"
+                   FontAttributes="Bold" />
+
+            <Entry Placeholder="Email (non modifiable)"
+                   Text="{Binding Me.Email}"
+                   IsReadOnly="True"
+                   Keyboard="Email" />
+
+            <Entry Placeholder="Email notifications"
+                   Text="{Binding Me.NotificationEmail}"
+                   Keyboard="Email" />
+
+            <Entry Placeholder="Prénom"
+                   Text="{Binding Me.FirstName}" />
+
+            <Entry Placeholder="Nom"
+                   Text="{Binding Me.LastName}" />
+
+            <Entry Placeholder="Téléphone"
+                   Text="{Binding Me.Phone}"
+                   Keyboard="Telephone" />
+
+            <Label Text="Rôle scolaire" FontAttributes="Bold" />
+
+            <Picker x:Name="SchoolRolePicker"
+                    Title="Sélectionnez votre rôle"
+                    SelectedIndexChanged="OnSchoolRoleChanged">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Étudiant</x:String>
+                        <x:String>Personnel</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+
+            <Label Text="Biographie" FontAttributes="Bold" />
+
+            <Editor x:Name="BioEditor"
+                    Text="{Binding Me.Bio}"
+                    HeightRequest="100"
+                    Placeholder="Racontez votre histoire..." />
+
+            <Label Text="Langues parlées" FontAttributes="Bold" />
+
+            <HorizontalStackLayout x:Name="LanguageChipsLayout"
+                                   Spacing="8" />
+
+            <Picker x:Name="AddLanguagePicker"
+                    Title="Ajouter une langue"
+                    SelectedIndexChanged="OnLanguageAdded">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Français</x:String>
+                        <x:String>Anglais</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+
+            <Button Text="Sauvegarder"
+                    Command="{Binding SaveCommand}"
+                    BackgroundColor="Green" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentView>

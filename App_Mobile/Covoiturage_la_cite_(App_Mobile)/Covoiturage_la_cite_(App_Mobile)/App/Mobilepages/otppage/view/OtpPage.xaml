@@ -2,104 +2,90 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.view.OtpPage"
-             Title="Vérification"
+             Title="Vérification OTP"
              BackgroundColor="{AppThemeBinding Light=#F8F9FA, Dark=#121212}"
              Shell.NavBarIsVisible="False">
 
     <ScrollView>
-        <VerticalStackLayout Padding="32,60,32,32" Spacing="0">
+        <VerticalStackLayout Padding="32,60,32,32" Spacing="24">
 
-            <!-- Back button -->
+            <!-- Back -->
             <Button Text="← Retour"
-                    Command="{Binding GoBackCommand}"
-                    BackgroundColor="Transparent"
-                    TextColor="#4F46E5"
-                    FontFamily="OpenSansSemibold"
-                    FontSize="14"
-                    HorizontalOptions="Start"
-                    Padding="0"
-                    Margin="0,0,0,32" />
+                     BackgroundColor="Transparent"
+                     TextColor="#4F46E5"
+                     FontFamily="OpenSansSemibold" FontSize="16"
+                     Padding="0" HorizontalOptions="Start"
+                     Command="{Binding GoBackCommand}"
+                     Margin="0,0,0,24" />
 
-            <!-- Header -->
-            <Label Text="Code de vérification"
-                   FontFamily="OpenSansSemibold"
-                   FontSize="24"
-                   TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#FFFFFF}"
-                   Margin="0,0,0,8" />
+            <Label Text="Vérification du code"
+                    FontFamily="OpenSansSemibold" FontSize="24" FontAttributes="Bold"
+                    TextColor="{AppThemeBinding Light=#1A1A1A, Dark=#FFFFFF}"
+                    Margin="0,0,0,8" />
 
-            <Label Text="{Binding SubtitleText}"
-                   FontFamily="OpenSansRegular"
-                   FontSize="14"
-                   TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}"
-                   Margin="0,0,0,40" />
+            <Label Text="{Binding Email}"
+                    FontFamily="OpenSansRegular" FontSize="16"
+                    HorizontalOptions="Center"
+                    TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}"
+                    Margin="0,0,0,40" />
 
-            <!-- OTP Input -->
+            <!-- OTP Entry -->
             <Border StrokeShape="RoundRectangle 12"
                     Stroke="{AppThemeBinding Light=#E5E7EB, Dark=#374151}"
-                    StrokeThickness="1.5"
-                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F2937}"
-                    Padding="16,0"
-                    Margin="0,0,0,8">
-                <Entry x:Name="OtpEntry"
-                       Placeholder="000000"
-                       Keyboard="Numeric"
-                       FontFamily="OpenSansSemibold"
-                       FontSize="28"
-                       HeightRequest="64"
-                       MaxLength="6"
-                       HorizontalTextAlignment="Center"
-                       CharacterSpacing="8"
-                       TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}"
-                       PlaceholderColor="{AppThemeBinding Light=#D1D5DB, Dark=#4B5563}"
-                       Text="{Binding OtpCode}"
-                       ReturnType="Done"
-                       ReturnCommand="{Binding VerifyOtpCommand}" />
+                    StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#1F2937}"
+                    Padding="24,20">
+                <Entry Placeholder="12345"
+                        Keyboard="Numeric"
+                        MaxLength="5"
+                        FontFamily="OpenSansSemibold" FontSize="28"
+                        HorizontalTextAlignment="Center"
+                        CharacterSpacing="12"
+                        Text="{Binding OtpCode}"
+                        TextColor="{AppThemeBinding Light=#111827, Dark=#F9FAFB}"
+                        PlaceholderColor="{AppThemeBinding Light=#9CA3AF, Dark=#6B7280}"
+                        ReturnType="Done"
+                        ReturnCommand="{Binding VerifyOtpCommand}"
+                        HeightRequest="72" />
             </Border>
 
-            <!-- Error message -->
+            <!-- Timer -->
+            <Label Text="{Binding TimerText}"
+                    FontFamily="OpenSansSemibold" FontSize="18"
+                    HorizontalOptions="Center"
+                    TextColor="#10B981"
+                    IsVisible="{Binding TimerText, Converter={StaticResource NotNullConverter}}" />
+
+            <!-- Error -->
             <Label Text="{Binding ErrorMessage}"
-                   FontFamily="OpenSansRegular"
-                   FontSize="13"
-                   TextColor="#EF4444"
-                   IsVisible="{Binding HasError}"
-                   Margin="0,0,0,16" />
+                    FontFamily="OpenSansRegular" FontSize="14"
+                    TextColor="Red"
+                    IsVisible="{Binding HasError}"
+                    HorizontalOptions="Center"
+                    Margin="0,-12,0,16" />
 
-            <!-- Verify Button -->
-            <Button Text="Vérifier"
-                    Command="{Binding VerifyOtpCommand}"
-                    IsEnabled="{Binding IsNotLoading}"
-                    BackgroundColor="#4F46E5"
-                    TextColor="White"
-                    FontFamily="OpenSansSemibold"
-                    FontSize="16"
-                    HeightRequest="52"
-                    CornerRadius="12"
-                    Margin="0,16,0,16" />
+            <!-- Buttons -->
+            <Button Text="Confirmer"
+                     Command="{Binding VerifyOtpCommand}"
+                     IsEnabled="{Binding IsNotLoading}"
+                     BackgroundColor="#10B981" TextColor="White"
+                     FontFamily="OpenSansSemibold" FontSize="16"
+                     CornerRadius="12" HeightRequest="56"
+                     Margin="0,0,0,12" />
 
-            <!-- Loading indicator -->
-            <ActivityIndicator IsRunning="{Binding IsLoading}"
-                               IsVisible="{Binding IsLoading}"
-                               Color="#4F46E5"
-                               HorizontalOptions="Center" />
+            <Button Text="{Binding Source={x:Reference page}, Path=BindingContext.CanResend, Converter={StaticResource InverseBoolConverter}, StringFormat='Renvoyer le code'}"
+                     Command="{Binding ResendOtpCommand}"
+                     IsEnabled="{Binding CanResend}"
+                     BackgroundColor="Transparent" 
+                     TextColor="#4F46E5" BorderColor="#4F46E5"
+                     FontFamily="OpenSansSemibold" FontSize="16"
+                     CornerRadius="12" HeightRequest="56"
+                     BorderWidth="1" />
 
-            <!-- Resend -->
-            <HorizontalStackLayout HorizontalOptions="Center" Margin="0,24,0,0" Spacing="4">
-                <Label Text="Vous n'avez pas reçu le code ?"
-                       FontFamily="OpenSansRegular"
-                       FontSize="13"
-                       TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
-                <Label Text="Renvoyer"
-                       FontFamily="OpenSansSemibold"
-                       FontSize="13"
-                       TextColor="#4F46E5"
-                       TextDecorations="Underline">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ResendOtpCommand}" />
-                    </Label.GestureRecognizers>
-                </Label>
-            </HorizontalStackLayout>
+            <ActivityIndicator IsRunning="{Binding IsLoading}" IsVisible="{Binding IsLoading}"
+                               Color="#10B981" HorizontalOptions="Center"
+                               Margin="0,24,0,0" />
 
         </VerticalStackLayout>
     </ScrollView>
-
 </ContentPage>

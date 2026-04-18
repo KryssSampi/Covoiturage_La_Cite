@@ -2,7 +2,6 @@
 // Shell épuré — gardien du Flyout et des pages hors-wrapper.
 // La navigation entre onglets est interceptée et déléguée au NavigationService.
 
-using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationpage.view;
 // Pages hors-wrapper — importer au fur et à mesure
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.notificationdetailpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reservationpage.view;
@@ -17,6 +16,10 @@ using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.reviewspage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.nouveautespage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.loginpage.view;
 using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.otppage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.profilesettingspage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.publicprofilepage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.addvehiclepage.view;
+using Covoiturage_la_cite__App_Mobile_.App.Mobilepages.documentuploadpage.view;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.DisplayControler;
 using Covoiturage_la_cite__App_Mobile_.Features.customshell.views.components;
 using Covoiturage_la_cite__App_Mobile_.Services.Auth;
@@ -69,7 +72,6 @@ namespace Covoiturage_la_cite__App_Mobile_
         {
             // ── Flux & modales ──
             Routing.RegisterRoute("reservation",              typeof(ReservationPage));
-            Routing.RegisterRoute("notifications",            typeof(NotificationPage));
             Routing.RegisterRoute("search",                   typeof(SearchPage));
 
             // ── Pages de détail (hors-MainView) ──
@@ -86,6 +88,11 @@ namespace Covoiturage_la_cite__App_Mobile_
             // Routing.RegisterRoute("avis",                     typeof(AvisPage));
             Routing.RegisterRoute("login",   typeof(LoginPage));
             Routing.RegisterRoute("otp",     typeof(OtpPage));
+
+            Routing.RegisterRoute("profileSettings",  typeof(ProfileSettingsPage));
+            Routing.RegisterRoute("publicProfile",    typeof(PublicProfilePage));
+            Routing.RegisterRoute("addVehicle",       typeof(AddVehiclePage));
+            Routing.RegisterRoute("uploadDocuments",  typeof(DocumentUploadPage));
         }
 
         // ─────────────────────────────────────────────────────────────

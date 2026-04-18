@@ -1,0 +1,30 @@
+<ContentPage x:Class="Covoiturage_la_cite__App_Mobile_.App.Mobilepages.profilesettingspage.view.ProfileSettingsPage"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             Title="{Binding ProfileFeature.PageTitle}">
+    
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Tabs Header -->
+        <ScrollView Grid.Row="0" Orientation="Horizontal" HeightRequest="60">
+            <HorizontalStackLayout Spacing="1">
+                <Button x:Name="BtnProfile" Text="Profil" ClassId="profile" Clicked="NavigateToTab" BackgroundColor="Blue" />
+                <Button x:Name="BtnVehicle" Text="Véhicule" ClassId="vehicle" Clicked="NavigateToTab" />
+                <Button x:Name="BtnTripAmbiance" Text="Ambiance" ClassId="tripambiance" Clicked="NavigateToTab" />
+                <Button x:Name="BtnNotifications" Text="Notifications" ClassId="notifications" Clicked="NavigateToTab" />
+                <Button x:Name="BtnPrivacy" Text="Confidentialité" ClassId="privacy" Clicked="NavigateToTab" />
+                <Button x:Name="BtnVisibility" Text="Visibilité" ClassId="visibility" Clicked="NavigateToTab" />
+                <Button x:Name="BtnSearchPrefs" Text="Préfs recherche" ClassId="searchprefs" Clicked="NavigateToTab" />
+                <Button x:Name="BtnAccessibility" Text="Accessibilité" ClassId="accessibility" Clicked="NavigateToTab" />
+            </HorizontalStackLayout>
+        </ScrollView>
+
+        <!-- Tab Content -->
+        <ContentView x:Name="TabContentHost" Grid.Row="1" />
+
+        <!-- Footer -->
+        <HorizontalStackLayout Grid.Row="2" Spacing="10" Padding="20">
+            <Button Text="Déconnexion" Command="{Binding ProfileFeature.LogoutCommand}" BackgroundColor="Red" />
+            <ActivityIndicator IsVisible="{Binding ProfileFeature.IsInitialLoading}" Color="Blue" />
+        </HorizontalStackLayout>
+    </Grid>
+</ContentPage>
