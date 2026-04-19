@@ -147,11 +147,50 @@ export default function DriverDashboardPage() {
     }
   }, [user]);
 
+
   useEffect(() => {
     if (!user || user.role.toString().toLowerCase() !== "driver") return;
     if (user.id !== routeId) return;
     void loadDriverData();
   }, [loadDriverData, routeId, user]);
+
+  // SSE notifications temps réel
+  useEffect(() => {
+    if (!user) return;
+    const es = new EventSource('/api/sse/notifications');
+
+    es.addEventListener('notification', (event) => {
+      try {
+        const notif = JSON.parse(event.data);
+        // Mapper le champ 'body' → 'message' (Server Core envoie 'body', frontend attend 'message')
+        const mapped = {
+          id:                   notif.id,
+          userId:               notif.userId,
+          title:                notif.title,
+          type:                 notif.type?.toLowerCase().replace(/_/g, '-') ?? 'infos',
+          message:              notif.body ?? notif.message ?? '',
+          date:                 new Date(notif.createdAt).toISOString().slice(0, 10),
+          time:                 new Date(notif.createdAt).toTimeString().slice(0, 5),
+          isRead:               false,
+          isImportant:          notif.isImportant ?? false,
+          relatedTripId:        notif.relatedTripId ?? null,
+          relatedReservationId: notif.relatedReservationId ?? null,
+          createdAt:            notif.createdAt,
+          link:                 notif.deepLink ?? null,
+        };
+        setDashData((prev) => prev
+          ? { ...prev, notifications: [mapped, ...(prev.notifications ?? [])] }
+          : prev
+        );
+      } catch { /* non bloquant */ }
+    });
+
+    es.addEventListener('error', () => {
+      // SSE auto-reconnect natif du navigateur — pas d'action requise
+    });
+
+    return () => es.close();
+  }, [user]);
 
   const handleAcceptRequest = useCallback(async (id: string) => {
     setIsActionLoading(true);

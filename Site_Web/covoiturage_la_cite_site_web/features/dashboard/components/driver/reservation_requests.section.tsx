@@ -32,11 +32,13 @@ export function ReservationRequestsSection({
   onAcceptRequest,
   onRejectRequest,
   isActionLoading = false,
+  isLoading = false,
 }: {
   requests?: ReservationRequest[];
   onAcceptRequest?: (id: string) => Promise<boolean>;
   onRejectRequest?: (id: string) => Promise<boolean>;
   isActionLoading?: boolean;
+  isLoading?: boolean;
 }) {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
@@ -99,6 +101,16 @@ export function ReservationRequestsSection({
       }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="animate-pulse space-y-3 w-full px-10 py-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl w-full" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <section className="w-full py-10 mx-auto flex flex-col justify-center items-center rounded-lg shadow-md bg-[#08316ee5] text-white">
