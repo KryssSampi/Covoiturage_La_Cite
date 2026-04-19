@@ -7,7 +7,7 @@
  * avec le bouton réservé correspondant à l'état de la demande.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaStar, FaUserFriends, FaArrowRight } from "react-icons/fa";
@@ -99,6 +99,16 @@ function ReservationListCard({ reservation, lang }: { reservation: Reservation; 
 export function PassengerReservationsPage({ items }: PassengerReservationsPageProps) {
   const { lang } = useAppState();
   const { filterGroups, sortOptions, searchKeys, emptyMessage } = usePassengerReservationsConfig();
+  const [isLoading, setIsLoading] = useState(items.length === 0);
+  const hasItemsUpdateRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasItemsUpdateRef.current) {
+      hasItemsUpdateRef.current = true;
+      return;
+    }
+    setIsLoading(false);
+  }, [items]);
 
   // Rendu de la carte de réservation dans le listing
   const renderCard = useCallback(
@@ -162,6 +172,7 @@ export function PassengerReservationsPage({ items }: PassengerReservationsPagePr
 
   return (
     <ListDetailPage
+      isLoading={isLoading}
       items={items}
       renderCard={renderCard}
       renderDetail={renderDetail}

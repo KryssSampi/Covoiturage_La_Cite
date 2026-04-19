@@ -6,7 +6,7 @@
  * Carte basée sur le visuel de la section trajets du dashboard.
  */
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { FaStar, FaUserFriends, FaArrowRight } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
@@ -74,6 +74,16 @@ function TripListCard({ trip, lang }: { trip: Trip; lang: Language }) {
 export function PassengerHistoriquePage({ items }: PassengerHistoriquePageProps) {
   const { lang } = useAppState();
   const { filterGroups, sortOptions, searchKeys, emptyMessage } = usePassengerHistoriqueConfig();
+  const [isLoading, setIsLoading] = useState(items.length === 0);
+  const hasItemsUpdateRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasItemsUpdateRef.current) {
+      hasItemsUpdateRef.current = true;
+      return;
+    }
+    setIsLoading(false);
+  }, [items]);
 
   const renderCard = useCallback(
     (trip: Trip) => <TripListCard trip={trip} lang={lang} />,
@@ -82,6 +92,7 @@ export function PassengerHistoriquePage({ items }: PassengerHistoriquePageProps)
 
   return (
     <ListDetailPage
+      isLoading={isLoading}
       items={items}
       renderCard={renderCard}
       filterGroups={filterGroups}

@@ -29,9 +29,17 @@ import { DestinationCard } from "./destination.card";
  * @license MIT
  */
 
-export function RecentsDestinationsSection() {
+export function RecentsDestinationsSection({ isLoading }: { isLoading?: boolean } = {}) {
   const appState                             = useAppState();
   const { destinations, surveyMap, isEmpty } = useRecentDestinations();
+
+  if (isLoading) {
+    return (
+      <div className="animate-pulse space-y-3 px-10 py-4">
+        {[1, 2, 3].map((i) => <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl" />)}
+      </div>
+    );
+  }
 
   return (
     <section className="w-full py-5 flex flex-col items-center border rounded-lg shadow-md mx-5 bg-white">

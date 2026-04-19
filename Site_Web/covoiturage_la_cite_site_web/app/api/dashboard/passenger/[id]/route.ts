@@ -67,6 +67,20 @@ function toPassengerReservation(dto: ReservationEnrichedDto): Reservation {
   };
 }
 
+function mapNotification(n: Record<string, unknown>) {
+  const typeRaw = String(n.type ?? '').toLowerCase().replace(/_/g, '-');
+  return {
+    id: String(n.id ?? ''),
+    message: String(n.body ?? n.message ?? ''),
+    date: String(n.createdAt ?? ''),
+    time: '',
+    type: typeRaw as string,
+    link: String(n.deepLink ?? n.link ?? ''),
+    isRead: Boolean(n.isRead ?? false),
+    isImportant: Boolean(n.isImportant ?? false),
+  };
+}
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -103,7 +117,7 @@ export async function GET(
 
     return NextResponse.json({
       reservations,
-      notifications: notificationsRes.data ?? [],
+      notifications: (notificationsRes.data ?? []).map((n) => mapNotification(n as unknown as Record<string, unknown>)),
       reviews,
       stats: {
         tripsCount: rawReservations.length,

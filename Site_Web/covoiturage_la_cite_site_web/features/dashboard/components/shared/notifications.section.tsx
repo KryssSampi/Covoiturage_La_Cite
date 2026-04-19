@@ -116,7 +116,7 @@ export function NotificationsSection({
       />
 
       {/* ─── Liste ou état vide ──────────────────────────────────────────── */}
-      {rawNotifications.length === 0 ? (
+      {localNotifications.length === 0 ? (
         <div className="w-full h-50 flex justify-center items-center">
           <p
             className={`text-2xl text-center ${

@@ -8,7 +8,7 @@
  * - Payloads enrichis (tripDetails, reservationDetails, reviewDetails, securityDetails) affichés
  */
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   FaCalendarDays, FaClock, FaCircle, FaEnvelope, FaEnvelopeOpen,
@@ -299,8 +299,18 @@ export function NotificationsPage({ items, onRead }: NotificationsPageProps) {
   const isFR   = lang === Language.FR;
   const userId = userConnected?.id ?? "";
   const role   = userConnected?.role ?? "passenger";
+  const [isLoading, setIsLoading] = useState(items.length === 0);
+  const hasItemsUpdateRef = useRef(false);
 
   const { filterGroups, sortOptions, searchKeys, emptyMessage } = useNotificationsConfig();
+
+  useEffect(() => {
+    if (!hasItemsUpdateRef.current) {
+      hasItemsUpdateRef.current = true;
+      return;
+    }
+    setIsLoading(false);
+  }, [items]);
 
   const renderCard = useCallback(
     (n: NotificationModel) => <NotificationListCard notification={n} isFR={isFR} />,
@@ -316,6 +326,7 @@ export function NotificationsPage({ items, onRead }: NotificationsPageProps) {
 
   return (
     <ListDetailPage
+      isLoading={isLoading}
       items={items}
       renderCard={renderCard}
       renderDetail={renderDetail}
