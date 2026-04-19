@@ -137,10 +137,24 @@ function TripCard({ trip, isPassengerListOpen, onTogglePassengerList, onClosePas
  * Affiche un message informatif lorsqu'il n'y a aucun trajet disponible,
  * ou une liste défilable de cartes de trajets dans le cas contraire.
  */
-export function RecommendedRidesSection() {
+interface RecommendedRidesSectionProps {
+  isLoading?: boolean;
+}
+
+export function RecommendedRidesSection({ isLoading }: RecommendedRidesSectionProps = {}) {
   
   const { lang } = useAppState();
   const { trips, isEmpty, openPassengerLists, togglePassengerList, closePassengerList } = useRecommendedRides();
+
+  if (isLoading) {
+    return (
+      <div className="animate-pulse space-y-3 px-10 py-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <section className="w-full py-10 mx-auto flex flex-col justify-center items-center rounded-lg shadow-md bg-white text-black">

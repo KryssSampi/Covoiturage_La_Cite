@@ -1,0 +1,59 @@
+# Flutter / Dart / Pub
+.dart_tool/
+.packages
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDEs / editors
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+
+# Android
+android/.gradle/
+android/.idea/
+android/.settings/
+android/.cxx/
+android/local.properties
+android/app/debug/
+android/app/profile/
+android/app/release/
+*.apk
+*.ap_*
+*.aab
+
+# iOS
+ios/Flutter/ephemeral/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+ios/.symlinks/
+*.ipa
+
+# macOS
+macos/Flutter/ephemeral/
+macos/Pods/
+
+# Firebase
+.firebase/
+
+# Melos
+.melos_tool_version
+
+# Misc
+*.swp
+*.swo
