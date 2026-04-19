@@ -10,7 +10,7 @@
   <ItemGroup>
     <!-- Auth & Identity -->
     <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
-    <PackageReference Include="MailKit" Version="4.15.1" />
+    <PackageReference Include="MailKit" Version="4.16.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.11" />
 
     <!-- OpenAPI / Swagger -->
@@ -45,7 +45,7 @@
     <PackageReference Include="Hangfire.PostgreSql" Version="1.20.10" />
 
     <!-- Validation -->
-    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
 
     <!-- SignalR (inclus dans ASP.NET Core — pas de package séparé nécessaire) -->
 
