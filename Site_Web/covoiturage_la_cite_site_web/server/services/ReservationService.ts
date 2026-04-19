@@ -76,6 +76,9 @@ export interface ReservationEnrichedDto extends Partial<ReservationResponseDto> 
   tripDepartureAddress?: string;
   tripArrivalAddress?: string;
   tripDepartureDate?: string;
+  tripDepartureLabel?: string;
+  tripArrivalLabel?: string;
+  tripDepartureTime?: string;
 }
 
 export interface ReservationDecisionRequest {

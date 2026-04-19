@@ -193,6 +193,7 @@ export function ReservationsSection({
   reservations: rawReservations,
   onCancelReservation,
   onStartReservation,
+  isLoading,
 }: ReservationsSectionProps) {
   const { lang, userConnected } = useAppState();
   const router = useRouter();
@@ -235,12 +236,22 @@ export function ReservationsSection({
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="animate-pulse space-y-3 px-10 py-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+        ))}
+      </div>
+    );
+  }
+
   const plannerHref = passengerId
     ? `/passenger/planifier/${passengerId}?showAll=true&role=passenger`
     : "/reservations";
 
   return (
-    <section className="w-full py-10 mx-auto flex flex-col justify-center items-center rounded-lg shadow-md bg-white text-black">
+    <section className="w-full flex flex-col items-center gap-4 py-4">
       <div className="w-full flex justify-between mx-auto items-center px-10">
         <h2 className="text-3xl font-bold">
           {lang === Language.FR ? "Mes Reservations" : "My Reservations"}

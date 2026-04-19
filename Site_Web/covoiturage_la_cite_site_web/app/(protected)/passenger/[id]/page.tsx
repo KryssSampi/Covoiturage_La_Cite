@@ -117,6 +117,7 @@ export default function PassengerDashboardPage() {
     }
   }, [user]);
 
+
   useEffect(() => {
     // Vérifier si l'utilisateur est authentifié et a le rôle de passager
     if (!user || user.role.toString().toLowerCase() !== "passenger") return;
@@ -128,6 +129,44 @@ export default function PassengerDashboardPage() {
       await loadPassengerData();
     })();
   }, [loadPassengerData, routeId, user]);
+
+  // SSE notifications temps réel
+  useEffect(() => {
+    if (!user) return;
+    const es = new EventSource('/api/sse/notifications');
+
+    es.addEventListener('notification', (event) => {
+      try {
+        const notif = JSON.parse(event.data);
+        // Mapper le champ 'body' → 'message' (Server Core envoie 'body', frontend attend 'message')
+        const mapped = {
+          id:                   notif.id,
+          userId:               notif.userId,
+          title:                notif.title,
+          type:                 notif.type?.toLowerCase().replace(/_/g, '-') ?? 'infos',
+          message:              notif.body ?? notif.message ?? '',
+          date:                 new Date(notif.createdAt).toISOString().slice(0, 10),
+          time:                 new Date(notif.createdAt).toTimeString().slice(0, 5),
+          isRead:               false,
+          isImportant:          notif.isImportant ?? false,
+          relatedTripId:        notif.relatedTripId ?? null,
+          relatedReservationId: notif.relatedReservationId ?? null,
+          createdAt:            notif.createdAt,
+          link:                 notif.deepLink ?? null,
+        };
+        setDashData((prev) => prev
+          ? { ...prev, notifications: [mapped, ...(prev.notifications ?? [])] }
+          : prev
+        );
+      } catch { /* non bloquant */ }
+    });
+
+    es.addEventListener('error', () => {
+      // SSE auto-reconnect natif du navigateur — pas d'action requise
+    });
+
+    return () => es.close();
+  }, [user]);
 
   const handleCancelReservation = useCallback(async (reservationId: string, raison?: string) => {
     try {

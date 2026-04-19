@@ -53,10 +53,10 @@ function toPassengerReservation(dto: ReservationEnrichedDto): Reservation {
   return {
     id: dto.id ?? '',
     tripId: dto.tripId ?? '',
-    departure: dto.tripDepartureAddress ?? '',
-    destination: dto.tripArrivalAddress ?? '',
+    departure: dto.tripDepartureLabel ?? dto.tripDepartureAddress ?? '',
+    destination: dto.tripArrivalLabel ?? dto.tripArrivalAddress ?? '',
     date: (dto.tripDepartureDate ?? '').slice(0, 10),
-    time: (dto.tripDepartureDate ?? '').length >= 16 ? (dto.tripDepartureDate ?? '').slice(11, 16) : '',
+    time: dto.tripDepartureTime ?? ((dto.tripDepartureDate ?? '').length >= 16 ? (dto.tripDepartureDate ?? '').slice(11, 16) : ''),
     duration: null,
     maxPassengers: 0,
     passengers: [],
