@@ -56,6 +56,30 @@ export default function DriverNotificationsRoutePage() {
     return () => clearInterval(intervalId);
   }, [user, params.id, reload]);
 
+  // SSE — nouvelles notifications en temps réel
+  useEffect(() => {
+    if (!user || user.id !== params.id) return;
+    const es = new EventSource('/api/sse/notifications');
+    es.addEventListener('notification', (event) => {
+      try {
+        const notif = JSON.parse(event.data);
+        const mapped: NotificationModel = {
+          id: String(notif.id ?? ''),
+          userId: String(notif.userId ?? ''),
+          title: String(notif.title ?? notif.body ?? ''),
+          message: String(notif.body ?? notif.message ?? ''),
+          createdAt: String(notif.createdAt ?? ''),
+          type: (notif.type ?? 'info') as NotificationModel['type'],
+          link: String(notif.deepLink ?? notif.link ?? ''),
+          isRead: false,
+          isImportant: Boolean(notif.isImportant),
+        };
+        setItems(prev => [mapped, ...(prev ?? [])]);
+      } catch { /* ignore parse errors */ }
+    });
+    return () => es.close();
+  }, [user, params.id]);
+
   const onRead = useCallback(async (id: string) => {
       try {
       await fetch(`/api/notifications/${id}/read`, { method: "PATCH", credentials: 'same-origin' });

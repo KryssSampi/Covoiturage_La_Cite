@@ -7,7 +7,7 @@
  * avec les détails du trajet et les boutons accepter/refuser.
  */
 
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ReservationDecisionToast } from "@/features/reservation/components/ReservationDecisionToast";
 import Image from "next/image";
 import Link from "next/link";
@@ -315,6 +315,16 @@ export function DriverReservationsPage({
 }: DriverReservationsPageProps) {
   const { lang } = useAppState();
   const { filterGroups, sortOptions, searchKeys, emptyMessage } = useDriverReservationRequestsConfig();
+  const [isLoading, setIsLoading] = useState(items.length === 0);
+  const hasItemsUpdateRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasItemsUpdateRef.current) {
+      hasItemsUpdateRef.current = true;
+      return;
+    }
+    setIsLoading(false);
+  }, [items]);
 
   // Rendu de la carte de demande dans le listing
   const renderCard = useCallback(
@@ -339,6 +349,7 @@ export function DriverReservationsPage({
 
   return (
     <ListDetailPage
+      isLoading={isLoading}
       items={items}
       renderCard={renderCard}
       renderDetail={renderDetail}

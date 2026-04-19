@@ -6,7 +6,7 @@
  * Carte basée sur le visuel de PublishedTripCard du dashboard.
  */
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FaUserFriends, FaArrowRight } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 
@@ -61,6 +61,16 @@ function PublishedTripListCard({ trip, lang }: { trip: PublishedTrip; lang: Lang
 export function DriverHistoriquePage({ items }: DriverHistoriquePageProps) {
   const { lang } = useAppState();
   const { filterGroups, sortOptions, searchKeys, emptyMessage } = useDriverHistoriqueConfig();
+  const [isLoading, setIsLoading] = useState(items.length === 0);
+  const hasItemsUpdateRef = useRef(false);
+
+  useEffect(() => {
+    if (!hasItemsUpdateRef.current) {
+      hasItemsUpdateRef.current = true;
+      return;
+    }
+    setIsLoading(false);
+  }, [items]);
 
   const renderCard = useCallback(
     (trip: PublishedTrip) => <PublishedTripListCard trip={trip} lang={lang} />,
@@ -69,6 +79,7 @@ export function DriverHistoriquePage({ items }: DriverHistoriquePageProps) {
 
   return (
     <ListDetailPage
+      isLoading={isLoading}
       items={items}
       renderCard={renderCard}
       filterGroups={filterGroups}
