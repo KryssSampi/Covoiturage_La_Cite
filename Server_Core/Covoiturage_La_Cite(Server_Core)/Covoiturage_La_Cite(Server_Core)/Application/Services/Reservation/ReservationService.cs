@@ -315,12 +315,12 @@ _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
         // Notifier l'autre partie de l'annulation
         try
         {
-            var trip = await _trajetRepo.GetByIdAsync(reservation.TripId, ct);
-            if (trip is not null)
+            var tripNotif = await _trajetRepo.GetByIdAsync(reservation.TripId, ct);
+            if (tripNotif is not null)
             {
-                var departure   = trip.DepartureLabel ?? "";
-                var destination = trip.ArrivalLabel   ?? "";
-                var tripDate    = $"{trip.DepartureDate:dd MMM yyyy} à {trip.DepartureTime:HH\\:mm}";
+                var departure   = tripNotif.DepartureLabel ?? "";
+                var destination = tripNotif.ArrivalLabel   ?? "";
+                var tripDate    = $"{tripNotif.DepartureDate:dd MMM yyyy} à {tripNotif.DepartureTime:HH\\:mm}";
 
                 // Si c'est le passager qui annule → notifier le conducteur
                 if (userId == reservation.PassengerId)
@@ -332,7 +332,7 @@ _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
 
                     await _notifications.CreateAsync(new CreateNotificationDto
                     {
-                        UserId      = trip.DriverId,
+                        UserId      = tripNotif.DriverId,
                         Type        = NotificationType.ReservationCancelled,
                         Title       = "Annulation de réservation",
                         Body        = $"{passengerName} a annulé sa réservation pour le trajet {departure} → {destination} du {tripDate}.",
