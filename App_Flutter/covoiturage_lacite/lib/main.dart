@@ -1,0 +1,109 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import 'core/navigation_key.dart';
+import 'core/services/api_service.dart';
+import 'core/services/auth_service.dart';
+import 'core/services/trip_service.dart';
+import 'core/models/trip.dart';
+import 'features/auth/login_screen.dart';
+import 'features/auth/otp_screen.dart';
+import 'features/home/home_screen.dart';
+import 'features/trip/trip_detail_screen.dart';
+import 'features/trip/create_trip_screen.dart';
+import 'features/trip/reservation_screen.dart';
+import 'features/chat/chat_screen.dart';
+import 'features/notifications/notification_detail_screen.dart';
+import 'features/trip/reservation_request_detail_screen.dart';
+import 'features/search/driver_search_map_screen.dart';
+
+final _authService = AuthService(ApiService.instance);
+final _tripService = TripService(ApiService.instance);
+
+void main() {
+  runApp(const ProviderScope(child: CovoiturageApp()));
+}
+
+class CovoiturageApp extends StatelessWidget {
+  const CovoiturageApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: 'Covoiturage La Cité',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A56CC)),
+        primaryColor: const Color(0xFF08316E),
+        scaffoldBackgroundColor: const Color(0xFFF2F5FA),
+        textTheme: GoogleFonts.openSansTextTheme(),
+      ),
+      routerConfig: appRouter,
+    );
+  }
+}
+
+final GoRouter appRouter = GoRouter(
+  navigatorKey: appNavigatorKey,
+  initialLocation: '/login',
+  redirect: (context, state) async {
+    final loggedIn = await _authService.isLoggedIn();
+    final loc = state.uri.path;
+    if (!loggedIn && loc != '/login' && loc != '/otp') return '/login';
+    if (loggedIn && (loc == '/login' || loc == '/otp')) return '/home';
+    return null;
+  },
+  routes: [
+    GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+    GoRoute(
+      path: '/otp',
+      builder: (_, state) => OtpScreen(email: state.uri.queryParameters['email'] ?? ''),
+    ),
+    GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
+    GoRoute(
+      path: '/trip/:id',
+      builder: (_, state) {
+        final trip = state.extra as Trip?;
+        final id = state.pathParameters['id'] ?? '';
+        return TripDetailScreen(
+          tripService: _tripService,
+          trip: trip,
+          tripId: trip == null ? id : null,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/create-trip',
+      builder: (_, state) => CreateTripScreen(
+        prefill: state.extra is Map<String, dynamic> ? state.extra as Map<String, dynamic> : null,
+      ),
+    ),
+    GoRoute(
+      path: '/reservations',
+      builder: (_, __) => ReservationScreen(tripService: _tripService),
+    ),
+    GoRoute(
+      path: '/chat/:tripId',
+      builder: (_, state) => ChatScreen(tripId: state.pathParameters['tripId'] ?? ''),
+    ),
+    GoRoute(
+      path: '/driver-search-map',
+      builder: (_, __) => const DriverSearchMapScreen(),
+    ),
+    GoRoute(
+      path: '/notification/:id',
+      builder: (_, state) => NotificationDetailScreen(
+        notificationId: state.pathParameters['id'] ?? '',
+        initialData: state.extra as Map<String,dynamic>?,
+      ),
+    ),
+    GoRoute(
+      path: '/reservation-request/:id',
+      builder: (_, state) => ReservationRequestDetailScreen(
+        reservationId: state.pathParameters['id'] ?? '',
+      ),
+    ),
+  ],
+);

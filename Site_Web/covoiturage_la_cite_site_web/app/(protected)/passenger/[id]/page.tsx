@@ -247,6 +247,7 @@ export default function PassengerDashboardPage() {
                   reservations={dashData?.reservations ?? []}
                   onCancelReservation={handleCancelReservation}
                   onStartReservation={handleStartReservation}
+                  isLoading={!dashData}
                 />
                 <FavoritesSection
                   favorites={favorites}
@@ -256,13 +257,13 @@ export default function PassengerDashboardPage() {
                 {/* Section des destinations récentes et habituelles avec contraintes de largeur */}
                 <div className="flex gap-6 w-full min-w-0">
                   <div className="flex-1 min-w-0">
-                  <RecentsDestinationsSection />
+                  <RecentsDestinationsSection isLoading={!dashData} />
                   </div>
                   <div className="flex-1 min-w-0">
-                  <UsualDestinationsSection />
+                  <UsualDestinationsSection isLoading={!dashData} />
                   </div>
                 </div>
-                <RecommendedRidesSection />
+                <RecommendedRidesSection isLoading={!dashData} />
               </div>
               <div className="flex w-full max-w-120 shrink-0 flex-col gap-6 pl-0 xl:w-2/7 xl:pl-5">
                 <StatisticSection stats={dashData?.stats ?? DEFAULT_STATS} />
@@ -281,6 +282,7 @@ export default function PassengerDashboardPage() {
               reservations={dashData?.reservations ?? []}
               onCancelReservation={handleCancelReservation}
               onStartReservation={handleStartReservation}
+              isLoading={!dashData}
             />
             <NotificationsSection notifications={dashData?.notifications ?? []} />
             <StatisticSection stats={dashData?.stats ?? DEFAULT_STATS} />
@@ -290,9 +292,9 @@ export default function PassengerDashboardPage() {
             />
             <ReviewsSection reviews={dashData?.reviews ?? []} />
             <GoBoard currentScore={dashData?.stats?.goScore ?? 0} tasks={goTasks} />
-            <RecentsDestinationsSection />
-            <UsualDestinationsSection />
-            <RecommendedRidesSection />
+            <RecentsDestinationsSection isLoading={!dashData} />
+            <UsualDestinationsSection isLoading={!dashData} />
+            <RecommendedRidesSection isLoading={!dashData} />
             <LaCiteAstucesSection tips={tips} />
             <NouveautesSection />
           </main>

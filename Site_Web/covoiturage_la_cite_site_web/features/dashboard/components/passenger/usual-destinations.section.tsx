@@ -27,11 +27,23 @@ import { DestinationCard } from "./destination.card";
  * - Affiche les composants `DestinationCard` pour chaque destination dans la liste
  * - Implémente un design réactif avec les classes Tailwind CSS
  */
-export function UsualDestinationsSection() {
-  // Récupère l'état de l'application pour accéder à la langue
+interface UsualDestinationsSectionProps {
+  isLoading?: boolean;
+}
+
+export function UsualDestinationsSection({ isLoading }: UsualDestinationsSectionProps = {}) {
   const appState                  = useAppState();
-  // Hook personnalisé pour récupérer les destinations habituelles et vérifier si la liste est vide
   const { destinations, surveyMap, isEmpty } = useUsualDestinations();
+
+  if (isLoading) {
+    return (
+      <div className="animate-pulse space-y-3 px-10 py-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <section className="w-full py-5 flex flex-col items-center border rounded-lg shadow-md mx-5 bg-white">
