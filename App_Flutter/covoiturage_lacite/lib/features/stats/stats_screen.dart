@@ -119,9 +119,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   }
 
   String _display(dynamic value) {
-    if (value == null) return 'â€”';
+    if (value == null) return '—';
     final text = '$value'.trim();
-    return text.isEmpty ? 'â€”' : text;
+    return text.isEmpty ? '—' : text;
   }
 
   List<dynamic> _extractList(dynamic data) {
@@ -139,7 +139,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       appBar: AppBar(
         backgroundColor: const Color(0xFF08316E),
         title: const Text('Statistiques', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-        leading: const BackButton(color: Colors.white),
+        automaticallyImplyLeading: false,
         elevation: 0,
       ),
       body: Column(
@@ -264,24 +264,24 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               childAspectRatio: 1.2,
               children: [
                 _kpiCard(icon: Icons.directions_car_rounded, iconBg: const Color(0xFFFDECEA),
-                  iconColor: _C.redMid, value: _display(_stats['tripsCount']), unit: '', label: 'Trajets complÃ©tÃ©s',
-                  trend: 'â†‘ +8 vs mois prÃ©c.', trendUp: true),
+                  iconColor: _C.redMid, value: _display(_stats['tripsCount']), unit: '', label: 'Trajets complétés',
+                  trend: '↑ +8 vs mois préc.', trendUp: true),
                 _kpiCard(icon: Icons.eco_rounded, iconBg: _C.tealLight,
-                  iconColor: _C.teal, value: _display(_stats['co2SavedKg']), unit: 'kg', label: 'COâ‚‚ Ã©conomisÃ©',
-                  trend: 'â†‘ +12.3 kg', trendUp: true),
+                  iconColor: _C.teal, value: _display(_stats['co2SavedKg']), unit: 'kg', label: 'CO₂ économisé',
+                  trend: '↑ +12.3 kg', trendUp: true),
                 _kpiCard(icon: Icons.attach_money_rounded, iconBg: _C.blueLight,
-                  iconColor: _C.blue, value: _display(_finance['monthlyRevenue'] ?? _stats['monthlyRevenue']), unit: '\$', label: 'Revenus ce mois',
-                  trend: 'â†‘ +100% vs prÃ©c.', trendUp: true),
+                  iconColor: _C.blue, value: _display(_finance['monthlyRevenue'] ?? _stats['monthlyRevenue']), unit: '€', label: 'Revenus ce mois',
+                  trend: '↑ +100% vs préc.', trendUp: true),
                 _kpiCard(icon: Icons.star_rounded, iconBg: const Color(0xFFFAEEDA),
-                  iconColor: const Color(0xFFF59E0B), value: _display(_stats['averageRating']), unit: 'â˜…', label: 'Note moyenne',
-                  trend: 'â†‘ MÃ©diane 4.7â˜…', trendUp: true),
+                  iconColor: const Color(0xFFF59E0B), value: _display(_stats['averageRating']), unit: '★', label: 'Note moyenne',
+                  trend: '↑ Médiane 4.7★', trendUp: true),
               ],
             ),
           ),
           const SizedBox(height: 16),
 
           // Evaluations card
-          _sectionHead('â­ Ã‰valuations reÃ§ues', '${_display(_stats['reviewsCount'])} avis'),
+          _sectionHead('★ Évaluations reçues', '${_display(_stats['reviewsCount'])} avis'),
           _card(child: Column(
             children: [
               Padding(
@@ -320,23 +320,23 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: _insightBanner('Vos notes sont excellentes avec une mÃ©diane Ã  4.7â˜… sur 4 des 5 derniÃ¨res semaines.'),
+                child: _insightBanner('Vos notes sont excellentes avec une médiane à 4.7★ sur 4 des 5 dernières semaines.'),
               ),
             ],
           )),
           const SizedBox(height: 10),
 
           // Recent trips
-          _sectionHead('ðŸ• Derniers trajets', ''),
+          _sectionHead('🕐 Derniers trajets', ''),
           _card(child: Column(
             children: [
-              _tripRow('Barrhaven â†’ Campus La CitÃ©',  '1 mai Â· 17:25 Â· 2 pass.', '0,00 \$', 'â–¼ 9.9 kg', 4),
-              _tripRow('Campus â†’ OrlÃ©ans Park & Ride', '3 mai Â· 08:15 Â· 1 pass.', '0,00 \$', 'â–¼ 6.8 kg', 4),
-              _tripRow('Gatineau â†’ ByWard Market',     '2 mai Â· 16:50 Â· 1 pass.', '0,00 \$', 'â–¼ 2.5 kg', 3),
+              _tripRow('Barrhaven → Campus La Cité',  '1 mai · 17:25 · 2 pass.', '0,00 €', '▼ 9.9 kg', 4),
+              _tripRow('Campus → Orléans Park & Ride', '3 mai · 08:15 · 1 pass.', '0,00 €', '▼ 6.8 kg', 4),
+              _tripRow('Gatineau → ByWard Market',     '2 mai · 16:50 · 1 pass.', '0,00 €', '▼ 2.5 kg', 3),
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Center(
-                  child: Text('5 trajets rÃ©ussis sur 5 rÃ©cents â†’',
+                  child: Text('5 trajets réussis sur 5 récents →',
                     style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: _C.blue)),
                 ),
               ),
@@ -345,7 +345,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           const SizedBox(height: 10),
 
           // Badge grid
-          _sectionHead('ðŸ… Mes badges', '4 obtenus'),
+          _sectionHead('🏅 Mes badges', '4 obtenus'),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: GridView.count(
@@ -356,19 +356,19 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               mainAxisSpacing: 10,
               childAspectRatio: 0.85,
               children: [
-                _badgeCard('ðŸŽ“', 'Ã‰tudiant CitÃ©', 'Jan. 2026', '', false),
-                _badgeCard('âœ…', 'ConfirmÃ©',       'FÃ©v. 2026', '', false),
-                _badgeCard('ðŸŒ±', 'Ã‰co-DÃ©butant',   'Juin 2026', '', false),
-                _badgeCard('â­', 'Ã‰tudiant La CitÃ©','FÃ©v. 2026', '', false),
-                _badgeCard('ðŸ’Ž', 'Expert',          '',  '51â€“100 trajets Â· 14 restants', true),
-                _badgeCard('â°', 'Ponctuel',         '',  '95% ponct. Â· 5 pts', true),
+                _badgeCard('🎓', 'Étudiant Cité', 'Jan. 2026', '', false),
+                _badgeCard('✅', 'Confirmé',       'Fév. 2026', '', false),
+                _badgeCard('🌱', 'Éco-Débutant',   'Juin 2026', '', false),
+                _badgeCard('★', 'Étudiant La Cité','Fév. 2026', '', false),
+                _badgeCard('💎', 'Expert',          '',  '51–100 trajets · 14 restants', true),
+                _badgeCard('⏰', 'Ponctuel',         '',  '95% ponct. · 5 pts', true),
               ],
             ),
           ),
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: _insightBanner("Votre prochain badge 'Expert' nÃ©cessite 14 trajets supplÃ©mentaires. Vous y Ãªtes presque !"),
+            child: _insightBanner("Votre prochain badge 'Expert' nécessite 14 trajets supplémentaires. Vous y êtes presque !"),
           ),
         ],
       ),
@@ -495,7 +495,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('ActivitÃ© hebdomadaire',
+        Text('Activité hebdomadaire',
           style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w600, color: _C.text3)),
         const SizedBox(height: 10),
         SizedBox(

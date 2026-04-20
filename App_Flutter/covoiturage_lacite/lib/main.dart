@@ -18,7 +18,7 @@ import 'features/historique/historique_screen.dart';
 import 'features/messages/messages_screen.dart';
 import 'features/notifications/notification_detail_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
-import 'features/profile/profile_screen.dart';
+import '../.docs/updating-files/new_page_version/profile_screen.dart';
 import 'features/reviews/reviews_screen.dart';
 import 'features/search/driver_search_map_screen.dart';
 import 'features/search/search_screen.dart';
@@ -26,7 +26,8 @@ import 'features/stats/stats_screen.dart';
 import 'features/trip/create_trip_screen.dart';
 import 'features/trip/reservation_request_detail_screen.dart';
 import 'features/trip/reservation_screen.dart';
-import 'features/trip/trip_detail_screen.dart';
+import 'features/trip/published_trip_screen.dart';
+
 import 'features/chat/chat_screen.dart';
 
 final AuthService _authService = AuthService(ApiService.instance);
@@ -90,7 +91,7 @@ final GoRouter appRouter = GoRouter(
         );
       },
     ),
-    GoRoute(
+GoRoute(
       path: '/trip/:id',
       builder: (_, GoRouterState state) {
         final dynamic extra = state.extra;
@@ -98,11 +99,46 @@ final GoRouter appRouter = GoRouter(
         final Map<String, dynamic>? initialData =
             extra is Map<String, dynamic> ? extra : null;
         final String id = state.pathParameters['id'] ?? '';
-        return TripDetailScreen(
+        return PublishedTripScreen(
           tripService: _tripService,
-          trip: trip,
           tripId: id,
           initialData: initialData,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/trip-detail/:id',
+      builder: (ctx, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final id = state.pathParameters['id']!;
+        PTViewerRole role = PTViewerRole.passenger;
+        PTReservationStatus resStatus = PTReservationStatus.none;
+        String? source, sourceStatus;
+        if (extra != null) {
+          final rawRole = extra['viewerRole']?.toString().toLowerCase() ?? '';
+          if (rawRole.contains('driver')) role = PTViewerRole.driverOwner;
+          if (rawRole.contains('admin')) role = PTViewerRole.admin;
+          final rawRes = extra['reservationStatus']?.toString().toLowerCase() ?? '';
+          resStatus = switch (rawRes) {
+            'pending' => PTReservationStatus.pending,
+            'confirmed' => PTReservationStatus.confirmed,
+            'refused' => PTReservationStatus.refused,
+            'cancelled' => PTReservationStatus.cancelled,
+            'inprogress' || 'in_progress' => PTReservationStatus.inProgress,
+            'completed' => PTReservationStatus.completed,
+            _ => PTReservationStatus.none,
+          };
+          source = extra['source']?.toString();
+          sourceStatus = extra['sourceStatus']?.toString();
+        }
+        return PublishedTripScreen(
+          tripService: _tripService,
+          tripId: id,
+          initialData: extra,
+          viewerRole: role,
+          existingReservationStatus: resStatus,
+          source: source,
+          sourceStatus: sourceStatus,
         );
       },
     ),
@@ -130,6 +166,10 @@ final GoRouter appRouter = GoRouter(
             ? state.extra as DriverSearchMapArgs
             : null,
       ),
+    ),
+GoRoute(
+      path: '/notifications',
+      builder: (_, __) => const NotificationsScreen(),
     ),
     GoRoute(
       path: '/notification/:id',

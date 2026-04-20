@@ -18,7 +18,7 @@ class SideNavBar extends StatelessWidget {
 
   static const List<_PrimaryItem> _primaryItems = <_PrimaryItem>[
     _PrimaryItem(index: 0, icon: Icons.home_rounded, label: 'Accueil'),
-    _PrimaryItem(index: 1, icon: Icons.star, label: 'Statistiques'),
+    _PrimaryItem(index: 1, icon: Icons.stacked_bar_chart, label: 'Statistiques'),
     _PrimaryItem(index: 2, icon: Icons.calendar_month_rounded, label: 'Planifier'),
     _PrimaryItem(index: 3, icon: Icons.message_outlined, label: 'Messages'),
     _PrimaryItem(index: 4, icon: Icons.person, label: 'Profil'),
@@ -114,11 +114,11 @@ class SideNavBar extends StatelessWidget {
                           },
                         ),
                         ListTile(
-                          leading: const Icon(Icons.chat_bubble_outline, color: Color(0xFF1A56CC)),
-                          title: const Text('Messages', style: TextStyle(color: Color(0xFF0D1624))),
+                          leading: const Icon(Icons.star_rounded, color: Color(0xFF1A56CC)),
+                          title: const Text('Favoris', style: TextStyle(color: Color(0xFF0D1624))),
                           onTap: () {
                             onClose();
-                            context.push('/reservations');
+                            context.push('/favoris');
                           },
                         ),
                         ListTile(
@@ -132,7 +132,10 @@ class SideNavBar extends StatelessWidget {
                         ListTile(
                           leading: const Icon(Icons.settings, color: Color(0xFF1A56CC)),
                           title: const Text('Paramètres', style: TextStyle(color: Color(0xFF0D1624))),
-                          onTap: onClose,
+                          onTap:() {
+                             onClose ();
+                          context.push('/settings');
+                          }
                         ),
                         const Divider(height: 24),
                         ListTile(
