@@ -12,7 +12,7 @@ class CustomTabBar extends StatelessWidget {
 
   static const List<IconData> _icons = <IconData>[
     Icons.home_rounded,
-    Icons.star_rounded,
+    Icons.stacked_bar_chart_rounded,
     Icons.calendar_month_rounded,
     Icons.message_outlined,
     Icons.person_rounded,

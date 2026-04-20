@@ -418,7 +418,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
               if (!_isLoading && tripCount == 0)
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Aucun trajet planifiÃ© pour le moment.'),
+                  child: Text('Aucun trajet planifié pour le moment.'),
                 ),
 
               const SizedBox(height: 32),
@@ -457,7 +457,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
               style: AppTextStyles.soraH3()),
           const SizedBox(height: 4),
           Text(
-            'Visualise ton calendrier, gÃ¨re tes disponibilitÃ©s et trouve des trajets selon ta semaine.',
+            'Visualise ton calendrier, gére tes disponibilités et trouve des trajets selon ta semaine.',
             style: AppTextStyles.body(size: 12.5, color: AppColors.text3),
           ),
           const SizedBox(height: 14),
@@ -895,40 +895,44 @@ class _RidesSection extends StatelessWidget {
           const AppDivider(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Text('Statut du jour :',
-                    style: AppTextStyles.caption()),
-                const SizedBox(width: 8),
-                StatusPill(
-                    label: '2 ConfirmÃ©es',
-                    bg: AppColors.tealLight,
-                    fg: AppColors.teal),
-                const SizedBox(width: 6),
-                StatusPill(
-                    label: '1 En attente',
-                    bg: AppColors.amberLight,
-                    fg: AppColors.amber),
-                const Spacer(),
-                GestureDetector(
-                  onTap: onToggleViewAll,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: isViewAll
-                          ? AppColors.blueDeep
-                          : AppColors.blueLight,
-                      borderRadius: BorderRadius.circular(AppColors.rFull),
-                    ),
-                    child: Text(
-                      isViewAll ? 'Fermer' : 'Voir tout',
-                      style: AppTextStyles.soraBadge(
-                              color: isViewAll
-                                  ? Colors.white
-                                  : AppColors.blue)
-                          .copyWith(fontSize: 11),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  Text('Statut du jour :',
+                      style: AppTextStyles.caption()),
+                  const SizedBox(width: 8),
+                   
+                  StatusPill(
+                      label: '2 Confirmés',
+                      bg: AppColors.tealLight,
+                      fg: AppColors.teal),
+                  const SizedBox(width: 6),
+                  StatusPill(
+                      label: '1 En attente',
+                      bg: AppColors.amberLight,
+                      fg: AppColors.amber),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: onToggleViewAll,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: isViewAll
+                            ? AppColors.blueDeep
+                            : AppColors.blueLight,
+                        borderRadius: BorderRadius.circular(AppColors.rFull),
+                      ),
+                      child: Text(
+                        isViewAll ? 'Fermer' : 'Voir tout',
+                        style: AppTextStyles.soraBadge(
+                                color: isViewAll
+                                    ? Colors.white
+                                    : AppColors.blue)
+                            .copyWith(fontSize: 11),
+                      ),
                     ),
                   ),
                 ),

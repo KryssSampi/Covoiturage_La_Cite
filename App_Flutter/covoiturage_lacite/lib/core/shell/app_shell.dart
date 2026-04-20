@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/home/home_page.dart';
 import '../../features/messages/messages_screen.dart';
 import '../../features/planner/planner_screen.dart';
-import '../../features/profile/profile_screen.dart';
+import '../../../.docs/updating-files/new_page_version/profile_screen.dart';
 import '../../features/stats/stats_screen.dart';
 import 'custom_tab_bar.dart';
 import 'shell_top_bar.dart';
@@ -43,7 +43,7 @@ class AppShellState extends State<AppShell> {
     const StatsScreen(),
     const PlannerScreen(),
     const MessagesScreen(),
-    const ProfileScreen(),
+    const ProfilePage(),
   ];
 
   int get currentIndex => _currentIndex;
