@@ -1,3 +1,6 @@
+// lib/core/shell/app_shell.dart
+// Fixed: ProfilePage → ProfileScreen, correct import
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,14 +29,6 @@ class AppShellState extends State<AppShell> {
     return context.findAncestorStateOfType<AppShellState>();
   }
 
-  static const List<String> _tabs = <String>[
-    'Acceuil',
-    'statistique',
-    'Planifier',
-    'messages',
-    'Profil',
-  ];
-
   late int _currentIndex;
   bool _sideNavOpen = false;
   bool _showLoader = false;
@@ -43,7 +38,7 @@ class AppShellState extends State<AppShell> {
     const StatsScreen(),
     const PlannerScreen(),
     const MessagesScreen(),
-    const ProfilePage(),
+    const ProfileScreen(),
   ];
 
   int get currentIndex => _currentIndex;
@@ -62,7 +57,7 @@ class AppShellState extends State<AppShell> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex.clamp(0, _tabs.length - 1).toInt();
+    _currentIndex = widget.initialIndex.clamp(0, _bodies.length - 1);
   }
 
   @override
@@ -99,7 +94,8 @@ class AppShellState extends State<AppShell> {
                             child: const SizedBox(
                               width: 24,
                               height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2.4),
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2.4),
                             ),
                           ),
                         ),
@@ -108,7 +104,8 @@ class AppShellState extends State<AppShell> {
                   if (_sideNavOpen)
                     SideNavBar(
                       currentIndex: _currentIndex,
-                      onClose: () => setState(() => _sideNavOpen = false),
+                      onClose: () =>
+                          setState(() => _sideNavOpen = false),
                       onNavigate: (int i) {
                         setState(() {
                           _currentIndex = i;
