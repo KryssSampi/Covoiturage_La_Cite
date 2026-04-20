@@ -96,7 +96,8 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   Widget _buildBody() {
     if (_isLoading) return const Center(child: CircularProgressIndicator(color: Color(0xFF1A56CC)));
-    if (_error != null) return _EmptyState(
+    if (_error != null) {
+      return _EmptyState(
       icon: Icons.wifi_off_rounded,
       iconColor: const Color(0xFFE24B4A),
       iconBg: const Color(0xFFFCEBEB),
@@ -105,13 +106,16 @@ class _ChatListScreenState extends State<ChatListScreen> {
       actionLabel: 'Réessayer',
       onAction: _load,
     );
-    if (_trips.isEmpty) return const _EmptyState(
+    }
+    if (_trips.isEmpty) {
+      return const _EmptyState(
       icon: Icons.chat_bubble_outline_rounded,
       iconColor: Color(0xFF8A95A8),
       iconBg: Color(0xFFEEF0F5),
       title: 'Aucune conversation',
       subtitle: 'Vos conversations apparaîtront ici dès que vous aurez un trajet.',
     );
+    }
 
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),

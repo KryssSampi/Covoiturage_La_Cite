@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/services/api_service.dart';
 
 class CreateTripScreen extends StatefulWidget {
@@ -110,7 +111,7 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
     });
 
     try {
-      final departureDatetime = DateTime(
+      final DateTime departureDatetime = DateTime(
         _departureDate.year,
         _departureDate.month,
         _departureDate.day,
@@ -118,23 +119,25 @@ class _CreateTripScreenState extends State<CreateTripScreen> {
         _departureTime.minute,
       );
 
-      final response = await ApiService.instance.post(
-        '/api/trips',
-        {
-          'departureAddress': _departureController.text,
-          'arrivalAddress': _arrivalController.text,
-          'departureTime': departureDatetime.toUtc().toIso8601String(),
-          'availableSeats': _seats,
-          'pricePerSeat': double.parse(_priceController.text),
-        },
-      );
+      final Map<String, dynamic> body = <String, dynamic>{
+        'departureLabel': _departureController.text.trim(),
+        'arrivalLabel': _arrivalController.text.trim(),
+        'departureTime': departureDatetime.toUtc().toIso8601String(),
+        'availableSeats': _seats,
+        'price': double.tryParse(_priceController.text) ?? 0.0,
+        'status': 'Published',
+      };
 
-      final tripId = response['id'];
-
-      await ApiService.instance.patch('/api/trips/$tripId/publish', {});
+      await ApiService.instance.post('/api/trips', body);
 
       if (mounted) {
-        Navigator.pop(context, true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Trajet cree !'),
+            backgroundColor: Color(0xFF0F6E56),
+          ),
+        );
+        context.pop();
       }
     } catch (e) {
       if (mounted) {

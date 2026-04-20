@@ -199,7 +199,7 @@ public class AuthSessionService : IAuthSessionService
 
     // ── Login par mot de passe (existants après OTP validé) ─────────────────
     public async Task<LoginResultDto> PasswordLoginAsync(
-        string idKeyHash, string password, string ipAddress, string userAgent, CancellationToken ct)
+        string idKeyHash, string password, string ipAddress, string userAgent, string clientType, CancellationToken ct)
     {
         var session = await GetValidSession(idKeyHash, ipAddress, userAgent, ct);
 
@@ -234,9 +234,9 @@ public class AuthSessionService : IAuthSessionService
             // Bypass OTP — finaliser le login directement
             session.IsValidated = true;
             var now = DateTimeOffset.UtcNow;
-            var (accessToken, refreshToken, expiresAt) = _tokenService.GenerateTokenPair(user, session.Id.ToString(), ipAddress);
+            var (accessToken, refreshToken, accessExpiresAt, refreshExpiresAt) = _tokenService.GenerateTokenPair(user, session.Id.ToString(), ipAddress, clientType);
             session.RefreshTokenHash = HashToken(refreshToken);
-            session.RefreshTokenExpiresAt = now.AddHours(24);
+            session.RefreshTokenExpiresAt = refreshExpiresAt;
             user.LastLoginAt = now;
             await _userRepo.UpdateAsync(user, ct);
             await _repo.UpdateAsync(session, ct);
@@ -245,7 +245,7 @@ public class AuthSessionService : IAuthSessionService
             return new LoginResultDto
             {
                 AccessToken = accessToken,
-                AccessTokenExpiresAt = expiresAt,
+                AccessTokenExpiresAt = accessExpiresAt,
                 User = new UserSummaryDto
                 {
                     Id = user.Id,
@@ -272,7 +272,7 @@ public class AuthSessionService : IAuthSessionService
 
     // ── Finaliser l'auth (appelé après OTP validé pour utilisateur existant) ─
     public async Task<LoginResultDto> FinalizeLoginAsync(
-        string idKeyHash, string ipAddress, string userAgent, CancellationToken ct)
+        string idKeyHash, string ipAddress, string userAgent, string clientType, CancellationToken ct)
     {
         var session = await GetValidSession(idKeyHash, ipAddress, userAgent, ct);
 
@@ -289,12 +289,12 @@ public class AuthSessionService : IAuthSessionService
         user.LastLoginAt = DateTimeOffset.UtcNow;
 
         // Générer les tokens
-        var (accessToken, refreshToken, expiresAt) = _tokenService.GenerateTokenPair(user, session.Id.ToString(), ipAddress);
+        var (accessToken, refreshToken, accessExpiresAt, refreshExpiresAt) = _tokenService.GenerateTokenPair(user, session.Id.ToString(), ipAddress, clientType);
 
         // Stocker le hash du refresh token et sa date d'expiration dans la session
         session.RefreshTokenHash = HashToken(refreshToken);
         // Par défaut, refresh token valable 24h
-        session.RefreshTokenExpiresAt = DateTimeOffset.UtcNow.AddHours(24);
+        session.RefreshTokenExpiresAt = refreshExpiresAt;
 
         // Mettre à jour le user (last login) et la session en base
         user.LastLoginAt = DateTimeOffset.UtcNow;
@@ -307,7 +307,7 @@ public class AuthSessionService : IAuthSessionService
         return new LoginResultDto
         {
             AccessToken = accessToken,
-            AccessTokenExpiresAt = expiresAt,
+            AccessTokenExpiresAt = accessExpiresAt,
             User = new UserSummaryDto
             {
                 Id = user.Id,
@@ -357,7 +357,7 @@ public class AuthSessionService : IAuthSessionService
     }
 
     // ── Refresh access token via refresh token ─────────────────────────────
-    public async Task<RefreshResultDto> RefreshAsync(string refreshToken, string ipAddress, string userAgent, CancellationToken ct = default)
+    public async Task<RefreshResultDto> RefreshAsync(string refreshToken, string ipAddress, string userAgent, string clientType, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(refreshToken))
             throw new InvalidOperationException("Refresh token manquant.");
@@ -381,11 +381,11 @@ public class AuthSessionService : IAuthSessionService
             ?? throw new InvalidOperationException("Utilisateur introuvable pour cette session.");
 
         // Générer nouvelle paire (rotation du refresh token)
-        var (newAccessToken, newRefreshToken, accessExpiresAt) = _tokenService.GenerateTokenPair(user, session.Id.ToString(), ipAddress);
+        var (newAccessToken, newRefreshToken, accessExpiresAt, refreshExpiresAt) = _tokenService.GenerateTokenPair(user, session.Id.ToString(), ipAddress, clientType);
 
         // Mettre à jour le hash et l'expiration du refresh token
         session.RefreshTokenHash = HashToken(newRefreshToken);
-        session.RefreshTokenExpiresAt = DateTimeOffset.UtcNow.AddHours(24);
+        session.RefreshTokenExpiresAt = refreshExpiresAt;
         await _repo.UpdateAsync(session, ct);
 
         return new RefreshResultDto
@@ -400,7 +400,7 @@ public class AuthSessionService : IAuthSessionService
     // ── Inscription (nouvel utilisateur après OTP validé) ───────────────────
     public async Task<LoginResultDto> RegisterAsync(
         string idKeyHash, string firstName, string lastName, string password,
-        string ipAddress, string userAgent, CancellationToken ct)
+        string ipAddress, string userAgent, string clientType, CancellationToken ct)
     {
         var session = await GetValidSession(idKeyHash, ipAddress, userAgent, ct);
 
@@ -444,7 +444,7 @@ public class AuthSessionService : IAuthSessionService
         _logger.LogInformation("Compte créé pour {Email}, session {PublicId}", user.Email, session.PublicId);
 
         // Finaliser le login (générer les tokens)
-        return await FinalizeLoginAsync(idKeyHash, ipAddress, userAgent, ct);
+        return await FinalizeLoginAsync(idKeyHash, ipAddress, userAgent, clientType, ct);
     }
 
     public async Task<OtpStatusResponse> GetOtpStatusAsync(string idKeyHash, CancellationToken ct = default)
@@ -588,3 +588,4 @@ public class AuthSessionService : IAuthSessionService
         return Convert.ToBase64String(hash);
     }
 }
+

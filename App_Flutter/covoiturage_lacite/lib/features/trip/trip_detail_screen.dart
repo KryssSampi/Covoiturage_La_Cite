@@ -12,12 +12,14 @@ class TripDetailScreen extends StatefulWidget {
     required this.tripService,
     this.trip,
     this.tripId,
+    this.initialData,
     this.viewerRole = TripViewerRole.passenger,
-  }) : assert(trip != null || tripId != null, 'Provide trip or tripId');
+  }) : assert(trip != null || tripId != null || initialData != null, 'Provide trip, tripId or initialData');
 
   final TripService tripService;
   final Trip? trip;
   final String? tripId;
+  final Map<String, dynamic>? initialData;
   final TripViewerRole viewerRole;
 
   @override
@@ -26,6 +28,7 @@ class TripDetailScreen extends StatefulWidget {
 
 class _TripDetailScreenState extends State<TripDetailScreen> {
   Trip? _trip;
+  Map<String, dynamic>? _tripRaw;
   bool _isLoading = true;
   bool _isReserving = false;
   bool _showCancelConfirm = false;
@@ -34,20 +37,47 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialData != null) {
+      _tripRaw = Map<String, dynamic>.from(widget.initialData!);
+      try {
+        _trip = Trip.fromJson(_tripRaw!);
+        _isLoading = false;
+      } catch (_) {
+        _trip = null;
+      }
+    }
     if (widget.trip != null) {
       _trip = widget.trip;
       _isLoading = false;
-    } else {
-      _loadTrip();
+    }
+    if (widget.tripId != null && widget.tripId!.isNotEmpty) {
+      _loadTrip(showLoader: _trip == null);
     }
   }
 
-  Future<void> _loadTrip() async {
+  Future<void> _loadTrip({bool showLoader = true}) async {
+    if (widget.tripId == null || widget.tripId!.isEmpty) return;
+    if (showLoader) {
+      setState(() {
+        _isLoading = true;
+        _errorMsg = null;
+      });
+    }
     try {
-      final t = await widget.tripService.getTripById(widget.tripId!);
-      setState(() { _trip = t; _isLoading = false; });
+      final raw = await widget.tripService.getTripPayloadById(widget.tripId!);
+      final t = Trip.fromJson(raw);
+      if (!mounted) return;
+      setState(() {
+        _tripRaw = raw;
+        _trip = t;
+        _isLoading = false;
+      });
     } catch (_) {
-      setState(() { _errorMsg = 'Impossible de charger le trajet.'; _isLoading = false; });
+      if (!mounted) return;
+      setState(() {
+        _errorMsg = 'Impossible de charger le trajet.';
+        _isLoading = false;
+      });
     }
   }
 
@@ -55,19 +85,15 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     if (_trip == null || _isReserving) return;
     setState(() => _isReserving = true);
     try {
-      final result = await widget.tripService.createReservation(tripId: _trip!.id);
+      await widget.tripService.createReservation(tripId: _trip!.id);
       if (!mounted) return;
-      if (result.success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Réservation envoyée ! Le conducteur vous répondra bientôt.'),
-          backgroundColor: Color(0xFF16a34a),
-        ));
-        context.pop();
-      } else {
-        _showError('Réservation impossible : ${result.message ?? 'erreur inconnue'}');
-      }
-    } catch (_) {
-      _showError('Erreur réseau. Réessayez.');
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Reservation envoyee !'),
+        backgroundColor: Color(0xFF0F6E56),
+      ));
+      context.push('/reservations');
+    } catch (e) {
+      _showError('Erreur : $e');
     } finally {
       if (mounted) setState(() => _isReserving = false);
     }
@@ -84,9 +110,10 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF08316e)))
           : _errorMsg != null
-              ? _ErrorView(message: _errorMsg!, onRetry: _loadTrip)
+              ? _ErrorView(message: _errorMsg!, onRetry: () => _loadTrip())
               : _TripView(
                   trip: _trip!,
+                  tripRaw: _tripRaw,
                   viewerRole: widget.viewerRole,
                   isReserving: _isReserving,
                   showCancelConfirm: _showCancelConfirm,
@@ -100,10 +127,11 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 }
 
 class _TripView extends StatelessWidget {
-  const _TripView({required this.trip, required this.viewerRole, required this.isReserving,
+  const _TripView({required this.trip, required this.tripRaw, required this.viewerRole, required this.isReserving,
       required this.showCancelConfirm, required this.onReserve, required this.onShowCancel,
       required this.onDismissCancel, required this.onConfirmCancel});
   final Trip trip;
+  final Map<String, dynamic>? tripRaw;
   final TripViewerRole viewerRole;
   final bool isReserving, showCancelConfirm;
   final VoidCallback onReserve, onShowCancel, onDismissCancel, onConfirmCancel;
@@ -114,7 +142,7 @@ class _TripView extends StatelessWidget {
       children: [
         CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: _MapHero(trip: trip)),
+            SliverToBoxAdapter(child: _MapHero(trip: trip, tripRaw: tripRaw)),
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -123,6 +151,7 @@ class _TripView extends StatelessWidget {
                   child: _SummaryCard(
                     trip: trip, viewerRole: viewerRole, isReserving: isReserving,
                     onReserve: onReserve, onCancel: onShowCancel,
+                    tripId: trip.id,
                   ),
                 ),
               ),
@@ -134,15 +163,15 @@ class _TripView extends StatelessWidget {
                   _sectionTitle('Détails du trajet'),
                   const SizedBox(height: 10),
                   Row(children: [
-                    Expanded(child: _PointCard(label: 'Départ', trip: trip, isDeparture: true)),
+                    Expanded(child: _PointCard(label: 'Départ', trip: trip, tripRaw: tripRaw, isDeparture: true)),
                     const SizedBox(width: 10),
-                    Expanded(child: _PointCard(label: 'Arrivée', trip: trip, isDeparture: false)),
+                    Expanded(child: _PointCard(label: 'Arrivée', trip: trip, tripRaw: tripRaw, isDeparture: false)),
                   ]),
                   const SizedBox(height: 10),
                   Row(children: [
                     Expanded(child: _PreferencesCard(trip: trip)),
                     const SizedBox(width: 10),
-                    Expanded(child: _StatusCard(trip: trip)),
+                    Expanded(child: _StatusCard(trip: trip, tripRaw: tripRaw)),
                   ]),
                   const SizedBox(height: 80),
                 ]),
@@ -165,15 +194,26 @@ class _TripView extends StatelessWidget {
 }
 
 class _MapHero extends StatelessWidget {
-  const _MapHero({required this.trip});
+  const _MapHero({required this.trip, required this.tripRaw});
   final Trip trip;
+  final Map<String, dynamic>? tripRaw;
 
   @override
   Widget build(BuildContext context) {
+    final List<Offset> points = _extractPolylinePoints(tripRaw);
+    final String eta = _etaLabel(trip, tripRaw);
+    final String distance = _distanceLabel(trip, tripRaw);
     return Container(
       height: 200, color: const Color(0xFF08316e),
       child: Stack(children: [
-        const Center(child: Icon(Icons.map_outlined, size: 60, color: Colors.white30)),
+        if (points.isNotEmpty)
+          Positioned.fill(
+            child: CustomPaint(
+              painter: _PolylineBackgroundPainter(points),
+            ),
+          )
+        else
+          const Center(child: Icon(Icons.map_outlined, size: 60, color: Colors.white30)),
         Positioned(
           top: MediaQuery.of(context).padding.top + 8, left: 8,
           child: IconButton(
@@ -184,9 +224,9 @@ class _MapHero extends StatelessWidget {
         Positioned(
           bottom: 16, left: 0, right: 0,
           child: Column(children: [
-            Text('${trip.estimatedDurationMin} min de trajet',
+            Text(eta,
                 style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600)),
-            Text('${trip.estimatedDistanceKm.toStringAsFixed(1)} km',
+            Text(distance,
                 style: const TextStyle(color: Colors.white70, fontSize: 12)),
           ]),
         ),
@@ -197,10 +237,11 @@ class _MapHero extends StatelessWidget {
 
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({required this.trip, required this.viewerRole, required this.isReserving,
-      required this.onReserve, required this.onCancel});
+      required this.onReserve, required this.onCancel, required this.tripId});
   final Trip trip;
   final TripViewerRole viewerRole;
   final bool isReserving;
+  final String tripId;
   final VoidCallback onReserve, onCancel;
 
   @override
@@ -225,6 +266,13 @@ class _SummaryCard extends StatelessWidget {
               ]),
               Text(trip.vehicleModel, style: const TextStyle(fontSize: 11, color: Color(0xFF6b7280))),
             ])),
+            if (viewerRole == TripViewerRole.passenger)
+              TextButton.icon(
+                onPressed: () => context.push('/chat/$tripId'),
+                icon: const Icon(Icons.chat_bubble_outline, size: 16),
+                label: const Text('Message'),
+                style: TextButton.styleFrom(foregroundColor: const Color(0xFF0F6E56)),
+              ),
           ]),
           const Divider(height: 24),
           Row(children: [
@@ -320,15 +368,18 @@ class _MetaTile extends StatelessWidget {
 }
 
 class _PointCard extends StatelessWidget {
-  const _PointCard({required this.label, required this.trip, required this.isDeparture});
+  const _PointCard({required this.label, required this.trip, required this.tripRaw, required this.isDeparture});
   final String label;
   final Trip trip;
+  final Map<String, dynamic>? tripRaw;
   final bool isDeparture;
 
   @override
   Widget build(BuildContext context) {
     final dotColor = isDeparture ? const Color(0xFF08316e) : const Color(0xFFe04a2f);
-    final address = isDeparture ? trip.departureLabel : trip.arrivalLabel;
+    final address = isDeparture
+        ? _departureLabel(trip, tripRaw)
+        : _arrivalLabel(trip, tripRaw);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(padding: const EdgeInsets.all(12), child: Column(
@@ -390,8 +441,9 @@ class _Pref {
 }
 
 class _StatusCard extends StatelessWidget {
-  const _StatusCard({required this.trip});
+  const _StatusCard({required this.trip, required this.tripRaw});
   final Trip trip;
+  final Map<String, dynamic>? tripRaw;
 
   @override
   Widget build(BuildContext context) {
@@ -405,6 +457,8 @@ class _StatusCard extends StatelessWidget {
           _InfoRow('Type', trip.tripType),
           if (trip.isRecurrent) const _InfoRow('Récurrence', 'Oui'),
           if (trip.maxDetourMinutes != null) _InfoRow('Détour', '${trip.maxDetourMinutes} min max'),
+          _InfoRow('ETA', _etaLabel(trip, tripRaw)),
+          if (_driverNote(trip, tripRaw).isNotEmpty) _InfoRow('Mot', _driverNote(trip, tripRaw)),
         ],
       )),
     );
@@ -421,9 +475,180 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(children: [
         SizedBox(width: 60, child: Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF6b7280)))),
-        Text(value, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+        Expanded(
+          child: Text(value, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+        ),
       ]),
     );
+  }
+}
+
+String _departureLabel(Trip trip, Map<String, dynamic>? raw) {
+  final departure = _asMap(raw?['departure']);
+  return _firstText(<dynamic>[
+    raw?['departureLabel'],
+    departure?['label'],
+    departure?['address'],
+    raw?['fromLabel'],
+    raw?['from'],
+    trip.departureLabel,
+  ], fallback: '—');
+}
+
+String _arrivalLabel(Trip trip, Map<String, dynamic>? raw) {
+  final arrival = _asMap(raw?['arrival']);
+  return _firstText(<dynamic>[
+    raw?['arrivalLabel'],
+    arrival?['label'],
+    arrival?['address'],
+    raw?['toLabel'],
+    raw?['to'],
+    trip.arrivalLabel,
+  ], fallback: '—');
+}
+
+String _driverNote(Trip trip, Map<String, dynamic>? raw) {
+  final prefs = _asMap(raw?['preferences']);
+  return _firstText(<dynamic>[
+    raw?['driverNote'],
+    prefs?['driverNote'],
+    raw?['message'],
+    raw?['note'],
+    trip.driverNote,
+  ], fallback: '');
+}
+
+String _etaLabel(Trip trip, Map<String, dynamic>? raw) {
+  final eta = _asMap(raw?['eta']);
+  final int minutes = _firstInt(<dynamic>[
+    raw?['etaMinutes'],
+    raw?['estimatedDurationMin'],
+    raw?['estimatedDuration'],
+    eta?['minutes'],
+    trip.estimatedDurationMin,
+  ]);
+  if (minutes > 0) return '$minutes min';
+  final String etaTime = _firstText(<dynamic>[
+    raw?['eta'],
+    raw?['arrivalTime'],
+    trip.arrivalTime,
+  ]);
+  return etaTime.isNotEmpty ? etaTime : '—';
+}
+
+String _distanceLabel(Trip trip, Map<String, dynamic>? raw) {
+  final distance = _asMap(raw?['distance']);
+  final double km = _firstDouble(<dynamic>[
+    raw?['estimatedDistanceKm'],
+    raw?['estimatedDistance'],
+    distance?['km'],
+    trip.estimatedDistanceKm,
+  ]);
+  if (km > 0) return '${km.toStringAsFixed(1)} km';
+  return '—';
+}
+
+String _firstText(List<dynamic> values, {String fallback = ''}) {
+  for (final dynamic v in values) {
+    final String s = v?.toString().trim() ?? '';
+    if (s.isNotEmpty) return s;
+  }
+  return fallback;
+}
+
+int _firstInt(List<dynamic> values) {
+  for (final dynamic v in values) {
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    final parsed = int.tryParse(v?.toString() ?? '');
+    if (parsed != null) return parsed;
+  }
+  return 0;
+}
+
+double _firstDouble(List<dynamic> values) {
+  for (final dynamic v in values) {
+    if (v is double) return v;
+    if (v is num) return v.toDouble();
+    final parsed = double.tryParse(v?.toString() ?? '');
+    if (parsed != null) return parsed;
+  }
+  return 0;
+}
+
+List<Offset> _extractPolylinePoints(Map<String, dynamic>? raw) {
+  final route = _asMap(raw?['route']);
+  final dynamic source = raw?['polyline'] ??
+      raw?['routePolyline'] ??
+      raw?['overviewPolyline'] ??
+      raw?['geometry'] ??
+      route?['polyline'] ??
+      route?['coordinates'];
+  final List<dynamic> rows = source is List<dynamic>
+      ? source
+      : source is Map<String, dynamic>
+          ? (source['coordinates'] as List<dynamic>? ?? <dynamic>[])
+          : <dynamic>[];
+  final List<Offset> points = <Offset>[];
+  for (final dynamic row in rows) {
+    if (row is List && row.length >= 2) {
+      final lat = _firstDouble(<dynamic>[row[0]]);
+      final lng = _firstDouble(<dynamic>[row[1]]);
+      points.add(Offset(lng, lat));
+    } else if (row is Map<String, dynamic>) {
+      final lat = _firstDouble(<dynamic>[row['lat'], row['latitude']]);
+      final lng = _firstDouble(<dynamic>[row['lng'], row['lon'], row['longitude']]);
+      points.add(Offset(lng, lat));
+    }
+  }
+  return points.length >= 2 ? points : <Offset>[];
+}
+
+Map<String, dynamic>? _asMap(dynamic v) {
+  return v is Map<String, dynamic> ? v : null;
+}
+
+class _PolylineBackgroundPainter extends CustomPainter {
+  const _PolylineBackgroundPainter(this.points);
+  final List<Offset> points;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final bg = Paint()..color = const Color(0xFF0D3E87);
+    canvas.drawRect(Offset.zero & size, bg);
+    if (points.length < 2) return;
+    final minX = points.map((p) => p.dx).reduce((a, b) => a < b ? a : b);
+    final maxX = points.map((p) => p.dx).reduce((a, b) => a > b ? a : b);
+    final minY = points.map((p) => p.dy).reduce((a, b) => a < b ? a : b);
+    final maxY = points.map((p) => p.dy).reduce((a, b) => a > b ? a : b);
+    final spanX = (maxX - minX).abs() < 0.000001 ? 1.0 : (maxX - minX);
+    final spanY = (maxY - minY).abs() < 0.000001 ? 1.0 : (maxY - minY);
+
+    Offset normalize(Offset p) {
+      final x = ((p.dx - minX) / spanX) * (size.width - 40) + 20;
+      final y = ((p.dy - minY) / spanY) * (size.height - 70) + 35;
+      return Offset(x, y);
+    }
+
+    final Path path = Path()..moveTo(normalize(points.first).dx, normalize(points.first).dy);
+    for (int i = 1; i < points.length; i++) {
+      final p = normalize(points[i]);
+      path.lineTo(p.dx, p.dy);
+    }
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = Colors.white70
+        ..strokeWidth = 4
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _PolylineBackgroundPainter oldDelegate) {
+    return oldDelegate.points != points;
   }
 }
 
@@ -482,3 +707,4 @@ class _ErrorView extends StatelessWidget {
     ]));
   }
 }
+

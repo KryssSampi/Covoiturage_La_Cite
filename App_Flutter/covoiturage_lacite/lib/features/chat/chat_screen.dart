@@ -290,3 +290,6 @@ DateTime? _toDateTime(dynamic value) => parsing.toDateTime(value);
 
 String _fmtTime(DateTime dt) {
   String two(int v) => v < 10 ? '0$v' : '$v';
+  return '${two(dt.hour)}:${two(dt.minute)}';
+}
+

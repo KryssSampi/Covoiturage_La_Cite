@@ -9,6 +9,7 @@
 appsettings.Development.json
 appsettings.*.json
 !appsettings.json
+certs/jwt_private.pem
 
 # User-specific files
 *.suo

@@ -2,7 +2,9 @@ using System.Security.Cryptography;
 using Covoiturage_La_Cite_Server_Core_.Api.DTOs.Common;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Auth;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Auth;
 
 namespace Covoiturage_La_Cite_Server_Core_.Api.Controllers.Auth;
 
@@ -44,7 +46,8 @@ public class AuthSessionController : ControllerBase
 
         try
         {
-            var result = await _authSession.RefreshAsync(refreshToken, GetClientIp(), GetUserAgent(), ct);
+            var clientType = ResolveClientType(request?.ClientType);
+            var result = await _authSession.RefreshAsync(refreshToken, GetClientIp(), GetUserAgent(), clientType, ct);
             return Ok(ApiResponse<Covoiturage_La_Cite_Server_Core_.Application.DTOs.Auth.RefreshResultDto>.Ok(result));
         }
         catch (KeyNotFoundException)
@@ -127,7 +130,8 @@ public class AuthSessionController : ControllerBase
             if (result.Success)
             {
                 // Si l'utilisateur existait, finaliser le login
-                var loginResult = await TryFinalizeLogin(idKeyHash, ct);
+                var clientType = ResolveClientType(request.ClientType);
+                var loginResult = await TryFinalizeLogin(idKeyHash, clientType, ct);
                 if (loginResult != null)
                     return Ok(ApiResponse<LoginResultDto>.Ok(loginResult));
             }
@@ -199,7 +203,8 @@ public class AuthSessionController : ControllerBase
 
         try
         {
-            var result = await _authSession.PasswordLoginAsync(idKeyHash, request.Password, GetClientIp(), GetUserAgent(), ct);
+            var clientType = ResolveClientType(request.ClientType);
+            var result = await _authSession.PasswordLoginAsync(idKeyHash, request.Password, GetClientIp(), GetUserAgent(), clientType, ct);
             return Ok(ApiResponse<LoginResultDto>.Ok(result));
         }
         catch (InvalidOperationException ex) when (ex.Message == "OTP_SENT")
@@ -249,9 +254,10 @@ public class AuthSessionController : ControllerBase
 
         try
         {
+            var clientType = ResolveClientType(request.ClientType);
             var result = await _authSession.RegisterAsync(
                 idKeyHash, request.FirstName, request.LastName, request.Password,
-                GetClientIp(), GetUserAgent(), ct);
+                GetClientIp(), GetUserAgent(), clientType, ct);
             return Ok(ApiResponse<LoginResultDto>.Ok(result));
         }
         catch (InvalidOperationException ex) when (ex.Message == "BLOCKED")
@@ -272,6 +278,13 @@ public class AuthSessionController : ControllerBase
     //  Helpers
     // ═══════════════════════════════════════════════════════════════════════
 
+
+    [AllowAnonymous]
+    [HttpGet("public-key")]
+    public IActionResult GetPublicKey()
+    {
+        return Ok(new { publicKey = JwtRsaKeyStore.GetPublicKeyPem() });
+    }
     private string? GetIdKeyHash()
     {
         var idKey = Request.Cookies[IdKeyCookie];
@@ -315,11 +328,11 @@ public class AuthSessionController : ControllerBase
         return StatusCode(429, ApiResponse.Fail("Session bloquée."));
     }
 
-    private async Task<LoginResultDto?> TryFinalizeLogin(string idKeyHash, CancellationToken ct)
+    private async Task<LoginResultDto?> TryFinalizeLogin(string idKeyHash, string clientType, CancellationToken ct)
     {
         try
         {
-            return await _authSession.FinalizeLoginAsync(idKeyHash, GetClientIp(), GetUserAgent(), ct);
+            return await _authSession.FinalizeLoginAsync(idKeyHash, GetClientIp(), GetUserAgent(), clientType, ct);
         }
         catch
         {
@@ -327,6 +340,27 @@ public class AuthSessionController : ControllerBase
         }
     }
 
+
+    private string ResolveClientType(string? bodyClientType)
+    {
+        var headerClientType = Request.Headers["X-Client-Type"].ToString();
+        if (string.Equals(headerClientType, "mobile", StringComparison.OrdinalIgnoreCase))
+            return "mobile";
+        if (string.Equals(headerClientType, "web", StringComparison.OrdinalIgnoreCase))
+            return "web";
+
+        if (string.Equals(bodyClientType, "mobile", StringComparison.OrdinalIgnoreCase))
+            return "mobile";
+        if (string.Equals(bodyClientType, "web", StringComparison.OrdinalIgnoreCase))
+            return "web";
+
+        var ua = GetUserAgent();
+        if (ua.Contains("Dart", StringComparison.OrdinalIgnoreCase) ||
+            ua.Contains("Flutter", StringComparison.OrdinalIgnoreCase))
+            return "mobile";
+
+        return "web";
+    }
     private string GetClientIp()
         => HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
@@ -339,3 +373,6 @@ public class AuthSessionController : ControllerBase
             || email.EndsWith("@lacitec.on.ca", StringComparison.OrdinalIgnoreCase);
     }
 }
+
+
+
