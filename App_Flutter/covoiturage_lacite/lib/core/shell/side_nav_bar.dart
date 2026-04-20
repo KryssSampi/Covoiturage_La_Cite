@@ -110,7 +110,7 @@ class SideNavBar extends StatelessWidget {
                           title: const Text('Historique', style: TextStyle(color: Color(0xFF0D1624))),
                           onTap: () {
                             onClose();
-                            context.go('/reservations');
+                            context.push('/historique');
                           },
                         ),
                         ListTile(
@@ -118,7 +118,7 @@ class SideNavBar extends StatelessWidget {
                           title: const Text('Messages', style: TextStyle(color: Color(0xFF0D1624))),
                           onTap: () {
                             onClose();
-                            context.go('/chat/general');
+                            context.push('/reservations');
                           },
                         ),
                         ListTile(
@@ -126,7 +126,7 @@ class SideNavBar extends StatelessWidget {
                           title: const Text('Mes avis', style: TextStyle(color: Color(0xFF0D1624))),
                           onTap: () {
                             onClose();
-                            context.go('/reservations');
+                            context.push('/reviews');
                           },
                         ),
                         ListTile(

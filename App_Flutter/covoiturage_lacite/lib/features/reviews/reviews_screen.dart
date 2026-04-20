@@ -57,20 +57,28 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   }
 
   Future<void> _load() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
-      final data = await ApiService.instance.get('/api/reviews/received') as List? ?? [];
+      final dynamic data = await ApiService.instance.get('/api/reviews/me');
+      final List<dynamic> rows = _extractReviewRows(data);
       if (!mounted) return;
       setState(() {
-        _reviews = data
+        _reviews = rows
             .whereType<Map<String, dynamic>>()
             .map(_mapReview)
             .toList();
         _isLoading = false;
         _error = null;
       });
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _error = e.toString();
+      });
     }
   }
 
@@ -98,7 +106,7 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
 
     return ReviewData(
       id: '${r['id'] ?? ''}',
-      direction: ReviewDirection.received,
+      direction: _resolveDirection(r),
       personName: personName,
       personInitials: initials.isEmpty ? 'U' : initials,
       rating: rating,
@@ -106,6 +114,54 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
       dateLabel: '${r['dateLabel'] ?? r['createdAt'] ?? r['date'] ?? '—'}',
       tripRoute: '${r['tripRoute'] ?? r['route'] ?? r['tripLabel'] ?? '—'}',
     );
+  }
+
+  ReviewDirection _resolveDirection(Map<String, dynamic> r) {
+    final String direction = (r['direction'] ?? r['type'] ?? '')
+        .toString()
+        .toLowerCase();
+    if (direction.contains('given') ||
+        direction.contains('left') ||
+        direction.contains('laisse') ||
+        direction.contains('sent') ||
+        r['isGiven'] == true) {
+      return ReviewDirection.given;
+    }
+    return ReviewDirection.received;
+  }
+
+  List<dynamic> _extractReviewRows(dynamic data) {
+    if (data is List) return data;
+    if (data is Map<String, dynamic>) {
+      final dynamic body = data['data'] ?? data;
+      if (body is Map<String, dynamic>) {
+        final List<dynamic> merged = <dynamic>[];
+        final List<dynamic> received =
+            _extractList(body['received'] ?? body['reviewsReceived']);
+        final List<dynamic> given =
+            _extractList(body['given'] ?? body['reviewsGiven']);
+        merged.addAll(received.whereType<Map<String, dynamic>>().map(
+              (Map<String, dynamic> m) =>
+                  <String, dynamic>{...m, 'direction': 'received'},
+            ));
+        merged.addAll(given.whereType<Map<String, dynamic>>().map(
+              (Map<String, dynamic> m) =>
+                  <String, dynamic>{...m, 'direction': 'given'},
+            ));
+        if (merged.isNotEmpty) return merged;
+      }
+      return _extractList(body);
+    }
+    return <dynamic>[];
+  }
+
+  List<dynamic> _extractList(dynamic data) {
+    if (data is List) return data;
+    if (data is Map) {
+      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[])
+          as List<dynamic>;
+    }
+    return <dynamic>[];
   }
 
   @override

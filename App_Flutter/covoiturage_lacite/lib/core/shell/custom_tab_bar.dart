@@ -12,7 +12,7 @@ class CustomTabBar extends StatelessWidget {
 
   static const List<IconData> _icons = <IconData>[
     Icons.home_rounded,
-    Icons.star,
+    Icons.star_rounded,
     Icons.calendar_month_rounded,
     Icons.message_outlined,
     Icons.person_rounded,
@@ -20,9 +20,9 @@ class CustomTabBar extends StatelessWidget {
 
   static const List<String> _labels = <String>[
     'Accueil',
-    'statistiques',
+    'Stats',
     'Planifier',
-    'messages',
+    'Messages',
     'Profil',
   ];
   static const List<int> _visualOrder = <int>[1, 2, 0, 3, 4];

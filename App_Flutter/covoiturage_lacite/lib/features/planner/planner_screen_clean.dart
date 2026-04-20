@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/app_colors.dart';
@@ -6,10 +6,6 @@ import '../../core/app_text_styles.dart';
 import '../../core/services/api_service.dart';
 import '../../core/services/trip_service.dart';
 import '../../shared/widgets/shared_widgets.dart';
-
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// MODÃˆLES LOCAUX
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 enum _DriverStatus { published, confirmed, inProgress, cancelled, completed }
 enum _PassengerStatus { confirmed, pending, inProgress, completed }
@@ -130,10 +126,6 @@ class _DriverTrip {
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// PAGE
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-
 class PlannerScreen extends StatefulWidget {
   const PlannerScreen({super.key});
 
@@ -144,31 +136,29 @@ class PlannerScreen extends StatefulWidget {
 class _PlannerScreenState extends State<PlannerScreen> {
   final ApiService _api = ApiService.instance;
   final TripService _tripService = TripService(ApiService.instance);
-  int _selectedDay = 19; // today fixture
+  int _selectedDay = 19;
   bool _isViewAll = false;
   bool _sheetOpen = false;
-  int _currentMonth = 4; // April
+  int _currentMonth = 4;
   int _currentYear = 2026;
   bool _isLoading = true;
   List<_DriverTrip> _trips = <_DriverTrip>[];
 
-  // â”€â”€ Fixtures â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   List<_DriverRide> _driverRides = <_DriverRide>[];
 
   List<_PassengerRide> _passengerRides = <_PassengerRide>[];
 
   final _unavailItems = const [
     _UnavailItem(
-      title: 'Lundi & Jeudi Â· 08:00 â€“ 12:00',
-      detail: 'RÃ©current Â· Toutes les semaines',
+      title: 'Lundi & Jeudi · 08:00 – 12:00',
+      detail: 'Récurrent · Toutes les semaines',
     ),
     _UnavailItem(
-      title: '20 avr. 2026 Â· 07:00 â€“ 23:59',
-      detail: 'JournÃ©e spÃ©cifique',
+      title: '20 avr. 2026 · 07:00 – 23:59',
+      detail: 'Journée spécifique',
     ),
   ];
 
-  // Calendar cells for April 2026 (starts Tuesday = offset 1 monday-first)
   late List<_CalendarCell> _cells;
 
   @override
@@ -312,16 +302,13 @@ class _PlannerScreenState extends State<PlannerScreen> {
 
   void _buildCells() {
     _cells = [];
-    // April 2026: 1st = Wednesday â†’ offset=2 (Mon-first: Mon=0 â€¦ Wed=2)
     const offset = 2;
     const daysInMonth = 30;
     final today = 19;
 
-    // Prev month trailing days
     for (int i = offset; i > 0; i--) {
       _cells.add(_CalendarCell(day: 31 - i + 1, isOtherMonth: true));
     }
-    // Current month
     final tripDays = {2: 1, 5: 2, 8: 3, 12: 1, 14: 2, 17: 1, 19: 3, 22: 2, 25: 1};
     final unavailDays = {20, 21};
     for (int d = 1; d <= daysInMonth; d++) {
@@ -335,7 +322,6 @@ class _PlannerScreenState extends State<PlannerScreen> {
         tripCount: tripDays[d] ?? 0,
       ));
     }
-    // Next month padding to complete 35 cells
     int next = 1;
     while (_cells.length < 35) {
       _cells.add(_CalendarCell(day: next++, isOtherMonth: true));
@@ -353,8 +339,8 @@ class _PlannerScreenState extends State<PlannerScreen> {
 
   String get _monthLabel {
     const months = [
-      '', 'Janvier', 'FÃ©vrier', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'AoÃ»t', 'Septembre', 'Octobre', 'Novembre', 'DÃ©cembre'
+      '', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
     ];
     return '${months[_currentMonth]} $_currentYear';
   }
@@ -366,13 +352,16 @@ class _PlannerScreenState extends State<PlannerScreen> {
       children: [
         Scaffold(
           backgroundColor: AppColors.grayBg,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => context.push('/create-trip'),
+            backgroundColor: const Color(0xFF1A56CC),
+            foregroundColor: Colors.white,
+            child: const Icon(Icons.add_rounded),
+          ),
           body: ListView(
             children: [
-              // â”€â”€ Header actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               _buildHeaderActions(),
               const SectionGap(),
-
-              // â”€â”€ Calendar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               _CalendarSection(
                 cells: _cells,
                 monthLabel: _monthLabel,
@@ -395,8 +384,6 @@ class _PlannerScreenState extends State<PlannerScreen> {
                 onSelectDay: _selectDay,
               ),
               const SectionGap(),
-
-              // â”€â”€ Rides section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
               _RidesSection(
                 selectedDay: _selectedDay,
                 isViewAll: _isViewAll,
@@ -408,8 +395,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
                   'arrivalLabel': trip.to,
                   'departureTime': trip.dateTime?.toIso8601String(),
                 }),
-                onToggleViewAll: () =>
-                    setState(() => _isViewAll = !_isViewAll),
+                onToggleViewAll: () => setState(() => _isViewAll = !_isViewAll),
                 onNavigateDay: (delta) => setState(() {
                   _selectedDay = (_selectedDay + delta).clamp(1, 30);
                   _buildCells();
@@ -418,15 +404,12 @@ class _PlannerScreenState extends State<PlannerScreen> {
               if (!_isLoading && tripCount == 0)
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Aucun trajet planifiÃ© pour le moment.'),
+                  child: Text('Aucun trajet planifié pour le moment.'),
                 ),
-
               const SizedBox(height: 32),
             ],
           ),
         ),
-
-        // â”€â”€ Bottom sheet overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (_isLoading)
           const Positioned.fill(
             child: ColoredBox(
@@ -445,7 +428,6 @@ class _PlannerScreenState extends State<PlannerScreen> {
     );
   }
 
-  // â”€â”€ Header: Mes disponibilitÃ©s + Trouver un trajet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Widget _buildHeaderActions() {
     return Container(
       color: AppColors.surface,
@@ -453,17 +435,16 @@ class _PlannerScreenState extends State<PlannerScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('ðŸ“… Planifie tes trajets ici',
+          Text('📓 Planifie tes trajets ici',
               style: AppTextStyles.soraH3()),
           const SizedBox(height: 4),
           Text(
-            'Visualise ton calendrier, gÃ¨re tes disponibilitÃ©s et trouve des trajets selon ta semaine.',
+            'Visualise ton calendrier, gère tes disponibilités et trouve des trajets selon ta semaine.',
             style: AppTextStyles.body(size: 12.5, color: AppColors.text3),
           ),
           const SizedBox(height: 14),
           Row(
             children: [
-              // Mes disponibilitÃ©s
               Expanded(
                 child: GestureDetector(
                   onTap: () => setState(() => _sheetOpen = true),
@@ -472,13 +453,12 @@ class _PlannerScreenState extends State<PlannerScreen> {
                     cardBg: AppColors.tealLight,
                     borderColor: AppColors.teal.withOpacity(.25),
                     icon: Icons.calendar_today,
-                    label: 'Mes\ndisponibilitÃ©s',
+                    label: 'Mes\ndisponibilités',
                     labelColor: AppColors.teal,
                   ),
                 ),
               ),
               const SizedBox(width: 10),
-              // Trouver un trajet
               Expanded(
                 child: GestureDetector(
                   onTap: () => context.push('/search'),
@@ -544,8 +524,6 @@ String _fmtTime(DateTime? dt) {
   return '${two(dt.hour)}:${two(dt.minute)}';
 }
 
-// â”€â”€ Action button card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 class _ActionBtn extends StatelessWidget {
   final Color iconBg;
   final Color cardBg;
@@ -604,10 +582,6 @@ class _ActionBtn extends StatelessWidget {
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// CALENDAR SECTION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-
 class _CalendarSection extends StatelessWidget {
   final List<_CalendarCell> cells;
   final String monthLabel;
@@ -623,16 +597,15 @@ class _CalendarSection extends StatelessWidget {
     required this.onSelectDay,
   });
 
-  // Dot color by trip count (1â†’green, 7+â†’red)
   Color _dotColor(int count) {
     const colors = [
-      Color(0xFF2D9D6A), // 1
-      Color(0xFF3BAA5A), // 2
-      Color(0xFF70BB40), // 3
-      Color(0xFFA8C030), // 4
-      Color(0xFFD4AB1A), // 5
-      Color(0xFFE07B18), // 6
-      Color(0xFFE24B4A), // 7+
+      Color(0xFF2D9D6A),
+      Color(0xFF3BAA5A),
+      Color(0xFF70BB40),
+      Color(0xFFA8C030),
+      Color(0xFFD4AB1A),
+      Color(0xFFE07B18),
+      Color(0xFFE24B4A),
     ];
     return colors[(count - 1).clamp(0, colors.length - 1)];
   }
@@ -643,7 +616,6 @@ class _CalendarSection extends StatelessWidget {
       color: AppColors.surface,
       child: Column(
         children: [
-          // Nav row
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
             child: Row(
@@ -660,8 +632,6 @@ class _CalendarSection extends StatelessWidget {
               ],
             ),
           ),
-
-          // Days of week header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
@@ -685,8 +655,6 @@ class _CalendarSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-
-          // Grid
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 14),
             child: GridView.count(
@@ -698,8 +666,6 @@ class _CalendarSection extends StatelessWidget {
               children: cells.map(_buildCell).toList(),
             ),
           ),
-
-          // Legend
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
             child: Row(
@@ -724,7 +690,7 @@ class _CalendarSection extends StatelessWidget {
                 const SizedBox(width: 4),
                 Text('7+ trajets / jour', style: AppTextStyles.caption()),
                 const SizedBox(width: 12),
-                Text('âŠ˜ indisponible', style: AppTextStyles.caption()),
+                Text('⊘ indisponible', style: AppTextStyles.caption()),
               ],
             ),
           ),
@@ -836,10 +802,6 @@ class _CalArrow extends StatelessWidget {
   }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// RIDES SECTION
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-
 class _RidesSection extends StatelessWidget {
   final int selectedDay;
   final bool isViewAll;
@@ -866,7 +828,6 @@ class _RidesSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Day nav
           if (!isViewAll)
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
@@ -890,8 +851,6 @@ class _RidesSection extends StatelessWidget {
               child: Text('Tous les trajets',
                   style: AppTextStyles.caption()),
             ),
-
-          // Status bar
           const AppDivider(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -901,7 +860,7 @@ class _RidesSection extends StatelessWidget {
                     style: AppTextStyles.caption()),
                 const SizedBox(width: 8),
                 StatusPill(
-                    label: '2 ConfirmÃ©es',
+                    label: '2 Confirmées',
                     bg: AppColors.tealLight,
                     fg: AppColors.teal),
                 const SizedBox(width: 6),
@@ -936,24 +895,27 @@ class _RidesSection extends StatelessWidget {
             ),
           ),
           const AppDivider(),
-
-          // Rides list
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-            child: Column(
-              children: [
-                ...driverRides.map((r) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _DriverRideCard(
-                        ride: r,
-                        onTap: () => onTripTap(r),
-                      ),
-                    )),
-                ...passengerRides.map((r) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _PassengerRideCard(ride: r),
-                    )),
-              ],
+          SizedBox(
+            height: 280,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                child: Column(
+                  children: [
+                    ...driverRides.map((r) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: _DriverRideCard(
+                            ride: r,
+                            onTap: () => onTripTap(r),
+                          ),
+                        )),
+                    ...passengerRides.map((r) => Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: _PassengerRideCard(ride: r),
+                        )),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -978,8 +940,6 @@ class _RidesSection extends StatelessWidget {
   }
 }
 
-// â”€â”€ Driver Ride Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
 class _DriverRideCard extends StatelessWidget {
   final _DriverRide ride;
   final VoidCallback? onTap;
@@ -988,15 +948,15 @@ class _DriverRideCard extends StatelessWidget {
   (String label, Color bg, Color fg) get _statusStyle {
     switch (ride.status) {
       case _DriverStatus.published:
-        return ('PubliÃ©e', AppColors.tealLight, AppColors.teal);
+        return ('Publiée', AppColors.tealLight, AppColors.teal);
       case _DriverStatus.confirmed:
-        return ('ConfirmÃ©e', AppColors.tealLight, AppColors.teal);
+        return ('Confirmée', AppColors.tealLight, AppColors.teal);
       case _DriverStatus.inProgress:
         return ('En cours', AppColors.redLight, AppColors.red);
       case _DriverStatus.cancelled:
-        return ('AnnulÃ©e', AppColors.amberLight, AppColors.amber);
+        return ('Annulée', AppColors.amberLight, AppColors.amber);
       case _DriverStatus.completed:
-        return ('TerminÃ©e', AppColors.gray100, AppColors.gray600);
+        return ('Terminée', AppColors.gray100, AppColors.gray600);
     }
   }
 
@@ -1012,115 +972,112 @@ class _DriverRideCard extends StatelessWidget {
         padding: EdgeInsets.zero,
         child: Column(
           children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 11, 12, 9),
-            child: Row(
-              children: [
-                // Car thumb
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [AppColors.blueLight, Color(0xFFC8D9F8)],
-                    ),
-                    borderRadius: BorderRadius.circular(AppColors.rMd),
-                  ),
-                  child: const Icon(Icons.directions_car,
-                      size: 32, color: AppColors.blue),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(ride.time, style: AppTextStyles.soraSubtitle()),
-                      const SizedBox(height: 2),
-                      RouteMiniRow(from: ride.from, to: ride.to, fontSize: 12),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.blueLight,
-                          borderRadius:
-                              BorderRadius.circular(AppColors.rFull),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.person,
-                                size: 10, color: AppColors.blue),
-                            const SizedBox(width: 3),
-                            Text(ride.passengerLabel,
-                                style: AppTextStyles.soraBadge()
-                                    .copyWith(fontSize: 11)),
-                          ],
-                        ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 11, 12, 9),
+              child: Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [AppColors.blueLight, Color(0xFFC8D9F8)],
                       ),
+                      borderRadius: BorderRadius.circular(AppColors.rMd),
+                    ),
+                    child: const Icon(Icons.directions_car,
+                        size: 32, color: AppColors.blue),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(ride.time, style: AppTextStyles.soraSubtitle()),
+                        const SizedBox(height: 2),
+                        RouteMiniRow(from: ride.from, to: ride.to, fontSize: 12),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.blueLight,
+                            borderRadius:
+                                BorderRadius.circular(AppColors.rFull),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.person,
+                                  size: 10, color: AppColors.blue),
+                              const SizedBox(width: 3),
+                              Text(ride.passengerLabel,
+                                  style: AppTextStyles.soraBadge()
+                                      .copyWith(fontSize: 11)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      StatusPill(
+                          label: statusLabel, bg: statusBg, fg: statusFg),
+                      const SizedBox(height: 5),
+                      Text('${ride.price.toStringAsFixed(0)} CAD',
+                          style: AppTextStyles.soraSemibold(
+                              size: 13, color: AppColors.blue)),
                     ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    StatusPill(
-                        label: statusLabel, bg: statusBg, fg: statusFg),
-                    const SizedBox(height: 5),
-                    Text('${ride.price.toStringAsFixed(0)} CAD',
-                        style: AppTextStyles.soraSemibold(
-                            size: 13, color: AppColors.blue)),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const AppDivider(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 7, 12, 10),
-            child: Row(
-              children: [
-                if (ride.pendingRequests > 0) ...[
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: BoxDecoration(
-                        color: AppColors.amberMid, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: 5),
-                  Text(
-                    '${ride.pendingRequests} demande(s) en attente',
-                    style: AppTextStyles.soraSemibold(
-                        size: 12, color: AppColors.amberMid),
-                  ),
-                ] else
+            const AppDivider(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 7, 12, 10),
+              child: Row(
+                children: [
+                  if (ride.pendingRequests > 0) ...[
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: BoxDecoration(
+                          color: AppColors.amberMid, shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      '${ride.pendingRequests} demande(s) en attente',
+                      style: AppTextStyles.soraSemibold(
+                          size: 12, color: AppColors.amberMid),
+                    ),
+                  ] else
+                    const Spacer(),
                   const Spacer(),
-                const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
-                  decoration: BoxDecoration(
-                    border:
-                        Border.all(color: AppColors.redMid, width: 1.5),
-                    borderRadius: BorderRadius.circular(AppColors.rFull),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
+                    decoration: BoxDecoration(
+                      border:
+                          Border.all(color: AppColors.redMid, width: 1.5),
+                      borderRadius: BorderRadius.circular(AppColors.rFull),
+                    ),
+                    child: Text('Annuler',
+                        style: AppTextStyles.button(color: AppColors.redMid)
+                            .copyWith(fontSize: 11.5)),
                   ),
-                  child: Text('Annuler',
-                      style: AppTextStyles.button(color: AppColors.redMid)
-                          .copyWith(fontSize: 11.5)),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           ],
         ),
       ),
     );
   }
 }
-
-// â”€â”€ Passenger Ride Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class _PassengerRideCard extends StatelessWidget {
   final _PassengerRide ride;
@@ -1129,13 +1086,13 @@ class _PassengerRideCard extends StatelessWidget {
   (String label, Color bg, Color fg) get _statusStyle {
     switch (ride.status) {
       case _PassengerStatus.confirmed:
-        return ('ConfirmÃ©e', AppColors.tealLight, AppColors.teal);
+        return ('Confirmée', AppColors.tealLight, AppColors.teal);
       case _PassengerStatus.pending:
         return ('En attente', AppColors.amberLight, AppColors.amber);
       case _PassengerStatus.inProgress:
         return ('En cours', AppColors.redLight, AppColors.red);
       case _PassengerStatus.completed:
-        return ('TerminÃ©e', AppColors.gray100, AppColors.gray600);
+        return ('Terminée', AppColors.gray100, AppColors.gray600);
     }
   }
 
@@ -1152,11 +1109,19 @@ class _PassengerRideCard extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
         child: Row(
           children: [
-            AvatarInitials(
-                initials: initials,
-                bg: AppColors.blueLight,
-                fg: AppColors.blue,
-                size: 44),
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.blueLight,
+                shape: BoxShape.circle,
+              ),
+              child: Text(initials, style: const TextStyle(
+                color: AppColors.blue,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              )),
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -1195,10 +1160,6 @@ class _PassengerRideCard extends StatelessWidget {
     );
   }
 }
-
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// UNAVAILABILITY BOTTOM SHEET
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class _UnavailabilitySheet extends StatefulWidget {
   final List<_UnavailItem> unavailItems;
@@ -1257,7 +1218,7 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
         child: Container(
           color: Colors.black.withOpacity(.45),
           child: GestureDetector(
-            onTap: () {}, // absorb taps inside
+            onTap: () {}, 
             child: Align(
               alignment: Alignment.bottomCenter,
               child: SlideTransition(
@@ -1273,7 +1234,6 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Handle
                       Center(
                         child: Container(
                           margin: const EdgeInsets.only(top: 10, bottom: 4),
@@ -1285,13 +1245,12 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                           ),
                         ),
                       ),
-                      // Title row
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text('Mes disponibilitÃ©s',
+                              child: Text('Mes disponibilités',
                                   style: AppTextStyles.soraH3()),
                             ),
                             GestureDetector(
@@ -1311,14 +1270,11 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                         ),
                       ),
                       const AppDivider(),
-
-                      // Scrollable content
                       Flexible(
                         child: SingleChildScrollView(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Info banner
                               Container(
                                 margin: const EdgeInsets.fromLTRB(20, 14, 20, 0),
                                 padding: const EdgeInsets.symmetric(
@@ -1331,12 +1287,12 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Renseignez vos indisponibilitÃ©s',
+                                    Text('Renseignez vos indisponibilités',
                                         style: AppTextStyles.soraSemibold(
                                             size: 13, color: AppColors.blueDark)),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Indiquez les pÃ©riodes oÃ¹ vous n\'Ãªtes pas disponible. Cela nous permet de vous suggÃ©rer des trajets plus pertinents.',
+                                      "Indiquez les périodes où vous n'êtes pas disponible. Cela nous permet de vous suggérer des trajets plus pertinents.",
                                       style: AppTextStyles.body(
                                           size: 12.5,
                                           color: AppColors.blueDark),
@@ -1344,39 +1300,33 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                                   ],
                                 ),
                               ),
-
-                              // Form
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Ajouter une indisponibilitÃ©',
+                                    Text('Ajouter une indisponibilité',
                                         style: AppTextStyles.soraSemibold(
                                             size: 13)),
                                     const SizedBox(height: 12),
-                                    // Date field
                                     _formLabel('DATE (OPTIONNELLE)'),
                                     _inputWrap(
-                                      child: const Text('SÃ©lectionner une date'),
+                                      child: const Text('Sélectionner une date'),
                                       icon: Icons.calendar_today_outlined,
                                     ),
                                     const SizedBox(height: 12),
-                                    // Start time
-                                    _formLabel('HEURE DE DÃ‰BUT'),
+                                    _formLabel('HEURE DE DÉBUT'),
                                     _inputWrap(
                                       child: const Text('08:00'),
                                       icon: Icons.access_time,
                                     ),
                                     const SizedBox(height: 12),
-                                    // End time
                                     _formLabel('HEURE DE FIN'),
                                     _inputWrap(
                                       child: const Text('12:00'),
                                       icon: Icons.access_time,
                                     ),
                                     const SizedBox(height: 12),
-                                    // Recurrent toggle
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 10),
@@ -1395,12 +1345,12 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Text('RÃ©current',
+                                                Text('Récurrent',
                                                     style: AppTextStyles
                                                         .soraSemibold(
                                                             size: 13)),
                                                 Text(
-                                                    'Se rÃ©pÃ¨te chaque semaine',
+                                                    'Se répète chaque semaine',
                                                     style: AppTextStyles
                                                         .caption()),
                                               ],
@@ -1415,7 +1365,6 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                                         ],
                                       ),
                                     ),
-                                    // Weekday picker
                                     if (_isRecurrent) ...[
                                       const SizedBox(height: 10),
                                       Wrap(
@@ -1484,8 +1433,6 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                                   ],
                                 ),
                               ),
-
-                              // Existing unavailabilities
                               if (widget.unavailItems.isNotEmpty) ...[
                                 const AppDivider(),
                                 Padding(
@@ -1495,7 +1442,7 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text('Vos indisponibilitÃ©s',
+                                      Text('Vos indisponibilités',
                                           style: AppTextStyles.soraSemibold(
                                               size: 13)),
                                       const SizedBox(height: 10),
@@ -1510,8 +1457,6 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                           ),
                         ),
                       ),
-
-                      // CTA footer
                       const AppDivider(),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
@@ -1640,6 +1585,4 @@ class _UnavailItemRow extends StatelessWidget {
     );
   }
 }
-
-
 

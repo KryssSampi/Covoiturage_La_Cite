@@ -1,6 +1,5 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/app_colors.dart';
@@ -108,42 +107,136 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadDashboard() async {
+    setState(() => _isLoading = true);
     try {
-      final data = await _api.get('/api/dashboard/driver/me') as Map<String, dynamic>?;
-      if (!mounted || data == null) return;
-      final s = (data['stats'] as Map?)?.cast<String, dynamic>() ?? {};
-      final f = (data['finance'] as Map?)?.cast<String, dynamic>() ?? {};
-      final reqs = (data['reservationRequests'] as List?) ?? [];
+      final dynamic data = await _api.get('/api/dashboard/driver/me');
+      final Map<String, dynamic> body = (data is Map<String, dynamic>)
+          ? ((data['data'] is Map<String, dynamic>)
+              ? data['data'] as Map<String, dynamic>
+              : data)
+          : <String, dynamic>{};
+      if (!mounted) return;
+      final dynamic rawRating = body['stats']?['avgRating'] ?? body['rating'] ?? 0.0;
+      final double rating = rawRating is num
+          ? rawRating.toDouble()
+          : double.tryParse(rawRating.toString()) ?? 0.0;
       setState(() {
-        _firstName = data['user']?['firstName'] as String?;
+        _firstName = body['firstName']?.toString() ?? '';
         _stats = [
-          _StatCard(value: '${s['tripsCount'] ?? 0}',         unit: '',   label: 'Trajets complétés', iconBg: const Color(0xFFFDECEA), iconFg: AppColors.redMid,   icon: Icons.directions_car_outlined),
-          _StatCard(value: '${s['co2SavedKg'] ?? 0}',         unit: 'kg', label: 'CO₂ économisé',     iconBg: AppColors.tealLight,    iconFg: AppColors.teal,     icon: Icons.eco_outlined),
-          _StatCard(value: '${s['averageRating'] ?? '—'}',    unit: '',   label: 'Note moyenne',      iconBg: AppColors.amberLight,   iconFg: AppColors.amberMid, icon: Icons.star_outline),
-          _StatCard(value: '${s['goScore'] ?? f['goScore'] ?? 0}', unit: 'pts', label: 'GoScore',    iconBg: AppColors.blueLight,    iconFg: AppColors.blue,     icon: Icons.bolt_outlined),
+          _StatCard(
+            value: '${body['stats']?['totalTrips'] ?? body['totalTrips'] ?? 0}',
+            unit: '',
+            label: 'Trajets',
+            iconBg: const Color(0xFFFDECEA),
+            iconFg: AppColors.redMid,
+            icon: Icons.directions_car_outlined,
+          ),
+          _StatCard(
+            value: rating.toStringAsFixed(1),
+            unit: '',
+            label: 'Note',
+            iconBg: AppColors.amberLight,
+            iconFg: AppColors.amberMid,
+            icon: Icons.star_outline,
+          ),
+          _StatCard(
+            value: '${body['stats']?['totalPassengers'] ?? 0}',
+            unit: '',
+            label: 'Passagers',
+            iconBg: AppColors.tealLight,
+            iconFg: AppColors.teal,
+            icon: Icons.people_alt_outlined,
+          ),
+          _StatCard(
+            value: '${body['stats']?['totalRevenue'] ?? body['revenue'] ?? 0}',
+            unit: '\$',
+            label: 'Revenus',
+            iconBg: AppColors.blueLight,
+            iconFg: AppColors.blue,
+            icon: Icons.payments_outlined,
+          ),
         ];
-        _requests = reqs.map((r) {
-          final p = r['passenger'] as Map? ?? {};
-          final t = r['trip'] as Map? ?? {};
-          final name = '${p['firstName'] ?? ''} ${p['lastName'] ?? ''}'.trim();
-          final initials = ((p['firstName'] as String? ?? ' ')[0] + (p['lastName'] as String? ?? ' ')[0]).toUpperCase();
-          final dep = t['departureLabel'] ?? '';
-          final arr = t['arrivalLabel'] ?? '';
-          return _RequestCard(
-            initials: initials, name: name.isEmpty ? 'Passager' : name,
-            action: 'veut rejoindre votre trajet • $dep → $arr',
-            timeLabel: '', typeLabel: 'Nouvelle demande',
-            avatarBg: const Color(0xFFFDECEA), avatarFg: AppColors.redMid,
-            typeBg: AppColors.blueLight,        typeFg: AppColors.blue,
-            routeFrom: dep, routeTo: arr, hasAccept: true,
-            reservationId: r['id'] as String?,
-          );
-        }).toList();
+        _requests = _extractRequests(_extractList(body['pendingRequests'] ?? body['reservationRequests']));
         _isLoading = false;
       });
     } catch (_) {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() {
+        _isLoading = false;
+        if (_stats.isEmpty) _stats = [
+          _StatCard(value: '–', unit: '', label: 'Trajets', iconBg: AppColors.blueLight, iconFg: AppColors.blue, icon: Icons.directions_car_outlined),
+          _StatCard(value: '–', unit: '', label: 'Note', iconBg: AppColors.amberLight, iconFg: AppColors.amberMid, icon: Icons.star_outline),
+          _StatCard(value: '–', unit: '', label: 'Passagers', iconBg: AppColors.tealLight, iconFg: AppColors.teal, icon: Icons.people_alt_outlined),
+          _StatCard(value: '–', unit: '\$', label: 'Revenus', iconBg: AppColors.blueLight, iconFg: AppColors.blue, icon: Icons.payments_outlined),
+        ];
+      });
     }
+  }
+
+  List<_RequestCard> _extractRequests(List<dynamic> raw) {
+    return raw.take(3).map((dynamic row) {
+      final Map<String, dynamic> m = row is Map<String, dynamic>
+          ? row
+          : <String, dynamic>{};
+      final Map<String, dynamic> trip =
+          m['trip'] is Map<String, dynamic> ? m['trip'] as Map<String, dynamic> : <String, dynamic>{};
+      final String first = '${m['passengerFirstName'] ?? m['firstName'] ?? ''}'.trim();
+      final String last = '${m['passengerLastName'] ?? m['lastName'] ?? ''}'.trim();
+      final String name = ('$first $last').trim().isEmpty ? 'Passager' : ('$first $last').trim();
+      final String initials = name
+          .split(' ')
+          .where((String e) => e.isNotEmpty)
+          .take(2)
+          .map((String e) => e[0].toUpperCase())
+          .join();
+      final String from = trip['departureLabel']?.toString() ?? '–';
+      final String to = trip['arrivalLabel']?.toString() ?? '–';
+      return _RequestCard(
+        initials: initials.isEmpty ? 'P' : initials,
+        avatarBg: const Color(0xFFFDECEA),
+        avatarFg: AppColors.redMid,
+        name: name,
+        action: 'veut rejoindre votre trajet • $from → $to',
+        timeLabel: _shortDate(trip['departureTime']?.toString() ?? ''),
+        typeLabel: 'Nouvelle demande',
+        typeBg: AppColors.blueLight,
+        typeFg: AppColors.blue,
+        routeFrom: from,
+        routeTo: to,
+        hasAccept: true,
+        reservationId: m['id']?.toString(),
+      );
+    }).toList();
+  }
+
+  List<dynamic> _extractList(dynamic data) {
+    if (data is List) return data;
+    if (data is Map) {
+      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[]) as List<dynamic>;
+    }
+    return <dynamic>[];
+  }
+
+  String _shortDate(String raw) {
+    final DateTime? dt = _parseDate(raw);
+    if (dt == null) return '';
+    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}';
+  }
+
+  DateTime? _parseDate(dynamic v) {
+    if (v == null) return null;
+    try {
+      return DateTime.parse(v.toString()).toLocal();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  void _openSearch() {
+    final String query = _searchCtrl.text.trim();
+    context.push(
+      '/search',
+      extra: <String, dynamic>{'from': query, 'to': ''},
+    );
   }
 
   @override
@@ -172,6 +265,7 @@ class _HomePageState extends State<HomePage> {
               favPills: _favPills,
               controller: _searchCtrl,
               onFocusChanged: (v) => setState(() => _isSearchFocused = v),
+              onSearchTap: _openSearch,
             ),
           ),
 
@@ -205,213 +299,95 @@ class _HomePageState extends State<HomePage> {
           const SliverToBoxAdapter(child: SectionLabel('Plus de fonctionnalités')),
           SliverToBoxAdapter(child: _QuickNavGrid()),
 
-          // Bottom padding
+          // Mes options (navigation rapide)
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverToBoxAdapter(child: _MesOptionsSection()),
+
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
       ),
     );
   }
 
-  // ── Hero Section (greeting + illustration) ─────────────────────────────────
+  // ── Hero Section (background image + gradient + greeting right-aligned) ──────
   Widget _buildHeroSection() {
-    return Container(
-      color: AppColors.surface,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return SizedBox(
+      height: 220,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          // Greeting
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+          // Background image
+          Image.asset(
+            'assets/images/homepagebackground.png',
+            fit: BoxFit.cover,
+            alignment: Alignment.topCenter,
+          ),
+          // Gradient: transparent center → #F2F5FA bottom
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                stops: [0.4, 1.0],
+                colors: [Colors.transparent, Color(0xFFF2F5FA)],
+              ),
+            ),
+          ),
+          // Greeting text — right-aligned, near top
+          Positioned(
+            top: 20,
+            left: 20,
+            right: 20,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  'Bonjour, ${_firstName ?? 'Conducteur'}',
-                  style: AppTextStyles.body(color: AppColors.text3),
+                RichText(
+                  textAlign: TextAlign.end,
+                  text: TextSpan(
+                    style: const TextStyle(
+                      fontFamily: 'OpenSans',
+                      fontSize: 20,
+                      color: Color(0xFF0D1624),
+                    ),
+                    children: [
+                      const TextSpan(text: 'Bienvenue, '),
+                      TextSpan(
+                        text: _firstName?.isNotEmpty == true ? _firstName! : 'Conducteur',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF08316E),
+                        ),
+                      ),
+                      const TextSpan(text: ' !'),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Content de vous voir,',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Color(0xFF515151),
+                  ),
                 ),
                 const SizedBox(height: 2),
-                RichText(
-                  text: TextSpan(
-                    style: AppTextStyles.soraH1(),
-                    children: const [
-                      TextSpan(text: 'Où allons-nous\n'),
-                      TextSpan(
-                        text: "aujourd'hui ?",
-                        style: TextStyle(color: AppColors.blue),
-                      ),
-                    ],
+                const Text(
+                  'Où allons-nous aujourd\'hui ?',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF08316E),
                   ),
                 ),
               ],
             ),
           ),
-          // Hero illustration
-          _HeroIllustration(),
         ],
       ),
     );
   }
-}
-
-// ══════════════════════════════════════════════════════════════════════════════
-// HERO ILLUSTRATION (SVG-style via CustomPaint)
-// ══════════════════════════════════════════════════════════════════════════════
-
-class _HeroIllustration extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFFEEF4FF), Color(0xFFF7FAFE)],
-        ),
-      ),
-      child: CustomPaint(painter: _HeroPainter()),
-    );
-  }
-}
-
-class _HeroPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final p = Paint()..isAntiAlias = true;
-    final w = size.width;
-    final h = size.height;
-
-    // --- Background buildings (left) ---
-    _rect(canvas, p, const Color(0xFFE6EFFE), 0, h * .45, 25, h * .55, r: 3);
-    _rect(canvas, p, const Color(0xFFDDEAFF), 30, h * .35, 20, h * .65, r: 3);
-
-    // --- Background buildings (right) ---
-    _rect(canvas, p, const Color(0xFFDDEAFF), w - 90, h * .30, 30, h * .70, r: 4);
-    _rect(canvas, p, const Color(0xFFE6EFFE), w - 56, h * .40, 22, h * .60, r: 3);
-    _rect(canvas, p, const Color(0xFFD8E6FF), w - 30, h * .25, 30, h * .75, r: 4);
-
-    // Windows on right buildings
-    p.color = const Color(0xFFB8CFFF).withOpacity(.6);
-    for (int row = 0; row < 3; row++) {
-      for (int col = 0; col < 2; col++) {
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromLTWH(
-              w - 87 + col * 13,
-              h * .35 + row * 12,
-              8,
-              6,
-            ),
-            const Radius.circular(1),
-          ),
-          p,
-        );
-      }
-    }
-
-    // --- CAR ---
-    final carPaint = Paint()..color = Colors.white..isAntiAlias = true;
-    // Body
-    final bodyRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(w * .21, h * .70, w * .59, h * .30),
-      const Radius.circular(12),
-    );
-    canvas.drawRRect(bodyRect, carPaint);
-    // Cab
-    final cabRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(w * .26, h * .575, w * .46, h * .30),
-      const Radius.circular(10),
-    );
-    canvas.drawRRect(cabRect, carPaint);
-    // Windows
-    p.color = const Color(0xFFC8DCFF);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          Rect.fromLTWH(w * .29, h * .60, w * .18, h * .21),
-          const Radius.circular(6)),
-      p,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          Rect.fromLTWH(w * .50, h * .60, w * .18, h * .21),
-          const Radius.circular(6)),
-      p,
-    );
-    // Wheels
-    p.color = const Color(0xFFB0BECC);
-    canvas.drawCircle(Offset(w * .33, h), h * .10, p);
-    canvas.drawCircle(Offset(w * .67, h), h * .10, p);
-    p.color = const Color(0xFFD8E2EC);
-    canvas.drawCircle(Offset(w * .33, h), h * .06, p);
-    canvas.drawCircle(Offset(w * .67, h), h * .06, p);
-    // Headlights
-    p.color = const Color(0xFFF9D27C);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(w * .74, h * .75, 18, 10), const Radius.circular(3)),
-        p);
-    p.color = const Color(0xFFA8C4E8);
-    canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(w * .21, h * .75, 18, 10), const Radius.circular(3)),
-        p);
-    // Door line
-    p
-      ..color = const Color(0xFFE0E8F4)
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-    canvas.drawLine(
-        Offset(w * .49, h * .70), Offset(w * .49, h), p);
-    p.style = PaintingStyle.fill;
-
-    // --- PERSONS (5 silhouettes) ---
-    final personsX = [w * .37, w * .47, w * .57, w * .67, w * .76];
-    final personColors = [
-      const Color(0xFFB8CFFE),
-      const Color(0xFFC5E0FF),
-      const Color(0xFFBEDAFF),
-      const Color(0xFFC5E0FF),
-      const Color(0xFFB8CFFE),
-    ];
-    final shirtColors = [
-      const Color(0xFF4A80D4),
-      const Color(0xFF5B9BD5),
-      const Color(0xFF4A80D4),
-      const Color(0xFF4A80D4),
-      const Color(0xFF2D6CB5),
-    ];
-
-    for (int i = 0; i < personsX.length; i++) {
-      final cx = personsX[i];
-      final cy = h * .44;
-      // Circle bg
-      p.color = personColors[i];
-      canvas.drawCircle(Offset(cx, cy), 18, p);
-      // Head
-      p.color = const Color(0xFFFFD6B0);
-      canvas.drawOval(Rect.fromCenter(center: Offset(cx, cy - 14), width: 20, height: 22), p);
-      // Body
-      p.color = shirtColors[i];
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(cx - 9, cy - 3, 18, 22), const Radius.circular(5)),
-        p,
-      );
-    }
-  }
-
-  void _rect(Canvas c, Paint p, Color color, double x, double y, double w,
-      double h, {double r = 0}) {
-    p.color = color;
-    c.drawRRect(
-      RRect.fromRectAndRadius(Rect.fromLTWH(x, y, w, h), Radius.circular(r)),
-      p,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -422,11 +398,13 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
   final List<_FavPill> favPills;
   final TextEditingController controller;
   final ValueChanged<bool> onFocusChanged;
+  final VoidCallback onSearchTap;
 
   const _SearchBarDelegate({
     required this.favPills,
     required this.controller,
     required this.onFocusChanged,
+    required this.onSearchTap,
   });
 
   @override
@@ -469,11 +447,15 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
           child: Row(
             children: [
               const SizedBox(width: 16),
-              const Icon(Icons.search, size: 18, color: AppColors.text3),
+              GestureDetector(
+                onTap: onSearchTap,
+                child: const Icon(Icons.search, size: 18, color: AppColors.text3),
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: TextField(
                   controller: controller,
+                  onSubmitted: (_) => onSearchTap(),
                   style: AppTextStyles.searchText(),
                   decoration: InputDecoration(
                     hintText: 'Rechercher une destination…',
@@ -808,14 +790,21 @@ class _RequestCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      shadows: AppColors.shSm,
-      radius: AppColors.rLg,
-      padding: EdgeInsets.zero,
-      child: SizedBox(
-        width: 300,
-        child: Column(
-          children: [
+    return GestureDetector(
+      onTap: () {
+        final String? id = card.reservationId;
+        if (id != null && id.isNotEmpty) {
+          context.push('/reservation-request/$id');
+        }
+      },
+      child: AppCard(
+        shadows: AppColors.shSm,
+        radius: AppColors.rLg,
+        padding: EdgeInsets.zero,
+        child: SizedBox(
+          width: 300,
+          child: Column(
+            children: [
             // Top
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 12, 14, 10),
@@ -879,7 +868,8 @@ class _RequestCardWidget extends StatelessWidget {
                 ],
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -905,11 +895,13 @@ class _QuickNavItem {
   final IconData icon;
   final Color bg;
   final Color fg;
+  final String route;
   const _QuickNavItem(
       {required this.label,
       required this.icon,
       required this.bg,
-      required this.fg});
+      required this.fg,
+      required this.route});
 }
 
 class _QuickNavGrid extends StatelessWidget {
@@ -918,32 +910,38 @@ class _QuickNavGrid extends StatelessWidget {
         label: 'Mes favoris',
         icon: Icons.favorite_outline,
         bg: AppColors.blueLight,
-        fg: AppColors.blue),
+        fg: AppColors.blue,
+        route: '/favoris'),
     _QuickNavItem(
         label: 'Planificateur',
         icon: Icons.calendar_today_outlined,
         bg: AppColors.tealLight,
-        fg: AppColors.teal),
+        fg: AppColors.teal,
+        route: '/create-trip'),
     _QuickNavItem(
         label: 'Statistiques',
         icon: Icons.bar_chart_outlined,
         bg: AppColors.amberLight,
-        fg: AppColors.amber),
+        fg: AppColors.amber,
+        route: '/stats'),
     _QuickNavItem(
         label: 'Réservation',
         icon: Icons.event_outlined,
         bg: AppColors.tealLight,
-        fg: AppColors.teal),
+        fg: AppColors.teal,
+        route: '/reservations'),
     _QuickNavItem(
         label: 'Profil',
         icon: Icons.person_outline,
         bg: AppColors.amberLight,
-        fg: AppColors.amber),
+        fg: AppColors.amber,
+        route: '/profile'),
     _QuickNavItem(
         label: 'Menu',
         icon: Icons.more_horiz,
         bg: AppColors.blueLight,
-        fg: AppColors.blue),
+        fg: AppColors.blue,
+        route: '/reviews'),
   ];
 
   @override
@@ -957,14 +955,14 @@ class _QuickNavGrid extends StatelessWidget {
         crossAxisSpacing: 12,
         mainAxisSpacing: 14,
         childAspectRatio: .95,
-        children: _items.map(_buildItem).toList(),
+        children: _items.map((item) => _buildItem(context, item)).toList(),
       ),
     );
   }
 
-  Widget _buildItem(_QuickNavItem item) {
+  Widget _buildItem(BuildContext context, _QuickNavItem item) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () => context.push(item.route),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -989,3 +987,46 @@ class _QuickNavGrid extends StatelessWidget {
   }
 }
 
+class _MesOptionsSection extends StatelessWidget {
+  const _MesOptionsSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 8, offset: Offset(0, 2))],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 14, 16, 4),
+              child: Text('Mes options', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: Color(0xFF0D1624))),
+            ),
+            _tile(context, Icons.history_rounded,      'Historique',   '/historique'),
+            _tile(context, Icons.description_outlined, 'Brouillons',   '/brouillons'),
+            _tile(context, Icons.bar_chart_rounded,    'Statistiques', '/stats'),
+            _tile(context, Icons.reviews_outlined,     'Avis',         '/reviews'),
+            _tile(context, Icons.favorite_outline,     'Favoris',      '/favoris'),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tile(BuildContext context, IconData icon, String label, String route) {
+    return ListTile(
+      onTap: () => context.push(route),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      leading: Icon(icon, color: const Color(0xFF1A56CC)),
+      title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF0D1624))),
+      trailing: const Icon(Icons.chevron_right_rounded, color: Color(0xFF8A95A8)),
+      dense: true,
+    );
+  }
+}
