@@ -23,10 +23,17 @@ class TripService {
     return items.map((e) => Trip.fromJson(e as Map<String, dynamic>)).toList();
   }
 
-  Future<Trip> getTripById(String id) async {
+  Future<Map<String, dynamic>> getTripPayloadById(String id) async {
     final data = await _api.get('/api/trips/$id');
     final body = data as Map<String, dynamic>;
-    return Trip.fromJson((body['data'] ?? body) as Map<String, dynamic>);
+    final payload = body['data'] ?? body;
+    if (payload is Map<String, dynamic>) return payload;
+    return <String, dynamic>{};
+  }
+
+  Future<Trip> getTripById(String id) async {
+    final payload = await getTripPayloadById(id);
+    return Trip.fromJson(payload);
   }
 
   Future<ReservationResult> createReservation({required String tripId}) async {

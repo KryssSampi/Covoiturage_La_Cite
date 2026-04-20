@@ -64,9 +64,13 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
         <String, dynamic>{},
       );
       if (!mounted) return;
-      setState(() {
-        _result = accept ? 'accepted' : 'refused';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(accept ? 'Demande acceptee' : 'Demande refusee'),
+          backgroundColor: accept ? const Color(0xFF16A34A) : const Color(0xFFE24B4A),
+        ),
+      );
+      context.pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

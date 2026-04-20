@@ -2,6 +2,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../../core/services/api_service.dart';
+import '../../core/utils/parsing.dart' as parsing;
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -109,13 +110,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_error != null) {
-      return ListView(
-        padding: const EdgeInsets.all(16),
-        children: <Widget>[
-          Text('Erreur: $_error'),
-          const SizedBox(height: 8),
-          FilledButton(onPressed: _loadNotifications, child: const Text('Reessayer')),
-        ],
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFF8A95A8)),
+            const SizedBox(height: 12),
+            const Text(
+              'Connexion impossible',
+              style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF0D1624)),
+            ),
+            const SizedBox(height: 4),
+            Text(_error!, style: const TextStyle(fontSize: 12, color: Color(0xFF7A879A))),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: _loadNotifications,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Réessayer'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1A56CC),
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
+        ),
       );
     }
     if (_items.isEmpty) {

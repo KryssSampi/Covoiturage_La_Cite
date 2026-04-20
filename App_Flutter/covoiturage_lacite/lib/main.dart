@@ -10,7 +10,13 @@ import 'core/services/trip_service.dart';
 import 'core/models/trip.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/otp_screen.dart';
+import 'features/favoris/favoris_screen.dart';
 import 'features/home/home_screen.dart';
+import 'features/home/home_page.dart';
+import 'features/reviews/reviews_screen.dart';
+import 'features/historique/historique_screen.dart';
+import 'features/brouillons/brouillons_screen.dart';
+import 'features/stats/stats_screen.dart';
 import 'features/trip/trip_detail_screen.dart';
 import 'features/trip/create_trip_screen.dart';
 import 'features/trip/reservation_screen.dart';
@@ -47,14 +53,15 @@ class CovoiturageApp extends StatelessWidget {
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: appNavigatorKey,
-  initialLocation: '/login',
-  redirect: (context, state) async {
-    final loggedIn = await _authService.isLoggedIn();
-    final loc = state.uri.path;
-    if (!loggedIn && loc != '/login' && loc != '/otp') return '/login';
-    if (loggedIn && (loc == '/login' || loc == '/otp')) return '/home';
-    return null;
-  },
+  initialLocation: '/home',
+  // DEV BYPASS — désactiver pour la prod
+  // redirect: (context, state) async {
+  //   final loggedIn = await _authService.isLoggedIn();
+  //   final loc = state.uri.path;
+  //   if (!loggedIn && loc != '/login' && loc != '/otp') return '/login';
+  //   if (loggedIn && (loc == '/login' || loc == '/otp')) return '/home';
+  //   return null;
+  // },
   routes: [
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
     GoRoute(
@@ -62,15 +69,24 @@ final GoRouter appRouter = GoRouter(
       builder: (_, state) => OtpScreen(email: state.uri.queryParameters['email'] ?? ''),
     ),
     GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
+    GoRoute(path: '/stats', builder: (_, __) => const StatsScreen()),
+    GoRoute(path: '/favoris', builder: (_, __) => const FavorisScreen()),
+    GoRoute(path: '/reviews', builder: (_, __) => const ReviewsScreen()),
+    GoRoute(path: '/historique', builder: (_, __) => const HistoriqueScreen()),
+    GoRoute(path: '/brouillons', builder: (_, __) => const BrouillonsScreen()),
     GoRoute(
       path: '/trip/:id',
       builder: (_, state) {
-        final trip = state.extra as Trip?;
+        final dynamic extra = state.extra;
+        final Trip? trip = extra is Trip ? extra : null;
+        final Map<String, dynamic>? initialData =
+            extra is Map<String, dynamic> ? extra : null;
         final id = state.pathParameters['id'] ?? '';
         return TripDetailScreen(
           tripService: _tripService,
           trip: trip,
-          tripId: trip == null ? id : null,
+          tripId: id,
+          initialData: initialData,
         );
       },
     ),
@@ -90,7 +106,9 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/driver-search-map',
-      builder: (_, __) => const DriverSearchMapScreen(),
+      builder: (_, state) => DriverSearchMapScreen(
+        args: state.extra is DriverSearchMapArgs ? state.extra as DriverSearchMapArgs : null,
+      ),
     ),
     GoRoute(
       path: '/notification/:id',

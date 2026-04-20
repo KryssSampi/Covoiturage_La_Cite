@@ -1,4 +1,6 @@
-﻿import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api_service.dart';
 
@@ -6,11 +8,11 @@ class AuthService {
   AuthService(this._apiService);
 
   final ApiService _apiService;
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<dynamic> requestOtp(String email) {
     return _apiService.post('/api/auth/verify-email', {
       'email': email,
+      'clientType': 'mobile',
     });
   }
 
@@ -18,18 +20,27 @@ class AuthService {
     final response = await _apiService.post('/api/auth/verify-code', {
       'email': email,
       'code': code,
+      'clientType': 'mobile',
     });
 
     if (response is Map<String, dynamic>) {
-      final token = response['token']?.toString();
-      final userId = response['userId']?.toString();
+      final prefs = await SharedPreferences.getInstance();
+      final body = (response['data'] is Map<String, dynamic>)
+          ? response['data'] as Map<String, dynamic>
+          : response;
 
-      if (token != null && token.isNotEmpty) {
-        await _storage.write(key: 'jwt', value: token);
+      final accessToken = body['accessToken']?.toString();
+      final refreshToken = body['refreshToken']?.toString() ?? '';
+      final userId = body['user']?['id']?.toString() ?? body['userId']?.toString();
+
+      if (accessToken != null && accessToken.isNotEmpty) {
+        await prefs.setString('auth_token', accessToken);
       }
 
+      await prefs.setString('refresh_token', refreshToken);
+
       if (userId != null && userId.isNotEmpty) {
-        await _storage.write(key: 'userId', value: userId);
+        await prefs.setString('userId', userId);
       }
     }
 
@@ -37,11 +48,37 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await _storage.deleteAll();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token');
+    await prefs.remove('refresh_token');
+    await prefs.remove('userId');
   }
 
   Future<bool> isLoggedIn() async {
-    final jwt = await _storage.read(key: 'jwt');
-    return jwt != null && jwt.isNotEmpty;
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+    if (token == null || token.isEmpty) {
+      return false;
+    }
+
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) {
+        return false;
+      }
+
+      final payloadJson = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final payload = jsonDecode(payloadJson) as Map<String, dynamic>;
+      final exp = payload['exp'];
+
+      if (exp is! int) {
+        return true;
+      }
+
+      final expiry = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      return expiry.isAfter(DateTime.now());
+    } catch (_) {
+      return false;
+    }
   }
 }

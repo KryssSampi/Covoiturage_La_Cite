@@ -103,13 +103,14 @@ class _LoginScreenState extends State<LoginScreen>
                     const SizedBox(height: 80),
                     Center(
                       child: Container(
-                        width: 80, height: 80,
+                        width: 100, height: 100,
                         decoration: BoxDecoration(
-                          color: _primary,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [BoxShadow(color: _primary.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 8))],
+                          boxShadow: [BoxShadow(color: _primary.withOpacity(0.2), blurRadius: 20, offset: const Offset(0, 8))],
                         ),
-                        child: const Icon(Icons.directions_car_rounded, color: Colors.white, size: 44),
+                        padding: const EdgeInsets.all(10),
+                        child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
                       ),
                     ),
                     const SizedBox(height: 24),

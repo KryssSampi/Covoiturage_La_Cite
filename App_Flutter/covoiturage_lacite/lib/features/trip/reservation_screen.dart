@@ -86,6 +86,12 @@ class _ReservationScreenState extends State<ReservationScreen>
             statusLabel: row['status']?.toString() ?? 'Inconnu',
             statusColor: _statusColor(row['status']?.toString() ?? ''),
             isDriver: false,
+            tripData: _buildTripExtra(
+              trip,
+              fallbackTripId: row['tripId']?.toString(),
+              driver: driver,
+              reservationRow: row,
+            ),
           ),
         );
       }
@@ -138,6 +144,12 @@ class _ReservationScreenState extends State<ReservationScreen>
               statusLabel: status.isEmpty ? 'En attente' : status,
               statusColor: _statusColor(status),
               isDriver: true,
+              tripData: _buildTripExtra(
+                tripRow,
+                fallbackTripId: tripRow['id']?.toString(),
+                driver: null,
+                reservationRow: reservationRow,
+              ),
             ),
           );
         }
@@ -193,29 +205,42 @@ class _ReservationScreenState extends State<ReservationScreen>
               ? const Center(child: CircularProgressIndicator())
               : _error != null
                   ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('Erreur: $_error', textAlign: TextAlign.center),
-                            const SizedBox(height: 8),
-                            FilledButton(onPressed: _loadReservations, child: const Text('Reessayer')),
-                          ],
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFF8A95A8)),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Connexion impossible',
+                            style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF0D1624)),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(_error!, style: const TextStyle(fontSize: 12, color: Color(0xFF7A879A))),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _loadReservations,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Réessayer'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1A56CC),
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   : widget.isDriver
                       ? TabBarView(controller:_tabCtrl, children:[
-                          _List(items:_passenger, onTap:(item) => context.push('/trip/${item.tripId}')),
+                          _List(items:_passenger, onTap:(item) => context.push('/trip/${item.tripId}', extra: item.tripData)),
                           _List(
                             items:_driver,
                             onTap:(item) => context.push(
                               item.isDriver ? '/reservation-request/${item.id}' : '/trip/${item.tripId}',
+                              extra: item.isDriver ? null : item.tripData,
                             ),
                           ),
                         ])
-                      : _List(items:_passenger, onTap:(item) => context.push('/trip/${item.tripId}')),
+                      : _List(items:_passenger, onTap:(item) => context.push('/trip/${item.tripId}', extra: item.tripData)),
         ),
       ])),
     );
@@ -228,8 +253,10 @@ class _List extends StatelessWidget {
   final void Function(_ResItem) onTap;
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) return const Center(child: Text('Aucune reservation',
+    if (items.isEmpty) {
+      return const Center(child: Text('Aucune reservation',
         style: TextStyle(fontSize:16, fontWeight:FontWeight.w700)));
+    }
     return ListView.builder(
       padding: const EdgeInsets.only(top:4, bottom:24),
       itemCount: items.length,
@@ -252,11 +279,44 @@ class _ResItem {
   const _ResItem({required this.id, required this.departure, required this.destination,
     required this.date, required this.time, required this.personName, required this.personRole,
     required this.rating, required this.statusLabel, required this.statusColor,
-    required this.tripId, required this.isDriver});
+    required this.tripId, required this.isDriver, required this.tripData});
   final String id, departure, destination, date, time, personName, personRole, tripId, statusLabel;
   final double rating;
   final Color statusColor;
   final bool isDriver;
+  final Map<String, dynamic> tripData;
+}
+
+Map<String, dynamic> _buildTripExtra(
+  Map<String, dynamic>? trip, {
+  String? fallbackTripId,
+  Map<String, dynamic>? driver,
+  Map<String, dynamic>? reservationRow,
+}) {
+  final Map<String, dynamic> base = <String, dynamic>{...(trip ?? const <String, dynamic>{})};
+  if ((base['id']?.toString().isNotEmpty ?? false) == false && (fallbackTripId?.isNotEmpty ?? false)) {
+    base['id'] = fallbackTripId;
+  }
+  if (driver != null && driver.isNotEmpty) {
+    base['driver'] = <String, dynamic>{
+      ...(base['driver'] is Map<String, dynamic> ? base['driver'] as Map<String, dynamic> : const <String, dynamic>{}),
+      ...driver,
+    };
+    base.putIfAbsent('driverName', () => _fullName(
+          firstName: driver['firstName']?.toString(),
+          lastName: driver['lastName']?.toString(),
+          fallback: 'Conducteur',
+        ));
+  }
+  if (reservationRow != null) {
+    if (base['reservationStatus'] == null && reservationRow['status'] != null) {
+      base['reservationStatus'] = reservationRow['status'];
+    }
+    if (base['driverNote'] == null) {
+      base['driverNote'] = reservationRow['driverNote'] ?? reservationRow['message'];
+    }
+  }
+  return base;
 }
 
 List<dynamic> _extractList(dynamic payload) {

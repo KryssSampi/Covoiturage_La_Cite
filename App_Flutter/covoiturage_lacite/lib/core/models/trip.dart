@@ -66,26 +66,52 @@ class Trip {
     final status = json['status'] as Map<String, dynamic>? ?? {};
     final driver = json['driver'] as Map<String, dynamic>? ?? {};
     final vehicle = json['vehicle'] as Map<String, dynamic>? ?? {};
+    final departure = json['departure'] as Map<String, dynamic>? ?? {};
+    final arrival = json['arrival'] as Map<String, dynamic>? ?? {};
+    final String driverFullName = '${driver['firstName'] ?? ''} ${driver['lastName'] ?? ''}'.trim();
+
+    int parseInt(dynamic value, {int fallback = 0}) {
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      return int.tryParse(value?.toString() ?? '') ?? fallback;
+    }
+
+    double parseDouble(dynamic value, {double fallback = 0}) {
+      if (value is double) return value;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value?.toString() ?? '') ?? fallback;
+    }
+
     return Trip(
-      id: json['id'] as String? ?? '',
-      driverName: driver['firstName'] as String? ?? json['driverName'] as String? ?? '',
-      driverRating: (driver['rating'] as num? ?? json['driverRating'] as num? ?? 0).toDouble(),
-      driverTripCount: driver['tripCount'] as int? ?? 0,
+      id: json['id']?.toString() ?? '',
+      driverName: (json['driverName']?.toString() ?? driverFullName).trim(),
+      driverRating: parseDouble(driver['rating'] ?? json['driverRating']),
+      driverTripCount: parseInt(driver['tripCount'] ?? json['driverTripCount']),
       driverAvatarUrl: driver['avatarUrl'] as String?,
-      departureLabel: (json['departure'] as Map<String, dynamic>?)?['label'] as String? ?? json['departureLabel'] as String? ?? '',
-      arrivalLabel: (json['arrival'] as Map<String, dynamic>?)?['label'] as String? ?? json['arrivalLabel'] as String? ?? '',
-      departureDate: json['departureDate'] as String? ?? '',
-      departureTime: json['departureTime'] as String? ?? '',
+      departureLabel: departure['label']?.toString() ??
+          json['departureLabel']?.toString() ??
+          json['from']?.toString() ??
+          json['departure']?.toString() ??
+          json['departureAddress']?.toString() ??
+          '',
+      arrivalLabel: arrival['label']?.toString() ??
+          json['arrivalLabel']?.toString() ??
+          json['to']?.toString() ??
+          json['destination']?.toString() ??
+          json['arrivalAddress']?.toString() ??
+          '',
+      departureDate: json['departureDate']?.toString() ?? '',
+      departureTime: (json['departureTime'] ?? json['departureDateTime'] ?? '').toString(),
       arrivalTime: json['arrivalTime'] as String?,
-      availableSeats: json['availableSeats'] as int? ?? 0,
-      totalSeats: json['totalSeats'] as int? ?? 4,
-      pricePerSeat: (json['pricePerPassenger'] as num? ?? 0).toDouble(),
-      passengerPrice: (json['passengerPrice'] as num? ?? 0).toDouble(),
+      availableSeats: parseInt(json['availableSeats'] ?? json['seats']),
+      totalSeats: parseInt(json['totalSeats'], fallback: 4),
+      pricePerSeat: parseDouble(json['pricePerPassenger'] ?? json['pricePerSeat'] ?? json['price']),
+      passengerPrice: parseDouble(json['passengerPrice'] ?? json['pricePerPassenger'] ?? json['price']),
       vehicleModel: vehicle['label'] as String? ?? json['vehicleModel'] as String? ?? '',
       vehicleColor: vehicle['color'] as String? ?? json['vehicleColor'] as String? ?? '',
       paymentMethod: json['paymentMethod'] as String? ?? 'Cash',
-      estimatedDurationMin: json['estimatedDuration'] as int? ?? 0,
-      estimatedDistanceKm: (json['estimatedDistance'] as num? ?? 0).toDouble(),
+      estimatedDurationMin: parseInt(json['estimatedDurationMin'] ?? json['estimatedDuration']),
+      estimatedDistanceKm: parseDouble(json['estimatedDistanceKm'] ?? json['estimatedDistance']),
       baggageAllowed: prefs['baggageAllowed'] as bool? ?? false,
       petsAllowed: prefs['petsAllowed'] as bool? ?? false,
       smokingAllowed: prefs['smokingAllowed'] as bool? ?? false,

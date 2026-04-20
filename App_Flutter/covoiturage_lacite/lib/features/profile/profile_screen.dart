@@ -1,224 +1,1329 @@
-import 'package:flutter/material.dart';
+// ============================================================
+//  profile_page.dart — Covoiturage La Cité
+//  Page Profil complète (Settings + Profil Public)
+//  Flutter 3.x — Material 3 — aucune dépendance externe
+// ============================================================
 
-import '../../core/models/user.dart';
-import '../../core/services/api_service.dart';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+// ──────────────────────────────────────────────────────────────
+//  CONSTANTES
+// ──────────────────────────────────────────────────────────────
+const Color kPrimary = Color(0xFF08316E);
+const Color kPrimaryLight = Color(0xFF1A56DB);
+const Color kGreen = Color(0xFF22C55E);
+const Color kRed = Color(0xFFEF4444);
+const Color kBg = Color(0xFFF3F4F6);
+const Color kCardBg = Colors.white;
+
+// ──────────────────────────────────────────────────────────────
+//  MODÈLES LÉGERS
+// ──────────────────────────────────────────────────────────────
+
+class UserProfile {
+  final String id;
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String? phone;
+  final String? bio;
+  final String? avatarUrl;
+  final String schoolRole;
+  final String appRole;
+  final int goScore;
+  final bool isVerified;
+  final int likesCount;
+  final double averageRating;
+  final int totalTrips;
+  final double co2SavedKg;
+  final List<String> languagesSpoken;
+  final List<PublicTrip> recentTrips;
+  final List<UsualTrip> usualTrips;
+  final List<ReviewItem> reviews;
+  // Preferences
+  bool musicAccepted;
+  bool petsAccepted;
+  bool smokingAccepted;
+  String conversationLevel; // quiet | moderate | chatty
+  bool emailPrimordiales;
+  bool emailSecondaires;
+  bool emailNegligeables;
+  bool pushPrimordiales;
+  bool pushSecondaires;
+  bool pushNegligeables;
+  // Privacy
+  bool showPhoneNumber;
+  bool showLastName;
+  bool allowAffinityTracking;
+  // Visibility
+  bool showGoScore;
+  bool showTripsCount;
+  bool showRating;
+  bool showCo2;
+
+  UserProfile({
+    required this.id,
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    this.phone,
+    this.bio,
+    this.avatarUrl,
+    required this.schoolRole,
+    required this.appRole,
+    required this.goScore,
+    required this.isVerified,
+    required this.likesCount,
+    required this.averageRating,
+    required this.totalTrips,
+    required this.co2SavedKg,
+    required this.languagesSpoken,
+    required this.recentTrips,
+    required this.usualTrips,
+    required this.reviews,
+    this.musicAccepted = true,
+    this.petsAccepted = false,
+    this.smokingAccepted = false,
+    this.conversationLevel = 'moderate',
+    this.emailPrimordiales = true,
+    this.emailSecondaires = true,
+    this.emailNegligeables = false,
+    this.pushPrimordiales = true,
+    this.pushSecondaires = true,
+    this.pushNegligeables = false,
+    this.showPhoneNumber = false,
+    this.showLastName = true,
+    this.allowAffinityTracking = true,
+    this.showGoScore = true,
+    this.showTripsCount = true,
+    this.showRating = true,
+    this.showCo2 = true,
+  });
+}
+
+class PublicTrip {
+  final String id;
+  final String departure;
+  final String arrival;
+  final String date;
+  final String time;
+  final int seats;
+  final double price;
+  PublicTrip({
+    required this.id,
+    required this.departure,
+    required this.arrival,
+    required this.date,
+    required this.time,
+    required this.seats,
+    required this.price,
+  });
+}
+
+class UsualTrip {
+  final String departure;
+  final String arrival;
+  UsualTrip({required this.departure, required this.arrival});
+}
+
+class ReviewItem {
+  final String reviewerName;
+  final double rating;
+  final String comment;
+  final String date;
+  ReviewItem({
+    required this.reviewerName,
+    required this.rating,
+    required this.comment,
+    required this.date,
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+//  FIXTURES
+// ──────────────────────────────────────────────────────────────
+
+final UserProfile mockProfile = UserProfile(
+  id: 'user-123',
+  firstName: 'Kryss',
+  lastName: 'Nana',
+  email: '2741918@collegelacite.ca',
+  phone: '613-555-0101',
+  bio: 'Conducteur passionné et éco-responsable depuis 2018. Ponctuel et véhicule propre !',
+  avatarUrl: null,
+  schoolRole: 'Étudiant',
+  appRole: 'Passager',
+  goScore: 480,
+  isVerified: true,
+  likesCount: 142,
+  averageRating: 4.8,
+  totalTrips: 87,
+  co2SavedKg: 1600,
+  languagesSpoken: ['Français', 'Anglais'],
+  recentTrips: [
+    PublicTrip(id: 't1', departure: 'Ottawa', arrival: 'Gatineau', date: '2024-02-15', time: '07:00', seats: 2, price: 5),
+    PublicTrip(id: 't2', departure: 'Gatineau', arrival: 'Ottawa', date: '2024-02-16', time: '17:30', seats: 3, price: 5),
+  ],
+  usualTrips: [
+    UsualTrip(departure: 'Ottawa', arrival: 'La Cité'),
+    UsualTrip(departure: 'Gatineau', arrival: 'La Cité'),
+  ],
+  reviews: [
+    ReviewItem(reviewerName: 'Marie L.', rating: 5, comment: 'Super conducteur, très ponctuel!', date: '2024-01-15'),
+    ReviewItem(reviewerName: 'Pierre G.', rating: 4, comment: 'Trajet agréable, voiture propre.', date: '2023-12-10'),
+    ReviewItem(reviewerName: 'Léa D.', rating: 5, comment: 'Excellent, je recommande!', date: '2023-11-20'),
+  ],
+);
+
+// ──────────────────────────────────────────────────────────────
+//  POINT D'ENTRÉE
+// ──────────────────────────────────────────────────────────────
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.dark,
+  ));
+  runApp(const CovoiturageApp());
+}
+
+class CovoiturageApp extends StatelessWidget {
+  const CovoiturageApp({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Covoiturage La Cité',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: kPrimary),
+        useMaterial3: true,
+        fontFamily: 'Roboto',
+        scaffoldBackgroundColor: kBg,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          elevation: 0,
+          centerTitle: true,
+          foregroundColor: kPrimary,
+        ),
+      ),
+      home: const ProfileScreen(),
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  PAGE PROFIL PRINCIPALE
+// ──────────────────────────────────────────────────────────────
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
-
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final ApiService _api = ApiService.instance;
-  final TextEditingController _firstNameCtrl = TextEditingController();
-  final TextEditingController _lastNameCtrl = TextEditingController();
-  final TextEditingController _emailCtrl = TextEditingController();
-  final TextEditingController _avatarUrlCtrl = TextEditingController();
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  late UserProfile _profile;
+  bool _saved = false;
 
-  bool _isLoading = true;
-  bool _isSaving = false;
-  bool _isEditMode = false;
-  String? _error;
-  User? _user;
+  // Formulaire Mon Profil
+  late TextEditingController _firstNameCtrl;
+  late TextEditingController _lastNameCtrl;
+  late TextEditingController _phoneCtrl;
+  late TextEditingController _bioCtrl;
+  late TextEditingController _notifEmailCtrl;
+  String _schoolRole = 'etudiant';
+
+  final List<String> _tabs = [
+    'Mon Profil',
+    'Visibilité',
+    'Ambiance',
+    'Notifications',
+    'Confidentialité',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    _profile = mockProfile;
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _firstNameCtrl = TextEditingController(text: _profile.firstName);
+    _lastNameCtrl = TextEditingController(text: _profile.lastName);
+    _phoneCtrl = TextEditingController(text: _profile.phone ?? '');
+    _bioCtrl = TextEditingController(text: _profile.bio ?? '');
+    _notifEmailCtrl = TextEditingController();
+    _schoolRole = _profile.schoolRole.toLowerCase().replaceAll(' ', '');
   }
 
   @override
   void dispose() {
+    _tabController.dispose();
     _firstNameCtrl.dispose();
     _lastNameCtrl.dispose();
-    _emailCtrl.dispose();
-    _avatarUrlCtrl.dispose();
+    _phoneCtrl.dispose();
+    _bioCtrl.dispose();
+    _notifEmailCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _loadProfile() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
+  void _saveChanges() {
+    setState(() => _saved = true);
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _saved = false);
     });
-    try {
-      final dynamic payload = await _api.get('/api/users/me');
-      final Map<String, dynamic>? raw = _extractMap(payload);
-      if (raw == null) {
-        throw Exception('Profil invalide');
-      }
-      final User user = User.fromJson(raw);
-      if (!mounted) return;
-      setState(() {
-        _user = user;
-        _firstNameCtrl.text = user.firstName;
-        _lastNameCtrl.text = user.lastName;
-        _emailCtrl.text = user.email;
-        _avatarUrlCtrl.text = user.avatarUrl;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = e.toString();
-      });
-    } finally {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _saveProfile() async {
-    if (_isSaving || _user == null) return;
-    setState(() {
-      _isSaving = true;
-    });
-    try {
-      await _api.patch('/api/users/me', <String, dynamic>{
-        'firstName': _firstNameCtrl.text.trim(),
-        'lastName': _lastNameCtrl.text.trim(),
-        'email': _emailCtrl.text.trim(),
-        'avatarUrl': _avatarUrlCtrl.text.trim(),
-      });
-      if (!mounted) return;
-      await _loadProfile();
-      if (!mounted) return;
-      setState(() {
-        _isEditMode = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profil mis a jour.')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Mise a jour impossible: $e')),
-      );
-    } finally {
-      if (!mounted) return;
-      setState(() {
-        _isSaving = false;
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profil'),
-        actions: <Widget>[
-          IconButton(
-            onPressed: _isLoading ? null : _loadProfile,
-            icon: const Icon(Icons.refresh),
-          ),
-          if (_user != null)
-            TextButton(
-              onPressed: _isSaving
-                  ? null
-                  : () {
-                      setState(() {
-                        _isEditMode = !_isEditMode;
-                      });
-                    },
-              child: Text(_isEditMode ? 'Annuler' : 'Modifier'),
-            ),
+      backgroundColor: kBg,
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          _buildSliverHeader(),
         ],
+        body: Column(
+          children: [
+            // ── Identité sous le banner ──
+            _buildIdentityCard(),
+            // ── TabBar ──
+            _buildTabBar(),
+            // ── Contenu des onglets ──
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildMonProfilTab(),
+                  _buildVisibiliteTab(),
+                  _buildAmbianceTab(),
+                  _buildNotificationsTab(),
+                  _buildConfidentialiteTab(),
+                ],
+              ),
+            ),
+            // ── Bouton Enregistrer ──
+            _buildSaveButton(),
+          ],
+        ),
       ),
-      body: _buildBody(),
-      floatingActionButton: _isEditMode
-          ? FloatingActionButton.extended(
-              onPressed: _isSaving ? null : _saveProfile,
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.save),
-              label: const Text('Enregistrer'),
-            )
-          : null,
     );
   }
 
-  Widget _buildBody() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_error != null) {
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text('Erreur: $_error'),
-            const SizedBox(height: 8),
-            FilledButton(onPressed: _loadProfile, child: const Text('Reessayer')),
+  // ── SLIVER HEADER (Banner + Avatar) ──────────────────────────
+  SliverAppBar _buildSliverHeader() {
+    return SliverAppBar(
+      expandedHeight: 200,
+      pinned: true,
+      backgroundColor: kPrimary,
+      leading: IconButton(
+        icon: const Icon(Icons.menu, color: Colors.white),
+        onPressed: () {},
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+          onPressed: () {},
+        ),
+      ],
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          children: [
+            // Banner image / gradient
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF1A3A6B), Color(0xFF0A5DA6)],
+                ),
+              ),
+              child: Opacity(
+                opacity: 0.15,
+                child: Image.network(
+                  'https://images.unsplash.com/photo-1562774053-701939374585?w=800',
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  errorBuilder: (_, __, ___) => const SizedBox(),
+                ),
+              ),
+            ),
+            // Bouton changer photo de couverture
+            Positioned(
+              right: 12,
+              bottom: 60,
+              child: GestureDetector(
+                onTap: () => _showChangeCoverSheet(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6)
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.edit, size: 12, color: kPrimary),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Changer la photo\nde couverture',
+                        style: TextStyle(fontSize: 10, color: kPrimary, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Avatar
+            Positioned(
+              bottom: -30,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        color: const Color(0xFFCBD5E1),
+                      ),
+                      child: ClipOval(
+                        child: _profile.avatarUrl != null
+                            ? Image.network(_profile.avatarUrl!, fit: BoxFit.cover)
+                            : Container(
+                                color: const Color(0xFFBFDBFE),
+                                child: Center(
+                                  child: Text(
+                                    '${_profile.firstName[0]}${_profile.lastName[0]}',
+                                    style: const TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                      color: kPrimary,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: GestureDetector(
+                        onTap: () => _showChangeAvatarSheet(),
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)
+                            ],
+                          ),
+                          child: const Icon(Icons.camera_alt, size: 14, color: Color(0xFF6B7280)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
-      );
-    }
-    if (_user == null) {
-      return const Center(child: Text('Profil introuvable.'));
-    }
+      ),
+    );
+  }
 
-    return ListView(
+  // ── IDENTITÉ ──────────────────────────────────────────────────
+  Widget _buildIdentityCard() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.only(top: 38, bottom: 12),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '${_profile.firstName} ${_profile.lastName}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(width: 6),
+              if (_profile.isVerified)
+                const Icon(Icons.verified, color: Color(0xFF1A56DB), size: 20),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            _profile.schoolRole,
+            style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+          ),
+          Text(
+            'Actuellement - ${_profile.appRole}',
+            style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── TABBAR ────────────────────────────────────────────────────
+  Widget _buildTabBar() {
+    return Container(
+      color: Colors.white,
+      child: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        labelColor: kPrimaryLight,
+        unselectedLabelColor: const Color(0xFF6B7280),
+        indicatorColor: kPrimaryLight,
+        indicatorWeight: 2.5,
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: const TextStyle(fontSize: 13),
+        tabs: _tabs.map((t) => Tab(text: t)).toList(),
+      ),
+    );
+  }
+
+  // ── SAVE BUTTON ───────────────────────────────────────────────
+  Widget _buildSaveButton() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+      child: SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: ElevatedButton(
+          onPressed: _saveChanges,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _saved ? const Color(0xFF22C55E) : kPrimaryLight,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            elevation: 0,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(_saved ? Icons.check : Icons.save_outlined, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                _saved ? 'Enregistré !' : 'Enregistrer les modifications',
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  ONGLET 1 — MON PROFIL
+  // ════════════════════════════════════════════════════════════
+  Widget _buildMonProfilTab() {
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
-      children: <Widget>[
-        CircleAvatar(
-          radius: 38,
-          backgroundImage:
-              _avatarUrlCtrl.text.trim().isNotEmpty ? NetworkImage(_avatarUrlCtrl.text.trim()) : null,
-          child: _avatarUrlCtrl.text.trim().isEmpty ? const Icon(Icons.person, size: 38) : null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Mon Profil',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Gérez vos données de base visibles par les autres membres.',
+            style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+          ),
+          const SizedBox(height: 20),
+
+          // Courriel institutionnel (lecture seule)
+          _sectionLabel('Courriel institutionnel'),
+          _readonlyField(_profile.email),
+          const SizedBox(height: 14),
+
+          // Courriel notification
+          _sectionLabel('Courriel de notification (optionnel)'),
+          _editableField(
+            controller: _notifEmailCtrl,
+            hint: 'ex: mon.email@gmail.com',
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const Padding(
+            padding: EdgeInsets.only(top: 4, bottom: 14),
+            child: Text(
+              'Recevez vos notifications sur ce courriel secondaire.',
+              style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
+            ),
+          ),
+
+          // Prénom & Nom
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionLabel('Prénom'),
+                    _editableField(controller: _firstNameCtrl),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionLabel('Nom'),
+                    _editableField(controller: _lastNameCtrl),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Téléphone
+          _sectionLabel('Téléphone'),
+          _editableField(
+            controller: _phoneCtrl,
+            hint: 'ex: 613-555-0101',
+            keyboardType: TextInputType.phone,
+          ),
+          const SizedBox(height: 14),
+
+          // Rôle à l'école
+          _sectionLabel('Rôle à l\'école'),
+          _buildDropdown(
+            value: _schoolRole,
+            items: const {
+              'etudiant': 'Étudiant',
+              'professeur': 'Professeur',
+              'membredupersonnel': 'Membre du personnel',
+              'administrateur': 'Administrateur',
+            },
+            onChanged: (v) => setState(() => _schoolRole = v!),
+          ),
+          const SizedBox(height: 14),
+
+          // Bio
+          _sectionLabel('Bio'),
+          TextFormField(
+            controller: _bioCtrl,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Ajoutez une bio pour vous présenter...',
+              hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFF60A5FA)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // Langues parlées
+          _sectionLabel('Langues parlées'),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              ..._profile.languagesSpoken.map(
+                (l) => Chip(
+                  label: Text(l, style: const TextStyle(fontSize: 12, color: Color(0xFF1D4ED8))),
+                  backgroundColor: const Color(0xFFEFF6FF),
+                  side: BorderSide.none,
+                  deleteIcon: const Icon(Icons.close, size: 14, color: Color(0xFF93C5FD)),
+                  onDeleted: () {},
+                ),
+              ),
+              ActionChip(
+                label: const Text('+ Ajouter', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+                backgroundColor: const Color(0xFFF9FAFB),
+                side: const BorderSide(color: Color(0xFFE5E7EB)),
+                onPressed: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // ── Aperçu profil public ──
+          _buildPublicProfilePreview(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPublicProfilePreview() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Divider(),
+        const SizedBox(height: 12),
+        const Text(
+          'Aperçu du profil public',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+
+        // Stats
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 2.4,
+          children: [
+            _statCard(Icons.speed, const Color(0xFFDCFCE7), const Color(0xFF16A34A), 'Go Score', '${_profile.goScore}'),
+            _statCard(Icons.directions_car, const Color(0xFFDDEFFE), const Color(0xFF2563EB), 'Trajets', '${_profile.totalTrips}'),
+            _statCard(Icons.star, const Color(0xFFF3E8FF), const Color(0xFF9333EA), 'Note', _profile.averageRating.toStringAsFixed(1)),
+            _statCard(Icons.eco, const Color(0xFFDCFCE7), const Color(0xFF16A34A), 'CO₂ évité', '${(_profile.co2SavedKg / 1000).toStringAsFixed(1)}T'),
+          ],
         ),
         const SizedBox(height: 16),
-        Text(
-          '${_user!.firstName} ${_user!.lastName}',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 4),
-        Text('Role: ${_user!.role}'),
-        const SizedBox(height: 4),
-        Text('Note moyenne: ${_user!.averageRating.toStringAsFixed(1)}'),
-        const SizedBox(height: 20),
-        _field('Prenom', _firstNameCtrl),
-        _field('Nom', _lastNameCtrl),
-        _field('Email', _emailCtrl, keyboardType: TextInputType.emailAddress),
-        _field('Avatar URL', _avatarUrlCtrl),
+
+        // Trajets habituels
+        if (_profile.usualTrips.isNotEmpty) ...[
+          const Text('Trajets habituels', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          ..._profile.usualTrips.map((t) => _usualTripCard(t)),
+          const SizedBox(height: 16),
+        ],
+
+        // Derniers avis
+        if (_profile.reviews.isNotEmpty) ...[
+          const Text('Derniers avis', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          ..._profile.reviews.take(2).map((r) => _reviewCard(r)),
+          const SizedBox(height: 16),
+        ],
+
+        // Trajets publiés
+        if (_profile.recentTrips.isNotEmpty) ...[
+          const Text('Trajets publiés', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          ..._profile.recentTrips.map((t) => _tripCard(t)),
+        ],
       ],
     );
   }
 
-  Widget _field(
-    String label,
-    TextEditingController controller, {
-    TextInputType? keyboardType,
+  Widget _statCard(IconData icon, Color bg, Color iconColor, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF3F4F6)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
+            child: Icon(icon, color: iconColor, size: 20),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280))),
+                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF111827))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _usualTripCard(UsualTrip trip) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF3F4F6)),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: Text(trip.departure, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
+          const Icon(Icons.arrow_forward, size: 14, color: kPrimary),
+          const SizedBox(width: 6),
+          Expanded(child: Text(trip.arrival, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
+          const Spacer(),
+          _pillButton(
+            label: 'S\'abonner',
+            icon: Icons.notifications_outlined,
+            color: const Color(0xFF1A56DB),
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _reviewCard(ReviewItem r) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 18,
+            backgroundColor: const Color(0xFFBFDBFE),
+            child: Text(r.reviewerName[0], style: const TextStyle(color: kPrimary, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(r.reviewerName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: kPrimary)),
+                    const SizedBox(width: 6),
+                    Text(r.date, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(r.comment, style: const TextStyle(fontSize: 12, color: Color(0xFF4B5563))),
+              ],
+            ),
+          ),
+          _starRating(r.rating),
+        ],
+      ),
+    );
+  }
+
+  Widget _tripCard(PublicTrip trip) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.location_on, size: 12, color: Color(0xFF3B82F6)),
+                    const SizedBox(width: 4),
+                    Text(trip.departure, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      child: Icon(Icons.arrow_forward, size: 10, color: Color(0xFF9CA3AF)),
+                    ),
+                    Flexible(child: Text(trip.arrival, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text('${trip.date} · ${trip.time}', style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('${trip.price.toStringAsFixed(0)}\$', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1A56DB))),
+              Text('${trip.seats} place${trip.seats > 1 ? 's' : ''}', style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+            ],
+          ),
+          const SizedBox(width: 8),
+          _pillButton(label: 'Réserver', icon: Icons.add_circle_outline, color: const Color(0xFF1A56DB), onTap: () {}),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  ONGLET 2 — VISIBILITÉ
+  // ════════════════════════════════════════════════════════════
+  Widget _buildVisibiliteTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Visibilité du Profil', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          const Text('Contrôlez les informations visibles sur votre profil public.', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+          const SizedBox(height: 20),
+          _toggleRow('Go Score (votre score global)', _profile.showGoScore, (v) => setState(() => _profile.showGoScore = v)),
+          _toggleRow('Nombre de trajets (expérience)', _profile.showTripsCount, (v) => setState(() => _profile.showTripsCount = v)),
+          _toggleRow('Note globale (évaluations moyennes)', _profile.showRating, (v) => setState(() => _profile.showRating = v)),
+          _toggleRow('Économie CO₂ (impact écologique)', _profile.showCo2, (v) => setState(() => _profile.showCo2 = v)),
+        ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  ONGLET 3 — AMBIANCE TRAJET
+  // ════════════════════════════════════════════════════════════
+  Widget _buildAmbianceTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Ambiance Trajet', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          const Text('Indiquez vos préférences pour une meilleure expérience collective.', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+          const SizedBox(height: 20),
+          GridView.count(
+            crossAxisCount: 4,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+            children: [
+              _ambianceTile(Icons.chat_bubble_outline, 'Parler', _profile.conversationLevel != 'quiet',
+                  (v) => setState(() => _profile.conversationLevel = v ? 'moderate' : 'quiet')),
+              _ambianceTile(Icons.music_note, 'Musique', _profile.musicAccepted,
+                  (v) => setState(() => _profile.musicAccepted = v)),
+              _ambianceTile(Icons.pets, 'Animaux', _profile.petsAccepted,
+                  (v) => setState(() => _profile.petsAccepted = v)),
+              _ambianceTile(Icons.smoking_rooms, 'Fumer', _profile.smokingAccepted,
+                  (v) => setState(() => _profile.smokingAccepted = v)),
+            ],
+          ),
+          const SizedBox(height: 24),
+          const Text('Niveau de conversation', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 10),
+          Row(
+            children: ['quiet', 'moderate', 'chatty'].map((level) {
+              final labels = {'quiet': 'Silencieux', 'moderate': 'Modéré', 'chatty': 'Bavard'};
+              final selected = _profile.conversationLevel == level;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => setState(() => _profile.conversationLevel = level),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: selected ? const Color(0xFFEFF6FF) : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: selected ? kPrimaryLight : const Color(0xFFE5E7EB), width: selected ? 2 : 1),
+                    ),
+                    child: Text(labels[level]!, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: selected ? FontWeight.w600 : FontWeight.normal, color: selected ? kPrimaryLight : const Color(0xFF6B7280))),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _ambianceTile(IconData icon, String label, bool value, ValueChanged<bool> onChanged) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: value ? const Color(0xFFEFF6FF) : const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: value ? kPrimaryLight : const Color(0xFFE5E7EB), width: value ? 2 : 1),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 24, color: value ? kPrimaryLight : const Color(0xFF9CA3AF)),
+            const SizedBox(height: 4),
+            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: value ? kPrimaryLight : const Color(0xFF6B7280))),
+            const SizedBox(height: 4),
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: value ? kPrimaryLight : Colors.transparent,
+                border: Border.all(color: value ? kPrimaryLight : const Color(0xFFD1D5DB)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  ONGLET 4 — NOTIFICATIONS
+  // ════════════════════════════════════════════════════════════
+  Widget _buildNotificationsTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Notifications', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          const Text('Configurez vos préférences de notification.', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+          const SizedBox(height: 20),
+
+          _sectionHeader('Notifications par Email'),
+          _notifCard('Réservations et annulations', _profile.emailPrimordiales, (v) => setState(() => _profile.emailPrimordiales = v)),
+          _notifCard('Rappels et correspondances', _profile.emailSecondaires, (v) => setState(() => _profile.emailSecondaires = v)),
+          _notifCard('Conseils et promotions', _profile.emailNegligeables, (v) => setState(() => _profile.emailNegligeables = v)),
+
+          const SizedBox(height: 20),
+          _sectionHeader('Notifications Push'),
+          _notifCard('Réservations et annulations', _profile.pushPrimordiales, (v) => setState(() => _profile.pushPrimordiales = v)),
+          _notifCard('Rappels et correspondances', _profile.pushSecondaires, (v) => setState(() => _profile.pushSecondaires = v)),
+          _notifCard('Conseils et promotions', _profile.pushNegligeables, (v) => setState(() => _profile.pushNegligeables = v)),
+        ],
+      ),
+    );
+  }
+
+  Widget _notifCard(String label, bool value, ValueChanged<bool> onChanged) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF3F4F6)),
+      ),
+      child: ListTile(
+        title: Text(label, style: const TextStyle(fontSize: 13, color: Color(0xFF374151))),
+        trailing: _buildSwitch(value, onChanged),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  ONGLET 5 — CONFIDENTIALITÉ
+  // ════════════════════════════════════════════════════════════
+  Widget _buildConfidentialiteTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Confidentialité', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          const Text('Contrôlez qui peut voir vos informations personnelles.', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+          const SizedBox(height: 20),
+          _privacyCard('Afficher mon numéro de téléphone', 'Les autres utilisateurs pourront voir votre numéro', _profile.showPhoneNumber, (v) => setState(() => _profile.showPhoneNumber = v)),
+          _privacyCard('Afficher mon nom de famille', 'Affiche votre nom complet sur votre profil public', _profile.showLastName, (v) => setState(() => _profile.showLastName = v)),
+          _privacyCard('Suivi d\'affinité', 'Autoriser l\'analyse de vos préférences pour améliorer les suggestions', _profile.allowAffinityTracking, (v) => setState(() => _profile.allowAffinityTracking = v)),
+          const SizedBox(height: 30),
+
+          // Déconnexion
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              onPressed: () => _showLogoutDialog(),
+              icon: const Icon(Icons.logout, size: 18),
+              label: const Text('Déconnexion', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: kRed,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _privacyCard(String label, String description, bool value, ValueChanged<bool> onChanged) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF3F4F6)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF374151))),
+                const SizedBox(height: 2),
+                Text(description, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          _buildSwitch(value, onChanged),
+        ],
+      ),
+    );
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  WIDGETS UTILITAIRES
+  // ──────────────────────────────────────────────────────────────
+
+  Widget _sectionLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF374151))),
+    );
+  }
+
+  Widget _sectionHeader(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
+    );
+  }
+
+  Widget _readonlyField(String value) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Text(value, style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+    );
+  }
+
+  Widget _editableField({
+    required TextEditingController controller,
+    String? hint,
+    TextInputType keyboardType = TextInputType.text,
   }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: const TextStyle(fontSize: 13),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        suffixIcon: const Icon(Icons.edit, size: 14, color: Color(0xFF9CA3AF)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF60A5FA))),
+      ),
+    );
+  }
+
+  Widget _buildDropdown({
+    required String value,
+    required Map<String, String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF60A5FA))),
+      ),
+      items: items.entries
+          .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value, style: const TextStyle(fontSize: 13))))
+          .toList(),
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _toggleRow(String label, bool value, ValueChanged<bool> onChanged) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: TextField(
-        controller: controller,
-        enabled: _isEditMode,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          labelText: label,
-          border: const OutlineInputBorder(),
-          isDense: true,
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: const TextStyle(fontSize: 13, color: Color(0xFF374151)))),
+          _buildSwitch(value, onChanged),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwitch(bool value, ValueChanged<bool> onChanged) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 46,
+        height: 26,
+        decoration: BoxDecoration(
+          color: value ? kGreen : const Color(0xFFD1D5DB),
+          borderRadius: BorderRadius.circular(13),
         ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 200),
+          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+          child: Padding(
+            padding: const EdgeInsets.all(3),
+            child: Container(
+              width: 20,
+              height: 20,
+              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _starRating(double rating) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (i) {
+        if (i < rating.floor()) return const Icon(Icons.star, size: 14, color: Color(0xFFF59E0B));
+        if (i < rating) return const Icon(Icons.star_half, size: 14, color: Color(0xFFF59E0B));
+        return const Icon(Icons.star_border, size: 14, color: Color(0xFFD1D5DB));
+      }),
+    );
+  }
+
+  Widget _pillButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 11, color: Colors.white),
+            const SizedBox(width: 4),
+            Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ──────────────────────────────────────────────────────────────
+  //  BOTTOM SHEETS & DIALOGS
+  // ──────────────────────────────────────────────────────────────
+
+  void _showChangeCoverSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFD1D5DB), borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            const Text('Changer la photo de couverture', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            ListTile(leading: const Icon(Icons.photo_library_outlined, color: kPrimary), title: const Text('Choisir depuis la galerie'), onTap: () => Navigator.pop(context)),
+            ListTile(leading: const Icon(Icons.camera_alt_outlined, color: kPrimary), title: const Text('Prendre une photo'), onTap: () => Navigator.pop(context)),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showChangeAvatarSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFD1D5DB), borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 16),
+            const Text('Changer la photo de profil', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 20),
+            ListTile(leading: const Icon(Icons.photo_library_outlined, color: kPrimary), title: const Text('Choisir depuis la galerie'), onTap: () => Navigator.pop(context)),
+            ListTile(leading: const Icon(Icons.camera_alt_outlined, color: kPrimary), title: const Text('Prendre une photo'), onTap: () => Navigator.pop(context)),
+            ListTile(leading: const Icon(Icons.delete_outline, color: kRed), title: const Text('Supprimer la photo', style: TextStyle(color: kRed)), onTap: () => Navigator.pop(context)),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Déconnexion', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white),
+            child: const Text('Déconnexion'),
+          ),
+        ],
       ),
     );
   }
 }
 
-Map<String, dynamic>? _extractMap(dynamic payload) {
-  if (payload is Map<String, dynamic>) {
-    final dynamic data = payload['data'];
-    if (data is Map<String, dynamic>) return data;
-    return payload;
-  }
-  return null;
-}

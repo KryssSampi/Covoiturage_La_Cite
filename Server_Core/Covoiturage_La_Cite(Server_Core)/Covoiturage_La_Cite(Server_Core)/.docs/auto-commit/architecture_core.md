@@ -1,6 +1,6 @@
 # architecture_core.md — Tiers Core (ASP.NET)
 # Racine : D:\Covoiturage_La_Cite\Server_Core\Covoiturage_La_Cite(Server_Core)\Covoiturage_La_Cite(Server_Core)
-# Généré le 2026-04-18 23:00 | 298 fichiers indexés
+# Généré le 2026-04-19 23:00 | 299 fichiers indexés
 # Format : chemin/relatif|description
 
 .gitignore|Fichier C# — gitignore
@@ -119,6 +119,7 @@ Application/Services/Admin/AdminService.cs|Fichier C# — admin service
 Application/Services/Auth/AuthSessionCleanupService.cs|Fichier C# — auth session cleanup service
 Application/Services/Auth/AuthSessionService.cs|Fichier C# — auth session service
 Application/Services/Auth/EmailService.cs|Fichier C# — email service
+Application/Services/Auth/JwtRsaKeyStore.cs|Fichier C# — jwt rsa key store
 Application/Services/Auth/MicrosoftSsoService.cs|Fichier C# — microsoft sso service
 Application/Services/Auth/SessionCodeCleanupService.cs|Fichier C# — session code cleanup service
 Application/Services/Auth/SessionCodeService.cs|Fichier C# — session code service
