@@ -1,4 +1,7 @@
-﻿import 'package:flutter/material.dart';
+// lib/features/notifications/notifications_screen.dart
+// Fixed: class is properly exported as NotificationsScreen
+
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/services/api_service.dart';
@@ -31,7 +34,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     });
     try {
       final dynamic payload = await _api.get('/api/notifications');
-      final List<dynamic> rows = _extractList(payload);
+      final List<dynamic> rows = parsing.extractList(payload);
       final List<_NotificationItem> items = rows
           .whereType<Map<String, dynamic>>()
           .map(_NotificationItem.fromJson)
@@ -40,15 +43,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       if (!mounted) return;
       setState(() {
         _items = items;
+        _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _error = e.toString();
-      });
-    } finally {
-      if (!mounted) return;
-      setState(() {
         _isLoading = false;
       });
     }
@@ -56,9 +56,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Future<void> _markAllRead() async {
     if (_isMarkingAll) return;
-    setState(() {
-      _isMarkingAll = true;
-    });
+    setState(() => _isMarkingAll = true);
     try {
       await _api.patch('/api/notifications/read-all', <String, dynamic>{});
       if (!mounted) return;
@@ -66,18 +64,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         _items = _items.map((n) => n.copyWith(isRead: true)).toList();
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Toutes les notifications sont lues.')),
+        const SnackBar(
+            content: Text('Toutes les notifications sont lues.')),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Operation impossible: $e')),
+        SnackBar(content: Text('Opération impossible: $e')),
       );
     } finally {
       if (!mounted) return;
-      setState(() {
-        _isMarkingAll = false;
-      });
+      setState(() => _isMarkingAll = false);
     }
   }
 
@@ -85,16 +82,28 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final int unreadCount = _items.where((n) => !n.isRead).length;
     return Scaffold(
+      backgroundColor: const Color(0xFFF2F5FA),
       appBar: AppBar(
-        title: const Text('Notifications'),
+        backgroundColor: const Color(0xFF08316E),
+        title: const Text('Notifications',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => context.pop(),
+        ),
         actions: <Widget>[
           IconButton(
             onPressed: _isLoading ? null : _loadNotifications,
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Colors.white),
           ),
           TextButton(
-            onPressed: (_items.isEmpty || unreadCount == 0 || _isMarkingAll) ? null : _markAllRead,
-            child: _isMarkingAll ? const Text('...') : const Text('Tout lire'),
+            onPressed: (_items.isEmpty || unreadCount == 0 || _isMarkingAll)
+                ? null
+                : _markAllRead,
+            child: Text(
+              _isMarkingAll ? '...' : 'Tout lire',
+              style: const TextStyle(color: Colors.white70),
+            ),
           ),
         ],
       ),
@@ -114,14 +123,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFF8A95A8)),
+            const Icon(Icons.wifi_off_rounded,
+                size: 48, color: Color(0xFF8A95A8)),
             const SizedBox(height: 12),
-            const Text(
-              'Connexion impossible',
-              style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF0D1624)),
-            ),
+            const Text('Connexion impossible',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, color: Color(0xFF0D1624))),
             const SizedBox(height: 4),
-            Text(_error!, style: const TextStyle(fontSize: 12, color: Color(0xFF7A879A))),
+            Text(_error!,
+                style: const TextStyle(
+                    fontSize: 12, color: Color(0xFF7A879A))),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: _loadNotifications,
@@ -151,25 +162,56 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (_, int index) {
         if (index == 0) {
-          return Text('Non lues: $unreadCount');
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              '$unreadCount non lue${unreadCount > 1 ? 's' : ''}',
+              style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF7A879A),
+                  fontWeight: FontWeight.w600),
+            ),
+          );
         }
         final _NotificationItem item = _items[index - 1];
         return Card(
-          color: item.isRead ? Colors.white : const Color(0xFFE8F0FE),
+          color:
+              item.isRead ? Colors.white : const Color(0xFFE8F0FE),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
+          elevation: 1,
           child: ListTile(
-            onTap: () => context.push('/notification/${item.id}', extra: {
-              'id': item.id,
-              'title': item.title,
-              'body': item.body,
-              'createdAt': item.createdAt.toIso8601String(),
-              'isRead': item.isRead,
-              'tripId': item.tripId,
-            }),
-            leading: Icon(item.isRead ? Icons.notifications_none : Icons.notifications_active),
-            title: Text(item.title),
-            subtitle: Text('${item.body}\n${_fmtDateTime(item.createdAt)}'),
+            onTap: () => context.push(
+              '/notification/${item.id}',
+              extra: {
+                'id': item.id,
+                'title': item.title,
+                'body': item.body,
+                'createdAt': item.createdAt.toIso8601String(),
+                'isRead': item.isRead,
+                'tripId': item.tripId,
+              },
+            ),
+            leading: Icon(
+              item.isRead
+                  ? Icons.notifications_none
+                  : Icons.notifications_active,
+              color: item.isRead
+                  ? const Color(0xFF8A95A8)
+                  : const Color(0xFF08316E),
+            ),
+            title: Text(item.title,
+                style: TextStyle(
+                    fontWeight: item.isRead
+                        ? FontWeight.w400
+                        : FontWeight.w700)),
+            subtitle: Text(
+                '${item.body}\n${_fmtDateTime(item.createdAt)}',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis),
             isThreeLine: true,
-            trailing: const Icon(Icons.chevron_right, size: 18, color: Color(0xFF8A95A8)),
+            trailing: const Icon(Icons.chevron_right,
+                size: 18, color: Color(0xFF8A95A8)),
           ),
         );
       },
@@ -195,15 +237,23 @@ class _NotificationItem {
   final String? tripId;
 
   factory _NotificationItem.fromJson(Map<String, dynamic> json) {
-    final Map<String, dynamic>? data =
-        json['data'] is Map<String, dynamic> ? json['data'] as Map<String, dynamic> : null;
+    final Map<String, dynamic>? data = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : null;
     return _NotificationItem(
       id: json['id']?.toString() ?? '',
-      title: json['title']?.toString() ?? json['type']?.toString() ?? 'Notification',
-      body: json['body']?.toString() ?? json['message']?.toString() ?? '',
-      createdAt: _toDateTime(json['createdAt'] ?? json['date']) ?? DateTime.now(),
-      isRead: _toBool(json['isRead'] ?? json['read'] ?? (json['readAt'] != null)),
-      tripId: json['tripId']?.toString() ?? data?['tripId']?.toString(),
+      title: json['title']?.toString() ??
+          json['type']?.toString() ??
+          'Notification',
+      body: json['body']?.toString() ??
+          json['message']?.toString() ??
+          '',
+      createdAt: parsing.toDateTime(json['createdAt'] ?? json['date']) ??
+          DateTime.now(),
+      isRead: parsing.toBool(
+          json['isRead'] ?? json['read'] ?? (json['readAt'] != null)),
+      tripId:
+          json['tripId']?.toString() ?? data?['tripId']?.toString(),
     );
   }
 
@@ -226,14 +276,7 @@ class _NotificationItem {
   }
 }
 
-List<dynamic> _extractList(dynamic payload) => parsing.extractList(payload);
-
-DateTime? _toDateTime(dynamic value) => parsing.toDateTime(value);
-
-bool _toBool(dynamic value) => parsing.toBool(value);
-
 String _fmtDateTime(DateTime dt) {
   String two(int v) => v < 10 ? '0$v' : '$v';
   return '${dt.year}-${two(dt.month)}-${two(dt.day)} ${two(dt.hour)}:${two(dt.minute)}';
 }
-

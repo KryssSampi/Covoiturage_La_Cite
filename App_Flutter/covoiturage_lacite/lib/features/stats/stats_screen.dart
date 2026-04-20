@@ -1,51 +1,46 @@
-﻿// lib/features/stats/stats_screen.dart
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// StatsScreen â€” GoBoard / Statistiques / Finances (3 tabs)
-// Visual tokens match cite-voiturage-stats-page.html wireframe.
-// Logic: preserves existing API calls, setState, controllers.
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// lib/features/stats/stats_screen.dart
+// GoBoard / Statistiques / Finances (3 tabs) — clean encoding
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/services/api_service.dart';
 
-// â”€â”€â”€ Color tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Color tokens ─────────────────────────────────────────────────────────────
 class _C {
-  static const blue       = Color(0xFF1A56CC);
-  static const blueDark   = Color(0xFF0D3A8C);
-  static const blueDeep   = Color(0xFF08316E);
-  static const blueLight  = Color(0xFFE8F0FE);
-  static const blueMid    = Color(0xFF2D7DD2);
-  static const teal       = Color(0xFF0F6E56);
-  static const tealLight  = Color(0xFFE1F5EE);
-  static const tealMid    = Color(0xFF1D9E75);
-  static const green      = Color(0xFF3B6D11);
+  static const blue = Color(0xFF1A56CC);
+  static const blueDark = Color(0xFF0D3A8C);
+  static const blueDeep = Color(0xFF08316E);
+  static const blueLight = Color(0xFFE8F0FE);
+  static const blueMid = Color(0xFF2D7DD2);
+  static const teal = Color(0xFF0F6E56);
+  static const tealLight = Color(0xFFE1F5EE);
+  static const tealMid = Color(0xFF1D9E75);
+  static const green = Color(0xFF3B6D11);
   static const greenLight = Color(0xFFEAF3DE);
-  static const amber      = Color(0xFF854F0B);
+  static const amber = Color(0xFF854F0B);
   static const amberLight = Color(0xFFFAEEDA);
-  static const amberMid   = Color(0xFFBA7517);
-  static const red        = Color(0xFFA32D2D);
-  static const redLight   = Color(0xFFFCEBEB);
-  static const redMid     = Color(0xFFE24B4A);
-  static const grayBg     = Color(0xFFF2F5FA);
-  static const gray50     = Color(0xFFF8F9FC);
-  static const gray100    = Color(0xFFEEF0F5);
-  static const gray200    = Color(0xFFD8DBE5);
-  static const gray400    = Color(0xFF8A95A8);
-  static const gray600    = Color(0xFF545D6E);
-  static const surface    = Color(0xFFFFFFFF);
-  static const text1      = Color(0xFF0D1624);
-  static const text2      = Color(0xFF3D4A5C);
-  static const text3      = Color(0xFF7A879A);
-  static const border     = Color(0x12000000);
+  static const amberMid = Color(0xFFBA7517);
+  static const red = Color(0xFFA32D2D);
+  static const redLight = Color(0xFFFCEBEB);
+  static const redMid = Color(0xFFE24B4A);
+  static const grayBg = Color(0xFFF2F5FA);
+  static const gray50 = Color(0xFFF8F9FC);
+  static const gray100 = Color(0xFFEEF0F5);
+  static const gray200 = Color(0xFFD8DBE5);
+  static const gray400 = Color(0xFF8A95A8);
+  static const gray600 = Color(0xFF545D6E);
+  static const surface = Color(0xFFFFFFFF);
+  static const text1 = Color(0xFF0D1624);
+  static const text2 = Color(0xFF3D4A5C);
+  static const text3 = Color(0xFF7A879A);
+  static const border = Color(0x12000000);
 }
 
-const _shSm = [BoxShadow(color: Color(0x0F000000), blurRadius: 4,  offset: Offset(0, 1))];
-const _shMd = [BoxShadow(color: Color(0x14000000), blurRadius: 14, offset: Offset(0, 4))];
+const _shSm = [
+  BoxShadow(color: Color(0x0F000000), blurRadius: 4, offset: Offset(0, 1))
+];
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// SCREEN
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ─── Screen ───────────────────────────────────────────────────────────────────
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -55,27 +50,29 @@ class StatsScreen extends StatefulWidget {
 }
 
 enum _Tab { goboard, stats, finance }
+
 enum _StatPeriod { sevenDays, currentMonth, threeMonths, all }
+
 enum _FinPeriod { sevenDays, currentMonth, threeMonths, all }
 
-class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStateMixin {
+class _StatsScreenState extends State<StatsScreen>
+    with SingleTickerProviderStateMixin {
   _Tab _tab = _Tab.goboard;
   _StatPeriod _statPeriod = _StatPeriod.currentMonth;
   _FinPeriod _finPeriod = _FinPeriod.currentMonth;
   late final TabController _tabController;
   bool _isLoading = true;
-  List<dynamic> _rankings = <dynamic>[];
-  Map<String, dynamic> _myStats = <String, dynamic>{};
-  Map<String, dynamic> _finances = <String, dynamic>{};
+  List<dynamic> _rankings = [];
+  Map<String, dynamic> _myStats = {};
+  Map<String, dynamic> _finances = {};
 
   Map<String, dynamic> get _stats =>
       (_myStats['stats'] as Map?)?.cast<String, dynamic>() ?? _myStats;
-  Map<String, dynamic> get _finance =>
-      _finances;
+
+  Map<String, dynamic> get _finance => _finances;
+
   List<Map<String, dynamic>> get _goTasks =>
-      _rankings
-          .whereType<Map<String, dynamic>>()
-          .toList();
+      _rankings.whereType<Map<String, dynamic>>().toList();
 
   @override
   void initState() {
@@ -93,9 +90,11 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   Future<void> _loadStats() async {
     setState(() => _isLoading = true);
     try {
-      final dynamic goboard = await ApiService.instance.get('/api/goboard/rankings');
+      final dynamic goboard =
+          await ApiService.instance.get('/api/goboard/rankings');
       final dynamic stats = await ApiService.instance.get('/api/stats/me');
-      final dynamic finance = await ApiService.instance.get('/api/stats/finances');
+      final dynamic finance =
+          await ApiService.instance.get('/api/stats/finances');
       if (!mounted) return;
       setState(() {
         _rankings = _extractList(goboard);
@@ -103,18 +102,16 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             ? ((stats['data'] is Map<String, dynamic>)
                 ? stats['data'] as Map<String, dynamic>
                 : stats)
-            : <String, dynamic>{};
+            : {};
         _finances = (finance is Map<String, dynamic>)
             ? ((finance['data'] is Map<String, dynamic>)
                 ? finance['data'] as Map<String, dynamic>
                 : finance)
-            : <String, dynamic>{};
+            : {};
         _isLoading = false;
       });
     } catch (_) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -127,9 +124,10 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   List<dynamic> _extractList(dynamic data) {
     if (data is List) return data;
     if (data is Map) {
-      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[]) as List<dynamic>;
+      return (data['items'] ?? data['data'] ?? data['results'] ?? [])
+          as List<dynamic>;
     }
-    return <dynamic>[];
+    return [];
   }
 
   @override
@@ -137,10 +135,18 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return Scaffold(
       backgroundColor: _C.grayBg,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF08316E),
-        title: const Text('Statistiques', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+        backgroundColor: _C.blueDeep,
+        title: const Text('Statistiques',
+            style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.w700)),
         automaticallyImplyLeading: false,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: _loadStats,
+          )
+        ],
       ),
       body: Column(
         children: [
@@ -148,11 +154,15 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           _buildTabBar(),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: _C.blue))
+                ? const Center(
+                    child: CircularProgressIndicator(color: _C.blue))
                 : IndexedStack(
                     index: _tab.index,
                     children: [
-                      _GoboardTab(goTasks: _goTasks, goScore: _display(_stats['goScore'] ?? _finance['goScore'])),
+                      _GoboardTab(
+                          goTasks: _goTasks,
+                          goScore: _display(_stats['goScore'] ??
+                              _finance['goScore'])),
                       _buildStatsTab(),
                       _buildFinanceTab(),
                     ],
@@ -163,32 +173,49 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // TAB BAR
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-
+  // ─── Tab Bar ────────────────────────────────────────────────────────────────
   Widget _buildTabBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       decoration: const BoxDecoration(
         color: _C.surface,
         border: Border(bottom: BorderSide(color: _C.border)),
-        boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 8,
+              offset: Offset(0, 2))
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Container(
           padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(color: _C.gray100, borderRadius: BorderRadius.circular(20)),
+          decoration: BoxDecoration(
+              color: _C.gray100,
+              borderRadius: BorderRadius.circular(20)),
           child: Row(
             children: [
-              _tabBtn(_Tab.goboard, 'GoBoard', Icons.emoji_events_rounded,
-                const LinearGradient(colors: [_C.teal, _C.tealMid])),
-              _tabBtn(_Tab.stats, 'Statistiques', Icons.bar_chart_rounded,
-                const LinearGradient(colors: [_C.blueDeep, _C.blueMid])),
-              _tabBtn(_Tab.finance, 'Finances', Icons.account_balance_wallet_rounded,
-                const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight,
-                  colors: [Color(0xFF854F0B), Color(0xFFBA7517)])),
+              _tabBtn(
+                  _Tab.goboard,
+                  'GoBoard',
+                  Icons.emoji_events_rounded,
+                  const LinearGradient(
+                      colors: [_C.teal, _C.tealMid])),
+              _tabBtn(
+                  _Tab.stats,
+                  'Statistiques',
+                  Icons.bar_chart_rounded,
+                  const LinearGradient(
+                      colors: [_C.blueDeep, _C.blueMid])),
+              _tabBtn(
+                  _Tab.finance,
+                  'Finances',
+                  Icons.account_balance_wallet_rounded,
+                  const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF854F0B), Color(0xFFBA7517)])),
             ],
           ),
         ),
@@ -196,30 +223,40 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _tabBtn(_Tab t, String label, IconData icon, Gradient activeGrad) {
+  Widget _tabBtn(
+      _Tab t, String label, IconData icon, Gradient activeGrad) {
     final isActive = _tab == t;
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _tab = t),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
+          padding:
+              const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
           decoration: BoxDecoration(
             gradient: isActive ? activeGrad : null,
             borderRadius: BorderRadius.circular(14),
             boxShadow: isActive
-                ? [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 2))]
+                ? [
+                    BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2))
+                  ]
                 : [],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 14, color: isActive ? Colors.white : _C.text3),
+              Icon(icon,
+                  size: 14,
+                  color: isActive ? Colors.white : _C.text3),
               const SizedBox(width: 5),
               Text(label,
-                style: GoogleFonts.sora(
-                  fontSize: 12, fontWeight: FontWeight.w700,
-                  color: isActive ? Colors.white : _C.text3)),
+                  style: GoogleFonts.sora(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isActive ? Colors.white : _C.text3)),
             ],
           ),
         ),
@@ -227,10 +264,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // STATS TAB
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-
+  // ─── Stats Tab ───────────────────────────────────────────────────────────────
   Widget _buildStatsTab() {
     return SingleChildScrollView(
       child: Column(
@@ -251,7 +285,6 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               ],
             ),
           ),
-
           // KPI Grid
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -263,89 +296,93 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               mainAxisSpacing: 10,
               childAspectRatio: 1.2,
               children: [
-                _kpiCard(icon: Icons.directions_car_rounded, iconBg: const Color(0xFFFDECEA),
-                  iconColor: _C.redMid, value: _display(_stats['tripsCount']), unit: '', label: 'Trajets complétés',
-                  trend: '↑ +8 vs mois préc.', trendUp: true),
-                _kpiCard(icon: Icons.eco_rounded, iconBg: _C.tealLight,
-                  iconColor: _C.teal, value: _display(_stats['co2SavedKg']), unit: 'kg', label: 'CO₂ économisé',
-                  trend: '↑ +12.3 kg', trendUp: true),
-                _kpiCard(icon: Icons.attach_money_rounded, iconBg: _C.blueLight,
-                  iconColor: _C.blue, value: _display(_finance['monthlyRevenue'] ?? _stats['monthlyRevenue']), unit: '€', label: 'Revenus ce mois',
-                  trend: '↑ +100% vs préc.', trendUp: true),
-                _kpiCard(icon: Icons.star_rounded, iconBg: const Color(0xFFFAEEDA),
-                  iconColor: const Color(0xFFF59E0B), value: _display(_stats['averageRating']), unit: '★', label: 'Note moyenne',
-                  trend: '↑ Médiane 4.7★', trendUp: true),
+                _kpiCard(
+                    icon: Icons.directions_car_rounded,
+                    iconBg: const Color(0xFFFDECEA),
+                    iconColor: _C.redMid,
+                    value: _display(_stats['tripsCount']),
+                    unit: '',
+                    label: 'Trajets complétés',
+                    trend: 'vs mois précédent',
+                    trendUp: true),
+                _kpiCard(
+                    icon: Icons.eco_rounded,
+                    iconBg: _C.tealLight,
+                    iconColor: _C.teal,
+                    value: _display(_stats['co2SavedKg']),
+                    unit: 'kg',
+                    label: 'CO₂ économisé',
+                    trend: 'Impact écologique',
+                    trendUp: true),
+                _kpiCard(
+                    icon: Icons.attach_money_rounded,
+                    iconBg: _C.blueLight,
+                    iconColor: _C.blue,
+                    value: _display(_finance['monthlyRevenue'] ??
+                        _stats['monthlyRevenue']),
+                    unit: '\$',
+                    label: 'Revenus ce mois',
+                    trend: 'Gains nets',
+                    trendUp: true),
+                _kpiCard(
+                    icon: Icons.star_rounded,
+                    iconBg: const Color(0xFFFAEEDA),
+                    iconColor: const Color(0xFFF59E0B),
+                    value: _display(_stats['averageRating']),
+                    unit: '★',
+                    label: 'Note moyenne',
+                    trend: 'Évaluations',
+                    trendUp: true),
               ],
             ),
           ),
           const SizedBox(height: 16),
-
-          // Evaluations card
-          _sectionHead('★ Évaluations reçues', '${_display(_stats['reviewsCount'])} avis'),
-          _card(child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    // Big average
-                    Column(
+          // Ratings card
+          _sectionHead('Évaluations reçues',
+              '${_display(_stats['reviewsCount'])} avis'),
+          _card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                          _display(_stats['averageRating']),
+                          style: GoogleFonts.sora(
+                              fontSize: 40,
+                              fontWeight: FontWeight.w800,
+                              color: _C.text1)),
+                      const Text('★★★★★',
+                          style: TextStyle(
+                              color: Color(0xFFF59E0B),
+                              fontSize: 16,
+                              letterSpacing: 2)),
+                      Text(
+                          '${_display(_stats['reviewsCount'])} avis',
+                          style: GoogleFonts.dmSans(
+                              fontSize: 11, color: _C.text3)),
+                    ],
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
                       children: [
-                        Text(_display(_stats['averageRating']),
-                          style: GoogleFonts.sora(fontSize: 40, fontWeight: FontWeight.w800, color: _C.text1)),
-                        const Text('â˜…â˜…â˜…â˜…â˜…', style: TextStyle(color: Color(0xFFF59E0B), fontSize: 16, letterSpacing: 2)),
-                        Text('${_display(_stats['reviewsCount'])} avis', style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3)),
+                        _ratingRow(5, 0.52, 11),
+                        _ratingRow(4, 0.48, 10),
+                        _ratingRow(3, 0.0, 0),
+                        _ratingRow(2, 0.0, 0),
+                        _ratingRow(1, 0.0, 0),
                       ],
                     ),
-                    const SizedBox(width: 16),
-                    // Rating distribution
-                    Expanded(
-                      child: Column(
-                        children: [
-                          _ratingRow(5, 0.52, 11),
-                          _ratingRow(4, 0.48, 10),
-                          _ratingRow(3, 0.0,  0),
-                          _ratingRow(2, 0.0,  0),
-                          _ratingRow(1, 0.0,  0),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const Divider(height: 1, color: _C.border),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-                child: _miniBarChart(),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: _insightBanner('Vos notes sont excellentes avec une médiane à 4.7★ sur 4 des 5 dernières semaines.'),
-              ),
-            ],
-          )),
+            ),
+          ),
           const SizedBox(height: 10),
-
-          // Recent trips
-          _sectionHead('🕐 Derniers trajets', ''),
-          _card(child: Column(
-            children: [
-              _tripRow('Barrhaven → Campus La Cité',  '1 mai · 17:25 · 2 pass.', '0,00 €', '▼ 9.9 kg', 4),
-              _tripRow('Campus → Orléans Park & Ride', '3 mai · 08:15 · 1 pass.', '0,00 €', '▼ 6.8 kg', 4),
-              _tripRow('Gatineau → ByWard Market',     '2 mai · 16:50 · 1 pass.', '0,00 €', '▼ 2.5 kg', 3),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Center(
-                  child: Text('5 trajets réussis sur 5 récents →',
-                    style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: _C.blue)),
-                ),
-              ),
-            ],
-          )),
-          const SizedBox(height: 10),
-
-          // Badge grid
-          _sectionHead('🏅 Mes badges', '4 obtenus'),
+          // Badges
+          _sectionHead('Mes badges', '4 obtenus'),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: GridView.count(
@@ -357,19 +394,15 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               childAspectRatio: 0.85,
               children: [
                 _badgeCard('🎓', 'Étudiant Cité', 'Jan. 2026', '', false),
-                _badgeCard('✅', 'Confirmé',       'Fév. 2026', '', false),
-                _badgeCard('🌱', 'Éco-Débutant',   'Juin 2026', '', false),
-                _badgeCard('★', 'Étudiant La Cité','Fév. 2026', '', false),
-                _badgeCard('💎', 'Expert',          '',  '51–100 trajets · 14 restants', true),
-                _badgeCard('⏰', 'Ponctuel',         '',  '95% ponct. · 5 pts', true),
+                _badgeCard('✅', 'Confirmé', 'Fév. 2026', '', false),
+                _badgeCard('🌱', 'Éco-Débutant', 'Juin 2026', '', false),
+                _badgeCard('★', 'La Cité', 'Fév. 2026', '', false),
+                _badgeCard('💎', 'Expert', '', '51–100 trajets', true),
+                _badgeCard('⏰', 'Ponctuel', '', '95% ponct.', true),
               ],
             ),
           ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: _insightBanner("Votre prochain badge 'Expert' nécessite 14 trajets supplémentaires. Vous y êtes presque !"),
-          ),
+          const SizedBox(height: 24),
         ],
       ),
     );
@@ -385,23 +418,40 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           decoration: BoxDecoration(
             color: isActive ? _C.blueDeep : _C.surface,
             borderRadius: BorderRadius.circular(999),
-            border: isActive ? null : Border.all(color: _C.gray200, width: 1.5),
-            boxShadow: isActive ? [const BoxShadow(color: Color(0x33000000), blurRadius: 8, offset: Offset(0, 2))] : [],
+            border: isActive
+                ? null
+                : Border.all(color: _C.gray200, width: 1.5),
+            boxShadow: isActive
+                ? const [
+                    BoxShadow(
+                        color: Color(0x33000000),
+                        blurRadius: 8,
+                        offset: Offset(0, 2))
+                  ]
+                : [],
           ),
           child: Center(
             child: Text(label,
-              style: GoogleFonts.sora(
-                fontSize: 12, fontWeight: FontWeight.w700,
-                color: isActive ? Colors.white : _C.text3)),
+                style: GoogleFonts.sora(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: isActive ? Colors.white : _C.text3)),
           ),
         ),
       ),
     );
   }
 
-  Widget _kpiCard({required IconData icon, required Color iconBg, required Color iconColor,
-      required String value, required String unit, required String label,
-      required String trend, required bool trendUp}) {
+  Widget _kpiCard({
+    required IconData icon,
+    required Color iconBg,
+    required Color iconColor,
+    required String value,
+    required String unit,
+    required String label,
+    required String trend,
+    required bool trendUp,
+  }) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -416,8 +466,11 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           Row(
             children: [
               Container(
-                width: 36, height: 36,
-                decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                    color: iconBg,
+                    borderRadius: BorderRadius.circular(10)),
                 child: Icon(icon, size: 18, color: iconColor),
               ),
               const SizedBox(width: 10),
@@ -425,12 +478,20 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(value,
-                    style: GoogleFonts.sora(fontSize: 22, fontWeight: FontWeight.w800, color: _C.text1, height: 1)),
+                      style: GoogleFonts.sora(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: _C.text1,
+                          height: 1)),
                   if (unit.isNotEmpty) ...[
                     const SizedBox(width: 2),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 2),
-                      child: Text(unit, style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w500, color: _C.text3)),
+                      child: Text(unit,
+                          style: GoogleFonts.sora(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: _C.text3)),
                     ),
                   ],
                 ],
@@ -438,19 +499,26 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             ],
           ),
           const SizedBox(height: 8),
-          Text(label, style: GoogleFonts.dmSans(fontSize: 11.5, color: _C.text3)),
+          Text(label,
+              style: GoogleFonts.dmSans(
+                  fontSize: 11.5, color: _C.text3)),
           const SizedBox(height: 4),
           Row(
             children: [
-              Icon(trendUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
-                size: 10, color: trendUp ? _C.tealMid : _C.redMid),
+              Icon(
+                  trendUp
+                      ? Icons.arrow_upward_rounded
+                      : Icons.arrow_downward_rounded,
+                  size: 10,
+                  color: trendUp ? _C.tealMid : _C.redMid),
               const SizedBox(width: 3),
               Flexible(
                 child: Text(trend,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 11, fontWeight: FontWeight.w600,
-                    color: trendUp ? _C.tealMid : _C.redMid),
-                  overflow: TextOverflow.ellipsis),
+                    style: GoogleFonts.dmSans(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: trendUp ? _C.tealMid : _C.redMid),
+                    overflow: TextOverflow.ellipsis),
               ),
             ],
           ),
@@ -464,7 +532,12 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
         children: [
-          SizedBox(width: 16, child: Text('$stars', style: GoogleFonts.dmSans(fontSize: 12, color: _C.text3), textAlign: TextAlign.right)),
+          SizedBox(
+              width: 16,
+              child: Text('$stars',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 12, color: _C.text3),
+                  textAlign: TextAlign.right)),
           const SizedBox(width: 8),
           Expanded(
             child: ClipRRect(
@@ -472,108 +545,25 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               child: LinearProgressIndicator(
                 value: fill,
                 backgroundColor: _C.gray100,
-                valueColor: const AlwaysStoppedAnimation(Color(0xFFF59E0B)),
+                valueColor: const AlwaysStoppedAnimation(
+                    Color(0xFFF59E0B)),
                 minHeight: 6,
               ),
             ),
           ),
           const SizedBox(width: 8),
-          SizedBox(width: 14, child: Text('$count', style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3))),
+          SizedBox(
+              width: 14,
+              child: Text('$count',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 11, color: _C.text3))),
         ],
       ),
     );
   }
 
-  Widget _miniBarChart() {
-    const bars = [
-      (label: 'S12', value: 'S12', height: 1.0, empty: false),
-      (label: 'S13', value: 'S13', height: 0.1,  empty: true),
-      (label: 'S14', value: 'S14', height: 1.0,  empty: false),
-      (label: 'S16', value: 'S16', height: 1.0,  empty: false),
-      (label: 'S18', value: 'S18', height: 1.0,  empty: false),
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Activité hebdomadaire',
-          style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w600, color: _C.text3)),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 72,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: bars.map((b) {
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Flexible(
-                              flex: (b.height * 10).round(),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: b.empty ? _C.gray100 : const Color(0xFFFAEEDA),
-                                  borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(3), topRight: Radius.circular(3)),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(b.label, style: GoogleFonts.dmSans(fontSize: 9, color: _C.text3, fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _tripRow(String route, String meta, String amount, String co2, int stars) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: _C.border))),
-      child: Row(
-        children: [
-          Container(
-            width: 32, height: 32,
-            decoration: BoxDecoration(color: _C.blueLight, borderRadius: BorderRadius.circular(10)),
-            child: const Icon(Icons.directions_car_filled_rounded, size: 16, color: _C.blue),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(route, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600, color: _C.text1)),
-                Text(meta, style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3)),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(amount, style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w700, color: _C.tealMid)),
-              Text(co2, style: GoogleFonts.dmSans(fontSize: 11, color: _C.tealMid, fontWeight: FontWeight.w600)),
-              Text('â˜…' * stars, style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 11)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _badgeCard(String emoji, String name, String date, String progress, bool locked) {
+  Widget _badgeCard(String emoji, String name, String date,
+      String progress, bool locked) {
     return Opacity(
       opacity: locked ? 0.45 : 1.0,
       child: Container(
@@ -589,18 +579,27 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             Text(emoji, style: const TextStyle(fontSize: 26)),
             const SizedBox(height: 6),
             Text(name,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.sora(fontSize: 11, fontWeight: FontWeight.w700, color: _C.text1)),
+                textAlign: TextAlign.center,
+                style: GoogleFonts.sora(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: _C.text1)),
             if (date.isNotEmpty) ...[
               const SizedBox(height: 3),
-              Text(date, style: GoogleFonts.dmSans(fontSize: 10, color: _C.text3)),
+              Text(date,
+                  style: GoogleFonts.dmSans(
+                      fontSize: 10, color: _C.text3)),
             ],
             if (progress.isNotEmpty) ...[
               const SizedBox(height: 3),
               Text(progress,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.sora(fontSize: 10, fontWeight: FontWeight.w600, color: _C.blue),
-                maxLines: 2, overflow: TextOverflow.ellipsis),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.sora(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: _C.blue),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis),
             ],
           ],
         ),
@@ -608,10 +607,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // FINANCE TAB
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-
+  // ─── Finance Tab ─────────────────────────────────────────────────────────────
   Widget _buildFinanceTab() {
     return SingleChildScrollView(
       child: Column(
@@ -622,40 +618,59 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft, end: Alignment.bottomRight,
-                colors: [_C.blueDeep, Color(0xFF0D4FA0)]),
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [_C.blueDeep, Color(0xFF0D4FA0)]),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('SOLDE DISPONIBLE',
-                  style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w600,
-                    color: Colors.white60, letterSpacing: 0.7)),
+                    style: GoogleFonts.sora(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white60,
+                        letterSpacing: 0.7)),
                 const SizedBox(height: 6),
                 Text('${_display(_finance['availableBalance'])} \$',
-                  style: GoogleFonts.sora(fontSize: 40, fontWeight: FontWeight.w800, color: Colors.white, height: 1)),
+                    style: GoogleFonts.sora(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        height: 1)),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(child: _balanceSub('En transit', '${_display(_finance['inTransit'])} \$', false)),
+                    Expanded(
+                        child: _balanceSub('En transit',
+                            '${_display(_finance['inTransit'])} \$',
+                            false)),
                     const SizedBox(width: 10),
-                    Expanded(child: _balanceSub('PÃ©nalitÃ©s', '${_display(_finance['penalties'])} \$', true)),
+                    Expanded(
+                        child: _balanceSub('Pénalités',
+                            '${_display(_finance['penalties'])} \$',
+                            true)),
                     const SizedBox(width: 10),
-                    Expanded(child: _balanceSub('IBAN', '***-2918', false)),
+                    Expanded(
+                        child: _balanceSub(
+                            'IBAN', '***-2918', false)),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    Expanded(child: _balanceBtn('Retirer', white: true, onTap: () {})),
+                    Expanded(
+                        child: _balanceBtn('Retirer',
+                            white: true, onTap: () {})),
                     const SizedBox(width: 10),
-                    Expanded(child: _balanceBtn('Historique', white: false, onTap: () {})),
+                    Expanded(
+                        child: _balanceBtn('Historique',
+                            white: false, onTap: () {})),
                   ],
                 ),
               ],
             ),
           ),
-
           // Period selector
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -672,54 +687,64 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               ],
             ),
           ),
-
-          // Resume card
-          _sectionHead('ðŸ“… RÃ©sumÃ© financier', ''),
-          _card(child: Column(
-            children: [
-              _resumeGrid(),
-              const Divider(height: 1, color: _C.border),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    _progressRow('Revenus bruts', '${_display(_finance['grossRevenue'])} \$', 0.8, _C.tealMid),
-                    const SizedBox(height: 10),
-                    _progressRow('Revenus nets', '${_display(_finance['netRevenue'])} \$', 0.68, _C.blue),
-                    const SizedBox(height: 10),
-                    _progressRow('Objectif mensuel', '${_display(_finance['monthlyRevenue'])} \$ / ${_display(_finance['monthlyGoal'])} \$', 0.20, _C.amberMid),
-                    const SizedBox(height: 12),
-                    _insightBannerGreen('+100% vs mois prÃ©cÃ©dent Â· Encore 159,20 \$ pour atteindre votre objectif.'),
-                  ],
-                ),
-              ),
-            ],
-          )),
-          const SizedBox(height: 10),
-
-          // Revenue chart
-          _sectionHead('ðŸ“Š Revenus hebdomadaires', ''),
-          _card(child: Padding(
-            padding: const EdgeInsets.all(16),
+          // Summary
+          _sectionHead('Résumé financier', ''),
+          _card(
             child: Column(
               children: [
-                _revenueBarChart(),
-                const SizedBox(height: 12),
-                _insightBannerGreen('S18 : votre meilleure pÃ©riode Ã  10,20 \$ â€” La tendance est encourageante.'),
+                _resumeGrid(),
+                const Divider(height: 1, color: _C.border),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      _progressRow(
+                          'Revenus bruts',
+                          '${_display(_finance['grossRevenue'])} \$',
+                          0.8,
+                          _C.tealMid),
+                      const SizedBox(height: 10),
+                      _progressRow(
+                          'Revenus nets',
+                          '${_display(_finance['netRevenue'])} \$',
+                          0.68,
+                          _C.blue),
+                      const SizedBox(height: 10),
+                      _progressRow(
+                          'Objectif mensuel',
+                          '${_display(_finance['monthlyRevenue'])} \$ / ${_display(_finance['monthlyGoal'])} \$',
+                          0.20,
+                          _C.amberMid),
+                    ],
+                  ),
+                ),
               ],
             ),
-          )),
+          ),
           const SizedBox(height: 10),
-
+          // Revenue chart
+          _sectionHead('Revenus hebdomadaires', ''),
+          _card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: _revenueBarChart(),
+            ),
+          ),
+          const SizedBox(height: 10),
           // Transactions
-          _sectionHead('ðŸ§¾ DerniÃ¨res transactions', ''),
-          _card(child: Column(
-            children: [
-              _txItem(true,  'RÃ©servation RSV-2026 â€” mise en attente', '27 mars', '-6,00 \$',  false),
-              _txItem(false, 'Retrait vers Desjardins',                 '27 mars', '-150,00 \$', false),
-              _txItem(true,  'DÃ©pÃ´t initial de test',                   '23 dÃ©c.', '+2 700,00 \$', true),
-            ],
-          )),
+          _sectionHead('Dernières transactions', ''),
+          _card(
+            child: Column(
+              children: [
+                _txItem(true, 'Réservation mise en attente', '27 mars',
+                    '-6,00 \$', false),
+                _txItem(false, 'Retrait vers Desjardins', '27 mars',
+                    '-150,00 \$', false),
+                _txItem(true, 'Dépôt initial de test', '23 déc.',
+                    '+2 700,00 \$', true),
+              ],
+            ),
+          ),
           const SizedBox(height: 32),
         ],
       ),
@@ -730,36 +755,53 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color: Colors.white.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: GoogleFonts.sora(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white60)),
+          Text(label,
+              style: GoogleFonts.sora(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white60)),
           const SizedBox(height: 3),
           Text(value,
-            style: GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.w700,
-              color: isRed ? const Color(0xFFFFB3B3) : Colors.white)),
+              style: GoogleFonts.sora(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: isRed
+                      ? const Color(0xFFFFB3B3)
+                      : Colors.white)),
         ],
       ),
     );
   }
 
-  Widget _balanceBtn(String label, {required bool white, required VoidCallback onTap}) {
+  Widget _balanceBtn(String label,
+      {required bool white, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 46,
         decoration: BoxDecoration(
-          color: white ? Colors.white : Colors.white.withOpacity(0.15),
+          color: white
+              ? Colors.white
+              : Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(14),
-          border: white ? null : Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+          border: white
+              ? null
+              : Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  width: 1.5),
         ),
         child: Center(
           child: Text(label,
-            style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w700,
-              color: white ? _C.blueDeep : Colors.white)),
+              style: GoogleFonts.sora(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: white ? _C.blueDeep : Colors.white)),
         ),
       ),
     );
@@ -774,22 +816,39 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         decoration: BoxDecoration(
           color: isActive ? _C.amberMid : _C.surface,
           borderRadius: BorderRadius.circular(999),
-          border: isActive ? null : Border.all(color: _C.gray200, width: 1.5),
-          boxShadow: isActive ? [const BoxShadow(color: Color(0x30BA7517), blurRadius: 8, offset: Offset(0, 2))] : [],
+          border: isActive
+              ? null
+              : Border.all(color: _C.gray200, width: 1.5),
+          boxShadow: isActive
+              ? const [
+                  BoxShadow(
+                      color: Color(0x30BA7517),
+                      blurRadius: 8,
+                      offset: Offset(0, 2))
+                ]
+              : [],
         ),
         child: Text(label,
-          style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w700,
-            color: isActive ? Colors.white : _C.text3)),
+            style: GoogleFonts.sora(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: isActive ? Colors.white : _C.text3)),
       ),
     );
   }
 
   Widget _resumeGrid() {
     final cells = [
-      ('Gain mensuel', '${_display(_finance['monthlyRevenue'])} \$', _C.tealMid, 'Sem. 13'),
-      ('Gain semaine', '${_display(_finance['weeklyRevenue'])} \$', _C.blue,    ''),
-      ('Commission (15%)', '${_display(_finance['commission'])} \$', _C.amberMid, 'Plateforme'),
-      ('Trajets payants', _display(_stats['paidTrips'] ?? _stats['tripsCount']), _C.blue,    'sur ${_display(_stats['tripsCount'])} complÃ©tÃ©s'),
+      ('Gain mensuel', '${_display(_finance['monthlyRevenue'])} \$',
+          _C.tealMid, 'Sem. actuelle'),
+      ('Gain semaine', '${_display(_finance['weeklyRevenue'])} \$',
+          _C.blue, ''),
+      ('Commission (15%)',
+          '${_display(_finance['commission'])} \$', _C.amberMid,
+          'Plateforme'),
+      ('Trajets payants',
+          _display(_stats['paidTrips'] ?? _stats['tripsCount']),
+          _C.blue, 'complétés'),
     ];
     return GridView.count(
       shrinkWrap: true,
@@ -799,17 +858,24 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       children: cells.map((c) {
         return Container(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            border: Border.all(color: _C.border),
-          ),
+          decoration:
+              const BoxDecoration(border: Border(right: BorderSide(color: _C.border), bottom: BorderSide(color: _C.border))),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(c.$1, style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3)),
+              Text(c.$1,
+                  style: GoogleFonts.dmSans(
+                      fontSize: 11, color: _C.text3)),
               const SizedBox(height: 4),
-              Text(c.$2, style: GoogleFonts.sora(fontSize: 18, fontWeight: FontWeight.w800, color: c.$3)),
+              Text(c.$2,
+                  style: GoogleFonts.sora(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: c.$3)),
               if (c.$4.isNotEmpty)
-                Text(c.$4, style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3)),
+                Text(c.$4,
+                    style: GoogleFonts.dmSans(
+                        fontSize: 11, color: _C.text3)),
             ],
           ),
         );
@@ -817,20 +883,29 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _progressRow(String label, String valLabel, double fill, Color color) {
+  Widget _progressRow(
+      String label, String valLabel, double fill, Color color) {
     return Column(
       children: [
         Row(
           children: [
-            Expanded(child: Text(label, style: GoogleFonts.dmSans(fontSize: 12, color: _C.text2))),
-            Text(valLabel, style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+            Expanded(
+                child: Text(label,
+                    style: GoogleFonts.dmSans(
+                        fontSize: 12, color: _C.text2))),
+            Text(valLabel,
+                style: GoogleFonts.sora(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: color)),
           ],
         ),
         const SizedBox(height: 4),
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
-            value: fill, minHeight: 8,
+            value: fill,
+            minHeight: 8,
             backgroundColor: _C.gray100,
             valueColor: AlwaysStoppedAnimation(color),
           ),
@@ -842,10 +917,10 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   Widget _revenueBarChart() {
     const bars = [
       (label: 'S12', value: '10,2\$', fill: 1.0, empty: false),
-      (label: 'S13', value: 'â€”',      fill: 0.15, empty: true),
-      (label: 'S14', value: '10,2\$', fill: 1.0,  empty: false),
-      (label: 'S16', value: '10,2\$', fill: 1.0,  empty: false),
-      (label: 'S18', value: '10,2\$', fill: 1.0,  empty: false),
+      (label: 'S13', value: '—', fill: 0.15, empty: true),
+      (label: 'S14', value: '10,2\$', fill: 1.0, empty: false),
+      (label: 'S16', value: '10,2\$', fill: 1.0, empty: false),
+      (label: 'S18', value: '10,2\$', fill: 1.0, empty: false),
     ];
     return SizedBox(
       height: 90,
@@ -858,7 +933,11 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(b.value, style: GoogleFonts.dmSans(fontSize: 9, color: _C.text3, fontWeight: FontWeight.w600)),
+                  Text(b.value,
+                      style: GoogleFonts.dmSans(
+                          fontSize: 9,
+                          color: _C.text3,
+                          fontWeight: FontWeight.w600)),
                   const SizedBox(height: 3),
                   SizedBox(
                     height: 70,
@@ -870,11 +949,19 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                           child: Container(
                             decoration: BoxDecoration(
                               color: b.empty ? _C.redLight : null,
-                              gradient: b.empty ? null : const LinearGradient(
-                                begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                                colors: [_C.tealMid, Color(0xFF0A8A60)]),
+                              gradient: b.empty
+                                  ? null
+                                  : const LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                          _C.tealMid,
+                                          Color(0xFF0A8A60)
+                                        ]),
                               borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(4), topRight: Radius.circular(4)),
+                                topLeft: Radius.circular(4),
+                                topRight: Radius.circular(4),
+                              ),
                             ),
                           ),
                         ),
@@ -882,7 +969,11 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                     ),
                   ),
                   const SizedBox(height: 3),
-                  Text(b.label, style: GoogleFonts.dmSans(fontSize: 9, color: _C.text3, fontWeight: FontWeight.w500)),
+                  Text(b.label,
+                      style: GoogleFonts.dmSans(
+                          fontSize: 9,
+                          color: _C.text3,
+                          fontWeight: FontWeight.w500)),
                 ],
               ),
             ),
@@ -892,14 +983,17 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  Widget _txItem(bool first, String name, String date, String amount, bool isCredit) {
+  Widget _txItem(bool first, String name, String date, String amount,
+      bool isCredit) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: _C.border))),
+      decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: _C.border))),
       child: Row(
         children: [
           Container(
-            width: 10, height: 10,
+            width: 10,
+            height: 10,
             decoration: BoxDecoration(
               color: isCredit ? _C.tealMid : _C.redMid,
               shape: BoxShape.circle,
@@ -910,33 +1004,44 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(name, style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600, color: _C.text1),
-                  overflow: TextOverflow.ellipsis),
-                Text(date, style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3)),
+                Text(name,
+                    style: GoogleFonts.dmSans(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _C.text1),
+                    overflow: TextOverflow.ellipsis),
+                Text(date,
+                    style: GoogleFonts.dmSans(
+                        fontSize: 11, color: _C.text3)),
               ],
             ),
           ),
           Text(amount,
-            style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.w700,
-              color: isCredit ? _C.tealMid : _C.redMid)),
+              style: GoogleFonts.sora(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isCredit ? _C.tealMid : _C.redMid)),
         ],
       ),
     );
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // SHARED HELPERS
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-
+  // ─── Shared Helpers ───────────────────────────────────────────────────────────
   Widget _sectionHead(String title, String trailing) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
       child: Row(
         children: [
-          Expanded(child: Text(title,
-            style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.w700, color: _C.text1))),
+          Expanded(
+              child: Text(title,
+                  style: GoogleFonts.sora(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: _C.text1))),
           if (trailing.isNotEmpty)
-            Text(trailing, style: GoogleFonts.dmSans(fontSize: 12, color: _C.text3)),
+            Text(trailing,
+                style: GoogleFonts.dmSans(
+                    fontSize: 12, color: _C.text3)),
         ],
       ),
     );
@@ -955,55 +1060,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       child: child,
     );
   }
-
-  Widget _insightBanner(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: _C.blueLight,
-        border: Border.all(color: _C.blue.withOpacity(0.15)),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('ðŸ’¡', style: TextStyle(fontSize: 14)),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(text,
-              style: GoogleFonts.dmSans(fontSize: 12.5, color: _C.blue, height: 1.4)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _insightBannerGreen(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: _C.tealLight,
-        border: Border.all(color: _C.teal.withOpacity(0.15)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('ðŸ“ˆ', style: TextStyle(fontSize: 13)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(text,
-              style: GoogleFonts.dmSans(fontSize: 12, color: _C.teal, height: 1.4)),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// GOBOARD TAB (separate widget to keep file organized)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ─── GoBoard Tab ──────────────────────────────────────────────────────────────
 
 class _GoboardTab extends StatelessWidget {
   const _GoboardTab({required this.goTasks, required this.goScore});
@@ -1017,108 +1076,118 @@ class _GoboardTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // GoScore Hero
           _buildGoScoreHero(),
-
-          // Go!TÃ¢ches
-          _sectionHead('âœ… Go!TÃ¢ches', '30 pts Ã  portÃ©e'),
-          _card(child: Column(
-            children: [
-              ...(goTasks.isNotEmpty
-                  ? goTasks.map((task) {
-                      return _taskItem(
-                        done: task['done'] == true || task['isDone'] == true || task['completed'] == true,
-                        title: '${task['title'] ?? task['name'] ?? 'TÃ¢che'}',
-                        desc: '${task['desc'] ?? task['description'] ?? ''}',
+          _sectionHead('Go!Tâches', '30 pts à portée'),
+          _card(
+            child: Column(
+              children: goTasks.isNotEmpty
+                  ? goTasks.map((task) => _taskItem(
+                        done: task['done'] == true ||
+                            task['isDone'] == true ||
+                            task['completed'] == true,
+                        title:
+                            '${task['title'] ?? task['name'] ?? 'Tâche'}',
+                        desc:
+                            '${task['desc'] ?? task['description'] ?? ''}',
                         pts: int.tryParse('${task['points'] ?? 0}') ?? 0,
-                      );
-                    })
-                  : <Widget>[
-                      _taskItem(done: false, title: 'Aucune tÃ¢che', desc: 'Les tÃ¢ches Go apparaÃ®tront ici.', pts: 0),
-                    ]),
-            ],
-          )),
-
-          // Info banner
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFAEEDA),
-                border: Border.all(color: const Color(0xFFBA7517).withOpacity(0.2)),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFFBA7517)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(text: '30 points potentiels',
-                            style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF854F0B))),
-                          TextSpan(text: ' Ã  portÃ©e de main. ComplÃ©tez vos tÃ¢ches pour grimper dans le classement.',
-                            style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF854F0B))),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                      )).toList()
+                  : [
+                      _taskItem(
+                          done: false,
+                          title: 'Aucune tâche',
+                          desc: 'Les tâches apparaîtront ici.',
+                          pts: 0)
+                    ],
             ),
           ),
           const SizedBox(height: 10),
-
-          // Classement
-          _sectionHead('ðŸ† Classement du mois', '8 participants'),
-          _card(child: Column(
-            children: [
-              _rankItem(rank: 1,  medal: 'ðŸ¥‡', initials: 'ML', avatarBg: const Color(0xFFFEF3C7), avatarFg: const Color(0xFF92400E), name: 'Marie-Claude L.', score: 980, isMe: false),
-              _rankItem(rank: 2,  medal: 'ðŸ¥ˆ', initials: 'JP', avatarBg: const Color(0xFFEEF0F5), avatarFg: const Color(0xFF545D6E), name: 'Jean-Pierre M.', score: 942, isMe: false),
-              _rankItem(rank: 3,  medal: 'ðŸ¥‰', initials: 'SB', avatarBg: const Color(0xFFFAEEDA), avatarFg: const Color(0xFF854F0B), name: 'Sofia B.',         score: 895, isMe: false),
-              _rankItem(rank: 4,  medal: '',   initials: 'Moi', avatarBg: const Color(0xFFE8F0FE), avatarFg: const Color(0xFF1A56CC), name: 'Vous',           score: 520, isMe: true),
-              _rankItem(rank: 5,  medal: '',   initials: 'PD', avatarBg: const Color(0xFFE1F5EE), avatarFg: const Color(0xFF0F6E56), name: 'Pauline D.',     score: 310, isMe: false),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Center(
-                  child: Text('â€¦ 3 autres participants',
-                    style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A))),
-                ),
-              ),
-            ],
-          )),
+          _sectionHead('Classement du mois', '8 participants'),
+          _card(
+            child: Column(
+              children: [
+                _rankItem(
+                    rank: 1,
+                    medal: '🥇',
+                    initials: 'ML',
+                    avatarBg: const Color(0xFFFEF3C7),
+                    avatarFg: const Color(0xFF92400E),
+                    name: 'Marie-Claude L.',
+                    score: 980,
+                    isMe: false),
+                _rankItem(
+                    rank: 2,
+                    medal: '🥈',
+                    initials: 'JP',
+                    avatarBg: const Color(0xFFEEF0F5),
+                    avatarFg: const Color(0xFF545D6E),
+                    name: 'Jean-Pierre M.',
+                    score: 942,
+                    isMe: false),
+                _rankItem(
+                    rank: 3,
+                    medal: '🥉',
+                    initials: 'SB',
+                    avatarBg: const Color(0xFFFAEEDA),
+                    avatarFg: const Color(0xFF854F0B),
+                    name: 'Sofia B.',
+                    score: 895,
+                    isMe: false),
+                _rankItem(
+                    rank: 4,
+                    medal: '',
+                    initials: 'Moi',
+                    avatarBg: const Color(0xFFE8F0FE),
+                    avatarFg: const Color(0xFF1A56CC),
+                    name: 'Vous',
+                    score: 520,
+                    isMe: true),
+                _rankItem(
+                    rank: 5,
+                    medal: '',
+                    initials: 'PD',
+                    avatarBg: const Color(0xFFE1F5EE),
+                    avatarFg: const Color(0xFF0F6E56),
+                    name: 'Pauline D.',
+                    score: 310,
+                    isMe: false),
+              ],
+            ),
+          ),
           const SizedBox(height: 10),
-
-          // Ã‰co challenges
-          _sectionHead('ðŸŒ¿ DÃ©fis Ã‰cologiques', 'â–¼ COâ‚‚'),
-          _card(child: Column(
-            children: [
-              _ecoChallenge(emoji: 'ðŸŒ±', name: 'Ã‰co-DÃ©butant',  desc: 'Faites vos premiers pas â€” 10 kg COâ‚‚.', progress: 1.0, status: 'ComplÃ©tÃ©',  statusBg: const Color(0xFFE1F5EE), statusFg: const Color(0xFF0F6E56), target: 'Cible : 10 kg COâ‚‚'),
-              _ecoChallenge(emoji: 'ðŸŒ¿', name: 'Ã‰co-Conscient', desc: 'Atteignez 50 kg de COâ‚‚ Ã©conomisÃ©s.',    progress: 1.0, status: 'ComplÃ©tÃ©',  statusBg: const Color(0xFFE1F5EE), statusFg: const Color(0xFF0F6E56), target: 'Cible : 50 kg COâ‚‚'),
-              _ecoChallenge(emoji: 'ðŸŒ³', name: 'Ã‰co-Warrior',   desc: 'Devenez champion â€” 200 kg de COâ‚‚.',    progress: 0.73, status: 'En cours', statusBg: const Color(0xFFFAEEDA), statusFg: const Color(0xFF854F0B), target: 'Cible : 200 kg COâ‚‚'),
-            ],
-          )),
-          const SizedBox(height: 10),
-
-          // Score history
-          _sectionHead('ðŸ“œ Historique GoScore', '12 Ã©vÃ©nements'),
-          _card(child: Column(
-            children: [
-              _ptsItem('Go!TÃ¢che â€” Atteindre 500 points',        '1 mars 2026',    100),
-              _ptsItem('Go!TÃ¢che â€” Premier avis aprÃ¨s trajet',   '18 fÃ©v. 2026',    15),
-              _ptsItem('Go!TÃ¢che â€” Terminer votre premier trajet','3 fÃ©v. 2026',    30),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Center(
-                  child: Text('520 pts accumulÃ©s Â· 12 Ã©vÃ©nements',
-                    style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF1A56CC))),
-                ),
-              ),
-            ],
-          )),
+          _sectionHead('Défis Écologiques', 'Réduire CO₂'),
+          _card(
+            child: Column(
+              children: [
+                _ecoChallenge(
+                    emoji: '🌱',
+                    name: 'Éco-Débutant',
+                    desc: 'Faites vos premiers pas — 10 kg CO₂.',
+                    progress: 1.0,
+                    status: 'Complété',
+                    statusBg: const Color(0xFFE1F5EE),
+                    statusFg: const Color(0xFF0F6E56),
+                    target: 'Cible : 10 kg CO₂'),
+                _ecoChallenge(
+                    emoji: '🌿',
+                    name: 'Éco-Conscient',
+                    desc: 'Atteignez 50 kg de CO₂ économisés.',
+                    progress: 1.0,
+                    status: 'Complété',
+                    statusBg: const Color(0xFFE1F5EE),
+                    statusFg: const Color(0xFF0F6E56),
+                    target: 'Cible : 50 kg CO₂'),
+                _ecoChallenge(
+                    emoji: '🌳',
+                    name: 'Éco-Warrior',
+                    desc: 'Devenez champion — 200 kg de CO₂.',
+                    progress: 0.73,
+                    status: 'En cours',
+                    statusBg: const Color(0xFFFAEEDA),
+                    statusFg: const Color(0xFF854F0B),
+                    target: 'Cible : 200 kg CO₂'),
+              ],
+            ),
+          ),
           const SizedBox(height: 32),
         ],
       ),
@@ -1130,8 +1199,9 @@ class _GoboardTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft, end: Alignment.bottomRight,
-          colors: [Color(0xFF0F6E56), Color(0xFF0A5C47)]),
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0F6E56), Color(0xFF0A5C47)]),
       ),
       child: Column(
         children: [
@@ -1141,14 +1211,28 @@ class _GoboardTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('MON GOSCORE',
-                    style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w600,
-                      color: Colors.white70, letterSpacing: 0.7)),
+                      style: GoogleFonts.sora(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white70,
+                          letterSpacing: 0.7)),
                   const SizedBox(height: 4),
                   RichText(
                     text: TextSpan(
                       children: [
-                        TextSpan(text: goScore, style: GoogleFonts.sora(fontSize: 44, fontWeight: FontWeight.w800, color: Colors.white, height: 1)),
-                        TextSpan(text: ' / 1000', style: GoogleFonts.sora(fontSize: 18, fontWeight: FontWeight.w400, color: Colors.white54)),
+                        TextSpan(
+                            text: goScore,
+                            style: GoogleFonts.sora(
+                                fontSize: 44,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                height: 1)),
+                        TextSpan(
+                            text: ' / 1000',
+                            style: GoogleFonts.sora(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white54)),
                       ],
                     ),
                   ),
@@ -1156,9 +1240,10 @@ class _GoboardTab extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Row(
@@ -1166,7 +1251,10 @@ class _GoboardTab extends StatelessWidget {
                     const Text('ðŸ¥‰', style: TextStyle(fontSize: 20)),
                     const SizedBox(width: 6),
                     Text('#4 ce mois',
-                      style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
+                        style: GoogleFonts.sora(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white)),
                   ],
                 ),
               ),
@@ -1176,19 +1264,27 @@ class _GoboardTab extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(5),
             child: LinearProgressIndicator(
-              value: 0.52, minHeight: 10,
-              backgroundColor: Colors.white.withOpacity(0.2),
-              valueColor: AlwaysStoppedAnimation(Colors.white.withOpacity(0.85)),
+              value: 0.52,
+              minHeight: 10,
+              backgroundColor: Colors.white.withValues(alpha: 0.2),
+              valueColor: AlwaysStoppedAnimation(
+                  Colors.white.withValues(alpha: 0.85)),
             ),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
-              Text('0', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
+              Text('0',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 11, color: Colors.white54)),
               const Spacer(),
-              Text('IntermÃ©diaire', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
+              Text('Intermédiaire',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 11, color: Colors.white54)),
               const Spacer(),
-              Text('1000', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
+              Text('1000',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 11, color: Colors.white54)),
             ],
           ),
         ],
@@ -1196,15 +1292,19 @@ class _GoboardTab extends StatelessWidget {
     );
   }
 
-  // â”€â”€ Card wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   static Widget _card({required Widget child}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0x12000000)),
-        boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 4, offset: Offset(0, 1))],
+        boxShadow: const [
+          BoxShadow(
+              color: Color(0x0F000000),
+              blurRadius: 4,
+              offset: Offset(0, 1))
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: child,
@@ -1216,30 +1316,51 @@ class _GoboardTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
       child: Row(
         children: [
-          Expanded(child: Text(title,
-            style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.w700, color: const Color(0xFF0D1624)))),
+          Expanded(
+              child: Text(title,
+                  style: GoogleFonts.sora(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF0D1624)))),
           if (trailing.isNotEmpty)
-            Text(trailing, style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A))),
+            Text(trailing,
+                style: GoogleFonts.dmSans(
+                    fontSize: 12, color: const Color(0xFF7A879A))),
         ],
       ),
     );
   }
 
-  static Widget _taskItem({required bool done, required String title, required String desc, required int pts}) {
+  static Widget _taskItem(
+      {required bool done,
+      required String title,
+      required String desc,
+      required int pts}) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0x12000000)))),
+      decoration: const BoxDecoration(
+          border: Border(
+              bottom: BorderSide(color: Color(0x12000000)))),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 22, height: 22,
+            width: 22,
+            height: 22,
             decoration: BoxDecoration(
-              color: done ? const Color(0xFF1D9E75) : Colors.transparent,
+              color: done
+                  ? const Color(0xFF1D9E75)
+                  : Colors.transparent,
               shape: BoxShape.circle,
-              border: done ? null : Border.all(color: const Color(0xFFD8DBE5), width: 2),
+              border: done
+                  ? null
+                  : Border.all(
+                      color: const Color(0xFFD8DBE5), width: 2),
             ),
-            child: done ? const Icon(Icons.check_rounded, size: 12, color: Colors.white) : null,
+            child: done
+                ? const Icon(Icons.check_rounded,
+                    size: 12, color: Colors.white)
+                : null,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1247,26 +1368,47 @@ class _GoboardTab extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title,
-                  style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w600,
-                    color: done ? const Color(0xFF7A879A) : const Color(0xFF0D1624),
-                    decoration: done ? TextDecoration.lineThrough : null)),
+                    style: GoogleFonts.sora(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: done
+                            ? const Color(0xFF7A879A)
+                            : const Color(0xFF0D1624),
+                        decoration: done
+                            ? TextDecoration.lineThrough
+                            : null)),
                 const SizedBox(height: 2),
-                Text(desc, style: GoogleFonts.dmSans(fontSize: 11.5, color: const Color(0xFF7A879A), height: 1.3)),
+                Text(desc,
+                    style: GoogleFonts.dmSans(
+                        fontSize: 11.5,
+                        color: const Color(0xFF7A879A),
+                        height: 1.3)),
               ],
             ),
           ),
           const SizedBox(width: 10),
           Text('+$pts',
-            style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w700,
-              color: done ? const Color(0xFF1D9E75) : const Color(0xFF1A56CC))),
+              style: GoogleFonts.sora(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: done
+                      ? const Color(0xFF1D9E75)
+                      : const Color(0xFF1A56CC))),
         ],
       ),
     );
   }
 
-  static Widget _rankItem({required int rank, required String medal, required String initials,
-      required Color avatarBg, required Color avatarFg, required String name,
-      required int score, required bool isMe}) {
+  static Widget _rankItem({
+    required int rank,
+    required String medal,
+    required String initials,
+    required Color avatarBg,
+    required Color avatarFg,
+    required String name,
+    required int score,
+    required bool isMe,
+  }) {
     return Container(
       color: isMe ? const Color(0xFFE8F0FE) : Colors.transparent,
       padding: const EdgeInsets.fromLTRB(16, 11, 16, 11),
@@ -1275,35 +1417,62 @@ class _GoboardTab extends StatelessWidget {
           SizedBox(
             width: 24,
             child: medal.isNotEmpty
-                ? Text(medal, style: const TextStyle(fontSize: 18), textAlign: TextAlign.center)
+                ? Text(medal,
+                    style: const TextStyle(fontSize: 18),
+                    textAlign: TextAlign.center)
                 : Text('#$rank',
-                    style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w800, color: const Color(0xFF1A56CC)),
+                    style: GoogleFonts.sora(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF1A56CC)),
                     textAlign: TextAlign.center),
           ),
           const SizedBox(width: 12),
           Container(
-            width: 34, height: 34,
-            decoration: BoxDecoration(color: avatarBg, shape: BoxShape.circle),
-            child: Center(child: Text(initials,
-              style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w700, color: avatarFg))),
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+                color: avatarBg, shape: BoxShape.circle),
+            child: Center(
+              child: Text(initials,
+                  style: GoogleFonts.sora(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: avatarFg)),
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(name,
-              style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w700,
-                color: isMe ? const Color(0xFF1A56CC) : const Color(0xFF0D1624))),
+                style: GoogleFonts.sora(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: isMe
+                        ? const Color(0xFF1A56CC)
+                        : const Color(0xFF0D1624))),
           ),
           Text('$score',
-            style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.w700,
-              color: isMe ? const Color(0xFF1A56CC) : const Color(0xFF0D1624))),
+              style: GoogleFonts.sora(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: isMe
+                      ? const Color(0xFF1A56CC)
+                      : const Color(0xFF0D1624))),
         ],
       ),
     );
   }
 
-  static Widget _ecoChallenge({required String emoji, required String name, required String desc,
-      required double progress, required String status, required Color statusBg, required Color statusFg,
-      required String target}) {
+  static Widget _ecoChallenge({
+    required String emoji,
+    required String name,
+    required String desc,
+    required double progress,
+    required String status,
+    required Color statusBg,
+    required Color statusFg,
+    required String target,
+  }) {
     return Padding(
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -1314,27 +1483,44 @@ class _GoboardTab extends StatelessWidget {
               Expanded(
                 child: Text.rich(
                   TextSpan(children: [
-                    TextSpan(text: '$emoji ', style: const TextStyle(fontSize: 14)),
-                    TextSpan(text: name,
-                      style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xFF0D1624))),
+                    TextSpan(
+                        text: '$emoji ',
+                        style: const TextStyle(fontSize: 14)),
+                    TextSpan(
+                        text: name,
+                        style: GoogleFonts.sora(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF0D1624))),
                   ]),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(color: statusBg, borderRadius: BorderRadius.circular(999)),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                    color: statusBg,
+                    borderRadius: BorderRadius.circular(999)),
                 child: Text(status,
-                  style: GoogleFonts.sora(fontSize: 10, fontWeight: FontWeight.w700, color: statusFg)),
+                    style: GoogleFonts.sora(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: statusFg)),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          Text(desc, style: GoogleFonts.dmSans(fontSize: 11.5, color: const Color(0xFF7A879A), height: 1.3)),
+          Text(desc,
+              style: GoogleFonts.dmSans(
+                  fontSize: 11.5,
+                  color: const Color(0xFF7A879A),
+                  height: 1.3)),
           const SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: progress, minHeight: 8,
+              value: progress,
+              minHeight: 8,
               backgroundColor: const Color(0xFFEEF0F5),
               valueColor: AlwaysStoppedAnimation(statusFg),
             ),
@@ -1342,41 +1528,18 @@ class _GoboardTab extends StatelessWidget {
           const SizedBox(height: 5),
           Row(
             children: [
-              Expanded(child: Text(target,
-                style: GoogleFonts.dmSans(fontSize: 11, color: const Color(0xFF7A879A)))),
+              Expanded(
+                  child: Text(target,
+                      style: GoogleFonts.dmSans(
+                          fontSize: 11,
+                          color: const Color(0xFF7A879A)))),
               Text('${(progress * 100).round()}%',
-                style: GoogleFonts.sora(fontSize: 11, fontWeight: FontWeight.w700, color: statusFg)),
+                  style: GoogleFonts.sora(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: statusFg)),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  static Widget _ptsItem(String label, String date, int pts) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0x12000000)))),
-      child: Row(
-        children: [
-          Container(
-            width: 32, height: 32,
-            decoration: const BoxDecoration(color: Color(0xFFE1F5EE), shape: BoxShape.circle),
-            child: const Icon(Icons.check_circle_rounded, size: 16, color: Color(0xFF1D9E75)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: GoogleFonts.dmSans(fontSize: 12.5, fontWeight: FontWeight.w600, color: const Color(0xFF0D1624)),
-                  overflow: TextOverflow.ellipsis),
-                Text(date, style: GoogleFonts.dmSans(fontSize: 11, color: const Color(0xFF7A879A))),
-              ],
-            ),
-          ),
-          Text('+$pts',
-            style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.w700, color: const Color(0xFF1D9E75))),
         ],
       ),
     );
