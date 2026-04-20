@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../features/chat/chat_list_screen.dart';
 import '../../features/home/home_page.dart';
+import '../../features/messages/messages_screen.dart';
 import '../../features/planner/planner_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/stats/stats_screen.dart';
@@ -26,10 +27,10 @@ class AppShellState extends State<AppShell> {
   }
 
   static const List<String> _tabs = <String>[
-    'Accueil',
-    'Statistiques',
+    'Acceuil',
+    'statistique',
     'Planifier',
-    'Messages',
+    'messages',
     'Profil',
   ];
 
@@ -41,7 +42,7 @@ class AppShellState extends State<AppShell> {
     const HomePage(),
     const StatsScreen(),
     const PlannerScreen(),
-    const ChatListScreen(),
+    const MessagesScreen(),
     const ProfileScreen(),
   ];
 
@@ -75,7 +76,7 @@ class AppShellState extends State<AppShell> {
           children: <Widget>[
             ShellTopBar(
               onMenuTap: () => setState(() => _sideNavOpen = !_sideNavOpen),
-              onBellTap: () => setState(() => _currentIndex = 3),
+              onBellTap: () => context.push('/notifications'),
               unreadCount: 0,
             ),
             Expanded(

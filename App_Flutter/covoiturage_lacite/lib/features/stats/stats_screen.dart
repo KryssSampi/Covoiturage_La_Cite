@@ -1,15 +1,15 @@
-// lib/features/stats/stats_screen.dart
-// ════════════════════════════════════════════════════════════════════════
-// StatsScreen — GoBoard / Statistiques / Finances (3 tabs)
+﻿// lib/features/stats/stats_screen.dart
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// StatsScreen â€” GoBoard / Statistiques / Finances (3 tabs)
 // Visual tokens match cite-voiturage-stats-page.html wireframe.
 // Logic: preserves existing API calls, setState, controllers.
-// ════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/services/api_service.dart';
 
-// ─── Color tokens ────────────────────────────────────────────────────
+// â”€â”€â”€ Color tokens â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _C {
   static const blue       = Color(0xFF1A56CC);
   static const blueDark   = Color(0xFF0D3A8C);
@@ -43,9 +43,9 @@ class _C {
 const _shSm = [BoxShadow(color: Color(0x0F000000), blurRadius: 4,  offset: Offset(0, 1))];
 const _shMd = [BoxShadow(color: Color(0x14000000), blurRadius: 14, offset: Offset(0, 4))];
 
-// ══════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // SCREEN
-// ══════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -64,14 +64,16 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   _FinPeriod _finPeriod = _FinPeriod.currentMonth;
   late final TabController _tabController;
   bool _isLoading = true;
-  Map<String, dynamic> _data = <String, dynamic>{};
+  List<dynamic> _rankings = <dynamic>[];
+  Map<String, dynamic> _myStats = <String, dynamic>{};
+  Map<String, dynamic> _finances = <String, dynamic>{};
 
   Map<String, dynamic> get _stats =>
-      (_data['stats'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      (_myStats['stats'] as Map?)?.cast<String, dynamic>() ?? _myStats;
   Map<String, dynamic> get _finance =>
-      (_data['finance'] as Map?)?.cast<String, dynamic>() ?? <String, dynamic>{};
+      _finances;
   List<Map<String, dynamic>> get _goTasks =>
-      ((_data['goTasks'] as List?) ?? <dynamic>[])
+      _rankings
           .whereType<Map<String, dynamic>>()
           .toList();
 
@@ -79,7 +81,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _load();
+    _loadStats();
   }
 
   @override
@@ -88,12 +90,25 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     super.dispose();
   }
 
-  Future<void> _load() async {
+  Future<void> _loadStats() async {
+    setState(() => _isLoading = true);
     try {
-      final data = await ApiService.instance.get('/api/dashboard/driver/me') as Map<String, dynamic>? ?? {};
+      final dynamic goboard = await ApiService.instance.get('/api/goboard/rankings');
+      final dynamic stats = await ApiService.instance.get('/api/stats/me');
+      final dynamic finance = await ApiService.instance.get('/api/stats/finances');
       if (!mounted) return;
       setState(() {
-        _data = data;
+        _rankings = _extractList(goboard);
+        _myStats = (stats is Map<String, dynamic>)
+            ? ((stats['data'] is Map<String, dynamic>)
+                ? stats['data'] as Map<String, dynamic>
+                : stats)
+            : <String, dynamic>{};
+        _finances = (finance is Map<String, dynamic>)
+            ? ((finance['data'] is Map<String, dynamic>)
+                ? finance['data'] as Map<String, dynamic>
+                : finance)
+            : <String, dynamic>{};
         _isLoading = false;
       });
     } catch (_) {
@@ -104,9 +119,17 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   }
 
   String _display(dynamic value) {
-    if (value == null) return '—';
+    if (value == null) return 'â€”';
     final text = '$value'.trim();
-    return text.isEmpty ? '—' : text;
+    return text.isEmpty ? 'â€”' : text;
+  }
+
+  List<dynamic> _extractList(dynamic data) {
+    if (data is List) return data;
+    if (data is Map) {
+      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[]) as List<dynamic>;
+    }
+    return <dynamic>[];
   }
 
   @override
@@ -119,39 +142,36 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
         leading: const BackButton(color: Colors.white),
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 8),
-            // ── Sticky tab bar ──────────────────────────────────────
-            _buildTabBar(),
-            Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: _C.blue))
-                  : IndexedStack(
-                      index: _tab.index,
-                      children: [
-                        _GoboardTab(goTasks: _goTasks, goScore: _display(_stats['goScore'] ?? _finance['goScore'])),
-                        _buildStatsTab(),
-                        _buildFinanceTab(),
-                      ],
-                    ),
-            ),
-          ],
-        ),
+      body: Column(
+        children: [
+          const SizedBox(height: 8),
+          _buildTabBar(),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: _C.blue))
+                : IndexedStack(
+                    index: _tab.index,
+                    children: [
+                      _GoboardTab(goTasks: _goTasks, goScore: _display(_stats['goScore'] ?? _finance['goScore'])),
+                      _buildStatsTab(),
+                      _buildFinanceTab(),
+                    ],
+                  ),
+          ),
+        ],
       ),
     );
   }
 
-  // ════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // TAB BAR
-  // ════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   Widget _buildTabBar() {
     return Container(
-      color: _C.surface,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       decoration: const BoxDecoration(
+        color: _C.surface,
         border: Border(bottom: BorderSide(color: _C.border)),
         boxShadow: [BoxShadow(color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2))],
       ),
@@ -207,9 +227,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  // ════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // STATS TAB
-  // ════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   Widget _buildStatsTab() {
     return SingleChildScrollView(
@@ -244,24 +264,24 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               childAspectRatio: 1.2,
               children: [
                 _kpiCard(icon: Icons.directions_car_rounded, iconBg: const Color(0xFFFDECEA),
-                  iconColor: _C.redMid, value: _display(_stats['tripsCount']), unit: '', label: 'Trajets complétés',
-                  trend: '↑ +8 vs mois préc.', trendUp: true),
+                  iconColor: _C.redMid, value: _display(_stats['tripsCount']), unit: '', label: 'Trajets complÃ©tÃ©s',
+                  trend: 'â†‘ +8 vs mois prÃ©c.', trendUp: true),
                 _kpiCard(icon: Icons.eco_rounded, iconBg: _C.tealLight,
-                  iconColor: _C.teal, value: _display(_stats['co2SavedKg']), unit: 'kg', label: 'CO₂ économisé',
-                  trend: '↑ +12.3 kg', trendUp: true),
+                  iconColor: _C.teal, value: _display(_stats['co2SavedKg']), unit: 'kg', label: 'COâ‚‚ Ã©conomisÃ©',
+                  trend: 'â†‘ +12.3 kg', trendUp: true),
                 _kpiCard(icon: Icons.attach_money_rounded, iconBg: _C.blueLight,
                   iconColor: _C.blue, value: _display(_finance['monthlyRevenue'] ?? _stats['monthlyRevenue']), unit: '\$', label: 'Revenus ce mois',
-                  trend: '↑ +100% vs préc.', trendUp: true),
+                  trend: 'â†‘ +100% vs prÃ©c.', trendUp: true),
                 _kpiCard(icon: Icons.star_rounded, iconBg: const Color(0xFFFAEEDA),
-                  iconColor: const Color(0xFFF59E0B), value: _display(_stats['averageRating']), unit: '★', label: 'Note moyenne',
-                  trend: '↑ Médiane 4.7★', trendUp: true),
+                  iconColor: const Color(0xFFF59E0B), value: _display(_stats['averageRating']), unit: 'â˜…', label: 'Note moyenne',
+                  trend: 'â†‘ MÃ©diane 4.7â˜…', trendUp: true),
               ],
             ),
           ),
           const SizedBox(height: 16),
 
           // Evaluations card
-          _sectionHead('⭐ Évaluations reçues', '${_display(_stats['reviewsCount'])} avis'),
+          _sectionHead('â­ Ã‰valuations reÃ§ues', '${_display(_stats['reviewsCount'])} avis'),
           _card(child: Column(
             children: [
               Padding(
@@ -273,7 +293,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                       children: [
                         Text(_display(_stats['averageRating']),
                           style: GoogleFonts.sora(fontSize: 40, fontWeight: FontWeight.w800, color: _C.text1)),
-                        const Text('★★★★★', style: TextStyle(color: Color(0xFFF59E0B), fontSize: 16, letterSpacing: 2)),
+                        const Text('â˜…â˜…â˜…â˜…â˜…', style: TextStyle(color: Color(0xFFF59E0B), fontSize: 16, letterSpacing: 2)),
                         Text('${_display(_stats['reviewsCount'])} avis', style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3)),
                       ],
                     ),
@@ -300,23 +320,23 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: _insightBanner('Vos notes sont excellentes avec une médiane à 4.7★ sur 4 des 5 dernières semaines.'),
+                child: _insightBanner('Vos notes sont excellentes avec une mÃ©diane Ã  4.7â˜… sur 4 des 5 derniÃ¨res semaines.'),
               ),
             ],
           )),
           const SizedBox(height: 10),
 
           // Recent trips
-          _sectionHead('🕐 Derniers trajets', ''),
+          _sectionHead('ðŸ• Derniers trajets', ''),
           _card(child: Column(
             children: [
-              _tripRow('Barrhaven → Campus La Cité',  '1 mai · 17:25 · 2 pass.', '0,00 \$', '▼ 9.9 kg', 4),
-              _tripRow('Campus → Orléans Park & Ride', '3 mai · 08:15 · 1 pass.', '0,00 \$', '▼ 6.8 kg', 4),
-              _tripRow('Gatineau → ByWard Market',     '2 mai · 16:50 · 1 pass.', '0,00 \$', '▼ 2.5 kg', 3),
+              _tripRow('Barrhaven â†’ Campus La CitÃ©',  '1 mai Â· 17:25 Â· 2 pass.', '0,00 \$', 'â–¼ 9.9 kg', 4),
+              _tripRow('Campus â†’ OrlÃ©ans Park & Ride', '3 mai Â· 08:15 Â· 1 pass.', '0,00 \$', 'â–¼ 6.8 kg', 4),
+              _tripRow('Gatineau â†’ ByWard Market',     '2 mai Â· 16:50 Â· 1 pass.', '0,00 \$', 'â–¼ 2.5 kg', 3),
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Center(
-                  child: Text('5 trajets réussis sur 5 récents →',
+                  child: Text('5 trajets rÃ©ussis sur 5 rÃ©cents â†’',
                     style: GoogleFonts.dmSans(fontSize: 12, fontWeight: FontWeight.w600, color: _C.blue)),
                 ),
               ),
@@ -325,7 +345,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           const SizedBox(height: 10),
 
           // Badge grid
-          _sectionHead('🏅 Mes badges', '4 obtenus'),
+          _sectionHead('ðŸ… Mes badges', '4 obtenus'),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: GridView.count(
@@ -336,19 +356,19 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
               mainAxisSpacing: 10,
               childAspectRatio: 0.85,
               children: [
-                _badgeCard('🎓', 'Étudiant Cité', 'Jan. 2026', '', false),
-                _badgeCard('✅', 'Confirmé',       'Fév. 2026', '', false),
-                _badgeCard('🌱', 'Éco-Débutant',   'Juin 2026', '', false),
-                _badgeCard('⭐', 'Étudiant La Cité','Fév. 2026', '', false),
-                _badgeCard('💎', 'Expert',          '',  '51–100 trajets · 14 restants', true),
-                _badgeCard('⏰', 'Ponctuel',         '',  '95% ponct. · 5 pts', true),
+                _badgeCard('ðŸŽ“', 'Ã‰tudiant CitÃ©', 'Jan. 2026', '', false),
+                _badgeCard('âœ…', 'ConfirmÃ©',       'FÃ©v. 2026', '', false),
+                _badgeCard('ðŸŒ±', 'Ã‰co-DÃ©butant',   'Juin 2026', '', false),
+                _badgeCard('â­', 'Ã‰tudiant La CitÃ©','FÃ©v. 2026', '', false),
+                _badgeCard('ðŸ’Ž', 'Expert',          '',  '51â€“100 trajets Â· 14 restants', true),
+                _badgeCard('â°', 'Ponctuel',         '',  '95% ponct. Â· 5 pts', true),
               ],
             ),
           ),
           const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: _insightBanner("Votre prochain badge 'Expert' nécessite 14 trajets supplémentaires. Vous y êtes presque !"),
+            child: _insightBanner("Votre prochain badge 'Expert' nÃ©cessite 14 trajets supplÃ©mentaires. Vous y Ãªtes presque !"),
           ),
         ],
       ),
@@ -475,7 +495,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Activité hebdomadaire',
+        Text('ActivitÃ© hebdomadaire',
           style: GoogleFonts.dmSans(fontSize: 11, fontWeight: FontWeight.w600, color: _C.text3)),
         const SizedBox(height: 10),
         SizedBox(
@@ -545,7 +565,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
             children: [
               Text(amount, style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w700, color: _C.tealMid)),
               Text(co2, style: GoogleFonts.dmSans(fontSize: 11, color: _C.tealMid, fontWeight: FontWeight.w600)),
-              Text('★' * stars, style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 11)),
+              Text('â˜…' * stars, style: const TextStyle(color: Color(0xFFF59E0B), fontSize: 11)),
             ],
           ),
         ],
@@ -588,9 +608,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  // ════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // FINANCE TAB
-  // ════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   Widget _buildFinanceTab() {
     return SingleChildScrollView(
@@ -619,7 +639,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                   children: [
                     Expanded(child: _balanceSub('En transit', '${_display(_finance['inTransit'])} \$', false)),
                     const SizedBox(width: 10),
-                    Expanded(child: _balanceSub('Pénalités', '${_display(_finance['penalties'])} \$', true)),
+                    Expanded(child: _balanceSub('PÃ©nalitÃ©s', '${_display(_finance['penalties'])} \$', true)),
                     const SizedBox(width: 10),
                     Expanded(child: _balanceSub('IBAN', '***-2918', false)),
                   ],
@@ -654,7 +674,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           ),
 
           // Resume card
-          _sectionHead('📅 Résumé financier', ''),
+          _sectionHead('ðŸ“… RÃ©sumÃ© financier', ''),
           _card(child: Column(
             children: [
               _resumeGrid(),
@@ -669,7 +689,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
                     const SizedBox(height: 10),
                     _progressRow('Objectif mensuel', '${_display(_finance['monthlyRevenue'])} \$ / ${_display(_finance['monthlyGoal'])} \$', 0.20, _C.amberMid),
                     const SizedBox(height: 12),
-                    _insightBannerGreen('+100% vs mois précédent · Encore 159,20 \$ pour atteindre votre objectif.'),
+                    _insightBannerGreen('+100% vs mois prÃ©cÃ©dent Â· Encore 159,20 \$ pour atteindre votre objectif.'),
                   ],
                 ),
               ),
@@ -678,26 +698,26 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
           const SizedBox(height: 10),
 
           // Revenue chart
-          _sectionHead('📊 Revenus hebdomadaires', ''),
+          _sectionHead('ðŸ“Š Revenus hebdomadaires', ''),
           _card(child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
                 _revenueBarChart(),
                 const SizedBox(height: 12),
-                _insightBannerGreen('S18 : votre meilleure période à 10,20 \$ — La tendance est encourageante.'),
+                _insightBannerGreen('S18 : votre meilleure pÃ©riode Ã  10,20 \$ â€” La tendance est encourageante.'),
               ],
             ),
           )),
           const SizedBox(height: 10),
 
           // Transactions
-          _sectionHead('🧾 Dernières transactions', ''),
+          _sectionHead('ðŸ§¾ DerniÃ¨res transactions', ''),
           _card(child: Column(
             children: [
-              _txItem(true,  'Réservation RSV-2026 — mise en attente', '27 mars', '-6,00 \$',  false),
+              _txItem(true,  'RÃ©servation RSV-2026 â€” mise en attente', '27 mars', '-6,00 \$',  false),
               _txItem(false, 'Retrait vers Desjardins',                 '27 mars', '-150,00 \$', false),
-              _txItem(true,  'Dépôt initial de test',                   '23 déc.', '+2 700,00 \$', true),
+              _txItem(true,  'DÃ©pÃ´t initial de test',                   '23 dÃ©c.', '+2 700,00 \$', true),
             ],
           )),
           const SizedBox(height: 32),
@@ -769,7 +789,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       ('Gain mensuel', '${_display(_finance['monthlyRevenue'])} \$', _C.tealMid, 'Sem. 13'),
       ('Gain semaine', '${_display(_finance['weeklyRevenue'])} \$', _C.blue,    ''),
       ('Commission (15%)', '${_display(_finance['commission'])} \$', _C.amberMid, 'Plateforme'),
-      ('Trajets payants', _display(_stats['paidTrips'] ?? _stats['tripsCount']), _C.blue,    'sur ${_display(_stats['tripsCount'])} complétés'),
+      ('Trajets payants', _display(_stats['paidTrips'] ?? _stats['tripsCount']), _C.blue,    'sur ${_display(_stats['tripsCount'])} complÃ©tÃ©s'),
     ];
     return GridView.count(
       shrinkWrap: true,
@@ -822,7 +842,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   Widget _revenueBarChart() {
     const bars = [
       (label: 'S12', value: '10,2\$', fill: 1.0, empty: false),
-      (label: 'S13', value: '—',      fill: 0.15, empty: true),
+      (label: 'S13', value: 'â€”',      fill: 0.15, empty: true),
       (label: 'S14', value: '10,2\$', fill: 1.0,  empty: false),
       (label: 'S16', value: '10,2\$', fill: 1.0,  empty: false),
       (label: 'S18', value: '10,2\$', fill: 1.0,  empty: false),
@@ -904,9 +924,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
     );
   }
 
-  // ════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // SHARED HELPERS
-  // ════════════════════════════════════════════════════════════════════
+  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
   Widget _sectionHead(String title, String trailing) {
     return Padding(
@@ -947,7 +967,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('💡', style: TextStyle(fontSize: 14)),
+          const Text('ðŸ’¡', style: TextStyle(fontSize: 14)),
           const SizedBox(width: 10),
           Expanded(
             child: Text(text,
@@ -969,7 +989,7 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('📈', style: TextStyle(fontSize: 13)),
+          const Text('ðŸ“ˆ', style: TextStyle(fontSize: 13)),
           const SizedBox(width: 8),
           Expanded(
             child: Text(text,
@@ -981,9 +1001,9 @@ class _StatsScreenState extends State<StatsScreen> with SingleTickerProviderStat
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // GOBOARD TAB (separate widget to keep file organized)
-// ══════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 class _GoboardTab extends StatelessWidget {
   const _GoboardTab({required this.goTasks, required this.goScore});
@@ -1000,21 +1020,21 @@ class _GoboardTab extends StatelessWidget {
           // GoScore Hero
           _buildGoScoreHero(),
 
-          // Go!Tâches
-          _sectionHead('✅ Go!Tâches', '30 pts à portée'),
+          // Go!TÃ¢ches
+          _sectionHead('âœ… Go!TÃ¢ches', '30 pts Ã  portÃ©e'),
           _card(child: Column(
             children: [
               ...(goTasks.isNotEmpty
                   ? goTasks.map((task) {
                       return _taskItem(
                         done: task['done'] == true || task['isDone'] == true || task['completed'] == true,
-                        title: '${task['title'] ?? task['name'] ?? 'Tâche'}',
+                        title: '${task['title'] ?? task['name'] ?? 'TÃ¢che'}',
                         desc: '${task['desc'] ?? task['description'] ?? ''}',
                         pts: int.tryParse('${task['points'] ?? 0}') ?? 0,
                       );
                     })
                   : <Widget>[
-                      _taskItem(done: false, title: 'Aucune tâche', desc: 'Les tâches Go apparaîtront ici.', pts: 0),
+                      _taskItem(done: false, title: 'Aucune tÃ¢che', desc: 'Les tÃ¢ches Go apparaÃ®tront ici.', pts: 0),
                     ]),
             ],
           )),
@@ -1040,7 +1060,7 @@ class _GoboardTab extends StatelessWidget {
                         children: [
                           TextSpan(text: '30 points potentiels',
                             style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF854F0B))),
-                          TextSpan(text: ' à portée de main. Complétez vos tâches pour grimper dans le classement.',
+                          TextSpan(text: ' Ã  portÃ©e de main. ComplÃ©tez vos tÃ¢ches pour grimper dans le classement.',
                             style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF854F0B))),
                         ],
                       ),
@@ -1053,18 +1073,18 @@ class _GoboardTab extends StatelessWidget {
           const SizedBox(height: 10),
 
           // Classement
-          _sectionHead('🏆 Classement du mois', '8 participants'),
+          _sectionHead('ðŸ† Classement du mois', '8 participants'),
           _card(child: Column(
             children: [
-              _rankItem(rank: 1,  medal: '🥇', initials: 'ML', avatarBg: const Color(0xFFFEF3C7), avatarFg: const Color(0xFF92400E), name: 'Marie-Claude L.', score: 980, isMe: false),
-              _rankItem(rank: 2,  medal: '🥈', initials: 'JP', avatarBg: const Color(0xFFEEF0F5), avatarFg: const Color(0xFF545D6E), name: 'Jean-Pierre M.', score: 942, isMe: false),
-              _rankItem(rank: 3,  medal: '🥉', initials: 'SB', avatarBg: const Color(0xFFFAEEDA), avatarFg: const Color(0xFF854F0B), name: 'Sofia B.',         score: 895, isMe: false),
+              _rankItem(rank: 1,  medal: 'ðŸ¥‡', initials: 'ML', avatarBg: const Color(0xFFFEF3C7), avatarFg: const Color(0xFF92400E), name: 'Marie-Claude L.', score: 980, isMe: false),
+              _rankItem(rank: 2,  medal: 'ðŸ¥ˆ', initials: 'JP', avatarBg: const Color(0xFFEEF0F5), avatarFg: const Color(0xFF545D6E), name: 'Jean-Pierre M.', score: 942, isMe: false),
+              _rankItem(rank: 3,  medal: 'ðŸ¥‰', initials: 'SB', avatarBg: const Color(0xFFFAEEDA), avatarFg: const Color(0xFF854F0B), name: 'Sofia B.',         score: 895, isMe: false),
               _rankItem(rank: 4,  medal: '',   initials: 'Moi', avatarBg: const Color(0xFFE8F0FE), avatarFg: const Color(0xFF1A56CC), name: 'Vous',           score: 520, isMe: true),
               _rankItem(rank: 5,  medal: '',   initials: 'PD', avatarBg: const Color(0xFFE1F5EE), avatarFg: const Color(0xFF0F6E56), name: 'Pauline D.',     score: 310, isMe: false),
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Center(
-                  child: Text('… 3 autres participants',
+                  child: Text('â€¦ 3 autres participants',
                     style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A))),
                 ),
               ),
@@ -1072,28 +1092,28 @@ class _GoboardTab extends StatelessWidget {
           )),
           const SizedBox(height: 10),
 
-          // Éco challenges
-          _sectionHead('🌿 Défis Écologiques', '▼ CO₂'),
+          // Ã‰co challenges
+          _sectionHead('ðŸŒ¿ DÃ©fis Ã‰cologiques', 'â–¼ COâ‚‚'),
           _card(child: Column(
             children: [
-              _ecoChallenge(emoji: '🌱', name: 'Éco-Débutant',  desc: 'Faites vos premiers pas — 10 kg CO₂.', progress: 1.0, status: 'Complété',  statusBg: const Color(0xFFE1F5EE), statusFg: const Color(0xFF0F6E56), target: 'Cible : 10 kg CO₂'),
-              _ecoChallenge(emoji: '🌿', name: 'Éco-Conscient', desc: 'Atteignez 50 kg de CO₂ économisés.',    progress: 1.0, status: 'Complété',  statusBg: const Color(0xFFE1F5EE), statusFg: const Color(0xFF0F6E56), target: 'Cible : 50 kg CO₂'),
-              _ecoChallenge(emoji: '🌳', name: 'Éco-Warrior',   desc: 'Devenez champion — 200 kg de CO₂.',    progress: 0.73, status: 'En cours', statusBg: const Color(0xFFFAEEDA), statusFg: const Color(0xFF854F0B), target: 'Cible : 200 kg CO₂'),
+              _ecoChallenge(emoji: 'ðŸŒ±', name: 'Ã‰co-DÃ©butant',  desc: 'Faites vos premiers pas â€” 10 kg COâ‚‚.', progress: 1.0, status: 'ComplÃ©tÃ©',  statusBg: const Color(0xFFE1F5EE), statusFg: const Color(0xFF0F6E56), target: 'Cible : 10 kg COâ‚‚'),
+              _ecoChallenge(emoji: 'ðŸŒ¿', name: 'Ã‰co-Conscient', desc: 'Atteignez 50 kg de COâ‚‚ Ã©conomisÃ©s.',    progress: 1.0, status: 'ComplÃ©tÃ©',  statusBg: const Color(0xFFE1F5EE), statusFg: const Color(0xFF0F6E56), target: 'Cible : 50 kg COâ‚‚'),
+              _ecoChallenge(emoji: 'ðŸŒ³', name: 'Ã‰co-Warrior',   desc: 'Devenez champion â€” 200 kg de COâ‚‚.',    progress: 0.73, status: 'En cours', statusBg: const Color(0xFFFAEEDA), statusFg: const Color(0xFF854F0B), target: 'Cible : 200 kg COâ‚‚'),
             ],
           )),
           const SizedBox(height: 10),
 
           // Score history
-          _sectionHead('📜 Historique GoScore', '12 événements'),
+          _sectionHead('ðŸ“œ Historique GoScore', '12 Ã©vÃ©nements'),
           _card(child: Column(
             children: [
-              _ptsItem('Go!Tâche — Atteindre 500 points',        '1 mars 2026',    100),
-              _ptsItem('Go!Tâche — Premier avis après trajet',   '18 fév. 2026',    15),
-              _ptsItem('Go!Tâche — Terminer votre premier trajet','3 fév. 2026',    30),
+              _ptsItem('Go!TÃ¢che â€” Atteindre 500 points',        '1 mars 2026',    100),
+              _ptsItem('Go!TÃ¢che â€” Premier avis aprÃ¨s trajet',   '18 fÃ©v. 2026',    15),
+              _ptsItem('Go!TÃ¢che â€” Terminer votre premier trajet','3 fÃ©v. 2026',    30),
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Center(
-                  child: Text('520 pts accumulés · 12 événements',
+                  child: Text('520 pts accumulÃ©s Â· 12 Ã©vÃ©nements',
                     style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF1A56CC))),
                 ),
               ),
@@ -1143,7 +1163,7 @@ class _GoboardTab extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Text('🥉', style: TextStyle(fontSize: 20)),
+                    const Text('ðŸ¥‰', style: TextStyle(fontSize: 20)),
                     const SizedBox(width: 6),
                     Text('#4 ce mois',
                       style: GoogleFonts.sora(fontSize: 13, fontWeight: FontWeight.w700, color: Colors.white)),
@@ -1166,7 +1186,7 @@ class _GoboardTab extends StatelessWidget {
             children: [
               Text('0', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
               const Spacer(),
-              Text('Intermédiaire', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
+              Text('IntermÃ©diaire', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
               const Spacer(),
               Text('1000', style: GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
             ],
@@ -1176,7 +1196,7 @@ class _GoboardTab extends StatelessWidget {
     );
   }
 
-  // ── Card wrapper ────────────────────────────────────────────────────
+  // â”€â”€ Card wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   static Widget _card({required Widget child}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),

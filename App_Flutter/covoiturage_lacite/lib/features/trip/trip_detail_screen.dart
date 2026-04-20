@@ -103,6 +103,15 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  bool _canMessage(Trip trip, Map<String, dynamic>? raw) {
+    DateTime? departure;
+    final dynamic rawValue = raw?['departureTime'] ?? raw?['departureDateTime'];
+    if (rawValue != null) departure = DateTime.tryParse(rawValue.toString())?.toLocal();
+    if (departure == null) return false;
+    final diff = departure.difference(DateTime.now());
+    return !diff.isNegative && diff <= const Duration(hours: 2);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,6 +127,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                   isReserving: _isReserving,
                   showCancelConfirm: _showCancelConfirm,
                   onReserve: _reserve,
+                  canMessage: _canMessage(_trip!, _tripRaw),
                   onShowCancel: () => setState(() => _showCancelConfirm = true),
                   onDismissCancel: () => setState(() => _showCancelConfirm = false),
                   onConfirmCancel: () { setState(() => _showCancelConfirm = false); context.pop(); },
@@ -128,12 +138,12 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 
 class _TripView extends StatelessWidget {
   const _TripView({required this.trip, required this.tripRaw, required this.viewerRole, required this.isReserving,
-      required this.showCancelConfirm, required this.onReserve, required this.onShowCancel,
+      required this.showCancelConfirm, required this.canMessage, required this.onReserve, required this.onShowCancel,
       required this.onDismissCancel, required this.onConfirmCancel});
   final Trip trip;
   final Map<String, dynamic>? tripRaw;
   final TripViewerRole viewerRole;
-  final bool isReserving, showCancelConfirm;
+  final bool isReserving, showCancelConfirm, canMessage;
   final VoidCallback onReserve, onShowCancel, onDismissCancel, onConfirmCancel;
 
   @override
@@ -151,6 +161,7 @@ class _TripView extends StatelessWidget {
                   child: _SummaryCard(
                     trip: trip, viewerRole: viewerRole, isReserving: isReserving,
                     onReserve: onReserve, onCancel: onShowCancel,
+                    canMessage: canMessage,
                     tripId: trip.id,
                   ),
                 ),
@@ -233,14 +244,16 @@ class _MapHero extends StatelessWidget {
       ]),
     );
   }
+
 }
 
 class _SummaryCard extends StatelessWidget {
   const _SummaryCard({required this.trip, required this.viewerRole, required this.isReserving,
-      required this.onReserve, required this.onCancel, required this.tripId});
+      required this.onReserve, required this.onCancel, required this.tripId, required this.canMessage});
   final Trip trip;
   final TripViewerRole viewerRole;
   final bool isReserving;
+  final bool canMessage;
   final String tripId;
   final VoidCallback onReserve, onCancel;
 
@@ -266,7 +279,7 @@ class _SummaryCard extends StatelessWidget {
               ]),
               Text(trip.vehicleModel, style: const TextStyle(fontSize: 11, color: Color(0xFF6b7280))),
             ])),
-            if (viewerRole == TripViewerRole.passenger)
+            if (viewerRole == TripViewerRole.passenger && canMessage)
               TextButton.icon(
                 onPressed: () => context.push('/chat/$tripId'),
                 icon: const Icon(Icons.chat_bubble_outline, size: 16),

@@ -113,22 +113,33 @@ class _FavorisScreenState extends State<FavorisScreen> {
   Future<void> _load() async {
     if (mounted) setState(() => _isLoading = true);
     try {
-      final results = await Future.wait([
-        ApiService.instance.get('/api/favorites/drivers').catchError((_) => <dynamic>[]),
-        ApiService.instance.get('/api/favorites/places').catchError((_) => <dynamic>[]),
-        ApiService.instance.get('/api/survey-trip-alerts').catchError((_) => <dynamic>[]),
-      ]);
+      final dynamic data = await ApiService.instance.get('/api/favorites');
+      final dynamic body = (data is Map<String, dynamic>) ? (data['data'] ?? data) : data;
       if (mounted) {
         setState(() {
-          _drivers = results[0] as List? ?? [];
-          _places = results[1] as List? ?? [];
-          _alerts = results[2] as List? ?? [];
+          _drivers = _extractList(
+            body is Map<String, dynamic> ? (body['drivers'] ?? body['favoriteDrivers']) : <dynamic>[],
+          );
+          _places = _extractList(
+            body is Map<String, dynamic> ? (body['places'] ?? body['favoritePlaces']) : <dynamic>[],
+          );
+          _alerts = _extractList(
+            body is Map<String, dynamic> ? (body['alerts'] ?? body['tripAlerts']) : <dynamic>[],
+          );
           _isLoading = false;
         });
       }
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  List<dynamic> _extractList(dynamic data) {
+    if (data is List) return data;
+    if (data is Map) {
+      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[]) as List<dynamic>;
+    }
+    return <dynamic>[];
   }
 
   void _removeDriver(String id) {

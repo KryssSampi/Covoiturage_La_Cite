@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio/io.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,12 +23,17 @@ class ApiService {
   static String? _pinnedFingerprint;
 
   static late final Dio _dio;
+  static late final CookieJar _cookieJar;
 
   ApiService._internal() {
     _dio = Dio(BaseOptions(baseUrl: _baseUrl));
     _dio.options.connectTimeout = const Duration(seconds: 10);
     _dio.options.receiveTimeout = const Duration(seconds: 15);
     _dio.options.sendTimeout = const Duration(seconds: 10);
+    _dio.options.followRedirects = true;
+
+    _cookieJar = CookieJar();
+    _dio.interceptors.add(CookieManager(_cookieJar));
 
     _configurePinnedHttpClient();
     unawaited(_initSecureClient());
@@ -118,18 +125,34 @@ class ApiService {
     };
   }
 
-  Future<dynamic> get(String path, {Map<String, dynamic>? params}) async {
-    final response = await _dio.get<dynamic>(path, queryParameters: params);
+  Future<dynamic> get(
+    String path, {
+    Map<String, dynamic>? params,
+    Options? options,
+  }) async {
+    final response = await _dio.get<dynamic>(
+      path,
+      queryParameters: params,
+      options: options,
+    );
     return response.data;
   }
 
-  Future<dynamic> post(String path, dynamic body) async {
-    final response = await _dio.post<dynamic>(path, data: body);
+  Future<dynamic> post(
+    String path,
+    dynamic body, {
+    Options? options,
+  }) async {
+    final response = await _dio.post<dynamic>(path, data: body, options: options);
     return response.data;
   }
 
-  Future<dynamic> patch(String path, dynamic body) async {
-    final response = await _dio.patch<dynamic>(path, data: body);
+  Future<dynamic> patch(
+    String path,
+    dynamic body, {
+    Options? options,
+  }) async {
+    final response = await _dio.patch<dynamic>(path, data: body, options: options);
     return response.data;
   }
 }
@@ -142,8 +165,9 @@ class _AuthInterceptor extends Interceptor {
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('auth_token');
+    final bool isSessionFlow = options.path.contains('/api/auth/session/');
 
-    if (token != null && token.isNotEmpty) {
+    if (!isSessionFlow && token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
 
