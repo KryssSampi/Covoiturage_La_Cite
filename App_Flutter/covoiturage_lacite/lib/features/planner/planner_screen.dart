@@ -330,12 +330,6 @@ class _PlannerScreenState extends State<PlannerScreen> {
       children: [
         Scaffold(
           backgroundColor: AppColors.grayBg,
-          floatingActionButton: FloatingActionButton(
-            onPressed: () => context.push('/create-trip'),
-            backgroundColor: AppColors.blue,
-            foregroundColor: Colors.white,
-            child: const Icon(Icons.add_rounded),
-          ),
           body: _isLoading
               ? const Center(
                   child: CircularProgressIndicator(
@@ -1590,8 +1584,13 @@ List<dynamic> _extractList(dynamic payload) {
     final dynamic data =
         payload['data'] ?? payload['items'] ?? payload['results'];
     if (data is List<dynamic>) return data;
+    if (data is Map<String, dynamic>) {
+      final dynamic nested =
+          data['items'] ?? data['results'] ?? data['rows'] ?? data['list'];
+      if (nested is List<dynamic>) return nested;
+    }
   }
-  return [];
+  return <dynamic>[];
 }
 
 DateTime? _toDateTime(dynamic value) {
@@ -1628,3 +1627,5 @@ String _fmtTime(DateTime? dt) {
   String two(int v) => v < 10 ? '0$v' : '$v';
   return '${two(dt.hour)}:${two(dt.minute)}';
 }
+
+

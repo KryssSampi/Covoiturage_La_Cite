@@ -3,6 +3,11 @@ List<dynamic> extractList(dynamic payload) {
   if (payload is Map<String, dynamic>) {
     final dynamic data = payload['data'] ?? payload['items'] ?? payload['results'];
     if (data is List<dynamic>) return data;
+    if (data is Map<String, dynamic>) {
+      final dynamic nested =
+          data['items'] ?? data['results'] ?? data['rows'] ?? data['list'] ?? data['data'];
+      if (nested is List<dynamic>) return nested;
+    }
   }
   return <dynamic>[];
 }
@@ -11,6 +16,11 @@ Map<String, dynamic>? extractMap(dynamic payload) {
   if (payload is Map<String, dynamic>) {
     final dynamic data = payload['data'];
     if (data is Map<String, dynamic>) return data;
+    if (data is List<dynamic>) {
+      for (final dynamic row in data) {
+        if (row is Map<String, dynamic>) return row;
+      }
+    }
     return payload;
   }
   return null;

@@ -294,7 +294,7 @@ class _StatsScreenState extends State<StatsScreen>
               crossAxisCount: 2,
               crossAxisSpacing: 10,
               mainAxisSpacing: 10,
-              childAspectRatio: 1.2,
+              childAspectRatio: 1.05,
               children: [
                 _kpiCard(
                     icon: Icons.directions_car_rounded,
@@ -854,7 +854,7 @@ class _StatsScreenState extends State<StatsScreen>
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
-      childAspectRatio: 2.0,
+      childAspectRatio: 1.55,
       children: cells.map((c) {
         return Container(
           padding: const EdgeInsets.all(14),
@@ -923,7 +923,7 @@ class _StatsScreenState extends State<StatsScreen>
       (label: 'S18', value: '10,2\$', fill: 1.0, empty: false),
     ];
     return SizedBox(
-      height: 90,
+      height: 120,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: bars.map((b) {
@@ -940,7 +940,7 @@ class _StatsScreenState extends State<StatsScreen>
                           fontWeight: FontWeight.w600)),
                   const SizedBox(height: 3),
                   SizedBox(
-                    height: 70,
+                    height: 86,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -1248,9 +1248,9 @@ class _GoboardTab extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Text('ðŸ¥‰', style: TextStyle(fontSize: 20)),
+                    const Text('#4', style: TextStyle(fontSize: 20)),
                     const SizedBox(width: 6),
-                    Text('#4 ce mois',
+                    Text('ce mois',
                         style: GoogleFonts.sora(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,

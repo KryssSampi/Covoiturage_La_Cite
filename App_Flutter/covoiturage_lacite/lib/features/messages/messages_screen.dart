@@ -1,7 +1,9 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/converters/display_converters.dart';
 import '../../core/services/api_service.dart';
+import '../../core/utils/parsing.dart' as parsing;
 import '../../shared/widgets/item_list_view.dart';
 
 class MessagesScreen extends StatefulWidget {
@@ -30,11 +32,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
     });
 
     try {
-      final dynamic payload = await ApiService.instance.get('/api/conversations');
-      final List<dynamic> rows = _extractList(payload);
+      final dynamic payload =
+          await ApiService.instance.get('/api/messages/conversations');
+      final List<dynamic> rows = parsing.extractList(payload);
       if (!mounted) return;
       setState(() {
-        _items = rows.whereType<Map<String, dynamic>>().map(_mapConversation).toList();
+        _items = rows
+            .whereType<Map<String, dynamic>>()
+            .map(DisplayConverters.toConversationViewRow)
+            .map(_mapConversation)
+            .toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -44,14 +51,6 @@ class _MessagesScreenState extends State<MessagesScreen> {
         _error = e.toString();
       });
     }
-  }
-
-  List<dynamic> _extractList(dynamic data) {
-    if (data is List) return data;
-    if (data is Map) {
-      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[]) as List<dynamic>;
-    }
-    return <dynamic>[];
   }
 
   ConversationData _mapConversation(Map<String, dynamic> row) {

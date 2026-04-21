@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/app_colors.dart';
+import '../../core/converters/display_converters.dart';
 import '../../core/services/api_service.dart';
 import '../../core/services/auth_service.dart';
 
@@ -209,6 +210,12 @@ class _ProfileScreenState extends State<ProfileScreen>
   late TextEditingController _phoneCtrl;
   late TextEditingController _bioCtrl;
   String _schoolRole = 'etudiant';
+  static const Map<String, String> _schoolRoleItems = {
+    'etudiant': 'Étudiant',
+    'professeur': 'Professeur',
+    'membredupersonnel': 'Membre du personnel',
+    'administrateur': 'Administrateur',
+  };
 
   @override
   void initState() {
@@ -241,14 +248,17 @@ class _ProfileScreenState extends State<ProfileScreen>
     });
     try {
       final dynamic data = await _api.get('/api/users/me');
-      final Map<String, dynamic> json = _extractMap(data);
+      final Map<String, dynamic> json = DisplayConverters.extractMap(data);
+      final Map<String, dynamic> displayJson =
+          DisplayConverters.toProfileViewJson(json);
       if (!mounted) return;
-      final profile = UserProfile.fromJson(json);
+      final profile = UserProfile.fromJson(displayJson);
       setState(() {
         _profile = profile;
         _firstNameCtrl.text = profile.firstName;
         _lastNameCtrl.text = profile.lastName;
-        _schoolRole = profile.schoolRole;
+        _notifEmailCtrl.text = profile.email;
+        _schoolRole = _normalizeSchoolRole(profile.schoolRole);
         _isLoading = false;
       });
     } catch (e) {
@@ -265,31 +275,27 @@ class _ProfileScreenState extends State<ProfileScreen>
       await _api.patch('/api/users/me', {
         'firstName': _firstNameCtrl.text.trim(),
         'lastName': _lastNameCtrl.text.trim(),
-        'schoolRole': _schoolRole,
+        'notificationEmail': _notifEmailCtrl.text.trim().isEmpty
+            ? null
+            : _notifEmailCtrl.text.trim(),
+        'phoneNumber': _phoneCtrl.text.trim().isEmpty
+            ? null
+            : _phoneCtrl.text.trim(),
+        'bio': _bioCtrl.text.trim().isEmpty ? null : _bioCtrl.text.trim(),
+        'languagesSpoken': _profile.languagesSpoken,
+        'canBeDriver': _profile.appRole.toLowerCase().contains('conducteur') ||
+            _profile.appRole.toLowerCase().contains('driver'),
         'preferences': {
           'musicAccepted': _profile.musicAccepted,
           'petsAccepted': _profile.petsAccepted,
           'smokingAccepted': _profile.smokingAccepted,
           'conversationLevel': _profile.conversationLevel,
-        },
-        'notifications': {
           'emailPrimordiales': _profile.emailPrimordiales,
           'emailSecondaires': _profile.emailSecondaires,
           'emailNegligeables': _profile.emailNegligeables,
           'pushPrimordiales': _profile.pushPrimordiales,
           'pushSecondaires': _profile.pushSecondaires,
           'pushNegligeables': _profile.pushNegligeables,
-        },
-        'privacy': {
-          'showPhoneNumber': _profile.showPhoneNumber,
-          'showLastName': _profile.showLastName,
-          'allowAffinityTracking': _profile.allowAffinityTracking,
-        },
-        'visibility': {
-          'showGoScore': _profile.showGoScore,
-          'showTripsCount': _profile.showTripsCount,
-          'showRating': _profile.showRating,
-          'showCo2': _profile.showCo2,
         },
       });
       if (!mounted) return;
@@ -637,13 +643,10 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 14),
           _sectionLabel("Rôle à l'école"),
           _buildDropdown(
-            value: _schoolRole,
-            items: const {
-              'etudiant': 'Étudiant',
-              'professeur': 'Professeur',
-              'membredupersonnel': 'Membre du personnel',
-              'administrateur': 'Administrateur',
-            },
+            value: _schoolRoleItems.containsKey(_schoolRole)
+                ? _schoolRole
+                : 'etudiant',
+            items: _schoolRoleItems,
             onChanged: (v) => setState(() => _schoolRole = v!),
           ),
           const SizedBox(height: 14),
@@ -1335,6 +1338,29 @@ class _ProfileScreenState extends State<ProfileScreen>
         onChanged: onChanged,
       );
 
+  String _normalizeSchoolRole(String raw) {
+    final String normalized = raw
+        .toLowerCase()
+        .replaceAll('é', 'e')
+        .replaceAll('è', 'e')
+        .replaceAll('ê', 'e')
+        .replaceAll('à', 'a')
+        .replaceAll('â', 'a')
+        .replaceAll("'", '')
+        .replaceAll('-', '')
+        .replaceAll(' ', '');
+
+    if (_schoolRoleItems.containsKey(normalized)) {
+      return normalized;
+    }
+    if (normalized.contains('prof')) return 'professeur';
+    if (normalized.contains('admin')) return 'administrateur';
+    if (normalized.contains('personnel') || normalized.contains('employ')) {
+      return 'membredupersonnel';
+    }
+    return 'etudiant';
+  }
+
   Widget _toggleRow(
       String label, bool value, ValueChanged<bool> onChanged) =>
       Padding(
@@ -1646,11 +1672,5 @@ class _SeatsCounterState extends State<_SeatsCounter> {
 //  HELPERS
 // ────────────────────────────────────────────────────────────
 
-Map<String, dynamic> _extractMap(dynamic data) {
-  if (data is Map<String, dynamic>) {
-    final d = data['data'];
-    if (d is Map<String, dynamic>) return d;
-    return data;
-  }
-  return {};
-}
+
+
