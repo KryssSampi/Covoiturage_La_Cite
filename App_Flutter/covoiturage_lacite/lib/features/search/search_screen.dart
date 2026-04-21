@@ -147,7 +147,6 @@ class _SearchScreenState extends State<SearchScreen> {
     if (widget.isDriver && _fromFocus.hasFocus) {
       _queueOrsSuggestions(value);
     }
-    _scheduleDriverAutoSearch();
     setState(() {});
   }
 
@@ -159,7 +158,6 @@ class _SearchScreenState extends State<SearchScreen> {
     if (widget.isDriver && _toFocus.hasFocus) {
       _queueOrsSuggestions(value);
     }
-    _scheduleDriverAutoSearch();
     setState(() {});
   }
 

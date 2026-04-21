@@ -12,6 +12,11 @@ class SideNavBar extends StatelessWidget {
     required this.userEmail,
     required this.roleLabel,
     required this.isDriver,
+    this.hasNewsReservations = false,
+    this.hasNewsStatsOrRequests = false,
+    this.hasNewsPlanner = false,
+    this.hasNewsMessages = false,
+    this.hasNewsProfile = false,
     required this.onSwitchRole,
     required this.onNavigate,
     required this.onClose,
@@ -22,17 +27,14 @@ class SideNavBar extends StatelessWidget {
   final String userEmail;
   final String roleLabel;
   final bool isDriver;
+  final bool hasNewsReservations;
+  final bool hasNewsStatsOrRequests;
+  final bool hasNewsPlanner;
+  final bool hasNewsMessages;
+  final bool hasNewsProfile;
   final VoidCallback onSwitchRole;
   final ValueChanged<int> onNavigate;
   final VoidCallback onClose;
-
-  static const List<_PrimaryItem> _primaryItems = <_PrimaryItem>[
-    _PrimaryItem(index: 0, icon: Icons.home_rounded, label: 'Accueil'),
-    _PrimaryItem(index: 1, icon: Icons.stacked_bar_chart, label: 'Statistiques'),
-    _PrimaryItem(index: 2, icon: Icons.calendar_month_rounded, label: 'Planifier'),
-    _PrimaryItem(index: 3, icon: Icons.message_outlined, label: 'Messages'),
-    _PrimaryItem(index: 4, icon: Icons.person, label: 'Profil'),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +62,10 @@ class SideNavBar extends StatelessWidget {
                       children: <Widget>[
                         ..._primaryItems.map((item) {
                           return ListTile(
-                            leading:
-                                Icon(item.icon, color: const Color(0xFF1A56CC)),
+                            leading: _LeadingIcon(
+                              icon: item.icon,
+                              hasNews: item.hasNews,
+                            ),
                             title: Text(
                               item.label,
                               style: const TextStyle(color: Color(0xFF0D1624)),
@@ -78,6 +82,25 @@ class SideNavBar extends StatelessWidget {
                                 const EdgeInsets.symmetric(horizontal: 16),
                           );
                         }),
+                        ListTile(
+                          leading: _LeadingIcon(
+                            icon: isDriver ? Icons.stacked_bar_chart_rounded : Icons.event_note_rounded,
+                            hasNews: hasNewsReservations,
+                          ),
+                          title: Text(
+                            isDriver ? 'Statistiques' : 'Reservations',
+                            style: const TextStyle(color: Color(0xFF0D1624)),
+                          ),
+                          onTap: () {
+                            if (isDriver) {
+                              onClose();
+                              context.push('/stats');
+                            } else {
+                              onClose();
+                              context.push('/reservations');
+                            }
+                          },
+                        ),
                         const Divider(height: 24),
                         ListTile(
                           leading: const Icon(Icons.history,
@@ -226,6 +249,34 @@ class SideNavBar extends StatelessWidget {
       ),
     );
   }
+
+  List<_PrimaryItem> get _primaryItems => <_PrimaryItem>[
+        const _PrimaryItem(index: 0, icon: Icons.home_rounded, label: 'Accueil'),
+        _PrimaryItem(
+          index: 1,
+          icon: isDriver ? Icons.assignment_turned_in_outlined : Icons.stacked_bar_chart,
+          label: isDriver ? 'Demandes' : 'Statistiques',
+          hasNews: hasNewsStatsOrRequests,
+        ),
+        _PrimaryItem(
+          index: 2,
+          icon: Icons.calendar_month_rounded,
+          label: 'Planifier',
+          hasNews: hasNewsPlanner,
+        ),
+        _PrimaryItem(
+          index: 3,
+          icon: Icons.message_outlined,
+          label: 'Messages',
+          hasNews: hasNewsMessages,
+        ),
+        _PrimaryItem(
+          index: 4,
+          icon: Icons.person,
+          label: 'Profil',
+          hasNews: hasNewsProfile,
+        ),
+      ];
 }
 
 class _PrimaryItem {
@@ -233,9 +284,44 @@ class _PrimaryItem {
     required this.index,
     required this.icon,
     required this.label,
+    this.hasNews = false,
   });
 
   final int index;
   final IconData icon;
   final String label;
+  final bool hasNews;
+}
+
+class _LeadingIcon extends StatelessWidget {
+  const _LeadingIcon({
+    required this.icon,
+    required this.hasNews,
+  });
+
+  final IconData icon;
+  final bool hasNews;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: <Widget>[
+        Icon(icon, color: const Color(0xFF1A56CC)),
+        if (hasNews)
+          Positioned(
+            right: -2,
+            top: -2,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE24B4A),
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 }

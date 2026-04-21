@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/services/api_service.dart';
+import '../../core/state/app_state.dart';
 
 // ─── Color tokens ─────────────────────────────────────────────────────────────
 class _C {
@@ -90,11 +91,9 @@ class _StatsScreenState extends State<StatsScreen>
   Future<void> _loadStats() async {
     setState(() => _isLoading = true);
     try {
-      final dynamic goboard =
-          await ApiService.instance.get('/api/goboard/rankings');
+      final dynamic goboard = await ApiService.instance.get('/api/goboard/rankings');
       final dynamic stats = await ApiService.instance.get('/api/stats/me');
-      final dynamic finance =
-          await ApiService.instance.get('/api/stats/finances');
+      final dynamic finance = await ApiService.instance.get('/api/stats/finances');
       if (!mounted) return;
       setState(() {
         _rankings = _extractList(goboard);
@@ -111,7 +110,14 @@ class _StatsScreenState extends State<StatsScreen>
         _isLoading = false;
       });
     } catch (_) {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _rankings = [];
+          _myStats = {};
+          _finances = {};
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -132,6 +138,8 @@ class _StatsScreenState extends State<StatsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final bool isDriver = AppStateStore.instance.isDriver;
+    final bool showBack = isDriver && Navigator.canPop(context);
     return Scaffold(
       backgroundColor: _C.grayBg,
       appBar: AppBar(
@@ -140,6 +148,12 @@ class _StatsScreenState extends State<StatsScreen>
             style: TextStyle(
                 color: Colors.white, fontWeight: FontWeight.w700)),
         automaticallyImplyLeading: false,
+        leading: showBack
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Navigator.of(context).maybePop(),
+              )
+            : null,
         elevation: 0,
         actions: [
           IconButton(
@@ -175,6 +189,7 @@ class _StatsScreenState extends State<StatsScreen>
 
   // ─── Tab Bar ────────────────────────────────────────────────────────────────
   Widget _buildTabBar() {
+    final bool isDriver = AppStateStore.instance.isDriver;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       decoration: const BoxDecoration(
@@ -208,14 +223,15 @@ class _StatsScreenState extends State<StatsScreen>
                   Icons.bar_chart_rounded,
                   const LinearGradient(
                       colors: [_C.blueDeep, _C.blueMid])),
-              _tabBtn(
-                  _Tab.finance,
-                  'Finances',
-                  Icons.account_balance_wallet_rounded,
-                  const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF854F0B), Color(0xFFBA7517)])),
+              if (isDriver)
+                _tabBtn(
+                    _Tab.finance,
+                    'Finances',
+                    Icons.account_balance_wallet_rounded,
+                    const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF854F0B), Color(0xFFBA7517)])),
             ],
           ),
         ),

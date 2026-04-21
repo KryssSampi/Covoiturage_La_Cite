@@ -7,6 +7,9 @@ import '../../features/messages/messages_screen.dart';
 import '../../features/planner/planner_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/stats/stats_screen.dart';
+import '../../features/trip/reservation_screen.dart';
+import '../services/api_service.dart';
+import '../services/trip_service.dart';
 import '../state/app_state.dart';
 import 'custom_tab_bar.dart';
 import 'shell_top_bar.dart';
@@ -31,6 +34,7 @@ class AppShellState extends ConsumerState<AppShell> {
   late int _currentIndex;
   bool _sideNavOpen = false;
   bool _showLoader = false;
+  final TripService _tripService = TripService(ApiService.instance);
 
   int get currentIndex => _currentIndex;
   bool get sideNavOpen => _sideNavOpen;
@@ -51,12 +55,18 @@ class AppShellState extends ConsumerState<AppShell> {
     _currentIndex = widget.initialIndex.clamp(0, 4);
   }
 
-  Widget _bodyForIndex(int index) {
+  Widget _bodyForIndex(int index, bool isDriver) {
     switch (index) {
       case 0:
         return const HomePage();
       case 1:
-        return const StatsScreen();
+        return isDriver
+            ? ReservationScreen(
+                tripService: _tripService,
+                isDriver: true,
+                embedded: true,
+              )
+            : const StatsScreen();
       case 2:
         return const PlannerScreen();
       case 3:
@@ -76,6 +86,19 @@ class AppShellState extends ConsumerState<AppShell> {
     });
   }
 
+  void _clearNewsForIndex(int index, bool isDriver) {
+    final AppStateStore appState = AppStateStore.instance;
+    if (index == 0) appState.clearPageNews(AppNavPage.home);
+    if (index == 1) {
+      appState.clearPageNews(
+        isDriver ? AppNavPage.reservations : AppNavPage.stats,
+      );
+    }
+    if (index == 2) appState.clearPageNews(AppNavPage.planner);
+    if (index == 3) appState.clearPageNews(AppNavPage.messages);
+    if (index == 4) appState.clearPageNews(AppNavPage.profile);
+  }
+
   @override
   Widget build(BuildContext context) {
     final appState = ref.watch(appStateProvider);
@@ -86,7 +109,20 @@ class AppShellState extends ConsumerState<AppShell> {
       backgroundColor: const Color(0xFFF2F5FA),
       bottomNavigationBar: CustomTabBar(
         currentIndex: _currentIndex,
-        onTap: (int i) => setState(() => _currentIndex = i),
+        isDriver: appState.isDriver,
+        hasNewsByIndex: <int, bool>{
+          0: appState.hasNews(AppNavPage.home),
+          1: appState.isDriver
+              ? appState.hasNews(AppNavPage.reservations)
+              : appState.hasNews(AppNavPage.stats),
+          2: appState.hasNews(AppNavPage.planner),
+          3: appState.hasNews(AppNavPage.messages),
+          4: appState.hasNews(AppNavPage.profile),
+        },
+        onTap: (int i) {
+          setState(() => _currentIndex = i);
+          _clearNewsForIndex(i, appState.isDriver);
+        },
       ),
       body: SafeArea(
         top: true,
@@ -97,8 +133,11 @@ class AppShellState extends ConsumerState<AppShell> {
               children: <Widget>[
                 ShellTopBar(
                   onMenuTap: () => setState(() => _sideNavOpen = !_sideNavOpen),
-                  onBellTap: () => context.push('/notifications'),
-                  unreadCount: 0,
+                  onBellTap: () {
+                    AppStateStore.instance.clearPageNews(AppNavPage.notifications);
+                    context.push('/notifications');
+                  },
+                  unreadCount: appState.hasNews(AppNavPage.notifications) ? 1 : 0,
                 ),
                 _RoleSwitchBar(
                   fullName: fullName.isEmpty ? 'Utilisateur' : fullName,
@@ -108,7 +147,7 @@ class AppShellState extends ConsumerState<AppShell> {
                 if (appState.usingFixtures)
                   _FallbackBanner(message: appState.networkIssue),
                 Expanded(
-                  child: _bodyForIndex(_currentIndex),
+                  child: _bodyForIndex(_currentIndex, appState.isDriver),
                 ),
               ],
             ),
@@ -142,6 +181,13 @@ class AppShellState extends ConsumerState<AppShell> {
                   userEmail: appState.currentUser.email,
                   roleLabel: appState.isDriver ? 'Conducteur' : 'Passager',
                   isDriver: appState.isDriver,
+                  hasNewsReservations: appState.hasNews(AppNavPage.reservations),
+                  hasNewsStatsOrRequests: appState.isDriver
+                      ? appState.hasNews(AppNavPage.reservations)
+                      : appState.hasNews(AppNavPage.stats),
+                  hasNewsPlanner: appState.hasNews(AppNavPage.planner),
+                  hasNewsMessages: appState.hasNews(AppNavPage.messages),
+                  hasNewsProfile: appState.hasNews(AppNavPage.profile),
                   onSwitchRole: () => _switchRole(
                     appState.isDriver
                         ? AppUserMode.passenger
@@ -153,6 +199,7 @@ class AppShellState extends ConsumerState<AppShell> {
                       _currentIndex = i;
                       _sideNavOpen = false;
                     });
+                    _clearNewsForIndex(i, appState.isDriver);
                   },
                 ),
               ),
@@ -250,13 +297,30 @@ class _RoleSwitchBar extends StatelessWidget {
   }
 }
 
-class _FallbackBanner extends StatelessWidget {
+class _FallbackBanner extends StatefulWidget {
   const _FallbackBanner({required this.message});
 
   final String? message;
 
   @override
+  State<_FallbackBanner> createState() => _FallbackBannerState();
+}
+
+class _FallbackBannerState extends State<_FallbackBanner> {
+  bool _visible = true;
+
+  @override
+  void didUpdateWidget(covariant _FallbackBanner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Si le message change, on réaffiche la bannière
+    if (widget.message != oldWidget.message) {
+      setState(() => _visible = true);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (!_visible || (widget.message == null || widget.message!.isEmpty)) return const SizedBox.shrink();
     return Container(
       width: double.infinity,
       color: const Color(0xFFFFF7E6),
@@ -267,13 +331,20 @@ class _FallbackBanner extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              message ??
+              widget.message ??
                   'Mode fixtures actif: affichage des données locales de secours.',
               style: const TextStyle(
                 color: Color(0xFF9A6700),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => setState(() => _visible = false),
+            child: const Padding(
+              padding: EdgeInsets.only(left: 8),
+              child: Icon(Icons.close, size: 18, color: Color(0xFF9A6700)),
             ),
           ),
         ],

@@ -1,3 +1,4 @@
+
 import '../models/trip.dart';
 import 'api_service.dart';
 import '../utils/parsing.dart' as parsing;
@@ -6,6 +7,14 @@ class TripService {
   TripService(this._api);
 
   final ApiService _api;
+
+  Future<void> cancelReservation(String reservationId, {String? reason}) async {
+    try {
+      await _api.post('/api/reservations/$reservationId/cancel', {'reason': reason ?? ''});
+    } catch (e) {
+      // Ne jamais faire crasher l'app, log possible
+    }
+  }
 
   Future<List<Trip>> searchTrips({
     required String from,

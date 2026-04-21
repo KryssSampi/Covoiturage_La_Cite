@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_theme.dart';
 import '../widgets/common_widgets.dart';
 
-// ─── Modèle ────────────────────────────────────────────────────────────────────
 enum ReservationRole { passenger, driver }
 
 class ReservationData {
@@ -42,7 +42,6 @@ class ReservationData {
       role == ReservationRole.driver ? 'Passager' : 'Conducteur';
 }
 
-// ─── Widget ────────────────────────────────────────────────────────────────────
 class ReservationCard extends StatelessWidget {
   const ReservationCard({
     super.key,
@@ -58,8 +57,12 @@ class ReservationCard extends StatelessWidget {
   final VoidCallback? onViewDetails;
 
   bool get _showActions {
-    final s = data.status.toLowerCase();
-    return s == 'confirmed' || s == 'confirmé' || s == 'confirmée' || s == 'pending' || s == 'en attente';
+    if (data.role == ReservationRole.driver) return false;
+    final String s = data.status.toLowerCase();
+    return s == 'confirmed' ||
+        s == 'confirme' ||
+        s == 'pending' ||
+        s == 'en attente';
   }
 
   @override
@@ -76,68 +79,73 @@ class ReservationCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // ── Corps principal ──────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Route + badge
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _RouteRow(
-                              departure: data.departure,
-                              destination: data.destination,
-                            ),
-                          ],
+                        child: _RouteRow(
+                          departure: data.departure,
+                          destination: data.destination,
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      StatusBadge.fromStatus(data.status),
+                      if (data.role != ReservationRole.driver) ...[
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Align(
+                            alignment: Alignment.topRight,
+                            child: StatusBadge.fromStatus(data.status),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 10),
-                  // Date + heure
                   _IconRow(
                     icon: Icons.schedule_rounded,
-                    text: '${data.date} à ${data.time}',
+                    text: '${data.date} a ${data.time}',
                   ),
                   const SizedBox(height: 4),
-                  // Personne
-                  if (data.personName != null) ...[
+                  if (data.personName != null)
                     _PersonRow(
                       initials: data.personInitials ?? data.personName![0],
                       name: data.personName!,
                       roleLabel: data.personRoleLabel,
                       rating: data.personRating,
                     ),
-                  ],
-                  // Prix + places
-                  if (data.price != null || data.seatsInfo != null) ...[
+                  if (data.role != ReservationRole.driver &&
+                      (data.price != null || data.seatsInfo != null)) ...[
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         if (data.price != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.tealLight,
                               borderRadius: AppRadius.full,
                             ),
                             child: Text(
                               '${data.price!.toStringAsFixed(2)} \$',
-                              style: AppText.soraBadge.copyWith(color: AppColors.teal),
+                              style: AppText.soraBadge
+                                  .copyWith(color: AppColors.teal),
                             ),
                           ),
-                        if (data.price != null && data.seatsInfo != null) const SizedBox(width: 8),
+                        if (data.price != null && data.seatsInfo != null)
+                          const SizedBox(width: 8),
                         if (data.seatsInfo != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.blueLight,
                               borderRadius: AppRadius.full,
@@ -145,11 +153,16 @@ class ReservationCard extends StatelessWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.person_rounded, size: 11, color: AppColors.blue),
+                                const Icon(
+                                  Icons.person_rounded,
+                                  size: 11,
+                                  color: AppColors.blue,
+                                ),
                                 const SizedBox(width: 3),
                                 Text(
                                   data.seatsInfo!,
-                                  style: AppText.soraBadge.copyWith(color: AppColors.blue),
+                                  style: AppText.soraBadge
+                                      .copyWith(color: AppColors.blue),
                                 ),
                               ],
                             ),
@@ -160,7 +173,6 @@ class ReservationCard extends StatelessWidget {
                 ],
               ),
             ),
-            // ── Actions ─────────────────────────────────────────────────
             if (_showActions) ...[
               Container(height: 1, color: AppColors.border),
               Padding(
@@ -180,7 +192,7 @@ class ReservationCard extends StatelessWidget {
                     if (onViewDetails != null)
                       Expanded(
                         child: _FilledButton(
-                          label: 'Voir les détails',
+                          label: 'Voir les details',
                           color: AppColors.blue,
                           onTap: onViewDetails,
                         ),
@@ -196,9 +208,9 @@ class ReservationCard extends StatelessWidget {
   }
 }
 
-// ── Sub-widgets ─────────────────────────────────────────────────────────────────
 class _RouteRow extends StatelessWidget {
   const _RouteRow({required this.departure, required this.destination});
+
   final String departure;
   final String destination;
 
@@ -209,11 +221,7 @@ class _RouteRow extends StatelessWidget {
       children: [
         Text(departure, style: AppText.dmSemi14, overflow: TextOverflow.ellipsis),
         const SizedBox(height: 2),
-        Row(
-          children: [
-            Container(width: 1.5, height: 16, color: AppColors.gray200),
-          ],
-        ),
+        Container(width: 1.5, height: 16, color: AppColors.gray200),
         const SizedBox(height: 2),
         Text(destination, style: AppText.dmSemi14, overflow: TextOverflow.ellipsis),
       ],
@@ -223,6 +231,7 @@ class _RouteRow extends StatelessWidget {
 
 class _IconRow extends StatelessWidget {
   const _IconRow({required this.icon, required this.text});
+
   final IconData icon;
   final String text;
 
@@ -245,6 +254,7 @@ class _PersonRow extends StatelessWidget {
     required this.roleLabel,
     this.rating,
   });
+
   final String initials;
   final String name;
   final String roleLabel;
@@ -260,7 +270,7 @@ class _PersonRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name, style: AppText.dmSemi13),
+              Text(name, style: AppText.dmSemi13, overflow: TextOverflow.ellipsis),
               Text(roleLabel, style: AppText.dmBody12),
             ],
           ),
@@ -273,6 +283,7 @@ class _PersonRow extends StatelessWidget {
 
 class _FilledButton extends StatelessWidget {
   const _FilledButton({required this.label, required this.color, this.onTap});
+
   final String label;
   final Color color;
   final VoidCallback? onTap;
@@ -296,6 +307,7 @@ class _FilledButton extends StatelessWidget {
 
 class _OutlineButton extends StatelessWidget {
   const _OutlineButton({required this.label, required this.color, this.onTap});
+
   final String label;
   final Color color;
   final VoidCallback? onTap;
@@ -320,3 +332,4 @@ class _OutlineButton extends StatelessWidget {
     );
   }
 }
+

@@ -8,6 +8,7 @@ import '../../core/app_colors.dart';
 import '../../core/app_text_styles.dart';
 import '../../core/services/api_service.dart';
 import '../../core/services/trip_service.dart';
+import '../../core/state/app_state.dart';
 import '../../shared/widgets/shared_widgets.dart';
 
 // ─── Models ───────────────────────────────────────────────────────────────────
@@ -39,7 +40,12 @@ class _CalendarCell {
 class _UnavailItem {
   final String title;
   final String detail;
-  const _UnavailItem({required this.title, required this.detail});
+  final String? id;
+  const _UnavailItem({
+    required this.title,
+    required this.detail,
+    this.id,
+  });
 }
 
 class _DriverRide {
@@ -62,25 +68,31 @@ class _DriverRide {
     required this.price,
     required this.status,
     this.dateTime,
-    this.pendingRequests = 0,
+    required this.pendingRequests,
   });
 }
 
 class _PassengerRide {
+  final String id;
+  final String tripId;
   final String time;
   final String from;
   final String to;
   final String driverName;
   final double price;
   final _PassengerStatus status;
+  final Map<String, dynamic> tripData;
 
   const _PassengerRide({
+    required this.id,
+    required this.tripId,
     required this.time,
     required this.from,
     required this.to,
     required this.driverName,
     required this.price,
     required this.status,
+    required this.tripData,
   });
 }
 
@@ -96,6 +108,7 @@ class PlannerScreen extends StatefulWidget {
 class _PlannerScreenState extends State<PlannerScreen> {
   final ApiService _api = ApiService.instance;
   final TripService _tripService = TripService(ApiService.instance);
+  bool get _isDriver => AppStateStore.instance.isDriver;
 
   int _selectedDay = DateTime.now().day;
   bool _isViewAll = false;
@@ -107,16 +120,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
   List<_DriverRide> _driverRides = [];
   List<_PassengerRide> _passengerRides = [];
 
-  final _unavailItems = const [
-    _UnavailItem(
-      title: 'Lundi & Jeudi · 08:00 – 12:00',
-      detail: 'Récurrent · Toutes les semaines',
-    ),
-    _UnavailItem(
-      title: '20 avr. 2026 · 07:00 – 23:59',
-      detail: 'Journée spécifique',
-    ),
-  ];
+  List<_UnavailItem> _unavailItems = [];
 
   late List<_CalendarCell> _cells;
 
@@ -125,44 +129,83 @@ class _PlannerScreenState extends State<PlannerScreen> {
     super.initState();
     _buildCells();
     _loadAll();
+    _loadUnavailability();
+  }
+
+  Future<void> _loadUnavailability() async {
+    try {
+      final res = await _api.get('/api/unavailability');
+      final List<dynamic> data = (res is Map && res['data'] is List)
+          ? res['data'] as List
+          : [];
+      if (mounted) {
+        setState(() {
+          _unavailItems = data
+              .map((e) => _UnavailItem(
+                    title: e['title']?.toString() ?? '',
+                    detail: e['detail']?.toString() ?? '',
+                    id: e['id']?.toString(),
+                  ))
+              .toList();
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _unavailItems = []);
+    }
   }
 
   Future<void> _loadAll() async {
     setState(() => _isLoading = true);
     try {
-      final List<Map<String, dynamic>> tripData =
-          await _tripService.getDriverTrips();
-      final dynamic resData = await _api.get('/api/reservations');
-      final List<dynamic> resList = _extractList(resData);
+      List<_DriverRide> driverRides = <_DriverRide>[];
+      List<_PassengerRide> passengerRides = <_PassengerRide>[];
 
-      final List<_PassengerRide> passenger = resList
-          .whereType<Map<String, dynamic>>()
-          .map(_toPassengerRide)
-          .toList();
+      if (_isDriver) {
+        final List<Map<String, dynamic>> tripData =
+            await _tripService.getDriverTrips();
+        driverRides = tripData.map((t) {
+          final DateTime? dt = _parseDate(
+              t['departureTime'] ?? t['departureDateTime'] ?? '');
+          final String timeLabel = dt != null
+              ? '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}'
+              : '';
+          return _DriverRide(
+            id: t['id']?.toString() ?? '',
+            time: timeLabel,
+            from: t['departureLabel']?.toString() ?? '',
+            to: t['arrivalLabel']?.toString() ?? '',
+            passengerLabel:
+                '${((t['totalSeats'] as num?)?.toInt() ?? 0) - ((t['availableSeats'] as num?)?.toInt() ?? 0)}/${(t['totalSeats'] as num?)?.toInt() ?? 0} passagers',
+            price: (t['price'] as num?)?.toDouble() ?? 0,
+            status: _parseDriverStatus(t['status']?.toString() ?? ''),
+            dateTime: dt,
+            pendingRequests: (t['pendingRequests'] as num?)?.toInt() ?? 0,
+          );
+        }).toList();
+      } else {
+        dynamic resData = await _api.get('/api/passenger/reservations-enriched');
+        List<dynamic> resList = _extractList(resData);
+        passengerRides = resList
+            .whereType<Map<String, dynamic>>()
+            .map(_toPassengerRide)
+            .where((ride) => ride.id.isNotEmpty)
+            .toList();
 
-      final List<_DriverRide> driverRides = tripData.map((t) {
-        final DateTime? dt = _parseDate(
-            t['departureTime'] ?? t['departureDateTime'] ?? '');
-        final String timeLabel = dt != null
-            ? '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}'
-            : '';
-        return _DriverRide(
-          id: t['id']?.toString() ?? '',
-          time: timeLabel,
-          from: t['departureLabel']?.toString() ?? '',
-          to: t['arrivalLabel']?.toString() ?? '',
-          passengerLabel:
-              '${((t['totalSeats'] as num?)?.toInt() ?? 0) - ((t['availableSeats'] as num?)?.toInt() ?? 0)}/${(t['totalSeats'] as num?)?.toInt() ?? 0} passagers',
-          price: (t['price'] as num?)?.toDouble() ?? 0,
-          status: _parseDriverStatus(t['status']?.toString() ?? ''),
-          dateTime: dt,
-        );
-      }).toList();
+        if (passengerRides.isEmpty) {
+          resData = await _api.get('/api/reservations');
+          resList = _extractList(resData);
+          passengerRides = resList
+              .whereType<Map<String, dynamic>>()
+              .map(_toPassengerRide)
+              .where((ride) => ride.id.isNotEmpty)
+              .toList();
+        }
+      }
 
       if (!mounted) return;
       setState(() {
         _driverRides = driverRides;
-        _passengerRides = passenger;
+        _passengerRides = passengerRides;
         _isLoading = false;
       });
     } catch (_) {
@@ -171,6 +214,9 @@ class _PlannerScreenState extends State<PlannerScreen> {
   }
 
   _PassengerRide _toPassengerRide(Map<String, dynamic> row) {
+    final Map<String, dynamic> reservation = row['reservation'] is Map<String, dynamic>
+        ? row['reservation'] as Map<String, dynamic>
+        : row;
     final Map<String, dynamic>? trip = row['trip'] is Map<String, dynamic>
         ? row['trip'] as Map<String, dynamic>
         : null;
@@ -179,12 +225,22 @@ class _PlannerScreenState extends State<PlannerScreen> {
             ? row['driver'] as Map<String, dynamic>
             : null;
     final DateTime? departureTime = _toDateTime(
-      trip?['departureTime'] ??
-          trip?['departureDateTime'] ??
+      trip?['departureDateTime'] ??
+          (trip?['departureDate'] != null && trip?['departureTime'] != null
+              ? '${trip?['departureDate']}T${trip?['departureTime']}'
+              : null) ??
+          trip?['departureTime'] ??
           trip?['startTime'],
     );
-    final String status = row['status']?.toString() ?? '';
+    final String status = reservation['status']?.toString() ?? row['status']?.toString() ?? '';
+    final String tripId = _firstNotEmpty([
+      trip?['id']?.toString(),
+      reservation['tripId']?.toString(),
+      row['tripId']?.toString(),
+    ]);
     return _PassengerRide(
+      id: reservation['id']?.toString() ?? row['id']?.toString() ?? '',
+      tripId: tripId,
       time: _fmtTime(departureTime),
       from: _firstNotEmpty([
         trip?['departureLabel'],
@@ -208,6 +264,12 @@ class _PlannerScreenState extends State<PlannerScreen> {
               trip?['pricePerPassenger'] ??
               trip?['price']),
       status: _toPassengerStatus(status),
+      tripData: _buildTripExtra(
+        trip,
+        fallbackTripId: tripId,
+        driver: driver,
+        reservationRow: reservation,
+      ),
     );
   }
 
@@ -363,6 +425,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
                       ),
                       const SectionGap(),
                       _RidesSection(
+                        isDriver: _isDriver,
                         selectedDay: _selectedDay,
                         currentMonth: _currentMonth,
                         currentYear: _currentYear,
@@ -379,6 +442,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
                                 ride.dateTime?.toIso8601String(),
                           },
                         ),
+                        onPassengerRideTap: (ride) {
+                          if (ride.tripId.isEmpty) return;
+                          context.push('/trip/${ride.tripId}', extra: ride.tripData);
+                        },
                         onToggleViewAll: () =>
                             setState(() => _isViewAll = !_isViewAll),
                         onNavigateDay: (delta) => setState(() {
@@ -399,6 +466,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
           _UnavailabilitySheet(
             unavailItems: _unavailItems,
             onClose: () => setState(() => _sheetOpen = false),
+            onReload: _loadUnavailability,
           ),
       ],
     );
@@ -468,6 +536,7 @@ class _ActionBtn extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.labelColor,
+    super.key,
   });
 
   final Color iconBg;
@@ -498,7 +567,7 @@ class _ActionBtn extends StatelessWidget {
               borderRadius: BorderRadius.circular(AppColors.rMd),
               boxShadow: [
                 BoxShadow(
-                  color: iconBg.withValues(alpha: 0.35),
+                  color: iconBg.withOpacity(0.35),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 )
@@ -742,6 +811,7 @@ class _CalArrow extends StatelessWidget {
 
 class _RidesSection extends StatelessWidget {
   const _RidesSection({
+    required this.isDriver,
     required this.selectedDay,
     required this.currentMonth,
     required this.currentYear,
@@ -749,10 +819,12 @@ class _RidesSection extends StatelessWidget {
     required this.driverRides,
     required this.passengerRides,
     required this.onTripTap,
+    required this.onPassengerRideTap,
     required this.onToggleViewAll,
     required this.onNavigateDay,
   });
 
+  final bool isDriver;
   final int selectedDay;
   final int currentMonth;
   final int currentYear;
@@ -760,6 +832,7 @@ class _RidesSection extends StatelessWidget {
   final List<_DriverRide> driverRides;
   final List<_PassengerRide> passengerRides;
   final ValueChanged<_DriverRide> onTripTap;
+  final ValueChanged<_PassengerRide> onPassengerRideTap;
   final VoidCallback onToggleViewAll;
   final void Function(int delta) onNavigateDay;
 
@@ -784,27 +857,60 @@ class _RidesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<_DriverRide> visibleDriverRides =
+        isDriver ? driverRides : <_DriverRide>[];
+    final List<_PassengerRide> visiblePassengerRides =
+        isDriver ? <_PassengerRide>[] : passengerRides;
+
     return Container(
       color: AppColors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isViewAll)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 11, 12, 10),
-              child: Row(
-                children: [
-                  _navArrow(Icons.chevron_left, () => onNavigateDay(-1)),
-                  Expanded(
-                    child: Text(
-                      _dayLabel,
-                      style: AppTextStyles.soraSubtitle(),
-                      textAlign: TextAlign.center,
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 11, 12, 0),
+                  child: Row(
+                    children: [
+                      _navArrow(Icons.chevron_left, () => onNavigateDay(-1)),
+                      Expanded(
+                        child: Text(
+                          _dayLabel,
+                          style: AppTextStyles.soraSubtitle(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      _navArrow(Icons.chevron_right, () => onNavigateDay(1)),
+                    ],
+                  ),
+                ),
+                // Bouton Voir tout centré sous la date
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 4),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: GestureDetector(
+                      onTap: onToggleViewAll,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                        decoration: BoxDecoration(
+                          color: isViewAll ? AppColors.blueDeep : AppColors.blueLight,
+                          borderRadius: BorderRadius.circular(AppColors.rFull),
+                        ),
+                        child: Text(
+                          isViewAll ? 'Fermer' : 'Voir tout',
+                          style: AppTextStyles.soraBadge(
+                                  color: isViewAll ? Colors.white : AppColors.blue)
+                              .copyWith(fontSize: 13),
+                        ),
+                      ),
                     ),
                   ),
-                  _navArrow(Icons.chevron_right, () => onNavigateDay(1)),
-                ],
-              ),
+                ),
+              ],
             )
           else
             Padding(
@@ -828,29 +934,6 @@ class _RidesSection extends StatelessWidget {
                     label: 'En attente',
                     bg: AppColors.amberLight,
                     fg: AppColors.amber),
-                const Spacer(),
-                GestureDetector(
-                  onTap: onToggleViewAll,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: isViewAll
-                          ? AppColors.blueDeep
-                          : AppColors.blueLight,
-                      borderRadius: BorderRadius.circular(AppColors.rFull),
-                    ),
-                    child: Text(
-                      isViewAll ? 'Fermer' : 'Voir tout',
-                      style: AppTextStyles.soraBadge(
-                              color: isViewAll
-                                  ? Colors.white
-                                  : AppColors.blue)
-                          .copyWith(fontSize: 11),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -859,20 +942,25 @@ class _RidesSection extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
             child: Column(
               children: [
-                ...driverRides.map((r) => Padding(
+                ...visibleDriverRides.map((r) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: _DriverRideCard(ride: r, onTap: () => onTripTap(r)),
                     )),
-                ...passengerRides.map((r) => Padding(
+                ...visiblePassengerRides.map((r) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: _PassengerRideCard(ride: r),
+                      child: _PassengerRideCard(
+                        ride: r,
+                        onTap: () => onPassengerRideTap(r),
+                      ),
                     )),
-                if (driverRides.isEmpty && passengerRides.isEmpty)
+                if (visibleDriverRides.isEmpty && visiblePassengerRides.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Center(
                       child: Text(
-                        'Aucun trajet ce jour',
+                        isDriver
+                            ? 'Aucun trajet ce jour'
+                            : 'Aucune reservation ce jour',
                         style: AppTextStyles.body(
                             size: 14, color: AppColors.text3),
                       ),
@@ -905,16 +993,25 @@ class _RidesSection extends StatelessWidget {
 // ─── Driver Ride Card ─────────────────────────────────────────────────────────
 
 class _DriverRideCard extends StatelessWidget {
-  const _DriverRideCard({required this.ride, this.onTap});
   final _DriverRide ride;
   final VoidCallback? onTap;
+  const _DriverRideCard({
+    required this.ride,
+    this.onTap,
+    super.key,
+  });
 
   (String, Color, Color) get _statusStyle => switch (ride.status) {
-        _DriverStatus.published => ('Publiée', AppColors.tealLight, AppColors.teal),
-        _DriverStatus.confirmed => ('Confirmée', AppColors.tealLight, AppColors.teal),
-        _DriverStatus.inProgress => ('En cours', AppColors.redLight, AppColors.red),
-        _DriverStatus.cancelled => ('Annulée', AppColors.amberLight, AppColors.amber),
-        _DriverStatus.completed => ('Terminée', AppColors.gray100, AppColors.gray600),
+        _DriverStatus.published =>
+          ('Publié', AppColors.amberLight, AppColors.amber),
+        _DriverStatus.confirmed =>
+          ('Confirmé', AppColors.tealLight, AppColors.teal),
+        _DriverStatus.inProgress =>
+          ('En cours', AppColors.blueLight, AppColors.blue),
+        _DriverStatus.cancelled =>
+          ('Annulé', AppColors.redLight, AppColors.redMid),
+        _DriverStatus.completed =>
+          ('Terminé', AppColors.gray100, AppColors.gray600),
       };
 
   @override
@@ -922,130 +1019,73 @@ class _DriverRideCard extends StatelessWidget {
     final (statusLabel, statusBg, statusFg) = _statusStyle;
     return GestureDetector(
       onTap: onTap,
-      child: AppCard(
-        shadows: AppColors.shSm,
-        radius: AppColors.rLg,
-        padding: EdgeInsets.zero,
-        child: Column(
+      child: Card(
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 11, 12, 9),
-              child: Row(
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.blueLight,
+                borderRadius: BorderRadius.circular(AppColors.rSm),
+              ),
+              child: const Icon(Icons.directions_car,
+                  size: 32, color: AppColors.blue),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(ride.time, style: AppTextStyles.soraSubtitle()),
+                  const SizedBox(height: 2),
+                  RouteMiniRow(from: ride.from, to: ride.to, fontSize: 12),
+                  const SizedBox(height: 4),
                   Container(
-                    width: 52,
-                    height: 52,
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [AppColors.blueLight, Color(0xFFC8D9F8)],
-                      ),
-                      borderRadius: BorderRadius.circular(AppColors.rMd),
+                      color: AppColors.blueLight,
+                      borderRadius: BorderRadius.circular(AppColors.rFull),
                     ),
-                    child: const Icon(Icons.directions_car,
-                        size: 32, color: AppColors.blue),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(ride.time,
-                            style: AppTextStyles.soraSubtitle()),
-                        const SizedBox(height: 2),
-                        RouteMiniRow(
-                            from: ride.from, to: ride.to, fontSize: 12),
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.blueLight,
-                            borderRadius:
-                                BorderRadius.circular(AppColors.rFull),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.person,
-                                  size: 10, color: AppColors.blue),
-                              const SizedBox(width: 3),
-                              Text(ride.passengerLabel,
-                                  style: AppTextStyles.soraBadge()
-                                      .copyWith(fontSize: 11)),
-                            ],
-                          ),
-                        ),
+                        const Icon(Icons.person, size: 10, color: AppColors.blue),
+                        const SizedBox(width: 3),
+                        Text(ride.passengerLabel,
+                            style: AppTextStyles.soraBadge().copyWith(fontSize: 11)),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      StatusPill(
-                          label: statusLabel, bg: statusBg, fg: statusFg),
-                      const SizedBox(height: 5),
-                      Text(
-                          '${ride.price.toStringAsFixed(0)} CAD',
-                          style: AppTextStyles.soraSemibold(
-                              size: 13, color: AppColors.blue)),
-                    ],
                   ),
                 ],
               ),
             ),
-            const AppDivider(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 7, 12, 10),
-              child: Row(
-                children: [
-                  if (ride.pendingRequests > 0) ...[
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                          color: AppColors.amberMid,
-                          shape: BoxShape.circle),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      '${ride.pendingRequests} demande(s) en attente',
-                      style: AppTextStyles.soraSemibold(
-                          size: 12, color: AppColors.amberMid),
-                    ),
-                  ] else
-                    const Spacer(),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 11, vertical: 5),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: AppColors.redMid, width: 1.5),
-                      borderRadius:
-                          BorderRadius.circular(AppColors.rFull),
-                    ),
-                    child: Text('Annuler',
-                        style: AppTextStyles.button(
-                                color: AppColors.redMid)
-                            .copyWith(fontSize: 11.5)),
-                  ),
-                ],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                StatusPill(label: statusLabel, bg: statusBg, fg: statusFg),
+                const SizedBox(height: 5),
+                Text('${ride.price.toStringAsFixed(0)} CAD',
+                    style: AppTextStyles.soraSemibold(size: 13, color: AppColors.blue)),
+              ],
             ),
           ],
         ),
       ),
-    );
+    ));
   }
 }
 
 // ─── Passenger Ride Card ──────────────────────────────────────────────────────
 
 class _PassengerRideCard extends StatelessWidget {
-  const _PassengerRideCard({required this.ride});
+  const _PassengerRideCard({required this.ride, this.onTap});
   final _PassengerRide ride;
+  final VoidCallback? onTap;
 
   (String, Color, Color) get _statusStyle => switch (ride.status) {
         _PassengerStatus.confirmed =>
@@ -1068,56 +1108,65 @@ class _PassengerRideCard extends StatelessWidget {
         .take(2)
         .join();
 
-    return AppCard(
-      shadows: AppColors.shSm,
-      radius: AppColors.rLg,
-      padding: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
-        child: Row(
-          children: [
-            AvatarInitials(
-                initials: initials,
-                bg: AppColors.blueLight,
-                fg: AppColors.blue,
-                size: 44),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: onTap,
+      child: AppCard(
+        shadows: AppColors.shSm,
+        radius: AppColors.rLg,
+        padding: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
+          child: Row(
+            children: [
+              AvatarInitials(
+                  initials: initials,
+                  bg: AppColors.blueLight,
+                  fg: AppColors.blue,
+                  size: 44),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(ride.time,
+                        style: AppTextStyles.soraSemibold(size: 13)),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Text('Avec : ',
+                            style: AppTextStyles.body(
+                                size: 13, color: AppColors.text2)),
+                        Expanded(
+                          child: Text(
+                            ride.driverName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.soraSemibold(
+                                size: 13, color: AppColors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    RouteMiniRow(
+                        from: ride.from, to: ride.to, fontSize: 12),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 6),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(ride.time,
-                      style:
-                          AppTextStyles.soraSemibold(size: 13)),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Text('Avec : ',
-                          style: AppTextStyles.body(
-                              size: 13, color: AppColors.text2)),
-                      Text(ride.driverName,
-                          style: AppTextStyles.soraSemibold(
-                              size: 13, color: AppColors.blue)),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  RouteMiniRow(
-                      from: ride.from, to: ride.to, fontSize: 12),
+                  StatusPill(
+                      label: statusLabel, bg: statusBg, fg: statusFg),
+                  const SizedBox(height: 5),
+                  Text('${ride.price.toStringAsFixed(0)} CAD',
+                      style: AppTextStyles.soraSemibold(
+                          size: 14, color: AppColors.blue)),
                 ],
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                StatusPill(
-                    label: statusLabel, bg: statusBg, fg: statusFg),
-                const SizedBox(height: 5),
-                Text('${ride.price.toStringAsFixed(0)} CAD',
-                    style: AppTextStyles.soraSemibold(
-                        size: 14, color: AppColors.blue)),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1130,10 +1179,12 @@ class _UnavailabilitySheet extends StatefulWidget {
   const _UnavailabilitySheet({
     required this.unavailItems,
     required this.onClose,
+    required this.onReload,
   });
 
   final List<_UnavailItem> unavailItems;
   final VoidCallback onClose;
+  final Future<void> Function() onReload;
 
   @override
   State<_UnavailabilitySheet> createState() =>
@@ -1142,6 +1193,8 @@ class _UnavailabilitySheet extends StatefulWidget {
 
 class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
     with SingleTickerProviderStateMixin {
+  final ApiService _api = ApiService.instance;
+  bool _isSaving = false;
   late AnimationController _ctrl;
   late Animation<Offset> _slideAnim;
   late Animation<double> _fadeAnim;
@@ -1165,6 +1218,42 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
     _fadeAnim = Tween<double>(begin: 0, end: 1)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
     _ctrl.forward();
+  }
+
+Future<void> _saveUnavailability() async {
+    setState(() => _isSaving = true);
+
+    final String startTime = '08:00'; // TODO: from form controller
+    final String endTime = '12:00'; // TODO: from form controller
+    final String? dateStr = null; // TODO: from date picker
+
+    final Map<String, dynamic> body = {
+      'title': _isRecurrent
+          ? 'Récurrent: ${_selectedDays.map((i) => _dayLabels[i]).join(', ')} · $startTime – $endTime'
+          : 'Indispo $startTime – $endTime',
+      'detail': _isRecurrent ? 'Récurrent · Toutes les semaines' : 'Journée spécifique',
+      'startTime': startTime,
+      'endTime': endTime,
+      'date': dateStr,
+      'isRecurrent': _isRecurrent,
+      'days': _isRecurrent ? _selectedDays.toList() : null,
+    };
+
+    try {
+      await _api.post('/api/unavailability', body);
+      // Reload list after add
+      await widget.onReload();
+      if (mounted) await _close();
+    } catch (_) {
+      setState(() => _isSaving = false);
+    }
+  }
+
+  Future<void> _deleteUnavailability(String id) async {
+    try {
+      await _api.post('/api/unavailability/$id/delete', {});
+      if (mounted) widget.onClose();
+    } catch (_) {}
   }
 
   @override
@@ -1437,9 +1526,10 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                                           style: AppTextStyles.soraSemibold(
                                               size: 13)),
                                       const SizedBox(height: 10),
-                                      ...widget.unavailItems.map(
-                                          (item) =>
-                                              _UnavailItemRow(item: item)),
+                                      ...widget.unavailItems.map((item) => _UnavailItemRow(
+                                        item: item,
+                                        onDelete: () => _deleteUnavailability(item.id ?? ''),
+                                      )),
                                     ],
                                   ),
                                 ),
@@ -1476,22 +1566,32 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
                             const SizedBox(width: 10),
                             Expanded(
                               flex: 2,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 13),
-                                decoration: BoxDecoration(
-                                  color: AppColors.teal,
-                                  borderRadius: BorderRadius.circular(
-                                      AppColors.rMd),
+                              child: GestureDetector(
+                                onTap: _isSaving ? null : _saveUnavailability,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 13),
+                                  decoration: BoxDecoration(
+                                    color: _isSaving ? AppColors.gray200 : AppColors.teal,
+                                    borderRadius: BorderRadius.circular(
+                                        AppColors.rMd),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: _isSaving
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white),
+                                        )
+                                      : Text('Confirmer',
+                                          style: AppTextStyles.soraH3(
+                                                  color: Colors.white)
+                                              .copyWith(fontSize: 14)),
                                 ),
-                                alignment: Alignment.center,
-                                child: Text('Confirmer',
-                                    style: AppTextStyles.soraH3(
-                                            color: Colors.white)
-                                        .copyWith(fontSize: 14)),
                               ),
-                            ),
-                          ],
+                        )],
                         ),
                       ),
                       SizedBox(
@@ -1535,8 +1635,9 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
 }
 
 class _UnavailItemRow extends StatelessWidget {
-  const _UnavailItemRow({required this.item});
+  const _UnavailItemRow({required this.item, this.onDelete});
   final _UnavailItem item;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -1570,7 +1671,10 @@ class _UnavailItemRow extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.close, size: 18, color: AppColors.gray400),
+            GestureDetector(
+              onTap: onDelete,
+              child: const Icon(Icons.close, size: 18, color: AppColors.gray400),
+            ),
           ],
         ),
       );
@@ -1620,6 +1724,44 @@ String _fullName({
 }) {
   final String full = '${firstName ?? ''} ${lastName ?? ''}'.trim();
   return full.isEmpty ? fallback : full;
+}
+
+Map<String, dynamic> _buildTripExtra(
+  Map<String, dynamic>? trip, {
+  String? fallbackTripId,
+  Map<String, dynamic>? driver,
+  Map<String, dynamic>? reservationRow,
+}) {
+  final Map<String, dynamic> base =
+      <String, dynamic>{...(trip ?? const <String, dynamic>{})};
+
+  if ((base['id']?.toString().isNotEmpty ?? false) == false &&
+      (fallbackTripId?.isNotEmpty ?? false)) {
+    base['id'] = fallbackTripId;
+  }
+
+  if (driver != null && driver.isNotEmpty) {
+    base['driver'] = <String, dynamic>{
+      ..._asMap(base['driver']),
+      ...driver,
+    };
+  }
+
+  if (reservationRow != null && reservationRow['status'] != null) {
+    base.putIfAbsent('reservationStatus', () => reservationRow['status']);
+  }
+
+  return base;
+}
+
+Map<String, dynamic> _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) {
+    return value.map(
+      (dynamic key, dynamic val) => MapEntry(key.toString(), val),
+    );
+  }
+  return <String, dynamic>{};
 }
 
 String _fmtTime(DateTime? dt) {

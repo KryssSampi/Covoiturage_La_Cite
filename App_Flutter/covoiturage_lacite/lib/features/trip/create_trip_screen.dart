@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../core/app_colors.dart';
 import '../../core/services/api_service.dart';
 
 // ─────────────────────────────────────────────────────────────
@@ -24,14 +23,13 @@ class _TripPreferences {
   bool flexibleItinerary;
   String? driverNote;
 
-  _TripPreferences({
-    this.baggageAllowed = false,
-    this.petsAllowed = false,
-    this.smokingAllowed = false,
-    this.musicAllowed = false,
-    this.flexibleItinerary = false,
-    this.driverNote,
-  });
+  _TripPreferences()
+      : baggageAllowed = false,
+        petsAllowed = false,
+        smokingAllowed = false,
+        musicAllowed = false,
+        flexibleItinerary = false,
+        driverNote = null;
 }
 
 class _Vehicle {
@@ -434,37 +432,81 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             title: 'Date et heure de départ',
             icon: Icons.calendar_today_outlined,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _fieldLabel('Date'),
-                        _tapField(
-                          value:
-                              '${_departureDate.day}/${_departureDate.month}/${_departureDate.year}',
-                          icon: Icons.calendar_today,
-                          onTap: _pickDate,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _fieldLabel('Heure'),
-                        _tapField(
-                          value: _departureTime.format(context),
-                          icon: Icons.access_time,
-                          onTap: _pickTime,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isSmall = constraints.maxWidth < 350;
+                  return isSmall
+                      ? Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _fieldLabel('Date'),
+                                      _tapField(
+                                        value: '${_departureDate.day}/${_departureDate.month}/${_departureDate.year}',
+                                        icon: Icons.calendar_today,
+                                        onTap: _pickDate,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _fieldLabel('Heure'),
+                                      _tapField(
+                                        value: _departureTime.format(context),
+                                        icon: Icons.access_time,
+                                        onTap: _pickTime,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _fieldLabel('Date'),
+                                  _tapField(
+                                    value: '${_departureDate.day}/${_departureDate.month}/${_departureDate.year}',
+                                    icon: Icons.calendar_today,
+                                    onTap: _pickDate,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _fieldLabel('Heure'),
+                                  _tapField(
+                                    value: _departureTime.format(context),
+                                    icon: Icons.access_time,
+                                    onTap: _pickTime,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                },
               ),
             ],
           ),
