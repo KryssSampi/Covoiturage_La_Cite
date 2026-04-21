@@ -23,6 +23,7 @@ class AppFixtures {
   static late List<Map<String, dynamic>> _notifications;
   static late Map<String, dynamic> _favorites;
   static late Map<String, dynamic> _reviews;
+  static late List<Map<String, dynamic>> _submittedReviews;
   static late Map<String, dynamic> _stats;
   static late Map<String, dynamic> _finances;
   static late List<Map<String, dynamic>> _goboard;
@@ -47,6 +48,47 @@ class AppFixtures {
     required bool isDriver,
   }) {
     _ensureReady();
+
+    if (path == '/api/locations/suggestions') {
+      final String query = params?['q']?.toString().trim() ?? '';
+      final int limit =
+          (_toInt(params?['limit'], fallback: 5).clamp(1, 10)) as int;
+      return <String, dynamic>{
+        'suggestions': _locationSuggestions(query).take(limit).toList(),
+      };
+    }
+
+    if (path.startsWith('/api/trajet-en-cours/')) {
+      final String tripId = path.replaceFirst('/api/trajet-en-cours/', '');
+      if (tripId.isNotEmpty) {
+        final Map<String, dynamic>? payload = _buildTrajetEnCoursPayload(
+          tripId: tripId,
+          isDriver: isDriver,
+        );
+        if (payload != null) {
+          return <String, dynamic>{'success': true, 'data': payload};
+        }
+      }
+    }
+
+    if (path.startsWith('/api/trips/') && path.endsWith('/positions')) {
+      final List<String> parts = path.split('/');
+      if (parts.length >= 5) {
+        final String tripId = parts[3];
+        final Map<String, dynamic>? payload = _buildTrajetEnCoursPayload(
+          tripId: tripId,
+          isDriver: isDriver,
+        );
+        if (payload != null && payload['driverPosition'] is Map<String, dynamic>) {
+          return <String, dynamic>{
+            'success': true,
+            'data': <String, dynamic>{
+              'driverPosition': payload['driverPosition'],
+            },
+          };
+        }
+      }
+    }
 
     // Unavailability fixtures (GET, PATCH, POST, DELETE)
     if (path == '/api/unavailability') {
@@ -207,6 +249,22 @@ class AppFixtures {
       };
     }
 
+    if (path == '/api/reviews') {
+      final String tripId = params?['tripId']?.toString() ?? '';
+      final String reviewerId = params?['reviewerId']?.toString() ?? '';
+      final List<Map<String, dynamic>> filtered = _submittedReviews
+          .where((Map<String, dynamic> row) {
+            final bool tripMatch =
+                tripId.isEmpty || row['tripId']?.toString() == tripId;
+            final bool reviewerMatch = reviewerId.isEmpty ||
+                row['reviewerId']?.toString() == reviewerId;
+            return tripMatch && reviewerMatch;
+          })
+          .map(_cloneMap)
+          .toList();
+      return <String, dynamic>{'success': true, 'data': filtered};
+    }
+
     if (path == '/api/goboard/rankings') {
       return <String, dynamic>{
         'success': true,
@@ -342,6 +400,28 @@ class AppFixtures {
     required bool isDriver,
   }) {
     _ensureReady();
+
+    if (path == '/api/reviews') {
+      final Map<String, dynamic> payload =
+          body is Map<String, dynamic> ? _cloneMap(body) : <String, dynamic>{};
+      if (payload.isNotEmpty) {
+        payload['id'] =
+            payload['id']?.toString() ?? 'review_${DateTime.now().millisecondsSinceEpoch}';
+        payload['createdAt'] =
+            DateTime.now().toUtc().toIso8601String();
+        _submittedReviews.add(payload);
+      }
+      return <String, dynamic>{'success': true, 'data': payload};
+    }
+
+    if (path.startsWith('/api/trips/') && path.endsWith('/cancel')) {
+      final List<String> parts = path.split('/');
+      if (parts.length >= 5) {
+        final String tripId = parts[3];
+        _updateTripStatus(tripId, 'cancelled');
+      }
+      return <String, dynamic>{'success': true};
+    }
 
     if (path == '/api/reservations') {
       final String tripId =
@@ -547,6 +627,15 @@ class AppFixtures {
   }) {
     _ensureReady();
 
+    if (path.startsWith('/api/trips/') && path.endsWith('/complete')) {
+      final List<String> parts = path.split('/');
+      if (parts.length >= 5) {
+        final String tripId = parts[3];
+        _updateTripStatus(tripId, 'completed');
+      }
+      return <String, dynamic>{'success': true};
+    }
+
     if (path == '/api/notifications/read-all') {
       for (final Map<String, dynamic> item in _notifications) {
         item['isRead'] = true;
@@ -614,6 +703,246 @@ class AppFixtures {
         }
       }
     }
+  }
+
+  static void _updateTripStatus(String tripId, String status) {
+    void applyStatus(Map<String, dynamic> row) {
+      if (row['id']?.toString() != tripId) return;
+      final dynamic previousStatus = row['status'];
+      row['tripStatus'] = status;
+      row['status'] = status;
+      if (previousStatus is Map<String, dynamic>) {
+        final Map<String, dynamic> current =
+            previousStatus;
+        row['status'] = <String, dynamic>{...current, 'tripStatus': status};
+      }
+    }
+
+    for (final Map<String, dynamic> row in _publishedTrips) {
+      applyStatus(row);
+    }
+    for (final Map<String, dynamic> row in _driverTrips) {
+      applyStatus(row);
+    }
+    for (final Map<String, dynamic> row in _passengerTrips) {
+      applyStatus(row);
+    }
+    for (final Map<String, dynamic> row in _draftTrips) {
+      applyStatus(row);
+    }
+    for (final Map<String, dynamic> row in _historyTrips) {
+      applyStatus(row);
+    }
+    for (final Map<String, dynamic> row in _passengerReservations) {
+      final Map<String, dynamic>? trip =
+          row['trip'] is Map<String, dynamic> ? row['trip'] as Map<String, dynamic> : null;
+      if (trip != null && trip['id']?.toString() == tripId) {
+        trip['status'] = status;
+        row['status'] = status;
+      }
+    }
+  }
+
+  static List<Map<String, dynamic>> _locationSuggestions(String query) {
+    final String q = query.trim().toLowerCase();
+    if (q.length < 3) return <Map<String, dynamic>>[];
+
+    final List<Map<String, dynamic>> catalog = <Map<String, dynamic>>[
+      <String, dynamic>{
+        'label': 'Campus La Cite, Ottawa',
+        'coordinates': <double>[-75.6699, 45.4215],
+      },
+      <String, dynamic>{
+        'label': 'Place d\'Orleans, Ottawa',
+        'coordinates': <double>[-75.5242, 45.4786],
+      },
+      <String, dynamic>{
+        'label': 'Hurdman, Ottawa',
+        'coordinates': <double>[-75.6673, 45.4128],
+      },
+      <String, dynamic>{
+        'label': 'Gatineau Centre, Gatineau',
+        'coordinates': <double>[-75.7014, 45.4765],
+      },
+      <String, dynamic>{
+        'label': 'Barrhaven Town Centre, Ottawa',
+        'coordinates': <double>[-75.7380, 45.2792],
+      },
+    ];
+
+    final List<Map<String, dynamic>> filtered = catalog
+        .where((Map<String, dynamic> row) =>
+            row['label']?.toString().toLowerCase().contains(q) ?? false)
+        .toList();
+    return filtered.isEmpty ? catalog.take(3).toList() : filtered;
+  }
+
+  static Map<String, dynamic>? _buildTrajetEnCoursPayload({
+    required String tripId,
+    required bool isDriver,
+  }) {
+    Map<String, dynamic>? trip = _findTripById(tripId);
+    trip ??= _firstInProgressTrip();
+    if (trip == null) return null;
+
+    final String id = trip['id']?.toString() ?? tripId;
+    final Map<String, dynamic> driver =
+        trip['driver'] is Map<String, dynamic>
+            ? _cloneMap(trip['driver'] as Map<String, dynamic>)
+            : _driverPreview(_driverUser);
+
+    final List<List<double>> points = _extractRoutePoints(trip);
+    final List<double> departure =
+        points.isNotEmpty ? points.first : <double>[45.4215, -75.6699];
+    final List<double> arrival =
+        points.length > 1 ? points.last : <double>[45.4786, -75.5242];
+    final int segmentCount = points.length;
+    final int progressIdx = segmentCount <= 1
+        ? 0
+        : ((DateTime.now().second % (segmentCount - 1))
+            .clamp(0, segmentCount - 1)) as int;
+    final List<double> current = points.isEmpty ? departure : points[progressIdx];
+
+    final String departureIso =
+        trip['departureTime']?.toString() ?? DateTime.now().toUtc().toIso8601String();
+    final DateTime departureDt = DateTime.tryParse(departureIso)?.toLocal() ?? DateTime.now();
+
+    final String status = _tripStatusLabel(trip);
+    final int totalSeats = _toInt(trip['totalSeats'], fallback: 4);
+    final int availableSeats = _toInt(trip['availableSeats'], fallback: 2);
+    final int currentPassengers =
+        ((totalSeats - availableSeats).clamp(0, totalSeats)) as int;
+
+    final List<Map<String, dynamic>> passengers = <Map<String, dynamic>>[
+      <String, dynamic>{
+        'userId': _passengerUser['id'],
+        'firstName': _passengerUser['firstName'],
+        'lastName': _passengerUser['lastName'],
+        'reservationId': 'res_live_$id',
+        'reservationStatus': 'confirmed',
+      },
+    ];
+
+    return <String, dynamic>{
+      'trip': <String, dynamic>{
+        'id': id,
+        'driverId': driver['id']?.toString() ?? _driverUser['id'],
+        'vehicleId': 'veh_fixture_1',
+        'departureLabel': trip['departureLabel']?.toString() ?? 'Depart',
+        'departureAddress':
+            trip['departureAddress']?.toString() ?? trip['departureLabel']?.toString() ?? 'Depart',
+        'departureLat': departure[0],
+        'departureLng': departure[1],
+        'arrivalLabel': trip['arrivalLabel']?.toString() ?? 'Destination',
+        'arrivalAddress':
+            trip['arrivalAddress']?.toString() ?? trip['arrivalLabel']?.toString() ?? 'Destination',
+        'arrivalLat': arrival[0],
+        'arrivalLng': arrival[1],
+        'departureDate':
+            '${departureDt.year.toString().padLeft(4, '0')}-${departureDt.month.toString().padLeft(2, '0')}-${departureDt.day.toString().padLeft(2, '0')}',
+        'departureTime':
+            '${departureDt.hour.toString().padLeft(2, '0')}:${departureDt.minute.toString().padLeft(2, '0')}:00',
+        'estimatedDurationMinutes': _toInt(trip['estimatedDurationMin'], fallback: 28),
+        'estimatedDistanceKm': _toDouble(trip['estimatedDistanceKm'], fallback: 11.8),
+        'maxPassengers': totalSeats,
+        'currentPassengers': currentPassengers,
+        'pricePerPassenger': _toDouble(trip['pricePerPassenger'], fallback: 7.5),
+        'paymentMethod': trip['paymentMethod']?.toString() ?? 'cash',
+        'tripType': 'unique',
+        'status': status,
+        'baggageAllowed': true,
+        'petsAllowed': false,
+        'smokingAllowed': false,
+        'musicAllowed': true,
+        'polyline': jsonEncode(points),
+        'createdAt': departureDt.toUtc().toIso8601String(),
+        'updatedAt': DateTime.now().toUtc().toIso8601String(),
+        'driver': <String, dynamic>{
+          'id': driver['id']?.toString() ?? _driverUser['id'],
+          'firstName': driver['firstName']?.toString() ?? _driverUser['firstName'],
+          'lastName': driver['lastName']?.toString() ?? _driverUser['lastName'],
+          'averageRating': _toDouble(
+            driver['rating'] ?? driver['averageRating'],
+            fallback: 4.8,
+          ),
+          'goScore': _toInt(_driverUser['stats']?['goScore'], fallback: 642),
+          'isProfileVerified': true,
+        },
+        'vehicle': <String, dynamic>{
+          'id': 'veh_fixture_1',
+          'make': 'Toyota',
+          'model': 'Corolla',
+          'year': 2020,
+          'color': 'Bleu nuit',
+          'licensePlate': 'ABC-1234',
+          'capacity': totalSeats,
+        },
+      },
+      'passengers': isDriver ? passengers : <Map<String, dynamic>>[],
+      'driverPosition': <String, dynamic>{
+        'lat': current[0],
+        'lng': current[1],
+        'updatedAt': DateTime.now().toUtc().toIso8601String(),
+      },
+    };
+  }
+
+  static Map<String, dynamic>? _firstInProgressTrip() {
+    for (final Map<String, dynamic> row in <Map<String, dynamic>>[
+      ..._driverTrips,
+      ..._publishedTrips,
+      ..._passengerTrips,
+    ]) {
+      final String status = _tripStatusLabel(row);
+      if (status == 'in_progress' || status == 'imminent') {
+        return _cloneMap(row);
+      }
+    }
+    if (_driverTrips.isNotEmpty) return _cloneMap(_driverTrips.first);
+    if (_publishedTrips.isNotEmpty) return _cloneMap(_publishedTrips.first);
+    return null;
+  }
+
+  static List<List<double>> _extractRoutePoints(Map<String, dynamic> trip) {
+    final dynamic waypoints = trip['waypoints'] ?? trip['polyline'] ?? trip['routePolyline'];
+    if (waypoints is List) {
+      final List<List<double>> points = waypoints
+          .whereType<dynamic>()
+          .map<List<double>?>((dynamic row) {
+            if (row is List && row.length >= 2) {
+              return <double>[
+                _toDouble(row[0]),
+                _toDouble(row[1]),
+              ];
+            }
+            if (row is Map<String, dynamic>) {
+              return <double>[
+                _toDouble(row['lat'] ?? row['latitude']),
+                _toDouble(row['lng'] ?? row['lon'] ?? row['longitude']),
+              ];
+            }
+            return null;
+          })
+          .whereType<List<double>>()
+          .where((List<double> row) =>
+              row[0] != 0 || row[1] != 0)
+          .toList();
+      if (points.isNotEmpty) return points;
+    }
+    return <List<double>>[
+      <double>[45.4215, -75.6699],
+      <double>[45.4400, -75.6200],
+      <double>[45.4580, -75.5800],
+      <double>[45.4786, -75.5242],
+    ];
+  }
+
+  static String _tripStatusLabel(Map<String, dynamic> row) {
+    final dynamic status = row['tripStatus'] ?? row['status'];
+    if (status is Map<String, dynamic>) {
+      return status['tripStatus']?.toString() ?? 'in_progress';
+    }
+    return status?.toString().toLowerCase() ?? 'in_progress';
   }
 
   static void _touchThread({
@@ -1408,6 +1737,19 @@ class AppFixtures {
         },
       ],
     };
+
+    _submittedReviews = <Map<String, dynamic>>[
+      <String, dynamic>{
+        'id': 'review_seed_1',
+        'tripId': 'trip_202',
+        'reviewerId': _passengerUser['id'],
+        'revieweeId': _driverUser['id'],
+        'revieweeRole': 'driver',
+        'rating': 5,
+        'comment': 'Trajet fluide et ponctuel.',
+        'createdAt': DateTime.now().toUtc().toIso8601String(),
+      },
+    ];
 
     _stats = <String, dynamic>{
       'goScore': 642,

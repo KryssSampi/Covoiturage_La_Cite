@@ -17,12 +17,22 @@ class SearchScreen extends StatefulWidget {
     required this.tripService,
     this.initialFrom,
     this.initialTo,
+    this.initialFromLat,
+    this.initialFromLng,
+    this.initialToLat,
+    this.initialToLng,
+    this.autoSearchOnInit = false,
     this.isDriver = false,
   });
 
   final TripService tripService;
   final String? initialFrom;
   final String? initialTo;
+  final double? initialFromLat;
+  final double? initialFromLng;
+  final double? initialToLat;
+  final double? initialToLng;
+  final bool autoSearchOnInit;
   final bool isDriver;
 
   @override
@@ -70,15 +80,37 @@ class _SearchScreenState extends State<SearchScreen> {
     super.initState();
     if (widget.initialFrom != null) _fromCtrl.text = widget.initialFrom!;
     if (widget.initialTo != null) _toCtrl.text = widget.initialTo!;
+    if (widget.initialFromLat != null && widget.initialFromLng != null) {
+      _fromSelection = OrsPlaceSuggestion(
+        label: widget.initialFrom?.trim().isNotEmpty == true
+            ? widget.initialFrom!.trim()
+            : 'Depart',
+        lat: widget.initialFromLat!,
+        lng: widget.initialFromLng!,
+      );
+    }
+    if (widget.initialToLat != null && widget.initialToLng != null) {
+      _toSelection = OrsPlaceSuggestion(
+        label: widget.initialTo?.trim().isNotEmpty == true
+            ? widget.initialTo!.trim()
+            : 'Destination',
+        lat: widget.initialToLat!,
+        lng: widget.initialToLng!,
+      );
+    }
     _fromFocus.addListener(_onFocusChanged);
     _toFocus.addListener(_onFocusChanged);
+    unawaited(_loadDriverFavoritePlaces());
     if (widget.isDriver) {
-      unawaited(_loadDriverFavoritePlaces());
       if (_canSearch) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _scheduleDriverAutoSearch();
         });
       }
+    } else if (widget.autoSearchOnInit && _canSearch) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        unawaited(_runPassengerSearch());
+      });
     }
   }
 
@@ -106,11 +138,6 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     _fromFieldActive = _fromFocus.hasFocus;
-    if (!widget.isDriver) {
-      setState(() {});
-      return;
-    }
-
     final String seed =
         _fromFieldActive ? _fromCtrl.text.trim() : _toCtrl.text.trim();
     _queueOrsSuggestions(seed);
@@ -119,7 +146,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void _queueOrsSuggestions(String raw) {
     _debounce?.cancel();
     final String query = raw.trim();
-    if (query.length < 2) {
+    if (query.length < 3) {
       setState(() {
         _isLoadingSuggestion = false;
         _orsSuggestions = const <OrsPlaceSuggestion>[];
@@ -144,7 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
       _fromSelection = null;
     }
     _lastDriverAutoSearchKey = null;
-    if (widget.isDriver && _fromFocus.hasFocus) {
+    if (_fromFocus.hasFocus) {
       _queueOrsSuggestions(value);
     }
     setState(() {});
@@ -155,7 +182,7 @@ class _SearchScreenState extends State<SearchScreen> {
       _toSelection = null;
     }
     _lastDriverAutoSearchKey = null;
-    if (widget.isDriver && _toFocus.hasFocus) {
+    if (_toFocus.hasFocus) {
       _queueOrsSuggestions(value);
     }
     setState(() {});
@@ -187,7 +214,6 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _loadDriverFavoritePlaces() async {
-    if (!widget.isDriver) return;
     if (mounted) setState(() => _isLoadingFavoritePlaces = true);
 
     try {
@@ -238,7 +264,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _useCurrentLocationAsDeparture() async {
     if (_isLocatingUser) return;
-    FocusScope.of(context).unfocus();
     if (mounted) {
       setState(() {
         _isLocatingUser = true;
@@ -278,17 +303,27 @@ class _SearchScreenState extends State<SearchScreen> {
 
       final String label =
           'Votre position (${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)})';
-      _fromCtrl.text = label;
-      _fromSelection = OrsPlaceSuggestion(
+      final OrsPlaceSuggestion currentLocation = OrsPlaceSuggestion(
         label: label,
         lat: position.latitude,
         lng: position.longitude,
       );
-      _fromFieldActive = false;
+      final bool fillFrom = _fromFocus.hasFocus ||
+          (!_toFocus.hasFocus && _fromCtrl.text.trim().isEmpty);
+      if (fillFrom) {
+        _fromCtrl.text = label;
+        _fromSelection = currentLocation;
+        _fromFieldActive = false;
+      } else {
+        _toCtrl.text = label;
+        _toSelection = currentLocation;
+      }
       _lastDriverAutoSearchKey = null;
       if (mounted) setState(() {});
 
-      await _triggerDriverAutoSearchIfReady();
+      if (widget.isDriver) {
+        await _triggerDriverAutoSearchIfReady();
+      }
     } catch (_) {
       if (mounted) {
         setState(() {
@@ -317,8 +352,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
     _lastDriverAutoSearchKey = null;
     setState(() {});
-    FocusScope.of(context).unfocus();
-    _scheduleDriverAutoSearch();
+    if (widget.isDriver) {
+      _scheduleDriverAutoSearch();
+    }
   }
 
   void _onInputSubmitted() {
@@ -529,54 +565,13 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
                 ),
               ),
-            if (!isFocused && widget.isDriver)
-              _DriverQuickPlaces(
-                isLocatingUser: _isLocatingUser,
-                isLoadingFavorites: _isLoadingFavoritePlaces,
-                favorites: _favoritePlaces,
-                onUseCurrentLocation: _useCurrentLocationAsDeparture,
-                onFavoriteTap: _selectFavoritePlace,
-              ),
-            if (!isFocused && !widget.isDriver)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                color: const Color(0xFFF2F5FA),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: _suggestions
-                        .map(
-                          (s) => Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: InkWell(
-                              onTap: () {
-                                _toCtrl.text = s;
-                                setState(() {});
-                              },
-                              borderRadius: BorderRadius.circular(999),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEEF0F5),
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  s,
-                                  style: const TextStyle(
-                                    color: Color(0xFF3D4A5C),
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                ),
-              ),
+            _DriverQuickPlaces(
+              isLocatingUser: _isLocatingUser,
+              isLoadingFavorites: _isLoadingFavoritePlaces,
+              favorites: _favoritePlaces,
+              onUseCurrentLocation: _useCurrentLocationAsDeparture,
+              onFavoriteTap: _selectFavoritePlace,
+            ),
             if (_error != null)
               Container(
                 width: double.infinity,
@@ -593,16 +588,11 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             Expanded(
               child: isFocused
-                  ? (widget.isDriver
-                      ? _DriverSuggestions(
-                          suggestions: _orsSuggestions,
-                          isLoading: _isLoadingSuggestion,
-                          onSelect: _selectDriverSuggestion,
-                        )
-                      : _FocusSuggestions(
-                          suggestions: _suggestions,
-                          onSelect: _selectSuggestion,
-                        ))
+                  ? _DriverSuggestions(
+                      suggestions: _orsSuggestions,
+                      isLoading: _isLoadingSuggestion,
+                      onSelect: _selectDriverSuggestion,
+                    )
                   : (widget.isDriver
                       ? _DriverIdleZone(
                           canSearch: _canSearch,
@@ -927,7 +917,7 @@ class _DriverSuggestions extends StatelessWidget {
     if (suggestions.isEmpty) {
       return const Center(
         child: Text(
-          'Saisissez au moins 2 lettres pour voir les suggestions ORS.',
+          'Saisissez au moins 3 lettres pour voir les suggestions ORS.',
           style: TextStyle(color: Color(0xFF7A879A), fontSize: 12),
           textAlign: TextAlign.center,
         ),

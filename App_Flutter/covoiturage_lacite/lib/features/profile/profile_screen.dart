@@ -3,7 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/app_colors.dart';
 import '../../core/converters/display_converters.dart';
@@ -187,15 +187,18 @@ class _ProfileScreenState extends State<ProfileScreen>
   final ApiService _api = ApiService.instance;
 
   late TabController _tabController;
-  final _tabs = const [
-    'Mon Profil',
-    'Visibilité',
-    'Ambiance',
-    'Notifications',
-    'Confidentialité',
-    'Véhicule',
-    'Sécurité',
-  ];
+  List<String> get _tabs {
+    final isDriver = _profile.appRole.toLowerCase().contains('conducteur') || _profile.appRole.toLowerCase().contains('driver');
+    return [
+      'Mon Profil',
+      'Visibilité',
+      'Ambiance',
+      'Notifications',
+      'Confidentialité',
+      if (isDriver) 'Véhicule',
+      'Sécurité',
+    ];
+  }
 
   bool _isLoading = true;
   bool _saved = false;
@@ -290,6 +293,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           'petsAccepted': _profile.petsAccepted,
           'smokingAccepted': _profile.smokingAccepted,
           'conversationLevel': _profile.conversationLevel,
+        },
+        'notifications': {
           'emailPrimordiales': _profile.emailPrimordiales,
           'emailSecondaires': _profile.emailSecondaires,
           'emailNegligeables': _profile.emailNegligeables,
@@ -297,7 +302,19 @@ class _ProfileScreenState extends State<ProfileScreen>
           'pushSecondaires': _profile.pushSecondaires,
           'pushNegligeables': _profile.pushNegligeables,
         },
+        'privacy': {
+          'showPhoneNumber': _profile.showPhoneNumber,
+          'showLastName': _profile.showLastName,
+          'allowAffinityTracking': _profile.allowAffinityTracking,
+        },
+        'visibility': {
+          'showGoScore': _profile.showGoScore,
+          'showTripsCount': _profile.showTripsCount,
+          'showRating': _profile.showRating,
+          'showCo2': _profile.showCo2,
+        },
       });
+      await _loadProfile(); // recharge les données à jour après sauvegarde
       if (!mounted) return;
       setState(() => _saved = true);
       await Future.delayed(const Duration(seconds: 2));
@@ -339,6 +356,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       );
     }
 
+    final isDriver = _profile.appRole.toLowerCase().contains('conducteur') || _profile.appRole.toLowerCase().contains('driver');
     return Scaffold(
       backgroundColor: AppColors.grayBg,
       body: NestedScrollView(
@@ -355,7 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             _buildAmbianceTab(),
             _buildNotificationsTab(),
             _buildConfidentialiteTab(),
-            _buildVehicleTab(),
+            if (isDriver) _buildVehicleTab(),
             _buildSecurityTab(),
           ],
         ),
@@ -370,16 +388,15 @@ class _ProfileScreenState extends State<ProfileScreen>
       expandedHeight: 200,
       pinned: true,
       backgroundColor: AppColors.blue,
-      leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.white),
-        onPressed: () {},
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-          onPressed: () => context.push('/notifications'),
+      centerTitle: true,
+      title: const Text(
+        'Mon Profil',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
         ),
-      ],
+      ),
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           children: [
@@ -426,7 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ),
             Positioned(
-              bottom: -30,
+              bottom: 0,
               left: 0,
               right: 0,
               child: Center(
