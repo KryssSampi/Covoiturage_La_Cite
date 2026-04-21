@@ -27,6 +27,8 @@ class AppFixtures {
   static late Map<String, dynamic> _finances;
   static late List<Map<String, dynamic>> _goboard;
   static late List<Map<String, dynamic>> _vehicles;
+  static late List<Map<String, dynamic>> _unavailability;
+  // ...existing code...
 
   static Map<String, dynamic> get driverUserFixture {
     _ensureReady();
@@ -41,9 +43,41 @@ class AppFixtures {
   static dynamic getFallback(
     String path, {
     Map<String, dynamic>? params,
+    Map<String, dynamic>? body,
     required bool isDriver,
   }) {
     _ensureReady();
+
+    // Unavailability fixtures (GET, PATCH, POST, DELETE)
+    if (path == '/api/unavailability') {
+      // GET
+      if (body == null) {
+        return <String, dynamic>{
+          'success': true,
+          'data': _cloneList(_unavailability),
+        };
+      }
+      // PATCH: modifie une indisponibilité existante
+      if (body['id'] != null) {
+        final idx = _unavailability.indexWhere((e) => e['id'] == body['id']);
+        if (idx != -1) {
+          _unavailability[idx] = {..._unavailability[idx], ...body};
+          return {'success': true, 'data': _cloneMap(_unavailability[idx])};
+        }
+      }
+      // POST: ajoute une nouvelle indisponibilité
+      if (body['id'] == null) {
+        final newId = 'unav_${_unavailability.length + 1}';
+        final newItem = {...body, 'id': newId};
+        _unavailability.add(newItem);
+        return {'success': true, 'data': _cloneMap(newItem)};
+      }
+    }
+    if (path.startsWith('/api/unavailability/') && path.endsWith('/delete')) {
+      final id = path.split('/')[3];
+      _unavailability.removeWhere((e) => e['id'] == id);
+      return {'success': true};
+    }
 
     if (path == '/api/users/me') {
       return <String, dynamic>{
@@ -1469,6 +1503,26 @@ class AppFixtures {
       'pendingRequests': <Map<String, dynamic>>[],
     };
 
+    _unavailability = <Map<String, dynamic>>[
+      {
+        'id': 'unav_1',
+        'title': 'Lundi & Jeudi · 08:00 – 12:00',
+        'detail': 'Récurrent · Toutes les semaines',
+        'days': [1, 4],
+        'startTime': '08:00',
+        'endTime': '12:00',
+        'isRecurrent': true,
+      },
+      {
+        'id': 'unav_2',
+        'title': '20 avr. 2026 · 07:00 – 23:59',
+        'detail': 'Journée spécifique',
+        'date': '2026-04-20',
+        'startTime': '07:00',
+        'endTime': '23:59',
+        'isRecurrent': false,
+      },
+    ];
     _ready = true;
   }
 

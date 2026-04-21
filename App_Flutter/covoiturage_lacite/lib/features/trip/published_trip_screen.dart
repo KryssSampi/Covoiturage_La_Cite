@@ -1,3 +1,4 @@
+import 'reserve_button.dart';
 // ============================================================
 // lib/features/trip/published_trip_screen.dart
 // Vue détail d'un trajet publié — Version Mobile Flutter
@@ -8,7 +9,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../core/services/api_service.dart';
 import '../../core/services/trip_service.dart';
@@ -545,43 +549,91 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
   }
 
   Widget _buildReserveBtn(Trip t) {
-    final (label, color, icon, enabled) = _btnConfig(_buttonState, t);
-    return GestureDetector(
-      onTap: enabled ? () => _handleBtnTap(t) : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        height: 52,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: enabled
-              ? [BoxShadow(color: color.withOpacity(0.35), blurRadius: 12, offset: const Offset(0, 4))]
-              : null,
-        ),
-        child: Center(
-          child: _isReserving
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (icon != null) ...[
-                      Icon(icon, size: 17, color: Colors.white),
-                      const SizedBox(width: 8),
-                    ],
-                    Text(label,
-                        style: GoogleFonts.sora(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white)),
-                  ],
-                ),
-        ),
-      ),
+    // TODO: Remplacer cette logique par une vraie fonction qui mappe l'état du trip/réservation/utilisateur vers ReserveButtonState
+    final ReserveButtonState state = _mapToReserveButtonState();
+    return ReserveButton(
+      state: state,
+      tripId: t.id,
+      onReserveClick: _isReserving ? null : () => setState(() => _showConfirmModal = true),
+      onFollowClick: () => context.push('/chat/${t.id}'),
+      onManageClick: () => context.push('/reservations'),
+      onStartTripClick: () => context.push('/trajet-en-cours/${t.id}'),
     );
+  }
+
+  ReserveButtonState _mapToReserveButtonState() {
+    // Inspiré du switch du composant React (ReserveButton.tsx)
+    final t = _trip;
+    final role = widget.viewerRole;
+    final reservationStatus = _reservationStatus;
+    final source = widget.source;
+    final sourceStatus = widget.sourceStatus;
+    // 1. Cas contextuels (depuis une réservation)
+    if (source == 'reservation') {
+      switch (sourceStatus) {
+        case 'confirmed':
+          return ReserveButtonState(ReserveButtonStateKind.reservationConfirmed);
+        case 'in-progress':
+          return ReserveButtonState(ReserveButtonStateKind.reservationInProgress);
+        case 'cancelled':
+          return ReserveButtonState(ReserveButtonStateKind.reservationCancelled);
+        case 'pending':
+          return ReserveButtonState(ReserveButtonStateKind.reservationPending);
+        case 'completed':
+          return ReserveButtonState(ReserveButtonStateKind.reservationCompleted);
+        case 'rejected':
+          return ReserveButtonState(ReserveButtonStateKind.reservationRejected);
+        case 'imminent':
+          return ReserveButtonState(ReserveButtonStateKind.reservationImminent);
+        default:
+          return ReserveButtonState(ReserveButtonStateKind.reserve);
+      }
+    }
+    // 2. Cas contextuels (depuis un trajet publié)
+    if (source == 'publishedtrip') {
+      switch (sourceStatus) {
+        case 'published':
+          return ReserveButtonState(ReserveButtonStateKind.tripPublished);
+        case 'full':
+          return ReserveButtonState(ReserveButtonStateKind.tripFull);
+        case 'confirmed':
+          return ReserveButtonState(ReserveButtonStateKind.tripConfirmed);
+        case 'in-progress':
+          return ReserveButtonState(ReserveButtonStateKind.tripInProgress);
+        case 'completed':
+          return ReserveButtonState(ReserveButtonStateKind.tripCompleted);
+        case 'cancelled':
+          return ReserveButtonState(ReserveButtonStateKind.tripCancelled);
+        case 'imminent':
+          return ReserveButtonState(ReserveButtonStateKind.tripImminent);
+        default:
+          return ReserveButtonState(ReserveButtonStateKind.tripPublished);
+      }
+    }
+    // 3. Rôle conducteur (driverOwner)
+    if (role == PTViewerRole.driverOwner) {
+      return ReserveButtonState(ReserveButtonStateKind.manage);
+    }
+    // 4. Rôle admin
+    if (role == PTViewerRole.admin) {
+      return ReserveButtonState(ReserveButtonStateKind.readonly);
+    }
+    // 5. Trajet complet
+    if (t?.availableSeats == 0) {
+      return ReserveButtonState(ReserveButtonStateKind.full);
+    }
+    // 6. Statut de réservation (passager)
+    switch (reservationStatus) {
+      case PTReservationStatus.pending:
+        return ReserveButtonState(ReserveButtonStateKind.pending);
+      case PTReservationStatus.confirmed:
+        return ReserveButtonState(ReserveButtonStateKind.confirmed);
+      case PTReservationStatus.refused:
+        // TODO: calculer hoursLeft si dispo (cooldown)
+        return ReserveButtonState(ReserveButtonStateKind.cooldown, hoursLeft: 24);
+      default:
+        return ReserveButtonState(ReserveButtonStateKind.reserve);
+    }
   }
 
   (String, Color, IconData?, bool) _btnConfig(_BTNState s, Trip t) => switch (s) {
@@ -737,6 +789,15 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
   }
 
   Widget _buildCancelModal() {
+    // Cherche l'ID de réservation depuis initialData, sinon erreur explicite
+    String? getReservationId() {
+      if (widget.initialData != null && widget.initialData!['reservationId'] != null) {
+        return widget.initialData!['reservationId'] as String;
+      }
+      // Ajoutez ici d'autres sources potentielles si besoin (ex: widget.reservationId)
+      return null;
+    }
+
     return _ModalOverlay(
       onDismiss: () => setState(() => _showCancelModal = false),
       child: Column(
@@ -789,9 +850,37 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       setState(() => _showCancelModal = false);
-                      context.pop();
+                      final reservationId = getReservationId();
+                      if (reservationId == null || reservationId.isEmpty) {
+                        setState(() {
+                          _showErrorToast = true;
+                          _toastMsg = 'Impossible de trouver l\'ID de réservation.';
+                        });
+                        await Future.delayed(const Duration(seconds: 3));
+                        if (mounted) setState(() => _showErrorToast = false);
+                        return;
+                      }
+                      try {
+                        await widget.tripService.cancelReservation(reservationId, reason: null);
+                        if (!mounted) return;
+                        setState(() {
+                          _reservationStatus = PTReservationStatus.cancelled;
+                          _showSuccessToast = true;
+                          _toastMsg = 'Réservation annulée.';
+                        });
+                        await Future.delayed(const Duration(seconds: 3));
+                        if (mounted) setState(() => _showSuccessToast = false);
+                      } catch (e) {
+                        if (!mounted) return;
+                        setState(() {
+                          _showErrorToast = true;
+                          _toastMsg = 'Erreur lors de l\'annulation.';
+                        });
+                        await Future.delayed(const Duration(seconds: 3));
+                        if (mounted) setState(() => _showErrorToast = false);
+                      }
                     },
                     child: Container(
                       height: 50,
@@ -1058,25 +1147,67 @@ class _MapPlaceholder extends StatelessWidget {
   final String to;
   final List<Offset> polyline;
 
+  List<LatLng> _toLatLngList(List<Offset> polyline) {
+    // Offset(dx: lng, dy: lat)
+    return polyline.map((o) => LatLng(o.dy, o.dx)).toList();
+  }
+
+  LatLng? _getCenter(List<LatLng> points) {
+    if (points.isEmpty) return null;
+    double lat = 0, lng = 0;
+    for (final p in points) {
+      lat += p.latitude;
+      lng += p.longitude;
+    }
+    return LatLng(lat / points.length, lng / points.length);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0D3E87), Color(0xFF1A5CB0)],
+    final points = _toLatLngList(polyline);
+    final center = _getCenter(points) ?? LatLng(45.5017, -73.5673); // Montréal fallback
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: FlutterMap(
+        options: MapOptions(
+          center: center,
+          zoom: 12.0,
+          interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
         ),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
         children: [
-          // Simulated route line
-          if (polyline.length >= 2)
-            CustomPaint(painter: _PolylinePainter(polyline))
-          else
-            const Center(
-              child: Icon(Icons.map_outlined, size: 64, color: Colors.white24),
+          TileLayer(
+            urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+            subdomains: const ['a', 'b', 'c'],
+            userAgentPackageName: 'com.example.covoiturage_lacite',
+          ),
+          if (points.length >= 2)
+            PolylineLayer(
+              polylines: [
+                Polyline(
+                  points: points,
+                  color: const Color(0xFF08316E),
+                  strokeWidth: 5,
+                ),
+              ],
+            ),
+          // Markers départ/arrivée
+          if (points.isNotEmpty)
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: points.first,
+                  width: 36,
+                  height: 36,
+                  child: const Icon(Icons.location_on, color: Color(0xFF08316E), size: 32),
+                ),
+                if (points.length > 1)
+                  Marker(
+                    point: points.last,
+                    width: 36,
+                    height: 36,
+                    child: const Icon(Icons.flag, color: Color(0xFFE24B4A), size: 32),
+                  ),
+              ],
             ),
         ],
       ),
@@ -1084,49 +1215,6 @@ class _MapPlaceholder extends StatelessWidget {
   }
 }
 
-class _PolylinePainter extends CustomPainter {
-  const _PolylinePainter(this.points);
-  final List<Offset> points;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (points.length < 2) return;
-    final minX = points.map((p) => p.dx).reduce((a, b) => a < b ? a : b);
-    final maxX = points.map((p) => p.dx).reduce((a, b) => a > b ? a : b);
-    final minY = points.map((p) => p.dy).reduce((a, b) => a < b ? a : b);
-    final maxY = points.map((p) => p.dy).reduce((a, b) => a > b ? a : b);
-    final spanX = (maxX - minX).abs() < 0.000001 ? 1.0 : (maxX - minX);
-    final spanY = (maxY - minY).abs() < 0.000001 ? 1.0 : (maxY - minY);
-
-    Offset norm(Offset p) => Offset(
-          ((p.dx - minX) / spanX) * (size.width - 60) + 30,
-          ((p.dy - minY) / spanY) * (size.height - 80) + 40,
-        );
-
-    final path = Path()..moveTo(norm(points.first).dx, norm(points.first).dy);
-    for (int i = 1; i < points.length; i++) {
-      path.lineTo(norm(points[i]).dx, norm(points[i]).dy);
-    }
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = Colors.white70
-        ..strokeWidth = 4
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round,
-    );
-    // Markers
-    final depPt = norm(points.first);
-    final arrPt = norm(points.last);
-    canvas.drawCircle(depPt, 8, Paint()..color = Colors.white);
-    canvas.drawCircle(depPt, 5, Paint()..color = const Color(0xFF08316E));
-    canvas.drawCircle(arrPt, 8, Paint()..color = Colors.white);
-    canvas.drawCircle(arrPt, 5, Paint()..color = const Color(0xFFE24B4A));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
 
 // ─────────────────────────────────────────────────────────────
 // SMALL UI COMPONENTS
@@ -1137,22 +1225,20 @@ class _CircleIconBtn extends StatelessWidget {
     required this.onTap,
     required this.bg,
     this.iconColor = Colors.white,
-    this.size = 44,
   });
   final IconData icon;
   final VoidCallback onTap;
   final Color bg;
   final Color iconColor;
-  final double size;
 
   @override
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         child: Container(
-          width: size,
-          height: size,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-          child: Icon(icon, size: size * 0.45, color: iconColor),
+          child: Icon(icon, size: 20, color: iconColor),
         ),
       );
 }
@@ -1413,30 +1499,59 @@ class _FilledBtn extends StatelessWidget {
       );
 }
 
-class _ErrorView extends StatelessWidget {
+class _ErrorView extends StatefulWidget {
   const _ErrorView({required this.message, required this.onRetry});
   final String message;
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline, size: 48, color: Color(0xFFE24B4A)),
-              const SizedBox(height: 12),
-              Text(message, textAlign: TextAlign.center),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: onRetry,
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF08316E)),
-                child: const Text('Réessayer'),
-              ),
-            ],
-          ),
+  State<_ErrorView> createState() => _ErrorViewState();
+}
+
+class _ErrorViewState extends State<_ErrorView> {
+  bool _visible = true;
+
+  @override
+  void didUpdateWidget(covariant _ErrorView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Si le message d'erreur change, on réaffiche la bannière
+    if (widget.message != oldWidget.message) {
+      setState(() => _visible = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_visible) return const SizedBox.shrink();
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: Color(0xFFE24B4A)),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(widget.message, textAlign: TextAlign.center),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () => setState(() => _visible = false),
+                  child: const Icon(Icons.close, size: 20, color: Color(0xFF545D6E)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: widget.onRetry,
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF08316E)),
+              child: const Text('Réessayer'),
+            ),
+          ],
         ),
-      );
+      ),
+    );
+  }
 }
 
 // ─────────────────────────────────────────────────────────────

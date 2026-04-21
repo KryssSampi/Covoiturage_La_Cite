@@ -5,6 +5,7 @@ import '../fixtures/app_fixtures.dart';
 import '../models/user.dart';
 
 enum AppUserMode { passenger, driver }
+enum AppNavPage { home, stats, planner, messages, profile, reservations, notifications }
 
 class AppStateStore extends ChangeNotifier {
   AppStateStore._internal()
@@ -20,12 +21,16 @@ class AppStateStore extends ChangeNotifier {
   AppUserMode _mode = AppUserMode.driver;
   bool _usingFixtures = false;
   String? _networkIssue;
+  final Map<AppNavPage, bool> _newsByPage = <AppNavPage, bool>{
+    for (final AppNavPage page in AppNavPage.values) page: false,
+  };
 
   bool get authenticationEnabled => _authenticationEnabled;
   AppUserMode get mode => _mode;
   bool get isDriver => _mode == AppUserMode.driver;
   bool get usingFixtures => _usingFixtures;
   String? get networkIssue => _networkIssue;
+  bool hasNews(AppNavPage page) => _newsByPage[page] ?? false;
 
   User get currentUser => isDriver ? _driverUser : _passengerUser;
 
@@ -33,6 +38,29 @@ class AppStateStore extends ChangeNotifier {
     if (_mode == mode) return;
     _mode = mode;
     notifyListeners();
+  }
+
+  void setPageHasNews(AppNavPage page, bool hasNews) {
+    if ((_newsByPage[page] ?? false) == hasNews) return;
+    _newsByPage[page] = hasNews;
+    notifyListeners();
+  }
+
+  void clearPageNews(AppNavPage page) {
+    setPageHasNews(page, false);
+  }
+
+  void clearAllNews() {
+    bool changed = false;
+    for (final AppNavPage page in AppNavPage.values) {
+      if (_newsByPage[page] == true) {
+        _newsByPage[page] = false;
+        changed = true;
+      }
+    }
+    if (changed) {
+      notifyListeners();
+    }
   }
 
   void reportFixtureFallback({

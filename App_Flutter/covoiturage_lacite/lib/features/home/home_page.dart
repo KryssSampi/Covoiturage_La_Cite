@@ -55,7 +55,9 @@ class _RequestCard {
   final Color typeFg;
   final String routeFrom;
   final String routeTo;
+  final String? tripId;
   final bool hasAccept;
+  final bool isDriverRequest;
   final String? reservationId;
   const _RequestCard({
     required this.initials,
@@ -69,7 +71,9 @@ class _RequestCard {
     required this.typeFg,
     required this.routeFrom,
     required this.routeTo,
+    this.tripId,
     this.hasAccept = false,
+    this.isDriverRequest = false,
     this.reservationId,
   });
 }
@@ -172,51 +176,86 @@ class _HomePageState extends State<HomePage> {
         _requests = _extractRequests(dashboard.pendingRequests.cast<dynamic>());
         _isLoading = false;
       });
+      AppStateStore.instance.setPageHasNews(
+        AppNavPage.reservations,
+        dashboard.pendingRequests.isNotEmpty,
+      );
     } catch (_) {
-      if (mounted) setState(() {
+      if (!mounted) return;
+      setState(() {
         _isLoading = false;
-        if (_stats.isEmpty) _stats = [
-          _StatCard(value: '–', unit: '', label: 'Trajets', iconBg: AppColors.blueLight, iconFg: AppColors.blue, icon: Icons.directions_car_outlined),
-          _StatCard(value: '–', unit: '', label: 'Note', iconBg: AppColors.amberLight, iconFg: AppColors.amberMid, icon: Icons.star_outline),
-          _StatCard(value: '–', unit: '', label: 'Passagers', iconBg: AppColors.tealLight, iconFg: AppColors.teal, icon: Icons.people_alt_outlined),
-          _StatCard(value: '–', unit: '\$', label: 'Revenus', iconBg: AppColors.blueLight, iconFg: AppColors.blue, icon: Icons.payments_outlined),
+        _firstName ??= AppStateStore.instance.currentUser.firstName;
+        _requests = const <_RequestCard>[];
+        _stats = [
+          _StatCard(value: '-', unit: '', label: 'Trajets', iconBg: AppColors.blueLight, iconFg: AppColors.blue, icon: Icons.directions_car_outlined),
+          _StatCard(value: '-', unit: '', label: 'Note', iconBg: AppColors.amberLight, iconFg: AppColors.amberMid, icon: Icons.star_outline),
+          _StatCard(value: '-', unit: '', label: 'Passagers', iconBg: AppColors.tealLight, iconFg: AppColors.teal, icon: Icons.people_alt_outlined),
+          _StatCard(value: '-', unit: '\$', label: 'Revenus', iconBg: AppColors.blueLight, iconFg: AppColors.blue, icon: Icons.payments_outlined),
         ];
       });
+      AppStateStore.instance.setPageHasNews(AppNavPage.reservations, false);
     }
   }
 
   List<_RequestCard> _extractRequests(List<dynamic> raw) {
+    final bool isDriver = AppStateStore.instance.isDriver;
     return raw.take(3).map((dynamic row) {
-      final Map<String, dynamic> m = row is Map<String, dynamic>
-          ? row
+      final Map<String, dynamic> m =
+          row is Map<String, dynamic> ? row : <String, dynamic>{};
+      final Map<String, dynamic> reservation =
+          m['reservation'] is Map<String, dynamic>
+              ? m['reservation'] as Map<String, dynamic>
+              : m;
+      final Map<String, dynamic> trip = m['trip'] is Map<String, dynamic>
+          ? m['trip'] as Map<String, dynamic>
           : <String, dynamic>{};
-      final Map<String, dynamic> trip =
-          m['trip'] is Map<String, dynamic> ? m['trip'] as Map<String, dynamic> : <String, dynamic>{};
-      final String first = '${m['passengerFirstName'] ?? m['firstName'] ?? ''}'.trim();
-      final String last = '${m['passengerLastName'] ?? m['lastName'] ?? ''}'.trim();
-      final String name = ('$first $last').trim().isEmpty ? 'Passager' : ('$first $last').trim();
+      final Map<String, dynamic> passenger =
+          m['passenger'] is Map<String, dynamic>
+              ? m['passenger'] as Map<String, dynamic>
+              : <String, dynamic>{};
+      final Map<String, dynamic> driver = m['driver'] is Map<String, dynamic>
+          ? m['driver'] as Map<String, dynamic>
+          : <String, dynamic>{};
+
+      final String first = isDriver
+          ? '${m['passengerFirstName'] ?? passenger['firstName'] ?? m['firstName'] ?? ''}'.trim()
+          : '${driver['firstName'] ?? m['driverFirstName'] ?? ''}'.trim();
+      final String last = isDriver
+          ? '${m['passengerLastName'] ?? passenger['lastName'] ?? m['lastName'] ?? ''}'.trim()
+          : '${driver['lastName'] ?? m['driverLastName'] ?? ''}'.trim();
+      final String fallbackName = isDriver ? 'Passager' : 'Conducteur';
+      final String name =
+          ('$first $last').trim().isEmpty ? fallbackName : ('$first $last').trim();
       final String initials = name
           .split(' ')
           .where((String e) => e.isNotEmpty)
           .take(2)
           .map((String e) => e[0].toUpperCase())
           .join();
-      final String from = trip['departureLabel']?.toString() ?? '–';
-      final String to = trip['arrivalLabel']?.toString() ?? '–';
+      final String from = trip['departureLabel']?.toString() ?? '-';
+      final String to = trip['arrivalLabel']?.toString() ?? '-';
+      final String status = reservation['status']?.toString() ??
+          m['status']?.toString() ??
+          'pending';
+
       return _RequestCard(
         initials: initials.isEmpty ? 'P' : initials,
         avatarBg: const Color(0xFFFDECEA),
         avatarFg: AppColors.redMid,
         name: name,
-        action: 'veut rejoindre votre trajet • $from → $to',
+        action: isDriver
+            ? 'veut rejoindre votre trajet - $from -> $to'
+            : 'Reservation $status - $from -> $to',
         timeLabel: _shortDate(trip['departureTime']?.toString() ?? ''),
-        typeLabel: 'Nouvelle demande',
-        typeBg: AppColors.blueLight,
-        typeFg: AppColors.blue,
+        typeLabel: isDriver ? 'Nouvelle demande' : 'Mes reservations',
+        typeBg: isDriver ? AppColors.blueLight : AppColors.tealLight,
+        typeFg: isDriver ? AppColors.blue : AppColors.teal,
         routeFrom: from,
         routeTo: to,
-        hasAccept: true,
-        reservationId: m['id']?.toString(),
+        tripId: trip['id']?.toString() ?? reservation['tripId']?.toString(),
+        hasAccept: isDriver,
+        isDriverRequest: isDriver,
+        reservationId: reservation['id']?.toString() ?? m['id']?.toString(),
       );
     }).toList();
   }
@@ -340,6 +379,9 @@ class _HomePageState extends State<HomePage> {
             'assets/images/homepagebackground.png',
             fit: BoxFit.cover,
             alignment: Alignment.topCenter,
+            errorBuilder: (_, __, ___) => const ColoredBox(
+              color: Color(0xFFE8EEF8),
+            ),
           ),
           // Gradient: transparent center → #F2F5FA bottom
           const DecoratedBox(
@@ -706,9 +748,13 @@ class _StatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 1.6,
       children: stats.map(_buildCard).toList(),
     );
   }
@@ -808,8 +854,13 @@ class _RequestCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         final String? id = card.reservationId;
-        if (id != null && id.isNotEmpty) {
+        final String? tripId = card.tripId;
+        if (card.isDriverRequest && id != null && id.isNotEmpty) {
           context.push('/reservation-request/$id');
+          return;
+        }
+        if (tripId != null && tripId.isNotEmpty) {
+          context.push('/trip/$tripId');
         }
       },
       child: AppCard(
@@ -1046,3 +1097,5 @@ class _MesOptionsSection extends StatelessWidget {
     );
   }
 }
+
+
