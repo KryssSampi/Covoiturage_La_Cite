@@ -1,17 +1,26 @@
-import { cookies } from "next/headers";
+const API_URL = process.env.API_URL;
 
-const API_URL = process.env.API_URL!;
+export async function adminFetch<T>(
+  path: string,
+  options: RequestInit = {},
+  token?: string
+): Promise<T> {
+  if (!API_URL) {
+    throw new Error("API_URL environment variable is not set");
+  }
 
-export async function adminFetch(path: string, options: RequestInit = {}) {
-  const token = cookies().get("access_token")?.value;
-
-  return fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
     cache: "no-store",
-  }).then(r => r.json());
+  });
+
+  if (!res.ok) {
+    throw new Error(`Admin API error (${res.status})`);
+  }
+
+  return res.json();
 }
-``

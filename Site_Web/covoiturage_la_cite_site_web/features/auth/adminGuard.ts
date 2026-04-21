@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "./adminPolicy";
 
-export function adminGuard() {
-  const user = getCurrentUser();
+export async function adminGuard() {
+  const user = await getCurrentUser();
 
   if (!user) redirect("/login");
   if (user.role !== "Admin") redirect("/unauthorized");
