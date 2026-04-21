@@ -150,7 +150,7 @@ class SideNavBar extends StatelessWidget {
                               style: TextStyle(color: Color(0xFF0D1624))),
                           onTap: () {
                             onClose();
-                            context.push('/profile');
+                            context.push('/app-settings');
                           },
                         ),
                         ListTile(

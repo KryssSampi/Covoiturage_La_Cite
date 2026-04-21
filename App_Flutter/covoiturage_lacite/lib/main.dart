@@ -26,11 +26,13 @@ import 'features/profile/profile_screen.dart';
 import 'features/reviews/reviews_screen.dart';
 import 'features/search/driver_search_map_screen.dart';
 import 'features/search/search_screen.dart';
+import 'features/settings/app_settings_screen.dart';
 import 'features/stats/stats_screen.dart';
+import 'features/trajet_en_cours/trajet_en_cours_screen.dart';
 import 'features/trip/create_trip_screen.dart';
 import 'features/trip/reservation_request_detail_screen.dart';
 import 'features/trip/reservation_screen.dart';
-import 'features/trip/published_trip_screen.dart';
+import 'features/trip/published_trip_screen-1.dart';
 import 'features/chat/chat_screen.dart';
 
 final TripService _tripService = TripService(ApiService.instance);
@@ -79,6 +81,7 @@ final GoRouter appRouter = GoRouter(
     GoRoute(path: '/stats', builder: (_, __) => const StatsScreen()),
     GoRoute(path: '/favoris', builder: (_, __) => const FavorisScreen()),
     GoRoute(path: '/reviews', builder: (_, __) => const ReviewsScreen()),
+    GoRoute(path: '/app-settings', builder: (_, __) => const AppSettingsScreen()),
     GoRoute(
         path: '/historique', builder: (_, __) => const HistoriqueScreen()),
     GoRoute(
@@ -89,11 +92,35 @@ final GoRouter appRouter = GoRouter(
         final Map<String, dynamic>? extra = state.extra is Map<String, dynamic>
             ? state.extra as Map<String, dynamic>
             : null;
+        double? parseNullableDouble(dynamic value) {
+          if (value is num) return value.toDouble();
+          return double.tryParse(value?.toString() ?? '');
+        }
+        bool parseNullableBool(dynamic value) {
+          if (value is bool) return value;
+          final String raw = value?.toString().toLowerCase() ?? '';
+          return raw == 'true' || raw == '1';
+        }
+        bool? parseOptionalBool(dynamic value) {
+          if (value == null) return null;
+          if (value is bool) return value;
+          final String raw = value.toString().toLowerCase();
+          if (raw == 'true' || raw == '1') return true;
+          if (raw == 'false' || raw == '0') return false;
+          return null;
+        }
+        final bool isDriverMode =
+            parseOptionalBool(extra?['isDriver']) ?? AppStateStore.instance.isDriver;
         return SearchScreen(
           tripService: _tripService,
           initialFrom: extra?['from']?.toString(),
           initialTo: extra?['to']?.toString(),
-          isDriver: AppStateStore.instance.isDriver,
+          initialFromLat: parseNullableDouble(extra?['fromLat']),
+          initialFromLng: parseNullableDouble(extra?['fromLng']),
+          initialToLat: parseNullableDouble(extra?['toLat']),
+          initialToLng: parseNullableDouble(extra?['toLng']),
+          autoSearchOnInit: parseNullableBool(extra?['autoSearch']),
+          isDriver: isDriverMode,
         );
       },
     ),
@@ -176,6 +203,12 @@ final GoRouter appRouter = GoRouter(
         args: state.extra is DriverSearchMapArgs
             ? state.extra as DriverSearchMapArgs
             : null,
+      ),
+    ),
+    GoRoute(
+      path: '/trajet-en-cours/:id',
+      builder: (_, GoRouterState state) => TrajetEnCoursScreen(
+        tripId: state.pathParameters['id'] ?? '',
       ),
     ),
     GoRoute(

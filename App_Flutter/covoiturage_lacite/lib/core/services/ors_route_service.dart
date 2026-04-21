@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 
+import 'api_service.dart';
+
 class OrsPlaceSuggestion {
   const OrsPlaceSuggestion({
     required this.label,
@@ -49,7 +51,11 @@ class OrsRouteService {
     int limit = 5,
   }) async {
     final String text = query.trim();
-    if (text.isEmpty) return const <OrsPlaceSuggestion>[];
+    if (text.length < 3) return const <OrsPlaceSuggestion>[];
+
+    final List<OrsPlaceSuggestion> backend =
+        await _suggestWithBackend(text, limit: limit);
+    if (backend.isNotEmpty) return backend;
 
     final List<OrsPlaceSuggestion> ors = await _suggestWithOrs(text, limit: limit);
     if (ors.isNotEmpty) return ors;
@@ -149,6 +155,66 @@ class OrsRouteService {
     } catch (_) {
       return const <OrsPlaceSuggestion>[];
     }
+  }
+
+  Future<List<OrsPlaceSuggestion>> _suggestWithBackend(
+    String text, {
+    required int limit,
+  }) async {
+    try {
+      final dynamic payload = await ApiService.instance.get(
+        '/api/locations/suggestions',
+        params: <String, dynamic>{
+          'q': text,
+          'limit': limit.clamp(1, 10),
+        },
+      );
+      final dynamic rows = (payload is Map<String, dynamic>)
+          ? (payload['suggestions'] ?? payload['data'] ?? payload['items'])
+          : payload;
+      if (rows is! List) return const <OrsPlaceSuggestion>[];
+
+      return rows
+          .whereType<Map<String, dynamic>>()
+          .map<OrsPlaceSuggestion?>((Map<String, dynamic> row) {
+            final String label = row['label']?.toString().trim() ??
+                row['name']?.toString().trim() ??
+                '';
+            if (label.isEmpty) return null;
+
+            double? lat = _toNullableDouble(row['lat'] ?? row['latitude']);
+            double? lng =
+                _toNullableDouble(row['lng'] ?? row['lon'] ?? row['longitude']);
+
+            final dynamic coords = row['coordinates'] ?? row['coordonnees'];
+            if ((lat == null || lng == null) && coords is List && coords.length >= 2) {
+              final double? first = _toNullableDouble(coords[0]);
+              final double? second = _toNullableDouble(coords[1]);
+              if (first != null && second != null) {
+                if (first.abs() <= 180 && second.abs() <= 90) {
+                  lng = first;
+                  lat = second;
+                } else if (first.abs() <= 90 && second.abs() <= 180) {
+                  lat = first;
+                  lng = second;
+                }
+              }
+            }
+
+            if (lat == null || lng == null) return null;
+            if (lat == 0 && lng == 0) return null;
+            return OrsPlaceSuggestion(label: label, lat: lat, lng: lng);
+          })
+          .whereType<OrsPlaceSuggestion>()
+          .toList();
+    } catch (_) {
+      return const <OrsPlaceSuggestion>[];
+    }
+  }
+
+  double? _toNullableDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '');
   }
 
   Future<List<OrsPlaceSuggestion>> _suggestWithNominatim(
