@@ -10,7 +10,9 @@ import 'package:dio/io.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../fixtures/app_fixtures.dart';
 import '../navigation_key.dart';
+import '../state/app_state.dart';
 
 class ApiService {
   static const _baseUrl = String.fromEnvironment(
@@ -130,12 +132,31 @@ class ApiService {
     Map<String, dynamic>? params,
     Options? options,
   }) async {
-    final response = await _dio.get<dynamic>(
-      path,
-      queryParameters: params,
-      options: options,
-    );
-    return response.data;
+    try {
+      final response = await _dio.get<dynamic>(
+        path,
+        queryParameters: params,
+        options: options,
+      );
+      AppStateStore.instance.clearFixtureFallback();
+      _syncCurrentUserIfNeeded(path, response.data);
+      return response.data;
+    } catch (error) {
+      final fallback = AppFixtures.getFallback(
+        path,
+        params: params,
+        isDriver: AppStateStore.instance.isDriver,
+      );
+      if (fallback != null) {
+        AppStateStore.instance.reportFixtureFallback(
+          endpoint: path,
+          reason: _errorMessage(error),
+        );
+        _syncCurrentUserIfNeeded(path, fallback);
+        return fallback;
+      }
+      rethrow;
+    }
   }
 
   Future<dynamic> post(
@@ -143,8 +164,27 @@ class ApiService {
     dynamic body, {
     Options? options,
   }) async {
-    final response = await _dio.post<dynamic>(path, data: body, options: options);
-    return response.data;
+    try {
+      final response = await _dio.post<dynamic>(path, data: body, options: options);
+      AppStateStore.instance.clearFixtureFallback();
+      _syncCurrentUserIfNeeded(path, response.data);
+      return response.data;
+    } catch (error) {
+      final fallback = AppFixtures.postFallback(
+        path,
+        body,
+        isDriver: AppStateStore.instance.isDriver,
+      );
+      if (fallback != null) {
+        AppStateStore.instance.reportFixtureFallback(
+          endpoint: path,
+          reason: _errorMessage(error),
+        );
+        _syncCurrentUserIfNeeded(path, fallback);
+        return fallback;
+      }
+      rethrow;
+    }
   }
 
   Future<dynamic> patch(
@@ -152,8 +192,59 @@ class ApiService {
     dynamic body, {
     Options? options,
   }) async {
-    final response = await _dio.patch<dynamic>(path, data: body, options: options);
-    return response.data;
+    try {
+      final response = await _dio.patch<dynamic>(path, data: body, options: options);
+      AppStateStore.instance.clearFixtureFallback();
+      _syncCurrentUserIfNeeded(path, response.data);
+      return response.data;
+    } catch (error) {
+      final fallback = AppFixtures.patchFallback(
+        path,
+        body,
+        isDriver: AppStateStore.instance.isDriver,
+      );
+      if (fallback != null) {
+        AppStateStore.instance.reportFixtureFallback(
+          endpoint: path,
+          reason: _errorMessage(error),
+        );
+        _syncCurrentUserIfNeeded(path, fallback);
+        return fallback;
+      }
+      rethrow;
+    }
+  }
+
+  static String _errorMessage(Object error) {
+    if (error is DioException) {
+      final dynamic body = error.response?.data;
+      if (body is Map<String, dynamic>) {
+        final dynamic data = body['data'];
+        if (data is Map<String, dynamic> && data['message'] != null) {
+          return data['message'].toString();
+        }
+        if (body['message'] != null) {
+          return body['message'].toString();
+        }
+      }
+      return error.message ?? error.type.name;
+    }
+    return error.toString();
+  }
+
+  static void _syncCurrentUserIfNeeded(String path, dynamic payload) {
+    if (path != '/api/users/me') return;
+    final map = _extractMap(payload);
+    if (map != null && map.isNotEmpty) {
+      AppStateStore.instance.updateCurrentUserFromJson(map);
+    }
+  }
+
+  static Map<String, dynamic>? _extractMap(dynamic payload) {
+    if (payload is! Map<String, dynamic>) return null;
+    final dynamic data = payload['data'];
+    if (data is Map<String, dynamic>) return data;
+    return payload;
   }
 }
 
@@ -179,6 +270,11 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
+    if (!AppStateStore.instance.authenticationEnabled) {
+      handler.next(err);
+      return;
+    }
+
     final statusCode = err.response?.statusCode;
     final requestPath = err.requestOptions.path;
 

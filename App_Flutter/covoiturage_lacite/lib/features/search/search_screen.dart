@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/models/trip.dart';
+import '../../core/services/api_service.dart';
+import '../../core/services/ors_route_service.dart';
 import '../../core/services/trip_service.dart';
 import 'driver_search_map_screen.dart';
 import 'trip_card.dart';
@@ -12,7 +17,7 @@ class SearchScreen extends StatefulWidget {
     required this.tripService,
     this.initialFrom,
     this.initialTo,
-    this.isDriver = true,
+    this.isDriver = false,
   });
 
   final TripService tripService;
@@ -29,6 +34,20 @@ class _SearchScreenState extends State<SearchScreen> {
   final _toCtrl = TextEditingController();
   final _fromFocus = FocusNode();
   final _toFocus = FocusNode();
+
+  Timer? _debounce;
+  Timer? _driverAutoSearchDebounce;
+  bool _fromFieldActive = true;
+  bool _isLoadingSuggestion = false;
+  List<OrsPlaceSuggestion> _orsSuggestions = const <OrsPlaceSuggestion>[];
+  OrsPlaceSuggestion? _fromSelection;
+  OrsPlaceSuggestion? _toSelection;
+  bool _driverAutoSearchInFlight = false;
+  String? _lastDriverAutoSearchKey;
+
+  bool _isLoadingFavoritePlaces = false;
+  bool _isLocatingUser = false;
+  List<_FavoritePlaceItem> _favoritePlaces = const <_FavoritePlaceItem>[];
 
   bool _isLoading = false;
   bool _hasSearched = false;
@@ -51,10 +70,22 @@ class _SearchScreenState extends State<SearchScreen> {
     super.initState();
     if (widget.initialFrom != null) _fromCtrl.text = widget.initialFrom!;
     if (widget.initialTo != null) _toCtrl.text = widget.initialTo!;
+    _fromFocus.addListener(_onFocusChanged);
+    _toFocus.addListener(_onFocusChanged);
+    if (widget.isDriver) {
+      unawaited(_loadDriverFavoritePlaces());
+      if (_canSearch) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scheduleDriverAutoSearch();
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
+    _debounce?.cancel();
+    _driverAutoSearchDebounce?.cancel();
     _fromCtrl.dispose();
     _toCtrl.dispose();
     _fromFocus.dispose();
@@ -62,7 +93,247 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  Future<void> _runSearch() async {
+  void _onFocusChanged() {
+    if (!_fromFocus.hasFocus && !_toFocus.hasFocus) {
+      setState(() {
+        _isLoadingSuggestion = false;
+        _orsSuggestions = const <OrsPlaceSuggestion>[];
+      });
+      if (widget.isDriver) {
+        unawaited(_triggerDriverAutoSearchIfReady());
+      }
+      return;
+    }
+
+    _fromFieldActive = _fromFocus.hasFocus;
+    if (!widget.isDriver) {
+      setState(() {});
+      return;
+    }
+
+    final String seed =
+        _fromFieldActive ? _fromCtrl.text.trim() : _toCtrl.text.trim();
+    _queueOrsSuggestions(seed);
+  }
+
+  void _queueOrsSuggestions(String raw) {
+    _debounce?.cancel();
+    final String query = raw.trim();
+    if (query.length < 2) {
+      setState(() {
+        _isLoadingSuggestion = false;
+        _orsSuggestions = const <OrsPlaceSuggestion>[];
+      });
+      return;
+    }
+
+    setState(() => _isLoadingSuggestion = true);
+    _debounce = Timer(const Duration(milliseconds: 260), () async {
+      final List<OrsPlaceSuggestion> found =
+          await OrsRouteService.instance.suggestPlaces(query, limit: 8);
+      if (!mounted) return;
+      setState(() {
+        _isLoadingSuggestion = false;
+        _orsSuggestions = found;
+      });
+    });
+  }
+
+  void _onFromChanged(String value) {
+    if (_fromSelection?.label != value.trim()) {
+      _fromSelection = null;
+    }
+    _lastDriverAutoSearchKey = null;
+    if (widget.isDriver && _fromFocus.hasFocus) {
+      _queueOrsSuggestions(value);
+    }
+    _scheduleDriverAutoSearch();
+    setState(() {});
+  }
+
+  void _onToChanged(String value) {
+    if (_toSelection?.label != value.trim()) {
+      _toSelection = null;
+    }
+    _lastDriverAutoSearchKey = null;
+    if (widget.isDriver && _toFocus.hasFocus) {
+      _queueOrsSuggestions(value);
+    }
+    _scheduleDriverAutoSearch();
+    setState(() {});
+  }
+
+  void _scheduleDriverAutoSearch() {
+    if (!widget.isDriver) return;
+    _driverAutoSearchDebounce?.cancel();
+    _driverAutoSearchDebounce = Timer(
+      const Duration(milliseconds: 220),
+      _triggerDriverAutoSearchIfReady,
+    );
+  }
+
+  Future<void> _triggerDriverAutoSearchIfReady() async {
+    if (!mounted || !widget.isDriver || !_canSearch || _driverAutoSearchInFlight) {
+      return;
+    }
+    final String key = '${_fromCtrl.text.trim()}|${_toCtrl.text.trim()}';
+    if (_lastDriverAutoSearchKey == key) return;
+
+    _driverAutoSearchInFlight = true;
+    _lastDriverAutoSearchKey = key;
+    try {
+      await _openDriverMap();
+    } finally {
+      _driverAutoSearchInFlight = false;
+    }
+  }
+
+  Future<void> _loadDriverFavoritePlaces() async {
+    if (!widget.isDriver) return;
+    if (mounted) setState(() => _isLoadingFavoritePlaces = true);
+
+    try {
+      dynamic payload;
+      try {
+        payload = await ApiService.instance.get('/api/favorites');
+      } catch (_) {
+        payload = await ApiService.instance.get('/api/lieux-favoris');
+      }
+      final dynamic body = (payload is Map<String, dynamic>)
+          ? (payload['data'] ?? payload)
+          : payload;
+      final dynamic placesData = body is Map<String, dynamic>
+          ? (body['places'] ?? body['favoritePlaces'] ?? body['locations'])
+          : body;
+
+      final List<dynamic> rows = _extractList(placesData);
+      final List<_FavoritePlaceItem> parsed = rows
+          .whereType<Map<String, dynamic>>()
+          .map(_FavoritePlaceItem.fromJson)
+          .where((item) => item.label.isNotEmpty)
+          .toList();
+
+      if (!mounted) return;
+      setState(() {
+        _favoritePlaces = parsed.isEmpty ? _FavoritePlaceItem.fixtureFallback : parsed;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _favoritePlaces = _FavoritePlaceItem.fixtureFallback;
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingFavoritePlaces = false);
+      }
+    }
+  }
+
+  List<dynamic> _extractList(dynamic data) {
+    if (data is List<dynamic>) return data;
+    if (data is Map<String, dynamic>) {
+      final dynamic candidate = data['items'] ?? data['data'] ?? data['results'];
+      if (candidate is List<dynamic>) return candidate;
+    }
+    return const <dynamic>[];
+  }
+
+  Future<void> _useCurrentLocationAsDeparture() async {
+    if (_isLocatingUser) return;
+    FocusScope.of(context).unfocus();
+    if (mounted) {
+      setState(() {
+        _isLocatingUser = true;
+        _error = null;
+      });
+    }
+
+    try {
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        if (mounted) {
+          setState(() {
+            _error = 'Activez la localisation pour utiliser votre position.';
+          });
+        }
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          setState(() {
+            _error = 'Permission de localisation refusee.';
+          });
+        }
+        return;
+      }
+
+      final Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.bestForNavigation,
+      );
+
+      final String label =
+          'Votre position (${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)})';
+      _fromCtrl.text = label;
+      _fromSelection = OrsPlaceSuggestion(
+        label: label,
+        lat: position.latitude,
+        lng: position.longitude,
+      );
+      _fromFieldActive = false;
+      _lastDriverAutoSearchKey = null;
+      if (mounted) setState(() {});
+
+      await _triggerDriverAutoSearchIfReady();
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _error = 'Impossible de recuperer votre position actuelle.';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLocatingUser = false);
+      }
+    }
+  }
+
+  void _selectFavoritePlace(_FavoritePlaceItem place) {
+    final bool fillFrom = _fromFocus.hasFocus ||
+        (!_toFocus.hasFocus && _fromCtrl.text.trim().isEmpty);
+
+    if (fillFrom) {
+      _fromCtrl.text = place.label;
+      _fromSelection = place.toSuggestion();
+      _fromFieldActive = false;
+    } else {
+      _toCtrl.text = place.label;
+      _toSelection = place.toSuggestion();
+    }
+
+    _lastDriverAutoSearchKey = null;
+    setState(() {});
+    FocusScope.of(context).unfocus();
+    _scheduleDriverAutoSearch();
+  }
+
+  void _onInputSubmitted() {
+    if (widget.isDriver) {
+      unawaited(_triggerDriverAutoSearchIfReady());
+      return;
+    }
+    if (_canSearch) {
+      unawaited(_runPassengerSearch());
+    }
+  }
+
+  Future<void> _runPassengerSearch() async {
     FocusScope.of(context).unfocus();
     setState(() {
       _isLoading = true;
@@ -76,10 +347,77 @@ class _SearchScreenState extends State<SearchScreen> {
       );
       setState(() => _results = results);
     } catch (_) {
-      setState(() => _error = 'Connexion impossible. Verifiez votre reseau.');
+      try {
+        final fallback = await widget.tripService.searchTrips(from: '', to: '');
+        setState(() {
+          _results = fallback;
+          _error = null;
+        });
+      } catch (_) {
+        setState(() => _error = 'Connexion impossible. Verifiez votre reseau.');
+      }
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _openDriverMap() async {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final OrsPlaceSuggestion? from = _fromSelection ??
+          await OrsRouteService.instance.geocodeFirst(_fromCtrl.text.trim());
+      final OrsPlaceSuggestion? to = _toSelection ??
+          await OrsRouteService.instance.geocodeFirst(_toCtrl.text.trim());
+
+      if (!mounted) return;
+      if (from == null || to == null) {
+        setState(() {
+          _isLoading = false;
+          _error = 'Choisissez un depart et une destination valides.';
+        });
+        _lastDriverAutoSearchKey = null;
+        return;
+      }
+
+      _fromSelection = from;
+      _toSelection = to;
+
+      await context.push(
+        '/driver-search-map',
+        extra: DriverSearchMapArgs(
+          fromText: from.label,
+          toText: to.label,
+          fromLat: from.lat,
+          fromLng: from.lng,
+          toLat: to.lat,
+          toLng: to.lng,
+        ),
+      );
+      _error = null;
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _error = 'Impossible d\'ouvrir la carte pour cette recherche.';
+        });
+      }
+      _lastDriverAutoSearchKey = null;
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _onSearchTap() async {
+    if (!_canSearch) return;
+    if (widget.isDriver) {
+      await _openDriverMap();
+      return;
+    }
+    await _runPassengerSearch();
   }
 
   void _selectSuggestion(String label) {
@@ -90,6 +428,22 @@ class _SearchScreenState extends State<SearchScreen> {
     }
     setState(() {});
     FocusScope.of(context).unfocus();
+  }
+
+  void _selectDriverSuggestion(OrsPlaceSuggestion suggestion) {
+    if (_fromFieldActive) {
+      _fromCtrl.text = suggestion.label;
+      _fromSelection = suggestion;
+    } else {
+      _toCtrl.text = suggestion.label;
+      _toSelection = suggestion;
+    }
+    _lastDriverAutoSearchKey = null;
+    setState(() {
+      _orsSuggestions = const <OrsPlaceSuggestion>[];
+    });
+    FocusScope.of(context).unfocus();
+    _scheduleDriverAutoSearch();
   }
 
   void _navigateToDetail(Trip trip) {
@@ -109,6 +463,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isFocused = _fromFocus.hasFocus || _toFocus.hasFocus;
+    final bool canPop = Navigator.of(context).canPop();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF2F5FA),
@@ -120,6 +475,13 @@ class _SearchScreenState extends State<SearchScreen> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
               child: Row(
                 children: [
+                  if (widget.isDriver || canPop) ...<Widget>[
+                    IconButton(
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
                   Expanded(
                     child: Column(
                       children: [
@@ -128,7 +490,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           focus: _fromFocus,
                           hint: 'Point de depart',
                           dotColor: Colors.white,
-                          onChanged: () => setState(() {}),
+                          onChanged: _onFromChanged,
+                          onSubmitted: _onInputSubmitted,
                         ),
                         const SizedBox(height: 8),
                         _SearchField(
@@ -136,14 +499,15 @@ class _SearchScreenState extends State<SearchScreen> {
                           focus: _toFocus,
                           hint: 'Destination',
                           dotColor: const Color(0xFF1A56CC),
-                          onChanged: () => setState(() {}),
+                          onChanged: _onToChanged,
+                          onSubmitted: _onInputSubmitted,
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(width: 10),
                   GestureDetector(
-                    onTap: _canSearch ? _runSearch : null,
+                    onTap: _canSearch ? _onSearchTap : null,
                     child: Container(
                       width: 52,
                       height: 52,
@@ -153,13 +517,29 @@ class _SearchScreenState extends State<SearchScreen> {
                             : const Color(0xFF94A3B8),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.search, color: Colors.white, size: 24),
+                      child: _isLoading
+                          ? const Padding(
+                              padding: EdgeInsets.all(14),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.search, color: Colors.white, size: 24),
                     ),
                   ),
                 ],
+                ),
               ),
-            ),
-            if (!isFocused)
+            if (!isFocused && widget.isDriver)
+              _DriverQuickPlaces(
+                isLocatingUser: _isLocatingUser,
+                isLoadingFavorites: _isLoadingFavoritePlaces,
+                favorites: _favoritePlaces,
+                onUseCurrentLocation: _useCurrentLocationAsDeparture,
+                onFavoriteTap: _selectFavoritePlace,
+              ),
+            if (!isFocused && !widget.isDriver)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
@@ -199,22 +579,49 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
               ),
+            if (_error != null)
+              Container(
+                width: double.infinity,
+                color: const Color(0xFFFAEEDA),
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                child: Text(
+                  _error!,
+                  style: const TextStyle(
+                    color: Color(0xFF854F0B),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             Expanded(
               child: isFocused
-                  ? _FocusSuggestions(
-                      suggestions: _suggestions,
-                      onSelect: _selectSuggestion,
-                    )
-                  : _ResultsZone(
-                      isLoading: _isLoading,
-                      hasSearched: _hasSearched,
-                      error: _error,
-                      results: _results,
-                      onRetry: _runSearch,
-                      onTripTap: _navigateToDetail,
-                      showMapAfterSearch: widget.isDriver,
-                      onMapTap: _openMapAfterSearch,
-                    ),
+                  ? (widget.isDriver
+                      ? _DriverSuggestions(
+                          suggestions: _orsSuggestions,
+                          isLoading: _isLoadingSuggestion,
+                          onSelect: _selectDriverSuggestion,
+                        )
+                      : _FocusSuggestions(
+                          suggestions: _suggestions,
+                          onSelect: _selectSuggestion,
+                        ))
+                  : (widget.isDriver
+                      ? _DriverIdleZone(
+                          canSearch: _canSearch,
+                          fromLabel: _fromCtrl.text.trim(),
+                          toLabel: _toCtrl.text.trim(),
+                          onOpenMap: _openDriverMap,
+                        )
+                      : _ResultsZone(
+                          isLoading: _isLoading,
+                          hasSearched: _hasSearched,
+                          error: _error,
+                          results: _results,
+                          onRetry: _runPassengerSearch,
+                          onTripTap: _navigateToDetail,
+                          showMapAfterSearch: false,
+                          onMapTap: _openMapAfterSearch,
+                        )),
             ),
           ],
         ),
@@ -230,13 +637,15 @@ class _SearchField extends StatelessWidget {
     required this.hint,
     required this.dotColor,
     required this.onChanged,
+    this.onSubmitted,
   });
 
   final TextEditingController ctrl;
   final FocusNode focus;
   final String hint;
   final Color dotColor;
-  final VoidCallback onChanged;
+  final ValueChanged<String> onChanged;
+  final VoidCallback? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +669,8 @@ class _SearchField extends StatelessWidget {
             child: TextField(
               controller: ctrl,
               focusNode: focus,
-              onChanged: (_) => onChanged(),
+              onChanged: onChanged,
+              onSubmitted: (_) => onSubmitted?.call(),
               decoration: InputDecoration(
                 hintText: hint,
                 border: InputBorder.none,
@@ -273,12 +683,118 @@ class _SearchField extends StatelessWidget {
             InkWell(
               onTap: () {
                 ctrl.clear();
-                onChanged();
+                onChanged('');
               },
               child: const Padding(
                 padding: EdgeInsets.only(right: 10),
                 child: Icon(Icons.close, size: 16, color: Color(0xFF8A95A8)),
               ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DriverQuickPlaces extends StatelessWidget {
+  const _DriverQuickPlaces({
+    required this.isLocatingUser,
+    required this.isLoadingFavorites,
+    required this.favorites,
+    required this.onUseCurrentLocation,
+    required this.onFavoriteTap,
+  });
+
+  final bool isLocatingUser;
+  final bool isLoadingFavorites;
+  final List<_FavoritePlaceItem> favorites;
+  final VoidCallback onUseCurrentLocation;
+  final ValueChanged<_FavoritePlaceItem> onFavoriteTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: Colors.white,
+      child: Column(
+        children: <Widget>[
+          ListTile(
+            onTap: isLocatingUser ? null : onUseCurrentLocation,
+            leading: const Icon(Icons.my_location_rounded, color: Color(0xFF1A56CC)),
+            title: const Text(
+              'Votre position',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+            subtitle: const Text(
+              'Utiliser ma position exacte comme depart',
+              style: TextStyle(color: Color(0xFF7A879A), fontSize: 12),
+            ),
+            trailing: isLocatingUser
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
+          ),
+          const Divider(height: 1, color: Color(0x12000000)),
+          if (isLoadingFavorites)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else if (favorites.isEmpty)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 14, 16, 14),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Aucun favori disponible.',
+                  style: TextStyle(color: Color(0xFF7A879A), fontSize: 12),
+                ),
+              ),
+            )
+          else
+            Column(
+              children: favorites
+                  .map(
+                    (place) => Column(
+                      children: <Widget>[
+                        ListTile(
+                          onTap: () => onFavoriteTap(place),
+                          leading: const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFF0F6E56),
+                          ),
+                          title: Text(
+                            place.label,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          subtitle: place.address.isEmpty
+                              ? null
+                              : Text(
+                                  place.address,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Color(0xFF7A879A),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                          trailing: const Icon(
+                            Icons.chevron_right_rounded,
+                            color: Color(0xFF94A3B8),
+                          ),
+                        ),
+                        const Divider(height: 1, color: Color(0x12000000)),
+                      ],
+                    ),
+                  )
+                  .toList(),
             ),
         ],
       ),
@@ -304,6 +820,199 @@ class _FocusSuggestions extends StatelessWidget {
           leading: const Icon(Icons.place_outlined, color: Color(0xFF1A56CC)),
           title: Text(suggestions[i], style: const TextStyle(fontWeight: FontWeight.w600)),
           subtitle: const Text('Lieu suggere', style: TextStyle(color: Color(0xFF7A879A))),
+        ),
+      ),
+    );
+  }
+}
+
+class _FavoritePlaceItem {
+  const _FavoritePlaceItem({
+    required this.id,
+    required this.label,
+    required this.address,
+    this.lat,
+    this.lng,
+  });
+
+  final String id;
+  final String label;
+  final String address;
+  final double? lat;
+  final double? lng;
+
+  OrsPlaceSuggestion? toSuggestion() {
+    final double? safeLat = lat;
+    final double? safeLng = lng;
+    if (safeLat == null || safeLng == null) return null;
+    return OrsPlaceSuggestion(label: label, lat: safeLat, lng: safeLng);
+  }
+
+  static _FavoritePlaceItem fromJson(Map<String, dynamic> row) {
+    final dynamic coords = row['coordinates'] ?? row['coordonnees'] ?? row['location'];
+    double? parsedLat =
+        _toNullableDouble(row['lat'] ?? row['latitude'] ?? row['y']);
+    double? parsedLng = _toNullableDouble(
+      row['lng'] ?? row['lon'] ?? row['longitude'] ?? row['x'],
+    );
+
+    if ((parsedLat == null || parsedLng == null) && coords is Map<String, dynamic>) {
+      parsedLat = parsedLat ??
+          _toNullableDouble(coords['lat'] ?? coords['latitude'] ?? coords['y']);
+      parsedLng = parsedLng ?? _toNullableDouble(
+        coords['lng'] ?? coords['lon'] ?? coords['longitude'] ?? coords['x'],
+      );
+    }
+
+    if ((parsedLat == null || parsedLng == null) && coords is List && coords.length >= 2) {
+      final double first = _toNullableDouble(coords[0]) ?? 0;
+      final double second = _toNullableDouble(coords[1]) ?? 0;
+      if (first.abs() <= 90 && second.abs() <= 180) {
+        parsedLat = first;
+        parsedLng = second;
+      } else if (first.abs() <= 180 && second.abs() <= 90) {
+        parsedLat = second;
+        parsedLng = first;
+      }
+    }
+
+    return _FavoritePlaceItem(
+      id: row['id']?.toString() ?? '',
+      label: row['label']?.toString() ??
+          row['name']?.toString() ??
+          row['title']?.toString() ??
+          '',
+      address: row['address']?.toString() ?? row['description']?.toString() ?? '',
+      lat: parsedLat,
+      lng: parsedLng,
+    );
+  }
+
+  static const List<_FavoritePlaceItem> fixtureFallback = <_FavoritePlaceItem>[
+    _FavoritePlaceItem(
+      id: 'fav_place_fallback_1',
+      label: 'Campus',
+      address: '801 promenade de l\'Aviation, Ottawa',
+    ),
+    _FavoritePlaceItem(
+      id: 'fav_place_fallback_2',
+      label: 'Maison',
+      address: '142 rue des Erables, Gatineau',
+    ),
+  ];
+
+  static double? _toNullableDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '');
+  }
+}
+
+class _DriverSuggestions extends StatelessWidget {
+  const _DriverSuggestions({
+    required this.suggestions,
+    required this.isLoading,
+    required this.onSelect,
+  });
+
+  final List<OrsPlaceSuggestion> suggestions;
+  final bool isLoading;
+  final ValueChanged<OrsPlaceSuggestion> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Color(0xFF1A56CC)),
+      );
+    }
+
+    if (suggestions.isEmpty) {
+      return const Center(
+        child: Text(
+          'Saisissez au moins 2 lettres pour voir les suggestions ORS.',
+          style: TextStyle(color: Color(0xFF7A879A), fontSize: 12),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
+    return Container(
+      color: Colors.white,
+      child: ListView.separated(
+        itemCount: suggestions.length,
+        separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0x12000000)),
+        itemBuilder: (_, i) {
+          final s = suggestions[i];
+          return ListTile(
+            onTap: () => onSelect(s),
+            leading: const Icon(Icons.place_outlined, color: Color(0xFF1A56CC)),
+            title: Text(
+              s.label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: Text(
+              '${s.lat.toStringAsFixed(5)}, ${s.lng.toStringAsFixed(5)}',
+              style: const TextStyle(color: Color(0xFF7A879A), fontSize: 12),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _DriverIdleZone extends StatelessWidget {
+  const _DriverIdleZone({
+    required this.canSearch,
+    required this.fromLabel,
+    required this.toLabel,
+    required this.onOpenMap,
+  });
+
+  final bool canSearch;
+  final String fromLabel;
+  final String toLabel;
+  final VoidCallback onOpenMap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.map_rounded, size: 64, color: Color(0xFFB6C2D3)),
+            const SizedBox(height: 12),
+            const Text(
+              'Recherche conducteur',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0D1624),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              canSearch
+                  ? '$fromLabel -> $toLabel'
+                  : 'Choisissez un point de depart et une destination.',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Color(0xFF7A879A), fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: canSearch ? onOpenMap : null,
+              icon: const Icon(Icons.map_rounded),
+              label: const Text('Afficher la carte'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F6E56),
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -2,6 +2,8 @@
 import 'package:go_router/go_router.dart';
 
 import '../../core/services/api_service.dart';
+import '../../core/state/app_state.dart';
+import '../../core/utils/parsing.dart' as parsing;
 import '../../shared/cards/trip_card.dart';
 import '../../shared/widgets/item_list_view.dart';
 
@@ -32,8 +34,11 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
     });
 
     try {
-      final dynamic payload = await ApiService.instance.get('/api/trips/history');
-      final List<dynamic> rows = _extractList(payload);
+      final String path = AppStateStore.instance.isDriver
+          ? '/api/driver/historique'
+          : '/api/passenger/historique';
+      final dynamic payload = await ApiService.instance.get(path);
+      final List<dynamic> rows = parsing.extractList(payload);
       if (!mounted) return;
       setState(() {
         _items = rows
@@ -49,14 +54,6 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
         _error = e.toString();
       });
     }
-  }
-
-  List<dynamic> _extractList(dynamic data) {
-    if (data is List) return data;
-    if (data is Map) {
-      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[]) as List<dynamic>;
-    }
-    return <dynamic>[];
   }
 
   DateTime? _parseDate(dynamic v) {

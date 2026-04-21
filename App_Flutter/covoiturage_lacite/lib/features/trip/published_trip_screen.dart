@@ -302,7 +302,7 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
   // ─────────────────────────────────────────────────────────
   Widget _buildSummaryCard(Trip t) {
     return Transform.translate(
-      offset: const Offset(0, -28),
+      offset: const Offset(0, -12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Container(
@@ -1453,13 +1453,28 @@ enum _BTNState {
 // ─────────────────────────────────────────────────────────────
 List<Offset> _extractPolyline(Map<String, dynamic>? raw) {
   if (raw == null) return [];
-  final source = raw['polyline'] ?? raw['routePolyline'];
+  final source =
+      raw['polyline'] ?? raw['routePolyline'] ?? raw['waypoints'] ?? raw['coordinates'];
   if (source is List) {
-    return source.whereType<List>().map((r) {
-      final lat = (r[0] as num).toDouble();
-      final lng = (r[1] as num).toDouble();
-      return Offset(lng, lat);
-    }).toList();
+    return source
+        .map<Offset?>((dynamic row) {
+          if (row is List && row.length >= 2) {
+            final double lat = (row[0] as num?)?.toDouble() ?? 0;
+            final double lng = (row[1] as num?)?.toDouble() ?? 0;
+            if (lat == 0 && lng == 0) return null;
+            return Offset(lng, lat);
+          }
+          if (row is Map) {
+            final Map<dynamic, dynamic> m = row;
+            final double lat = ((m['lat'] ?? m['latitude']) as num?)?.toDouble() ?? 0;
+            final double lng = ((m['lng'] ?? m['lon'] ?? m['longitude']) as num?)?.toDouble() ?? 0;
+            if (lat == 0 && lng == 0) return null;
+            return Offset(lng, lat);
+          }
+          return null;
+        })
+        .whereType<Offset>()
+        .toList();
   }
   return [];
 }

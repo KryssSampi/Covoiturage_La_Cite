@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/app_colors.dart';
 import '../../core/app_text_styles.dart';
+import '../../core/converters/display_converters.dart';
+import '../../core/state/app_state.dart';
 import '../../shared/widgets/shared_widgets.dart';
 import '../../core/services/api_service.dart';
 
@@ -87,6 +89,7 @@ class _HomePageState extends State<HomePage> {
   final _searchCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
   final _api = ApiService.instance;
+  static const Duration _loadTimeout = Duration(seconds: 18);
 
   bool _isSearchFocused = false;
   bool _isLoading = true;
@@ -109,22 +112,32 @@ class _HomePageState extends State<HomePage> {
   Future<void> _loadDashboard() async {
     setState(() => _isLoading = true);
     try {
-      final dynamic data = await _api.get('/api/dashboard/driver/me');
-      final Map<String, dynamic> body = (data is Map<String, dynamic>)
-          ? ((data['data'] is Map<String, dynamic>)
-              ? data['data'] as Map<String, dynamic>
-              : data)
-          : <String, dynamic>{};
+      final bool isDriver = AppStateStore.instance.isDriver;
+      final List<dynamic> payloads = await Future.wait<dynamic>(<Future<dynamic>>[
+        _api.get('/api/users/me'),
+        isDriver
+            ? _api.get('/api/trips/mine/driver')
+            : _api.get('/api/reservations'),
+        isDriver
+            ? _api.get('/api/driver/reservation-requests')
+            : _api.get('/api/passenger/reservations-enriched'),
+        isDriver
+            ? _api.get('/api/finances/driver/summary')
+            : _api.get('/api/finances/passenger/summary'),
+      ]).timeout(_loadTimeout);
+      final HomeDashboardDisplay dashboard = DisplayConverters.toHomeDashboard(
+        userPayload: payloads[0],
+        tripsPayload: payloads[1],
+        pendingPayload: payloads[2],
+        financePayload: payloads[3],
+      );
+
       if (!mounted) return;
-      final dynamic rawRating = body['stats']?['avgRating'] ?? body['rating'] ?? 0.0;
-      final double rating = rawRating is num
-          ? rawRating.toDouble()
-          : double.tryParse(rawRating.toString()) ?? 0.0;
       setState(() {
-        _firstName = body['firstName']?.toString() ?? '';
+        _firstName = dashboard.firstName;
         _stats = [
           _StatCard(
-            value: '${body['stats']?['totalTrips'] ?? body['totalTrips'] ?? 0}',
+            value: '${dashboard.totalTrips}',
             unit: '',
             label: 'Trajets',
             iconBg: const Color(0xFFFDECEA),
@@ -132,7 +145,7 @@ class _HomePageState extends State<HomePage> {
             icon: Icons.directions_car_outlined,
           ),
           _StatCard(
-            value: rating.toStringAsFixed(1),
+            value: dashboard.averageRating.toStringAsFixed(1),
             unit: '',
             label: 'Note',
             iconBg: AppColors.amberLight,
@@ -140,7 +153,7 @@ class _HomePageState extends State<HomePage> {
             icon: Icons.star_outline,
           ),
           _StatCard(
-            value: '${body['stats']?['totalPassengers'] ?? 0}',
+            value: '${dashboard.totalPassengers}',
             unit: '',
             label: 'Passagers',
             iconBg: AppColors.tealLight,
@@ -148,7 +161,7 @@ class _HomePageState extends State<HomePage> {
             icon: Icons.people_alt_outlined,
           ),
           _StatCard(
-            value: '${body['stats']?['totalRevenue'] ?? body['revenue'] ?? 0}',
+            value: '${dashboard.totalRevenue.toStringAsFixed(0)}',
             unit: '\$',
             label: 'Revenus',
             iconBg: AppColors.blueLight,
@@ -156,7 +169,7 @@ class _HomePageState extends State<HomePage> {
             icon: Icons.payments_outlined,
           ),
         ];
-        _requests = _extractRequests(_extractList(body['pendingRequests'] ?? body['reservationRequests']));
+        _requests = _extractRequests(dashboard.pendingRequests.cast<dynamic>());
         _isLoading = false;
       });
     } catch (_) {
@@ -208,14 +221,6 @@ class _HomePageState extends State<HomePage> {
     }).toList();
   }
 
-  List<dynamic> _extractList(dynamic data) {
-    if (data is List) return data;
-    if (data is Map) {
-      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[]) as List<dynamic>;
-    }
-    return <dynamic>[];
-  }
-
   String _shortDate(String raw) {
     final DateTime? dt = _parseDate(raw);
     if (dt == null) return '';
@@ -248,11 +253,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.grayBg,
-      body: _isLoading
+    return ColoredBox(
+      color: AppColors.grayBg,
+      child: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF1A56CC)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: Color(0xFF1A56CC)),
+                  SizedBox(height: 10),
+                  Text(
+                    'Chargement de l''acceuil',
+                    style: TextStyle(
+                      color: Color(0xFF6B7280),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
             )
           : CustomScrollView(
         controller: _scrollCtrl,
@@ -687,13 +706,9 @@ class _StatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      childAspectRatio: 1.6,
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
       children: stats.map(_buildCard).toList(),
     );
   }
@@ -917,7 +932,7 @@ class _QuickNavGrid extends StatelessWidget {
         icon: Icons.calendar_today_outlined,
         bg: AppColors.tealLight,
         fg: AppColors.teal,
-        route: '/create-trip'),
+        route: '/search'),
     _QuickNavItem(
         label: 'Statistiques',
         icon: Icons.bar_chart_outlined,
@@ -946,16 +961,17 @@ class _QuickNavGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double totalWidth = MediaQuery.of(context).size.width - 16 * 2 - 12 * 2;
+    final double itemWidth = totalWidth / 3;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GridView.count(
-        crossAxisCount: 3,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 14,
-        childAspectRatio: .95,
-        children: _items.map((item) => _buildItem(context, item)).toList(),
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 14,
+        children: _items.map((item) => SizedBox(
+          width: itemWidth,
+          child: _buildItem(context, item),
+        )).toList(),
       ),
     );
   }

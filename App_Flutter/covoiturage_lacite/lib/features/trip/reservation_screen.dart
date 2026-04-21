@@ -324,6 +324,11 @@ List<dynamic> _extractList(dynamic payload) {
   if (payload is Map<String, dynamic>) {
     final dynamic data = payload['data'] ?? payload['items'] ?? payload['results'];
     if (data is List<dynamic>) return data;
+    if (data is Map<String, dynamic>) {
+      final dynamic nested =
+          data['items'] ?? data['results'] ?? data['rows'] ?? data['list'];
+      if (nested is List<dynamic>) return nested;
+    }
   }
   return <dynamic>[];
 }

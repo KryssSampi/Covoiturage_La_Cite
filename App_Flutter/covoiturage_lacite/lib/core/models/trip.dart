@@ -62,12 +62,21 @@ class Trip {
   });
 
   factory Trip.fromJson(Map<String, dynamic> json) {
-    final prefs = json['preferences'] as Map<String, dynamic>? ?? {};
-    final status = json['status'] as Map<String, dynamic>? ?? {};
-    final driver = json['driver'] as Map<String, dynamic>? ?? {};
-    final vehicle = json['vehicle'] as Map<String, dynamic>? ?? {};
-    final departure = json['departure'] as Map<String, dynamic>? ?? {};
-    final arrival = json['arrival'] as Map<String, dynamic>? ?? {};
+    Map<String, dynamic> asMap(dynamic value) {
+      if (value is Map<String, dynamic>) return value;
+      if (value is Map) {
+        return value.map((k, v) => MapEntry(k.toString(), v));
+      }
+      return <String, dynamic>{};
+    }
+
+    final prefs = asMap(json['preferences']);
+    final dynamic rawStatus = json['status'];
+    final Map<String, dynamic> status = asMap(rawStatus);
+    final driver = asMap(json['driver']);
+    final vehicle = asMap(json['vehicle']);
+    final departure = asMap(json['departure']);
+    final arrival = asMap(json['arrival']);
     final String driverFullName = '${driver['firstName'] ?? ''} ${driver['lastName'] ?? ''}'.trim();
 
     int parseInt(dynamic value, {int fallback = 0}) {
@@ -85,7 +94,9 @@ class Trip {
     return Trip(
       id: json['id']?.toString() ?? '',
       driverName: (json['driverName']?.toString() ?? driverFullName).trim(),
-      driverRating: parseDouble(driver['rating'] ?? json['driverRating']),
+      driverRating: parseDouble(
+        driver['rating'] ?? driver['averageRating'] ?? json['driverRating'],
+      ),
       driverTripCount: parseInt(driver['tripCount'] ?? json['driverTripCount']),
       driverAvatarUrl: driver['avatarUrl'] as String?,
       departureLabel: departure['label']?.toString() ??
@@ -101,27 +112,52 @@ class Trip {
           json['arrivalAddress']?.toString() ??
           '',
       departureDate: json['departureDate']?.toString() ?? '',
-      departureTime: (json['departureTime'] ?? json['departureDateTime'] ?? '').toString(),
+      departureTime: (json['departureTime'] ??
+              json['departureDateTime'] ??
+              json['time'] ??
+              '')
+          .toString(),
       arrivalTime: json['arrivalTime'] as String?,
-      availableSeats: parseInt(json['availableSeats'] ?? json['seats']),
-      totalSeats: parseInt(json['totalSeats'], fallback: 4),
+      availableSeats: parseInt(
+        json['availableSeats'] ??
+            json['maxPassengers'] ??
+            json['seats'],
+      ),
+      totalSeats: parseInt(json['totalSeats'] ?? json['maxPassengers'], fallback: 4),
       pricePerSeat: parseDouble(json['pricePerPassenger'] ?? json['pricePerSeat'] ?? json['price']),
       passengerPrice: parseDouble(json['passengerPrice'] ?? json['pricePerPassenger'] ?? json['price']),
-      vehicleModel: vehicle['label'] as String? ?? json['vehicleModel'] as String? ?? '',
+      vehicleModel: vehicle['label'] as String? ??
+          ((vehicle['make'] != null || vehicle['model'] != null)
+              ? '${vehicle['make'] ?? ''} ${vehicle['model'] ?? ''}'.trim()
+              : null) ??
+          json['vehicleModel'] as String? ??
+          '',
       vehicleColor: vehicle['color'] as String? ?? json['vehicleColor'] as String? ?? '',
       paymentMethod: json['paymentMethod'] as String? ?? 'Cash',
-      estimatedDurationMin: parseInt(json['estimatedDurationMin'] ?? json['estimatedDuration']),
-      estimatedDistanceKm: parseDouble(json['estimatedDistanceKm'] ?? json['estimatedDistance']),
+      estimatedDurationMin: parseInt(
+        json['estimatedDurationMin'] ??
+            json['estimatedDurationMinutes'] ??
+            json['estimatedDuration'],
+      ),
+      estimatedDistanceKm: parseDouble(
+        json['estimatedDistanceKm'] ?? json['estimatedDistance'],
+      ),
       baggageAllowed: prefs['baggageAllowed'] as bool? ?? false,
       petsAllowed: prefs['petsAllowed'] as bool? ?? false,
       smokingAllowed: prefs['smokingAllowed'] as bool? ?? false,
       musicAllowed: prefs['musicAllowed'] as bool? ?? false,
       flexibleItinerary: prefs['flexibleItinerary'] as bool? ?? false,
       driverNote: prefs['driverNote'] as String?,
-      tripType: status['tripType'] as String? ?? 'Unique',
-      isRecurrent: status['isRecurrent'] as bool? ?? false,
-      maxDetourMinutes: status['maxDetourMinutes'] as int?,
-      lastUpdatedAt: status['lastUpdatedAt'] as String? ?? '',
+      tripType: status['tripType']?.toString() ??
+          json['tripType']?.toString() ??
+          (rawStatus is String ? rawStatus : 'Unique'),
+      isRecurrent: status['isRecurrent'] == true || json['isRecurrent'] == true,
+      maxDetourMinutes: (status['maxDetourMinutes'] ?? json['maxDetourMinutes']) == null
+          ? null
+          : parseInt(status['maxDetourMinutes'] ?? json['maxDetourMinutes']),
+      lastUpdatedAt: status['lastUpdatedAt']?.toString() ??
+          json['updatedAt']?.toString() ??
+          '',
     );
   }
 }
@@ -140,9 +176,10 @@ class ReservationResult {
   factory ReservationResult.fromJson(Map<String, dynamic> json) {
     final data = json['data'] as Map<String, dynamic>?;
     return ReservationResult(
-      success: json['success'] as bool? ?? false,
-      reservationId: data?['id'] as String?,
-      message: json['message'] as String?,
+      success: json['success'] as bool? ?? json['Success'] as bool? ?? false,
+      reservationId:
+          data?['id']?.toString() ?? data?['reservationId']?.toString(),
+      message: json['message'] as String? ?? json['Message'] as String?,
     );
   }
 }

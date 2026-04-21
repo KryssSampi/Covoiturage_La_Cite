@@ -1,5 +1,6 @@
 import '../models/trip.dart';
 import 'api_service.dart';
+import '../utils/parsing.dart' as parsing;
 
 class TripService {
   TripService(this._api);
@@ -18,8 +19,7 @@ class TripService {
       if (date != null) 'date': date,
       'seats': '$seats',
     });
-    final body = data as Map<String, dynamic>;
-    final items = (body['data']?['items'] ?? body['items'] ?? []) as List;
+    final items = parsing.extractList(data);
     return items.map((e) => Trip.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -43,9 +43,10 @@ class TripService {
 
   Future<List<Map<String, dynamic>>> getDriverTrips() async {
     final data = await _api.get('/api/trips/mine/driver');
-    final body = data as Map<String, dynamic>;
-    final items = (body['data'] ?? body['items'] ?? []) as List;
-    return items.cast<Map<String, dynamic>>();
+    return parsing
+        .extractList(data)
+        .whereType<Map<String, dynamic>>()
+        .toList();
   }
 
   Future<void> acceptReservation(String reservationId) async {

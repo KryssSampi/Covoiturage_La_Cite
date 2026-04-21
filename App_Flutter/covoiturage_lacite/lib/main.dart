@@ -11,6 +11,7 @@ import 'core/models/trip.dart';
 import 'core/navigation_key.dart';
 import 'core/services/api_service.dart';
 import 'core/services/trip_service.dart';
+import 'core/state/app_state.dart';
 import 'core/shell/app_shell.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/otp_screen.dart';
@@ -92,7 +93,7 @@ final GoRouter appRouter = GoRouter(
           tripService: _tripService,
           initialFrom: extra?['from']?.toString(),
           initialTo: extra?['to']?.toString(),
-          isDriver: true,
+          isDriver: AppStateStore.instance.isDriver,
         );
       },
     ),
@@ -159,7 +160,10 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/reservations',
-      builder: (_, __) => ReservationScreen(tripService: _tripService),
+      builder: (_, __) => ReservationScreen(
+        tripService: _tripService,
+        isDriver: AppStateStore.instance.isDriver,
+      ),
     ),
     GoRoute(
       path: '/chat/:tripId',
