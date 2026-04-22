@@ -150,6 +150,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const Duration _loadTimeout = Duration(seconds: 18);
   static const int _minSuggestionChars = 3;
 
+  Timer? _keyboardCloseTimer;
+
   bool _isSearchFocused = false;
   bool _isLoading = true;
   bool _hasError = false;
@@ -202,6 +204,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     _searchCtrl.removeListener(_onSearchTextChanged);
     _searchCtrl.dispose();
     _scrollCtrl.dispose();
+    _keyboardCloseTimer?.cancel();
     super.dispose();
   }
 
@@ -220,6 +223,29 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
         break;
+    }
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    final double keyboardInset = WidgetsBinding.instance.platformDispatcher.views.first.viewInsets.bottom;
+    // Si le clavier se ferme alors qu'on est en focus sur la barre de recherche
+    if (keyboardInset == 0 && _isSearchFocused) {
+      // On attend un court délai avant de fermer le focus pour laisser le clavier sortir
+      _keyboardCloseTimer?.cancel();
+      _keyboardCloseTimer = Timer(const Duration(milliseconds: 350), () {
+        if (!mounted) return;
+        FocusManager.instance.primaryFocus?.unfocus();
+        setState(() {
+          _isSearchFocused = false;
+          _isLoadingSuggestions = false;
+          _searchSuggestions = const <OrsPlaceSuggestion>[];
+        });
+      });
+    } else {
+      // Si le clavier s'ouvre ou autre, on annule le timer
+      _keyboardCloseTimer?.cancel();
     }
   }
 
@@ -641,13 +667,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future<void> _openSearch() async {
     final String query = _searchCtrl.text.trim();
+    final bool isDriver = AppStateStore.instance.isDriver;
     if (query.isEmpty) {
       context.push(
         '/search',
         extra: <String, dynamic>{
           'from': '',
           'to': '',
-          'isDriver': false,
+          'isDriver': isDriver,
         },
       );
       return;
@@ -684,7 +711,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         'toLat': destination.lat,
         'toLng': destination.lng,
         'autoSearch': true,
-        'isDriver': false,
+        'isDriver': isDriver,
       },
     );
   }
@@ -828,8 +855,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _buildHeroSection() {
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final double heroHeight = (screenHeight * 0.60).clamp(280.0, 560.0);
     return SizedBox(
-      height: 300,
+      height: heroHeight,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -900,30 +929,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Widget _buildHeroBackground() {
-    // Coupe le haut de l'image de 30 pixels
-    return ClipRect(
-      child: Padding(
-        padding: const EdgeInsets.only(top: 30),
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: Image.asset(
-            'assets/images/homepagebackground.png',
-            fit: BoxFit.cover,
-            alignment: Alignment.topCenter,
-            errorBuilder: (_, __, ___) {
-              // Fallback: dégradé bleu si l'image n'existe pas
-              return Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Color(0xFFE8F0FE), Color(0xFFDDE8F8)],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
+    return SizedBox.expand(
+      child: Image.asset(
+        'assets/images/homepagebackground.png',
+        fit: BoxFit.cover,
+        alignment: Alignment.topCenter,
+        errorBuilder: (_, __, ___) {
+          return Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFFE8F0FE), Color(0xFFDDE8F8)],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

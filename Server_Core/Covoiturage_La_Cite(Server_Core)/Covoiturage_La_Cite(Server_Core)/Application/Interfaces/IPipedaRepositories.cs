@@ -1,4 +1,4 @@
-using Covoiturage_La_Cite_Server_Core_.Data.Models;
+using Covoiturage_La_Cite_Server_Core_.Domain.Entities;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 

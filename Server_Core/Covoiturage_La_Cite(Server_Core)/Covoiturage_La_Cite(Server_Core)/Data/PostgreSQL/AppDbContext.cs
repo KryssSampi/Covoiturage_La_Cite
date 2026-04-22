@@ -69,6 +69,9 @@ public class AppDbContext : DbContext
     public DbSet<MediaStorage> MediaStorages => Set<MediaStorage>();
     public DbSet<MediaLog> MediaLogs => Set<MediaLog>();
 
+    public DbSet<ConsentementsPipedum> ConsentementsPipeda => Set<ConsentementsPipedum>();
+
+    public DbSet<ExportsDonnee> ExportsDonnees => Set<ExportsDonnee>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1,9 +1,11 @@
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Onboarding;
+using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Pipeda;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Entities;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 using VehicleEntity = Covoiturage_La_Cite_Server_Core_.Domain.Entities.Vehicle;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Onboarding;
@@ -11,6 +13,7 @@ namespace Covoiturage_La_Cite_Server_Core_.Application.Services.Onboarding;
 public class OnboardingService : IOnboardingService
 {
     private readonly IUserRepository _userRepo;
+    private readonly IPipedaComplianceService _pipedaServices;
     private readonly IVehiculeRepository _vehicleRepo;
     private readonly AppDbContext _db;
     private readonly ILogger<OnboardingService> _logger;
@@ -28,12 +31,14 @@ public class OnboardingService : IOnboardingService
     public OnboardingService(
         IUserRepository userRepo,
         IVehiculeRepository vehicleRepo,
+        IPipedaComplianceService pipedaServices,
         AppDbContext db,
         ILogger<OnboardingService> logger,
         INotificationService notifications)
     {
         _userRepo = userRepo;
         _vehicleRepo = vehicleRepo;
+        _pipedaServices = pipedaServices;
         _db = db;
         _logger = logger;
         _notifications = notifications;
@@ -55,6 +60,32 @@ public class OnboardingService : IOnboardingService
             ?? throw new KeyNotFoundException($"Utilisateur {userId} introuvable.");
 
         user.AlreadySignPolitics = true;
+
+        var consent = await _db.ConsentementsPipeda
+       .FirstOrDefaultAsync(c => c.UserId == user.Id, ct);
+
+        var consentDto = consent != null
+            ? new UpdateConsentDto
+            {
+                ConsentementPartageDonnees = consent.ConsentementPartageDonnees,
+                ConsentementGeolocalisation = consent.ConsentementGeolocalisation,
+                ConsentementMarketing = consent.ConsentementMarketing,
+                ConsentementAnalyseComportement = consent.ConsentementAnalyseComportement,
+                VersionPolitique = consent.VersionPolitique,
+                IpConsentement = consent.IpConsentement
+            }
+            : new UpdateConsentDto
+            {
+                ConsentementPartageDonnees = true,
+                ConsentementGeolocalisation = true,
+                ConsentementMarketing = false,
+                ConsentementAnalyseComportement = false,
+                VersionPolitique = "v1.0",
+                IpConsentement = "127.0.0.1"
+            };
+
+        var result = await _pipedaServices.UpdateConsentAsync(userId, consentDto, CancellationToken.None);
+
         user.UpdatedAt = DateTimeOffset.UtcNow;
         await _userRepo.UpdateAsync(user, ct);
 
@@ -93,12 +124,12 @@ public class OnboardingService : IOnboardingService
             {
                 await _notifications.CreateAsync(new CreateNotificationDto
                 {
-                    UserId      = userId,
-                    Type        = NotificationType.System,
-                    Title       = "Mode conducteur activé !",
-                    Body        = "Vous êtes maintenant en mode conducteur. Soumettez vos documents (permis, assurance, carte grise) pour commencer à proposer des trajets.",
+                    UserId = userId,
+                    Type = NotificationType.System,
+                    Title = "Mode conducteur activé !",
+                    Body = "Vous êtes maintenant en mode conducteur. Soumettez vos documents (permis, assurance, carte grise) pour commencer à proposer des trajets.",
                     IsImportant = true,
-                    DeepLink    = "/onboarding/documents",
+                    DeepLink = "/onboarding/documents",
                 }, ct);
             }
             catch (Exception ex)
