@@ -184,10 +184,11 @@ public class OnboardingService : IOnboardingService
             throw new InvalidOperationException("Une plaque d'immatriculation identique est déjà enregistrée.");
 
         var now = DateTimeOffset.UtcNow;
+        var driverProfileId = user.DriverProfile?.Id ?? throw new InvalidOperationException("Le profil conducteur n'a pas pu être créé.");
         var vehicle = new VehicleEntity
         {
             Id = Guid.NewGuid(),
-            DriverProfileId = user.DriverProfile!.Id,
+            DriverProfileId = driverProfileId,
             Make = request.Make.Trim(),
             Model = request.Model.Trim(),
             Year = request.Year,

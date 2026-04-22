@@ -80,13 +80,12 @@ public class InactiveUserReminderJob
         {
             Id = Guid.NewGuid(),
             UserId = u.Id,
-            Type = Domain.Enums.NotificationType.SystemAlert,
+            Type = Domain.Enums.NotificationType.System,
             Title = "Vous nous manquez ! 👋",
             Body = "Vous n'avez pas utilisé Covoiturage La Cité depuis 14 jours. " +
                    "Des trajets près de chez vous vous attendent — reconnectez-vous dès maintenant !",
             IsRead = false,
             CreatedAt = now,
-            UpdatedAt = now,
         }).ToList();
 
         await db.Notifications.AddRangeAsync(notifications);
@@ -177,7 +176,6 @@ public class WithdrawalProcessingJob
             {
                 // Marque en cours de traitement
                 w.Status = "Processing";
-                w.UpdatedAt = now;
                 await db.SaveChangesAsync();
 
                 // Simulation du transfert bancaire (Interac/Stripe à intégrer en production)
@@ -190,25 +188,22 @@ public class WithdrawalProcessingJob
                 {
                     driverProfile.BalanceAvailable -= w.Amount;
                     if (driverProfile.BalanceAvailable < 0) driverProfile.BalanceAvailable = 0;
-                    driverProfile.UpdatedAt = now;
                 }
 
                 w.Status = "Completed";
                 w.ProcessedAt = now;
                 w.ExternalReference = mockRef;
-                w.UpdatedAt = now;
 
                 // Notification au conducteur
                 var notification = new Domain.Entities.Notification
                 {
                     Id = Guid.NewGuid(),
                     UserId = driverProfile?.UserId ?? w.DriverProfileId,
-                    Type = Domain.Enums.NotificationType.PaymentProcessed,
+                    Type = Domain.Enums.NotificationType.System,
                     Title = "Retrait traité ✅",
                     Body = $"Votre retrait de {w.Amount:F2}$ a été traité avec succès. Référence : {mockRef}",
                     IsRead = false,
                     CreatedAt = now,
-                    UpdatedAt = now,
                 };
                 await db.Notifications.AddAsync(notification);
 
@@ -219,7 +214,6 @@ public class WithdrawalProcessingJob
             {
                 _logger.LogError(ex, "WithdrawalProcessing: échec du retrait {WithdrawalId}", w.Id);
                 w.Status = "Failed";
-                w.UpdatedAt = now;
                 await db.SaveChangesAsync();
                 failed++;
             }

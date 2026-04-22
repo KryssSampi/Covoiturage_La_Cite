@@ -11,6 +11,8 @@ import {
   Transaction,
   Penalty,
 } from "@/features/admin/services/admin.finance.actions";
+import AdminModal from "@/features/admin/components/AdminModal";
+import { useAdminToast, AdminToastContainer } from "@/features/admin/components/AdminToast";
 
 export default function AdminFinancePage() {
   const [analytics, setAnalytics] = useState<FinanceData | null>(null);
@@ -18,6 +20,13 @@ export default function AdminFinancePage() {
   const [penalties, setPenalties] = useState<Penalty[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"overview" | "transactions" | "penalties">("overview");
+  const [selectedPenalty, setSelectedPenalty] = useState<Penalty | null>(null);
+  const [waveReason, setWaveReason] = useState("");
+  const [reportDates, setReportDates] = useState({ startDate: "", endDate: "" });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalType, setModalType] = useState<"wave" | "report" | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const { toasts, removeToast, success, error } = useAdminToast();
 
   useEffect(() => {
     loadData();
@@ -25,6 +34,7 @@ export default function AdminFinancePage() {
 
   const loadData = async () => {
     try {
+      setLoading(true);
       if (tab === "overview" || tab === "transactions") {
         const [analytics, trans] = await Promise.all([
           getFinanceAnalyticsAction(),
@@ -37,41 +47,76 @@ export default function AdminFinancePage() {
         const pen = await getPenaltiesAction();
         setPenalties(pen);
       }
-    } catch (error) {
-      console.error("Erreur chargement finance:", error);
+    } catch (err) {
+      console.error("Erreur chargement finance:", err);
+      error("Erreur lors du chargement des données financières");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleWavePenalty = async (penaltyId: string) => {
-    const reason = prompt("Raison de l'annulation:");
-    if (reason) {
-      try {
-        await wavePenaltyAction(penaltyId, reason);
-        await loadData();
-        alert("Pénalité annulée!");
-      } catch (error) {
-        console.error("Erreur annulation:", error);
-      }
-    }
+  const handleWavePenaltyClick = (penalty: Penalty) => {
+    setSelectedPenalty(penalty);
+    setWaveReason("");
+    setModalType("wave");
+    setModalOpen(true);
   };
 
-  const handleGenerateReport = async () => {
-    const startDate = prompt("Date début (YYYY-MM-DD):");
-    if (!startDate) return;
-    const endDate = prompt("Date fin (YYYY-MM-DD):");
-    if (!endDate) return;
+  const handleGenerateReportClick = () => {
+    setModalType("report");
+    setReportDates({ startDate: "", endDate: "" });
+    setModalOpen(true);
+  };
 
+  const handleConfirmWave = async () => {
+    if (!selectedPenalty || !waveReason.trim()) {
+      error("Veuillez entrer une raison");
+      return;
+    }
+
+    setActionLoading(true);
     try {
-      await generateFinanceReportAction(startDate, endDate);
-      alert("Rapport généré avec succès!");
-    } catch (error) {
-      console.error("Erreur rapport:", error);
+      await wavePenaltyAction(selectedPenalty.id, waveReason);
+      success("Pénalité annulée!");
+      setModalOpen(false);
+      await loadData();
+    } catch (err) {
+      console.error("Erreur annulation:", err);
+      error("Erreur lors de l'annulation");
+    } finally {
+      setActionLoading(false);
     }
   };
 
-  if (loading) return <div>Chargement...</div>;
+  const handleConfirmReport = async () => {
+    if (!reportDates.startDate || !reportDates.endDate) {
+      error("Veuillez entrer les deux dates");
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await generateFinanceReportAction(reportDates.startDate, reportDates.endDate);
+      success("Rapport généré avec succès!");
+      setModalOpen(false);
+    } catch (err) {
+      console.error("Erreur rapport:", err);
+      error("Erreur lors de la génération du rapport");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div>
+        <h1>Gestion Financière</h1>
+        <div style={{ padding: "40px", textAlign: "center", color: "#666" }}>
+          Chargement des données financières...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -128,7 +173,10 @@ export default function AdminFinancePage() {
           </section>
 
           <div className="action-controls">
-            <button onClick={handleGenerateReport} className="btn-primary">
+            <button
+              onClick={handleGenerateReportClick}
+              className="btn-primary"
+            >
               Générer Rapport Financier
             </button>
           </div>
@@ -136,84 +184,167 @@ export default function AdminFinancePage() {
       )}
 
       {tab === "transactions" && (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Montant</th>
-              <th>Part Plateforme</th>
-              <th>Part Conducteur</th>
-              <th>Méthode</th>
-              <th>Statut</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((transaction) => (
-              <tr key={transaction.id}>
-                <td>{transaction.id.substring(0, 8)}</td>
-                <td>${transaction.amount.toFixed(2)}</td>
-                <td>${transaction.platformShare.toFixed(2)}</td>
-                <td>${transaction.driverShare.toFixed(2)}</td>
-                <td>{transaction.paymentMethod}</td>
-                <td>
-                  <span className={`status-badge ${transaction.status.toLowerCase()}`}>
-                    {transaction.status}
-                  </span>
-                </td>
-                <td>{new Date(transaction.createdAt).toLocaleDateString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <>
+          {transactions.length > 0 ? (
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Montant</th>
+                  <th>Part Plateforme</th>
+                  <th>Part Conducteur</th>
+                  <th>Méthode</th>
+                  <th>Statut</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map((transaction) => (
+                  <tr key={transaction.id}>
+                    <td data-label="ID">{transaction.id.substring(0, 8)}</td>
+                    <td data-label="Montant">${transaction.amount.toFixed(2)}</td>
+                    <td data-label="Part Plateforme">
+                      ${transaction.platformShare.toFixed(2)}
+                    </td>
+                    <td data-label="Part Conducteur">
+                      ${transaction.driverShare.toFixed(2)}
+                    </td>
+                    <td data-label="Méthode">{transaction.paymentMethod}</td>
+                    <td data-label="Statut">
+                      <span className={`status-badge ${transaction.status.toLowerCase()}`}>
+                        {transaction.status}
+                      </span>
+                    </td>
+                    <td data-label="Date">
+                      {new Date(transaction.createdAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div style={{ padding: "40px", textAlign: "center", color: "#666" }}>
+              Aucune transaction à afficher.
+            </div>
+          )}
+        </>
       )}
 
       {tab === "penalties" && (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Utilisateur</th>
-              <th>Raison</th>
-              <th>Montant</th>
-              <th>Statut</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {penalties.map((penalty) => (
-              <tr key={penalty.id}>
-                <td>{penalty.id.substring(0, 8)}</td>
-                <td>{penalty.userId.substring(0, 8)}</td>
-                <td>{penalty.reason}</td>
-                <td>${penalty.amount.toFixed(2)}</td>
-                <td>
-                  <span className={`status-badge ${penalty.status.toLowerCase()}`}>
-                    {penalty.status}
-                  </span>
-                </td>
-                <td>{new Date(penalty.createdAt).toLocaleDateString()}</td>
-                <td>
-                  {penalty.status === "Active" && (
-                    <button
-                      onClick={() => handleWavePenalty(penalty.id)}
-                      className="btn-warning"
-                    >
-                      Annuler
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <>
+          {penalties.length > 0 ? (
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Utilisateur</th>
+                  <th>Raison</th>
+                  <th>Montant</th>
+                  <th>Statut</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {penalties.map((penalty) => (
+                  <tr key={penalty.id}>
+                    <td data-label="ID">{penalty.id.substring(0, 8)}</td>
+                    <td data-label="Utilisateur">
+                      {penalty.userId.substring(0, 8)}
+                    </td>
+                    <td data-label="Raison">{penalty.reason}</td>
+                    <td data-label="Montant">${penalty.amount.toFixed(2)}</td>
+                    <td data-label="Statut">
+                      <span className={`status-badge ${penalty.status.toLowerCase()}`}>
+                        {penalty.status}
+                      </span>
+                    </td>
+                    <td data-label="Date">
+                      {new Date(penalty.createdAt).toLocaleDateString()}
+                    </td>
+                    <td data-label="Actions">
+                      {penalty.status === "Active" && (
+                        <button
+                          onClick={() => handleWavePenaltyClick(penalty)}
+                          className="btn-warning"
+                        >
+                          Annuler
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div style={{ padding: "40px", textAlign: "center", color: "#666" }}>
+              Aucune pénalité à afficher.
+            </div>
+          )}
+        </>
       )}
 
-      {(tab === "transactions" && transactions.length === 0) ||
-        (tab === "penalties" && penalties.length === 0) ? (
-        <p>Aucune donnée à afficher.</p>
-      ) : null}
+      <AdminModal
+        isOpen={modalOpen && modalType === "wave"}
+        title={`Annuler la Pénalité #${selectedPenalty?.id.substring(0, 8)}`}
+        message="Entrez une raison pour l'annulation de cette pénalité."
+        hasInput
+        inputRows={3}
+        inputPlaceholder="Ex: Appel de l'utilisateur accepté"
+        inputValue={waveReason}
+        onInputChange={setWaveReason}
+        confirmText="Annuler"
+        cancelText="Non, garder"
+        isDangerous
+        isLoading={actionLoading}
+        onConfirm={handleConfirmWave}
+        onClose={() => setModalOpen(false)}
+      />
+
+      <AdminModal
+        isOpen={modalOpen && modalType === "report"}
+        title="Générer Rapport Financier"
+        message="Choisissez la période pour le rapport."
+        confirmText="Générer"
+        cancelText="Annuler"
+        isLoading={actionLoading}
+        onConfirm={handleConfirmReport}
+        onClose={() => setModalOpen(false)}
+      >
+        <div>
+          <label>Date de début:</label>
+          <input
+            type="date"
+            value={reportDates.startDate}
+            onChange={(e) =>
+              setReportDates((prev) => ({ ...prev, startDate: e.target.value }))
+            }
+            style={{
+              width: "100%",
+              marginBottom: "12px",
+              padding: "10px 12px",
+              border: "1px solid #e0e4e8",
+              borderRadius: "8px",
+            }}
+          />
+          <label>Date de fin:</label>
+          <input
+            type="date"
+            value={reportDates.endDate}
+            onChange={(e) =>
+              setReportDates((prev) => ({ ...prev, endDate: e.target.value }))
+            }
+            style={{
+              width: "100%",
+              padding: "10px 12px",
+              border: "1px solid #e0e4e8",
+              borderRadius: "8px",
+            }}
+          />
+        </div>
+      </AdminModal>
+
+      <AdminToastContainer toasts={toasts} onRemove={removeToast} />
     </>
   );
 }
