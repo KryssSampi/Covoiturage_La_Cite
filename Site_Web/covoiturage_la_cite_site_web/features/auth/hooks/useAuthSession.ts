@@ -60,35 +60,44 @@ export function useAuthSession(onLoginSuccess: (user: AuthLoginUser) => void) {
   const [isLoading, setIsLoading] = useState(false);
   const [blocked, setBlocked] = useState<BlockedInfo | null>(null);
   const [remainingResends, setRemainingResends] = useState(3);
+  const [sessionReady, setSessionReady] = useState(false);
   const onLoginRef = useRef(onLoginSuccess);
   onLoginRef.current = onLoginSuccess;
 
-  // ── Init session au montage ──────────────────────────────────────────
+  // ── Init session au montage (avec retry) ────────────────────────────
+
+  const initSession = useCallback(async (): Promise<boolean> => {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch('/api/auth/session/init', { method: 'POST' });
+        if (res.ok) {
+          setSessionReady(true);
+          setError('');
+          return true;
+        }
+      } catch {
+        // réseau indisponible — on retente
+      }
+      if (attempt < 2) await new Promise(r => setTimeout(r, 800));
+    }
+    return false;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
-      try {
-        const res = await fetch('/api/auth/session/init', { method: 'POST' });
-        if (!cancelled) {
-          if (res.ok) {
-            setStep('email');
-          } else {
-            setStep('email');
-            setError('Tentative de connexion expirée. Rechargez la page.');
-          }
-        }
-      } catch {
-        if (!cancelled) {
-          setStep('email');
-          setError('Erreur de connexion au serveur.');
+      const ok = await initSession();
+      if (!cancelled) {
+        setStep('email');
+        if (!ok) {
+          setError('Connexion au serveur impossible. Vérifiez que le backend est démarré, puis rechargez la page.');
         }
       }
     })();
 
     return () => { cancelled = true; };
-  }, []);
+  }, [initSession]);
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -119,6 +128,16 @@ export function useAuthSession(onLoginSuccess: (user: AuthLoginUser) => void) {
 
     setIsLoading(true);
     setError('');
+
+    // Si la session n'a jamais été initialisée, on retente avant de continuer
+    if (!sessionReady) {
+      const ok = await initSession();
+      if (!ok) {
+        setError('Impossible de démarrer une session. Vérifiez que le backend est accessible et rechargez la page.');
+        setIsLoading(false);
+        return;
+      }
+    }
 
     try {
       const res = await fetch('/api/auth/session/verify-email', {
@@ -157,7 +176,7 @@ export function useAuthSession(onLoginSuccess: (user: AuthLoginUser) => void) {
     } finally {
       setIsLoading(false);
     }
-  }, [handleBlocked]);
+  }, [handleBlocked, sessionReady, initSession]);
 
   const submitPassword = useCallback(async (password: string) => {
     if (!password) {
@@ -350,6 +369,7 @@ export function useAuthSession(onLoginSuccess: (user: AuthLoginUser) => void) {
     isLoading,
     blocked,
     remainingResends,
+    sessionReady,
     setEmail,
     submitEmail,
     submitPassword,
