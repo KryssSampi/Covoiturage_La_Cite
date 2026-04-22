@@ -23,7 +23,9 @@ export default function LoginPage() {
       setActiveLoader(true);
       (async () => {
         try {
-          if (!onboardingCompleted) {
+          if (role === "admin") {
+            await router.replace("/admin");
+          } else if (!onboardingCompleted) {
             await router.replace(`/onboarding/${id}`);
           } else {
             await router.replace(`/${role}/${id}`);
