@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Covoiturage_La_Cite_Server_Core_.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Covoiturage_La_Cite_Server_Core_.Data.Models;

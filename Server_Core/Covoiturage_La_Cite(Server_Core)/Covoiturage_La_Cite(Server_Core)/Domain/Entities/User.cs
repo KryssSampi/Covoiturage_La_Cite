@@ -72,4 +72,7 @@ public class User
     public ICollection<SurveyTripAlert> SurveyAlerts { get; set; } = new List<SurveyTripAlert>();
     public ICollection<SurveyTripAlert> SurveyAlertsAsDriver { get; set; } = new List<SurveyTripAlert>();
     public ICollection<PlaceFavori> PlacesFavoris { get; set; } = new List<PlaceFavori>();
+    public virtual ICollection<ConsentementsPipedum> ConsentementsPipeda { get; set; } = new List<ConsentementsPipedum>();
+
+    public virtual ICollection<ExportsDonnee> ExportsDonnees { get; set; } = new List<ExportsDonnee>();
 }

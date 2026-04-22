@@ -310,6 +310,7 @@ class _SearchScreenState extends State<SearchScreen> {
       );
       final bool fillFrom = _fromFocus.hasFocus ||
           (!_toFocus.hasFocus && _fromCtrl.text.trim().isEmpty);
+      final FocusNode targetFocus = fillFrom ? _fromFocus : _toFocus;
       if (fillFrom) {
         _fromCtrl.text = label;
         _fromSelection = currentLocation;
@@ -317,6 +318,9 @@ class _SearchScreenState extends State<SearchScreen> {
       } else {
         _toCtrl.text = label;
         _toSelection = currentLocation;
+      }
+      if (!targetFocus.hasFocus) {
+        FocusScope.of(context).requestFocus(targetFocus);
       }
       _lastDriverAutoSearchKey = null;
       if (mounted) setState(() {});
@@ -340,6 +344,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void _selectFavoritePlace(_FavoritePlaceItem place) {
     final bool fillFrom = _fromFocus.hasFocus ||
         (!_toFocus.hasFocus && _fromCtrl.text.trim().isEmpty);
+    final FocusNode targetFocus = fillFrom ? _fromFocus : _toFocus;
 
     if (fillFrom) {
       _fromCtrl.text = place.label;
@@ -348,6 +353,9 @@ class _SearchScreenState extends State<SearchScreen> {
     } else {
       _toCtrl.text = place.label;
       _toSelection = place.toSuggestion();
+    }
+    if (!targetFocus.hasFocus) {
+      FocusScope.of(context).requestFocus(targetFocus);
     }
 
     _lastDriverAutoSearchKey = null;
@@ -497,6 +505,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isFocused = _fromFocus.hasFocus || _toFocus.hasFocus;
+    final bool showDriverQuickPlaces = widget.isDriver && isFocused;
     final bool canPop = Navigator.of(context).canPop();
 
     return Scaffold(
@@ -565,13 +574,14 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
                 ),
               ),
-            _DriverQuickPlaces(
-              isLocatingUser: _isLocatingUser,
-              isLoadingFavorites: _isLoadingFavoritePlaces,
-              favorites: _favoritePlaces,
-              onUseCurrentLocation: _useCurrentLocationAsDeparture,
-              onFavoriteTap: _selectFavoritePlace,
-            ),
+            if (showDriverQuickPlaces)
+              _DriverQuickPlaces(
+                isLocatingUser: _isLocatingUser,
+                isLoadingFavorites: _isLoadingFavoritePlaces,
+                favorites: _favoritePlaces,
+                onUseCurrentLocation: _useCurrentLocationAsDeparture,
+                onFavoriteTap: _selectFavoritePlace,
+              ),
             if (_error != null)
               Container(
                 width: double.infinity,

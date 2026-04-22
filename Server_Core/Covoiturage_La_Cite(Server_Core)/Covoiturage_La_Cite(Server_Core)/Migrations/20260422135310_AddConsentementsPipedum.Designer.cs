@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -13,9 +14,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Covoiturage_La_Cite_Server_Core_.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260422135310_AddConsentementsPipedum")]
+    partial class AddConsentementsPipedum
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -420,59 +423,6 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.HasIndex("RewardBadgeId");
 
                     b.ToTable("EcoChallenges");
-                });
-
-            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.ExportsDonnee", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime?>("DateCompletion")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("date_completion");
-
-                    b.Property<DateTime>("DateDemande")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("date_demande");
-
-                    b.Property<DateTime?>("DateExpirationLien")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("date_expiration_lien");
-
-                    b.Property<string>("FichierUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("fichier_url");
-
-                    b.Property<string>("Statut")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("statut");
-
-                    b.Property<string>("TablesExporteesJson")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("tables_exportees_json");
-
-                    b.Property<string>("TypeExport")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("type_export");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "Statut" }, "idx_exports_statut");
-
-                    b.HasIndex(new[] { "UserId" }, "idx_exports_user");
-
-                    b.ToTable("exports_donnees");
                 });
 
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.GeofenceZone", b =>
@@ -2425,17 +2375,6 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.Navigation("RewardBadge");
                 });
 
-            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.ExportsDonnee", b =>
-                {
-                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "User")
-                        .WithMany("ExportsDonnees")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.GpsPosition", b =>
                 {
                     b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.Trip", "Trip")
@@ -2931,8 +2870,6 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.Navigation("ConsentementsPipeda");
 
                     b.Navigation("DriverProfile");
-
-                    b.Navigation("ExportsDonnees");
 
                     b.Navigation("LikesGiven");
 

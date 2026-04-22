@@ -18,7 +18,7 @@ import '../state/app_state.dart';
 class ApiService {
   static const String _baseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'http://10.0.2.2:5000',
+    defaultValue: 'https://covoituragelacite-production.railway.app/',
   );
 
   static const String _publicKeyStorageKey = 'server_public_key';

@@ -57,4 +57,9 @@
     <EmbeddedResource Include="Data\MongoDB\Seeds\faq-seed.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\Models\ConsentementsPipedum\" />
+    <Folder Include="Data\Models\ExportsDonnee\" />
+  </ItemGroup>
+
 </Project>
