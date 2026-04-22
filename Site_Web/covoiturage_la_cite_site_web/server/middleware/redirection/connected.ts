@@ -7,7 +7,10 @@ export function middleware(request: NextRequest) {
     const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
     const user = request.cookies.get('userConnected')?.value ;// || sessionStorage.getItem('userConnected');
     if (isPublicRoute && user ) {
-        return NextResponse.redirect(new URL(`/${JSON.parse(user).role.toString().toLowerCase()}/${JSON.parse(user).id}`, request.url));
+        const parsed = JSON.parse(user);
+        const role = String(parsed.role ?? '').toLowerCase();
+        const destination = role === 'admin' ? '/admin' : `/${role}/${parsed.id}`;
+        return NextResponse.redirect(new URL(destination, request.url));
     }
     console.log('Middleware de redirection connecté : ', { pathname, isPublicRoute, user });
     return NextResponse.next();

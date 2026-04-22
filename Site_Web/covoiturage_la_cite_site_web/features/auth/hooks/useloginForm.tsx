@@ -76,7 +76,11 @@ export function useLoginForm(onLogin?: OnLoginCallback) {
 
         setActiveLoader(true);
         try {
-          await router.push(`/${connected.role}/${connected.id}`);
+          if (connected.role === 'admin') {
+            await router.push('/admin');
+          } else {
+            await router.push(`/${connected.role}/${connected.id}`);
+          }
         } finally {
           setActiveLoader(false);
         }
