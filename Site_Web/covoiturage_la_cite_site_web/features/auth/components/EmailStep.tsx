@@ -54,14 +54,16 @@ export default function EmailStep({ auth, isFr }: { auth: ReturnType<typeof useA
 
       <button
         type="submit"
-        disabled={auth.isLoading}
+        disabled={auth.isLoading || !auth.sessionReady}
         className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white
                    hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                    disabled:cursor-not-allowed disabled:opacity-50 transition-colors"
       >
         {auth.isLoading
           ? (isFr ? 'Vérification...' : 'Verifying...')
-          : (isFr ? 'Continuer' : 'Continue')}
+          : !auth.sessionReady
+            ? (isFr ? 'Connexion au serveur...' : 'Connecting...')
+            : (isFr ? 'Continuer' : 'Continue')}
       </button>
     </form>
   );

@@ -109,10 +109,9 @@ export function setAuthSessionCookie(
   idKey: string,
   expiresAt: string,
 ): NextResponse {
-  const maxAge = Math.max(
-    0,
-    Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000),
-  );
+  const parsed = new Date(expiresAt).getTime();
+  const computed = isNaN(parsed) ? 0 : Math.floor((parsed - Date.now()) / 1000);
+  const maxAge = computed > 60 ? computed : 3600; // fallback 1h si valeur invalide ou trop courte
 
   response.cookies.set(AUTH_SESSION_COOKIE, idKey, {
     httpOnly: true,
