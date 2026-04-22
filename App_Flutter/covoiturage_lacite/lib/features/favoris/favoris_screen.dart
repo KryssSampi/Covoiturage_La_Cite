@@ -3,6 +3,7 @@
 // 3 sections : Conducteurs favoris (scroll horizontal) | Lieux favoris | Alertes trajets
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/services/api_service.dart';
 
@@ -39,39 +40,7 @@ const _shMd = [
   BoxShadow(color: Color(0x0A000000), blurRadius: 4, offset: Offset(0, 2)),
 ];
 
-// ─── MOCK API SERVICE ─────────────────────────────────────────────────────────
-class _ApiService {
-  static final instance = _ApiService._();
-  _ApiService._();
-
-  Future<dynamic> get(String path) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (path.contains('favorites/drivers')) return _mockDrivers;
-    if (path.contains('favorites/places')) return _mockPlaces;
-    if (path.contains('survey-trip-alerts')) return _mockAlerts;
-    return [];
-  }
-
-  static const _mockDrivers = [
-    {'id': 'd1', 'firstName': 'Marie', 'lastName': 'T.', 'avatarUrl': null, 'initials': 'MT', 'rating': 4.9, 'bg': 0xFFE8F0FE, 'fg': 0xFF1A56CC},
-    {'id': 'd2', 'firstName': 'Ahmed', 'lastName': 'I.', 'avatarUrl': null, 'initials': 'AI', 'rating': 4.8, 'bg': 0xFFE1F5EE, 'fg': 0xFF0F6E56},
-    {'id': 'd3', 'firstName': 'Jean', 'lastName': 'M.', 'avatarUrl': null, 'initials': 'JM', 'rating': 4.6, 'bg': 0xFFFAEEDA, 'fg': 0xFFBA7517},
-    {'id': 'd4', 'firstName': 'Sophie', 'lastName': 'L.', 'avatarUrl': null, 'initials': 'SL', 'rating': 4.7, 'bg': 0xFFEDE9FB, 'fg': 0xFF5B3FA6},
-  ];
-
-  static const _mockPlaces = [
-    {'id': 'p1', 'label': 'Maison', 'address': '142 rue des Érables, Laval', 'icon': 'home', 'freq': '8 min', 'iconBg': 0xFFE8F0FE, 'iconColor': 0xFF1A56CC},
-    {'id': 'p2', 'label': 'Campus La Cité', 'address': '801 prom. de l\'Aviation, Ottawa', 'icon': 'school', 'freq': '22 min', 'iconBg': 0xFFE1F5EE, 'iconColor': 0xFF0F6E56},
-    {'id': 'p3', 'label': 'Centre commercial', 'address': 'Place Laurier, Québec', 'icon': 'shopping', 'freq': '15 min', 'iconBg': 0xFFFAEEDA, 'iconColor': 0xFFBA7517},
-  ];
-
-  static const _mockAlerts = [
-    {'id': 'a1', 'departure': 'Maison', 'arrival': 'Campus La Cité', 'timeRange': 'Lun – Ven · 07h30', 'isActive': true},
-    {'id': 'a2', 'departure': 'Campus La Cité', 'arrival': 'Maison', 'timeRange': 'Lun – Ven · 17h00', 'isActive': true},
-    {'id': 'a3', 'departure': 'Maison', 'arrival': 'Place Laurier', 'timeRange': 'Sam – Dim · 10h00', 'isActive': false},
-  ];
-}
-
+// ─── TYPO HELPERS ─────────────────────────────────────────────────────────────
 // ─── HELPERS TYPO ─────────────────────────────────────────────────────────────
 
 TextStyle _sora({
@@ -262,7 +231,7 @@ class _FavorisScreenState extends State<FavorisScreen> {
                               btnLabel: '🔍 Rechercher',
                               btnColor: _amberMid,
                               btnBg: _amberLight,
-                              onAdd: () {},
+                              onAdd: () => context.push('/search'),
                             ),
                             if (_alerts.isEmpty)
                               _EmptyState('Aucune alerte configurée')
@@ -274,6 +243,7 @@ class _FavorisScreenState extends State<FavorisScreen> {
                                       .map((a) => _AlertCard(
                                             alert: a as Map,
                                             onToggle: (v) => _toggleAlert(a['id'] as String, v),
+                                            onViewTrips: () => _openSearchFromAlert(a),
                                           ))
                                       .toList(),
                                 ),
@@ -309,6 +279,16 @@ class _FavorisScreenState extends State<FavorisScreen> {
       isScrollControlled: true,
       builder: (_) => const _AddPlaceSheet(),
     );
+  }
+
+  void _openSearchFromAlert(Map alert) {
+    final String from = (alert['departure']?.toString() ?? '').trim();
+    final String to = (alert['arrival']?.toString() ?? '').trim();
+    context.push('/search', extra: <String, dynamic>{
+      'from': from,
+      'to': to,
+      'autoSearch': false,
+    });
   }
 }
 
@@ -529,9 +509,14 @@ class _PlaceCard extends StatelessWidget {
 // ─── ALERT CARD ───────────────────────────────────────────────────────────────
 
 class _AlertCard extends StatelessWidget {
-  const _AlertCard({required this.alert, required this.onToggle});
+  const _AlertCard({
+    required this.alert,
+    required this.onToggle,
+    required this.onViewTrips,
+  });
   final Map alert;
   final void Function(bool) onToggle;
+  final VoidCallback onViewTrips;
 
   @override
   Widget build(BuildContext context) {
@@ -628,7 +613,7 @@ class _AlertCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: onViewTrips,
                   child: Text(
                     'Voir les trajets →',
                     style: _sora(size: 12, weight: FontWeight.w700, color: _blue),
@@ -1150,3 +1135,4 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
     );
   }
 }
+

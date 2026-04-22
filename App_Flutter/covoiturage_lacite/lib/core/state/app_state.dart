@@ -14,12 +14,13 @@ class AppStateStore extends ChangeNotifier {
 
   static final AppStateStore instance = AppStateStore._internal();
 
-  static const bool _authenticationEnabled = false;
+  static const bool _authenticationEnabled = true;
 
   User _passengerUser;
   User _driverUser;
   AppUserMode _mode = AppUserMode.driver;
   bool _usingFixtures = false;
+  bool _usingStaleCache = false;
   String? _networkIssue;
   final Map<AppNavPage, bool> _newsByPage = <AppNavPage, bool>{
     for (final AppNavPage page in AppNavPage.values) page: false,
@@ -29,6 +30,7 @@ class AppStateStore extends ChangeNotifier {
   AppUserMode get mode => _mode;
   bool get isDriver => _mode == AppUserMode.driver;
   bool get usingFixtures => _usingFixtures;
+  bool get usingStaleCache => _usingStaleCache;
   String? get networkIssue => _networkIssue;
   bool hasNews(AppNavPage page) => _newsByPage[page] ?? false;
 
@@ -68,13 +70,25 @@ class AppStateStore extends ChangeNotifier {
     required String reason,
   }) {
     _usingFixtures = true;
+    _usingStaleCache = false;
     _networkIssue = 'Reseau indisponible ($endpoint): $reason';
     notifyListeners();
   }
 
+  void reportStaleCacheFallback({
+    required String endpoint,
+    required String reason,
+  }) {
+    _usingFixtures = true;
+    _usingStaleCache = true;
+    _networkIssue = 'Hors ligne ($endpoint): $reason';
+    notifyListeners();
+  }
+
   void clearFixtureFallback() {
-    if (!_usingFixtures && _networkIssue == null) return;
+    if (!_usingFixtures && !_usingStaleCache && _networkIssue == null) return;
     _usingFixtures = false;
+    _usingStaleCache = false;
     _networkIssue = null;
     notifyListeners();
   }

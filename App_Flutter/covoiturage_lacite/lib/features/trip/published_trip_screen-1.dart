@@ -549,7 +549,6 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
   }
 
   Widget _buildReserveBtn(Trip t) {
-    // TODO: Remplacer cette logique par une vraie fonction qui mappe l'état du trip/réservation/utilisateur vers ReserveButtonState
     final ReserveButtonState state = _mapToReserveButtonState();
     return ReserveButton(
       state: state,
@@ -629,7 +628,6 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
       case PTReservationStatus.confirmed:
         return ReserveButtonState(ReserveButtonStateKind.confirmed);
       case PTReservationStatus.refused:
-        // TODO: calculer hoursLeft si dispo (cooldown)
         return ReserveButtonState(ReserveButtonStateKind.cooldown, hoursLeft: 24);
       default:
         return ReserveButtonState(ReserveButtonStateKind.reserve);

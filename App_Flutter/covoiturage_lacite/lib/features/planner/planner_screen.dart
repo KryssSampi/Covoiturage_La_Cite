@@ -1205,6 +1205,9 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
   ];
   final Set<int> _selectedDays = {};
   bool _isRecurrent = false;
+  DateTime? _selectedDate;
+  TimeOfDay _startTime = const TimeOfDay(hour: 8, minute: 0);
+  TimeOfDay _endTime = const TimeOfDay(hour: 12, minute: 0);
 
   @override
   void initState() {
@@ -1223,9 +1226,11 @@ class _UnavailabilitySheetState extends State<_UnavailabilitySheet>
 Future<void> _saveUnavailability() async {
     setState(() => _isSaving = true);
 
-    final String startTime = '08:00'; // TODO: from form controller
-    final String endTime = '12:00'; // TODO: from form controller
-    final String? dateStr = null; // TODO: from date picker
+    final String startTime = _formatTime(_startTime);
+    final String endTime = _formatTime(_endTime);
+    final String? dateStr = _selectedDate == null
+        ? null
+        : '${_selectedDate!.year.toString().padLeft(4, '0')}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}';
 
     final Map<String, dynamic> body = {
       'title': _isRecurrent
@@ -1247,6 +1252,41 @@ Future<void> _saveUnavailability() async {
     } catch (_) {
       setState(() => _isSaving = false);
     }
+  }
+
+  Future<void> _pickDate() async {
+    final DateTime now = DateTime.now();
+    final DateTime initial = _selectedDate ?? now;
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(now.year - 1),
+      lastDate: DateTime(now.year + 3),
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _selectedDate = picked);
+  }
+
+  Future<void> _pickTime({required bool start}) async {
+    final TimeOfDay initial = start ? _startTime : _endTime;
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: initial,
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      if (start) {
+        _startTime = picked;
+      } else {
+        _endTime = picked;
+      }
+    });
+  }
+
+  String _formatTime(TimeOfDay t) {
+    final String h = t.hour.toString().padLeft(2, '0');
+    final String m = t.minute.toString().padLeft(2, '0');
+    return '$h:$m';
   }
 
   Future<void> _deleteUnavailability(String id) async {
@@ -1378,21 +1418,33 @@ Future<void> _saveUnavailability() async {
                                             size: 13)),
                                     const SizedBox(height: 12),
                                     _formLabel('DATE (OPTIONNELLE)'),
-                                    _inputWrap(
-                                      child: const Text(
-                                          'Sélectionner une date'),
-                                      icon: Icons.calendar_today_outlined,
+                                    GestureDetector(
+                                      onTap: _pickDate,
+                                      child: _inputWrap(
+                                        child: Text(
+                                          _selectedDate == null
+                                              ? 'Selectionner une date'
+                                              : '${_selectedDate!.day.toString().padLeft(2, '0')}/${_selectedDate!.month.toString().padLeft(2, '0')}/${_selectedDate!.year}',
+                                        ),
+                                        icon: Icons.calendar_today_outlined,
+                                      ),
                                     ),
                                     const SizedBox(height: 12),
                                     _formLabel('HEURE DE DÉBUT'),
-                                    _inputWrap(
-                                        child: const Text('08:00'),
-                                        icon: Icons.access_time),
+                                    GestureDetector(
+                                      onTap: () => _pickTime(start: true),
+                                      child: _inputWrap(
+                                          child: Text(_formatTime(_startTime)),
+                                          icon: Icons.access_time),
+                                    ),
                                     const SizedBox(height: 12),
                                     _formLabel('HEURE DE FIN'),
-                                    _inputWrap(
-                                        child: const Text('12:00'),
-                                        icon: Icons.access_time),
+                                    GestureDetector(
+                                      onTap: () => _pickTime(start: false),
+                                      child: _inputWrap(
+                                          child: Text(_formatTime(_endTime)),
+                                          icon: Icons.access_time),
+                                    ),
                                     const SizedBox(height: 12),
                                     Container(
                                       padding: const EdgeInsets.symmetric(

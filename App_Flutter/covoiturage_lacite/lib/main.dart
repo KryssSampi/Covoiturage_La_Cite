@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/models/trip.dart';
 import 'core/navigation_key.dart';
 import 'core/services/api_service.dart';
+import 'core/services/auth_service.dart';
 import 'core/services/trip_service.dart';
 import 'core/state/app_state.dart';
 import 'core/shell/app_shell.dart';
@@ -36,6 +36,7 @@ import 'features/trip/published_trip_screen-1.dart';
 import 'features/chat/chat_screen.dart';
 
 final TripService _tripService = TripService(ApiService.instance);
+final AuthService _authService = AuthService(ApiService.instance);
 
 void main() {
   runApp(const ProviderScope(child: CovoiturageApp()));
@@ -63,8 +64,9 @@ class CovoiturageApp extends StatelessWidget {
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: appNavigatorKey,
-  initialLocation: '/home',
+  initialLocation: '/bootstrap',
   routes: <RouteBase>[
+    GoRoute(path: '/bootstrap', builder: (_, __) => const _AuthBootstrapScreen()),
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
     GoRoute(
       path: '/otp',
@@ -228,3 +230,38 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
 );
+
+class _AuthBootstrapScreen extends StatefulWidget {
+  const _AuthBootstrapScreen();
+
+  @override
+  State<_AuthBootstrapScreen> createState() => _AuthBootstrapScreenState();
+}
+
+class _AuthBootstrapScreenState extends State<_AuthBootstrapScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _bootstrap();
+  }
+
+  Future<void> _bootstrap() async {
+    if (!AppStateStore.instance.authenticationEnabled) {
+      if (mounted) context.go('/home');
+      return;
+    }
+
+    final bool loggedIn = await _authService.isLoggedIn();
+    if (!mounted) return;
+    context.go(loggedIn ? '/home' : '/login');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}

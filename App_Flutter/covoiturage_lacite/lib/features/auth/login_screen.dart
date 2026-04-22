@@ -1,6 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/fixtures/app_fixtures.dart';
 import '../../core/services/api_service.dart';
 import '../../core/services/auth_service.dart';
 
@@ -20,14 +21,32 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   @override
+  void initState() {
+    super.initState();
+    _redirectIfAlreadyLoggedIn();
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     super.dispose();
   }
 
   bool _isValidEmail(String email) {
-    return RegExp(r'@(?:collegelacite\.ca|lacitec\.on\.ca)$', caseSensitive: false)
-        .hasMatch(email);
+    final String normalized = email.trim().toLowerCase();
+    if (AppFixtures.isFixtureAuthEmail(normalized)) {
+      return true;
+    }
+    return RegExp(
+      r'@(?:collegelacite\.ca|lacitec\.on\.ca|lacite\.ca|etudiant\.lacite\.ca)$',
+      caseSensitive: false,
+    ).hasMatch(normalized);
+  }
+
+  Future<void> _redirectIfAlreadyLoggedIn() async {
+    final bool loggedIn = await _auth.isLoggedIn();
+    if (!mounted || !loggedIn) return;
+    context.go('/home');
   }
 
   Future<void> _continueFlow() async {
@@ -36,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (!_isValidEmail(email)) {
       setState(() {
-        _errorMessage = 'Veuillez entrer une adresse @collegelacite.ca ou @lacitec.on.ca';
+        _errorMessage = 'Veuillez entrer un email La Cite valide.';
       });
       return;
     }
@@ -53,9 +72,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final String mode = result.existingUser ? 'password' : 'register_otp';
       context.go('/otp?email=${Uri.encodeComponent(email)}&mode=$mode');
-    } catch (e) {
+    } catch (_) {
       setState(() {
-        _errorMessage = 'Erreur de connexion. Réessayez.';
+        _errorMessage = 'Erreur de connexion. Reessayez.';
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -76,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+                  children: <Widget>[
                     const SizedBox(height: 28),
                     Container(
                       width: 92,
@@ -85,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
+                        boxShadow: const <BoxShadow>[
                           BoxShadow(
                             color: Color(0x22000000),
                             blurRadius: 20,
@@ -104,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 6),
                     const Text(
-                      'Entrez votre email institutionnel',
+                      'Entrez votre email institutionnel ou test',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Color(0xFF6B7280)),
                     ),
@@ -138,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       validator: (String? v) => (v == null || v.trim().isEmpty) ? 'Email requis' : null,
                     ),
-                    if (_errorMessage != null) ...[
+                    if (_errorMessage != null) ...<Widget>[
                       const SizedBox(height: 12),
                       Text(
                         _errorMessage!,

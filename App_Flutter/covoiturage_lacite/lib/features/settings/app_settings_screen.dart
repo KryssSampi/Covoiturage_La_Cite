@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/app_colors.dart';
+import '../../core/cache/user_cache_service.dart';
 
 // ─── CONSTANTES ───────────────────────────────────────────────────────────────
 
@@ -127,6 +128,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       tmp.listSync(recursive: true).forEach((e) {
         if (e is File) bytes += e.lengthSync();
       });
+      final int sqliteBytes = await UserCacheService.instance.estimateBytes();
+      bytes += sqliteBytes;
       setState(() => _cacheSize = _formatBytes(bytes));
     } catch (_) {
       setState(() => _cacheSize = 'N/A');
@@ -145,6 +148,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       final tmp = await getTemporaryDirectory();
       if (tmp.existsSync()) tmp.deleteSync(recursive: true);
       await tmp.create();
+      await UserCacheService.instance.clearAllUsers();
     } catch (_) {}
     await _computeCacheSize();
     setState(() => _clearingCache = false);
