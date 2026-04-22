@@ -2,6 +2,7 @@
 // GoBoard / Statistiques / Finances (3 tabs) — clean encoding
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/services/api_service.dart';
 import '../../core/state/app_state.dart';
@@ -134,6 +135,65 @@ class _StatsScreenState extends State<StatsScreen>
           as List<dynamic>;
     }
     return [];
+  }
+
+  Future<void> _withdrawBalance() async {
+    final double available =
+        double.tryParse(_display(_finance['availableBalance']).replaceAll(',', '.')) ?? 0;
+    final TextEditingController ctrl =
+        TextEditingController(text: available > 0 ? available.toStringAsFixed(2) : '');
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Retirer un montant'),
+        content: TextField(
+          controller: ctrl,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(labelText: 'Montant (CAD)'),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Confirmer'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true) return;
+
+    final double amount = double.tryParse(ctrl.text.replaceAll(',', '.')) ?? 0;
+    if (amount <= 0) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Montant invalide')),
+      );
+      return;
+    }
+
+    try {
+      await ApiService.instance.post(
+        '/api/finances/withdraw',
+        <String, dynamic>{'amount': amount},
+      );
+      await _loadStats();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Retrait envoye')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Retrait impossible: $e')),
+      );
+    }
+  }
+
+  void _openFinanceHistory() {
+    context.push('/historique');
   }
 
   @override
@@ -677,11 +737,11 @@ class _StatsScreenState extends State<StatsScreen>
                   children: [
                     Expanded(
                         child: _balanceBtn('Retirer',
-                            white: true, onTap: () {})),
+                            white: true, onTap: _withdrawBalance)),
                     const SizedBox(width: 10),
                     Expanded(
                         child: _balanceBtn('Historique',
-                            white: false, onTap: () {})),
+                            white: false, onTap: _openFinanceHistory)),
                   ],
                 ),
               ],

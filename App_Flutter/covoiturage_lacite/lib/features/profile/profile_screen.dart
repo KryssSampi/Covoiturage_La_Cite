@@ -327,6 +327,228 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
+  Future<void> _addLanguage() async {
+    final TextEditingController ctrl = TextEditingController();
+    final String? value = await showDialog<String>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Ajouter une langue'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Ex: Espanol'),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => Navigator.of(dialogContext).pop(ctrl.text.trim()),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(ctrl.text.trim()),
+            child: const Text('Ajouter'),
+          ),
+        ],
+      ),
+    );
+    final String lang = value?.trim() ?? '';
+    if (lang.isEmpty) return;
+    if (_profile.languagesSpoken.any((String l) => l.toLowerCase() == lang.toLowerCase())) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Langue deja presente')),
+      );
+      return;
+    }
+    setState(() => _profile.languagesSpoken.add(lang));
+  }
+
+  Future<void> _saveVehicle() async {
+    final TextEditingController brandCtrl = TextEditingController();
+    final TextEditingController modelCtrl = TextEditingController();
+    final TextEditingController yearCtrl = TextEditingController();
+    final TextEditingController colorCtrl = TextEditingController();
+    final TextEditingController plateCtrl = TextEditingController();
+    final TextEditingController seatsCtrl = TextEditingController(text: '3');
+
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Enregistrer un vehicule'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(controller: brandCtrl, decoration: const InputDecoration(labelText: 'Marque')),
+              TextField(controller: modelCtrl, decoration: const InputDecoration(labelText: 'Modele')),
+              TextField(
+                controller: yearCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Annee'),
+              ),
+              TextField(controller: colorCtrl, decoration: const InputDecoration(labelText: 'Couleur')),
+              TextField(controller: plateCtrl, decoration: const InputDecoration(labelText: 'Plaque')),
+              TextField(
+                controller: seatsCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Places'),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Enregistrer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final String brand = brandCtrl.text.trim();
+    final String model = modelCtrl.text.trim();
+    if (brand.isEmpty || model.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Marque et modele requis')),
+      );
+      return;
+    }
+
+    final Map<String, dynamic> body = <String, dynamic>{
+      'label': '$brand $model'.trim(),
+      'color': colorCtrl.text.trim(),
+      'year': int.tryParse(yearCtrl.text.trim()) ?? 0,
+      'plate': plateCtrl.text.trim(),
+      'maxPassengers': int.tryParse(seatsCtrl.text.trim()) ?? 3,
+    };
+
+    try {
+      await _api.post('/api/vehicles', body);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vehicule enregistre')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur enregistrement vehicule: $e')),
+      );
+    }
+  }
+
+  Future<void> _changePassword() async {
+    final TextEditingController currentCtrl = TextEditingController();
+    final TextEditingController nextCtrl = TextEditingController();
+    final TextEditingController confirmCtrl = TextEditingController();
+
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Changer le mot de passe'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            TextField(
+              controller: currentCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Mot de passe actuel'),
+            ),
+            TextField(
+              controller: nextCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Nouveau mot de passe'),
+            ),
+            TextField(
+              controller: confirmCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Confirmer'),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Valider'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final String nextPwd = nextCtrl.text.trim();
+    if (nextPwd.isEmpty || nextPwd != confirmCtrl.text.trim()) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verification du nouveau mot de passe invalide')),
+      );
+      return;
+    }
+
+    try {
+      await _api.post('/api/users/change-password', <String, dynamic>{
+        'currentPassword': currentCtrl.text,
+        'newPassword': nextPwd,
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mot de passe mis a jour')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur changement mot de passe: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Supprimer le compte'),
+        content: const Text('Cette action deconnecte immediatement le profil courant.'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      await _api.post('/api/users/me/delete', <String, dynamic>{});
+      await AuthService(_api).logout();
+      if (!mounted) return;
+      context.go('/login');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Suppression impossible: $e')),
+      );
+    }
+  }
+
   // ── Build ─────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
@@ -718,7 +940,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         fontSize: 12, color: Color(0xFF6B7280))),
                 backgroundColor: const Color(0xFFF9FAFB),
                 side: const BorderSide(color: Color(0xFFE5E7EB)),
-                onPressed: () {},
+                onPressed: _addLanguage,
               ),
             ],
           ),
@@ -1176,7 +1398,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         ),
         const SizedBox(height: 24),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: _saveVehicle,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.blue,
             foregroundColor: Colors.white,
@@ -1232,13 +1454,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                   style: TextStyle(
                       color: Color(0xFFDC2626),
                       fontWeight: FontWeight.w600)),
-              onTap: () {},
+              onTap: _deleteAccount,
             ),
           ],
         ),
         const SizedBox(height: 32),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: _changePassword,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.blue,
             foregroundColor: Colors.white,

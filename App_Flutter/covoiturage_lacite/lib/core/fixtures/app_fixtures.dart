@@ -29,7 +29,32 @@ class AppFixtures {
   static late List<Map<String, dynamic>> _goboard;
   static late List<Map<String, dynamic>> _vehicles;
   static late List<Map<String, dynamic>> _unavailability;
+  static String? _authSessionEmail;
   // ...existing code...
+
+  static const String fixtureAuthPassword = 'Test@1234';
+
+  static bool isFixtureAuthEmail(String email) {
+    _ensureReady();
+    final String normalized = email.trim().toLowerCase();
+    final Set<String> fixtureEmails = <String>{
+      _driverUser['email']?.toString().toLowerCase() ?? '',
+      _passengerUser['email']?.toString().toLowerCase() ?? '',
+    };
+    return fixtureEmails.contains(normalized);
+  }
+
+  static Map<String, dynamic>? fixtureProfileByEmail(String email) {
+    _ensureReady();
+    final String normalized = email.trim().toLowerCase();
+    if ((_driverUser['email']?.toString().toLowerCase() ?? '') == normalized) {
+      return _cloneMap(_driverUser);
+    }
+    if ((_passengerUser['email']?.toString().toLowerCase() ?? '') == normalized) {
+      return _cloneMap(_passengerUser);
+    }
+    return null;
+  }
 
   static Map<String, dynamic> get driverUserFixture {
     _ensureReady();
@@ -400,6 +425,149 @@ class AppFixtures {
     required bool isDriver,
   }) {
     _ensureReady();
+
+    if (path == '/api/auth/session/init') {
+      return <String, dynamic>{
+        'success': true,
+        'data': <String, dynamic>{
+          'publicId': 'fixture-session-${DateTime.now().millisecondsSinceEpoch}',
+        },
+      };
+    }
+
+    if (path == '/api/auth/session/verify-email') {
+      final String email = body is Map<String, dynamic>
+          ? body['email']?.toString().trim().toLowerCase() ?? ''
+          : '';
+      final bool known = isFixtureAuthEmail(email);
+      _authSessionEmail = known ? email : null;
+      return <String, dynamic>{
+        'success': true,
+        'data': <String, dynamic>{
+          'userExists': known,
+          'otpSent': false,
+          'nextStep': known ? 'password' : 'register',
+          'message': known
+              ? 'Profil test detecte'
+              : 'Aucun profil test pour cet email',
+        },
+      };
+    }
+
+    if (path == '/api/auth/session/password-login') {
+      final String password = body is Map<String, dynamic>
+          ? body['password']?.toString() ?? ''
+          : '';
+      final String email = _authSessionEmail ?? '';
+      final Map<String, dynamic>? user = fixtureProfileByEmail(email);
+      if (user != null && password == fixtureAuthPassword) {
+        final String userId = user['id']?.toString() ?? '';
+        _authSessionEmail = null;
+        return <String, dynamic>{
+          'success': true,
+          'data': <String, dynamic>{
+            'accessToken': 'fixture_access_${DateTime.now().millisecondsSinceEpoch}_$userId',
+            'refreshToken': 'fixture_refresh_${DateTime.now().millisecondsSinceEpoch}_$userId',
+            'userId': userId,
+            'user': _cloneMap(user),
+            'otpRequired': false,
+          },
+        };
+      }
+      return <String, dynamic>{
+        'success': false,
+        'data': <String, dynamic>{
+          'requiresCode': false,
+          'message': 'Mot de passe invalide',
+        },
+      };
+    }
+
+    if (path == '/api/auth/session/verify-code') {
+      final String email = _authSessionEmail ?? '';
+      final Map<String, dynamic>? user = fixtureProfileByEmail(email);
+      if (user != null) {
+        final String userId = user['id']?.toString() ?? '';
+        _authSessionEmail = null;
+        return <String, dynamic>{
+          'success': true,
+          'data': <String, dynamic>{
+            'accessToken': 'fixture_access_${DateTime.now().millisecondsSinceEpoch}_$userId',
+            'refreshToken': 'fixture_refresh_${DateTime.now().millisecondsSinceEpoch}_$userId',
+            'userId': userId,
+            'user': _cloneMap(user),
+          },
+        };
+      }
+      return <String, dynamic>{
+        'success': false,
+        'data': <String, dynamic>{
+          'message': 'Code invalide',
+        },
+      };
+    }
+
+    if (path == '/api/auth/session/register') {
+      return <String, dynamic>{
+        'success': false,
+        'data': <String, dynamic>{
+          'message': 'Inscription non disponible en mode fixture',
+        },
+      };
+    }
+
+    if (path == '/api/users/change-password') {
+      return <String, dynamic>{
+        'success': true,
+        'data': <String, dynamic>{'updated': true},
+      };
+    }
+
+    if (path == '/api/users/me/delete') {
+      return <String, dynamic>{
+        'success': true,
+        'data': <String, dynamic>{'deleted': true},
+      };
+    }
+
+    if (path == '/api/vehicles') {
+      final Map<String, dynamic> payload =
+          body is Map<String, dynamic> ? _cloneMap(body) : <String, dynamic>{};
+      final String id =
+          payload['id']?.toString() ?? 'veh_${DateTime.now().millisecondsSinceEpoch}';
+      final Map<String, dynamic> row = <String, dynamic>{
+        'id': id,
+        'label': payload['label']?.toString() ?? 'Vehicule',
+        'color': payload['color']?.toString() ?? '',
+        'maxPassengers': _toInt(payload['maxPassengers'], fallback: 3),
+        'plate': payload['plate']?.toString() ?? '',
+        'year': _toInt(payload['year'], fallback: 0),
+      };
+      final int existingIndex = _vehicles
+          .indexWhere((Map<String, dynamic> v) => v['id']?.toString() == id);
+      if (existingIndex >= 0) {
+        _vehicles[existingIndex] = row;
+      } else {
+        _vehicles.insert(0, row);
+      }
+      return <String, dynamic>{'success': true, 'data': _cloneMap(row)};
+    }
+
+    if (path == '/api/finances/withdraw') {
+      final double amount = body is Map<String, dynamic>
+          ? _toDouble(body['amount'])
+          : 0;
+      final double current = _toDouble(_finances['availableBalance']);
+      final double safeAmount = amount <= 0 ? 0 : amount.clamp(0, current).toDouble();
+      _finances['availableBalance'] = (current - safeAmount);
+      return <String, dynamic>{
+        'success': true,
+        'data': <String, dynamic>{
+          'amount': safeAmount,
+          'availableBalance': _toDouble(_finances['availableBalance']),
+        },
+      };
+    }
 
     if (path == '/api/reviews') {
       final Map<String, dynamic> payload =
