@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 92,
                       margin: const EdgeInsets.symmetric(horizontal: 120),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.blueGrey[50],
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: const <BoxShadow>[
                           BoxShadow(
