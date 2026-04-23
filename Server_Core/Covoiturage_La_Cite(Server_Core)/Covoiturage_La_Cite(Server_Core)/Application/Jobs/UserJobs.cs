@@ -1,5 +1,7 @@
+using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Covoiturage_La_Cite_Server_Core_.Application.Jobs;
 
@@ -67,31 +69,8 @@ public class InactiveUserReminderJob
             .Where(u => u.LastLoginAt < cutoff && u.Status == Domain.Enums.UserStatus.Active)
             .CountAsync();
 
-        if (inactiveUsers.Count == 0)
-        {
-            _logger.LogDebug("InactiveUserReminder: aucun utilisateur inactif à notifier");
-            return;
-        }
-
-        var now = DateTimeOffset.UtcNow;
-        var notifications = inactiveUsers.Select(u => new Domain.Entities.Notification
-        {
-            Id = Guid.NewGuid(),
-            UserId = u.Id,
-            Type = Domain.Enums.NotificationType.SystemAlert,
-            Title = "Vous nous manquez ! 👋",
-            Body = "Vous n'avez pas utilisé Covoiturage La Cité depuis 14 jours. " +
-                   "Des trajets près de chez vous vous attendent — reconnectez-vous dès maintenant !",
-            IsRead = false,
-            CreatedAt = now,
-        }).ToList();
-
-        await db.Notifications.AddRangeAsync(notifications);
-        await db.SaveChangesAsync();
-
-        _logger.LogInformation(
-            "InactiveUserReminder: {Count} notifications de rappel envoyées aux utilisateurs inactifs >14j",
-            notifications.Count);
+        _logger.LogInformation("InactiveUserReminder: {Count} utilisateurs inactifs >14j identifiés", inactive);
+        // TODO: Créer notification in-app pour chaque utilisateur
     }
 }
 
@@ -160,57 +139,15 @@ public class WithdrawalProcessingJob
 
         foreach (var w in pending)
         {
-            try
-            {
-                // Marque en cours de traitement
-                w.Status = "Processing";
-                await db.SaveChangesAsync();
-
-                // Simulation du transfert bancaire (Interac/Stripe à intégrer en production)
-                // En production : appel API passerelle de paiement ici
-                var mockRef = $"TRF-{now:yyyyMMdd}-{w.Id.ToString()[..8].ToUpper()}";
-
-                // Met à jour le solde du profil conducteur
-                var driverProfile = await db.DriverProfiles.FindAsync(w.DriverProfileId);
-                if (driverProfile != null)
-                {
-                    driverProfile.BalanceAvailable -= w.Amount;
-                    if (driverProfile.BalanceAvailable < 0) driverProfile.BalanceAvailable = 0;
-
-                }
-
-                w.Status = "Completed";
-                w.ProcessedAt = now;
-                w.ExternalReference = mockRef;
-
-                // Notification au conducteur
-                var notification = new Domain.Entities.Notification
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = driverProfile?.UserId ?? w.DriverProfileId,
-                    Type = Domain.Enums.NotificationType.PaymentProcessed,
-                    Title = "Retrait traité ✅",
-                    Body = $"Votre retrait de {w.Amount:F2}$ a été traité avec succès. Référence : {mockRef}",
-                    IsRead = false,
-                    CreatedAt = now,
-                };
-                await db.Notifications.AddAsync(notification);
-
-                await db.SaveChangesAsync();
-                processed++;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "WithdrawalProcessing: échec du retrait {WithdrawalId}", w.Id);
-                w.Status = "Failed";
-                await db.SaveChangesAsync();
-                failed++;
-            }
+            w.Status = "Processing";
+            // TODO: Intégrer Interac/Stripe pour le transfert réel
         }
 
-        _logger.LogInformation(
-            "WithdrawalProcessing: {Processed} retraits traités, {Failed} échecs",
-            processed, failed);
+        if (pending.Count > 0)
+        {
+            await db.SaveChangesAsync();
+            _logger.LogInformation("WithdrawalProcessing: {Count} retraits en traitement", pending.Count);
+        }
     }
 }
 
