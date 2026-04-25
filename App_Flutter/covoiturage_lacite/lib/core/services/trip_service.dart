@@ -1,10 +1,20 @@
+
 import '../models/trip.dart';
 import 'api_service.dart';
+import '../utils/parsing.dart' as parsing;
 
 class TripService {
   TripService(this._api);
 
   final ApiService _api;
+
+  Future<void> cancelReservation(String reservationId, {String? reason}) async {
+    try {
+      await _api.post('/api/reservations/$reservationId/cancel', {'reason': reason ?? ''});
+    } catch (e) {
+      // Ne jamais faire crasher l'app, log possible
+    }
+  }
 
   Future<List<Trip>> searchTrips({
     required String from,
@@ -18,8 +28,7 @@ class TripService {
       if (date != null) 'date': date,
       'seats': '$seats',
     });
-    final body = data as Map<String, dynamic>;
-    final items = (body['data']?['items'] ?? body['items'] ?? []) as List;
+    final items = parsing.extractList(data);
     return items.map((e) => Trip.fromJson(e as Map<String, dynamic>)).toList();
   }
 
@@ -43,9 +52,10 @@ class TripService {
 
   Future<List<Map<String, dynamic>>> getDriverTrips() async {
     final data = await _api.get('/api/trips/mine/driver');
-    final body = data as Map<String, dynamic>;
-    final items = (body['data'] ?? body['items'] ?? []) as List;
-    return items.cast<Map<String, dynamic>>();
+    return parsing
+        .extractList(data)
+        .whereType<Map<String, dynamic>>()
+        .toList();
   }
 
   Future<void> acceptReservation(String reservationId) async {

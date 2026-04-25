@@ -1,14 +1,16 @@
+import 'reserve_button.dart';
 // ============================================================
 // lib/features/trip/published_trip_screen.dart
 // Vue détail d'un trajet publié — Version Mobile Flutter
 // Miroir fidèle du PublishedTripView web
-// Accepte un Trip model OU une Reservation (via extra routing)
 // ============================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../core/services/api_service.dart';
 import '../../core/services/trip_service.dart';
@@ -19,7 +21,15 @@ import '../../core/models/trip.dart';
 // ─────────────────────────────────────────────────────────────
 enum PTViewerRole { passenger, driverOwner, admin }
 
-enum PTReservationStatus { none, pending, confirmed, refused, cancelled, inProgress, completed }
+enum PTReservationStatus {
+  none,
+  pending,
+  confirmed,
+  refused,
+  cancelled,
+  inProgress,
+  completed,
+}
 
 // ─────────────────────────────────────────────────────────────
 // ÉCRAN PRINCIPAL
@@ -33,7 +43,7 @@ class PublishedTripScreen extends StatefulWidget {
     this.initialData,
     this.viewerRole = PTViewerRole.passenger,
     this.existingReservationStatus = PTReservationStatus.none,
-    this.source, // 'reservation' | 'publishedtrip' | null
+    this.source,
     this.sourceStatus,
   }) : assert(trip != null || tripId != null || initialData != null);
 
@@ -51,7 +61,7 @@ class PublishedTripScreen extends StatefulWidget {
 }
 
 class _PublishedTripScreenState extends State<PublishedTripScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   Trip? _trip;
   Map<String, dynamic>? _raw;
   bool _isLoading = true;
@@ -71,13 +81,20 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     super.initState();
     _detailTabCtrl = TabController(length: 3, vsync: this);
     _reservationStatus = widget.existingReservationStatus;
+    WidgetsBinding.instance.addObserver(this);
     _initData();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _detailTabCtrl.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Pas de rechargement nécessaire ici, l'état est déjà en mémoire
   }
 
   void _initData() {
@@ -95,19 +112,33 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     if (widget.tripId != null && widget.tripId!.isNotEmpty) {
       _loadTrip(showLoader: _trip == null);
     }
+    // Si on a déjà les données, on n'affiche pas le loader
+    if (!_isLoading && mounted) setState(() {});
   }
 
   Future<void> _loadTrip({bool showLoader = true}) async {
     if (widget.tripId == null) return;
-    if (showLoader && mounted) setState(() { _isLoading = true; _errorMsg = null; });
+    if (showLoader && mounted) {
+      setState(() {
+        _isLoading = true;
+        _errorMsg = null;
+      });
+    }
     try {
       final raw = await widget.tripService.getTripPayloadById(widget.tripId!);
       final t = Trip.fromJson(raw);
       if (!mounted) return;
-      setState(() { _raw = raw; _trip = t; _isLoading = false; });
+      setState(() {
+        _raw = raw;
+        _trip = t;
+        _isLoading = false;
+      });
     } catch (_) {
       if (!mounted) return;
-      setState(() { _errorMsg = 'Impossible de charger le trajet.'; _isLoading = false; });
+      setState(() {
+        _errorMsg = 'Impossible de charger le trajet.';
+        _isLoading = false;
+      });
     }
   }
 
@@ -120,7 +151,7 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
       setState(() {
         _reservationStatus = PTReservationStatus.pending;
         _showSuccessToast = true;
-        _toastMsg = 'Demande envoyée ! Le conducteur vous répondra bientôt.';
+        _toastMsg = 'Demande envoyee ! Le conducteur vous repondra bientot.';
       });
       await Future.delayed(const Duration(seconds: 3));
       if (mounted) setState(() => _showSuccessToast = false);
@@ -128,53 +159,122 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
       if (!mounted) return;
       setState(() {
         _showErrorToast = true;
-        _toastMsg = 'Erreur lors de la réservation. Réessayez.';
+        _toastMsg = 'Erreur lors de la reservation. Reessayez.';
       });
       await Future.delayed(const Duration(seconds: 3));
       if (mounted) setState(() => _showErrorToast = false);
     } finally {
-      if (mounted) setState(() { _isReserving = false; _showConfirmModal = false; });
+      if (mounted) {
+        setState(() {
+          _isReserving = false;
+          _showConfirmModal = false;
+        });
+      }
     }
   }
 
-  // ── État du bouton selon source/rôle ─────────────────────
-  _BTNState get _buttonState {
+  // ─────────────────────────────────────────────────────────────
+  // MAPPING ÉTAT DU BOUTON — Logique correcte miroir du web
+  // ─────────────────────────────────────────────────────────────
+  ReserveButtonState get _reserveButtonState {
+    // 1. Source contextuelle "reservation" (arrivée depuis ReservationCard)
     if (widget.source == 'reservation') {
-      return switch (widget.sourceStatus) {
-        'confirmed' => _BTNState.resConfirmed,
-        'in-progress' => _BTNState.resInProgress,
-        'cancelled' => _BTNState.resCancelled,
-        'pending' => _BTNState.resPending,
-        'completed' => _BTNState.resCompleted,
-        'rejected' => _BTNState.resRejected,
-        'imminent' => _BTNState.resImminent,
-        _ => _BTNState.reserve,
-      };
+      switch (widget.sourceStatus) {
+        case 'confirmed':
+          return ReserveButtonState(ReserveButtonStateKind.reservationConfirmed);
+        case 'in-progress':
+        case 'in_progress':
+          return ReserveButtonState(ReserveButtonStateKind.reservationInProgress);
+        case 'cancelled':
+          return ReserveButtonState(ReserveButtonStateKind.reservationCancelled);
+        case 'pending':
+          return ReserveButtonState(ReserveButtonStateKind.reservationPending);
+        case 'completed':
+          return ReserveButtonState(ReserveButtonStateKind.reservationCompleted);
+        case 'rejected':
+          return ReserveButtonState(ReserveButtonStateKind.reservationRejected);
+        case 'imminent':
+          return ReserveButtonState(ReserveButtonStateKind.reservationImminent);
+        default:
+          return ReserveButtonState(ReserveButtonStateKind.reserve);
+      }
     }
+
+    // 2. Source contextuelle "publishedtrip" (arrivée depuis TripCard)
     if (widget.source == 'publishedtrip') {
-      return switch (widget.sourceStatus) {
-        'published' => _BTNState.tripPublished,
-        'full' => _BTNState.tripFull,
-        'confirmed' => _BTNState.tripConfirmed,
-        'in-progress' => _BTNState.tripInProgress,
-        'completed' => _BTNState.tripCompleted,
-        'cancelled' => _BTNState.tripCancelled,
-        'imminent' => _BTNState.tripImminent,
-        _ => _BTNState.tripPublished,
-      };
+      switch (widget.sourceStatus) {
+        case 'published':
+          return ReserveButtonState(ReserveButtonStateKind.tripPublished);
+        case 'full':
+          return ReserveButtonState(ReserveButtonStateKind.tripFull);
+        case 'confirmed':
+          return ReserveButtonState(ReserveButtonStateKind.tripConfirmed);
+        case 'in-progress':
+        case 'in_progress':
+          return ReserveButtonState(ReserveButtonStateKind.tripInProgress);
+        case 'completed':
+          return ReserveButtonState(ReserveButtonStateKind.tripCompleted);
+        case 'cancelled':
+          return ReserveButtonState(ReserveButtonStateKind.tripCancelled);
+        case 'imminent':
+          return ReserveButtonState(ReserveButtonStateKind.tripImminent);
+        case 'no-show':
+          return ReserveButtonState(ReserveButtonStateKind.tripNoShow);
+        default:
+          return ReserveButtonState(ReserveButtonStateKind.tripPublished);
+      }
     }
-    if (widget.viewerRole == PTViewerRole.driverOwner) return _BTNState.manage;
-    if (widget.viewerRole == PTViewerRole.admin) return _BTNState.readonly;
-    if (_trip?.availableSeats == 0) return _BTNState.full;
-    return switch (_reservationStatus) {
-      PTReservationStatus.pending => _BTNState.pending,
-      PTReservationStatus.confirmed => _BTNState.confirmed,
-      PTReservationStatus.refused => _BTNState.cooldown,
-      _ => _BTNState.reserve,
-    };
+
+    // 3. Conducteur propriétaire du trajet → "Gérer les demandes"
+    if (widget.viewerRole == PTViewerRole.driverOwner) {
+      return ReserveButtonState(ReserveButtonStateKind.manage);
+    }
+
+    // 4. Admin → lecture seule, bouton invisible
+    if (widget.viewerRole == PTViewerRole.admin) {
+      return ReserveButtonState(ReserveButtonStateKind.readonly);
+    }
+
+    // 5. Trajet complet
+    if ((_trip?.availableSeats ?? 1) == 0) {
+      return ReserveButtonState(ReserveButtonStateKind.full);
+    }
+
+    // 6. Statut de réservation du passager (modifiable par interaction)
+    switch (_reservationStatus) {
+      case PTReservationStatus.pending:
+        return ReserveButtonState(ReserveButtonStateKind.pending);
+      case PTReservationStatus.confirmed:
+        return ReserveButtonState(ReserveButtonStateKind.confirmed);
+      case PTReservationStatus.refused:
+        return ReserveButtonState(ReserveButtonStateKind.cooldown, hoursLeft: 24);
+      case PTReservationStatus.cancelled:
+        return ReserveButtonState(ReserveButtonStateKind.reserve);
+      case PTReservationStatus.inProgress:
+        return ReserveButtonState(ReserveButtonStateKind.reservationInProgress);
+      case PTReservationStatus.completed:
+        return ReserveButtonState(ReserveButtonStateKind.reservationCompleted);
+      case PTReservationStatus.none:
+        return ReserveButtonState(ReserveButtonStateKind.reserve);
+    }
   }
 
-  // ── BUILD ─────────────────────────────────────────────────
+  bool get _canShowCancelBtn {
+    return widget.viewerRole == PTViewerRole.passenger &&
+        (_reservationStatus == PTReservationStatus.pending ||
+            _reservationStatus == PTReservationStatus.confirmed);
+  }
+
+  bool get _canShowMessageBtn {
+    return _reservationStatus == PTReservationStatus.confirmed ||
+        widget.source == 'reservation' && widget.sourceStatus == 'confirmed';
+  }
+
+  bool get _canShowSosBtn {
+    return widget.source == 'reservation' && widget.sourceStatus == 'in-progress';
+  }
+
+  // ── BUILD ──────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -196,10 +296,10 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
               SliverToBoxAdapter(child: _buildMapHero(t)),
               SliverToBoxAdapter(child: _buildSummaryCard(t)),
               SliverToBoxAdapter(child: _buildDetailsSection(t)),
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+              const SliverToBoxAdapter(child: SizedBox(height: 120)),
             ],
           ),
-          // Sticky bottom actions
+          // Sticky bottom
           Positioned(
             bottom: 0,
             left: 0,
@@ -216,9 +316,9 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     );
   }
 
-  // ─────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
   // MAP HERO
-  // ─────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
   Widget _buildMapHero(Trip t) {
     return GestureDetector(
       onTap: () => setState(() => _showMapExpanded = !_showMapExpanded),
@@ -228,13 +328,11 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Map placeholder (integrate MapBox/Google Maps here)
             _MapPlaceholder(
               from: t.departureLabel,
               to: t.arrivalLabel,
               polyline: _extractPolyline(_raw),
             ),
-            // Top gradient
             Positioned(
               top: 0,
               left: 0,
@@ -250,7 +348,6 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 ),
               ),
             ),
-            // Back button
             Positioned(
               top: MediaQuery.of(context).padding.top + 8,
               left: 12,
@@ -260,7 +357,6 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 bg: Colors.black.withOpacity(0.45),
               ),
             ),
-            // Expand map button
             Positioned(
               top: MediaQuery.of(context).padding.top + 8,
               right: 12,
@@ -270,15 +366,14 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 bg: Colors.black.withOpacity(0.45),
               ),
             ),
-            // Duration/distance badge
             Positioned(
               bottom: 14,
               right: 14,
               child: _MetaBadge(
-                label: '${t.estimatedDurationMin} min · ${t.estimatedDistanceKm.toStringAsFixed(1)} km',
+                label:
+                    '${t.estimatedDurationMin} min - ${t.estimatedDistanceKm.toStringAsFixed(1)} km',
               ),
             ),
-            // Route labels
             Positioned(
               bottom: 14,
               left: 14,
@@ -297,12 +392,12 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // SUMMARY CARD (overlap the map)
-  // ─────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  // SUMMARY CARD
+  // ─────────────────────────────────────────────────────────────
   Widget _buildSummaryCard(Trip t) {
     return Transform.translate(
-      offset: const Offset(0, -28),
+      offset: const Offset(0, -12),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Container(
@@ -315,7 +410,6 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
           ),
           child: Column(
             children: [
-              // Driver row
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                 child: Row(
@@ -326,28 +420,23 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            t.driverName,
-                            style: GoogleFonts.sora(
-                                fontSize: 15, fontWeight: FontWeight.w700),
-                          ),
+                          Text(t.driverName,
+                              style: GoogleFonts.sora(fontSize: 15, fontWeight: FontWeight.w700)),
                           const SizedBox(height: 2),
                           Row(
                             children: [
                               const Icon(Icons.star, size: 12, color: Color(0xFFF59E0B)),
                               const SizedBox(width: 3),
                               Text(
-                                '${t.driverRating.toStringAsFixed(1)} · ${t.driverTripCount} trajets',
-                                style: GoogleFonts.dmSans(
-                                    fontSize: 12, color: const Color(0xFF7A879A)),
+                                '${t.driverRating.toStringAsFixed(1)} - ${t.driverTripCount} trajets',
+                                style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
                               ),
                             ],
                           ),
                           if (t.vehicleModel.isNotEmpty)
                             Text(
-                              '${t.vehicleModel} · ${t.vehicleColor}',
-                              style: GoogleFonts.dmSans(
-                                  fontSize: 11, color: const Color(0xFF8A95A8)),
+                              '${t.vehicleModel} - ${t.vehicleColor}',
+                              style: GoogleFonts.dmSans(fontSize: 11, color: const Color(0xFF8A95A8)),
                             ),
                         ],
                       ),
@@ -358,32 +447,26 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                         Text(
                           '${widget.viewerRole == PTViewerRole.driverOwner ? t.pricePerSeat : t.passengerPrice}\$',
                           style: GoogleFonts.sora(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: const Color(0xFF08316E)),
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: const Color(0xFF08316E),
+                          ),
                         ),
-                        Text(
-                          '/ passager',
-                          style: GoogleFonts.dmSans(
-                              fontSize: 10, color: const Color(0xFF7A879A)),
-                        ),
+                        Text('/ passager',
+                            style: GoogleFonts.dmSans(fontSize: 10, color: const Color(0xFF7A879A))),
                       ],
                     ),
                   ],
                 ),
               ),
               const Divider(height: 1, color: Color(0x12000000)),
-              // Meta row
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                 child: Row(
                   children: [
                     _MetaCell(label: 'Date', value: t.departureDate),
-                    _MetaCell(label: 'Départ', value: t.departureTime),
-                    _MetaCell(
-                      label: 'Durée',
-                      value: '${t.estimatedDurationMin} min',
-                    ),
+                    _MetaCell(label: 'Depart', value: t.departureTime),
+                    _MetaCell(label: 'Duree', value: '${t.estimatedDurationMin} min'),
                     _MetaCell(
                       label: 'Places',
                       value: '${t.availableSeats}/${t.totalSeats}',
@@ -395,7 +478,6 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 ),
               ),
               const Divider(height: 1, color: Color(0x12000000)),
-              // Payment + preferred seats info
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
                 child: Row(
@@ -404,12 +486,15 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                     const SizedBox(width: 6),
                     Text(
                       t.paymentMethod == 'Cash' ? 'Argent comptant' : 'Virement Interac',
-                      style: GoogleFonts.dmSans(
-                          fontSize: 13, color: const Color(0xFF545D6E)),
+                      style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF545D6E)),
                     ),
                     const Spacer(),
                     if (t.tripType == 'recurrent')
-                      _TagChip(label: '↻ Récurrent', bg: const Color(0xFFE8F0FE), fg: const Color(0xFF08316E)),
+                      _TagChip(
+                        label: 'Recurrent',
+                        bg: const Color(0xFFE8F0FE),
+                        fg: const Color(0xFF08316E),
+                      ),
                   ],
                 ),
               ),
@@ -420,9 +505,9 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // DETAILS SECTION — Tabs: Points | Préférences | Statut
-  // ─────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  // DETAILS
+  // ─────────────────────────────────────────────────────────────
   Widget _buildDetailsSection(Trip t) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -430,14 +515,14 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Détails du trajet',
+            'Details du trajet',
             style: GoogleFonts.sora(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF08316E)),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF08316E),
+            ),
           ),
           const SizedBox(height: 10),
-          // Tab bar
           Container(
             height: 40,
             decoration: BoxDecoration(
@@ -458,7 +543,7 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
               unselectedLabelStyle: GoogleFonts.sora(fontSize: 11),
               tabs: const [
                 Tab(text: 'Points'),
-                Tab(text: 'Préférences'),
+                Tab(text: 'Preferences'),
                 Tab(text: 'Statut'),
               ],
             ),
@@ -480,18 +565,19 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     );
   }
 
-  // ─────────────────────────────────────────────────────────
-  // STICKY BOTTOM — Reserve button
-  // ─────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  // STICKY BOTTOM — Stack de boutons comme sur le web
+  // ─────────────────────────────────────────────────────────────
   Widget _buildStickyBottom(Trip t) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -4)),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+          ),
         ],
       ),
       padding: EdgeInsets.fromLTRB(
@@ -500,132 +586,59 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
         16,
         MediaQuery.of(context).padding.bottom + 12,
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Message button (if confirmed)
-          if (_buttonState == _BTNState.confirmed ||
-              _buttonState == _BTNState.resConfirmed) ...[
-            _CircleIconBtn(
-              icon: Icons.chat_bubble_outline,
-              onTap: () => context.push('/chat/${t.id}'),
-              bg: const Color(0xFFEEF0F5),
-              iconColor: const Color(0xFF08316E),
-            ),
-            const SizedBox(width: 10),
-          ],
-          // SOS button (in progress)
-          if (_buttonState == _BTNState.resInProgress ||
-              _buttonState == _BTNState.tripInProgress) ...[
-            _CircleIconBtn(
-              icon: Icons.sos,
-              onTap: () => _triggerSOS(t),
-              bg: const Color(0xFFE24B4A),
-              iconColor: Colors.white,
-            ),
-            const SizedBox(width: 10),
-          ],
-          Expanded(child: _buildReserveBtn(t)),
-          // Cancel button
-          if ((widget.viewerRole == PTViewerRole.passenger &&
-                  (_reservationStatus == PTReservationStatus.pending ||
-                      _reservationStatus == PTReservationStatus.confirmed)) ||
-              (widget.viewerRole == PTViewerRole.driverOwner &&
-                  widget.source != 'reservation')) ...[
-            const SizedBox(width: 10),
-            _CircleIconBtn(
-              icon: Icons.cancel_outlined,
-              onTap: () => setState(() => _showCancelModal = true),
-              bg: const Color(0xFFFCEBEB),
-              iconColor: const Color(0xFFE24B4A),
-            ),
-          ],
+          // Ligne principale: bouton réserver + actions secondaires
+          Row(
+            children: [
+              // Bouton message (si confirmé)
+              if (_canShowMessageBtn) ...[
+                _CircleIconBtn(
+                  icon: Icons.chat_bubble_outline,
+                  onTap: () => context.push('/chat/${t.id}'),
+                  bg: const Color(0xFFEEF0F5),
+                  iconColor: const Color(0xFF08316E),
+                ),
+                const SizedBox(width: 10),
+              ],
+              // Bouton SOS (en cours)
+              if (_canShowSosBtn) ...[
+                _CircleIconBtn(
+                  icon: Icons.sos,
+                  onTap: () => _triggerSOS(t),
+                  bg: const Color(0xFFE24B4A),
+                  iconColor: Colors.white,
+                ),
+                const SizedBox(width: 10),
+              ],
+              // Bouton principal (ReserveButton)
+              Expanded(
+                child: ReserveButton(
+                  state: _reserveButtonState,
+                  tripId: t.id,
+                  onReserveClick:
+                      _isReserving ? null : () => setState(() => _showConfirmModal = true),
+                  onFollowClick: () => context.push('/chat/${t.id}'),
+                  onManageClick: () => context.push('/reservations'),
+                  onStartTripClick: () => context.push('/trajet-en-cours/${t.id}'),
+                ),
+              ),
+              // Bouton annuler (si passager avec réservation active)
+              if (_canShowCancelBtn) ...[
+                const SizedBox(width: 10),
+                _CircleIconBtn(
+                  icon: Icons.cancel_outlined,
+                  onTap: () => setState(() => _showCancelModal = true),
+                  bg: const Color(0xFFFCEBEB),
+                  iconColor: const Color(0xFFE24B4A),
+                ),
+              ],
+            ],
+          ),
         ],
       ),
     );
-  }
-
-  Widget _buildReserveBtn(Trip t) {
-    final (label, color, icon, enabled) = _btnConfig(_buttonState, t);
-    return GestureDetector(
-      onTap: enabled ? () => _handleBtnTap(t) : null,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        height: 52,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: enabled
-              ? [BoxShadow(color: color.withOpacity(0.35), blurRadius: 12, offset: const Offset(0, 4))]
-              : null,
-        ),
-        child: Center(
-          child: _isReserving
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
-                )
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (icon != null) ...[
-                      Icon(icon, size: 17, color: Colors.white),
-                      const SizedBox(width: 8),
-                    ],
-                    Text(label,
-                        style: GoogleFonts.sora(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white)),
-                  ],
-                ),
-        ),
-      ),
-    );
-  }
-
-  (String, Color, IconData?, bool) _btnConfig(_BTNState s, Trip t) => switch (s) {
-        _BTNState.reserve => ('Réserver ce trajet', const Color(0xFF08316E), Icons.event_seat, true),
-        _BTNState.pending => ('En attente de confirmation…', const Color(0xFF8A95A8), Icons.hourglass_empty, false),
-        _BTNState.confirmed => ('Trajet confirmé · Suivre', const Color(0xFF0F6E56), Icons.check_circle, true),
-        _BTNState.cooldown => ('Refusé (réessayez dans 24h)', const Color(0xFF8A95A8), Icons.block, false),
-        _BTNState.full => ('Trajet complet', const Color(0xFF8A95A8), null, false),
-        _BTNState.manage => ('Gérer les demandes', const Color(0xFF08316E), Icons.group, true),
-        _BTNState.readonly => ('Vue administrateur', const Color(0xFF8A95A8), Icons.visibility, false),
-        _BTNState.resConfirmed => ('Confirmé', const Color(0xFF0F6E56), Icons.check_circle, false),
-        _BTNState.resInProgress => ('Suivre le trajet', const Color(0xFF08316E), Icons.navigation, true),
-        _BTNState.resCancelled => ('Annulé', const Color(0xFF8A95A8), null, false),
-        _BTNState.resPending => ('En attente', const Color(0xFF8A95A8), null, false),
-        _BTNState.resCompleted => ('Terminé', const Color(0xFF8A95A8), null, false),
-        _BTNState.resRejected => ('Rejeté', const Color(0xFFE24B4A), Icons.block, false),
-        _BTNState.resImminent => ('Démarrer le trajet', const Color(0xFF0F6E56), Icons.play_arrow, true),
-        _BTNState.tripPublished => ('Publié', const Color(0xFF8A95A8), null, false),
-        _BTNState.tripFull => ('Complet', const Color(0xFF8A95A8), null, false),
-        _BTNState.tripConfirmed => ('Confirmé', const Color(0xFF0F6E56), Icons.check_circle, false),
-        _BTNState.tripInProgress => ('Suivre le trajet', const Color(0xFF08316E), Icons.navigation, true),
-        _BTNState.tripCompleted => ('Terminé', const Color(0xFF8A95A8), null, false),
-        _BTNState.tripCancelled => ('Annulé', const Color(0xFFE24B4A), null, false),
-        _BTNState.tripImminent => ('Démarrer', const Color(0xFF0F6E56), Icons.play_arrow, true),
-      };
-
-  void _handleBtnTap(Trip t) {
-    switch (_buttonState) {
-      case _BTNState.reserve:
-        setState(() => _showConfirmModal = true);
-        break;
-      case _BTNState.confirmed:
-      case _BTNState.resInProgress:
-      case _BTNState.tripInProgress:
-      case _BTNState.tripImminent:
-      case _BTNState.resImminent:
-        context.push('/chat/${t.id}');
-        break;
-      case _BTNState.manage:
-        context.push('/reservations');
-        break;
-      default:
-        break;
-    }
   }
 
   Future<void> _triggerSOS(Trip t) async {
@@ -633,27 +646,29 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('🚨 Alerte SOS envoyée aux administrateurs'),
+        content: Text('Alerte SOS envoyee aux administrateurs'),
         backgroundColor: Color(0xFFE24B4A),
       ),
     );
   }
 
-  // ─────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
   // MODALS
-  // ─────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
   Widget _buildConfirmModal(Trip t) {
     return _ModalOverlay(
       onDismiss: () => setState(() => _showConfirmModal = false),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _ModalHeader(title: 'Confirmer la réservation', onClose: () => setState(() => _showConfirmModal = false)),
+          _ModalHeader(
+            title: 'Confirmer la reservation',
+            onClose: () => setState(() => _showConfirmModal = false),
+          ),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                // Driver mini
                 Row(
                   children: [
                     _DriverAvatar(name: t.driverName, url: t.driverAvatarUrl, size: 40),
@@ -662,21 +677,22 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(t.driverName,
-                            style: GoogleFonts.sora(
-                                fontSize: 14, fontWeight: FontWeight.w700)),
-                        Row(children: [
-                          const Icon(Icons.star, size: 11, color: Color(0xFFF59E0B)),
-                          const SizedBox(width: 2),
-                          Text('${t.driverRating.toStringAsFixed(1)} · ${t.driverTripCount} trajets',
-                              style: GoogleFonts.dmSans(
-                                  fontSize: 12, color: const Color(0xFF7A879A))),
-                        ]),
+                            style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.w700)),
+                        Row(
+                          children: [
+                            const Icon(Icons.star, size: 11, color: Color(0xFFF59E0B)),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${t.driverRating.toStringAsFixed(1)} - ${t.driverTripCount} trajets',
+                              style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Trip detail rows
                 Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFFF8F9FC),
@@ -685,25 +701,34 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     children: [
-                      _ModalRow(icon: Icons.calendar_today, label: 'Date', value: '${t.departureDate} à ${t.departureTime}'),
+                      _ModalRow(
+                        icon: Icons.calendar_today,
+                        label: 'Date',
+                        value: '${t.departureDate} a ${t.departureTime}',
+                      ),
                       const SizedBox(height: 8),
                       _ModalRow(icon: Icons.place, label: 'De', value: t.departureLabel),
                       const SizedBox(height: 8),
-                      _ModalRow(icon: Icons.flag, label: 'À', value: t.arrivalLabel),
+                      _ModalRow(icon: Icons.flag, label: 'A', value: t.arrivalLabel),
                       const SizedBox(height: 8),
-                      _ModalRow(icon: Icons.attach_money, label: 'Prix', value: '${t.passengerPrice.toStringAsFixed(2)} \$ (frais inclus)'),
+                      _ModalRow(
+                        icon: Icons.attach_money,
+                        label: 'Prix',
+                        value: '${t.passengerPrice.toStringAsFixed(2)} \$ (frais inclus)',
+                      ),
                       const SizedBox(height: 8),
                       _ModalRow(
                         icon: Icons.payment,
                         label: 'Paiement',
-                        value: t.paymentMethod == 'Cash' ? 'Argent comptant' : 'Virement Interac',
+                        value:
+                            t.paymentMethod == 'Cash' ? 'Argent comptant' : 'Virement Interac',
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Votre demande sera envoyée au conducteur pour approbation.',
+                  'Votre demande sera envoyee au conducteur pour approbation.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
                 ),
@@ -737,12 +762,22 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
   }
 
   Widget _buildCancelModal() {
+    String? getReservationId() {
+      if (widget.initialData != null && widget.initialData!['reservationId'] != null) {
+        return widget.initialData!['reservationId'] as String;
+      }
+      return null;
+    }
+
     return _ModalOverlay(
       onDismiss: () => setState(() => _showCancelModal = false),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _ModalHeader(title: 'Confirmer l\'annulation', onClose: () => setState(() => _showCancelModal = false)),
+          _ModalHeader(
+            title: "Confirmer l'annulation",
+            onClose: () => setState(() => _showCancelModal = false),
+          ),
           Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -759,19 +794,19 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  'Êtes-vous sûr de vouloir annuler ?',
+                  'Etes-vous sur de vouloir annuler ?',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.sora(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF08316E)),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF08316E),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Cette action est irréversible. Des frais d\'annulation peuvent s\'appliquer.',
+                  'Cette action est irreversible. Des frais d\'annulation peuvent s\'appliquer.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.dmSans(
-                      fontSize: 13, color: const Color(0xFF7A879A)),
+                  style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF7A879A)),
                 ),
               ],
             ),
@@ -789,9 +824,37 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 const SizedBox(width: 12),
                 Expanded(
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       setState(() => _showCancelModal = false);
-                      context.pop();
+                      final reservationId = getReservationId();
+                      if (reservationId == null || reservationId.isEmpty) {
+                        setState(() {
+                          _showErrorToast = true;
+                          _toastMsg = 'Impossible de trouver l\'ID de reservation.';
+                        });
+                        await Future.delayed(const Duration(seconds: 3));
+                        if (mounted) setState(() => _showErrorToast = false);
+                        return;
+                      }
+                      try {
+                        await widget.tripService.cancelReservation(reservationId, reason: null);
+                        if (!mounted) return;
+                        setState(() {
+                          _reservationStatus = PTReservationStatus.cancelled;
+                          _showSuccessToast = true;
+                          _toastMsg = 'Reservation annulee.';
+                        });
+                        await Future.delayed(const Duration(seconds: 3));
+                        if (mounted) setState(() => _showSuccessToast = false);
+                      } catch (e) {
+                        if (!mounted) return;
+                        setState(() {
+                          _showErrorToast = true;
+                          _toastMsg = 'Erreur lors de l\'annulation.';
+                        });
+                        await Future.delayed(const Duration(seconds: 3));
+                        if (mounted) setState(() => _showErrorToast = false);
+                      }
                     },
                     child: Container(
                       height: 50,
@@ -800,11 +863,14 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                         borderRadius: BorderRadius.circular(14),
                       ),
                       alignment: Alignment.center,
-                      child: Text('Oui, annuler',
-                          style: GoogleFonts.sora(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white)),
+                      child: Text(
+                        'Oui, annuler',
+                        style: GoogleFonts.sora(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -825,8 +891,10 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: 1),
         duration: const Duration(milliseconds: 300),
-        builder: (_, v, child) =>
-            Transform.translate(offset: Offset(0, (1 - v) * 20), child: Opacity(opacity: v, child: child)),
+        builder: (_, v, child) => Transform.translate(
+          offset: Offset(0, (1 - v) * 20),
+          child: Opacity(opacity: v, child: child),
+        ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
@@ -845,11 +913,14 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(_toastMsg,
-                    style: GoogleFonts.sora(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white)),
+                child: Text(
+                  _toastMsg,
+                  style: GoogleFonts.sora(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
           ),
@@ -860,8 +931,9 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
 }
 
 // ─────────────────────────────────────────────────────────────
-// TABS DETAIL
+// TABS
 // ─────────────────────────────────────────────────────────────
+
 class _PointsTab extends StatelessWidget {
   const _PointsTab({required this.trip, this.raw});
   final Trip trip;
@@ -873,7 +945,7 @@ class _PointsTab extends StatelessWidget {
       children: [
         Expanded(
           child: _PointCard(
-            type: 'Départ',
+            type: 'Depart',
             label: trip.departureLabel,
             dotColor: const Color(0xFF08316E),
           ),
@@ -881,7 +953,7 @@ class _PointsTab extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _PointCard(
-            type: 'Arrivée',
+            type: 'Arrivee',
             label: trip.arrivalLabel,
             dotColor: const Color(0xFFE24B4A),
           ),
@@ -914,20 +986,30 @@ class _PointCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(width: 8, height: 8, decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle)),
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+              ),
               const SizedBox(width: 6),
               Text(
                 type.toUpperCase(),
                 style: GoogleFonts.sora(
-                    fontSize: 9, fontWeight: FontWeight.w700, color: dotColor, letterSpacing: 0.8),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  color: dotColor,
+                  letterSpacing: 0.8,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text(label,
-              style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis),
+          Text(
+            label,
+            style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600),
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -975,11 +1057,14 @@ class _PreferencesTab extends StatelessWidget {
                     color: p.$1 ? const Color(0xFF0F6E56) : const Color(0xFFE24B4A),
                   ),
                   const SizedBox(width: 5),
-                  Text(p.$3,
-                      style: GoogleFonts.dmSans(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: p.$1 ? const Color(0xFF0F6E56) : const Color(0xFFE24B4A))),
+                  Text(
+                    p.$3,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: p.$1 ? const Color(0xFF0F6E56) : const Color(0xFFE24B4A),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -1006,11 +1091,14 @@ class _StatusTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _InfoRow('Type', trip.tripType == 'recurrent' ? 'Récurrent' : 'Unique'),
+          _InfoRow('Type', trip.tripType == 'recurrent' ? 'Recurrent' : 'Unique'),
           _InfoRow('Places', '${trip.availableSeats} dispo. / ${trip.totalSeats}'),
-          _InfoRow('Paiement', trip.paymentMethod == 'Cash' ? 'Argent comptant' : 'Interac'),
+          _InfoRow(
+            'Paiement',
+            trip.paymentMethod == 'Cash' ? 'Argent comptant' : 'Interac',
+          ),
           _InfoRow('Distance', '${trip.estimatedDistanceKm.toStringAsFixed(1)} km'),
-          _InfoRow('Durée', '${trip.estimatedDurationMin} min'),
+          _InfoRow('Duree', '${trip.estimatedDurationMin} min'),
           if (trip.driverNote != null && trip.driverNote!.isNotEmpty)
             _InfoRow('Note', trip.driverNote!),
         ],
@@ -1033,15 +1121,20 @@ class _InfoRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 72,
-            child: Text(label,
-                style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A))),
+            child: Text(
+              label,
+              style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
+            ),
           ),
           Expanded(
-            child: Text(value,
-                style: GoogleFonts.dmSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF0D1624))),
+            child: Text(
+              value,
+              style: GoogleFonts.dmSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF0D1624),
+              ),
+            ),
           ),
         ],
       ),
@@ -1050,33 +1143,79 @@ class _InfoRow extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// MAP PLACEHOLDER (connecte ici MapBox / Google Maps)
+// MAP
 // ─────────────────────────────────────────────────────────────
+
 class _MapPlaceholder extends StatelessWidget {
-  const _MapPlaceholder({required this.from, required this.to, required this.polyline});
+  const _MapPlaceholder({
+    required this.from,
+    required this.to,
+    required this.polyline,
+  });
   final String from;
   final String to;
   final List<Offset> polyline;
 
+  List<LatLng> _toLatLngList(List<Offset> polyline) {
+    return polyline.map((o) => LatLng(o.dy, o.dx)).toList();
+  }
+
+  LatLng? _getCenter(List<LatLng> points) {
+    if (points.isEmpty) return null;
+    double lat = 0, lng = 0;
+    for (final p in points) {
+      lat += p.latitude;
+      lng += p.longitude;
+    }
+    return LatLng(lat / points.length, lng / points.length);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0D3E87), Color(0xFF1A5CB0)],
+    final points = _toLatLngList(polyline);
+    final center = _getCenter(points) ?? const LatLng(45.5017, -73.5673);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: FlutterMap(
+        options: MapOptions(
+          center: center,
+          zoom: 12.0,
+          interactiveFlags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
         ),
-      ),
-      child: Stack(
-        fit: StackFit.expand,
         children: [
-          // Simulated route line
-          if (polyline.length >= 2)
-            CustomPaint(painter: _PolylinePainter(polyline))
-          else
-            const Center(
-              child: Icon(Icons.map_outlined, size: 64, color: Colors.white24),
+          TileLayer(
+            urlTemplate:
+                'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+            subdomains: const ['a', 'b', 'c'],
+            userAgentPackageName: 'com.example.covoiturage_lacite',
+          ),
+          if (points.length >= 2)
+            PolylineLayer(
+              polylines: [
+                Polyline(
+                  points: points,
+                  color: const Color(0xFF08316E),
+                  strokeWidth: 5,
+                ),
+              ],
+            ),
+          if (points.isNotEmpty)
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: points.first,
+                  width: 36,
+                  height: 36,
+                  child: const Icon(Icons.location_on, color: Color(0xFF08316E), size: 32),
+                ),
+                if (points.length > 1)
+                  Marker(
+                    point: points.last,
+                    width: 36,
+                    height: 36,
+                    child: const Icon(Icons.flag, color: Color(0xFFE24B4A), size: 32),
+                  ),
+              ],
             ),
         ],
       ),
@@ -1084,75 +1223,30 @@ class _MapPlaceholder extends StatelessWidget {
   }
 }
 
-class _PolylinePainter extends CustomPainter {
-  const _PolylinePainter(this.points);
-  final List<Offset> points;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (points.length < 2) return;
-    final minX = points.map((p) => p.dx).reduce((a, b) => a < b ? a : b);
-    final maxX = points.map((p) => p.dx).reduce((a, b) => a > b ? a : b);
-    final minY = points.map((p) => p.dy).reduce((a, b) => a < b ? a : b);
-    final maxY = points.map((p) => p.dy).reduce((a, b) => a > b ? a : b);
-    final spanX = (maxX - minX).abs() < 0.000001 ? 1.0 : (maxX - minX);
-    final spanY = (maxY - minY).abs() < 0.000001 ? 1.0 : (maxY - minY);
-
-    Offset norm(Offset p) => Offset(
-          ((p.dx - minX) / spanX) * (size.width - 60) + 30,
-          ((p.dy - minY) / spanY) * (size.height - 80) + 40,
-        );
-
-    final path = Path()..moveTo(norm(points.first).dx, norm(points.first).dy);
-    for (int i = 1; i < points.length; i++) {
-      path.lineTo(norm(points[i]).dx, norm(points[i]).dy);
-    }
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = Colors.white70
-        ..strokeWidth = 4
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round,
-    );
-    // Markers
-    final depPt = norm(points.first);
-    final arrPt = norm(points.last);
-    canvas.drawCircle(depPt, 8, Paint()..color = Colors.white);
-    canvas.drawCircle(depPt, 5, Paint()..color = const Color(0xFF08316E));
-    canvas.drawCircle(arrPt, 8, Paint()..color = Colors.white);
-    canvas.drawCircle(arrPt, 5, Paint()..color = const Color(0xFFE24B4A));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
 // ─────────────────────────────────────────────────────────────
 // SMALL UI COMPONENTS
 // ─────────────────────────────────────────────────────────────
+
 class _CircleIconBtn extends StatelessWidget {
   const _CircleIconBtn({
     required this.icon,
     required this.onTap,
     required this.bg,
     this.iconColor = Colors.white,
-    this.size = 44,
   });
   final IconData icon;
   final VoidCallback onTap;
   final Color bg;
   final Color iconColor;
-  final double size;
 
   @override
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         child: Container(
-          width: size,
-          height: size,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
-          child: Icon(icon, size: size * 0.45, color: iconColor),
+          child: Icon(icon, size: 20, color: iconColor),
         ),
       );
 }
@@ -1168,9 +1262,10 @@ class _MetaBadge extends StatelessWidget {
           color: Colors.black.withOpacity(0.65),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Text(label,
-            style: GoogleFonts.sora(
-                fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white)),
+        child: Text(
+          label,
+          style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+        ),
       );
 }
 
@@ -1202,7 +1297,10 @@ class _RouteLabelChip extends StatelessWidget {
             child: Text(
               label,
               style: GoogleFonts.dmSans(
-                  fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -1220,8 +1318,10 @@ class _TagChip extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
-        child: Text(label,
-            style: GoogleFonts.sora(fontSize: 10, fontWeight: FontWeight.w700, color: fg)),
+        child: Text(
+          label,
+          style: GoogleFonts.sora(fontSize: 10, fontWeight: FontWeight.w700, color: fg),
+        ),
       );
 }
 
@@ -1239,11 +1339,14 @@ class _MetaCell extends StatelessWidget {
             Text(label,
                 style: GoogleFonts.dmSans(fontSize: 10, color: const Color(0xFF8A95A8))),
             const SizedBox(height: 2),
-            Text(value,
-                style: GoogleFonts.sora(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: valueColor ?? const Color(0xFF0D1624))),
+            Text(
+              value,
+              style: GoogleFonts.sora(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: valueColor ?? const Color(0xFF0D1624),
+              ),
+            ),
           ],
         ),
       );
@@ -1266,9 +1369,10 @@ class _DriverAvatar extends StatelessWidget {
       child: Text(
         name.isNotEmpty ? name[0].toUpperCase() : '?',
         style: GoogleFonts.sora(
-            fontSize: size * 0.38,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF08316E)),
+          fontSize: size * 0.38,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF08316E),
+        ),
       ),
     );
   }
@@ -1315,11 +1419,14 @@ class _ModalHeader extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text(title,
-                  style: GoogleFonts.sora(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: const Color(0xFF08316E))),
+              child: Text(
+                title,
+                style: GoogleFonts.sora(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF08316E),
+                ),
+              ),
             ),
             GestureDetector(
               onTap: onClose,
@@ -1352,15 +1459,20 @@ class _ModalRow extends StatelessWidget {
           const SizedBox(width: 8),
           SizedBox(
             width: 70,
-            child: Text(label,
-                style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A))),
+            child: Text(
+              label,
+              style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
+            ),
           ),
           Expanded(
-            child: Text(value,
-                style: GoogleFonts.dmSans(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF0D1624))),
+            child: Text(
+              value,
+              style: GoogleFonts.dmSans(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF0D1624),
+              ),
+            ),
           ),
         ],
       );
@@ -1378,11 +1490,14 @@ class _GhostBtn extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
         ),
         alignment: Alignment.center,
-        child: Text(label,
-            style: GoogleFonts.sora(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF545D6E))),
+        child: Text(
+          label,
+          style: GoogleFonts.sora(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF545D6E),
+          ),
+        ),
       );
 }
 
@@ -1405,11 +1520,14 @@ class _FilledBtn extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
               )
-            : Text(label,
+            : Text(
+                label,
                 style: GoogleFonts.sora(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white)),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
       );
 }
 
@@ -1430,8 +1548,9 @@ class _ErrorView extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: onRetry,
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF08316E)),
-                child: const Text('Réessayer'),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: const Color(0xFF08316E)),
+                child: const Text('Reessayer'),
               ),
             ],
           ),
@@ -1440,26 +1559,34 @@ class _ErrorView extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ENUM ÉTAT BOUTON
-// ─────────────────────────────────────────────────────────────
-enum _BTNState {
-  reserve, pending, confirmed, cooldown, full, manage, readonly,
-  resConfirmed, resInProgress, resCancelled, resPending, resCompleted, resRejected, resImminent,
-  tripPublished, tripFull, tripConfirmed, tripInProgress, tripCompleted, tripCancelled, tripImminent,
-}
-
-// ─────────────────────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────────────────────
+
 List<Offset> _extractPolyline(Map<String, dynamic>? raw) {
   if (raw == null) return [];
-  final source = raw['polyline'] ?? raw['routePolyline'];
+  final source =
+      raw['polyline'] ?? raw['routePolyline'] ?? raw['waypoints'] ?? raw['coordinates'];
   if (source is List) {
-    return source.whereType<List>().map((r) {
-      final lat = (r[0] as num).toDouble();
-      final lng = (r[1] as num).toDouble();
-      return Offset(lng, lat);
-    }).toList();
+    return source
+        .map<Offset?>((dynamic row) {
+          if (row is List && row.length >= 2) {
+            final double lat = (row[0] as num?)?.toDouble() ?? 0;
+            final double lng = (row[1] as num?)?.toDouble() ?? 0;
+            if (lat == 0 && lng == 0) return null;
+            return Offset(lng, lat);
+          }
+          if (row is Map) {
+            final Map<dynamic, dynamic> m = row;
+            final double lat = ((m['lat'] ?? m['latitude']) as num?)?.toDouble() ?? 0;
+            final double lng =
+                ((m['lng'] ?? m['lon'] ?? m['longitude']) as num?)?.toDouble() ?? 0;
+            if (lat == 0 && lng == 0) return null;
+            return Offset(lng, lat);
+          }
+          return null;
+        })
+        .whereType<Offset>()
+        .toList();
   }
   return [];
 }

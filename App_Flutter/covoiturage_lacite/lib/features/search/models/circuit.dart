@@ -46,9 +46,15 @@ class Circuit {
       };
 
   Map<String, dynamic> toCreateTripPrefill() => <String, dynamic>{
+        'circuitId': id,
+        'circuitLabel': label,
         'departureLabel': departureLabel,
         'arrivalLabel': arrivalLabel,
         'waypoints': waypoints,
+        'estimatedDistanceMeters': distanceMeters,
+        'estimatedDurationSeconds': durationSeconds,
+        if (waypoints.isNotEmpty) 'departureCoordinates': waypoints.first,
+        if (waypoints.isNotEmpty) 'arrivalCoordinates': waypoints.last,
         if (tripId != null) 'tripId': tripId,
       };
 }

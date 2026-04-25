@@ -1,27 +1,627 @@
-import 'package:flutter/material.dart';
-import '../../core/app_colors.dart';
-// ...existing code...
+// lib/features/profile/profile_screen.dart
+// Profile screen — consolidated, no duplicate definitions
 
-  // ── SLIVER HEADER (Banner + Avatar) ──────────────────────────
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+// import 'package:google_fonts/google_fonts.dart';
+
+import '../../core/app_colors.dart';
+import '../../core/converters/display_converters.dart';
+import '../../core/services/api_service.dart';
+import '../../core/services/auth_service.dart';
+
+// ─── Models ───────────────────────────────────────────────────────────────────
+
+class UsualTrip {
+  final String departure;
+  final String arrival;
+  const UsualTrip({required this.departure, required this.arrival});
+}
+
+class ReviewItem {
+  final String reviewerName;
+  final String comment;
+  final double rating;
+  final String date;
+  const ReviewItem({
+    required this.reviewerName,
+    required this.comment,
+    required this.rating,
+    required this.date,
+  });
+}
+
+class PublicTrip {
+  final String departure;
+  final String arrival;
+  final String date;
+  final String time;
+  final double price;
+  final int seats;
+  const PublicTrip({
+    required this.departure,
+    required this.arrival,
+    required this.date,
+    required this.time,
+    required this.price,
+    required this.seats,
+  });
+}
+
+class UserProfile {
+  String firstName;
+  String lastName;
+  String email;
+  String? avatarUrl;
+  bool isVerified;
+  String schoolRole;
+  String appRole;
+  int goScore;
+  int totalTrips;
+  double averageRating;
+  int co2SavedKg;
+  bool showGoScore;
+  bool showTripsCount;
+  bool showRating;
+  bool showCo2;
+  bool musicAccepted;
+  bool petsAccepted;
+  bool smokingAccepted;
+  String conversationLevel;
+  bool emailPrimordiales;
+  bool emailSecondaires;
+  bool emailNegligeables;
+  bool pushPrimordiales;
+  bool pushSecondaires;
+  bool pushNegligeables;
+  bool showPhoneNumber;
+  bool showLastName;
+  bool allowAffinityTracking;
+  List<String> languagesSpoken;
+  List<UsualTrip> usualTrips;
+  List<ReviewItem> reviews;
+  List<PublicTrip> recentTrips;
+
+  UserProfile({
+    this.firstName = '',
+    this.lastName = '',
+    this.email = '',
+    this.avatarUrl,
+    this.isVerified = false,
+    this.schoolRole = 'etudiant',
+    this.appRole = 'Conducteur',
+    this.goScore = 0,
+    this.totalTrips = 0,
+    this.averageRating = 0.0,
+    this.co2SavedKg = 0,
+    this.showGoScore = true,
+    this.showTripsCount = true,
+    this.showRating = true,
+    this.showCo2 = true,
+    this.musicAccepted = false,
+    this.petsAccepted = false,
+    this.smokingAccepted = false,
+    this.conversationLevel = 'moderate',
+    this.emailPrimordiales = true,
+    this.emailSecondaires = true,
+    this.emailNegligeables = false,
+    this.pushPrimordiales = true,
+    this.pushSecondaires = false,
+    this.pushNegligeables = false,
+    this.showPhoneNumber = false,
+    this.showLastName = true,
+    this.allowAffinityTracking = true,
+    this.languagesSpoken = const ['Français', 'English'],
+    this.usualTrips = const [],
+    this.reviews = const [],
+    this.recentTrips = const [],
+  });
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    double toDouble(dynamic v) {
+      if (v is double) return v;
+      if (v is num) return v.toDouble();
+      return double.tryParse('$v') ?? 0;
+    }
+
+    int toInt(dynamic v) {
+      if (v is int) return v;
+      if (v is num) return v.toInt();
+      return int.tryParse('$v') ?? 0;
+    }
+
+    final prefs = json['preferences'] as Map<String, dynamic>? ?? {};
+    final notif = json['notifications'] as Map<String, dynamic>? ?? {};
+    final privacy = json['privacy'] as Map<String, dynamic>? ?? {};
+    final stats = json['stats'] as Map<String, dynamic>? ?? {};
+    final visibility = json['visibility'] as Map<String, dynamic>? ?? {};
+
+    return UserProfile(
+      firstName: json['firstName']?.toString() ?? '',
+      lastName: json['lastName']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      avatarUrl: json['avatarUrl']?.toString(),
+      isVerified: json['isVerified'] == true,
+      schoolRole: json['schoolRole']?.toString() ?? 'etudiant',
+      appRole: json['role']?.toString() ?? 'Conducteur',
+      goScore: toInt(stats['goScore'] ?? json['goScore']),
+      totalTrips: toInt(stats['totalTrips'] ?? json['totalTrips']),
+      averageRating: toDouble(stats['averageRating'] ?? json['averageRating']),
+      co2SavedKg: toInt(stats['co2SavedKg'] ?? json['co2SavedKg']),
+      showGoScore: visibility['showGoScore'] != false,
+      showTripsCount: visibility['showTripsCount'] != false,
+      showRating: visibility['showRating'] != false,
+      showCo2: visibility['showCo2'] != false,
+      musicAccepted: prefs['musicAccepted'] == true,
+      petsAccepted: prefs['petsAccepted'] == true,
+      smokingAccepted: prefs['smokingAccepted'] == true,
+      conversationLevel: prefs['conversationLevel']?.toString() ?? 'moderate',
+      emailPrimordiales: notif['emailPrimordiales'] != false,
+      emailSecondaires: notif['emailSecondaires'] != false,
+      emailNegligeables: notif['emailNegligeables'] == true,
+      pushPrimordiales: notif['pushPrimordiales'] != false,
+      pushSecondaires: notif['pushSecondaires'] == true,
+      pushNegligeables: notif['pushNegligeables'] == true,
+      showPhoneNumber: privacy['showPhoneNumber'] == true,
+      showLastName: privacy['showLastName'] != false,
+      allowAffinityTracking: privacy['allowAffinityTracking'] != false,
+      languagesSpoken: (json['languagesSpoken'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          ['Français'],
+    );
+  }
+}
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
+
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen>
+    with TickerProviderStateMixin {
+  final ApiService _api = ApiService.instance;
+
+  late TabController _tabController;
+  List<String> get _tabs {
+    final isDriver = _profile.appRole.toLowerCase().contains('conducteur') || _profile.appRole.toLowerCase().contains('driver');
+    return [
+      'Mon Profil',
+      'Visibilité',
+      'Ambiance',
+      'Notifications',
+      'Confidentialité',
+      if (isDriver) 'Véhicule',
+      'Sécurité',
+    ];
+  }
+
+  bool _isLoading = true;
+  bool _saved = false;
+  String? _error;
+
+  late UserProfile _profile;
+
+  // Controllers
+  late TextEditingController _firstNameCtrl;
+  late TextEditingController _lastNameCtrl;
+  late TextEditingController _notifEmailCtrl;
+  late TextEditingController _phoneCtrl;
+  late TextEditingController _bioCtrl;
+  String _schoolRole = 'etudiant';
+  static const Map<String, String> _schoolRoleItems = {
+    'etudiant': 'Étudiant',
+    'professeur': 'Professeur',
+    'membredupersonnel': 'Membre du personnel',
+    'administrateur': 'Administrateur',
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _profile = UserProfile();
+    _tabController = TabController(length: _tabs.length, vsync: this);
+    _firstNameCtrl = TextEditingController();
+    _lastNameCtrl = TextEditingController();
+    _notifEmailCtrl = TextEditingController();
+    _phoneCtrl = TextEditingController();
+    _bioCtrl = TextEditingController();
+    _loadProfile();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _firstNameCtrl.dispose();
+    _lastNameCtrl.dispose();
+    _notifEmailCtrl.dispose();
+    _phoneCtrl.dispose();
+    _bioCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadProfile() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final dynamic data = await _api.get('/api/users/me');
+      final Map<String, dynamic> json = DisplayConverters.extractMap(data);
+      final Map<String, dynamic> displayJson =
+          DisplayConverters.toProfileViewJson(json);
+      if (!mounted) return;
+      final profile = UserProfile.fromJson(displayJson);
+      setState(() {
+        _profile = profile;
+        _firstNameCtrl.text = profile.firstName;
+        _lastNameCtrl.text = profile.lastName;
+        _notifEmailCtrl.text = profile.email;
+        _schoolRole = _normalizeSchoolRole(profile.schoolRole);
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _saveChanges() async {
+    try {
+      await _api.patch('/api/users/me', {
+        'firstName': _firstNameCtrl.text.trim(),
+        'lastName': _lastNameCtrl.text.trim(),
+        'notificationEmail': _notifEmailCtrl.text.trim().isEmpty
+            ? null
+            : _notifEmailCtrl.text.trim(),
+        'phoneNumber': _phoneCtrl.text.trim().isEmpty
+            ? null
+            : _phoneCtrl.text.trim(),
+        'bio': _bioCtrl.text.trim().isEmpty ? null : _bioCtrl.text.trim(),
+        'languagesSpoken': _profile.languagesSpoken,
+        'canBeDriver': _profile.appRole.toLowerCase().contains('conducteur') ||
+            _profile.appRole.toLowerCase().contains('driver'),
+        'preferences': {
+          'musicAccepted': _profile.musicAccepted,
+          'petsAccepted': _profile.petsAccepted,
+          'smokingAccepted': _profile.smokingAccepted,
+          'conversationLevel': _profile.conversationLevel,
+        },
+        'notifications': {
+          'emailPrimordiales': _profile.emailPrimordiales,
+          'emailSecondaires': _profile.emailSecondaires,
+          'emailNegligeables': _profile.emailNegligeables,
+          'pushPrimordiales': _profile.pushPrimordiales,
+          'pushSecondaires': _profile.pushSecondaires,
+          'pushNegligeables': _profile.pushNegligeables,
+        },
+        'privacy': {
+          'showPhoneNumber': _profile.showPhoneNumber,
+          'showLastName': _profile.showLastName,
+          'allowAffinityTracking': _profile.allowAffinityTracking,
+        },
+        'visibility': {
+          'showGoScore': _profile.showGoScore,
+          'showTripsCount': _profile.showTripsCount,
+          'showRating': _profile.showRating,
+          'showCo2': _profile.showCo2,
+        },
+      });
+      await _loadProfile(); // recharge les données à jour après sauvegarde
+      if (!mounted) return;
+      setState(() => _saved = true);
+      await Future.delayed(const Duration(seconds: 2));
+      if (mounted) setState(() => _saved = false);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.redMid),
+      );
+    }
+  }
+
+  Future<void> _addLanguage() async {
+    final TextEditingController ctrl = TextEditingController();
+    final String? value = await showDialog<String>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Ajouter une langue'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'Ex: Espanol'),
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) => Navigator.of(dialogContext).pop(ctrl.text.trim()),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(ctrl.text.trim()),
+            child: const Text('Ajouter'),
+          ),
+        ],
+      ),
+    );
+    final String lang = value?.trim() ?? '';
+    if (lang.isEmpty) return;
+    if (_profile.languagesSpoken.any((String l) => l.toLowerCase() == lang.toLowerCase())) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Langue deja presente')),
+      );
+      return;
+    }
+    setState(() => _profile.languagesSpoken.add(lang));
+  }
+
+  Future<void> _saveVehicle() async {
+    final TextEditingController brandCtrl = TextEditingController();
+    final TextEditingController modelCtrl = TextEditingController();
+    final TextEditingController yearCtrl = TextEditingController();
+    final TextEditingController colorCtrl = TextEditingController();
+    final TextEditingController plateCtrl = TextEditingController();
+    final TextEditingController seatsCtrl = TextEditingController(text: '3');
+
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Enregistrer un vehicule'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(controller: brandCtrl, decoration: const InputDecoration(labelText: 'Marque')),
+              TextField(controller: modelCtrl, decoration: const InputDecoration(labelText: 'Modele')),
+              TextField(
+                controller: yearCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Annee'),
+              ),
+              TextField(controller: colorCtrl, decoration: const InputDecoration(labelText: 'Couleur')),
+              TextField(controller: plateCtrl, decoration: const InputDecoration(labelText: 'Plaque')),
+              TextField(
+                controller: seatsCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Places'),
+              ),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Enregistrer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final String brand = brandCtrl.text.trim();
+    final String model = modelCtrl.text.trim();
+    if (brand.isEmpty || model.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Marque et modele requis')),
+      );
+      return;
+    }
+
+    final Map<String, dynamic> body = <String, dynamic>{
+      'label': '$brand $model'.trim(),
+      'color': colorCtrl.text.trim(),
+      'year': int.tryParse(yearCtrl.text.trim()) ?? 0,
+      'plate': plateCtrl.text.trim(),
+      'maxPassengers': int.tryParse(seatsCtrl.text.trim()) ?? 3,
+    };
+
+    try {
+      await _api.post('/api/vehicles', body);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vehicule enregistre')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur enregistrement vehicule: $e')),
+      );
+    }
+  }
+
+  Future<void> _changePassword() async {
+    final TextEditingController currentCtrl = TextEditingController();
+    final TextEditingController nextCtrl = TextEditingController();
+    final TextEditingController confirmCtrl = TextEditingController();
+
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Changer le mot de passe'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            TextField(
+              controller: currentCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Mot de passe actuel'),
+            ),
+            TextField(
+              controller: nextCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Nouveau mot de passe'),
+            ),
+            TextField(
+              controller: confirmCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Confirmer'),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Valider'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final String nextPwd = nextCtrl.text.trim();
+    if (nextPwd.isEmpty || nextPwd != confirmCtrl.text.trim()) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Verification du nouveau mot de passe invalide')),
+      );
+      return;
+    }
+
+    try {
+      await _api.post('/api/users/change-password', <String, dynamic>{
+        'currentPassword': currentCtrl.text,
+        'newPassword': nextPwd,
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mot de passe mis a jour')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur changement mot de passe: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) => AlertDialog(
+        title: const Text('Supprimer le compte'),
+        content: const Text('Cette action deconnecte immediatement le profil courant.'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      await _api.post('/api/users/me/delete', <String, dynamic>{});
+      await AuthService(_api).logout();
+      if (!mounted) return;
+      context.go('/login');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Suppression impossible: $e')),
+      );
+    }
+  }
+
+  // ── Build ─────────────────────────────────────────────────────────────────
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: AppColors.blue)),
+      );
+    }
+    if (_error != null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: AppColors.redMid),
+              const SizedBox(height: 12),
+              Text(_error!),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadProfile,
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.blue),
+                child: const Text('Réessayer', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final isDriver = _profile.appRole.toLowerCase().contains('conducteur') || _profile.appRole.toLowerCase().contains('driver');
+    return Scaffold(
+      backgroundColor: AppColors.grayBg,
+      body: NestedScrollView(
+        headerSliverBuilder: (_, __) => [
+          _buildSliverHeader(),
+          SliverToBoxAdapter(child: _buildIdentityCard()),
+          SliverToBoxAdapter(child: _buildTabBar()),
+        ],
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildMonProfilTab(),
+            _buildVisibiliteTab(),
+            _buildAmbianceTab(),
+            _buildNotificationsTab(),
+            _buildConfidentialiteTab(),
+            if (isDriver) _buildVehicleTab(),
+            _buildSecurityTab(),
+          ],
+        ),
+      ),
+      bottomNavigationBar: _buildSaveButton(),
+    );
+  }
+
+  // ── Sliver Header ─────────────────────────────────────────────────────────
   SliverAppBar _buildSliverHeader() {
     return SliverAppBar(
       expandedHeight: 200,
       pinned: true,
       backgroundColor: AppColors.blue,
-      leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.white),
-        onPressed: () {},
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-          onPressed: () {},
+      centerTitle: true,
+      title: const Text(
+        'Mon Profil',
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
         ),
-      ],
+      ),
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           children: [
-            // Banner image / gradient
             Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -30,30 +630,21 @@ import '../../core/app_colors.dart';
                   colors: [Color(0xFF1A3A6B), Color(0xFF0A5DA6)],
                 ),
               ),
-              child: Opacity(
-                opacity: 0.15,
-                child: Image.network(
-                  'https://images.unsplash.com/photo-1562774053-701939374585?w=800',
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
-                  errorBuilder: (_, __, ___) => const SizedBox(),
-                ),
-              ),
             ),
-            // Bouton changer photo de couverture
             Positioned(
               right: 12,
               bottom: 60,
               child: GestureDetector(
-                onTap: () => _showChangeCoverSheet(),
+                onTap: _showChangeCoverSheet,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 6)
+                      BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.15),
+                          blurRadius: 6)
                     ],
                   ),
                   child: Row(
@@ -63,16 +654,18 @@ import '../../core/app_colors.dart';
                       const SizedBox(width: 4),
                       Text(
                         'Changer la photo\nde couverture',
-                        style: TextStyle(fontSize: 10, color: AppColors.blue, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 10,
+                            color: AppColors.blue,
+                            fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-            // Avatar
             Positioned(
-              bottom: -30,
+              bottom: 0,
               left: 0,
               right: 0,
               child: Center(
@@ -88,39 +681,33 @@ import '../../core/app_colors.dart';
                       ),
                       child: ClipOval(
                         child: _profile.avatarUrl != null
-                            ? Image.network(_profile.avatarUrl!, fit: BoxFit.cover)
-                            : Container(
-                                color: const Color(0xFFBFDBFE),
-                                child: Center(
-                                  child: Text(
-                                    '${_profile.firstName[0]}${_profile.lastName[0]}',
-                                    style: const TextStyle(
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.blue,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                            ? Image.network(_profile.avatarUrl!, fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => _initials())
+                            : _initials(),
                       ),
                     ),
                     Positioned(
                       right: 0,
                       bottom: 0,
                       child: GestureDetector(
-                        onTap: () => _showChangeAvatarSheet(),
+                        onTap: _showChangeAvatarSheet,
                         child: Container(
                           width: 28,
                           height: 28,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                            border:
+                                Border.all(color: const Color(0xFFE5E7EB)),
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4)
+                              BoxShadow(
+                                  color:
+                                      Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 4)
                             ],
                           ),
-                          child: const Icon(Icons.camera_alt, size: 14, color: Color(0xFF6B7280)),
+                          child: const Icon(Icons.camera_alt,
+                              size: 14, color: Color(0xFF6B7280)),
                         ),
                       ),
                     ),
@@ -134,7 +721,18 @@ import '../../core/app_colors.dart';
     );
   }
 
-  // ── IDENTITÉ ──────────────────────────────────────────────────
+  Widget _initials() => Container(
+        color: const Color(0xFFBFDBFE),
+        child: Center(
+          child: Text(
+            '${_profile.firstName.isNotEmpty ? _profile.firstName[0] : ''}${_profile.lastName.isNotEmpty ? _profile.lastName[0] : ''}',
+            style: const TextStyle(
+                fontSize: 30, fontWeight: FontWeight.bold, color: AppColors.blue),
+          ),
+        ),
+      );
+
+  // ── Identity Card ─────────────────────────────────────────────────────────
   Widget _buildIdentityCard() {
     return Container(
       color: Colors.white,
@@ -147,14 +745,13 @@ import '../../core/app_colors.dart';
               Text(
                 '${_profile.firstName} ${_profile.lastName}',
                 style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF111827),
-                ),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF111827)),
               ),
               const SizedBox(width: 6),
               if (_profile.isVerified)
-                const Icon(Icons.verified, color: Color(0xFF1A56DB), size: 20),
+                const Icon(Icons.verified, color: AppColors.blue, size: 20),
             ],
           ),
           const SizedBox(height: 2),
@@ -163,7 +760,7 @@ import '../../core/app_colors.dart';
             style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
           ),
           Text(
-            'Actuellement - ${_profile.appRole}',
+            'Rôle — ${_profile.appRole}',
             style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
           ),
         ],
@@ -171,7 +768,7 @@ import '../../core/app_colors.dart';
     );
   }
 
-  // ── TABBAR ────────────────────────────────────────────────────
+  // ── Tab Bar ───────────────────────────────────────────────────────────────
   Widget _buildTabBar() {
     return Container(
       color: Colors.white,
@@ -179,18 +776,19 @@ import '../../core/app_colors.dart';
         controller: _tabController,
         isScrollable: true,
         tabAlignment: TabAlignment.start,
-        labelColor: AppColors.blueLight,
+        labelColor: AppColors.blue,
         unselectedLabelColor: const Color(0xFF6B7280),
-        indicatorColor: AppColors.blueLight,
+        indicatorColor: AppColors.blue,
         indicatorWeight: 2.5,
-        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        labelStyle:
+            const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(fontSize: 13),
         tabs: _tabs.map((t) => Tab(text: t)).toList(),
       ),
     );
   }
 
-  // ── SAVE BUTTON ───────────────────────────────────────────────
+  // ── Save Button ───────────────────────────────────────────────────────────
   Widget _buildSaveButton() {
     return Container(
       color: Colors.white,
@@ -201,9 +799,10 @@ import '../../core/app_colors.dart';
         child: ElevatedButton(
           onPressed: _saveChanges,
           style: ElevatedButton.styleFrom(
-            backgroundColor: _saved ? AppColors.green : AppColors.blueLight,
+            backgroundColor: _saved ? AppColors.teal : AppColors.blue,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             elevation: 0,
           ),
           child: Row(
@@ -212,8 +811,11 @@ import '../../core/app_colors.dart';
               Icon(_saved ? Icons.check : Icons.save_outlined, size: 18),
               const SizedBox(width: 8),
               Text(
-                _saved ? 'Enregistré !' : 'Enregistrer les modifications',
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                _saved
+                    ? 'Enregistré !'
+                    : 'Enregistrer les modifications',
+                style: const TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -231,38 +833,23 @@ import '../../core/app_colors.dart';
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Mon Profil',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
+          const Text('Mon Profil',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
           const Text(
             'Gérez vos données de base visibles par les autres membres.',
             style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
           ),
           const SizedBox(height: 20),
-
-          // Courriel institutionnel (lecture seule)
           _sectionLabel('Courriel institutionnel'),
           _readonlyField(_profile.email),
           const SizedBox(height: 14),
-
-          // Courriel notification
           _sectionLabel('Courriel de notification (optionnel)'),
           _editableField(
-            controller: _notifEmailCtrl,
-            hint: 'ex: mon.email@gmail.com',
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const Padding(
-            padding: EdgeInsets.only(top: 4, bottom: 14),
-            child: Text(
-              'Recevez vos notifications sur ce courriel secondaire.',
-              style: TextStyle(fontSize: 11, color: Color(0xFF9CA3AF)),
-            ),
-          ),
-
-          // Prénom & Nom
+              controller: _notifEmailCtrl,
+              hint: 'ex: mon.email@gmail.com',
+              keyboardType: TextInputType.emailAddress),
+          const SizedBox(height: 14),
           Row(
             children: [
               Expanded(
@@ -287,41 +874,33 @@ import '../../core/app_colors.dart';
             ],
           ),
           const SizedBox(height: 14),
-
-          // Téléphone
           _sectionLabel('Téléphone'),
           _editableField(
-            controller: _phoneCtrl,
-            hint: 'ex: 613-555-0101',
-            keyboardType: TextInputType.phone,
-          ),
+              controller: _phoneCtrl,
+              hint: 'ex: 613-555-0101',
+              keyboardType: TextInputType.phone),
           const SizedBox(height: 14),
-
-          // Rôle à l'école
-          _sectionLabel('Rôle à l\'école'),
+          _sectionLabel("Rôle à l'école"),
           _buildDropdown(
-            value: _schoolRole,
-            items: const {
-              'etudiant': 'Étudiant',
-              'professeur': 'Professeur',
-              'membredupersonnel': 'Membre du personnel',
-              'administrateur': 'Administrateur',
-            },
+            value: _schoolRoleItems.containsKey(_schoolRole)
+                ? _schoolRole
+                : 'etudiant',
+            items: _schoolRoleItems,
             onChanged: (v) => setState(() => _schoolRole = v!),
           ),
           const SizedBox(height: 14),
-
-          // Bio
           _sectionLabel('Bio'),
           TextFormField(
             controller: _bioCtrl,
             maxLines: 3,
             decoration: InputDecoration(
               hintText: 'Ajoutez une bio pour vous présenter...',
-              hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
+              hintStyle: const TextStyle(
+                  color: Color(0xFF9CA3AF), fontSize: 13),
               filled: true,
               fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
@@ -337,8 +916,6 @@ import '../../core/app_colors.dart';
             ),
           ),
           const SizedBox(height: 14),
-
-          // Langues parlées
           _sectionLabel('Langues parlées'),
           Wrap(
             spacing: 8,
@@ -346,24 +923,28 @@ import '../../core/app_colors.dart';
             children: [
               ..._profile.languagesSpoken.map(
                 (l) => Chip(
-                  label: Text(l, style: const TextStyle(fontSize: 12, color: Color(0xFF1D4ED8))),
+                  label: Text(l,
+                      style: const TextStyle(
+                          fontSize: 12, color: Color(0xFF1D4ED8))),
                   backgroundColor: const Color(0xFFEFF6FF),
                   side: BorderSide.none,
-                  deleteIcon: const Icon(Icons.close, size: 14, color: Color(0xFF93C5FD)),
-                  onDeleted: () {},
+                  deleteIcon: const Icon(Icons.close,
+                      size: 14, color: Color(0xFF93C5FD)),
+                  onDeleted: () => setState(
+                      () => _profile.languagesSpoken.remove(l)),
                 ),
               ),
               ActionChip(
-                label: const Text('+ Ajouter', style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+                label: const Text('+ Ajouter',
+                    style: TextStyle(
+                        fontSize: 12, color: Color(0xFF6B7280))),
                 backgroundColor: const Color(0xFFF9FAFB),
                 side: const BorderSide(color: Color(0xFFE5E7EB)),
-                onPressed: () {},
+                onPressed: _addLanguage,
               ),
             ],
           ),
           const SizedBox(height: 24),
-
-          // ── Aperçu profil public ──
           _buildPublicProfilePreview(),
         ],
       ),
@@ -376,13 +957,9 @@ import '../../core/app_colors.dart';
       children: [
         const Divider(),
         const SizedBox(height: 12),
-        const Text(
-          'Aperçu du profil public',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
+        const Text('Aperçu du profil public',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
-
-        // Stats
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -391,41 +968,27 @@ import '../../core/app_colors.dart';
           mainAxisSpacing: 10,
           childAspectRatio: 2.4,
           children: [
-            _statCard(Icons.speed, const Color(0xFFDCFCE7), const Color(0xFF16A34A), 'Go Score', '${_profile.goScore}'),
-            _statCard(Icons.directions_car, const Color(0xFFDDEFFE), const Color(0xFF2563EB), 'Trajets', '${_profile.totalTrips}'),
-            _statCard(Icons.star, const Color(0xFFF3E8FF), const Color(0xFF9333EA), 'Note', _profile.averageRating.toStringAsFixed(1)),
-            _statCard(Icons.eco, const Color(0xFFDCFCE7), const Color(0xFF16A34A), 'CO₂ évité', '${(_profile.co2SavedKg / 1000).toStringAsFixed(1)}T'),
+            _statCard(Icons.speed, const Color(0xFFDCFCE7),
+                const Color(0xFF16A34A), 'Go Score', '${_profile.goScore}'),
+            _statCard(Icons.directions_car, const Color(0xFFDDEFFE),
+                const Color(0xFF2563EB), 'Trajets', '${_profile.totalTrips}'),
+            _statCard(Icons.star, const Color(0xFFF3E8FF),
+                const Color(0xFF9333EA), 'Note',
+                _profile.averageRating.toStringAsFixed(1)),
+            _statCard(
+                Icons.eco,
+                const Color(0xFFDCFCE7),
+                const Color(0xFF16A34A),
+                'CO₂ évité',
+                '${(_profile.co2SavedKg / 1000).toStringAsFixed(1)}T'),
           ],
         ),
-        const SizedBox(height: 16),
-
-        // Trajets habituels
-        if (_profile.usualTrips.isNotEmpty) ...[
-          const Text('Trajets habituels', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-          ..._profile.usualTrips.map((t) => _usualTripCard(t)),
-          const SizedBox(height: 16),
-        ],
-
-        // Derniers avis
-        if (_profile.reviews.isNotEmpty) ...[
-          const Text('Derniers avis', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-          ..._profile.reviews.take(2).map((r) => _reviewCard(r)),
-          const SizedBox(height: 16),
-        ],
-
-        // Trajets publiés
-        if (_profile.recentTrips.isNotEmpty) ...[
-          const Text('Trajets publiés', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-          ..._profile.recentTrips.map((t) => _tripCard(t)),
-        ],
       ],
     );
   }
 
-  Widget _statCard(IconData icon, Color bg, Color iconColor, String label, String value) {
+  Widget _statCard(
+      IconData icon, Color bg, Color iconColor, String label, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -438,7 +1001,8 @@ import '../../core/app_colors.dart';
           Container(
             width: 36,
             height: 36,
-            decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
+            decoration:
+                BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
             child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 10),
@@ -447,123 +1011,17 @@ import '../../core/app_colors.dart';
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280))),
-                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF111827))),
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 10, color: Color(0xFF6B7280))),
+                Text(value,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF111827))),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _usualTripCard(UsualTrip trip) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF3F4F6)),
-      ),
-      child: Row(
-        children: [
-          Expanded(child: Text(trip.departure, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
-          const Icon(Icons.arrow_forward, size: 14, color: AppColors.blue),
-          const SizedBox(width: 6),
-          Expanded(child: Text(trip.arrival, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500))),
-          const Spacer(),
-          _pillButton(
-            label: 'S\'abonner',
-            icon: Icons.notifications_outlined,
-            color: const Color(0xFF1A56DB),
-            onTap: () {},
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _reviewCard(ReviewItem r) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: const Color(0xFFBFDBFE),
-            child: Text(r.reviewerName[0], style: const TextStyle(color: AppColors.blue, fontWeight: FontWeight.bold)),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(r.reviewerName, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.blue)),
-                    const SizedBox(width: 6),
-                    Text(r.date, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(r.comment, style: const TextStyle(fontSize: 12, color: Color(0xFF4B5563))),
-              ],
-            ),
-          ),
-          _starRating(r.rating),
-        ],
-      ),
-    );
-  }
-
-  Widget _tripCard(PublicTrip trip) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, size: 12, color: Color(0xFF3B82F6)),
-                    const SizedBox(width: 4),
-                    Text(trip.departure, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 4),
-                      child: Icon(Icons.arrow_forward, size: 10, color: Color(0xFF9CA3AF)),
-                    ),
-                    Flexible(child: Text(trip.arrival, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis)),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text('${trip.date} · ${trip.time}', style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('${trip.price.toStringAsFixed(0)}\$', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1A56DB))),
-              Text('${trip.seats} place${trip.seats > 1 ? 's' : ''}', style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
-            ],
-          ),
-          const SizedBox(width: 8),
-          _pillButton(label: 'Réserver', icon: Icons.add_circle_outline, color: const Color(0xFF1A56DB), onTap: () {}),
         ],
       ),
     );
@@ -578,14 +1036,24 @@ import '../../core/app_colors.dart';
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Visibilité du Profil', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text('Visibilité du Profil',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text('Contrôlez les informations visibles sur votre profil public.', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+          const Text(
+            'Contrôlez les informations visibles sur votre profil public.',
+            style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+          ),
           const SizedBox(height: 20),
-          _toggleRow('Go Score (votre score global)', _profile.showGoScore, (v) => setState(() => _profile.showGoScore = v)),
-          _toggleRow('Nombre de trajets (expérience)', _profile.showTripsCount, (v) => setState(() => _profile.showTripsCount = v)),
-          _toggleRow('Note globale (évaluations moyennes)', _profile.showRating, (v) => setState(() => _profile.showRating = v)),
-          _toggleRow('Économie CO₂ (impact écologique)', _profile.showCo2, (v) => setState(() => _profile.showCo2 = v)),
+          _toggleRow('Go Score (votre score global)', _profile.showGoScore,
+              (v) => setState(() => _profile.showGoScore = v)),
+          _toggleRow('Nombre de trajets (expérience)',
+              _profile.showTripsCount,
+              (v) => setState(() => _profile.showTripsCount = v)),
+          _toggleRow('Note globale (évaluations moyennes)',
+              _profile.showRating,
+              (v) => setState(() => _profile.showRating = v)),
+          _toggleRow('Économie CO₂ (impact écologique)', _profile.showCo2,
+              (v) => setState(() => _profile.showCo2 = v)),
         ],
       ),
     );
@@ -600,9 +1068,13 @@ import '../../core/app_colors.dart';
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Ambiance Trajet', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text('Ambiance Trajet',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text('Indiquez vos préférences pour une meilleure expérience collective.', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+          const Text(
+            'Indiquez vos préférences pour une meilleure expérience collective.',
+            style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+          ),
           const SizedBox(height: 20),
           GridView.count(
             crossAxisCount: 4,
@@ -611,36 +1083,68 @@ import '../../core/app_colors.dart';
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             children: [
-              _ambianceTile(Icons.chat_bubble_outline, 'Parler', _profile.conversationLevel != 'quiet',
-                  (v) => setState(() => _profile.conversationLevel = v ? 'moderate' : 'quiet')),
-              _ambianceTile(Icons.music_note, 'Musique', _profile.musicAccepted,
+              _ambianceTile(
+                  Icons.chat_bubble_outline,
+                  'Parler',
+                  _profile.conversationLevel != 'quiet',
+                  (v) => setState(() => _profile.conversationLevel =
+                      v ? 'moderate' : 'quiet')),
+              _ambianceTile(Icons.music_note, 'Musique',
+                  _profile.musicAccepted,
                   (v) => setState(() => _profile.musicAccepted = v)),
-              _ambianceTile(Icons.pets, 'Animaux', _profile.petsAccepted,
+              _ambianceTile(
+                  Icons.pets,
+                  'Animaux',
+                  _profile.petsAccepted,
                   (v) => setState(() => _profile.petsAccepted = v)),
-              _ambianceTile(Icons.smoking_rooms, 'Fumer', _profile.smokingAccepted,
+              _ambianceTile(Icons.smoking_rooms, 'Fumer',
+                  _profile.smokingAccepted,
                   (v) => setState(() => _profile.smokingAccepted = v)),
             ],
           ),
           const SizedBox(height: 24),
-          const Text('Niveau de conversation', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const Text('Niveau de conversation',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
           const SizedBox(height: 10),
           Row(
             children: ['quiet', 'moderate', 'chatty'].map((level) {
-              final labels = {'quiet': 'Silencieux', 'moderate': 'Modéré', 'chatty': 'Bavard'};
+              final labels = {
+                'quiet': 'Silencieux',
+                'moderate': 'Modéré',
+                'chatty': 'Bavard'
+              };
               final selected = _profile.conversationLevel == level;
               return Expanded(
                 child: GestureDetector(
-                  onTap: () => setState(() => _profile.conversationLevel = level),
+                  onTap: () =>
+                      setState(() => _profile.conversationLevel = level),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     margin: const EdgeInsets.symmetric(horizontal: 3),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: selected ? const Color(0xFFEFF6FF) : Colors.white,
+                      color: selected
+                          ? const Color(0xFFEFF6FF)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: selected ? AppColors.blueLight : const Color(0xFFE5E7EB), width: selected ? 2 : 1),
+                      border: Border.all(
+                          color: selected
+                              ? AppColors.blue
+                              : const Color(0xFFE5E7EB),
+                          width: selected ? 2 : 1),
                     ),
-                    child: Text(labels[level]!, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: selected ? FontWeight.w600 : FontWeight.normal, color: selected ? AppColors.blueLight : const Color(0xFF6B7280))),
+                    child: Text(
+                      labels[level]!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: selected
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                          color: selected
+                              ? AppColors.blue
+                              : const Color(0xFF6B7280)),
+                    ),
                   ),
                 ),
               );
@@ -651,30 +1155,50 @@ import '../../core/app_colors.dart';
     );
   }
 
-  Widget _ambianceTile(IconData icon, String label, bool value, ValueChanged<bool> onChanged) {
+  Widget _ambianceTile(IconData icon, String label, bool value,
+      ValueChanged<bool> onChanged) {
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: value ? const Color(0xFFEFF6FF) : const Color(0xFFF9FAFB),
+          color: value
+              ? const Color(0xFFEFF6FF)
+              : const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: value ? AppColors.blueLight : const Color(0xFFE5E7EB), width: value ? 2 : 1),
+          border: Border.all(
+              color: value ? AppColors.blue : const Color(0xFFE5E7EB),
+              width: value ? 2 : 1),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 24, color: value ? AppColors.blueLight : const Color(0xFF9CA3AF)),
+            Icon(icon,
+                size: 24,
+                color: value
+                    ? AppColors.blue
+                    : const Color(0xFF9CA3AF)),
             const SizedBox(height: 4),
-            Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: value ? AppColors.blueLight : const Color(0xFF6B7280))),
+            Text(label,
+                style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: value
+                        ? AppColors.blue
+                        : const Color(0xFF6B7280))),
             const SizedBox(height: 4),
             Container(
               width: 10,
               height: 10,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: value ? AppColors.blueLight : Colors.transparent,
-                border: Border.all(color: value ? AppColors.blueLight : const Color(0xFFD1D5DB)),
+                color: value
+                    ? AppColors.blue
+                    : Colors.transparent,
+                border: Border.all(
+                    color: value
+                        ? AppColors.blue
+                        : const Color(0xFFD1D5DB)),
               ),
             ),
           ],
@@ -692,21 +1216,39 @@ import '../../core/app_colors.dart';
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Notifications', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text('Notifications',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text('Configurez vos préférences de notification.', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+          const Text('Configurez vos préférences de notification.',
+              style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
           const SizedBox(height: 20),
-
           _sectionHeader('Notifications par Email'),
-          _notifCard('Réservations et annulations', _profile.emailPrimordiales, (v) => setState(() => _profile.emailPrimordiales = v)),
-          _notifCard('Rappels et correspondances', _profile.emailSecondaires, (v) => setState(() => _profile.emailSecondaires = v)),
-          _notifCard('Conseils et promotions', _profile.emailNegligeables, (v) => setState(() => _profile.emailNegligeables = v)),
-
+          _notifCard(
+              'Réservations et annulations',
+              _profile.emailPrimordiales,
+              (v) => setState(() => _profile.emailPrimordiales = v)),
+          _notifCard(
+              'Rappels et correspondances',
+              _profile.emailSecondaires,
+              (v) => setState(() => _profile.emailSecondaires = v)),
+          _notifCard(
+              'Conseils et promotions',
+              _profile.emailNegligeables,
+              (v) => setState(() => _profile.emailNegligeables = v)),
           const SizedBox(height: 20),
           _sectionHeader('Notifications Push'),
-          _notifCard('Réservations et annulations', _profile.pushPrimordiales, (v) => setState(() => _profile.pushPrimordiales = v)),
-          _notifCard('Rappels et correspondances', _profile.pushSecondaires, (v) => setState(() => _profile.pushSecondaires = v)),
-          _notifCard('Conseils et promotions', _profile.pushNegligeables, (v) => setState(() => _profile.pushNegligeables = v)),
+          _notifCard(
+              'Réservations et annulations',
+              _profile.pushPrimordiales,
+              (v) => setState(() => _profile.pushPrimordiales = v)),
+          _notifCard(
+              'Rappels et correspondances',
+              _profile.pushSecondaires,
+              (v) => setState(() => _profile.pushSecondaires = v)),
+          _notifCard(
+              'Conseils et promotions',
+              _profile.pushNegligeables,
+              (v) => setState(() => _profile.pushNegligeables = v)),
         ],
       ),
     );
@@ -721,9 +1263,11 @@ import '../../core/app_colors.dart';
         border: Border.all(color: const Color(0xFFF3F4F6)),
       ),
       child: ListTile(
-        title: Text(label, style: const TextStyle(fontSize: 13, color: Color(0xFF374151))),
+        title: Text(label,
+            style: const TextStyle(fontSize: 13, color: Color(0xFF374151))),
         trailing: _buildSwitch(value, onChanged),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       ),
     );
   }
@@ -737,27 +1281,43 @@ import '../../core/app_colors.dart';
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Confidentialité', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text('Confidentialité',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text('Contrôlez qui peut voir vos informations personnelles.', style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
+          const Text(
+              'Contrôlez qui peut voir vos informations personnelles.',
+              style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
           const SizedBox(height: 20),
-          _privacyCard('Afficher mon numéro de téléphone', 'Les autres utilisateurs pourront voir votre numéro', _profile.showPhoneNumber, (v) => setState(() => _profile.showPhoneNumber = v)),
-          _privacyCard('Afficher mon nom de famille', 'Affiche votre nom complet sur votre profil public', _profile.showLastName, (v) => setState(() => _profile.showLastName = v)),
-          _privacyCard('Suivi d\'affinité', 'Autoriser l\'analyse de vos préférences pour améliorer les suggestions', _profile.allowAffinityTracking, (v) => setState(() => _profile.allowAffinityTracking = v)),
+          _privacyCard(
+              'Afficher mon numéro de téléphone',
+              'Les autres utilisateurs pourront voir votre numéro',
+              _profile.showPhoneNumber,
+              (v) => setState(() => _profile.showPhoneNumber = v)),
+          _privacyCard(
+              'Afficher mon nom de famille',
+              'Affiche votre nom complet sur votre profil public',
+              _profile.showLastName,
+              (v) => setState(() => _profile.showLastName = v)),
+          _privacyCard(
+              "Suivi d'affinité",
+              "Autoriser l'analyse de vos préférences pour améliorer les suggestions",
+              _profile.allowAffinityTracking,
+              (v) => setState(() => _profile.allowAffinityTracking = v)),
           const SizedBox(height: 30),
-
-          // Déconnexion
           SizedBox(
             width: double.infinity,
             height: 50,
             child: ElevatedButton.icon(
-              onPressed: () => _showLogoutDialog(),
+              onPressed: _showLogoutDialog,
               icon: const Icon(Icons.logout, size: 18),
-              label: const Text('Déconnexion', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              label: const Text('Déconnexion',
+                  style: TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.red,
+                backgroundColor: AppColors.redMid,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
                 elevation: 0,
               ),
             ),
@@ -767,7 +1327,8 @@ import '../../core/app_colors.dart';
     );
   }
 
-  Widget _privacyCard(String label, String description, bool value, ValueChanged<bool> onChanged) {
+  Widget _privacyCard(String label, String description, bool value,
+      ValueChanged<bool> onChanged) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -782,9 +1343,15 @@ import '../../core/app_colors.dart';
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF374151))),
+                Text(label,
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF374151))),
                 const SizedBox(height: 2),
-                Text(description, style: const TextStyle(fontSize: 11, color: Color(0xFF9CA3AF))),
+                Text(description,
+                    style: const TextStyle(
+                        fontSize: 11, color: Color(0xFF9CA3AF))),
               ],
             ),
           ),
@@ -795,30 +1362,28 @@ import '../../core/app_colors.dart';
     );
   }
 
-// ===========================================================================
-// ONGLET 4 — VEHICULE
-// ===========================================================================
-class _VehicleTab extends StatelessWidget {
-  const _VehicleTab();
-
-  @override
-  Widget build(BuildContext context) {
+  // ════════════════════════════════════════════════════════════
+  //  ONGLET 6 — VÉHICULE
+  // ════════════════════════════════════════════════════════════
+  Widget _buildVehicleTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _SectionCard(
-          title: 'Mon vehicule',
+          title: 'Mon véhicule',
           children: [
-            _LabeledField(label: 'Marque', initialValue: 'Honda'),
+            _LabeledField(label: 'Marque', initialValue: ''),
             const SizedBox(height: 12),
-            _LabeledField(label: 'Modele', initialValue: 'Civic'),
+            _LabeledField(label: 'Modèle', initialValue: ''),
             const SizedBox(height: 12),
-            _LabeledField(label: 'Annee', initialValue: '2019',
+            _LabeledField(
+                label: 'Année',
+                initialValue: '',
                 keyboardType: TextInputType.number),
             const SizedBox(height: 12),
-            _LabeledField(label: 'Couleur', initialValue: 'Gris'),
+            _LabeledField(label: 'Couleur', initialValue: ''),
             const SizedBox(height: 12),
-            _LabeledField(label: 'Plaque', initialValue: 'ABC-123'),
+            _LabeledField(label: 'Plaque', initialValue: ''),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -833,61 +1398,24 @@ class _VehicleTab extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: _saveVehicle,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1A56DB),
+            backgroundColor: AppColors.blue,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 48),
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12)),
           ),
-          child: const Text('Enregistrer le vehicule'),
+          child: const Text('Enregistrer le véhicule'),
         ),
       ],
     );
   }
-}
 
-class _SeatsCounter extends StatefulWidget {
-  @override
-  State<_SeatsCounter> createState() => _SeatsCounterState();
-}
-
-class _SeatsCounterState extends State<_SeatsCounter> {
-  int _seats = 3;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: _seats > 1 ? () => setState(() => _seats--) : null,
-          icon: const Icon(Icons.remove_circle_outline),
-          color: const Color(0xFF1A56DB),
-          iconSize: 22,
-        ),
-        Text('$_seats',
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold)),
-        IconButton(
-          onPressed: _seats < 7 ? () => setState(() => _seats++) : null,
-          icon: const Icon(Icons.add_circle_outline),
-          color: const Color(0xFF1A56DB),
-          iconSize: 22,
-        ),
-      ],
-    );
-  }
-}
-
-// ===========================================================================
-// ONGLET 5 — SECURITE
-// ===========================================================================
-class _SecurityTab extends StatelessWidget {
-  const _SecurityTab();
-
-  @override
-  Widget build(BuildContext context) {
+  // ════════════════════════════════════════════════════════════
+  //  ONGLET 7 — SÉCURITÉ
+  // ════════════════════════════════════════════════════════════
+  Widget _buildSecurityTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -895,52 +1423,28 @@ class _SecurityTab extends StatelessWidget {
           title: 'Mot de passe',
           children: [
             _LabeledField(
-              label: 'Mot de passe actuel',
-              obscureText: true,
-            ),
+                label: 'Mot de passe actuel', obscureText: true),
             const SizedBox(height: 12),
             _LabeledField(
-              label: 'Nouveau mot de passe',
-              obscureText: true,
-            ),
+                label: 'Nouveau mot de passe', obscureText: true),
             const SizedBox(height: 12),
             _LabeledField(
-              label: 'Confirmer le mot de passe',
-              obscureText: true,
-            ),
+                label: 'Confirmer le mot de passe', obscureText: true),
           ],
         ),
         const SizedBox(height: 16),
         _SectionCard(
-          title: 'Sessions actives',
-          children: [
-            _SessionItem(
-              device: 'iPhone 14',
-              location: 'Montreal, QC',
-              isCurrent: true,
-            ),
-            const Divider(height: 24),
-            _SessionItem(
-              device: 'MacBook Pro',
-              location: 'Laval, QC',
-              isCurrent: false,
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _SectionCard(
-          title: 'Danger',
+          title: 'Actions du compte',
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.logout, color: Color(0xFFDC2626)),
-              title: const Text('Se deconnecter',
+              leading: const Icon(Icons.logout,
+                  color: Color(0xFFDC2626)),
+              title: const Text('Se déconnecter',
                   style: TextStyle(
                       color: Color(0xFFDC2626),
                       fontWeight: FontWeight.w600)),
-              onTap: () {
-                // TODO : logout
-              },
+              onTap: _showLogoutDialog,
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -950,17 +1454,15 @@ class _SecurityTab extends StatelessWidget {
                   style: TextStyle(
                       color: Color(0xFFDC2626),
                       fontWeight: FontWeight.w600)),
-              onTap: () {
-                // TODO : delete account dialog
-              },
+              onTap: _deleteAccount,
             ),
           ],
         ),
         const SizedBox(height: 32),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: _changePassword,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF1A56DB),
+            backgroundColor: AppColors.blue,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 48),
             shape: RoundedRectangleBorder(
@@ -971,241 +1473,215 @@ class _SecurityTab extends StatelessWidget {
       ],
     );
   }
-}
 
-class _SessionItem extends StatelessWidget {
-  final String device;
-  final String location;
-  final bool isCurrent;
+  // ────────────────────────────────────────────────────────────
+  //  UTILITY WIDGETS
+  // ────────────────────────────────────────────────────────────
 
-  const _SessionItem({
-    required this.device,
-    required this.location,
-    required this.isCurrent,
-  });
+  Widget _sectionLabel(String label) => Padding(
+        padding: const EdgeInsets.only(bottom: 6),
+        child: Text(label,
+            style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF374151))),
+      );
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(
-          device.contains('iPhone') || device.contains('Android')
-              ? Icons.smartphone_rounded
-              : Icons.laptop_mac_rounded,
-          color: const Color(0xFF6B7280),
+  Widget _sectionHeader(String label) => Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Text(label,
+            style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF374151))),
+      );
+
+  Widget _readonlyField(String value) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF9FAFB),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(device,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                      color: Color(0xFF111827))),
-              Text(location,
-                  style: const TextStyle(
-                      fontSize: 12, color: Color(0xFF6B7280))),
-            ],
-          ),
-        ),
-        if (isCurrent)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Text('Actuelle',
-                style: TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF1A56DB),
-                    fontWeight: FontWeight.w600)),
-          )
-        else
-          TextButton(
-            onPressed: () {},
-            child: const Text('Revoquer',
-                style:
-                    TextStyle(fontSize: 12, color: Color(0xFFDC2626))),
-          ),
-      ],
-    );
-  }
-}
-
-  // ──────────────────────────────────────────────────────────────
-  //  WIDGETS UTILITAIRES
-  // ──────────────────────────────────────────────────────────────
-
-  Widget _sectionLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF374151))),
-    );
-  }
-
-  Widget _sectionHeader(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
-    );
-  }
-
-  Widget _readonlyField(String value) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Text(value, style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
-    );
-  }
+        child: Text(value,
+            style: const TextStyle(
+                fontSize: 13, color: Color(0xFF6B7280))),
+      );
 
   Widget _editableField({
     required TextEditingController controller,
     String? hint,
     TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: const TextStyle(fontSize: 13),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        suffixIcon: const Icon(Icons.edit, size: 14, color: Color(0xFF9CA3AF)),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF60A5FA))),
-      ),
-    );
-  }
+  }) =>
+      TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: const TextStyle(fontSize: 13),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(
+              color: Color(0xFF9CA3AF), fontSize: 13),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14, vertical: 12),
+          suffixIcon: const Icon(Icons.edit,
+              size: 14, color: Color(0xFF9CA3AF)),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFFE5E7EB))),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFFE5E7EB))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFF60A5FA))),
+        ),
+      );
 
   Widget _buildDropdown({
     required String value,
     required Map<String, String> items,
     required ValueChanged<String?> onChanged,
-  }) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE5E7EB))),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF60A5FA))),
-      ),
-      items: items.entries
-          .map((e) => DropdownMenuItem(value: e.key, child: Text(e.value, style: const TextStyle(fontSize: 13))))
-          .toList(),
-      onChanged: onChanged,
-    );
-  }
-
-  Widget _toggleRow(String label, bool value, ValueChanged<bool> onChanged) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: const TextStyle(fontSize: 13, color: Color(0xFF374151)))),
-          _buildSwitch(value, onChanged),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSwitch(bool value, ValueChanged<bool> onChanged) {
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: 46,
-        height: 26,
-        decoration: BoxDecoration(
-          color: value ? kGreen : const Color(0xFFD1D5DB),
-          borderRadius: BorderRadius.circular(13),
+  }) =>
+      DropdownButtonFormField<String>(
+        value: value,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14, vertical: 12),
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFFE5E7EB))),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFFE5E7EB))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: Color(0xFF60A5FA))),
         ),
-        child: AnimatedAlign(
+        items: items.entries
+            .map((e) => DropdownMenuItem(
+                value: e.key,
+                child: Text(e.value,
+                    style: const TextStyle(fontSize: 13))))
+            .toList(),
+        onChanged: onChanged,
+      );
+
+  String _normalizeSchoolRole(String raw) {
+    final String normalized = raw
+        .toLowerCase()
+        .replaceAll('é', 'e')
+        .replaceAll('è', 'e')
+        .replaceAll('ê', 'e')
+        .replaceAll('à', 'a')
+        .replaceAll('â', 'a')
+        .replaceAll("'", '')
+        .replaceAll('-', '')
+        .replaceAll(' ', '');
+
+    if (_schoolRoleItems.containsKey(normalized)) {
+      return normalized;
+    }
+    if (normalized.contains('prof')) return 'professeur';
+    if (normalized.contains('admin')) return 'administrateur';
+    if (normalized.contains('personnel') || normalized.contains('employ')) {
+      return 'membredupersonnel';
+    }
+    return 'etudiant';
+  }
+
+  Widget _toggleRow(
+      String label, bool value, ValueChanged<bool> onChanged) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Row(
+          children: [
+            Expanded(
+                child: Text(label,
+                    style: const TextStyle(
+                        fontSize: 13, color: Color(0xFF374151)))),
+            _buildSwitch(value, onChanged),
+          ],
+        ),
+      );
+
+  Widget _buildSwitch(bool value, ValueChanged<bool> onChanged) =>
+      GestureDetector(
+        onTap: () => onChanged(!value),
+        child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(3),
-            child: Container(
-              width: 20,
-              height: 20,
-              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+          width: 46,
+          height: 26,
+          decoration: BoxDecoration(
+            color: value
+                ? AppColors.tealMid
+                : const Color(0xFFD1D5DB),
+            borderRadius: BorderRadius.circular(13),
+          ),
+          child: AnimatedAlign(
+            duration: const Duration(milliseconds: 200),
+            alignment: value
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(3),
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: const BoxDecoration(
+                    color: Colors.white, shape: BoxShape.circle),
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _starRating(double rating) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(5, (i) {
-        if (i < rating.floor()) return const Icon(Icons.star, size: 14, color: Color(0xFFF59E0B));
-        if (i < rating) return const Icon(Icons.star_half, size: 14, color: Color(0xFFF59E0B));
-        return const Icon(Icons.star_border, size: 14, color: Color(0xFFD1D5DB));
-      }),
-    );
-  }
-
-  Widget _pillButton({
-    required String label,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 11, color: Colors.white),
-            const SizedBox(width: 4),
-            Text(label, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ──────────────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
   //  BOTTOM SHEETS & DIALOGS
-  // ──────────────────────────────────────────────────────────────
+  // ────────────────────────────────────────────────────────────
 
   void _showChangeCoverSheet() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFD1D5DB), borderRadius: BorderRadius.circular(2))),
+            Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: const Color(0xFFD1D5DB),
+                    borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
-            const Text('Changer la photo de couverture', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('Changer la photo de couverture',
+                style: TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
-            ListTile(leading: const Icon(Icons.photo_library_outlined, color: AppColors.blue), title: const Text('Choisir depuis la galerie'), onTap: () => Navigator.pop(context)),
-            ListTile(leading: const Icon(Icons.camera_alt_outlined, color: AppColors.blue), title: const Text('Prendre une photo'), onTap: () => Navigator.pop(context)),
+            ListTile(
+                leading: Icon(Icons.photo_library_outlined,
+                    color: AppColors.blue),
+                title: const Text('Choisir depuis la galerie'),
+                onTap: () => Navigator.pop(context)),
+            ListTile(
+                leading: Icon(Icons.camera_alt_outlined,
+                    color: AppColors.blue),
+                title: const Text('Prendre une photo'),
+                onTap: () => Navigator.pop(context)),
             const SizedBox(height: 8),
           ],
         ),
@@ -1216,19 +1692,41 @@ class _SessionItem extends StatelessWidget {
   void _showChangeAvatarSheet() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFD1D5DB), borderRadius: BorderRadius.circular(2))),
+            Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: const Color(0xFFD1D5DB),
+                    borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
-            const Text('Changer la photo de profil', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('Changer la photo de profil',
+                style: TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
-            ListTile(leading: const Icon(Icons.photo_library_outlined, color: kPrimary), title: const Text('Choisir depuis la galerie'), onTap: () => Navigator.pop(context)),
-            ListTile(leading: const Icon(Icons.camera_alt_outlined, color: kPrimary), title: const Text('Prendre une photo'), onTap: () => Navigator.pop(context)),
-            ListTile(leading: const Icon(Icons.delete_outline, color: AppColors.red), title: const Text('Supprimer la photo', style: TextStyle(color: AppColors.red)), onTap: () => Navigator.pop(context)),
+            ListTile(
+                leading: Icon(Icons.photo_library_outlined,
+                    color: AppColors.blue),
+                title: const Text('Choisir depuis la galerie'),
+                onTap: () => Navigator.pop(context)),
+            ListTile(
+                leading: Icon(Icons.camera_alt_outlined,
+                    color: AppColors.blue),
+                title: const Text('Prendre une photo'),
+                onTap: () => Navigator.pop(context)),
+            ListTile(
+                leading: const Icon(Icons.delete_outline,
+                    color: AppColors.redMid),
+                title: const Text('Supprimer la photo',
+                    style: TextStyle(color: AppColors.redMid)),
+                onTap: () => Navigator.pop(context)),
             const SizedBox(height: 8),
           ],
         ),
@@ -1240,14 +1738,25 @@ class _SessionItem extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Déconnexion', style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16)),
+        title: const Text('Déconnexion',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        content:
+            const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Annuler')),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.red, foregroundColor: Colors.white),
+            onPressed: () async {
+              Navigator.pop(context);
+              await AuthService(_api).logout();
+              if (mounted) context.go('/login');
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.redMid,
+                foregroundColor: Colors.white),
             child: const Text('Déconnexion'),
           ),
         ],
@@ -1256,61 +1765,14 @@ class _SessionItem extends StatelessWidget {
   }
 }
 
-// ===========================================================================
-// WIDGETS COMMUNS
-// ===========================================================================
-
-class _StatChip extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color iconColor;
-
-  const _StatChip({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.iconColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: iconColor, size: 18),
-          const SizedBox(width: 6),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(value,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      color: Color(0xFF111827))),
-              Text(label,
-                  style: const TextStyle(
-                      fontSize: 11, color: Color(0xFF6B7280))),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
+// ────────────────────────────────────────────────────────────
+//  SHARED WIDGETS
+// ────────────────────────────────────────────────────────────
 
 class _SectionCard extends StatelessWidget {
+  const _SectionCard({required this.title, required this.children});
   final String title;
   final List<Widget> children;
-
-  const _SectionCard({required this.title, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -1320,7 +1782,7 @@ class _SectionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2))
         ],
@@ -1343,23 +1805,21 @@ class _SectionCard extends StatelessWidget {
 }
 
 class _LabeledField extends StatelessWidget {
-  final String label;
-  final TextEditingController? controller;
-  final String? initialValue;
-  final bool readOnly;
-  final String? hint;
-  final TextInputType? keyboardType;
-  final bool obscureText;
-
   const _LabeledField({
     required this.label,
-    this.controller,
     this.initialValue,
     this.readOnly = false,
     this.hint,
     this.keyboardType,
     this.obscureText = false,
   });
+
+  final String label;
+  final String? initialValue;
+  final bool readOnly;
+  final String? hint;
+  final TextInputType? keyboardType;
+  final bool obscureText;
 
   @override
   Widget build(BuildContext context) {
@@ -1373,26 +1833,31 @@ class _LabeledField extends StatelessWidget {
                 color: Color(0xFF374151))),
         const SizedBox(height: 4),
         TextFormField(
-          controller: controller,
-          initialValue: controller == null ? initialValue : null,
+          initialValue: initialValue,
           readOnly: readOnly,
           keyboardType: keyboardType,
           obscureText: obscureText,
-          style: const TextStyle(fontSize: 14, color: Color(0xFF111827)),
+          style: const TextStyle(
+              fontSize: 14, color: Color(0xFF111827)),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
+            hintStyle:
+                const TextStyle(color: Color(0xFF9CA3AF)),
             filled: true,
-            fillColor: readOnly ? const Color(0xFFF9FAFB) : Colors.white,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            fillColor: readOnly
+                ? const Color(0xFFF9FAFB)
+                : Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
+              borderSide:
+                  const BorderSide(color: Color(0xFFD1D5DB)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
+              borderSide:
+                  const BorderSide(color: Color(0xFFD1D5DB)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
@@ -1406,51 +1871,45 @@ class _LabeledField extends StatelessWidget {
   }
 }
 
-class _PreferenceToggle extends StatefulWidget {
-  final String label;
-  final bool value;
-  final ValueChanged<bool> onChanged;
-
-  const _PreferenceToggle({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-  });
-
+class _SeatsCounter extends StatefulWidget {
   @override
-  State<_PreferenceToggle> createState() => _PreferenceToggleState();
+  State<_SeatsCounter> createState() => _SeatsCounterState();
 }
 
-class _PreferenceToggleState extends State<_PreferenceToggle> {
-  late bool _value;
-
-  @override
-  void initState() {
-    super.initState();
-    _value = widget.value;
-  }
+class _SeatsCounterState extends State<_SeatsCounter> {
+  int _seats = 3;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(widget.label,
-                style: const TextStyle(
-                    fontSize: 13, color: Color(0xFF374151))),
-          ),
-          Switch(
-            value: _value,
-            onChanged: (v) {
-              setState(() => _value = v);
-              widget.onChanged(v);
-            },
-            activeColor: const Color(0xFF1A56DB),
-          ),
-        ],
-      ),
+    return Row(
+      children: [
+        IconButton(
+          onPressed: _seats > 1
+              ? () => setState(() => _seats--)
+              : null,
+          icon: const Icon(Icons.remove_circle_outline),
+          color: AppColors.blue,
+          iconSize: 22,
+        ),
+        Text('$_seats',
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold)),
+        IconButton(
+          onPressed: _seats < 7
+              ? () => setState(() => _seats++)
+              : null,
+          icon: const Icon(Icons.add_circle_outline),
+          color: AppColors.blue,
+          iconSize: 22,
+        ),
+      ],
     );
   }
 }
+
+// ────────────────────────────────────────────────────────────
+//  HELPERS
+// ────────────────────────────────────────────────────────────
+
+
+

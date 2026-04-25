@@ -1,39 +1,67 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../cache/user_cache_service.dart';
+import '../fixtures/app_fixtures.dart';
+import '../state/app_state.dart';
 import 'api_service.dart';
 
 class AuthService {
   AuthService(this._apiService);
 
+  static const String _fixturePendingEmailKey = 'fixture_pending_email';
+
   final ApiService _apiService;
 
   Future<String?> initSession() async {
-    final dynamic response = await _apiService.post('/api/auth/session/init', <String, dynamic>{});
-    final Map<String, dynamic> payload = _extractPayload(response);
-    final String? publicId = payload['publicId']?.toString();
-    if (publicId != null && publicId.isNotEmpty) {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_public_id', publicId);
+    try {
+      final dynamic response =
+          await _apiService.post('/api/auth/session/init', <String, dynamic>{});
+      final Map<String, dynamic> payload = _extractPayload(response);
+      final String? publicId = payload['publicId']?.toString();
+      if (publicId != null && publicId.isNotEmpty) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('auth_public_id', publicId);
+      }
+      return publicId;
+    } catch (_) {
+      // Keep auth resilient for fixture profiles when backend auth is down.
+      return null;
     }
-    return publicId;
   }
 
   Future<EmailCheckResult> verifyEmail(String email) async {
-    final dynamic response = await _apiService.post('/api/auth/session/verify-email', <String, dynamic>{
-      'email': email,
-    });
+    final String normalizedEmail = email.trim().toLowerCase();
+    final bool fixtureProfile = AppFixtures.isFixtureAuthEmail(normalizedEmail);
+
+    if (fixtureProfile) {
+      await _setPendingFixtureEmail(normalizedEmail);
+      return const EmailCheckResult(
+        existingUser: true,
+        otpSent: false,
+        message: 'Profil de test detecte',
+      );
+    }
+
+    final dynamic response = await _apiService.post(
+      '/api/auth/session/verify-email',
+      <String, dynamic>{'email': normalizedEmail},
+    );
     final Map<String, dynamic> payload = _extractPayload(response);
 
-    final bool existingUser = (payload['userExists'] == true) ||
+    final bool existingUser =
+        (payload['userExists'] == true) ||
         (payload['exists'] == true) ||
         (payload['isExistingUser'] == true) ||
         (payload['nextStep']?.toString().toLowerCase().contains('password') == true);
 
-    final bool otpSent = (payload['otpSent'] == true) ||
+    final bool otpSent =
+        (payload['otpSent'] == true) ||
         (payload['codeSent'] == true) ||
         (payload['nextStep']?.toString().toLowerCase().contains('otp') == true);
+
+    await _setPendingFixtureEmail(null);
 
     return EmailCheckResult(
       existingUser: existingUser,
@@ -43,9 +71,28 @@ class AuthService {
   }
 
   Future<AuthStepResult> passwordLogin(String password) async {
-    final dynamic response = await _apiService.post('/api/auth/session/password-login', <String, dynamic>{
-      'password': password,
-    });
+    final String? fixtureEmail = await _getPendingFixtureEmail();
+
+    if (fixtureEmail != null && fixtureEmail.isNotEmpty) {
+      if (password == AppFixtures.fixtureAuthPassword) {
+        await _persistFixtureSession(fixtureEmail);
+        return const AuthStepResult(
+          success: true,
+          requiresCode: false,
+          message: 'Connexion profil test reussie',
+        );
+      }
+      return const AuthStepResult(
+        success: false,
+        requiresCode: false,
+        message: 'Mot de passe test invalide',
+      );
+    }
+
+    final dynamic response = await _apiService.post(
+      '/api/auth/session/password-login',
+      <String, dynamic>{'password': password},
+    );
     final Map<String, dynamic> payload = _extractPayload(response);
 
     final bool locked = payload['locked'] == true || payload['isLocked'] == true;
@@ -56,7 +103,8 @@ class AuthService {
       return AuthStepResult(success: true, message: payload['message']?.toString());
     }
 
-    final bool requiresCode = payload['requiresCode'] == true ||
+    final bool requiresCode =
+        payload['requiresCode'] == true ||
         payload['otpRequired'] == true ||
         (payload['nextStep']?.toString().toLowerCase().contains('verify') == true) ||
         (payload['nextStep']?.toString().toLowerCase().contains('otp') == true);
@@ -71,9 +119,17 @@ class AuthService {
   }
 
   Future<AuthStepResult> verifyCode(String code) async {
-    final dynamic response = await _apiService.post('/api/auth/session/verify-code', <String, dynamic>{
-      'code': code,
-    });
+    final String? fixtureEmail = await _getPendingFixtureEmail();
+    if (fixtureEmail != null && fixtureEmail.isNotEmpty) {
+      // OTP must stay disabled for fixture profiles.
+      await _persistFixtureSession(fixtureEmail);
+      return const AuthStepResult(success: true, message: 'OTP ignore pour profil test');
+    }
+
+    final dynamic response = await _apiService.post(
+      '/api/auth/session/verify-code',
+      <String, dynamic>{'code': code},
+    );
     final Map<String, dynamic> payload = _extractPayload(response);
 
     if (_hasAccessToken(payload)) {
@@ -81,7 +137,8 @@ class AuthService {
       return AuthStepResult(success: true, message: payload['message']?.toString());
     }
 
-    final bool needsRegister = payload['registrationRequired'] == true ||
+    final bool needsRegister =
+        payload['registrationRequired'] == true ||
         payload['needsRegistration'] == true ||
         (payload['nextStep']?.toString().toLowerCase().contains('register') == true);
 
@@ -97,11 +154,14 @@ class AuthService {
     required String lastName,
     required String password,
   }) async {
-    final dynamic response = await _apiService.post('/api/auth/session/register', <String, dynamic>{
-      'firstName': firstName,
-      'lastName': lastName,
-      'password': password,
-    });
+    final dynamic response = await _apiService.post(
+      '/api/auth/session/register',
+      <String, dynamic>{
+        'firstName': firstName,
+        'lastName': lastName,
+        'password': password,
+      },
+    );
     final Map<String, dynamic> payload = _extractPayload(response);
 
     if (_hasAccessToken(payload)) {
@@ -109,26 +169,29 @@ class AuthService {
       return AuthStepResult(success: true, message: payload['message']?.toString());
     }
 
-    return AuthStepResult(
-      success: false,
-      message: payload['message']?.toString(),
-    );
+    return AuthStepResult(success: false, message: payload['message']?.toString());
   }
 
   Future<void> logout() async {
+    await UserCacheService.instance.clearCurrentUser();
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token');
     await prefs.remove('refresh_token');
     await prefs.remove('userId');
     await prefs.remove('auth_public_id');
+    await prefs.remove('cached_profile');
+    await prefs.remove(_fixturePendingEmailKey);
     await prefs.setBool('is_logged_in', false);
   }
 
   Future<bool> isLoggedIn() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('auth_token');
-    if (token == null || token.isEmpty) {
-      return false;
+    if (token == null || token.isEmpty) return false;
+
+    if (token.startsWith('fixture_access_')) {
+      return true;
     }
 
     try {
@@ -178,20 +241,60 @@ class AuthService {
     }
 
     final dynamic user = payload['user'];
-    final String? userId = user is Map<String, dynamic>
-        ? user['id']?.toString()
-        : payload['userId']?.toString();
+    final String? userId =
+        user is Map<String, dynamic> ? user['id']?.toString() : payload['userId']?.toString();
 
     if (userId != null && userId.isNotEmpty) {
       await prefs.setString('userId', userId);
+      UserCacheService.instance.setUserId(userId);
     }
 
     await prefs.setBool('is_logged_in', true);
+    await prefs.remove(_fixturePendingEmailKey);
 
     if (markNeedsOnboarding) {
       await prefs.setBool('needs_onboarding', true);
       await prefs.setBool('onboarding_done', false);
     }
+  }
+
+  Future<void> _persistFixtureSession(String email) async {
+    final Map<String, dynamic>? fixture = AppFixtures.fixtureProfileByEmail(email);
+    if (fixture == null) {
+      throw StateError('Fixture profile not found');
+    }
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String userId = fixture['id']?.toString() ?? '';
+    final String token = 'fixture_access_${DateTime.now().millisecondsSinceEpoch}_$userId';
+    final String refresh = 'fixture_refresh_${DateTime.now().millisecondsSinceEpoch}_$userId';
+
+    await prefs.setString('auth_token', token);
+    await prefs.setString('refresh_token', refresh);
+    await prefs.setString('userId', userId);
+    await prefs.setBool('is_logged_in', true);
+    await prefs.remove(_fixturePendingEmailKey);
+
+    UserCacheService.instance.setUserId(userId);
+
+    final String role = fixture['role']?.toString().toLowerCase() ?? '';
+    final bool isDriver = role.contains('conducteur') || role.contains('driver');
+    AppStateStore.instance.switchMode(isDriver ? AppUserMode.driver : AppUserMode.passenger);
+    AppStateStore.instance.updateCurrentUserFromJson(fixture);
+  }
+
+  Future<void> _setPendingFixtureEmail(String? email) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (email == null || email.isEmpty) {
+      await prefs.remove(_fixturePendingEmailKey);
+    } else {
+      await prefs.setString(_fixturePendingEmailKey, email);
+    }
+  }
+
+  Future<String?> _getPendingFixtureEmail() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_fixturePendingEmailKey);
   }
 
   static bool _hasAccessToken(Map<String, dynamic> payload) {

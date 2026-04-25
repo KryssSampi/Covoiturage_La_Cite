@@ -62,7 +62,7 @@ static string ToNpgsqlKeyValue(string? cs)
     var parts = uri.UserInfo.Split(':', 2);
     var user = Uri.UnescapeDataString(parts[0]);
     var pass = parts.Length > 1 ? Uri.UnescapeDataString(parts[1]) : string.Empty;
-    var db   = uri.AbsolutePath.TrimStart('/');
+    var db = uri.AbsolutePath.TrimStart('/');
     var port = uri.IsDefaultPort ? 5432 : uri.Port;
     return $"Host={uri.Host};Port={port};Database={db};Username={user};Password={pass};SSL Mode=Require;Trust Server Certificate=true";
 }
@@ -264,7 +264,7 @@ try
     // ── EF Core migrations ───────────────────────────────────────────────────
     {
         using var migScope = app.Services.CreateScope();
-        var migDb     = migScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var migDb = migScope.ServiceProvider.GetRequiredService<AppDbContext>();
         var migLogger = migScope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("EFMigrations");
         try
         {
@@ -334,6 +334,14 @@ try
     {
         var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();
         startupLogger.LogWarning(ex, "[Hangfire] Enregistrement des jobs échoué — le serveur démarre sans jobs récurrents");
+    }
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapOpenApi();
+        app.UseSwagger();
+        app.UseSwaggerUI();
+        app.MapGet("/", () => Results.Redirect("/swagger"));
     }
 
     app.Run();

@@ -219,6 +219,61 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.ToTable("ChallengeParticipations");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.ConsentementsPipedum", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("ConsentementAnalyseComportement")
+                        .HasColumnType("boolean")
+                        .HasColumnName("consentement_analyse_comportement");
+
+                    b.Property<bool>("ConsentementGeolocalisation")
+                        .HasColumnType("boolean")
+                        .HasColumnName("consentement_geolocalisation");
+
+                    b.Property<bool>("ConsentementMarketing")
+                        .HasColumnType("boolean")
+                        .HasColumnName("consentement_marketing");
+
+                    b.Property<bool>("ConsentementPartageDonnees")
+                        .HasColumnType("boolean")
+                        .HasColumnName("consentement_partage_donnees");
+
+                    b.Property<DateTime>("DateConsentement")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date_consentement");
+
+                    b.Property<string>("IpConsentement")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)")
+                        .HasColumnName("ip_consentement");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("VersionPolitique")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("version_politique");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "UserId" }, "idx_consent_user");
+
+                    b.HasIndex(new[] { "VersionPolitique" }, "idx_consent_version");
+
+                    b.ToTable("consentements_pipeda");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.DriverDocument", b =>
                 {
                     b.Property<Guid>("Id")
@@ -365,6 +420,59 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.HasIndex("RewardBadgeId");
 
                     b.ToTable("EcoChallenges");
+                });
+
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.ExportsDonnee", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("DateCompletion")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date_completion");
+
+                    b.Property<DateTime>("DateDemande")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date_demande");
+
+                    b.Property<DateTime?>("DateExpirationLien")
+                        .HasColumnType("timestamp without time zone")
+                        .HasColumnName("date_expiration_lien");
+
+                    b.Property<string>("FichierUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("fichier_url");
+
+                    b.Property<string>("Statut")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("statut");
+
+                    b.Property<string>("TablesExporteesJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("tables_exportees_json");
+
+                    b.Property<string>("TypeExport")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type_export");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "Statut" }, "idx_exports_statut");
+
+                    b.HasIndex(new[] { "UserId" }, "idx_exports_user");
+
+                    b.ToTable("exports_donnees");
                 });
 
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.GeofenceZone", b =>
@@ -2275,6 +2383,17 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.ConsentementsPipedum", b =>
+                {
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "User")
+                        .WithMany("ConsentementsPipeda")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.DriverDocument", b =>
                 {
                     b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.DriverProfile", "DriverProfile")
@@ -2304,6 +2423,17 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                         .HasForeignKey("RewardBadgeId");
 
                     b.Navigation("RewardBadge");
+                });
+
+            modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.ExportsDonnee", b =>
+                {
+                    b.HasOne("Covoiturage_La_Cite_Server_Core_.Domain.Entities.User", "User")
+                        .WithMany("ExportsDonnees")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Covoiturage_La_Cite_Server_Core_.Domain.Entities.GpsPosition", b =>
@@ -2798,7 +2928,11 @@ namespace Covoiturage_La_Cite_Server_Core_.Migrations
                 {
                     b.Navigation("Badges");
 
+                    b.Navigation("ConsentementsPipeda");
+
                     b.Navigation("DriverProfile");
+
+                    b.Navigation("ExportsDonnees");
 
                     b.Navigation("LikesGiven");
 

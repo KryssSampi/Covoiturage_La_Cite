@@ -1,14 +1,17 @@
-﻿import 'package:flutter/material.dart';
+// lib/main.dart
+// App entry point — fixed imports, no broken profile path
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/models/trip.dart';
 import 'core/navigation_key.dart';
 import 'core/services/api_service.dart';
 import 'core/services/auth_service.dart';
 import 'core/services/trip_service.dart';
+import 'core/state/app_state.dart';
 import 'core/shell/app_shell.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/otp_screen.dart';
@@ -17,21 +20,23 @@ import 'features/favoris/favoris_screen.dart';
 import 'features/historique/historique_screen.dart';
 import 'features/messages/messages_screen.dart';
 import 'features/notifications/notification_detail_screen.dart';
+import 'features/notifications/notifications_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
-import '../.docs/updating-files/new_page_version/profile_screen.dart';
+import 'features/profile/profile_screen.dart';
 import 'features/reviews/reviews_screen.dart';
 import 'features/search/driver_search_map_screen.dart';
 import 'features/search/search_screen.dart';
+import 'features/settings/app_settings_screen.dart';
 import 'features/stats/stats_screen.dart';
+import 'features/trajet_en_cours/trajet_en_cours_screen.dart';
 import 'features/trip/create_trip_screen.dart';
 import 'features/trip/reservation_request_detail_screen.dart';
 import 'features/trip/reservation_screen.dart';
-import 'features/trip/published_trip_screen.dart';
-
+import 'features/trip/published_trip_screen-1.dart';
 import 'features/chat/chat_screen.dart';
 
-final AuthService _authService = AuthService(ApiService.instance);
 final TripService _tripService = TripService(ApiService.instance);
+final AuthService _authService = AuthService(ApiService.instance);
 
 void main() {
   runApp(const ProviderScope(child: CovoiturageApp()));
@@ -46,7 +51,8 @@ class CovoiturageApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Covoiturage La Cité',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A56CC)),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: const Color(0xFF1A56CC)),
         primaryColor: const Color(0xFF08316E),
         scaffoldBackgroundColor: const Color(0xFFF2F5FA),
         textTheme: GoogleFonts.openSansTextTheme(),
@@ -58,9 +64,9 @@ class CovoiturageApp extends StatelessWidget {
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: appNavigatorKey,
-  initialLocation: '/home',
-  // DEV BYPASS actif — décommenter redirect pour prod
+  initialLocation: '/bootstrap',
   routes: <RouteBase>[
+    GoRoute(path: '/bootstrap', builder: (_, __) => const _AuthBootstrapScreen()),
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
     GoRoute(
       path: '/otp',
@@ -69,29 +75,58 @@ final GoRouter appRouter = GoRouter(
         mode: state.uri.queryParameters['mode'] ?? 'password',
       ),
     ),
-    GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
+    GoRoute(
+        path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
     GoRoute(path: '/home', builder: (_, __) => const AppShell()),
     GoRoute(path: '/messages', builder: (_, __) => const MessagesScreen()),
     GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
     GoRoute(path: '/stats', builder: (_, __) => const StatsScreen()),
     GoRoute(path: '/favoris', builder: (_, __) => const FavorisScreen()),
     GoRoute(path: '/reviews', builder: (_, __) => const ReviewsScreen()),
-    GoRoute(path: '/historique', builder: (_, __) => const HistoriqueScreen()),
-    GoRoute(path: '/brouillons', builder: (_, __) => const BrouillonsScreen()),
+    GoRoute(path: '/app-settings', builder: (_, __) => const AppSettingsScreen()),
+    GoRoute(
+        path: '/historique', builder: (_, __) => const HistoriqueScreen()),
+    GoRoute(
+        path: '/brouillons', builder: (_, __) => const BrouillonsScreen()),
     GoRoute(
       path: '/search',
       builder: (_, GoRouterState state) {
-        final Map<String, dynamic>? extra =
-            state.extra is Map<String, dynamic> ? state.extra as Map<String, dynamic> : null;
+        final Map<String, dynamic>? extra = state.extra is Map<String, dynamic>
+            ? state.extra as Map<String, dynamic>
+            : null;
+        double? parseNullableDouble(dynamic value) {
+          if (value is num) return value.toDouble();
+          return double.tryParse(value?.toString() ?? '');
+        }
+        bool parseNullableBool(dynamic value) {
+          if (value is bool) return value;
+          final String raw = value?.toString().toLowerCase() ?? '';
+          return raw == 'true' || raw == '1';
+        }
+        bool? parseOptionalBool(dynamic value) {
+          if (value == null) return null;
+          if (value is bool) return value;
+          final String raw = value.toString().toLowerCase();
+          if (raw == 'true' || raw == '1') return true;
+          if (raw == 'false' || raw == '0') return false;
+          return null;
+        }
+        final bool isDriverMode =
+            parseOptionalBool(extra?['isDriver']) ?? AppStateStore.instance.isDriver;
         return SearchScreen(
           tripService: _tripService,
           initialFrom: extra?['from']?.toString(),
           initialTo: extra?['to']?.toString(),
-          isDriver: true,
+          initialFromLat: parseNullableDouble(extra?['fromLat']),
+          initialFromLng: parseNullableDouble(extra?['fromLng']),
+          initialToLat: parseNullableDouble(extra?['toLat']),
+          initialToLng: parseNullableDouble(extra?['toLng']),
+          autoSearchOnInit: parseNullableBool(extra?['autoSearch']),
+          isDriver: isDriverMode,
         );
       },
     ),
-GoRoute(
+    GoRoute(
       path: '/trip/:id',
       builder: (_, GoRouterState state) {
         final dynamic extra = state.extra;
@@ -102,13 +137,14 @@ GoRoute(
         return PublishedTripScreen(
           tripService: _tripService,
           tripId: id,
+          trip: trip,
           initialData: initialData,
         );
       },
     ),
     GoRoute(
       path: '/trip-detail/:id',
-      builder: (ctx, state) {
+      builder: (_, GoRouterState state) {
         final extra = state.extra as Map<String, dynamic>?;
         final id = state.pathParameters['id']!;
         PTViewerRole role = PTViewerRole.passenger;
@@ -118,7 +154,8 @@ GoRoute(
           final rawRole = extra['viewerRole']?.toString().toLowerCase() ?? '';
           if (rawRole.contains('driver')) role = PTViewerRole.driverOwner;
           if (rawRole.contains('admin')) role = PTViewerRole.admin;
-          final rawRes = extra['reservationStatus']?.toString().toLowerCase() ?? '';
+          final rawRes =
+              extra['reservationStatus']?.toString().toLowerCase() ?? '';
           resStatus = switch (rawRes) {
             'pending' => PTReservationStatus.pending,
             'confirmed' => PTReservationStatus.confirmed,
@@ -152,7 +189,10 @@ GoRoute(
     ),
     GoRoute(
       path: '/reservations',
-      builder: (_, __) => ReservationScreen(tripService: _tripService),
+      builder: (_, __) => ReservationScreen(
+        tripService: _tripService,
+        isDriver: AppStateStore.instance.isDriver,
+      ),
     ),
     GoRoute(
       path: '/chat/:tripId',
@@ -167,10 +207,14 @@ GoRoute(
             : null,
       ),
     ),
-GoRoute(
-      path: '/notifications',
-      builder: (_, __) => const NotificationsScreen(),
+    GoRoute(
+      path: '/trajet-en-cours/:id',
+      builder: (_, GoRouterState state) => TrajetEnCoursScreen(
+        tripId: state.pathParameters['id'] ?? '',
+      ),
     ),
+    GoRoute(
+        path: '/notifications', builder: (_, __) => const NotificationsScreen()),
     GoRoute(
       path: '/notification/:id',
       builder: (_, GoRouterState state) => NotificationDetailScreen(
@@ -186,3 +230,38 @@ GoRoute(
     ),
   ],
 );
+
+class _AuthBootstrapScreen extends StatefulWidget {
+  const _AuthBootstrapScreen();
+
+  @override
+  State<_AuthBootstrapScreen> createState() => _AuthBootstrapScreenState();
+}
+
+class _AuthBootstrapScreenState extends State<_AuthBootstrapScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _bootstrap();
+  }
+
+  Future<void> _bootstrap() async {
+    if (!AppStateStore.instance.authenticationEnabled) {
+      if (mounted) context.go('/home');
+      return;
+    }
+
+    final bool loggedIn = await _authService.isLoggedIn();
+    if (!mounted) return;
+    context.go(loggedIn ? '/home' : '/login');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+}

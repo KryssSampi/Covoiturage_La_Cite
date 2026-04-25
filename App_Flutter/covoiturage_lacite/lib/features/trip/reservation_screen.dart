@@ -1,159 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../core/services/api_service.dart';
 import '../../core/services/trip_service.dart';
+import '../../core/state/app_state.dart';
+import '../../core/utils/parsing.dart' as parsing;
+import '../../shared/cards/reservation_card.dart';
+import '../../shared/widgets/item_list_view.dart';
 
 class ReservationScreen extends StatefulWidget {
-  const ReservationScreen({super.key, required this.tripService, this.isDriver = false});
+  const ReservationScreen({
+    super.key,
+    required this.tripService,
+    this.isDriver = false,
+    this.embedded = false,
+  });
+
   final TripService tripService;
   final bool isDriver;
-  @override State<ReservationScreen> createState() => _ReservationScreenState();
+  final bool embedded;
+
+  @override
+  State<ReservationScreen> createState() => _ReservationScreenState();
 }
 
-class _ReservationScreenState extends State<ReservationScreen>
-    with SingleTickerProviderStateMixin {
+class _ReservationScreenState extends State<ReservationScreen> {
   final ApiService _api = ApiService.instance;
-  late final TabController _tabCtrl;
-  final _searchCtrl = TextEditingController();
+
   bool _isLoading = true;
   String? _error;
   String _query = '';
+  final List<_ReservationVm> _items = <_ReservationVm>[];
 
-  final List<_ResItem> _items = <_ResItem>[];
-
-  List<_ResItem> get _passenger => _items.where((r) => !r.isDriver && _match(r)).toList();
-  List<_ResItem> get _driver => _items.where((r) => r.isDriver && _match(r)).toList();
-  bool _match(_ResItem r) {
-    if (_query.isEmpty) return true;
-    final q = _query.toLowerCase();
-    return r.departure.toLowerCase().contains(q) || r.destination.toLowerCase().contains(q);
+  List<_ReservationVm> get _filteredItems {
+    if (_query.trim().isEmpty) return _items;
+    final String q = _query.toLowerCase();
+    return _items.where((item) {
+      return item.departure.toLowerCase().contains(q) ||
+          item.destination.toLowerCase().contains(q) ||
+          item.personName.toLowerCase().contains(q);
+    }).toList();
   }
 
   @override
   void initState() {
     super.initState();
-    _tabCtrl = TabController(length: widget.isDriver ? 2 : 1, vsync: this);
-    _searchCtrl.addListener(() => setState(() => _query = _searchCtrl.text));
+    AppStateStore.instance.clearPageNews(AppNavPage.reservations);
     _loadReservations();
   }
-
-  @override
-  void dispose() { _tabCtrl.dispose(); _searchCtrl.dispose(); super.dispose(); }
 
   Future<void> _loadReservations() async {
     setState(() {
       _isLoading = true;
       _error = null;
     });
+
     try {
-      final List<_ResItem> loaded = <_ResItem>[];
-
-      final dynamic passengerPayload = await _api.get('/api/reservations');
-      final List<dynamic> passengerRows = _extractList(passengerPayload);
-      for (final dynamic row in passengerRows) {
-        if (row is! Map<String, dynamic>) continue;
-        final Map<String, dynamic>? trip =
-            row['trip'] is Map<String, dynamic> ? row['trip'] as Map<String, dynamic> : null;
-        final Map<String, dynamic>? driver =
-            row['driver'] is Map<String, dynamic> ? row['driver'] as Map<String, dynamic> : null;
-        final DateTime? departureTime =
-            _toDateTime(trip?['departureTime'] ?? trip?['departureDateTime'] ?? trip?['startTime']);
-        loaded.add(
-          _ResItem(
-            id: row['id']?.toString() ?? '',
-            tripId: row['tripId']?.toString() ?? trip?['id']?.toString() ?? '',
-            departure: _firstNotEmpty(<dynamic>[
-              trip?['departureLabel'],
-              trip?['fromLabel'],
-              trip?['departureCity'],
-              trip?['from'],
-            ]),
-            destination: _firstNotEmpty(<dynamic>[
-              trip?['arrivalLabel'],
-              trip?['toLabel'],
-              trip?['arrivalCity'],
-              trip?['to'],
-            ]),
-            date: _fmtDate(departureTime),
-            time: _fmtTime(departureTime),
-            personName: _fullName(
-              firstName: driver?['firstName']?.toString(),
-              lastName: driver?['lastName']?.toString(),
-              fallback: 'Conducteur',
-            ),
-            personRole: 'Conducteur',
-            rating: _toDouble(driver?['averageRating'] ?? driver?['rating']),
-            statusLabel: row['status']?.toString() ?? 'Inconnu',
-            statusColor: _statusColor(row['status']?.toString() ?? ''),
-            isDriver: false,
-            tripData: _buildTripExtra(
-              trip,
-              fallbackTripId: row['tripId']?.toString(),
-              driver: driver,
-              reservationRow: row,
-            ),
-          ),
-        );
-      }
-
-      final dynamic driverPayload = await _api.get('/api/trips/mine/driver');
-      final List<dynamic> trips = _extractList(driverPayload);
-      for (final dynamic tripRow in trips) {
-        if (tripRow is! Map<String, dynamic>) continue;
-        final List<dynamic> reservations = _extractList(
-          tripRow['reservationRequests'] ?? tripRow['reservations'],
-        );
-        final DateTime? departureTime = _toDateTime(
-          tripRow['departureTime'] ?? tripRow['departureDateTime'] ?? tripRow['startTime'],
-        );
-        for (final dynamic reservationRow in reservations) {
-          if (reservationRow is! Map<String, dynamic>) continue;
-          final String status = reservationRow['status']?.toString() ?? '';
-          if (!status.toLowerCase().contains('pending') &&
-              !status.toLowerCase().contains('attente')) {
-            continue;
-          }
-          final Map<String, dynamic>? passenger = reservationRow['passenger'] is Map<String, dynamic>
-              ? reservationRow['passenger'] as Map<String, dynamic>
-              : null;
-          loaded.add(
-            _ResItem(
-              id: reservationRow['id']?.toString() ?? '',
-              tripId: tripRow['id']?.toString() ?? '',
-              departure: _firstNotEmpty(<dynamic>[
-                tripRow['departureLabel'],
-                tripRow['fromLabel'],
-                tripRow['departureCity'],
-                tripRow['from'],
-              ]),
-              destination: _firstNotEmpty(<dynamic>[
-                tripRow['arrivalLabel'],
-                tripRow['toLabel'],
-                tripRow['arrivalCity'],
-                tripRow['to'],
-              ]),
-              date: _fmtDate(departureTime),
-              time: _fmtTime(departureTime),
-              personName: _fullName(
-                firstName: passenger?['firstName']?.toString(),
-                lastName: passenger?['lastName']?.toString(),
-                fallback: 'Passager',
-              ),
-              personRole: 'Passager',
-              rating: _toDouble(passenger?['averageRating'] ?? passenger?['rating']),
-              statusLabel: status.isEmpty ? 'En attente' : status,
-              statusColor: _statusColor(status),
-              isDriver: true,
-              tripData: _buildTripExtra(
-                tripRow,
-                fallbackTripId: tripRow['id']?.toString(),
-                driver: null,
-                reservationRow: reservationRow,
-              ),
-            ),
-          );
-        }
-      }
+      final List<_ReservationVm> loaded = widget.isDriver
+          ? await _loadDriverRequests()
+          : await _loadPassengerReservations();
 
       if (!mounted) return;
       setState(() {
@@ -174,176 +79,409 @@ class _ReservationScreenState extends State<ReservationScreen>
     }
   }
 
+  Future<List<_ReservationVm>> _loadDriverRequests() async {
+    final dynamic payload = await _api.get('/api/driver/reservation-requests');
+    final Iterable<Map<String, dynamic>> rows =
+        parsing.extractList(payload).whereType<Map<String, dynamic>>();
+
+    return rows
+        .map((row) => _ReservationVm.fromDriverRequest(row))
+        .where((item) => item.id.isNotEmpty)
+        .toList();
+  }
+
+  Future<List<_ReservationVm>> _loadPassengerReservations() async {
+    final dynamic enrichedPayload =
+        await _api.get('/api/passenger/reservations-enriched');
+    List<_ReservationVm> rows = parsing
+        .extractList(enrichedPayload)
+        .whereType<Map<String, dynamic>>()
+        .map((row) => _ReservationVm.fromPassengerReservation(row))
+        .where((item) => item.id.isNotEmpty)
+        .toList();
+
+    if (rows.isNotEmpty) {
+      return rows;
+    }
+
+    final dynamic legacyPayload = await _api.get('/api/reservations');
+    rows = parsing
+        .extractList(legacyPayload)
+        .whereType<Map<String, dynamic>>()
+        .map((row) => _ReservationVm.fromLegacyPassengerReservation(row))
+        .where((item) => item.id.isNotEmpty)
+        .toList();
+    return rows;
+  }
+
+  Future<void> _cancelReservation(_ReservationVm item) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Annuler la reservation'),
+          content: const Text(
+            'Voulez-vous vraiment annuler cette reservation ?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Non'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Oui'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await _api.post('/api/reservations/${item.id}/cancel', <String, dynamic>{});
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Reservation annulee.')),
+      );
+      _loadReservations();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Annulation impossible: $e')),
+      );
+    }
+  }
+
+  void _openReservation(_ReservationVm item) {
+    if (item.isDriverRequest) {
+      context.push('/reservation-request/${item.id}');
+      return;
+    }
+    if (item.tripId.isEmpty) return;
+    context.push('/trip/${item.tripId}', extra: item.tripData);
+  }
+
+  bool _canCancel(_ReservationVm item) {
+    final String s = item.status.toLowerCase();
+    return s.contains('pending') ||
+        s.contains('attente') ||
+        s.contains('confirm') ||
+        s.contains('accepted');
+  }
+
   @override
   Widget build(BuildContext context) {
+    final Widget content = ColoredBox(
+      color: const Color(0xFFF2F5FA),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+            child: widget.embedded
+                ? Text(
+                    widget.isDriver ? 'Demandes de reservation' : 'Mes reservations',
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                  )
+                : Row(
+                    children: [
+                      IconButton(
+                        iconSize: 28,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () => context.pop(),
+                        icon: const Icon(Icons.arrow_back_ios_new),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          widget.isDriver ? 'Demandes de reservation' : 'Mes reservations',
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+          Expanded(
+            child: ItemListView<_ReservationVm>(
+              items: _items,
+              filteredItems: _filteredItems,
+              isLoading: _isLoading,
+              error: _error,
+              onRefresh: _loadReservations,
+              onSearch: (String value) {
+                setState(() {
+                  _query = value;
+                });
+              },
+              searchHint: widget.isDriver
+                  ? 'Rechercher une demande...'
+                  : 'Rechercher une reservation...',
+              emptyTitle: widget.isDriver
+                  ? 'Aucune demande de reservation'
+                  : 'Aucune reservation',
+              emptySubtitle: widget.isDriver
+                  ? 'Les nouvelles demandes apparaitront ici.'
+                  : 'Vos reservations apparaitront ici.',
+              emptyIcon: widget.isDriver
+                  ? Icons.assignment_turned_in_outlined
+                  : Icons.event_note_rounded,
+              itemBuilder: (_ReservationVm item) {
+                final ReservationData data = ReservationData(
+                  id: item.id,
+                  departure: item.departure,
+                  destination: item.destination,
+                  date: item.date,
+                  time: item.time,
+                  status: item.status,
+                  role: item.isDriverRequest
+                      ? ReservationRole.driver
+                      : ReservationRole.passenger,
+                  personName: item.personName,
+                  personInitials: item.personInitials,
+                  personRating: item.personRating,
+                  price: item.price,
+                  seatsInfo: item.seatsInfo,
+                  tripId: item.tripId,
+                );
+                return ReservationCard(
+                  data: data,
+                  onTap: () => _openReservation(item),
+                  onViewDetails: item.isDriverRequest
+                      ? null
+                      : () => _openReservation(item),
+                  onCancel: item.isDriverRequest || !_canCancel(item)
+                      ? null
+                      : () => _cancelReservation(item),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (widget.embedded) return content;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F5FA),
-      body: SafeArea(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Padding(padding: EdgeInsets.fromLTRB(16,16,16,8),
-          child: Text('Reservations', style: TextStyle(fontSize:22, fontWeight:FontWeight.w700))),
-        Padding(padding: const EdgeInsets.fromLTRB(16,0,16,10),
-          child: Container(height:46,
-            decoration: BoxDecoration(color:Colors.white, borderRadius:BorderRadius.circular(12),
-              border: Border.all(color:const Color(0xFFD8DBE5))),
-            child: Row(children: [
-              const SizedBox(width:12),
-              const Icon(Icons.search, size:18, color:Color(0xFF8A95A8)),
-              const SizedBox(width:8),
-              Expanded(child: TextField(controller:_searchCtrl,
-                decoration: const InputDecoration(
-                  hintText:'Rechercher une reservation...',
-                  hintStyle: TextStyle(color:Color(0xFF8A95A8), fontSize:14),
-                  border:InputBorder.none))),
-            ]))),
-        if (widget.isDriver)
-          TabBar(controller:_tabCtrl, labelColor:const Color(0xFF08316e),
-            unselectedLabelColor:const Color(0xFF7A879A),
-            indicatorColor:const Color(0xFF08316e),
-            tabs:const [Tab(text:'Mes reservations'), Tab(text:'Demandes recues')]),
-        Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _error != null
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFF8A95A8)),
-                          const SizedBox(height: 12),
-                          const Text(
-                            'Connexion impossible',
-                            style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF0D1624)),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(_error!, style: const TextStyle(fontSize: 12, color: Color(0xFF7A879A))),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: _loadReservations,
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Réessayer'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1A56CC),
-                              foregroundColor: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : widget.isDriver
-                      ? TabBarView(controller:_tabCtrl, children:[
-                          _List(items:_passenger, onTap:(item) => context.push('/trip/${item.tripId}', extra: item.tripData)),
-                          _List(
-                            items:_driver,
-                            onTap:(item) => context.push(
-                              item.isDriver ? '/reservation-request/${item.id}' : '/trip/${item.tripId}',
-                              extra: item.isDriver ? null : item.tripData,
-                            ),
-                          ),
-                        ])
-                      : _List(items:_passenger, onTap:(item) => context.push('/trip/${item.tripId}', extra: item.tripData)),
-        ),
-      ])),
+      body: SafeArea(child: content),
     );
   }
 }
 
-class _List extends StatelessWidget {
-  const _List({required this.items, required this.onTap});
-  final List<_ResItem> items;
-  final void Function(_ResItem) onTap;
-  @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return const Center(child: Text('Aucune reservation',
-        style: TextStyle(fontSize:16, fontWeight:FontWeight.w700)));
-    }
-    return ListView.builder(
-      padding: const EdgeInsets.only(top:4, bottom:24),
-      itemCount: items.length,
-      itemBuilder: (_, i) => ListTile(
-        title: Text('${items[i].departure} -> ${items[i].destination}',
-            style: const TextStyle(fontWeight:FontWeight.w700)),
-        subtitle: Text('${items[i].date} ${items[i].time} - ${items[i].personName}'),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal:8, vertical:4),
-          decoration: BoxDecoration(color:items[i].statusColor, borderRadius:BorderRadius.circular(8)),
-          child: Text(items[i].statusLabel,
-              style: const TextStyle(color:Colors.white, fontSize:11, fontWeight:FontWeight.w600))),
-        onTap: () => onTap(items[i]),
+class _ReservationVm {
+  const _ReservationVm({
+    required this.id,
+    required this.tripId,
+    required this.departure,
+    required this.destination,
+    required this.date,
+    required this.time,
+    required this.personName,
+    required this.personInitials,
+    required this.personRating,
+    required this.status,
+    required this.isDriverRequest,
+    required this.tripData,
+    this.price,
+    this.seatsInfo,
+  });
+
+  final String id;
+  final String tripId;
+  final String departure;
+  final String destination;
+  final String date;
+  final String time;
+  final String personName;
+  final String personInitials;
+  final double? personRating;
+  final String status;
+  final bool isDriverRequest;
+  final Map<String, dynamic> tripData;
+  final double? price;
+  final String? seatsInfo;
+
+  factory _ReservationVm.fromPassengerReservation(Map<String, dynamic> row) {
+    final Map<String, dynamic> reservation = _asMap(row['reservation']);
+    final Map<String, dynamic> trip = _asMap(row['trip']);
+    final Map<String, dynamic> driver = _asMap(row['driver']);
+    final DateTime? departureDt = _parseDepartureDateTime(trip);
+
+    final String driverName = _fullName(
+      firstName: driver['firstName']?.toString(),
+      lastName: driver['lastName']?.toString(),
+      fallback: 'Conducteur',
+    );
+
+    final String id =
+        reservation['id']?.toString() ?? row['id']?.toString() ?? '';
+    final String tripId =
+        trip['id']?.toString() ?? reservation['tripId']?.toString() ?? '';
+
+    return _ReservationVm(
+      id: id,
+      tripId: tripId,
+      departure: _firstNotEmpty(<dynamic>[
+        trip['departureLabel'],
+        row['departureLabel'],
+      ]),
+      destination: _firstNotEmpty(<dynamic>[
+        trip['arrivalLabel'],
+        row['arrivalLabel'],
+      ]),
+      date: _fmtDate(departureDt),
+      time: _fmtTime(departureDt),
+      personName: driverName,
+      personInitials: _initials(driverName),
+      personRating: _toDoubleOrNull(driver['averageRating']),
+      status: reservation['status']?.toString() ?? row['status']?.toString() ?? 'pending',
+      isDriverRequest: false,
+      price: _toDoubleOrNull(trip['pricePerPassenger']),
+      seatsInfo: _seatsInfo(
+        current: _toIntOrNull(trip['currentPassengers']),
+        total: _toIntOrNull(trip['maxPassengers']),
+      ),
+      tripData: _buildTripExtra(
+        trip,
+        fallbackTripId: tripId,
+        driver: driver,
+        reservationRow: reservation,
+      ),
+    );
+  }
+
+  factory _ReservationVm.fromDriverRequest(Map<String, dynamic> row) {
+    final Map<String, dynamic> reservation = _asMap(row['reservation']);
+    final Map<String, dynamic> trip = _asMap(row['trip']);
+    final Map<String, dynamic> passenger = _asMap(row['passenger']);
+    final DateTime? departureDt = _parseDepartureDateTime(trip);
+
+    final String passengerName = _fullName(
+      firstName: passenger['firstName']?.toString(),
+      lastName: passenger['lastName']?.toString(),
+      fallback: 'Passager',
+    );
+
+    final String id =
+        reservation['id']?.toString() ?? row['id']?.toString() ?? '';
+
+    return _ReservationVm(
+      id: id,
+      tripId: trip['id']?.toString() ?? reservation['tripId']?.toString() ?? '',
+      departure: _firstNotEmpty(<dynamic>[
+        trip['departureLabel'],
+        row['departureLabel'],
+      ]),
+      destination: _firstNotEmpty(<dynamic>[
+        trip['arrivalLabel'],
+        row['arrivalLabel'],
+      ]),
+      date: _fmtDate(departureDt),
+      time: _fmtTime(departureDt),
+      personName: passengerName,
+      personInitials: _initials(passengerName),
+      personRating: _toDoubleOrNull(passenger['averageRating']),
+      status: reservation['status']?.toString() ?? row['status']?.toString() ?? 'pending',
+      isDriverRequest: true,
+      tripData: _buildTripExtra(
+        trip,
+        fallbackTripId: trip['id']?.toString(),
+        driver: null,
+        reservationRow: reservation,
+      ),
+    );
+  }
+
+  factory _ReservationVm.fromLegacyPassengerReservation(Map<String, dynamic> row) {
+    final Map<String, dynamic> trip = _asMap(row['trip']);
+    final Map<String, dynamic> driver = _asMap(row['driver']);
+    final DateTime? departureDt = _parseDepartureDateTime(trip);
+
+    final String driverName = _fullName(
+      firstName: driver['firstName']?.toString(),
+      lastName: driver['lastName']?.toString(),
+      fallback: 'Conducteur',
+    );
+
+    return _ReservationVm(
+      id: row['id']?.toString() ?? '',
+      tripId: row['tripId']?.toString() ?? trip['id']?.toString() ?? '',
+      departure: _firstNotEmpty(<dynamic>[
+        trip['departureLabel'],
+        trip['fromLabel'],
+        trip['departureCity'],
+      ]),
+      destination: _firstNotEmpty(<dynamic>[
+        trip['arrivalLabel'],
+        trip['toLabel'],
+        trip['arrivalCity'],
+      ]),
+      date: _fmtDate(departureDt),
+      time: _fmtTime(departureDt),
+      personName: driverName,
+      personInitials: _initials(driverName),
+      personRating: _toDoubleOrNull(driver['averageRating'] ?? driver['rating']),
+      status: row['status']?.toString() ?? 'pending',
+      isDriverRequest: false,
+      price: _toDoubleOrNull(
+        trip['passengerPrice'] ?? trip['pricePerPassenger'] ?? trip['price'],
+      ),
+      seatsInfo: _seatsInfo(
+        current: _toIntOrNull(trip['currentPassengers']),
+        total: _toIntOrNull(trip['maxPassengers'] ?? trip['totalSeats']),
+      ),
+      tripData: _buildTripExtra(
+        trip,
+        fallbackTripId: row['tripId']?.toString(),
+        driver: driver,
+        reservationRow: row,
       ),
     );
   }
 }
 
-class _ResItem {
-  const _ResItem({required this.id, required this.departure, required this.destination,
-    required this.date, required this.time, required this.personName, required this.personRole,
-    required this.rating, required this.statusLabel, required this.statusColor,
-    required this.tripId, required this.isDriver, required this.tripData});
-  final String id, departure, destination, date, time, personName, personRole, tripId, statusLabel;
-  final double rating;
-  final Color statusColor;
-  final bool isDriver;
-  final Map<String, dynamic> tripData;
+Map<String, dynamic> _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) {
+    return value.map(
+      (dynamic key, dynamic val) => MapEntry(key.toString(), val),
+    );
+  }
+  return <String, dynamic>{};
 }
 
-Map<String, dynamic> _buildTripExtra(
-  Map<String, dynamic>? trip, {
-  String? fallbackTripId,
-  Map<String, dynamic>? driver,
-  Map<String, dynamic>? reservationRow,
-}) {
-  final Map<String, dynamic> base = <String, dynamic>{...(trip ?? const <String, dynamic>{})};
-  if ((base['id']?.toString().isNotEmpty ?? false) == false && (fallbackTripId?.isNotEmpty ?? false)) {
-    base['id'] = fallbackTripId;
-  }
-  if (driver != null && driver.isNotEmpty) {
-    base['driver'] = <String, dynamic>{
-      ...(base['driver'] is Map<String, dynamic> ? base['driver'] as Map<String, dynamic> : const <String, dynamic>{}),
-      ...driver,
-    };
-    base.putIfAbsent('driverName', () => _fullName(
-          firstName: driver['firstName']?.toString(),
-          lastName: driver['lastName']?.toString(),
-          fallback: 'Conducteur',
-        ));
-  }
-  if (reservationRow != null) {
-    if (base['reservationStatus'] == null && reservationRow['status'] != null) {
-      base['reservationStatus'] = reservationRow['status'];
-    }
-    if (base['driverNote'] == null) {
-      base['driverNote'] = reservationRow['driverNote'] ?? reservationRow['message'];
-    }
-  }
-  return base;
+DateTime? _parseDepartureDateTime(Map<String, dynamic> trip) {
+  final dynamic explicit =
+      trip['departureDateTime'] ?? trip['departureTime'] ?? trip['startTime'];
+  DateTime? parsed = parsing.toDateTime(explicit);
+  if (parsed != null) return parsed;
+
+  final String date = trip['departureDate']?.toString() ?? '';
+  final String time = trip['departureTime']?.toString() ?? '';
+  if (date.isEmpty || time.isEmpty) return null;
+  return parsing.toDateTime('${date}T$time');
 }
 
-List<dynamic> _extractList(dynamic payload) {
-  if (payload is List<dynamic>) return payload;
-  if (payload is Map<String, dynamic>) {
-    final dynamic data = payload['data'] ?? payload['items'] ?? payload['results'];
-    if (data is List<dynamic>) return data;
-  }
-  return <dynamic>[];
+String _fmtDate(DateTime? dt) {
+  if (dt == null) return '-';
+  String two(int value) => value < 10 ? '0$value' : '$value';
+  return '${dt.year}-${two(dt.month)}-${two(dt.day)}';
 }
 
-DateTime? _toDateTime(dynamic value) {
-  if (value == null) return null;
-  if (value is DateTime) return value;
-  return DateTime.tryParse(value.toString());
-}
-
-double _toDouble(dynamic value) {
-  if (value is double) return value;
-  if (value is num) return value.toDouble();
-  return double.tryParse(value?.toString() ?? '') ?? 0;
+String _fmtTime(DateTime? dt) {
+  if (dt == null) return '--:--';
+  String two(int value) => value < 10 ? '0$value' : '$value';
+  return '${two(dt.hour)}:${two(dt.minute)}';
 }
 
 String _firstNotEmpty(List<dynamic> values) {
   for (final dynamic value in values) {
-    final String s = value?.toString().trim() ?? '';
-    if (s.isNotEmpty) return s;
+    final String text = value?.toString().trim() ?? '';
+    if (text.isNotEmpty) return text;
   }
   return '';
 }
@@ -353,26 +491,76 @@ String _fullName({
   required String? lastName,
   required String fallback,
 }) {
-  final String full = '${firstName ?? ''} ${lastName ?? ''}'.trim();
-  return full.isEmpty ? fallback : full;
+  final String name = '${firstName ?? ''} ${lastName ?? ''}'.trim();
+  return name.isEmpty ? fallback : name;
 }
 
-String _fmtDate(DateTime? dt) {
-  if (dt == null) return '-';
-  String two(int v) => v < 10 ? '0$v' : '$v';
-  return '${dt.year}-${two(dt.month)}-${two(dt.day)}';
+String _initials(String value) {
+  final List<String> tokens = value
+      .split(' ')
+      .where((String token) => token.trim().isNotEmpty)
+      .toList();
+  if (tokens.isEmpty) return 'U';
+  return tokens.take(2).map((String token) => token[0].toUpperCase()).join();
 }
 
-String _fmtTime(DateTime? dt) {
-  if (dt == null) return '--:--';
-  String two(int v) => v < 10 ? '0$v' : '$v';
-  return '${two(dt.hour)}:${two(dt.minute)}';
+double? _toDoubleOrNull(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  return double.tryParse(value.toString());
 }
 
-Color _statusColor(String status) {
-  final String s = status.toLowerCase();
-  if (s.contains('confirm')) return const Color(0xFF16a34a);
-  if (s.contains('pending') || s.contains('attente')) return const Color(0xFFd97706);
-  if (s.contains('refus') || s.contains('cancel')) return const Color(0xFFE24B4A);
-  return const Color(0xFF8A95A8);
+int? _toIntOrNull(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }
+
+String? _seatsInfo({required int? current, required int? total}) {
+  if (current == null || total == null || total <= 0) return null;
+  return '$current/$total places';
+}
+
+Map<String, dynamic> _buildTripExtra(
+  Map<String, dynamic>? trip, {
+  String? fallbackTripId,
+  Map<String, dynamic>? driver,
+  Map<String, dynamic>? reservationRow,
+}) {
+  final Map<String, dynamic> base =
+      <String, dynamic>{...(trip ?? const <String, dynamic>{})};
+
+  if ((base['id']?.toString().isNotEmpty ?? false) == false &&
+      (fallbackTripId?.isNotEmpty ?? false)) {
+    base['id'] = fallbackTripId;
+  }
+
+  if (driver != null && driver.isNotEmpty) {
+    base['driver'] = <String, dynamic>{
+      ...(_asMap(base['driver'])),
+      ...driver,
+    };
+    base.putIfAbsent(
+      'driverName',
+      () => _fullName(
+        firstName: driver['firstName']?.toString(),
+        lastName: driver['lastName']?.toString(),
+        fallback: 'Conducteur',
+      ),
+    );
+  }
+
+  if (reservationRow != null) {
+    if (base['reservationStatus'] == null && reservationRow['status'] != null) {
+      base['reservationStatus'] = reservationRow['status'];
+    }
+    if (base['driverNote'] == null) {
+      base['driverNote'] =
+          reservationRow['driverNote'] ?? reservationRow['message'];
+    }
+  }
+
+  return base;
+}
+

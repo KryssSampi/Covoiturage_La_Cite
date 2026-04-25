@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/services/api_service.dart';
+import '../../core/state/app_state.dart';
 
 class ReservationRequestDetailScreen extends StatefulWidget {
   const ReservationRequestDetailScreen({super.key, required this.reservationId});
@@ -23,6 +24,7 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
   @override
   void initState() {
     super.initState();
+    AppStateStore.instance.clearPageNews(AppNavPage.reservations);
     _loadRequest();
   }
 

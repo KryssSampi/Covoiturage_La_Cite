@@ -5,25 +5,30 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:dio/io.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../cache/user_cache_service.dart';
+import '../fixtures/app_fixtures.dart';
 import '../navigation_key.dart';
+import '../state/app_state.dart';
 
 class ApiService {
-  static const _baseUrl = String.fromEnvironment(
+  static const String _baseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'http://10.0.2.2:5000',
+    defaultValue: 'https://covoituragelacite-production.railway.app/',
   );
 
-  static const _publicKeyStorageKey = 'server_public_key';
-  static const _publicKeyFingerprintStorageKey = 'server_public_key_sha256';
+  static const String _publicKeyStorageKey = 'server_public_key';
+  static const String _publicKeyFingerprintStorageKey = 'server_public_key_sha256';
   static String? _pinnedFingerprint;
 
   static late final Dio _dio;
   static late final CookieJar _cookieJar;
+
+  final UserCacheService _cache = UserCacheService.instance;
 
   ApiService._internal() {
     _dio = Dio(BaseOptions(baseUrl: _baseUrl));
@@ -39,30 +44,31 @@ class ApiService {
     unawaited(_initSecureClient());
 
     _dio.interceptors.add(_AuthInterceptor());
+    unawaited(_cache.purgeExpired());
   }
 
   static final ApiService instance = ApiService._internal();
 
   static Future<void> _initSecureClient() async {
-    final prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? cachedKey = prefs.getString(_publicKeyStorageKey);
 
     if (cachedKey == null || cachedKey.isEmpty) {
       try {
-        final res = await Dio(
+        final dynamic res = await Dio(
           BaseOptions(
             baseUrl: _baseUrl,
             connectTimeout: const Duration(seconds: 10),
             receiveTimeout: const Duration(seconds: 15),
             sendTimeout: const Duration(seconds: 10),
-            headers: const {
+            headers: const <String, String>{
               'X-Client-Type': 'mobile',
               'X-App-Version': '1.0.0',
             },
           ),
         ).get<dynamic>('/api/auth/public-key');
 
-        final body = (res.data is Map<String, dynamic>)
+        final Map<String, dynamic> body = (res.data is Map<String, dynamic>)
             ? res.data as Map<String, dynamic>
             : <String, dynamic>{};
         cachedKey = body['publicKey']?.toString();
@@ -71,12 +77,12 @@ class ApiService {
           await prefs.setString(_publicKeyStorageKey, cachedKey);
         }
       } catch (_) {
-        // If public key cannot be fetched at startup, fallback to cached value only.
+        // Best effort only.
       }
     }
 
     if (cachedKey != null && cachedKey.isNotEmpty) {
-      final fingerprint = sha256.convert(utf8.encode(cachedKey)).toString();
+      final String fingerprint = sha256.convert(utf8.encode(cachedKey)).toString();
       await prefs.setString(_publicKeyFingerprintStorageKey, fingerprint);
       _pinnedFingerprint = fingerprint;
     } else {
@@ -85,19 +91,18 @@ class ApiService {
   }
 
   static void _configurePinnedHttpClient() {
-    final adapter = _dio.httpClientAdapter;
+    final dynamic adapter = _dio.httpClientAdapter;
     if (adapter is! IOHttpClientAdapter) {
       return;
     }
 
     adapter.createHttpClient = () {
-      final client = HttpClient();
+      final HttpClient client = HttpClient();
       client.badCertificateCallback = (
         X509Certificate cert,
         String host,
         int port,
       ) {
-        // Allow handshake only to run custom validation in validateCertificate.
         return true;
       };
       return client;
@@ -112,12 +117,10 @@ class ApiService {
         return false;
       }
 
-      final derFingerprint = sha256.convert(cert.der).toString();
-      final pemFingerprint = sha256.convert(utf8.encode(cert.pem)).toString();
+      final String derFingerprint = sha256.convert(cert.der).toString();
+      final String pemFingerprint = sha256.convert(utf8.encode(cert.pem)).toString();
+      final String? pinned = _pinnedFingerprint;
 
-      // Best-effort pinning check against stored public-key fingerprint.
-      // If not present, do not block requests.
-      final pinned = _pinnedFingerprint;
       if (pinned == null || pinned.isEmpty) {
         return true;
       }
@@ -129,31 +132,332 @@ class ApiService {
     String path, {
     Map<String, dynamic>? params,
     Options? options,
+    String? cacheKey,
+    bool forceRefresh = false,
   }) async {
-    final response = await _dio.get<dynamic>(
-      path,
-      queryParameters: params,
-      options: options,
-    );
-    return response.data;
+    final String? effectiveCacheKey = cacheKey ?? _inferCacheKey(path, params);
+
+    if (effectiveCacheKey != null && !forceRefresh) {
+      final dynamic cached = await _cache.get(effectiveCacheKey);
+      if (cached != null) {
+        AppStateStore.instance.clearFixtureFallback();
+        _syncCurrentUserIfNeeded(path, cached);
+
+        // Keep cache fresh while preserving fast UI.
+        unawaited(
+          _refreshInBackground(
+            path,
+            params: params,
+            options: options,
+            cacheKey: effectiveCacheKey,
+          ),
+        );
+        return cached;
+      }
+    }
+
+    try {
+      final Response<dynamic> response = await _dio.get<dynamic>(
+        path,
+        queryParameters: params,
+        options: options,
+      );
+      final dynamic data = response.data;
+
+      AppStateStore.instance.clearFixtureFallback();
+      _syncCurrentUserIfNeeded(path, data);
+
+      if (effectiveCacheKey != null && data != null) {
+        unawaited(_cache.put(effectiveCacheKey, data));
+      }
+      return data;
+    } catch (error) {
+      if (effectiveCacheKey != null) {
+        final dynamic stale = await _cache.getStale(effectiveCacheKey);
+        if (stale != null) {
+          AppStateStore.instance.reportStaleCacheFallback(
+            endpoint: path,
+            reason: _errorMessage(error),
+          );
+          _syncCurrentUserIfNeeded(path, stale);
+          return stale;
+        }
+      }
+
+      final dynamic fallback = AppFixtures.getFallback(
+        path,
+        params: params,
+        isDriver: AppStateStore.instance.isDriver,
+      );
+      if (fallback != null) {
+        AppStateStore.instance.reportFixtureFallback(
+          endpoint: path,
+          reason: _errorMessage(error),
+        );
+        _syncCurrentUserIfNeeded(path, fallback);
+        return fallback;
+      }
+      rethrow;
+    }
   }
 
   Future<dynamic> post(
     String path,
     dynamic body, {
     Options? options,
+    List<String> invalidateKeys = const <String>[],
   }) async {
-    final response = await _dio.post<dynamic>(path, data: body, options: options);
-    return response.data;
+    final List<String> keys = <String>{
+      ...invalidateKeys,
+      ..._inferInvalidationKeysForPost(path),
+    }.toList();
+
+    try {
+      final Response<dynamic> response = await _dio.post<dynamic>(
+        path,
+        data: body,
+        options: options,
+      );
+      AppStateStore.instance.clearFixtureFallback();
+      _syncCurrentUserIfNeeded(path, response.data);
+      if (keys.isNotEmpty) {
+        unawaited(_cache.invalidateAll(keys));
+      }
+      return response.data;
+    } catch (error) {
+      final dynamic fallback = AppFixtures.postFallback(
+        path,
+        body,
+        isDriver: AppStateStore.instance.isDriver,
+      );
+      if (fallback != null) {
+        AppStateStore.instance.reportFixtureFallback(
+          endpoint: path,
+          reason: _errorMessage(error),
+        );
+        _syncCurrentUserIfNeeded(path, fallback);
+        if (keys.isNotEmpty) {
+          unawaited(_cache.invalidateAll(keys));
+        }
+        return fallback;
+      }
+      rethrow;
+    }
   }
 
   Future<dynamic> patch(
     String path,
     dynamic body, {
     Options? options,
+    List<String> invalidateKeys = const <String>[],
   }) async {
-    final response = await _dio.patch<dynamic>(path, data: body, options: options);
-    return response.data;
+    final List<String> keys = <String>{
+      ...invalidateKeys,
+      ..._inferInvalidationKeysForPatch(path),
+    }.toList();
+
+    try {
+      final Response<dynamic> response = await _dio.patch<dynamic>(
+        path,
+        data: body,
+        options: options,
+      );
+      AppStateStore.instance.clearFixtureFallback();
+      _syncCurrentUserIfNeeded(path, response.data);
+      if (keys.isNotEmpty) {
+        unawaited(_cache.invalidateAll(keys));
+      }
+      return response.data;
+    } catch (error) {
+      final dynamic fallback = AppFixtures.patchFallback(
+        path,
+        body,
+        isDriver: AppStateStore.instance.isDriver,
+      );
+      if (fallback != null) {
+        AppStateStore.instance.reportFixtureFallback(
+          endpoint: path,
+          reason: _errorMessage(error),
+        );
+        _syncCurrentUserIfNeeded(path, fallback);
+        if (keys.isNotEmpty) {
+          unawaited(_cache.invalidateAll(keys));
+        }
+        return fallback;
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _refreshInBackground(
+    String path, {
+    Map<String, dynamic>? params,
+    Options? options,
+    required String cacheKey,
+  }) async {
+    try {
+      final Response<dynamic> response = await _dio.get<dynamic>(
+        path,
+        queryParameters: params,
+        options: options,
+      );
+      final dynamic data = response.data;
+      if (data != null) {
+        await _cache.put(cacheKey, data);
+      }
+      _syncCurrentUserIfNeeded(path, data);
+      AppStateStore.instance.clearFixtureFallback();
+    } catch (_) {
+      // Silent background refresh failure.
+    }
+  }
+
+  String? _inferCacheKey(String path, Map<String, dynamic>? _) {
+    if (path == '/api/users/me') return CacheKeys.profile;
+    if (path == '/api/reservations' || path == '/api/reservations/mine') {
+      return CacheKeys.reservations;
+    }
+    if (path == '/api/passenger/reservations-enriched') {
+      return CacheKeys.reservationsEnriched;
+    }
+    if (path == '/api/driver/reservation-requests') {
+      return CacheKeys.driverRequests;
+    }
+    if (path == '/api/notifications') return CacheKeys.notifications;
+    if (path == '/api/reviews/me') return CacheKeys.reviews;
+    if (path == '/api/trips/mine/driver') return CacheKeys.myDriverTrips;
+    if (path == '/api/trips/mine/passenger') return CacheKeys.myPassengerTrips;
+    if (path == '/api/trips/drafts' || path == '/api/drafts') return CacheKeys.drafts;
+    if (path == '/api/trips/history' ||
+        path == '/api/driver/historique' ||
+        path == '/api/passenger/historique') {
+      return CacheKeys.historique;
+    }
+    if (path == '/api/favorites' || path == '/api/lieux-favoris') {
+      return CacheKeys.favorites;
+    }
+    if (path == '/api/messages/conversations' || path == '/api/conversations') {
+      return CacheKeys.conversations;
+    }
+    if (path.startsWith('/api/messages/')) {
+      final List<String> parts = path.split('/');
+      if (parts.length >= 4) {
+        final String tripId = parts[3];
+        if (tripId.isNotEmpty) return CacheKeys.messagesByTrip(tripId);
+      }
+    }
+    if (path == '/api/stats/me') return CacheKeys.stats;
+    if (path == '/api/stats/finances' ||
+        path == '/api/finances/driver/summary' ||
+        path == '/api/finances/passenger/summary') {
+      return CacheKeys.finances;
+    }
+    if (path == '/api/goboard/rankings' || path == '/api/gotasks/goboard') {
+      return CacheKeys.goboard;
+    }
+    if (path == '/api/vehicles') return CacheKeys.vehicles;
+    if (path == '/api/unavailability') return CacheKeys.unavailability;
+
+    // Explicitly no cache for global/public and live search endpoints.
+    if (path == '/api/trips/search' || path == '/api/locations/suggestions') {
+      return null;
+    }
+
+    return null;
+  }
+
+  List<String> _inferInvalidationKeysForPost(String path) {
+    if (path == '/api/reservations') {
+      return <String>[
+        CacheKeys.reservations,
+        CacheKeys.reservationsEnriched,
+        CacheKeys.driverRequests,
+        CacheKeys.myPassengerTrips,
+        CacheKeys.myDriverTrips,
+        CacheKeys.dashboard,
+      ];
+    }
+    if (path.startsWith('/api/reservations/') &&
+        (path.endsWith('/accept') || path.endsWith('/refuse') || path.endsWith('/cancel'))) {
+      return <String>[
+        CacheKeys.reservations,
+        CacheKeys.reservationsEnriched,
+        CacheKeys.driverRequests,
+        CacheKeys.myPassengerTrips,
+        CacheKeys.myDriverTrips,
+        CacheKeys.dashboard,
+      ];
+    }
+    if (path == '/api/messages' || path.startsWith('/api/messages/')) {
+      final List<String> keys = <String>[CacheKeys.conversations];
+      final List<String> parts = path.split('/');
+      if (parts.length >= 4) {
+        keys.add(CacheKeys.messagesByTrip(parts[3]));
+      }
+      return keys;
+    }
+    if (path == '/api/trips') {
+      return <String>[CacheKeys.myDriverTrips, CacheKeys.drafts, CacheKeys.dashboard];
+    }
+    if (path == '/api/unavailability' || path.contains('/api/unavailability/')) {
+      return <String>[CacheKeys.unavailability];
+    }
+    if (path == '/api/reviews') {
+      return <String>[CacheKeys.reviews];
+    }
+    if (path == '/api/vehicles') {
+      return <String>[CacheKeys.vehicles];
+    }
+    if (path == '/api/users/change-password' || path == '/api/users/me/delete') {
+      return <String>[CacheKeys.profile, CacheKeys.dashboard];
+    }
+    return const <String>[];
+  }
+
+  List<String> _inferInvalidationKeysForPatch(String path) {
+    if (path == '/api/users/me') {
+      return <String>[CacheKeys.profile, CacheKeys.dashboard];
+    }
+    if (path == '/api/notifications/read-all') {
+      return <String>[CacheKeys.notifications];
+    }
+    return const <String>[];
+  }
+
+  static String _errorMessage(Object error) {
+    if (error is DioException) {
+      final dynamic body = error.response?.data;
+      if (body is Map<String, dynamic>) {
+        final dynamic data = body['data'];
+        if (data is Map<String, dynamic> && data['message'] != null) {
+          return data['message'].toString();
+        }
+        if (body['message'] != null) {
+          return body['message'].toString();
+        }
+      }
+      return error.message ?? error.type.name;
+    }
+    return error.toString();
+  }
+
+  static void _syncCurrentUserIfNeeded(String path, dynamic payload) {
+    if (path != '/api/users/me') return;
+    final Map<String, dynamic>? map = _extractMap(payload);
+    if (map != null && map.isNotEmpty) {
+      AppStateStore.instance.updateCurrentUserFromJson(map);
+      final String uid = map['id']?.toString() ?? '';
+      if (uid.isNotEmpty) {
+        UserCacheService.instance.setUserId(uid);
+      }
+    }
+  }
+
+  static Map<String, dynamic>? _extractMap(dynamic payload) {
+    if (payload is! Map<String, dynamic>) return null;
+    final dynamic data = payload['data'];
+    if (data is Map<String, dynamic>) return data;
+    return payload;
   }
 }
 
@@ -163,8 +467,8 @@ class _AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('auth_token');
     final bool isSessionFlow = options.path.contains('/api/auth/session/');
 
     if (!isSessionFlow && token != null && token.isNotEmpty) {
@@ -179,42 +483,52 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    final statusCode = err.response?.statusCode;
-    final requestPath = err.requestOptions.path;
+    if (!AppStateStore.instance.authenticationEnabled) {
+      handler.next(err);
+      return;
+    }
+
+    final int? statusCode = err.response?.statusCode;
+    final String requestPath = err.requestOptions.path;
 
     if (statusCode == 401 && !requestPath.contains('/api/auth/refresh')) {
-      final prefs = await SharedPreferences.getInstance();
-      final refresh = prefs.getString('refresh_token');
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? currentToken = prefs.getString('auth_token');
+      if (currentToken != null && currentToken.startsWith('fixture_access_')) {
+        handler.next(err);
+        return;
+      }
+      final String? refresh = prefs.getString('refresh_token');
 
       if (refresh != null && refresh.isNotEmpty) {
         try {
-          final refreshDio = Dio(
+          final Dio refreshDio = Dio(
             BaseOptions(
               baseUrl: ApiService._baseUrl,
               connectTimeout: const Duration(seconds: 10),
               receiveTimeout: const Duration(seconds: 15),
               sendTimeout: const Duration(seconds: 10),
-              headers: const {
+              headers: const <String, String>{
                 'X-Client-Type': 'mobile',
                 'X-App-Version': '1.0.0',
               },
             ),
           );
 
-          final res = await refreshDio.post<dynamic>(
+          final Response<dynamic> res = await refreshDio.post<dynamic>(
             '/api/auth/refresh',
-            data: {'refreshToken': refresh},
+            data: <String, String>{'refreshToken': refresh},
           );
 
-          final body = (res.data is Map<String, dynamic>)
+          final Map<String, dynamic> body = (res.data is Map<String, dynamic>)
               ? res.data as Map<String, dynamic>
               : <String, dynamic>{};
-          final payload = (body['data'] is Map<String, dynamic>)
+          final Map<String, dynamic> payload = (body['data'] is Map<String, dynamic>)
               ? body['data'] as Map<String, dynamic>
               : body;
 
-          final newAccess = payload['accessToken']?.toString();
-          final newRefresh = payload['refreshToken']?.toString();
+          final String? newAccess = payload['accessToken']?.toString();
+          final String? newRefresh = payload['refreshToken']?.toString();
 
           if (newAccess != null && newAccess.isNotEmpty) {
             await prefs.setString('auth_token', newAccess);
@@ -223,11 +537,11 @@ class _AuthInterceptor extends Interceptor {
             }
 
             err.requestOptions.headers['Authorization'] = 'Bearer $newAccess';
-            final retry = await ApiService._dio.fetch<dynamic>(err.requestOptions);
+            final Response<dynamic> retry = await ApiService._dio.fetch<dynamic>(err.requestOptions);
             return handler.resolve(retry);
           }
         } catch (_) {
-          // Fall through to logout flow.
+          // Fall through to forced logout.
         }
       }
 
@@ -235,7 +549,7 @@ class _AuthInterceptor extends Interceptor {
       await prefs.remove('refresh_token');
 
       unawaited(
-        Future.microtask(() {
+        Future<void>.microtask(() {
           final context = appNavigatorKey.currentContext;
           if (context != null) {
             context.go('/login');

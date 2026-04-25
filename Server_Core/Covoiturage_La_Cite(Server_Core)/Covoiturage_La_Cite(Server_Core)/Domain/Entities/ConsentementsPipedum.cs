@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
-namespace Covoiturage_La_Cite_Server_Core_.Data.Models;
+namespace Covoiturage_La_Cite_Server_Core_.Domain.Entities;
 
 [Table("consentements_pipeda")]
 [Index("UserId", Name = "idx_consent_user")]

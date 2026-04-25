@@ -14,6 +14,8 @@ public enum NotificationType
     PenaltyApplied,
     NewReview,
     DocumentValidated,
+    SystemAlert,
+    PaymentProcessed,
     SosAlert,
     Suggestion,
     BadgeEarned,

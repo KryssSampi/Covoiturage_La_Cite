@@ -2,6 +2,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../../core/services/api_service.dart';
+import '../../core/utils/parsing.dart' as parsing;
 import '../../shared/cards/trip_card.dart';
 import '../../shared/widgets/item_list_view.dart';
 
@@ -17,6 +18,8 @@ class _BrouillonsScreenState extends State<BrouillonsScreen> {
   String? _error;
   String _searchQuery = '';
   List<TripData> _drafts = <TripData>[];
+  final Map<String, Map<String, dynamic>> _draftPayloadById =
+      <String, Map<String, dynamic>>{};
 
   @override
   void initState() {
@@ -31,14 +34,22 @@ class _BrouillonsScreenState extends State<BrouillonsScreen> {
     });
 
     try {
-      final dynamic payload = await ApiService.instance.get('/api/trips/drafts');
-      final List<dynamic> rows = _extractList(payload);
+      final dynamic payload = await ApiService.instance.get('/api/drafts');
+      final List<dynamic> rows = parsing.extractList(payload);
       if (!mounted) return;
       setState(() {
-        _drafts = rows
-            .whereType<Map<String, dynamic>>()
-            .map(_mapDraft)
-            .toList();
+        _draftPayloadById
+          ..clear()
+          ..addEntries(
+            rows
+                .whereType<Map<String, dynamic>>()
+                .map((Map<String, dynamic> row) => MapEntry<String, Map<String, dynamic>>(
+                      row['id']?.toString() ?? '',
+                      row,
+                    ))
+                .where((MapEntry<String, Map<String, dynamic>> e) => e.key.isNotEmpty),
+          );
+        _drafts = rows.whereType<Map<String, dynamic>>().map(_mapDraft).toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -48,14 +59,6 @@ class _BrouillonsScreenState extends State<BrouillonsScreen> {
         _error = e.toString();
       });
     }
-  }
-
-  List<dynamic> _extractList(dynamic data) {
-    if (data is List) return data;
-    if (data is Map) {
-      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[]) as List<dynamic>;
-    }
-    return <dynamic>[];
   }
 
   DateTime? _parseDate(dynamic v) {
@@ -122,7 +125,11 @@ class _BrouillonsScreenState extends State<BrouillonsScreen> {
           emptySubtitle: 'Vos trajets non publies apparaitront ici.',
           itemBuilder: (TripData item) => TripCard(
             data: item,
-            onTap: () => context.push('/trip/${item.id}'),
+            onTap: () {
+              final Map<String, dynamic> prefill =
+                  _draftPayloadById[item.id] ?? <String, dynamic>{'id': item.id};
+              context.push('/create-trip', extra: prefill);
+            },
           ),
         ),
       ),
