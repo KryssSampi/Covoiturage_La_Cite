@@ -1,0 +1,74 @@
+
+name: Daily Snapshot
+
+on:
+  schedule:
+    - cron: '0 13 * * 0-6'  # Lundi-Dimanche 9h EST
+  workflow_dispatch:
+
+jobs:
+  check-and-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: Develop
+          fetch-depth: 0
+
+      - name: Vérifier Vercel
+        id: vercel-check
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          STATUS=$(curl -s \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&limit=1" \
+            | jq -r '.deployments[0].readyState')
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Vérifier Railway
+        id: railway-check
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+        run: |
+          STATUS=$(curl -s \
+            -H "Authorization: Bearer $RAILWAY_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"query": "{ deployments(input: { projectId: \"'$RAILWAY_PROJECT_ID'\" }) { edges { node { status } } } }"}' \
+            "https://backboard.railway.app/graphql/v2" \
+            | jq -r '.data.deployments.edges[0].node.status')
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Déterminer le nom du snapshot
+        id: branch-name
+        run: |
+          DATE=$(date +%Y%m%d)
+          VERCEL="${{ steps.vercel-check.outputs.status }}"
+          RAILWAY="${{ steps.railway-check.outputs.status }}"
+
+          if [[ "$VERCEL" == "READY" && "$RAILWAY" == "SUCCESS" ]]; then
+            echo "name=saved-$DATE" >> $GITHUB_OUTPUT
+          elif [[ "$VERCEL" != "READY" && "$RAILWAY" != "SUCCESS" ]]; then
+            echo "name=saved-$DATE-corrupted-vercel-railway" >> $GITHUB_OUTPUT
+          elif [[ "$VERCEL" != "READY" ]]; then
+            echo "name=saved-$DATE-corrupted-vercel" >> $GITHUB_OUTPUT
+          else
+            echo "name=saved-$DATE-corrupted-railway" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Créer le snapshot
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git checkout -b ${{ steps.branch-name.outputs.name }}
+          git push origin ${{ steps.branch-name.outputs.name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Résumé
+        run: |
+          echo "✅ Snapshot créé : ${{ steps.branch-name.outputs.name }}"
+          echo "Vercel  : ${{ steps.vercel-check.outputs.status }}"
+          echo "Railway : ${{ steps.railway-check.outputs.status }}"
