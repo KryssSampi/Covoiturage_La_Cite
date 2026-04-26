@@ -1,12 +1,13 @@
 # architecture_core.md — Tiers Core (ASP.NET)
 # Racine : D:\Covoiturage_La_Cite\Server_Core\Covoiturage_La_Cite(Server_Core)\Covoiturage_La_Cite(Server_Core)
-# Généré le 2026-04-21 23:00 | 299 fichiers indexés
+# Généré le 2026-04-25 23:00 | 304 fichiers indexés
 # Format : chemin/relatif|description
 
 .gitignore|Fichier C# — gitignore
 Api/Configurations/.gitkeep|Fichier C# — gitkeep
 Api/Configurations/AuthConfiguration.cs|Fichier C# — auth configuration
 Api/Controllers/Admin/AdminController.cs|Fichier C# — admin controller
+Api/Controllers/Admin/AdminFeatureModuleController.cs|Fichier C# — admin feature module controller
 Api/Controllers/Auth/AuthController.cs|Fichier C# — auth controller
 Api/Controllers/Auth/AuthSessionController.cs|Fichier C# — auth session controller
 Api/Controllers/Campus/CampusControllers.cs|Fichier C# — campus controllers
@@ -157,13 +158,11 @@ Data/Models/Badge/Badge.cs|Fichier C# — badge
 Data/Models/CategoriesSignalement/CategoriesSignalement.cs|Fichier C# — categories signalement
 Data/Models/ComptesVirtuel/ComptesVirtuel.cs|Fichier C# — comptes virtuel
 Data/Models/ConfigSysteme/ConfigSysteme.cs|Fichier C# — config systeme
-Data/Models/ConsentementsPipedum/ConsentementsPipedum.cs|Fichier C# — consentements pipedum
 Data/Models/ContactsUrgence/ContactsUrgence.cs|Fichier C# — contacts urgence
 Data/Models/DefisEcologique/DefisEcologique.cs|Fichier C# — defis ecologique
 Data/Models/DemandesMultiplesTracking/DemandesMultiplesTracking.cs|Fichier C# — demandes multiples tracking
 Data/Models/DocumentsConducteur/DocumentsConducteur.cs|Fichier C# — documents conducteur
 Data/Models/Evaluation/Evaluation.cs|Fichier C# — evaluation
-Data/Models/ExportsDonnee/ExportsDonnee.cs|Fichier C# — exports donnee
 Data/Models/Favori/Favori.cs|Fichier C# — favori
 Data/Models/FavorisConducteur/FavorisConducteur.cs|Fichier C# — favoris conducteur
 Data/Models/GeofenceEvent/GeofenceEvent.cs|Fichier C# — geofence event
@@ -234,9 +233,11 @@ Domain/Entities/Affinity.cs|Fichier C# — affinity
 Domain/Entities/AuditLog.cs|Fichier C# — audit log
 Domain/Entities/Badge.cs|Fichier C# — badge
 Domain/Entities/ChallengeParticipation.cs|Fichier C# — challenge participation
+Domain/Entities/ConsentementsPipedum.cs|Fichier C# — consentements pipedum
 Domain/Entities/DriverDocument.cs|Fichier C# — driver document
 Domain/Entities/DriverProfile.cs|Fichier C# — driver profile
 Domain/Entities/EcoChallenge.cs|Fichier C# — eco challenge
+Domain/Entities/ExportsDonnee.cs|Fichier C# — exports donnee
 Domain/Entities/GeofenceZone.cs|Fichier C# — geofence zone
 Domain/Entities/GoTask.cs|Fichier C# — go task
 Domain/Entities/GpsPosition.cs|Fichier C# — gps position
@@ -296,9 +297,13 @@ Migrations/20260408130241_Initialization.Designer.cs|Fichier C# — 202604081302
 Migrations/20260408130241_Initialization.cs|Fichier C# — 20260408130241  initialization
 Migrations/20260417045548_AddNotificationEmail.Designer.cs|Fichier C# — 20260417045548  add notification email  designer
 Migrations/20260417045548_AddNotificationEmail.cs|Fichier C# — 20260417045548  add notification email
+Migrations/20260422135310_AddConsentementsPipedum.Designer.cs|Fichier C# — 20260422135310  add consentements pipedum  designer
+Migrations/20260422135310_AddConsentementsPipedum.cs|Fichier C# — 20260422135310  add consentements pipedum
+Migrations/20260422141752_AddExportDonnees.Designer.cs|Fichier C# — 20260422141752  add export donnees  designer
+Migrations/20260422141752_AddExportDonnees.cs|Fichier C# — 20260422141752  add export donnees
 Migrations/AppDbContextModelSnapshot.cs|Fichier C# — app db context model snapshot
 Program.cs|Fichier C# — program
 Properties/launchSettings.json|Fichier C# — launch settings
-appsettings.Development.example.json|Configuration — appsettings.Development.example
+appsettings.Development.json|Configuration — appsettings.Development
 appsettings.json|Configuration ASP.NET Core — variables d'environnement
 docs/IMPLEMENTATION_DOC.md|Fichier C# — i m p l e m e n t a t i o n  d o c
