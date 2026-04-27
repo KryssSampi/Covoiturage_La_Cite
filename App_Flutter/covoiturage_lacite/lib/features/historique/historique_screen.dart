@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/services/api_service.dart';
@@ -41,10 +41,7 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
       final List<dynamic> rows = parsing.extractList(payload);
       if (!mounted) return;
       setState(() {
-        _items = rows
-            .whereType<Map<String, dynamic>>()
-            .map(_mapTrip)
-            .toList();
+        _items = rows.whereType<Map<String, dynamic>>().map(_mapTrip).toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -68,28 +65,52 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
   TripStatus _parseStatus(String raw) {
     final String s = raw.toLowerCase();
     if (s.contains('cancel')) return TripStatus.cancelled;
-    if (s.contains('progress') || s.contains('started')) return TripStatus.inProgress;
-    if (s.contains('request') || s.contains('pending')) return TripStatus.withRequests;
-    if (s.contains('complete') || s.contains('done')) return TripStatus.completed;
+    if (s.contains('progress') || s.contains('started'))
+      return TripStatus.inProgress;
+    if (s.contains('request') || s.contains('pending'))
+      return TripStatus.withRequests;
+    if (s.contains('complete') || s.contains('done'))
+      return TripStatus.completed;
     return TripStatus.published;
   }
 
   TripData _mapTrip(Map<String, dynamic> row) {
-    final DateTime? dt = _parseDate(row['departureTime'] ?? row['departureDateTime']);
+    final DateTime? dt =
+        _parseDate(row['departureTime'] ?? row['departureDateTime']);
     final String timeLabel = dt == null
         ? '-'
         : '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
+    final bool isDriverMode = AppStateStore.instance.isDriver;
+
+    final Map<String, dynamic>? driver = row['driver'] is Map<String, dynamic>
+        ? row['driver'] as Map<String, dynamic>
+        : null;
+    final String driverFirstName = driver?['firstName']?.toString() ?? '';
+    final String driverLastName = driver?['lastName']?.toString() ?? '';
+    final String driverName = ('$driverFirstName $driverLastName').trim();
+    final double? driverRating =
+        driver != null ? (driver['averageRating'] as num?)?.toDouble() : null;
+
     return TripData(
       id: row['id']?.toString() ?? '',
       timeLabel: timeLabel,
-      departure: row['departureLabel']?.toString() ?? row['from']?.toString() ?? '-',
-      destination: row['arrivalLabel']?.toString() ?? row['to']?.toString() ?? '-',
+      departure:
+          row['departureLabel']?.toString() ?? row['from']?.toString() ?? '-',
+      destination:
+          row['arrivalLabel']?.toString() ?? row['to']?.toString() ?? '-',
       status: _parseStatus(row['status']?.toString() ?? ''),
-      role: TripRole.driver,
-      price: (row['price'] as num?)?.toDouble() ?? 0,
-      passengerLabel: '${row['availableSeats'] ?? 0}/${row['totalSeats'] ?? row['seats'] ?? 0} passagers',
-      pendingRequests: (row['pendingRequests'] as num?)?.toInt() ?? 0,
+      role: isDriverMode ? TripRole.driver : TripRole.passenger,
+      price: (row['pricePerPassenger'] as num?)?.toDouble() ??
+          (row['price'] as num?)?.toDouble() ??
+          0,
+      passengerLabel: isDriverMode
+          ? '${row['currentPassengers'] ?? row['availableSeats'] ?? 0}/${row['maxPassengers'] ?? row['totalSeats'] ?? row['seats'] ?? 0} passagers'
+          : null,
+      driverName:
+          isDriverMode ? null : (driverName.isEmpty ? null : driverName),
+      driverRating: isDriverMode ? null : driverRating,
+      pendingRequests: 0,
     );
   }
 
@@ -114,9 +135,16 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
   }
 
   List<FilterOption> get _filters => <FilterOption>[
-        FilterOption(label: 'Tous', value: 'all', isActive: _activeFilter == 'all'),
-        FilterOption(label: 'Termines', value: 'completed', isActive: _activeFilter == 'completed'),
-        FilterOption(label: 'Annules', value: 'cancelled', isActive: _activeFilter == 'cancelled'),
+        FilterOption(
+            label: 'Tous', value: 'all', isActive: _activeFilter == 'all'),
+        FilterOption(
+            label: 'Termines',
+            value: 'completed',
+            isActive: _activeFilter == 'completed'),
+        FilterOption(
+            label: 'Annules',
+            value: 'cancelled',
+            isActive: _activeFilter == 'cancelled'),
       ];
 
   @override
@@ -143,7 +171,8 @@ class _HistoriqueScreenState extends State<HistoriqueScreen> {
           searchHint: 'Rechercher un trajet...',
           filterOptions: _filters,
           onSearch: (String q) => setState(() => _searchQuery = q),
-          onFilterChanged: (FilterOption f) => setState(() => _activeFilter = f.value),
+          onFilterChanged: (FilterOption f) =>
+              setState(() => _activeFilter = f.value),
           onRefresh: _load,
           emptyTitle: 'Aucun trajet dans l\'historique',
           emptySubtitle: 'Vos trajets passes apparaitront ici.',

@@ -28,7 +28,9 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
 
   List<ReviewData> get _tabItems {
     return _activeTab == 0
-        ? _reviews.where((r) => r.direction == ReviewDirection.received).toList()
+        ? _reviews
+            .where((r) => r.direction == ReviewDirection.received)
+            .toList()
         : _reviews.where((r) => r.direction == ReviewDirection.given).toList();
   }
 
@@ -62,11 +64,24 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
       _error = null;
     });
     try {
-      final dynamic data = await ApiService.instance.get('/api/reviews/me');
-      final List<dynamic> rows = _extractReviewRows(data);
+      final List<dynamic> results = await Future.wait([
+        ApiService.instance.get('/api/reviews/received'),
+        ApiService.instance.get('/api/reviews/given'),
+      ]);
+
+      final List<dynamic> received = _extractList(results[0])
+          .whereType<Map<String, dynamic>>()
+          .map((m) => <String, dynamic>{...m, 'direction': 'received'})
+          .toList();
+
+      final List<dynamic> given = _extractList(results[1])
+          .whereType<Map<String, dynamic>>()
+          .map((m) => <String, dynamic>{...m, 'direction': 'given'})
+          .toList();
+
       if (!mounted) return;
       setState(() {
-        _reviews = rows
+        _reviews = [...received, ...given]
             .whereType<Map<String, dynamic>>()
             .map(_mapReview)
             .toList();
@@ -90,12 +105,16 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
         ? ratingRaw.toDouble()
         : double.tryParse('$ratingRaw') ?? 0;
 
-    final Map<String, dynamic> author =
-        r['author'] is Map<String, dynamic> ? r['author'] as Map<String, dynamic> : <String, dynamic>{};
+    final Map<String, dynamic> author = r['author'] is Map<String, dynamic>
+        ? r['author'] as Map<String, dynamic>
+        : <String, dynamic>{};
 
-    final String first = '${author['firstName'] ?? r['firstName'] ?? ''}'.trim();
+    final String first =
+        '${author['firstName'] ?? r['firstName'] ?? ''}'.trim();
     final String last = '${author['lastName'] ?? r['lastName'] ?? ''}'.trim();
-    final String personName = ('$first $last').trim().isEmpty ? 'Utilisateur' : ('$first $last').trim();
+    final String personName = ('$first $last').trim().isEmpty
+        ? 'Utilisateur'
+        : ('$first $last').trim();
 
     final String initials = personName
         .split(' ')
@@ -117,9 +136,8 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
   }
 
   ReviewDirection _resolveDirection(Map<String, dynamic> r) {
-    final String direction = (r['direction'] ?? r['type'] ?? '')
-        .toString()
-        .toLowerCase();
+    final String direction =
+        (r['direction'] ?? r['type'] ?? '').toString().toLowerCase();
     if (direction.contains('given') ||
         direction.contains('left') ||
         direction.contains('laisse') ||
@@ -191,7 +209,8 @@ class _ReviewsScreenState extends State<ReviewsScreen> {
               error: _error,
               searchHint: 'Rechercher un avis...',
               emptyTitle: 'Aucun avis',
-              emptySubtitle: 'Les evaluations recues apres vos trajets apparaitront ici.',
+              emptySubtitle:
+                  'Les evaluations recues apres vos trajets apparaitront ici.',
               emptyIcon: Icons.rate_review_outlined,
               tabs: const ['Recus', 'Laisses'],
               activeTabIndex: _activeTab,
@@ -249,7 +268,8 @@ class _ReviewsAppBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Mes avis', style: AppText.soraH1.copyWith(fontSize: 20)),
-                Text('$totalCount evaluation${totalCount != 1 ? 's' : ''}', style: AppText.dmBody12),
+                Text('$totalCount evaluation${totalCount != 1 ? 's' : ''}',
+                    style: AppText.dmBody12),
               ],
             ),
           ),
@@ -257,12 +277,14 @@ class _ReviewsAppBar extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.blueDeep, AppColors.blue]),
+                gradient: const LinearGradient(
+                    colors: [AppColors.blueDeep, AppColors.blue]),
                 borderRadius: AppRadius.md,
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
+                  const Icon(Icons.star_rounded,
+                      color: Color(0xFFF59E0B), size: 18),
                   const SizedBox(width: 5),
                   Text(
                     averageRating.toStringAsFixed(1),
@@ -304,7 +326,8 @@ class _ReviewDetailSheet extends StatelessWidget {
               child: Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(color: AppColors.gray200, borderRadius: AppRadius.full),
+                decoration: BoxDecoration(
+                    color: AppColors.gray200, borderRadius: AppRadius.full),
               ),
             ),
             const SizedBox(height: 20),
@@ -312,15 +335,18 @@ class _ReviewDetailSheet extends StatelessWidget {
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.blueLight, borderRadius: AppRadius.md),
+              decoration: BoxDecoration(
+                  color: AppColors.blueLight, borderRadius: AppRadius.md),
               child: Row(
                 children: [
-                  const Icon(Icons.directions_car_rounded, color: AppColors.blue, size: 20),
+                  const Icon(Icons.directions_car_rounded,
+                      color: AppColors.blue, size: 20),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       review.tripRoute,
-                      style: AppText.dmSemi13.copyWith(color: AppColors.blueDeep),
+                      style:
+                          AppText.dmSemi13.copyWith(color: AppColors.blueDeep),
                     ),
                   ),
                 ],

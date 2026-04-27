@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/services/api_service.dart';
@@ -43,13 +43,16 @@ class _BrouillonsScreenState extends State<BrouillonsScreen> {
           ..addEntries(
             rows
                 .whereType<Map<String, dynamic>>()
-                .map((Map<String, dynamic> row) => MapEntry<String, Map<String, dynamic>>(
+                .map((Map<String, dynamic> row) =>
+                    MapEntry<String, Map<String, dynamic>>(
                       row['id']?.toString() ?? '',
                       row,
                     ))
-                .where((MapEntry<String, Map<String, dynamic>> e) => e.key.isNotEmpty),
+                .where((MapEntry<String, Map<String, dynamic>> e) =>
+                    e.key.isNotEmpty),
           );
-        _drafts = rows.whereType<Map<String, dynamic>>().map(_mapDraft).toList();
+        _drafts =
+            rows.whereType<Map<String, dynamic>>().map(_mapDraft).toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -71,20 +74,35 @@ class _BrouillonsScreenState extends State<BrouillonsScreen> {
   }
 
   TripData _mapDraft(Map<String, dynamic> row) {
-    final DateTime? dt = _parseDate(row['departureTime'] ?? row['departureDateTime']);
+    final DateTime? dt =
+        _parseDate(row['departureTime'] ?? row['departureDateTime']);
     final String timeLabel = dt == null
         ? '-'
         : '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
+    final String rawStatus = row['status']?.toString().toLowerCase() ?? 'draft';
+    final TripStatus status = rawStatus.contains('cancel')
+        ? TripStatus.cancelled
+        : rawStatus.contains('progress')
+            ? TripStatus.inProgress
+            : rawStatus.contains('complete')
+                ? TripStatus.completed
+                : TripStatus.published;
+
     return TripData(
       id: row['id']?.toString() ?? '',
       timeLabel: timeLabel,
-      departure: row['departureLabel']?.toString() ?? row['from']?.toString() ?? '-',
-      destination: row['arrivalLabel']?.toString() ?? row['to']?.toString() ?? '-',
-      status: TripStatus.published,
+      departure:
+          row['departureLabel']?.toString() ?? row['from']?.toString() ?? '-',
+      destination:
+          row['arrivalLabel']?.toString() ?? row['to']?.toString() ?? '-',
+      status: status,
       role: TripRole.driver,
-      price: (row['price'] as num?)?.toDouble() ?? 0,
-      passengerLabel: '${row['availableSeats'] ?? 0}/${row['totalSeats'] ?? row['seats'] ?? 0} passagers',
+      price: (row['pricePerPassenger'] as num?)?.toDouble() ??
+          (row['price'] as num?)?.toDouble() ??
+          0,
+      passengerLabel:
+          '${row['availableSeats'] ?? row['maxPassengers'] ?? 0}/${row['totalSeats'] ?? row['maxPassengers'] ?? row['seats'] ?? 0} passagers',
       pendingRequests: 0,
     );
   }
@@ -93,7 +111,8 @@ class _BrouillonsScreenState extends State<BrouillonsScreen> {
     if (_searchQuery.isEmpty) return _drafts;
     final String q = _searchQuery.toLowerCase();
     return _drafts.where((TripData t) {
-      return t.departure.toLowerCase().contains(q) || t.destination.toLowerCase().contains(q);
+      return t.departure.toLowerCase().contains(q) ||
+          t.destination.toLowerCase().contains(q);
     }).toList();
   }
 
@@ -126,8 +145,8 @@ class _BrouillonsScreenState extends State<BrouillonsScreen> {
           itemBuilder: (TripData item) => TripCard(
             data: item,
             onTap: () {
-              final Map<String, dynamic> prefill =
-                  _draftPayloadById[item.id] ?? <String, dynamic>{'id': item.id};
+              final Map<String, dynamic> prefill = _draftPayloadById[item.id] ??
+                  <String, dynamic>{'id': item.id};
               context.push('/create-trip', extra: prefill);
             },
           ),

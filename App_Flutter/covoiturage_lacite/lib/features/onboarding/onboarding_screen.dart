@@ -1,6 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../core/services/api_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -17,6 +19,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
     await prefs.setBool('needs_onboarding', false);
+
+    try {
+      await ApiService.instance.post(
+        '/api/onboarding/accept-politics',
+        <String, dynamic>{'accepted': true},
+      );
+    } catch (_) {}
+
     if (!mounted) return;
     context.go('/home');
   }
@@ -26,7 +36,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     const List<_SlideData> slides = <_SlideData>[
       _SlideData(
         title: 'Trouvez votre trajet',
-        subtitle: 'Recherchez des conducteurs qui font le meme trajet vers le campus.',
+        subtitle:
+            'Recherchez des conducteurs qui font le meme trajet vers le campus.',
         icon: Icons.search_rounded,
         color: Color(0xFF1A56CC),
       ),
@@ -76,7 +87,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: active ? 22 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: active ? const Color(0xFF1A56CC) : const Color(0xFFD1D5DB),
+                    color: active
+                        ? const Color(0xFF1A56CC)
+                        : const Color(0xFFD1D5DB),
                     borderRadius: BorderRadius.circular(99),
                   ),
                 );
@@ -101,7 +114,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF1A56CC),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                   child: Text(isLast ? 'Commencer' : 'Suivant'),
                 ),
@@ -164,7 +178,8 @@ class _Slide extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             data.subtitle,
-            style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280), height: 1.5),
+            style: const TextStyle(
+                fontSize: 15, color: Color(0xFF6B7280), height: 1.5),
             textAlign: TextAlign.center,
           ),
         ],
