@@ -2,7 +2,7 @@
 
 /**
  * Page des réservations — rôle Passager.
- * Récupère les données via API, souscrit au SSE pour les mises à jour temps réel,
+ * Récupère les données via API, souscrit au polling pour les mises à jour,
  * et passe les items à PassengerReservationsPage (composant pur).
  */
 
@@ -33,7 +33,7 @@ export default function PassengerReservationsRoutePage() {
     }
   }, [user, params, router, setActiveLoader]);
 
-  // Chargement des données depuis l'API dédiée (montage backend)
+  // Chargement des données
   const loadData = useCallback(async () => {
     if (!user) return;
     try {
@@ -45,16 +45,18 @@ export default function PassengerReservationsRoutePage() {
     }
   }, [user]);
 
-// Chargement initial\n  useEffect(() => {\n    if (!user || user.role?.toString().toLowerCase() !== "passenger") return;\n    if (user.id !== params.id) return;\n    // eslint-disable-next-line react-hooks/set-state-in-effect\n    void loadData();\n  }, [loadData, params.id, user]);
+  // Chargement initial — FIX: useEffect correctement déclaré
+  useEffect(() => {
+    if (!user || user.role?.toString().toLowerCase() !== "passenger") return;
+    if (user.id !== params.id) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadData();
+  }, [loadData, params.id, user]);
 
-  // SSE : mise à jour temps réel lorsque les réservations changent
+  // Polling 30s
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    // SSE endpoint /api/sse/db-watch/* is deprecated and returns 503.
-    // Use a light polling fallback to avoid calling the disabled SSE route.
-    const interval = setInterval(() => {
-      void loadData();
-    }, 30000); // 30s
+    const interval = setInterval(() => { void loadData(); }, 30000);
     return () => clearInterval(interval);
   }, [user, params.id, loadData]);
 

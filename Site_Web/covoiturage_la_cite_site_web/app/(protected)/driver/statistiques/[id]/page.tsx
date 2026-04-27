@@ -2,8 +2,8 @@
 
 /**
  * Page Statistiques — rôle Conducteur.
- * Récupère les données via API, souscrit au SSE pour les mises à jour temps réel,
- * et passe les données assemblées à StatistiquesPage (composant pur).
+ * Récupère les données via API et passe les données à StatistiquesPage (composant pur).
+ * FIX: useEffect de chargement initial correctement déclaré.
  */
 
 import { useEffect, useCallback, useState } from "react";
@@ -35,7 +35,7 @@ export default function DriverStatistiquesRoutePage() {
     }
   }, [user, params, router, setActiveLoader]);
 
-  // Chargement des données depuis l'API (inclut la période active)
+  // Chargement des données
   const loadData = useCallback(async (p: string) => {
     if (!user) return;
     try {
@@ -50,9 +50,15 @@ export default function DriverStatistiquesRoutePage() {
     }
   }, [user]);
 
-  // Chargement initial + rechargement quand la période change\n  useEffect(() => {\n    if (!user || user.role?.toString().toLowerCase() !== "driver") return;\n    if (user.id !== params.id) return;\n    // eslint-disable-next-line react-hooks/set-state-in-effect\n    void loadData(periode);\n  }, [loadData, params.id, user, periode]);
+  // Chargement initial + rechargement quand la période change — FIX: useEffect correctement déclaré
+  useEffect(() => {
+    if (!user || user.role?.toString().toLowerCase() !== "driver") return;
+    if (user.id !== params.id) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadData(periode);
+  }, [loadData, params.id, user, periode]);
 
-  // Polling 60s — SSE db-watch désactivé (Server Core)
+  // Polling 60s
   useEffect(() => {
     if (!user || user.id !== params.id) return;
     const id = setInterval(() => { void loadData(periode); }, 60_000);

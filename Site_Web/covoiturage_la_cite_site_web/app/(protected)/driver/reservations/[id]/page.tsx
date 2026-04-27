@@ -46,21 +46,19 @@ export default function DriverReservationsRoutePage() {
     }
   }, [user]);
 
-  // Chargement initial
+  // Chargement initial — FIX: useEffect correctement déclaré
   useEffect(() => {
     if (!user || user.role?.toString().toLowerCase() !== "driver") return;
     if (user.id !== params.id) return;
     void loadData();
   }, [loadData, params.id, user]);
 
-  // SSE : mise à jour temps réel lorsque les réservations changent
+  // Polling 30s — SSE db-watch désactivé (Server Core)
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    // SSE endpoint /api/sse/db-watch/* is deprecated and returns 503.
-    // Use a light polling fallback to avoid calling the disabled SSE route.
     const interval = setInterval(() => {
       void loadData();
-    }, 30000); // 30s
+    }, 30000);
     return () => clearInterval(interval);
   }, [user, params.id, loadData]);
 
@@ -68,9 +66,10 @@ export default function DriverReservationsRoutePage() {
   const handleAcceptRequest = useCallback(async (id: string) => {
     setIsActionLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/accept`, { method: "POST",
-        headers: { "x-caller-id": `${user?.id}` }
-       });
+      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/accept`, {
+        method: "POST",
+        headers: { "x-caller-id": `${user?.id}` },
+      });
       if (!res.ok) return false;
       await loadData();
       return true;
@@ -86,8 +85,9 @@ export default function DriverReservationsRoutePage() {
   const handleRejectRequest = useCallback(async (id: string) => {
     setIsActionLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/refuse`, { method: "POST",
-        headers: { "x-caller-id": `${user?.id}` }
+      const res = await fetch(`/api/reservations/${encodeURIComponent(id)}/refuse`, {
+        method: "POST",
+        headers: { "x-caller-id": `${user?.id}` },
       });
       if (!res.ok) return false;
       await loadData();
