@@ -70,7 +70,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _typingCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 800))..repeat(reverse: true);
+    _typingCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 800))
+      ..repeat(reverse: true);
     _typingAnim = CurvedAnimation(parent: _typingCtrl, curve: Curves.easeInOut);
     _scrollCtrl.addListener(_onScroll);
     _bootstrap();
@@ -87,15 +89,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   }
 
   void _onScroll() {
-    final atBottom = _scrollCtrl.position.pixels >= _scrollCtrl.position.maxScrollExtent - 100;
+    final atBottom = _scrollCtrl.position.pixels >=
+        _scrollCtrl.position.maxScrollExtent - 100;
     if (atBottom != !_showScrollDown) {
       setState(() => _showScrollDown = !atBottom);
     }
   }
 
   Future<void> _bootstrap() async {
-    await Future.wait([_loadCurrentUser(), _loadTripMeta(), _loadMessages(showLoader: true)]);
-    _pollTimer = Timer.periodic(const Duration(seconds: 10), (_) => _loadMessages(showLoader: false));
+    await Future.wait(
+        [_loadCurrentUser(), _loadTripMeta(), _loadMessages(showLoader: true)]);
+    _pollTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      if (mounted) _loadMessages(showLoader: false);
+    });
   }
 
   Future<void> _loadCurrentUser() async {
@@ -115,18 +121,26 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     try {
       final payload = await _api.get('/api/trips/${widget.tripId}');
       final map = parsing.extractMap(payload);
-      final dt = parsing.toDateTime(map?['departureTime'] ?? map?['departureDateTime']);
+      final dt = parsing
+          .toDateTime(map?['departureTime'] ?? map?['departureDateTime']);
       if (!mounted) return;
       setState(() => _tripDepartureTime = dt);
     } catch (_) {}
   }
 
   Future<void> _loadMessages({required bool showLoader}) async {
-    if (showLoader && mounted) setState(() { _isLoading = true; _error = null; });
+    if (showLoader && mounted)
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
     try {
       final payload = await _api.get('/api/messages/${widget.tripId}');
       final rows = parsing.extractList(payload);
-      final loaded = rows.whereType<Map<String, dynamic>>().map(_ChatMessage.fromJson).toList()
+      final loaded = rows
+          .whereType<Map<String, dynamic>>()
+          .map(_ChatMessage.fromJson)
+          .toList()
         ..sort((a, b) => a.sentAt.compareTo(b.sentAt));
       if (!mounted) return;
       final wasAtBottom = !_showScrollDown;
@@ -148,7 +162,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       _showSnack('Le chat est disponible 2h avant le départ.', isError: true);
       return;
     }
-    setState(() { _isSending = true; _replyTo = null; });
+    setState(() {
+      _isSending = true;
+      _replyTo = null;
+    });
     _draftCtrl.clear();
     try {
       await _api.post('/api/messages/${widget.tripId}', {'content': text});
@@ -177,7 +194,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(msg, style: GoogleFonts.dmSans(fontSize: 13)),
-        backgroundColor: isError ? const Color(0xFFE24B4A) : const Color(0xFF0F6E56),
+        backgroundColor:
+            isError ? const Color(0xFFE24B4A) : const Color(0xFF0F6E56),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -208,7 +226,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
           ),
           _buildComposer(),
-          SizedBox(height: bottomInset > 0 ? 0 : MediaQuery.of(context).padding.bottom),
+          SizedBox(
+              height:
+                  bottomInset > 0 ? 0 : MediaQuery.of(context).padding.bottom),
         ],
       ),
     );
@@ -262,8 +282,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           Text(
                             widget.tripRoute!,
                             style: GoogleFonts.dmSans(
-                                fontSize: 11,
-                                color: Colors.white70),
+                                fontSize: 11, color: Colors.white70),
                             overflow: TextOverflow.ellipsis,
                           ),
                       ],
@@ -271,13 +290,15 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   ),
                   // Action buttons
                   IconButton(
-                    icon: const Icon(Icons.refresh_rounded, color: Colors.white70, size: 20),
+                    icon: const Icon(Icons.refresh_rounded,
+                        color: Colors.white70, size: 20),
                     onPressed: () => _loadMessages(showLoader: true),
                     tooltip: 'Actualiser',
                   ),
                   if (widget.isDriver)
                     IconButton(
-                      icon: const Icon(Icons.campaign_outlined, color: Colors.white70, size: 20),
+                      icon: const Icon(Icons.campaign_outlined,
+                          color: Colors.white70, size: 20),
                       onPressed: _showBroadcastSheet,
                       tooltip: 'Diffuser à tous',
                     ),
@@ -319,9 +340,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   Widget _buildUnavailableBanner() {
     final dep = _tripDepartureTime ?? widget.tripDepartureTime;
-    final remaining = dep != null
-        ? dep.difference(DateTime.now()).inHours + 2
-        : 2;
+    final remaining =
+        dep != null ? dep.difference(DateTime.now()).inHours + 2 : 2;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       color: const Color(0xFFFAEEDA),
@@ -332,7 +352,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           Expanded(
             child: Text(
               'Chat disponible ~${remaining}h avant le départ.',
-              style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF854F0B)),
+              style: GoogleFonts.dmSans(
+                  fontSize: 12, color: const Color(0xFF854F0B)),
             ),
           ),
         ],
@@ -345,10 +366,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // ─────────────────────────────────────────────────────────
   Widget _buildMessageList() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF08316E)));
+      return const Center(
+          child: CircularProgressIndicator(color: Color(0xFF08316E)));
     }
     if (_error != null) {
-      return _ErrorState(message: _error!, onRetry: () => _loadMessages(showLoader: true));
+      return _ErrorState(
+          message: _error!, onRetry: () => _loadMessages(showLoader: true));
     }
     if (_messages.isEmpty) {
       return _EmptyChatState(
@@ -366,10 +389,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         itemBuilder: (_, i) {
           final msg = _messages[i];
           final isSelf = msg.senderId == _currentUserId;
-          final showDate = i == 0 ||
-              !_isSameDay(_messages[i - 1].sentAt, msg.sentAt);
+          final showDate =
+              i == 0 || !_isSameDay(_messages[i - 1].sentAt, msg.sentAt);
           final showAvatar = !isSelf &&
-              (i == _messages.length - 1 || _messages[i + 1].senderId == _currentUserId);
+              (i == _messages.length - 1 ||
+                  _messages[i + 1].senderId == _currentUserId);
 
           return Column(
             children: [
@@ -379,7 +403,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 isSelf: isSelf,
                 showAvatar: showAvatar,
                 senderName: isSelf ? null : widget.otherUserName,
-                senderInitials: isSelf ? null : (widget.otherUserInitials ?? '?'),
+                senderInitials:
+                    isSelf ? null : (widget.otherUserInitials ?? '?'),
                 avatarUrl: isSelf ? null : widget.otherUserAvatarUrl,
                 onLongPress: () => _showMessageActions(msg),
               ),
@@ -397,7 +422,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: const Color(0xFF08316E).withOpacity(0.09))),
+        border: Border(
+            top: BorderSide(color: const Color(0xFF08316E).withOpacity(0.09))),
         boxShadow: [
           BoxShadow(
               color: Colors.black.withOpacity(0.04),
@@ -417,7 +443,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 // Text input
                 Expanded(
                   child: Container(
-                    constraints: const BoxConstraints(minHeight: 44, maxHeight: 120),
+                    constraints:
+                        const BoxConstraints(minHeight: 44, maxHeight: 120),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF0F4FB),
                       borderRadius: BorderRadius.circular(22),
@@ -439,16 +466,17 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             minLines: 1,
                             maxLines: 5,
                             textInputAction: TextInputAction.newline,
-                            style: GoogleFonts.dmSans(fontSize: 14, color: const Color(0xFF0D1624)),
+                            style: GoogleFonts.dmSans(
+                                fontSize: 14, color: const Color(0xFF0D1624)),
                             decoration: InputDecoration(
                               hintText: _isChatAvailable
                                   ? 'Écrire un message…'
                                   : 'Chat indisponible',
                               hintStyle: GoogleFonts.dmSans(
-                                  fontSize: 13,
-                                  color: const Color(0xFF8A95A8)),
+                                  fontSize: 13, color: const Color(0xFF8A95A8)),
                               border: InputBorder.none,
-                              contentPadding: const EdgeInsets.fromLTRB(14, 10, 4, 10),
+                              contentPadding:
+                                  const EdgeInsets.fromLTRB(14, 10, 4, 10),
                             ),
                             onChanged: (_) => setState(() {}),
                           ),
@@ -459,7 +487,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             padding: const EdgeInsets.only(right: 6, bottom: 6),
                             child: GestureDetector(
                               onTap: () => setState(() => _draftCtrl.clear()),
-                              child: const Icon(Icons.close, size: 16, color: Color(0xFF8A95A8)),
+                              child: const Icon(Icons.close,
+                                  size: 16, color: Color(0xFF8A95A8)),
                             ),
                           ),
                       ],
@@ -469,7 +498,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 const SizedBox(width: 8),
                 // Send button
                 GestureDetector(
-                  onTap: _isChatAvailable && _draftCtrl.text.trim().isNotEmpty && !_isSending
+                  onTap: _isChatAvailable &&
+                          _draftCtrl.text.trim().isNotEmpty &&
+                          !_isSending
                       ? _sendMessage
                       : null,
                   child: AnimatedContainer(
@@ -477,7 +508,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      gradient: _draftCtrl.text.trim().isNotEmpty && _isChatAvailable
+                      gradient: _draftCtrl.text.trim().isNotEmpty &&
+                              _isChatAvailable
                           ? const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -488,10 +520,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           ? const Color(0xFFEEF0F5)
                           : null,
                       shape: BoxShape.circle,
-                      boxShadow: _draftCtrl.text.trim().isNotEmpty && _isChatAvailable
+                      boxShadow: _draftCtrl.text.trim().isNotEmpty &&
+                              _isChatAvailable
                           ? [
                               BoxShadow(
-                                  color: const Color(0xFF08316E).withOpacity(0.3),
+                                  color:
+                                      const Color(0xFF08316E).withOpacity(0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2)),
                             ]
@@ -502,12 +536,14 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           ? const SizedBox(
                               width: 18,
                               height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
                             )
                           : Icon(
                               Icons.send_rounded,
                               size: 18,
-                              color: _draftCtrl.text.trim().isNotEmpty && _isChatAvailable
+                              color: _draftCtrl.text.trim().isNotEmpty &&
+                                      _isChatAvailable
                                   ? Colors.white
                                   : const Color(0xFF8A95A8),
                             ),
@@ -528,16 +564,25 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       color: const Color(0xFFE8F0FE),
       child: Row(
         children: [
-          Container(width: 3, height: 32, color: const Color(0xFF08316E), decoration: BoxDecoration(borderRadius: BorderRadius.circular(2))),
+          Container(
+              width: 3,
+              height: 32,
+              color: const Color(0xFF08316E),
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(2))),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Réponse',
-                    style: GoogleFonts.sora(fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF08316E))),
+                    style: GoogleFonts.sora(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF08316E))),
                 Text(_replyTo ?? '',
-                    style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF545D6E)),
+                    style: GoogleFonts.dmSans(
+                        fontSize: 12, color: const Color(0xFF545D6E)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               ],
@@ -574,14 +619,23 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Container(width: 40, height: 4, decoration: BoxDecoration(color: const Color(0xFFD8DBE5), borderRadius: BorderRadius.circular(2))),
+                child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: const Color(0xFFD8DBE5),
+                        borderRadius: BorderRadius.circular(2))),
               ),
               const SizedBox(height: 16),
               Text('📢 Diffuser à tous les passagers',
-                  style: GoogleFonts.sora(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF08316E))),
+                  style: GoogleFonts.sora(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF08316E))),
               const SizedBox(height: 4),
               Text('Ce message sera envoyé à tous les passagers de ce trajet.',
-                  style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A))),
+                  style: GoogleFonts.dmSans(
+                      fontSize: 12, color: const Color(0xFF7A879A))),
               const SizedBox(height: 14),
               TextField(
                 controller: ctrl,
@@ -589,12 +643,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 maxLines: 3,
                 decoration: InputDecoration(
                   hintText: 'Ex: Je suis en route, 5 minutes de retard...',
-                  hintStyle: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF8A95A8)),
+                  hintStyle: GoogleFonts.dmSans(
+                      fontSize: 13, color: const Color(0xFF8A95A8)),
                   filled: true,
                   fillColor: const Color(0xFFF8F9FC),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFD8DBE5))),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFD8DBE5))),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF08316E))),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFD8DBE5))),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFFD8DBE5))),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Color(0xFF08316E))),
                 ),
               ),
               const SizedBox(height: 14),
@@ -607,7 +668,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     if (text.isEmpty) return;
                     Navigator.pop(context);
                     try {
-                      await _api.post('/api/messages/${widget.tripId}/broadcast', {'content': text});
+                      await _api.post(
+                          '/api/messages/${widget.tripId}/broadcast',
+                          {'content': text});
                       _showSnack('Message diffusé à tous les passagers.');
                       await _loadMessages(showLoader: false);
                     } catch (_) {
@@ -617,10 +680,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFBA7517),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                   ),
                   child: Text('Envoyer à tous',
-                      style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.w700)),
+                      style: GoogleFonts.sora(
+                          fontSize: 14, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
@@ -638,7 +703,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -647,11 +713,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               margin: const EdgeInsets.symmetric(vertical: 10),
               width: 40,
               height: 4,
-              decoration: BoxDecoration(color: const Color(0xFFD8DBE5), borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                  color: const Color(0xFFD8DBE5),
+                  borderRadius: BorderRadius.circular(2)),
             ),
             ListTile(
-              leading: const Icon(Icons.reply_outlined, color: Color(0xFF08316E)),
-              title: Text('Répondre', style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w600)),
+              leading:
+                  const Icon(Icons.reply_outlined, color: Color(0xFF08316E)),
+              title: Text('Répondre',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 14, fontWeight: FontWeight.w600)),
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _replyTo = msg.content);
@@ -659,8 +730,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.copy_outlined, color: Color(0xFF08316E)),
-              title: Text('Copier', style: GoogleFonts.dmSans(fontSize: 14, fontWeight: FontWeight.w600)),
+              leading:
+                  const Icon(Icons.copy_outlined, color: Color(0xFF08316E)),
+              title: Text('Copier',
+                  style: GoogleFonts.dmSans(
+                      fontSize: 14, fontWeight: FontWeight.w600)),
               onTap: () {
                 Navigator.pop(context);
                 Clipboard.setData(ClipboardData(text: msg.content));
@@ -700,7 +774,8 @@ class _ChatMessage {
         id: j['id']?.toString() ?? '',
         senderId: j['senderId']?.toString() ?? '',
         content: j['content']?.toString() ?? '',
-        sentAt: DateTime.tryParse(j['sentAt']?.toString() ?? '') ?? DateTime.now(),
+        sentAt:
+            DateTime.tryParse(j['sentAt']?.toString() ?? '') ?? DateTime.now(),
         isRead: j['isRead'] as bool? ?? false,
       );
 }
@@ -734,7 +809,9 @@ class _HeaderAvatar extends StatelessWidget {
             child: Text(
               initials,
               style: GoogleFonts.sora(
-                  fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white),
             ),
           ),
         if (isOnline)
@@ -791,7 +868,8 @@ class _MessageBubble extends StatelessWidget {
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: isSelf ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isSelf ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           // Other user avatar
           if (!isSelf) ...[
@@ -799,8 +877,7 @@ class _MessageBubble extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 6),
                 child: _MiniAvatar(
-                    initials: senderInitials ?? '?',
-                    avatarUrl: avatarUrl),
+                    initials: senderInitials ?? '?', avatarUrl: avatarUrl),
               )
             else
               const SizedBox(width: 30),
@@ -809,7 +886,8 @@ class _MessageBubble extends StatelessWidget {
           GestureDetector(
             onLongPress: onLongPress,
             child: Column(
-              crossAxisAlignment: isSelf ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  isSelf ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
                 if (!isSelf && senderName != null && showAvatar)
                   Padding(
@@ -827,7 +905,8 @@ class _MessageBubble extends StatelessWidget {
                     maxWidth: MediaQuery.of(context).size.width *
                         (isSelf ? 0.72 : 0.62),
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     gradient: isSelf
                         ? const LinearGradient(
@@ -874,8 +953,7 @@ class _MessageBubble extends StatelessWidget {
                       Text(
                         _fmtTime(message.sentAt),
                         style: GoogleFonts.dmSans(
-                            fontSize: 10,
-                            color: const Color(0xFF7A879A)),
+                            fontSize: 10, color: const Color(0xFF7A879A)),
                       ),
                       if (isSelf) ...[
                         const SizedBox(width: 3),
@@ -907,7 +985,8 @@ class _MiniAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (avatarUrl != null && avatarUrl!.isNotEmpty) {
-      return CircleAvatar(radius: 14, backgroundImage: NetworkImage(avatarUrl!));
+      return CircleAvatar(
+          radius: 14, backgroundImage: NetworkImage(avatarUrl!));
     }
     return CircleAvatar(
       radius: 14,
@@ -915,7 +994,9 @@ class _MiniAvatar extends StatelessWidget {
       child: Text(
         initials,
         style: GoogleFonts.sora(
-            fontSize: 10, fontWeight: FontWeight.w700, color: const Color(0xFF08316E)),
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF08316E)),
       ),
     );
   }
@@ -927,9 +1008,12 @@ class _DateDivider extends StatelessWidget {
 
   String _label() {
     final now = DateTime.now();
-    if (date.year == now.year && date.month == now.month && date.day == now.day) return "Aujourd'hui";
+    if (date.year == now.year && date.month == now.month && date.day == now.day)
+      return "Aujourd'hui";
     final yesterday = now.subtract(const Duration(days: 1));
-    if (date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day) return 'Hier';
+    if (date.year == yesterday.year &&
+        date.month == yesterday.month &&
+        date.day == yesterday.day) return 'Hier';
     return '${date.day}/${date.month}/${date.year}';
   }
 
@@ -939,7 +1023,8 @@ class _DateDivider extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          Expanded(child: Divider(color: const Color(0xFF08316E).withOpacity(0.08))),
+          Expanded(
+              child: Divider(color: const Color(0xFF08316E).withOpacity(0.08))),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
@@ -950,7 +1035,8 @@ class _DateDivider extends StatelessWidget {
                   color: const Color(0xFF7A879A)),
             ),
           ),
-          Expanded(child: Divider(color: const Color(0xFF08316E).withOpacity(0.08))),
+          Expanded(
+              child: Divider(color: const Color(0xFF08316E).withOpacity(0.08))),
         ],
       ),
     );
@@ -971,16 +1057,22 @@ class _ScrollDownBtn extends StatelessWidget {
             color: const Color(0xFF08316E),
             shape: BoxShape.circle,
             boxShadow: const [
-              BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 2)),
+              BoxShadow(
+                  color: Colors.black26, blurRadius: 8, offset: Offset(0, 2)),
             ],
           ),
-          child: const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 20),
+          child: const Icon(Icons.keyboard_arrow_down,
+              color: Colors.white, size: 20),
         ),
       );
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.icon, required this.title, required this.subtitle, this.action});
+  const _EmptyState(
+      {required this.icon,
+      required this.title,
+      required this.subtitle,
+      this.action});
   final IconData icon;
   final String title;
   final String subtitle;
@@ -1004,11 +1096,13 @@ class _EmptyState extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(title,
-                  style: GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.w700),
+                  style: GoogleFonts.sora(
+                      fontSize: 16, fontWeight: FontWeight.w700),
                   textAlign: TextAlign.center),
               const SizedBox(height: 8),
               Text(subtitle,
-                  style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF7A879A)),
+                  style: GoogleFonts.dmSans(
+                      fontSize: 13, color: const Color(0xFF7A879A)),
                   textAlign: TextAlign.center),
               if (action != null) ...[const SizedBox(height: 16), action!],
             ],
@@ -1032,7 +1126,8 @@ class _EmptyChat extends StatelessWidget {
               color: Color(0xFFE8F0FE),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.chat_bubble_outline, size: 32, color: Color(0xFF08316E)),
+            child: const Icon(Icons.chat_bubble_outline,
+                size: 32, color: Color(0xFF08316E)),
           ),
           const SizedBox(height: 16),
           Text('Aucun message avec $name',
@@ -1043,7 +1138,8 @@ class _EmptyChat extends StatelessWidget {
               textAlign: TextAlign.center),
           const SizedBox(height: 8),
           Text('Envoyez le premier message pour démarrer.',
-              style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF7A879A)),
+              style: GoogleFonts.dmSans(
+                  fontSize: 13, color: const Color(0xFF7A879A)),
               textAlign: TextAlign.center),
         ],
       );
@@ -1068,24 +1164,29 @@ class _ErrorState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFFE24B4A)),
+            const Icon(Icons.wifi_off_rounded,
+                size: 48, color: Color(0xFFE24B4A)),
             const SizedBox(height: 12),
             Text('Connexion impossible',
-                style: GoogleFonts.sora(fontSize: 16, fontWeight: FontWeight.w700)),
+                style: GoogleFonts.sora(
+                    fontSize: 16, fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
             Text(message,
-                style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
+                style: GoogleFonts.dmSans(
+                    fontSize: 12, color: const Color(0xFF7A879A)),
                 textAlign: TextAlign.center,
                 maxLines: 2),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: Text('Réessayer', style: GoogleFonts.sora(fontWeight: FontWeight.w600)),
+              label: Text('Réessayer',
+                  style: GoogleFonts.sora(fontWeight: FontWeight.w600)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF08316E),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],

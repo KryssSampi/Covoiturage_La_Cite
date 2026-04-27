@@ -14,29 +14,30 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/app_colors.dart';
 import '../../core/cache/user_cache_service.dart';
+import '../../core/services/api_service.dart';
 
 // ─── CONSTANTES ───────────────────────────────────────────────────────────────
 
-const _kVersion    = '1.4.2';
-const _kBuild      = '2026.04';
+const _kVersion = '1.4.2';
+const _kBuild = '2026.04';
 const _kSupportUrl = 'https://lacite.ca/support';
 const _kPrivacyUrl = 'https://lacite.ca/confidentialite';
-const _kTermsUrl   = 'https://lacite.ca/conditions';
-const _kStoreUrl   = 'https://apps.apple.com/app/la-cite';
+const _kTermsUrl = 'https://lacite.ca/conditions';
+const _kStoreUrl = 'https://apps.apple.com/app/la-cite';
 
 // ─── CLÉS SharedPreferences ───────────────────────────────────────────────────
 
-const _kPrefDarkMode      = 'pref_dark_mode';
-const _kPrefCompact       = 'pref_compact';
-const _kPrefLanguage      = 'pref_language';
-const _kPrefDistanceUnit  = 'pref_distance_unit';
-const _kPrefTextScale     = 'pref_text_scale';
-const _kPrefHighContrast  = 'pref_high_contrast';
-const _kPrefReduceMotion  = 'pref_reduce_motion';
-const _kPrefAnalytics     = 'pref_analytics';
-const _kPrefCrashReports  = 'pref_crash_reports';
-const _kPrefPinEnabled    = 'pref_pin_enabled';
-const _kPrefPinCode       = 'pref_pin_code';
+const _kPrefDarkMode = 'pref_dark_mode';
+const _kPrefCompact = 'pref_compact';
+const _kPrefLanguage = 'pref_language';
+const _kPrefDistanceUnit = 'pref_distance_unit';
+const _kPrefTextScale = 'pref_text_scale';
+const _kPrefHighContrast = 'pref_high_contrast';
+const _kPrefReduceMotion = 'pref_reduce_motion';
+const _kPrefAnalytics = 'pref_analytics';
+const _kPrefCrashReports = 'pref_crash_reports';
+const _kPrefPinEnabled = 'pref_pin_enabled';
+const _kPrefPinCode = 'pref_pin_code';
 
 // ─── HELPERS TYPO ─────────────────────────────────────────────────────────────
 
@@ -65,26 +66,26 @@ class AppSettingsScreen extends StatefulWidget {
 
 class _AppSettingsScreenState extends State<AppSettingsScreen> {
   // ── Affichage ──────────────────────────────────────────
-  bool   _darkMode     = false;
-  bool   _compactMode  = false;
-  String _language     = 'fr';
+  bool _darkMode = false;
+  bool _compactMode = false;
+  String _language = 'fr';
   String _distanceUnit = 'km';
 
   // ── Accessibilité ──────────────────────────────────────
-  double _textScale    = 1.0;
-  bool   _highContrast = false;
-  bool   _reduceMotion = false;
+  double _textScale = 1.0;
+  bool _highContrast = false;
+  bool _reduceMotion = false;
 
   // ── PIN local ──────────────────────────────────────────
   bool _pinEnabled = false;
 
   // ── Confidentialité ────────────────────────────────────
-  bool _analytics    = true;
+  bool _analytics = true;
   bool _crashReports = true;
 
   // ── Cache ──────────────────────────────────────────────
-  String _cacheSize     = '…';
-  bool   _clearingCache = false;
+  String _cacheSize = '…';
+  bool _clearingCache = false;
 
   bool _isLoading = true;
 
@@ -100,17 +101,17 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
   Future<void> _loadPrefs() async {
     final p = await SharedPreferences.getInstance();
     setState(() {
-      _darkMode      = p.getBool(_kPrefDarkMode)      ?? false;
-      _compactMode   = p.getBool(_kPrefCompact)        ?? false;
-      _language      = p.getString(_kPrefLanguage)     ?? 'fr';
-      _distanceUnit  = p.getString(_kPrefDistanceUnit) ?? 'km';
-      _textScale     = p.getDouble(_kPrefTextScale)    ?? 1.0;
-      _highContrast  = p.getBool(_kPrefHighContrast)   ?? false;
-      _reduceMotion  = p.getBool(_kPrefReduceMotion)   ?? false;
-      _analytics     = p.getBool(_kPrefAnalytics)      ?? true;
-      _crashReports  = p.getBool(_kPrefCrashReports)   ?? true;
-      _pinEnabled    = p.getBool(_kPrefPinEnabled)     ?? false;
-      _isLoading     = false;
+      _darkMode = p.getBool(_kPrefDarkMode) ?? false;
+      _compactMode = p.getBool(_kPrefCompact) ?? false;
+      _language = p.getString(_kPrefLanguage) ?? 'fr';
+      _distanceUnit = p.getString(_kPrefDistanceUnit) ?? 'km';
+      _textScale = p.getDouble(_kPrefTextScale) ?? 1.0;
+      _highContrast = p.getBool(_kPrefHighContrast) ?? false;
+      _reduceMotion = p.getBool(_kPrefReduceMotion) ?? false;
+      _analytics = p.getBool(_kPrefAnalytics) ?? true;
+      _crashReports = p.getBool(_kPrefCrashReports) ?? true;
+      _pinEnabled = p.getBool(_kPrefPinEnabled) ?? false;
+      _isLoading = false;
     });
   }
 
@@ -137,7 +138,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
   }
 
   String _formatBytes(int b) {
-    if (b < 1024)    return '${b} o';
+    if (b < 1024) return '${b} o';
     if (b < 1048576) return '${(b / 1024).toStringAsFixed(1)} Ko';
     return '${(b / 1048576).toStringAsFixed(1)} Mo';
   }
@@ -155,10 +156,12 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Cache vidé avec succès', style: _dm(color: Colors.white)),
+          content:
+              Text('Cache vidé avec succès', style: _dm(color: Colors.white)),
           backgroundColor: AppColors.teal,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
@@ -176,9 +179,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         setState(() => _pinEnabled = true);
       }
     } else {
-      final p      = await SharedPreferences.getInstance();
+      final p = await SharedPreferences.getInstance();
       final stored = p.getString(_kPrefPinCode) ?? '';
-      final ok     = await _showPinVerifySheet(stored);
+      final ok = await _showPinVerifySheet(stored);
       if (ok) {
         await p.setBool(_kPrefPinEnabled, false);
         await p.remove(_kPrefPinCode);
@@ -188,9 +191,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
   }
 
   Future<void> _changePin() async {
-    final p   = await SharedPreferences.getInstance();
+    final p = await SharedPreferences.getInstance();
     final old = p.getString(_kPrefPinCode) ?? '';
-    final ok  = await _showPinVerifySheet(old);
+    final ok = await _showPinVerifySheet(old);
     if (!ok) return;
     final newPin = await _showPinCreationSheet(isChange: true);
     if (newPin != null && newPin.length == 4) {
@@ -200,7 +203,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           content: Text('Code PIN modifié', style: _dm(color: Colors.white)),
           backgroundColor: AppColors.teal,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ));
       }
     }
@@ -222,7 +226,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: AppColors.grayBg,
-        body: Center(child: CircularProgressIndicator(color: AppColors.blueDeep)),
+        body:
+            Center(child: CircularProgressIndicator(color: AppColors.blueDeep)),
       );
     }
 
@@ -345,11 +350,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
                   ),
                   const SizedBox(width: 9),
                   Text(title,
-                      style: _sora(
-                          size: 11,
-                          weight: FontWeight.w700,
-                          color: color)
-                          .copyWith(letterSpacing: 0.9)),
+                      style:
+                          _sora(size: 11, weight: FontWeight.w700, color: color)
+                              .copyWith(letterSpacing: 0.9)),
                 ],
               ),
             ),
@@ -409,12 +412,18 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             title: 'Langue de l\'application',
             options: const [
               _PickerOpt('fr', 'Français', '🇫🇷'),
-              _PickerOpt('en', 'English',  '🇬🇧'),
+              _PickerOpt('en', 'English', '🇬🇧'),
             ],
             current: _language,
-            onSelect: (v) {
+            onSelect: (v) async {
               setState(() => _language = v);
-              _save((p) => p.setString(_kPrefLanguage, v));
+              await _save((p) => p.setString(_kPrefLanguage, v));
+              try {
+                await ApiService.instance.patch(
+                  '/api/users/me',
+                  <String, dynamic>{'language': v},
+                );
+              } catch (_) {}
             },
           ),
         ),
@@ -427,7 +436,7 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
             title: 'Unité de distance',
             options: const [
               _PickerOpt('km', 'Kilomètres (km)', '📏'),
-              _PickerOpt('mi', 'Miles (mi)',       '📐'),
+              _PickerOpt('mi', 'Miles (mi)', '📐'),
             ],
             current: _distanceUnit,
             onSelect: (v) {
@@ -541,7 +550,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Row(
             children: [
-              const Icon(Icons.folder_outlined, size: 20, color: AppColors.text2),
+              const Icon(Icons.folder_outlined,
+                  size: 20, color: AppColors.text2),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -787,7 +797,8 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
               const SizedBox(width: 12),
               Expanded(child: Text(label, style: _sora(size: 14))),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.blueDeep.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(8),
@@ -804,7 +815,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       );
 
   Widget _divider() => const Divider(
-        height: 1, thickness: 1, indent: 48,
+        height: 1,
+        thickness: 1,
+        indent: 48,
         color: Color(0xFFF0F2F5),
       );
 
@@ -901,8 +914,7 @@ class _AppSwitch extends StatelessWidget {
             child: AnimatedAlign(
               duration: const Duration(milliseconds: 220),
               curve: Curves.easeInOut,
-              alignment:
-                  value ? Alignment.centerRight : Alignment.centerLeft,
+              alignment: value ? Alignment.centerRight : Alignment.centerLeft,
               child: Container(
                 width: 20,
                 height: 20,
@@ -954,7 +966,8 @@ class _PickerSheet extends StatelessWidget {
           children: [
             Center(
               child: Container(
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
                     color: const Color(0xFFE5E7EB),
                     borderRadius: BorderRadius.circular(2)),
@@ -971,12 +984,11 @@ class _PickerSheet extends StatelessWidget {
                   onTap: () => onSelect(o.value),
                   borderRadius: BorderRadius.circular(12),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                     child: Row(
                       children: [
-                        Text(o.flag,
-                            style: const TextStyle(fontSize: 22)),
+                        Text(o.flag, style: const TextStyle(fontSize: 22)),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Text(o.label,
@@ -1016,11 +1028,11 @@ class _PinInputSheet extends StatefulWidget {
 }
 
 class _PinInputSheetState extends State<_PinInputSheet> {
-  String _pin        = '';
+  String _pin = '';
   String _pinConfirm = '';
-  bool   _confirming = false;
-  bool   _error      = false;
-  String _errorMsg   = '';
+  bool _confirming = false;
+  bool _error = false;
+  String _errorMsg = '';
 
   void _onDigit(String d) {
     setState(() => _error = false);
@@ -1047,8 +1059,8 @@ class _PinInputSheetState extends State<_PinInputSheet> {
             } else {
               setState(() {
                 _pinConfirm = '';
-                _error      = true;
-                _errorMsg   = 'Les codes ne correspondent pas';
+                _error = true;
+                _errorMsg = 'Les codes ne correspondent pas';
               });
             }
           });
@@ -1074,20 +1086,24 @@ class _PinInputSheetState extends State<_PinInputSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final current  = _confirming ? _pinConfirm : _pin;
-    final title    = _confirming ? 'Confirmer le code PIN' : widget.title;
-    final subtitle = _confirming ? 'Ressaisissez le même code' : widget.subtitle;
+    final current = _confirming ? _pinConfirm : _pin;
+    final title = _confirming ? 'Confirmer le code PIN' : widget.title;
+    final subtitle =
+        _confirming ? 'Ressaisissez le même code' : widget.subtitle;
 
     return Padding(
       padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-          left: 24, right: 24, top: 20),
+          left: 24,
+          right: 24,
+          top: 20),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Center(
             child: Container(
-              width: 40, height: 4,
+              width: 40,
+              height: 4,
               decoration: BoxDecoration(
                   color: const Color(0xFFE5E7EB),
                   borderRadius: BorderRadius.circular(2)),
@@ -1101,8 +1117,7 @@ class _PinInputSheetState extends State<_PinInputSheet> {
                   color: AppColors.text1)),
           const SizedBox(height: 6),
           Text(subtitle,
-              style: GoogleFonts.dmSans(
-                  fontSize: 13, color: AppColors.text2),
+              style: GoogleFonts.dmSans(fontSize: 13, color: AppColors.text2),
               textAlign: TextAlign.center),
           const SizedBox(height: 32),
           // Points PIN
@@ -1113,7 +1128,8 @@ class _PinInputSheetState extends State<_PinInputSheet> {
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 margin: const EdgeInsets.symmetric(horizontal: 10),
-                width: 16, height: 16,
+                width: 16,
+                height: 16,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: _error
@@ -1131,8 +1147,7 @@ class _PinInputSheetState extends State<_PinInputSheet> {
           if (_error) ...[
             const SizedBox(height: 10),
             Text(_errorMsg,
-                style: GoogleFonts.dmSans(
-                    fontSize: 12, color: AppColors.red)),
+                style: GoogleFonts.dmSans(fontSize: 12, color: AppColors.red)),
           ],
           const SizedBox(height: 32),
           // Clavier numérique
@@ -1142,7 +1157,7 @@ class _PinInputSheetState extends State<_PinInputSheet> {
             physics: const NeverScrollableScrollPhysics(),
             childAspectRatio: 2.2,
             children: [
-              ...['1','2','3','4','5','6','7','8','9'].map(_numKey),
+              ...['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(_numKey),
               const SizedBox.shrink(),
               _numKey('0'),
               InkWell(
@@ -1187,14 +1202,14 @@ class _ReportSheet extends StatefulWidget {
 
 class _ReportSheetState extends State<_ReportSheet> {
   String _category = 'bug';
-  final _ctrl      = TextEditingController();
-  bool  _sending   = false;
+  final _ctrl = TextEditingController();
+  bool _sending = false;
 
   static const _cats = [
-    ('bug',   'Bogue / erreur',         Icons.bug_report_outlined),
-    ('perf',  'Performance lente',      Icons.speed_outlined),
-    ('ux',    'Problème d\'interface',  Icons.design_services_outlined),
-    ('other', 'Autre',                  Icons.more_horiz_outlined),
+    ('bug', 'Bogue / erreur', Icons.bug_report_outlined),
+    ('perf', 'Performance lente', Icons.speed_outlined),
+    ('ux', 'Problème d\'interface', Icons.design_services_outlined),
+    ('other', 'Autre', Icons.more_horiz_outlined),
   ];
 
   @override
@@ -1207,14 +1222,17 @@ class _ReportSheetState extends State<_ReportSheet> {
   Widget build(BuildContext context) => Padding(
         padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-            left: 20, right: 20, top: 20),
+            left: 20,
+            right: 20,
+            top: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
               child: Container(
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
                     color: const Color(0xFFE5E7EB),
                     borderRadius: BorderRadius.circular(2)),
@@ -1228,14 +1246,16 @@ class _ReportSheetState extends State<_ReportSheet> {
                     color: AppColors.text1)),
             const SizedBox(height: 16),
             Wrap(
-              spacing: 8, runSpacing: 8,
+              spacing: 8,
+              runSpacing: 8,
               children: _cats.map((c) {
                 final sel = _category == c.$1;
                 return ChoiceChip(
                   label: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(c.$3, size: 14,
+                      Icon(c.$3,
+                          size: 14,
                           color: sel ? Colors.white : AppColors.text2),
                       const SizedBox(width: 4),
                       Text(c.$2),
@@ -1248,9 +1268,8 @@ class _ReportSheetState extends State<_ReportSheet> {
                       color: sel ? Colors.white : AppColors.text2),
                   backgroundColor: Colors.white,
                   side: BorderSide(
-                      color: sel
-                          ? AppColors.blueDeep
-                          : const Color(0xFFE5E7EB)),
+                      color:
+                          sel ? AppColors.blueDeep : const Color(0xFFE5E7EB)),
                   onSelected: (_) => setState(() => _category = c.$1),
                 );
               }).toList(),
@@ -1259,12 +1278,11 @@ class _ReportSheetState extends State<_ReportSheet> {
             TextField(
               controller: _ctrl,
               maxLines: 4,
-              style: GoogleFonts.dmSans(
-                  fontSize: 14, color: AppColors.text1),
+              style: GoogleFonts.dmSans(fontSize: 14, color: AppColors.text1),
               decoration: InputDecoration(
                 hintText: 'Décrivez le problème rencontré…',
-                hintStyle: GoogleFonts.dmSans(
-                    fontSize: 13, color: AppColors.text2),
+                hintStyle:
+                    GoogleFonts.dmSans(fontSize: 13, color: AppColors.text2),
                 filled: true,
                 fillColor: AppColors.grayBg,
                 border: OutlineInputBorder(
@@ -1283,20 +1301,18 @@ class _ReportSheetState extends State<_ReportSheet> {
                     ? null
                     : () async {
                         setState(() => _sending = true);
-                        await Future.delayed(
-                            const Duration(milliseconds: 600));
+                        await Future.delayed(const Duration(milliseconds: 600));
                         if (context.mounted) {
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text('Signalement envoyé, merci !',
-                                  style: GoogleFonts.dmSans(
-                                      color: Colors.white)),
+                                  style:
+                                      GoogleFonts.dmSans(color: Colors.white)),
                               backgroundColor: AppColors.teal,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(12)),
+                                  borderRadius: BorderRadius.circular(12)),
                             ),
                           );
                         }
@@ -1309,7 +1325,8 @@ class _ReportSheetState extends State<_ReportSheet> {
                 ),
                 child: _sending
                     ? const SizedBox(
-                        width: 20, height: 20,
+                        width: 20,
+                        height: 20,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
                     : Text('Envoyer',

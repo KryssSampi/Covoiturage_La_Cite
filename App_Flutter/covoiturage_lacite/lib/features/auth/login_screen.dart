@@ -45,8 +45,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _redirectIfAlreadyLoggedIn() async {
     final bool loggedIn = await _auth.isLoggedIn();
-    if (!mounted || !loggedIn) return;
-    context.go('/home');
+    if (!mounted) return;
+    if (loggedIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/home');
+      });
+    }
   }
 
   Future<void> _continueFlow() async {
@@ -113,13 +117,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                       padding: const EdgeInsets.all(10),
-                      child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+                      child: Image.asset('assets/images/logo.png',
+                          fit: BoxFit.contain),
                     ),
                     const SizedBox(height: 20),
                     const Text(
                       'Connexion',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+                      style:
+                          TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 6),
                     const Text(
@@ -144,18 +150,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         fillColor: Colors.white,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD1D5DB)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
+                          borderSide:
+                              const BorderSide(color: Color(0xFFD1D5DB)),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF1A56CC), width: 1.5),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF1A56CC), width: 1.5),
                         ),
                       ),
-                      validator: (String? v) => (v == null || v.trim().isEmpty) ? 'Email requis' : null,
+                      validator: (String? v) => (v == null || v.trim().isEmpty)
+                          ? 'Email requis'
+                          : null,
                     ),
                     if (_errorMessage != null) ...<Widget>[
                       const SizedBox(height: 12),
@@ -173,15 +184,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1A56CC),
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: _isLoading
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Continuer', style: TextStyle(fontWeight: FontWeight.w700)),
+                            : const Text('Continuer',
+                                style: TextStyle(fontWeight: FontWeight.w700)),
                       ),
                     ),
                     const SizedBox(height: 24),

@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/services/api_service.dart';
 
-// ─── DESIGN TOKENS ────────────────────────────────────────────────────────────
+// --- DESIGN TOKENS ------------------------------------------------------------
 
 const _primary = Color(0xFF08316E);
 const _blue = Color(0xFF1A56CC);
@@ -40,8 +40,8 @@ const _shMd = [
   BoxShadow(color: Color(0x0A000000), blurRadius: 4, offset: Offset(0, 2)),
 ];
 
-// ─── TYPO HELPERS ─────────────────────────────────────────────────────────────
-// ─── HELPERS TYPO ─────────────────────────────────────────────────────────────
+// --- TYPO HELPERS -------------------------------------------------------------
+// --- HELPERS TYPO -------------------------------------------------------------
 
 TextStyle _sora({
   double size = 14,
@@ -49,7 +49,11 @@ TextStyle _sora({
   Color color = _text1,
   double? letterSpacing,
 }) =>
-    GoogleFonts.sora(fontSize: size, fontWeight: weight, color: color, letterSpacing: letterSpacing);
+    GoogleFonts.sora(
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+        letterSpacing: letterSpacing);
 
 TextStyle _dm({
   double size = 13,
@@ -58,7 +62,7 @@ TextStyle _dm({
 }) =>
     GoogleFonts.dmSans(fontSize: size, fontWeight: weight, color: color);
 
-// ─── MAIN SCREEN ──────────────────────────────────────────────────────────────
+// --- MAIN SCREEN --------------------------------------------------------------
 
 class FavorisScreen extends StatefulWidget {
   const FavorisScreen({super.key});
@@ -83,17 +87,24 @@ class _FavorisScreenState extends State<FavorisScreen> {
     if (mounted) setState(() => _isLoading = true);
     try {
       final dynamic data = await ApiService.instance.get('/api/favorites');
-      final dynamic body = (data is Map<String, dynamic>) ? (data['data'] ?? data) : data;
+      final dynamic body =
+          (data is Map<String, dynamic>) ? (data['data'] ?? data) : data;
       if (mounted) {
         setState(() {
           _drivers = _extractList(
-            body is Map<String, dynamic> ? (body['drivers'] ?? body['favoriteDrivers']) : <dynamic>[],
+            body is Map<String, dynamic>
+                ? (body['drivers'] ?? body['favoriteDrivers'])
+                : <dynamic>[],
           );
           _places = _extractList(
-            body is Map<String, dynamic> ? (body['places'] ?? body['favoritePlaces']) : <dynamic>[],
+            body is Map<String, dynamic>
+                ? (body['places'] ?? body['favoritePlaces'])
+                : <dynamic>[],
           );
           _alerts = _extractList(
-            body is Map<String, dynamic> ? (body['alerts'] ?? body['tripAlerts']) : <dynamic>[],
+            body is Map<String, dynamic>
+                ? (body['alerts'] ?? body['tripAlerts'])
+                : <dynamic>[],
           );
           _isLoading = false;
         });
@@ -106,28 +117,60 @@ class _FavorisScreenState extends State<FavorisScreen> {
   List<dynamic> _extractList(dynamic data) {
     if (data is List) return data;
     if (data is Map) {
-      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[]) as List<dynamic>;
+      return (data['items'] ?? data['data'] ?? data['results'] ?? <dynamic>[])
+          as List<dynamic>;
     }
     return <dynamic>[];
   }
 
-  void _removeDriver(String id) {
+  Future<void> _removeDriver(String id) async {
     setState(() => _drivers.removeWhere((d) => d['id'] == id));
-    _showToast('Conducteur retiré des favoris');
+    try {
+      await ApiService.instance.post(
+        '/api/favorites/$id/toggle',
+        <String, dynamic>{},
+      );
+      _showToast('Conducteur retire des favoris');
+    } catch (_) {
+      _showToast('Erreur lors de la suppression');
+      await _load();
+    }
   }
 
-  void _removePlace(String id) {
+  Future<void> _removePlace(String id) async {
     setState(() => _places.removeWhere((p) => p['id'] == id));
-    _showToast('Lieu supprimé');
+    try {
+      await ApiService.instance.delete('/api/places-favoris/$id');
+      _showToast('Lieu supprime');
+    } catch (_) {
+      _showToast('Erreur lors de la suppression');
+      await _load();
+    }
   }
 
-  void _toggleAlert(String id, bool value) {
+  Future<void> _toggleAlert(String id, bool value) async {
     setState(() {
       final idx = _alerts.indexWhere((a) => a['id'] == id);
       if (idx != -1) {
-        _alerts[idx] = Map.from(_alerts[idx] as Map)..['isActive'] = value;
+        _alerts[idx] = Map<String, dynamic>.from(_alerts[idx] as Map)
+          ..['isActive'] = value;
       }
     });
+    try {
+      await ApiService.instance.patch(
+        '/api/users/survey-alerts/$id/toggle',
+        <String, dynamic>{},
+      );
+    } catch (_) {
+      setState(() {
+        final idx = _alerts.indexWhere((a) => a['id'] == id);
+        if (idx != -1) {
+          _alerts[idx] = Map<String, dynamic>.from(_alerts[idx] as Map)
+            ..['isActive'] = !value;
+        }
+      });
+      _showToast('Erreur lors de la mise a jour');
+    }
   }
 
   void _showToast(String msg) {
@@ -148,7 +191,9 @@ class _FavorisScreenState extends State<FavorisScreen> {
       backgroundColor: _bg,
       appBar: AppBar(
         backgroundColor: _primary,
-        title: Text('Mes Favoris', style: _sora(size: 20, weight: FontWeight.w700, color: Colors.white)),
+        title: Text('Mes Favoris',
+            style:
+                _sora(size: 20, weight: FontWeight.w700, color: Colors.white)),
         leading: const BackButton(color: Colors.white),
         elevation: 0,
       ),
@@ -157,7 +202,8 @@ class _FavorisScreenState extends State<FavorisScreen> {
           children: [
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: _primary))
+                  ? const Center(
+                      child: CircularProgressIndicator(color: _primary))
                   : RefreshIndicator(
                       onRefresh: _load,
                       color: _primary,
@@ -166,7 +212,7 @@ class _FavorisScreenState extends State<FavorisScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // ── CONDUCTEURS FAVORIS ──
+                            // -- CONDUCTEURS FAVORIS --
                             _SectionHeader(
                               icon: Icons.person_pin_rounded,
                               iconBg: _blueLight,
@@ -185,16 +231,18 @@ class _FavorisScreenState extends State<FavorisScreen> {
                                 height: 118,
                                 child: ListView.builder(
                                   scrollDirection: Axis.horizontal,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 4),
                                   itemCount: _drivers.length,
                                   itemBuilder: (ctx, i) => _DriverPill(
                                     driver: _drivers[i] as Map,
-                                    onDelete: () => _removeDriver(_drivers[i]['id'] as String),
+                                    onDelete: () async => _removeDriver(
+                                        _drivers[i]['id'] as String),
                                   ),
                                 ),
                               ),
 
-                            // ── LIEUX FAVORIS ──
+                            // -- LIEUX FAVORIS --
                             _SectionHeader(
                               icon: Icons.place_rounded,
                               iconBg: _tealLight,
@@ -210,25 +258,27 @@ class _FavorisScreenState extends State<FavorisScreen> {
                               _EmptyState('Aucun lieu favori')
                             else
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
                                 child: Column(
                                   children: _places
                                       .map((p) => _PlaceCard(
                                             place: p as Map,
-                                            onDelete: () => _removePlace(p['id'] as String),
+                                            onDelete: () async =>
+                                                _removePlace(p['id'] as String),
                                           ))
                                       .toList(),
                                 ),
                               ),
 
-                            // ── ALERTES TRAJETS ──
+                            // -- ALERTES TRAJETS --
                             _SectionHeader(
                               icon: Icons.notifications_active_rounded,
                               iconBg: _amberLight,
                               iconColor: _amberMid,
                               title: 'Alertes trajets',
                               count: _alerts.length,
-                              btnLabel: '🔍 Rechercher',
+                              btnLabel: '?? Rechercher',
                               btnColor: _amberMid,
                               btnBg: _amberLight,
                               onAdd: () => context.push('/search'),
@@ -237,13 +287,16 @@ class _FavorisScreenState extends State<FavorisScreen> {
                               _EmptyState('Aucune alerte configurée')
                             else
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 16),
                                 child: Column(
                                   children: _alerts
                                       .map((a) => _AlertCard(
                                             alert: a as Map,
-                                            onToggle: (v) => _toggleAlert(a['id'] as String, v),
-                                            onViewTrips: () => _openSearchFromAlert(a),
+                                            onToggle: (v) async => _toggleAlert(
+                                                a['id'] as String, v),
+                                            onViewTrips: () =>
+                                                _openSearchFromAlert(a),
                                           ))
                                       .toList(),
                                 ),
@@ -261,24 +314,28 @@ class _FavorisScreenState extends State<FavorisScreen> {
     );
   }
 
-  void _showAddDriverSheet() {
-    showModalBottomSheet(
+  Future<void> _showAddDriverSheet() async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: _surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       isScrollControlled: true,
       builder: (_) => const _AddDriverSheet(),
     );
+    if (result == true && mounted) await _load();
   }
 
-  void _showAddPlaceSheet() {
-    showModalBottomSheet(
+  Future<void> _showAddPlaceSheet() async {
+    final result = await showModalBottomSheet<bool>(
       context: context,
       backgroundColor: _surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       isScrollControlled: true,
       builder: (_) => const _AddPlaceSheet(),
     );
+    if (result == true && mounted) await _load();
   }
 
   void _openSearchFromAlert(Map alert) {
@@ -292,7 +349,7 @@ class _FavorisScreenState extends State<FavorisScreen> {
   }
 }
 
-// ─── SECTION HEADER ───────────────────────────────────────────────────────────
+// --- SECTION HEADER -----------------------------------------------------------
 
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader({
@@ -322,8 +379,10 @@ class _SectionHeader extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 32, height: 32,
-            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(10)),
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+                color: iconBg, borderRadius: BorderRadius.circular(10)),
             child: Icon(icon, color: iconColor, size: 17),
           ),
           const SizedBox(width: 8),
@@ -331,16 +390,21 @@ class _SectionHeader extends StatelessWidget {
           const SizedBox(width: 6),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-            decoration: BoxDecoration(color: _gray100, borderRadius: BorderRadius.circular(999)),
-            child: Text('$count', style: _sora(size: 11, weight: FontWeight.w700, color: _text3)),
+            decoration: BoxDecoration(
+                color: _gray100, borderRadius: BorderRadius.circular(999)),
+            child: Text('$count',
+                style: _sora(size: 11, weight: FontWeight.w700, color: _text3)),
           ),
           const Spacer(),
           GestureDetector(
             onTap: onAdd,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
-              decoration: BoxDecoration(color: btnBg, borderRadius: BorderRadius.circular(999)),
-              child: Text(btnLabel, style: _sora(size: 12, weight: FontWeight.w700, color: btnColor)),
+              decoration: BoxDecoration(
+                  color: btnBg, borderRadius: BorderRadius.circular(999)),
+              child: Text(btnLabel,
+                  style: _sora(
+                      size: 12, weight: FontWeight.w700, color: btnColor)),
             ),
           ),
         ],
@@ -349,7 +413,7 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-// ─── DRIVER PILL ──────────────────────────────────────────────────────────────
+// --- DRIVER PILL --------------------------------------------------------------
 
 class _DriverPill extends StatelessWidget {
   const _DriverPill({required this.driver, required this.onDelete});
@@ -382,9 +446,12 @@ class _DriverPill extends StatelessWidget {
               CircleAvatar(
                 radius: 24,
                 backgroundColor: bg,
-                backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                backgroundImage:
+                    avatarUrl != null ? NetworkImage(avatarUrl) : null,
                 child: avatarUrl == null
-                    ? Text(initials, style: _sora(size: 14, weight: FontWeight.w700, color: fg))
+                    ? Text(initials,
+                        style:
+                            _sora(size: 14, weight: FontWeight.w700, color: fg))
                     : null,
               ),
               Positioned(
@@ -393,13 +460,15 @@ class _DriverPill extends StatelessWidget {
                 child: GestureDetector(
                   onTap: onDelete,
                   child: Container(
-                    width: 16, height: 16,
+                    width: 16,
+                    height: 16,
                     decoration: BoxDecoration(
                       color: _redLight,
                       shape: BoxShape.circle,
                       border: Border.all(color: _surface, width: 1),
                     ),
-                    child: const Icon(Icons.close_rounded, size: 10, color: _red),
+                    child:
+                        const Icon(Icons.close_rounded, size: 10, color: _red),
                   ),
                 ),
               ),
@@ -416,7 +485,8 @@ class _DriverPill extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 11),
+                const Icon(Icons.star_rounded,
+                    color: Color(0xFFF59E0B), size: 11),
                 const SizedBox(width: 2),
                 Text('$rating', style: _dm(size: 11, color: _text3)),
               ],
@@ -427,7 +497,7 @@ class _DriverPill extends StatelessWidget {
   }
 }
 
-// ─── PLACE CARD ───────────────────────────────────────────────────────────────
+// --- PLACE CARD ---------------------------------------------------------------
 
 class _PlaceCard extends StatelessWidget {
   const _PlaceCard({required this.place, required this.onDelete});
@@ -452,8 +522,10 @@ class _PlaceCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 44, height: 44,
-            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(14)),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+                color: iconBg, borderRadius: BorderRadius.circular(14)),
             child: Icon(icon, color: iconColor, size: 22),
           ),
           const SizedBox(width: 12),
@@ -461,7 +533,8 @@ class _PlaceCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(place['label'] as String? ?? '', style: _sora(size: 14, weight: FontWeight.w700)),
+                Text(place['label'] as String? ?? '',
+                    style: _sora(size: 14, weight: FontWeight.w700)),
                 const SizedBox(height: 2),
                 Text(
                   place['address'] as String? ?? '',
@@ -471,14 +544,19 @@ class _PlaceCard extends StatelessWidget {
                 if (place['freq'] != null) ...[
                   const SizedBox(height: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                    decoration: BoxDecoration(color: _gray50, borderRadius: BorderRadius.circular(999)),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: _gray50,
+                        borderRadius: BorderRadius.circular(999)),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.access_time_rounded, size: 11, color: _text3),
+                        const Icon(Icons.access_time_rounded,
+                            size: 11, color: _text3),
                         const SizedBox(width: 4),
-                        Text(place['freq'] as String, style: _dm(size: 11, color: _text3)),
+                        Text(place['freq'] as String,
+                            style: _dm(size: 11, color: _text3)),
                       ],
                     ),
                   ),
@@ -487,7 +565,8 @@ class _PlaceCard extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline_rounded, color: _gray400, size: 20),
+            icon: const Icon(Icons.delete_outline_rounded,
+                color: _gray400, size: 20),
             onPressed: onDelete,
             splashRadius: 20,
           ),
@@ -498,15 +577,19 @@ class _PlaceCard extends StatelessWidget {
 
   IconData _iconForType(String type) {
     switch (type) {
-      case 'school': return Icons.school_rounded;
-      case 'work': return Icons.work_outline_rounded;
-      case 'shopping': return Icons.shopping_bag_outlined;
-      default: return Icons.home_rounded;
+      case 'school':
+        return Icons.school_rounded;
+      case 'work':
+        return Icons.work_outline_rounded;
+      case 'shopping':
+        return Icons.shopping_bag_outlined;
+      default:
+        return Icons.home_rounded;
     }
   }
 }
 
-// ─── ALERT CARD ───────────────────────────────────────────────────────────────
+// --- ALERT CARD ---------------------------------------------------------------
 
 class _AlertCard extends StatelessWidget {
   const _AlertCard({
@@ -545,15 +628,29 @@ class _AlertCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('$dep → $arr', style: _sora(size: 13, weight: FontWeight.w700)),
+                      Text('$dep ? $arr',
+                          style: _sora(size: 13, weight: FontWeight.w700)),
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Container(width: 8, height: 8, decoration: const BoxDecoration(color: _blue, shape: BoxShape.circle)),
+                          Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                  color: _blue, shape: BoxShape.circle)),
                           const SizedBox(width: 6),
                           Text(dep, style: _dm(size: 12, color: _text2)),
-                          Expanded(child: Container(margin: const EdgeInsets.symmetric(horizontal: 6), height: 1.5, color: _gray200)),
-                          Container(width: 8, height: 8, decoration: const BoxDecoration(color: _red, shape: BoxShape.circle)),
+                          Expanded(
+                              child: Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 6),
+                                  height: 1.5,
+                                  color: _gray200)),
+                          Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                  color: _red, shape: BoxShape.circle)),
                           const SizedBox(width: 6),
                           Text(arr, style: _dm(size: 12, color: _text2)),
                         ],
@@ -563,14 +660,18 @@ class _AlertCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                   decoration: BoxDecoration(
                     color: isActive ? _tealLight : _gray100,
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
                     isActive ? 'Active' : 'En pause',
-                    style: _sora(size: 11, weight: FontWeight.w700, color: isActive ? _teal : _gray600),
+                    style: _sora(
+                        size: 11,
+                        weight: FontWeight.w700,
+                        color: isActive ? _teal : _gray600),
                   ),
                 ),
               ],
@@ -583,13 +684,16 @@ class _AlertCard extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: _gray50,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(color: _gray200),
                   ),
-                  child: Text(timeRange, style: _sora(size: 11, weight: FontWeight.w700, color: _text3)),
+                  child: Text(timeRange,
+                      style: _sora(
+                          size: 11, weight: FontWeight.w700, color: _text3)),
                 ),
               ],
             ),
@@ -609,14 +713,16 @@ class _AlertCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   isActive ? 'Active' : 'En pause',
-                  style: _sora(size: 12, weight: FontWeight.w700, color: _text2),
+                  style:
+                      _sora(size: 12, weight: FontWeight.w700, color: _text2),
                 ),
                 const Spacer(),
                 GestureDetector(
                   onTap: onViewTrips,
                   child: Text(
-                    'Voir les trajets →',
-                    style: _sora(size: 12, weight: FontWeight.w700, color: _blue),
+                    'Voir les trajets ?',
+                    style:
+                        _sora(size: 12, weight: FontWeight.w700, color: _blue),
                   ),
                 ),
               ],
@@ -628,7 +734,7 @@ class _AlertCard extends StatelessWidget {
   }
 }
 
-// ─── EMPTY STATE ──────────────────────────────────────────────────────────────
+// --- EMPTY STATE --------------------------------------------------------------
 
 class _EmptyState extends StatelessWidget {
   const _EmptyState(this.message);
@@ -639,13 +745,14 @@ class _EmptyState extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Center(
-        child: Text(message, style: GoogleFonts.dmSans(fontSize: 13, color: _gray400)),
+        child: Text(message,
+            style: GoogleFonts.dmSans(fontSize: 13, color: _gray400)),
       ),
     );
   }
 }
 
-// ─── ADD DRIVER SHEET ─────────────────────────────────────────────────────────
+// --- ADD DRIVER SHEET ---------------------------------------------------------
 
 class _AddDriverSheet extends StatefulWidget {
   const _AddDriverSheet();
@@ -660,24 +767,70 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
   List<Map> _results = [];
 
   static const _pool = [
-    {'id': 's1', 'name': 'Amélie Tremblay', 'meta': 'Conductrice · 4.9 ★', 'initials': 'AT', 'bg': 0xFFE8F0FE, 'fg': 0xFF1A56CC, 'verified': true},
-    {'id': 's2', 'name': 'Kevin Nguyen', 'meta': 'Conducteur · 4.7 ★', 'initials': 'KN', 'bg': 0xFFE1F5EE, 'fg': 0xFF0F6E56, 'verified': false},
-    {'id': 's3', 'name': 'Fatima Benali', 'meta': 'Conductrice · 4.8 ★', 'initials': 'FB', 'bg': 0xFFFAEEDA, 'fg': 0xFFBA7517, 'verified': true},
-    {'id': 's4', 'name': 'Lucas Moreau', 'meta': 'Conducteur · 4.6 ★', 'initials': 'LM', 'bg': 0xFFEDE9FB, 'fg': 0xFF5B3FA6, 'verified': false},
-    {'id': 's5', 'name': 'Jade Ouellet', 'meta': 'Conductrice · 4.9 ★', 'initials': 'JO', 'bg': 0xFFE8F0FE, 'fg': 0xFF1A56CC, 'verified': true},
+    {
+      'id': 's1',
+      'name': 'Amélie Tremblay',
+      'meta': 'Conductrice · 4.9 ?',
+      'initials': 'AT',
+      'bg': 0xFFE8F0FE,
+      'fg': 0xFF1A56CC,
+      'verified': true
+    },
+    {
+      'id': 's2',
+      'name': 'Kevin Nguyen',
+      'meta': 'Conducteur · 4.7 ?',
+      'initials': 'KN',
+      'bg': 0xFFE1F5EE,
+      'fg': 0xFF0F6E56,
+      'verified': false
+    },
+    {
+      'id': 's3',
+      'name': 'Fatima Benali',
+      'meta': 'Conductrice · 4.8 ?',
+      'initials': 'FB',
+      'bg': 0xFFFAEEDA,
+      'fg': 0xFFBA7517,
+      'verified': true
+    },
+    {
+      'id': 's4',
+      'name': 'Lucas Moreau',
+      'meta': 'Conducteur · 4.6 ?',
+      'initials': 'LM',
+      'bg': 0xFFEDE9FB,
+      'fg': 0xFF5B3FA6,
+      'verified': false
+    },
+    {
+      'id': 's5',
+      'name': 'Jade Ouellet',
+      'meta': 'Conductrice · 4.9 ?',
+      'initials': 'JO',
+      'bg': 0xFFE8F0FE,
+      'fg': 0xFF1A56CC,
+      'verified': true
+    },
   ];
 
   void _search(String q) {
     setState(() {
       _results = q.length < 2
           ? []
-          : _pool.where((d) => d['name']!.toString().toLowerCase().contains(q.toLowerCase())).toList();
+          : _pool
+              .where((d) =>
+                  d['name']!.toString().toLowerCase().contains(q.toLowerCase()))
+              .toList();
     });
   }
 
   void _toggle(String id) {
     setState(() {
-      if (_selected.contains(id)) _selected.remove(id); else _selected.add(id);
+      if (_selected.contains(id))
+        _selected.remove(id);
+      else
+        _selected.add(id);
     });
   }
 
@@ -692,8 +845,11 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
           // Handle
           Center(
             child: Container(
-              width: 40, height: 4, margin: const EdgeInsets.only(top: 12, bottom: 4),
-              decoration: BoxDecoration(color: _gray200, borderRadius: BorderRadius.circular(2)),
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(top: 12, bottom: 4),
+              decoration: BoxDecoration(
+                  color: _gray200, borderRadius: BorderRadius.circular(2)),
             ),
           ),
           Padding(
@@ -702,7 +858,8 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
               children: [
                 const Icon(Icons.person_rounded, color: _text1, size: 18),
                 const SizedBox(width: 8),
-                Text('Ajouter un conducteur', style: _sora(size: 16, weight: FontWeight.w700)),
+                Text('Ajouter un conducteur',
+                    style: _sora(size: 16, weight: FontWeight.w700)),
                 const Spacer(),
                 IconButton(
                   icon: const Icon(Icons.close_rounded, color: _text3),
@@ -747,14 +904,17 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
             Container(
               margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(color: _blueLight, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                  color: _blueLight, borderRadius: BorderRadius.circular(10)),
               child: Row(
                 children: [
-                  Text('${_selected.length} sélectionné(s)', style: _sora(size: 12, color: _primary)),
+                  Text('${_selected.length} sélectionné(s)',
+                      style: _sora(size: 12, color: _primary)),
                   const Spacer(),
                   GestureDetector(
                     onTap: () => setState(() => _selected.clear()),
-                    child: Text('Tout désélectionner', style: _sora(size: 12, color: _red)),
+                    child: Text('Tout désélectionner',
+                        style: _sora(size: 12, color: _red)),
                   ),
                 ],
               ),
@@ -766,9 +926,11 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.group_outlined, size: 40, color: _gray200),
+                        const Icon(Icons.group_outlined,
+                            size: 40, color: _gray200),
                         const SizedBox(height: 10),
-                        Text('Trouvez un conducteur', style: _sora(size: 13, color: _text3)),
+                        Text('Trouvez un conducteur',
+                            style: _sora(size: 13, color: _text3)),
                         const SizedBox(height: 4),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -789,21 +951,32 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
                       return GestureDetector(
                         onTap: () => _toggle(id),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: isSelected ? _blueLight.withOpacity(0.5) : Colors.transparent,
-                            border: const Border(bottom: BorderSide(color: Color(0x0D000000))),
+                            color: isSelected
+                                ? _blueLight.withOpacity(0.5)
+                                : Colors.transparent,
+                            border: const Border(
+                                bottom: BorderSide(color: Color(0x0D000000))),
                           ),
                           child: Row(
                             children: [
                               Container(
-                                width: 22, height: 22,
+                                width: 22,
+                                height: 22,
                                 decoration: BoxDecoration(
-                                  color: isSelected ? _blue : Colors.transparent,
+                                  color:
+                                      isSelected ? _blue : Colors.transparent,
                                   borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: isSelected ? _blue : _gray200, width: 1.5),
+                                  border: Border.all(
+                                      color: isSelected ? _blue : _gray200,
+                                      width: 1.5),
                                 ),
-                                child: isSelected ? const Icon(Icons.check_rounded, color: Colors.white, size: 12) : null,
+                                child: isSelected
+                                    ? const Icon(Icons.check_rounded,
+                                        color: Colors.white, size: 12)
+                                    : null,
                               ),
                               const SizedBox(width: 12),
                               CircleAvatar(
@@ -811,7 +984,10 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
                                 backgroundColor: Color(d['bg'] as int),
                                 child: Text(
                                   d['initials'] as String,
-                                  style: _sora(size: 12, weight: FontWeight.w700, color: Color(d['fg'] as int)),
+                                  style: _sora(
+                                      size: 12,
+                                      weight: FontWeight.w700,
+                                      color: Color(d['fg'] as int)),
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -819,15 +995,26 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(d['name'] as String, style: _sora(size: 13, weight: FontWeight.w700)),
-                                    Text(d['meta'] as String, style: _dm(size: 11, color: _text3)),
+                                    Text(d['name'] as String,
+                                        style: _sora(
+                                            size: 13, weight: FontWeight.w700)),
+                                    Text(d['meta'] as String,
+                                        style: _dm(size: 11, color: _text3)),
                                     if (d['verified'] == true)
                                       Padding(
                                         padding: const EdgeInsets.only(top: 2),
                                         child: Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                                          decoration: BoxDecoration(color: _tealLight, borderRadius: BorderRadius.circular(999)),
-                                          child: Text('✓ Vérifié', style: _sora(size: 10, weight: FontWeight.w700, color: _teal)),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 6, vertical: 1),
+                                          decoration: BoxDecoration(
+                                              color: _tealLight,
+                                              borderRadius:
+                                                  BorderRadius.circular(999)),
+                                          child: Text('? Vérifié',
+                                              style: _sora(
+                                                  size: 10,
+                                                  weight: FontWeight.w700,
+                                                  color: _teal)),
                                         ),
                                       ),
                                   ],
@@ -853,8 +1040,12 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
                     onTap: () => Navigator.pop(context),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(color: _gray100, borderRadius: BorderRadius.circular(14)),
-                      child: Center(child: Text('Annuler', style: _sora(size: 14, color: _text2))),
+                      decoration: BoxDecoration(
+                          color: _gray100,
+                          borderRadius: BorderRadius.circular(14)),
+                      child: Center(
+                          child: Text('Annuler',
+                              style: _sora(size: 14, color: _text2))),
                     ),
                   ),
                 ),
@@ -862,14 +1053,39 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
                 Expanded(
                   flex: 2,
                   child: GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
+                    onTap: _selected.isEmpty
+                        ? null
+                        : () async {
+                            for (final id in _selected) {
+                              final driver = _pool.firstWhere(
+                                (d) => d['id'] == id,
+                                orElse: () => <String, Object>{},
+                              );
+                              if (driver.isEmpty) continue;
+                              try {
+                                await ApiService.instance.post(
+                                  '/api/users/$id/survey-alert',
+                                  <String, dynamic>{
+                                    'driverId': id,
+                                    'driverName': driver['name'] ?? '',
+                                    'departureLabel': '',
+                                    'arrivalLabel': '',
+                                  },
+                                );
+                              } catch (_) {}
+                            }
+                            if (context.mounted) Navigator.pop(context, true);
+                          },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: _teal,
+                        color: _selected.isEmpty ? _gray200 : _teal,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Center(child: Text('Enregistrer', style: _sora(size: 14, color: Colors.white))),
+                      child: Center(
+                          child: Text('Enregistrer',
+                              style: _sora(size: 14, color: Colors.white))),
                     ),
                   ),
                 ),
@@ -882,7 +1098,7 @@ class _AddDriverSheetState extends State<_AddDriverSheet> {
   }
 }
 
-// ─── ADD PLACE SHEET ──────────────────────────────────────────────────────────
+// --- ADD PLACE SHEET ----------------------------------------------------------
 
 class _AddPlaceSheet extends StatefulWidget {
   const _AddPlaceSheet();
@@ -899,10 +1115,19 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
   static const _mockAddresses = [
     {'label': 'Campus La Cité', 'address': '950 rue de la Gappe, Gatineau, QC'},
     {'label': 'Gare d\'Ottawa', 'address': '200 Tremblay Rd, Ottawa, ON'},
-    {'label': 'Place d\'Orléans', 'address': '110 Place d\'Orléans Dr, Ottawa, ON'},
+    {
+      'label': 'Place d\'Orléans',
+      'address': '110 Place d\'Orléans Dr, Ottawa, ON'
+    },
     {'label': 'Rideau Centre', 'address': '50 Rideau St, Ottawa, ON'},
-    {'label': 'Carleton University', 'address': '1125 Colonel By Dr, Ottawa, ON'},
-    {'label': 'Université d\'Ottawa', 'address': '75 Laurier Ave E, Ottawa, ON'},
+    {
+      'label': 'Carleton University',
+      'address': '1125 Colonel By Dr, Ottawa, ON'
+    },
+    {
+      'label': 'Université d\'Ottawa',
+      'address': '75 Laurier Ave E, Ottawa, ON'
+    },
   ];
 
   List<Map<String, String>> _suggestions = [];
@@ -934,7 +1159,8 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         constraints: const BoxConstraints(maxHeight: 600),
         decoration: const BoxDecoration(
@@ -946,8 +1172,11 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
           children: [
             Center(
               child: Container(
-                width: 40, height: 4, margin: const EdgeInsets.only(top: 12, bottom: 4),
-                decoration: BoxDecoration(color: _gray200, borderRadius: BorderRadius.circular(2)),
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 4),
+                decoration: BoxDecoration(
+                    color: _gray200, borderRadius: BorderRadius.circular(2)),
               ),
             ),
             Padding(
@@ -956,9 +1185,12 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
                 children: [
                   const Icon(Icons.place_rounded, color: _text1, size: 18),
                   const SizedBox(width: 8),
-                  Text('Ajouter un lieu favori', style: _sora(size: 16, weight: FontWeight.w700)),
+                  Text('Ajouter un lieu favori',
+                      style: _sora(size: 16, weight: FontWeight.w700)),
                   const Spacer(),
-                  IconButton(icon: const Icon(Icons.close_rounded, color: _text3), onPressed: () => Navigator.pop(context)),
+                  IconButton(
+                      icon: const Icon(Icons.close_rounded, color: _text3),
+                      onPressed: () => Navigator.pop(context)),
                 ],
               ),
             ),
@@ -974,12 +1206,17 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
                       decoration: BoxDecoration(
                         color: _gray50,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: _selectedSuggestion != null ? _blue : _gray200, width: 1.5),
+                        border: Border.all(
+                            color:
+                                _selectedSuggestion != null ? _blue : _gray200,
+                            width: 1.5),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       child: Row(
                         children: [
-                          const Icon(Icons.search_rounded, color: _gray400, size: 16),
+                          const Icon(Icons.search_rounded,
+                              color: _gray400, size: 16),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
@@ -1014,20 +1251,33 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
                             return GestureDetector(
                               onTap: () => _selectSuggestion(s),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 10),
                                 decoration: BoxDecoration(
-                                  border: isLast ? null : const Border(bottom: BorderSide(color: Color(0x0D000000))),
+                                  border: isLast
+                                      ? null
+                                      : const Border(
+                                          bottom: BorderSide(
+                                              color: Color(0x0D000000))),
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(Icons.place_rounded, color: _text3, size: 16),
+                                    const Icon(Icons.place_rounded,
+                                        color: _text3, size: 16),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(s['label']!, style: _sora(size: 13, weight: FontWeight.w700)),
-                                          Text(s['address']!, style: _dm(size: 11, color: _text3), overflow: TextOverflow.ellipsis),
+                                          Text(s['label']!,
+                                              style: _sora(
+                                                  size: 13,
+                                                  weight: FontWeight.w700)),
+                                          Text(s['address']!,
+                                              style:
+                                                  _dm(size: 11, color: _text3),
+                                              overflow: TextOverflow.ellipsis),
                                         ],
                                       ),
                                     ),
@@ -1041,17 +1291,20 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
                     ],
                     const SizedBox(height: 12),
                     // Name
-                    Text('PSEUDONYME DU LIEU', style: _sora(size: 10, color: _text3, letterSpacing: 0.6)),
+                    Text('PSEUDONYME DU LIEU',
+                        style:
+                            _sora(size: 10, color: _text3, letterSpacing: 0.6)),
                     const SizedBox(height: 6),
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: _gray200, width: 1.5),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       child: Row(
                         children: [
-                          const Text('✏️', style: TextStyle(fontSize: 14)),
+                          const Text('??', style: TextStyle(fontSize: 14)),
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextField(
@@ -1074,17 +1327,28 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: ['🏠 Maison', '🎓 École', '💼 Travail', '🏋️ Gym', '🌟 Autre']
+                        children: [
+                          '?? Maison',
+                          '?? École',
+                          '?? Travail',
+                          '??? Gym',
+                          '?? Autre'
+                        ]
                             .map((p) => GestureDetector(
                                   onTap: () => _nameCtrl.text = p,
                                   child: Container(
                                     margin: const EdgeInsets.only(right: 7),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
                                       color: _blueLight,
                                       borderRadius: BorderRadius.circular(999),
                                     ),
-                                    child: Text(p, style: _sora(size: 12, weight: FontWeight.w700, color: _blue)),
+                                    child: Text(p,
+                                        style: _sora(
+                                            size: 12,
+                                            weight: FontWeight.w700,
+                                            color: _blue)),
                                   ),
                                 ))
                             .toList(),
@@ -1105,8 +1369,12 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
                       onTap: () => Navigator.pop(context),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        decoration: BoxDecoration(color: _gray100, borderRadius: BorderRadius.circular(14)),
-                        child: Center(child: Text('Annuler', style: _sora(size: 14, color: _text2))),
+                        decoration: BoxDecoration(
+                            color: _gray100,
+                            borderRadius: BorderRadius.circular(14)),
+                        child: Center(
+                            child: Text('Annuler',
+                                style: _sora(size: 14, color: _text2))),
                       ),
                     ),
                   ),
@@ -1114,7 +1382,30 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
                   Expanded(
                     flex: 2,
                     child: GestureDetector(
-                      onTap: _selectedSuggestion != null ? () => Navigator.pop(context) : null,
+                      onTap: _selectedSuggestion != null
+                          ? () async {
+                              try {
+                                await ApiService.instance.post(
+                                  '/api/places-favoris',
+                                  <String, dynamic>{
+                                    'pseudonyme':
+                                        _nameCtrl.text.trim().isNotEmpty
+                                            ? _nameCtrl.text.trim()
+                                            : _selectedSuggestion!['label']!,
+                                    'adresse': _selectedSuggestion!['address']!,
+                                    'lat': 45.4215,
+                                    'lng': -75.6699,
+                                    'iconTag': 'autre',
+                                  },
+                                );
+                                if (context.mounted)
+                                  Navigator.pop(context, true);
+                              } catch (_) {
+                                if (context.mounted)
+                                  Navigator.pop(context, false);
+                              }
+                            }
+                          : null,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.symmetric(vertical: 14),
@@ -1122,7 +1413,9 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
                           color: _selectedSuggestion != null ? _blue : _gray200,
                           borderRadius: BorderRadius.circular(14),
                         ),
-                        child: Center(child: Text('Enregistrer', style: _sora(size: 14, color: Colors.white))),
+                        child: Center(
+                            child: Text('Enregistrer',
+                                style: _sora(size: 14, color: Colors.white))),
                       ),
                     ),
                   ),
@@ -1135,4 +1428,3 @@ class _AddPlaceSheetState extends State<_AddPlaceSheet> {
     );
   }
 }
-

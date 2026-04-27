@@ -1,7 +1,8 @@
-﻿import 'dart:async';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/services/api_service.dart';
 import '../../core/services/auth_service.dart';
@@ -29,7 +30,8 @@ class _OtpScreenState extends State<OtpScreen> {
   final TextEditingController _otpController = TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _registerPasswordController = TextEditingController();
+  final TextEditingController _registerPasswordController =
+      TextEditingController();
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -123,10 +125,12 @@ class _OtpScreenState extends State<OtpScreen> {
         });
         _startTimer();
       } else {
-        setState(() => _errorMessage = result.message ?? 'Mot de passe invalide');
+        setState(
+            () => _errorMessage = result.message ?? 'Mot de passe invalide');
       }
     } catch (_) {
-      if (mounted) setState(() => _errorMessage = 'Erreur lors de la connexion');
+      if (mounted)
+        setState(() => _errorMessage = 'Erreur lors de la connexion');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -194,12 +198,17 @@ class _OtpScreenState extends State<OtpScreen> {
       if (!mounted) return;
 
       if (result.success) {
-        context.go('/onboarding');
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final bool onboardingDone = prefs.getBool('onboarding_done') ?? false;
+        if (!mounted) return;
+        context.go(onboardingDone ? '/home' : '/onboarding');
       } else {
-        setState(() => _errorMessage = result.message ?? 'Erreur lors de l\'inscription');
+        setState(() =>
+            _errorMessage = result.message ?? 'Erreur lors de l\'inscription');
       }
     } catch (_) {
-      if (mounted) setState(() => _errorMessage = 'Erreur lors de l\'inscription');
+      if (mounted)
+        setState(() => _errorMessage = 'Erreur lors de l\'inscription');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -218,10 +227,13 @@ class _OtpScreenState extends State<OtpScreen> {
         await _auth.verifyEmail(widget.email);
       } else if (_lastPassword.isNotEmpty) {
         await _auth.passwordLogin(_lastPassword);
+      } else {
+        await _auth.verifyEmail(widget.email);
       }
       _startTimer();
     } catch (_) {
-      setState(() => _errorMessage = 'Impossible de renvoyer le code');
+      if (mounted)
+        setState(() => _errorMessage = 'Impossible de renvoyer le code');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -242,8 +254,10 @@ class _OtpScreenState extends State<OtpScreen> {
                 children: [
                   TextButton.icon(
                     onPressed: () => context.pop(),
-                    style: TextButton.styleFrom(alignment: Alignment.centerLeft),
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
+                    style:
+                        TextButton.styleFrom(alignment: Alignment.centerLeft),
+                    icon:
+                        const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
                     label: const Text('Retour'),
                   ),
                   const SizedBox(height: 12),
@@ -253,7 +267,8 @@ class _OtpScreenState extends State<OtpScreen> {
                         : _stage == _AuthStage.otp
                             ? 'Code OTP'
                             : 'Inscription',
-                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                        fontSize: 26, fontWeight: FontWeight.w700),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 6),
@@ -284,18 +299,23 @@ class _OtpScreenState extends State<OtpScreen> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      _canResend ? 'Vous pouvez renvoyer un code.' : 'Renvoi possible dans $_timerText',
+                      _canResend
+                          ? 'Vous pouvez renvoyer un code.'
+                          : 'Renvoi possible dans $_timerText',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+                      style: const TextStyle(
+                          color: Color(0xFF6B7280), fontSize: 12),
                     ),
                     const SizedBox(height: 12),
                     _actionButton('Vérifier', _submitOtp),
                     const SizedBox(height: 10),
                     OutlinedButton(
-                      onPressed: (_isLoading || !_canResend) ? null : _resendCode,
+                      onPressed:
+                          (_isLoading || !_canResend) ? null : _resendCode,
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text('Renvoyer le code'),
                     ),
@@ -364,13 +384,15 @@ class _OtpScreenState extends State<OtpScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF1A56CC),
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: _isLoading
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                child: CircularProgressIndicator(
+                    strokeWidth: 2, color: Colors.white),
               )
             : Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
       ),

@@ -51,8 +51,7 @@ class CovoiturageApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Covoiturage La Cité',
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: const Color(0xFF1A56CC)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1A56CC)),
         primaryColor: const Color(0xFF08316E),
         scaffoldBackgroundColor: const Color(0xFFF2F5FA),
         textTheme: GoogleFonts.openSansTextTheme(),
@@ -66,7 +65,8 @@ final GoRouter appRouter = GoRouter(
   navigatorKey: appNavigatorKey,
   initialLocation: '/bootstrap',
   routes: <RouteBase>[
-    GoRoute(path: '/bootstrap', builder: (_, __) => const _AuthBootstrapScreen()),
+    GoRoute(
+        path: '/bootstrap', builder: (_, __) => const _AuthBootstrapScreen()),
     GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
     GoRoute(
       path: '/otp',
@@ -75,19 +75,17 @@ final GoRouter appRouter = GoRouter(
         mode: state.uri.queryParameters['mode'] ?? 'password',
       ),
     ),
-    GoRoute(
-        path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
+    GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
     GoRoute(path: '/home', builder: (_, __) => const AppShell()),
     GoRoute(path: '/messages', builder: (_, __) => const MessagesScreen()),
     GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
     GoRoute(path: '/stats', builder: (_, __) => const StatsScreen()),
     GoRoute(path: '/favoris', builder: (_, __) => const FavorisScreen()),
     GoRoute(path: '/reviews', builder: (_, __) => const ReviewsScreen()),
-    GoRoute(path: '/app-settings', builder: (_, __) => const AppSettingsScreen()),
     GoRoute(
-        path: '/historique', builder: (_, __) => const HistoriqueScreen()),
-    GoRoute(
-        path: '/brouillons', builder: (_, __) => const BrouillonsScreen()),
+        path: '/app-settings', builder: (_, __) => const AppSettingsScreen()),
+    GoRoute(path: '/historique', builder: (_, __) => const HistoriqueScreen()),
+    GoRoute(path: '/brouillons', builder: (_, __) => const BrouillonsScreen()),
     GoRoute(
       path: '/search',
       builder: (_, GoRouterState state) {
@@ -98,11 +96,13 @@ final GoRouter appRouter = GoRouter(
           if (value is num) return value.toDouble();
           return double.tryParse(value?.toString() ?? '');
         }
+
         bool parseNullableBool(dynamic value) {
           if (value is bool) return value;
           final String raw = value?.toString().toLowerCase() ?? '';
           return raw == 'true' || raw == '1';
         }
+
         bool? parseOptionalBool(dynamic value) {
           if (value == null) return null;
           if (value is bool) return value;
@@ -111,8 +111,9 @@ final GoRouter appRouter = GoRouter(
           if (raw == 'false' || raw == '0') return false;
           return null;
         }
-        final bool isDriverMode =
-            parseOptionalBool(extra?['isDriver']) ?? AppStateStore.instance.isDriver;
+
+        final bool isDriverMode = parseOptionalBool(extra?['isDriver']) ??
+            AppStateStore.instance.isDriver;
         return SearchScreen(
           tripService: _tripService,
           initialFrom: extra?['from']?.toString(),
@@ -196,8 +197,29 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/chat/:tripId',
-      builder: (_, GoRouterState state) =>
-          ChatScreen(tripId: state.pathParameters['tripId'] ?? ''),
+      builder: (_, GoRouterState state) {
+        final extra = state.extra is Map<String, dynamic>
+            ? state.extra as Map<String, dynamic>
+            : null;
+        final tripId = state.pathParameters['tripId'] ?? '';
+
+        DateTime? departureTime;
+        if (extra?['tripDepartureTime'] != null) {
+          departureTime =
+              DateTime.tryParse(extra!['tripDepartureTime'].toString());
+        }
+
+        return ChatScreen(
+          tripId: tripId,
+          tripDepartureTime: departureTime,
+          otherUserName: extra?['otherUserName']?.toString(),
+          otherUserInitials: extra?['otherUserInitials']?.toString(),
+          otherUserAvatarUrl: extra?['otherUserAvatarUrl']?.toString(),
+          isDriver:
+              extra?['isDriver'] as bool? ?? AppStateStore.instance.isDriver,
+          tripRoute: extra?['tripRoute']?.toString(),
+        );
+      },
     ),
     GoRoute(
       path: '/driver-search-map',
@@ -214,7 +236,8 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
     GoRoute(
-        path: '/notifications', builder: (_, __) => const NotificationsScreen()),
+        path: '/notifications',
+        builder: (_, __) => const NotificationsScreen()),
     GoRoute(
       path: '/notification/:id',
       builder: (_, GoRouterState state) => NotificationDetailScreen(

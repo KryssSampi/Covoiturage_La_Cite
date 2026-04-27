@@ -22,7 +22,8 @@ class ApiService {
   );
 
   static const String _publicKeyStorageKey = 'server_public_key';
-  static const String _publicKeyFingerprintStorageKey = 'server_public_key_sha256';
+  static const String _publicKeyFingerprintStorageKey =
+      'server_public_key_sha256';
   static String? _pinnedFingerprint;
 
   static late final Dio _dio;
@@ -82,7 +83,8 @@ class ApiService {
     }
 
     if (cachedKey != null && cachedKey.isNotEmpty) {
-      final String fingerprint = sha256.convert(utf8.encode(cachedKey)).toString();
+      final String fingerprint =
+          sha256.convert(utf8.encode(cachedKey)).toString();
       await prefs.setString(_publicKeyFingerprintStorageKey, fingerprint);
       _pinnedFingerprint = fingerprint;
     } else {
@@ -118,7 +120,8 @@ class ApiService {
       }
 
       final String derFingerprint = sha256.convert(cert.der).toString();
-      final String pemFingerprint = sha256.convert(utf8.encode(cert.pem)).toString();
+      final String pemFingerprint =
+          sha256.convert(utf8.encode(cert.pem)).toString();
       final String? pinned = _pinnedFingerprint;
 
       if (pinned == null || pinned.isEmpty) {
@@ -289,6 +292,27 @@ class ApiService {
     }
   }
 
+  Future<dynamic> delete(
+    String path, {
+    Options? options,
+    List<String> invalidateKeys = const <String>[],
+  }) async {
+    final List<String> keys = <String>{...invalidateKeys}.toList();
+    try {
+      final Response<dynamic> response = await _dio.delete<dynamic>(
+        path,
+        options: options,
+      );
+      AppStateStore.instance.clearFixtureFallback();
+      if (keys.isNotEmpty) {
+        unawaited(_cache.invalidateAll(keys));
+      }
+      return response.data;
+    } catch (error) {
+      rethrow;
+    }
+  }
+
   Future<void> _refreshInBackground(
     String path, {
     Map<String, dynamic>? params,
@@ -327,7 +351,8 @@ class ApiService {
     if (path == '/api/reviews/me') return CacheKeys.reviews;
     if (path == '/api/trips/mine/driver') return CacheKeys.myDriverTrips;
     if (path == '/api/trips/mine/passenger') return CacheKeys.myPassengerTrips;
-    if (path == '/api/trips/drafts' || path == '/api/drafts') return CacheKeys.drafts;
+    if (path == '/api/trips/drafts' || path == '/api/drafts')
+      return CacheKeys.drafts;
     if (path == '/api/trips/history' ||
         path == '/api/driver/historique' ||
         path == '/api/passenger/historique') {
@@ -378,7 +403,9 @@ class ApiService {
       ];
     }
     if (path.startsWith('/api/reservations/') &&
-        (path.endsWith('/accept') || path.endsWith('/refuse') || path.endsWith('/cancel'))) {
+        (path.endsWith('/accept') ||
+            path.endsWith('/refuse') ||
+            path.endsWith('/cancel'))) {
       return <String>[
         CacheKeys.reservations,
         CacheKeys.reservationsEnriched,
@@ -397,9 +424,14 @@ class ApiService {
       return keys;
     }
     if (path == '/api/trips') {
-      return <String>[CacheKeys.myDriverTrips, CacheKeys.drafts, CacheKeys.dashboard];
+      return <String>[
+        CacheKeys.myDriverTrips,
+        CacheKeys.drafts,
+        CacheKeys.dashboard
+      ];
     }
-    if (path == '/api/unavailability' || path.contains('/api/unavailability/')) {
+    if (path == '/api/unavailability' ||
+        path.contains('/api/unavailability/')) {
       return <String>[CacheKeys.unavailability];
     }
     if (path == '/api/reviews') {
@@ -408,7 +440,8 @@ class ApiService {
     if (path == '/api/vehicles') {
       return <String>[CacheKeys.vehicles];
     }
-    if (path == '/api/users/change-password' || path == '/api/users/me/delete') {
+    if (path == '/api/users/change-password' ||
+        path == '/api/users/me/delete') {
       return <String>[CacheKeys.profile, CacheKeys.dashboard];
     }
     return const <String>[];
@@ -523,9 +556,10 @@ class _AuthInterceptor extends Interceptor {
           final Map<String, dynamic> body = (res.data is Map<String, dynamic>)
               ? res.data as Map<String, dynamic>
               : <String, dynamic>{};
-          final Map<String, dynamic> payload = (body['data'] is Map<String, dynamic>)
-              ? body['data'] as Map<String, dynamic>
-              : body;
+          final Map<String, dynamic> payload =
+              (body['data'] is Map<String, dynamic>)
+                  ? body['data'] as Map<String, dynamic>
+                  : body;
 
           final String? newAccess = payload['accessToken']?.toString();
           final String? newRefresh = payload['refreshToken']?.toString();
@@ -537,7 +571,8 @@ class _AuthInterceptor extends Interceptor {
             }
 
             err.requestOptions.headers['Authorization'] = 'Bearer $newAccess';
-            final Response<dynamic> retry = await ApiService._dio.fetch<dynamic>(err.requestOptions);
+            final Response<dynamic> retry =
+                await ApiService._dio.fetch<dynamic>(err.requestOptions);
             return handler.resolve(retry);
           }
         } catch (_) {
