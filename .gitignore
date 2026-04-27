@@ -45,3 +45,4 @@ Thumbs.db
 *.trace
 __pycache__/
 TODO.md
+**/TODO.md

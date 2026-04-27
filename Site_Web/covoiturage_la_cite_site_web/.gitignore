@@ -45,7 +45,6 @@ next-env.d.ts
 .architecture-update/
 .wireframes/
 .docs/
-.claude/
 scripts/auto-commit/
 .IA_CHATs/
 core\services\algorithm-extraction-state.md
