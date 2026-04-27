@@ -1,9 +1,11 @@
 // lib/features/profile/profile_screen.dart
-// Profile screen — consolidated, no duplicate definitions
+// CORRECTIONS :
+//   1. TabController recréé si length change après chargement profil (évite crash)
+//   2. Onglet Véhicule : champs liés à des controllers → sauvegarde fonctionnelle
+//   3. _LabeledField accepte un controller optionnel
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/app_colors.dart';
 import '../../core/converters/display_converters.dart';
@@ -187,8 +189,11 @@ class _ProfileScreenState extends State<ProfileScreen>
   final ApiService _api = ApiService.instance;
 
   late TabController _tabController;
+
   List<String> get _tabs {
-    final isDriver = _profile.appRole.toLowerCase().contains('conducteur') || _profile.appRole.toLowerCase().contains('driver');
+    final bool isDriver =
+        _profile.appRole.toLowerCase().contains('conducteur') ||
+            _profile.appRole.toLowerCase().contains('driver');
     return [
       'Mon Profil',
       'Visibilité',
@@ -206,13 +211,22 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   late UserProfile _profile;
 
-  // Controllers
+  // ── Profil controllers ────────────────────────────────────────────────────
   late TextEditingController _firstNameCtrl;
   late TextEditingController _lastNameCtrl;
   late TextEditingController _notifEmailCtrl;
   late TextEditingController _phoneCtrl;
   late TextEditingController _bioCtrl;
   String _schoolRole = 'etudiant';
+
+  // ── Véhicule controllers ──────────────────────────────────────────────────
+  late TextEditingController _vMakeCtrl;
+  late TextEditingController _vModelCtrl;
+  late TextEditingController _vYearCtrl;
+  late TextEditingController _vColorCtrl;
+  late TextEditingController _vPlateCtrl;
+  int _vSeats = 3;
+
   static const Map<String, String> _schoolRoleItems = {
     'etudiant': 'Étudiant',
     'professeur': 'Professeur',
@@ -230,6 +244,11 @@ class _ProfileScreenState extends State<ProfileScreen>
     _notifEmailCtrl = TextEditingController();
     _phoneCtrl = TextEditingController();
     _bioCtrl = TextEditingController();
+    _vMakeCtrl = TextEditingController();
+    _vModelCtrl = TextEditingController();
+    _vYearCtrl = TextEditingController();
+    _vColorCtrl = TextEditingController();
+    _vPlateCtrl = TextEditingController();
     _loadProfile();
   }
 
@@ -241,6 +260,11 @@ class _ProfileScreenState extends State<ProfileScreen>
     _notifEmailCtrl.dispose();
     _phoneCtrl.dispose();
     _bioCtrl.dispose();
+    _vMakeCtrl.dispose();
+    _vModelCtrl.dispose();
+    _vYearCtrl.dispose();
+    _vColorCtrl.dispose();
+    _vPlateCtrl.dispose();
     super.dispose();
   }
 
@@ -256,6 +280,10 @@ class _ProfileScreenState extends State<ProfileScreen>
           DisplayConverters.toProfileViewJson(json);
       if (!mounted) return;
       final profile = UserProfile.fromJson(displayJson);
+
+      // Calculer l'ancienne longueur AVANT de mettre à jour _profile
+      final int oldLen = _tabs.length;
+
       setState(() {
         _profile = profile;
         _firstNameCtrl.text = profile.firstName;
@@ -264,6 +292,20 @@ class _ProfileScreenState extends State<ProfileScreen>
         _schoolRole = _normalizeSchoolRole(profile.schoolRole);
         _isLoading = false;
       });
+
+      // Recréer le TabController si le nombre d'onglets a changé
+      // (ex: passager → conducteur ou inversement)
+      if (_tabs.length != oldLen) {
+        final int currentIndex =
+            _tabController.index.clamp(0, _tabs.length - 1);
+        _tabController.dispose();
+        _tabController = TabController(
+          length: _tabs.length,
+          vsync: this,
+          initialIndex: currentIndex,
+        );
+        if (mounted) setState(() {});
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -281,9 +323,8 @@ class _ProfileScreenState extends State<ProfileScreen>
         'notificationEmail': _notifEmailCtrl.text.trim().isEmpty
             ? null
             : _notifEmailCtrl.text.trim(),
-        'phoneNumber': _phoneCtrl.text.trim().isEmpty
-            ? null
-            : _phoneCtrl.text.trim(),
+        'phoneNumber':
+            _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
         'bio': _bioCtrl.text.trim().isEmpty ? null : _bioCtrl.text.trim(),
         'languagesSpoken': _profile.languagesSpoken,
         'canBeDriver': _profile.appRole.toLowerCase().contains('conducteur') ||
@@ -314,7 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           'showCo2': _profile.showCo2,
         },
       });
-      await _loadProfile(); // recharge les données à jour après sauvegarde
+      await _loadProfile();
       if (!mounted) return;
       setState(() => _saved = true);
       await Future.delayed(const Duration(seconds: 2));
@@ -322,10 +363,52 @@ class _ProfileScreenState extends State<ProfileScreen>
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: $e'), backgroundColor: AppColors.redMid),
+        SnackBar(
+          content: Text('Erreur: $e'),
+          backgroundColor: AppColors.redMid,
+        ),
       );
     }
   }
+
+  // ── Véhicule ──────────────────────────────────────────────────────────────
+
+  Future<void> _saveVehicleFromTab() async {
+    final String make = _vMakeCtrl.text.trim();
+    final String model = _vModelCtrl.text.trim();
+    if (make.isEmpty || model.isEmpty) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Marque et modèle requis')),
+      );
+      return;
+    }
+    try {
+      await _api.post('/api/vehicles', <String, dynamic>{
+        'make': make,
+        'model': model,
+        'year': int.tryParse(_vYearCtrl.text.trim()) ?? 0,
+        'color': _vColorCtrl.text.trim(),
+        'licensePlate': _vPlateCtrl.text.trim(),
+        'capacity': _vSeats,
+        // Champs legacy pour le fixture
+        'label': '$make $model'.trim(),
+        'plate': _vPlateCtrl.text.trim(),
+        'maxPassengers': _vSeats,
+      });
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Véhicule enregistré')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur enregistrement véhicule: $e')),
+      );
+    }
+  }
+
+  // ── Langues ───────────────────────────────────────────────────────────────
 
   Future<void> _addLanguage() async {
     final TextEditingController ctrl = TextEditingController();
@@ -336,11 +419,11 @@ class _ProfileScreenState extends State<ProfileScreen>
         content: TextField(
           controller: ctrl,
           autofocus: true,
-          decoration: const InputDecoration(hintText: 'Ex: Espanol'),
+          decoration: const InputDecoration(hintText: 'Ex: Espagnol'),
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => Navigator.of(dialogContext).pop(ctrl.text.trim()),
         ),
-        actions: <Widget>[
+        actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Annuler'),
@@ -354,95 +437,19 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
     final String lang = value?.trim() ?? '';
     if (lang.isEmpty) return;
-    if (_profile.languagesSpoken.any((String l) => l.toLowerCase() == lang.toLowerCase())) {
+    if (_profile.languagesSpoken
+        .any((l) => l.toLowerCase() == lang.toLowerCase())) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Langue deja presente')),
+        const SnackBar(content: Text('Langue déjà présente')),
       );
       return;
     }
-    setState(() => _profile.languagesSpoken.add(lang));
+    setState(
+        () => _profile.languagesSpoken = [..._profile.languagesSpoken, lang]);
   }
 
-  Future<void> _saveVehicle() async {
-    final TextEditingController brandCtrl = TextEditingController();
-    final TextEditingController modelCtrl = TextEditingController();
-    final TextEditingController yearCtrl = TextEditingController();
-    final TextEditingController colorCtrl = TextEditingController();
-    final TextEditingController plateCtrl = TextEditingController();
-    final TextEditingController seatsCtrl = TextEditingController(text: '3');
-
-    final bool? confirm = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext dialogContext) => AlertDialog(
-        title: const Text('Enregistrer un vehicule'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(controller: brandCtrl, decoration: const InputDecoration(labelText: 'Marque')),
-              TextField(controller: modelCtrl, decoration: const InputDecoration(labelText: 'Modele')),
-              TextField(
-                controller: yearCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Annee'),
-              ),
-              TextField(controller: colorCtrl, decoration: const InputDecoration(labelText: 'Couleur')),
-              TextField(controller: plateCtrl, decoration: const InputDecoration(labelText: 'Plaque')),
-              TextField(
-                controller: seatsCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Places'),
-              ),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Annuler'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Enregistrer'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true) return;
-
-    final String brand = brandCtrl.text.trim();
-    final String model = modelCtrl.text.trim();
-    if (brand.isEmpty || model.isEmpty) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Marque et modele requis')),
-      );
-      return;
-    }
-
-    final Map<String, dynamic> body = <String, dynamic>{
-      'label': '$brand $model'.trim(),
-      'color': colorCtrl.text.trim(),
-      'year': int.tryParse(yearCtrl.text.trim()) ?? 0,
-      'plate': plateCtrl.text.trim(),
-      'maxPassengers': int.tryParse(seatsCtrl.text.trim()) ?? 3,
-    };
-
-    try {
-      await _api.post('/api/vehicles', body);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vehicule enregistre')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur enregistrement vehicule: $e')),
-      );
-    }
-  }
+  // ── Mot de passe ──────────────────────────────────────────────────────────
 
   Future<void> _changePassword() async {
     final TextEditingController currentCtrl = TextEditingController();
@@ -455,16 +462,18 @@ class _ProfileScreenState extends State<ProfileScreen>
         title: const Text('Changer le mot de passe'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
+          children: [
             TextField(
               controller: currentCtrl,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Mot de passe actuel'),
+              decoration:
+                  const InputDecoration(labelText: 'Mot de passe actuel'),
             ),
             TextField(
               controller: nextCtrl,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Nouveau mot de passe'),
+              decoration:
+                  const InputDecoration(labelText: 'Nouveau mot de passe'),
             ),
             TextField(
               controller: confirmCtrl,
@@ -473,7 +482,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ],
         ),
-        actions: <Widget>[
+        actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Annuler'),
@@ -492,7 +501,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (nextPwd.isEmpty || nextPwd != confirmCtrl.text.trim()) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Verification du nouveau mot de passe invalide')),
+        const SnackBar(
+          content: Text('Vérification du nouveau mot de passe invalide'),
+        ),
       );
       return;
     }
@@ -504,7 +515,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       });
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Mot de passe mis a jour')),
+        const SnackBar(content: Text('Mot de passe mis à jour')),
       );
     } catch (e) {
       if (!mounted) return;
@@ -514,19 +525,25 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
+  // ── Suppression compte ────────────────────────────────────────────────────
+
   Future<void> _deleteAccount() async {
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
         title: const Text('Supprimer le compte'),
-        content: const Text('Cette action deconnecte immediatement le profil courant.'),
-        actions: <Widget>[
+        content: const Text(
+          'Cette action supprime définitivement votre compte et déconnecte immédiatement le profil courant.',
+        ),
+        actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
             child: const Text('Annuler'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDC2626)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+            ),
             onPressed: () => Navigator.of(dialogContext).pop(true),
             child: const Text('Supprimer'),
           ),
@@ -550,6 +567,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -563,14 +581,17 @@ class _ProfileScreenState extends State<ProfileScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: AppColors.redMid),
+              const Icon(Icons.error_outline,
+                  size: 48, color: AppColors.redMid),
               const SizedBox(height: 12),
               Text(_error!),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _loadProfile,
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.blue),
-                child: const Text('Réessayer', style: TextStyle(color: Colors.white)),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: AppColors.blue),
+                child: const Text('Réessayer',
+                    style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -578,7 +599,10 @@ class _ProfileScreenState extends State<ProfileScreen>
       );
     }
 
-    final isDriver = _profile.appRole.toLowerCase().contains('conducteur') || _profile.appRole.toLowerCase().contains('driver');
+    final bool isDriver =
+        _profile.appRole.toLowerCase().contains('conducteur') ||
+            _profile.appRole.toLowerCase().contains('driver');
+
     return Scaffold(
       backgroundColor: AppColors.grayBg,
       body: NestedScrollView(
@@ -605,6 +629,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   // ── Sliver Header ─────────────────────────────────────────────────────────
+
   SliverAppBar _buildSliverHeader() {
     return SliverAppBar(
       expandedHeight: 200,
@@ -614,10 +639,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       title: const Text(
         'Mon Profil',
         style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-        ),
+            fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
       ),
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
@@ -637,14 +659,16 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: GestureDetector(
                 onTap: _showChangeCoverSheet,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 6)
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 6,
+                      )
                     ],
                   ),
                   child: Row(
@@ -655,9 +679,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                       Text(
                         'Changer la photo\nde couverture',
                         style: TextStyle(
-                            fontSize: 10,
-                            color: AppColors.blue,
-                            fontWeight: FontWeight.w600),
+                          fontSize: 10,
+                          color: AppColors.blue,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -681,8 +706,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                       child: ClipOval(
                         child: _profile.avatarUrl != null
-                            ? Image.network(_profile.avatarUrl!, fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => _initials())
+                            ? Image.network(
+                                _profile.avatarUrl!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => _initials(),
+                              )
                             : _initials(),
                       ),
                     ),
@@ -697,14 +725,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           decoration: BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
-                            border:
-                                Border.all(color: const Color(0xFFE5E7EB)),
-                            boxShadow: [
-                              BoxShadow(
-                                  color:
-                                      Colors.black.withValues(alpha: 0.1),
-                                  blurRadius: 4)
-                            ],
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
                           ),
                           child: const Icon(Icons.camera_alt,
                               size: 14, color: Color(0xFF6B7280)),
@@ -727,12 +748,16 @@ class _ProfileScreenState extends State<ProfileScreen>
           child: Text(
             '${_profile.firstName.isNotEmpty ? _profile.firstName[0] : ''}${_profile.lastName.isNotEmpty ? _profile.lastName[0] : ''}',
             style: const TextStyle(
-                fontSize: 30, fontWeight: FontWeight.bold, color: AppColors.blue),
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              color: AppColors.blue,
+            ),
           ),
         ),
       );
 
   // ── Identity Card ─────────────────────────────────────────────────────────
+
   Widget _buildIdentityCard() {
     return Container(
       color: Colors.white,
@@ -745,9 +770,10 @@ class _ProfileScreenState extends State<ProfileScreen>
               Text(
                 '${_profile.firstName} ${_profile.lastName}',
                 style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF111827)),
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF111827),
+                ),
               ),
               const SizedBox(width: 6),
               if (_profile.isVerified)
@@ -769,6 +795,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   // ── Tab Bar ───────────────────────────────────────────────────────────────
+
   Widget _buildTabBar() {
     return Container(
       color: Colors.white,
@@ -780,8 +807,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         unselectedLabelColor: const Color(0xFF6B7280),
         indicatorColor: AppColors.blue,
         indicatorWeight: 2.5,
-        labelStyle:
-            const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         unselectedLabelStyle: const TextStyle(fontSize: 13),
         tabs: _tabs.map((t) => Tab(text: t)).toList(),
       ),
@@ -789,6 +815,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   // ── Save Button ───────────────────────────────────────────────────────────
+
   Widget _buildSaveButton() {
     return Container(
       color: Colors.white,
@@ -811,11 +838,9 @@ class _ProfileScreenState extends State<ProfileScreen>
               Icon(_saved ? Icons.check : Icons.save_outlined, size: 18),
               const SizedBox(width: 8),
               Text(
-                _saved
-                    ? 'Enregistré !'
-                    : 'Enregistrer les modifications',
-                style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w600),
+                _saved ? 'Enregistré !' : 'Enregistrer les modifications',
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -827,6 +852,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   // ════════════════════════════════════════════════════════════
   //  ONGLET 1 — MON PROFIL
   // ════════════════════════════════════════════════════════════
+
   Widget _buildMonProfilTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -846,9 +872,10 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 14),
           _sectionLabel('Courriel de notification (optionnel)'),
           _editableField(
-              controller: _notifEmailCtrl,
-              hint: 'ex: mon.email@gmail.com',
-              keyboardType: TextInputType.emailAddress),
+            controller: _notifEmailCtrl,
+            hint: 'ex: mon.email@gmail.com',
+            keyboardType: TextInputType.emailAddress,
+          ),
           const SizedBox(height: 14),
           Row(
             children: [
@@ -876,9 +903,10 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 14),
           _sectionLabel('Téléphone'),
           _editableField(
-              controller: _phoneCtrl,
-              hint: 'ex: 613-555-0101',
-              keyboardType: TextInputType.phone),
+            controller: _phoneCtrl,
+            hint: 'ex: 613-555-0101',
+            keyboardType: TextInputType.phone,
+          ),
           const SizedBox(height: 14),
           _sectionLabel("Rôle à l'école"),
           _buildDropdown(
@@ -895,12 +923,12 @@ class _ProfileScreenState extends State<ProfileScreen>
             maxLines: 3,
             decoration: InputDecoration(
               hintText: 'Ajoutez une bio pour vous présenter...',
-              hintStyle: const TextStyle(
-                  color: Color(0xFF9CA3AF), fontSize: 13),
+              hintStyle:
+                  const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
               filled: true,
               fillColor: Colors.white,
-              contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
@@ -930,14 +958,18 @@ class _ProfileScreenState extends State<ProfileScreen>
                   side: BorderSide.none,
                   deleteIcon: const Icon(Icons.close,
                       size: 14, color: Color(0xFF93C5FD)),
-                  onDeleted: () => setState(
-                      () => _profile.languagesSpoken.remove(l)),
+                  onDeleted: () {
+                    setState(() {
+                      _profile.languagesSpoken = _profile.languagesSpoken
+                          .where((x) => x != l)
+                          .toList();
+                    });
+                  },
                 ),
               ),
               ActionChip(
                 label: const Text('+ Ajouter',
-                    style: TextStyle(
-                        fontSize: 12, color: Color(0xFF6B7280))),
+                    style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
                 backgroundColor: const Color(0xFFF9FAFB),
                 side: const BorderSide(color: Color(0xFFE5E7EB)),
                 onPressed: _addLanguage,
@@ -972,8 +1004,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                 const Color(0xFF16A34A), 'Go Score', '${_profile.goScore}'),
             _statCard(Icons.directions_car, const Color(0xFFDDEFFE),
                 const Color(0xFF2563EB), 'Trajets', '${_profile.totalTrips}'),
-            _statCard(Icons.star, const Color(0xFFF3E8FF),
-                const Color(0xFF9333EA), 'Note',
+            _statCard(
+                Icons.star,
+                const Color(0xFFF3E8FF),
+                const Color(0xFF9333EA),
+                'Note',
                 _profile.averageRating.toStringAsFixed(1)),
             _statCard(
                 Icons.eco,
@@ -1001,8 +1036,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           Container(
             width: 36,
             height: 36,
-            decoration:
-                BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+                color: bg, borderRadius: BorderRadius.circular(8)),
             child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 10),
@@ -1030,6 +1065,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   // ════════════════════════════════════════════════════════════
   //  ONGLET 2 — VISIBILITÉ
   // ════════════════════════════════════════════════════════════
+
   Widget _buildVisibiliteTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -1046,11 +1082,9 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 20),
           _toggleRow('Go Score (votre score global)', _profile.showGoScore,
               (v) => setState(() => _profile.showGoScore = v)),
-          _toggleRow('Nombre de trajets (expérience)',
-              _profile.showTripsCount,
+          _toggleRow('Nombre de trajets (expérience)', _profile.showTripsCount,
               (v) => setState(() => _profile.showTripsCount = v)),
-          _toggleRow('Note globale (évaluations moyennes)',
-              _profile.showRating,
+          _toggleRow('Note globale (évaluations moyennes)', _profile.showRating,
               (v) => setState(() => _profile.showRating = v)),
           _toggleRow('Économie CO₂ (impact écologique)', _profile.showCo2,
               (v) => setState(() => _profile.showCo2 = v)),
@@ -1062,6 +1096,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   // ════════════════════════════════════════════════════════════
   //  ONGLET 3 — AMBIANCE TRAJET
   // ════════════════════════════════════════════════════════════
+
   Widget _buildAmbianceTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -1087,17 +1122,15 @@ class _ProfileScreenState extends State<ProfileScreen>
                   Icons.chat_bubble_outline,
                   'Parler',
                   _profile.conversationLevel != 'quiet',
-                  (v) => setState(() => _profile.conversationLevel =
-                      v ? 'moderate' : 'quiet')),
-              _ambianceTile(Icons.music_note, 'Musique',
-                  _profile.musicAccepted,
+                  (v) => setState(() =>
+                      _profile.conversationLevel = v ? 'moderate' : 'quiet')),
+              _ambianceTile(Icons.music_note, 'Musique', _profile.musicAccepted,
                   (v) => setState(() => _profile.musicAccepted = v)),
-              _ambianceTile(
-                  Icons.pets,
-                  'Animaux',
-                  _profile.petsAccepted,
+              _ambianceTile(Icons.pets, 'Animaux', _profile.petsAccepted,
                   (v) => setState(() => _profile.petsAccepted = v)),
-              _ambianceTile(Icons.smoking_rooms, 'Fumer',
+              _ambianceTile(
+                  Icons.smoking_rooms,
+                  'Fumer',
                   _profile.smokingAccepted,
                   (v) => setState(() => _profile.smokingAccepted = v)),
             ],
@@ -1111,7 +1144,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               final labels = {
                 'quiet': 'Silencieux',
                 'moderate': 'Modéré',
-                'chatty': 'Bavard'
+                'chatty': 'Bavard',
               };
               final selected = _profile.conversationLevel == level;
               return Expanded(
@@ -1123,27 +1156,24 @@ class _ProfileScreenState extends State<ProfileScreen>
                     margin: const EdgeInsets.symmetric(horizontal: 3),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     decoration: BoxDecoration(
-                      color: selected
-                          ? const Color(0xFFEFF6FF)
-                          : Colors.white,
+                      color: selected ? const Color(0xFFEFF6FF) : Colors.white,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                          color: selected
-                              ? AppColors.blue
-                              : const Color(0xFFE5E7EB),
-                          width: selected ? 2 : 1),
+                        color:
+                            selected ? AppColors.blue : const Color(0xFFE5E7EB),
+                        width: selected ? 2 : 1,
+                      ),
                     ),
                     child: Text(
                       labels[level]!,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: selected
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                          color: selected
-                              ? AppColors.blue
-                              : const Color(0xFF6B7280)),
+                        fontSize: 12,
+                        fontWeight:
+                            selected ? FontWeight.w600 : FontWeight.normal,
+                        color:
+                            selected ? AppColors.blue : const Color(0xFF6B7280),
+                      ),
                     ),
                   ),
                 ),
@@ -1155,50 +1185,43 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _ambianceTile(IconData icon, String label, bool value,
-      ValueChanged<bool> onChanged) {
+  Widget _ambianceTile(
+      IconData icon, String label, bool value, ValueChanged<bool> onChanged) {
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: value
-              ? const Color(0xFFEFF6FF)
-              : const Color(0xFFF9FAFB),
+          color: value ? const Color(0xFFEFF6FF) : const Color(0xFFF9FAFB),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-              color: value ? AppColors.blue : const Color(0xFFE5E7EB),
-              width: value ? 2 : 1),
+            color: value ? AppColors.blue : const Color(0xFFE5E7EB),
+            width: value ? 2 : 1,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon,
                 size: 24,
-                color: value
-                    ? AppColors.blue
-                    : const Color(0xFF9CA3AF)),
+                color: value ? AppColors.blue : const Color(0xFF9CA3AF)),
             const SizedBox(height: 4),
             Text(label,
                 style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
-                    color: value
-                        ? AppColors.blue
-                        : const Color(0xFF6B7280))),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: value ? AppColors.blue : const Color(0xFF6B7280),
+                )),
             const SizedBox(height: 4),
             Container(
               width: 10,
               height: 10,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: value
-                    ? AppColors.blue
-                    : Colors.transparent,
+                color: value ? AppColors.blue : Colors.transparent,
                 border: Border.all(
-                    color: value
-                        ? AppColors.blue
-                        : const Color(0xFFD1D5DB)),
+                  color: value ? AppColors.blue : const Color(0xFFD1D5DB),
+                ),
               ),
             ),
           ],
@@ -1210,6 +1233,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   // ════════════════════════════════════════════════════════════
   //  ONGLET 4 — NOTIFICATIONS
   // ════════════════════════════════════════════════════════════
+
   Widget _buildNotificationsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -1223,31 +1247,19 @@ class _ProfileScreenState extends State<ProfileScreen>
               style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
           const SizedBox(height: 20),
           _sectionHeader('Notifications par Email'),
-          _notifCard(
-              'Réservations et annulations',
-              _profile.emailPrimordiales,
+          _notifCard('Réservations et annulations', _profile.emailPrimordiales,
               (v) => setState(() => _profile.emailPrimordiales = v)),
-          _notifCard(
-              'Rappels et correspondances',
-              _profile.emailSecondaires,
+          _notifCard('Rappels et correspondances', _profile.emailSecondaires,
               (v) => setState(() => _profile.emailSecondaires = v)),
-          _notifCard(
-              'Conseils et promotions',
-              _profile.emailNegligeables,
+          _notifCard('Conseils et promotions', _profile.emailNegligeables,
               (v) => setState(() => _profile.emailNegligeables = v)),
           const SizedBox(height: 20),
           _sectionHeader('Notifications Push'),
-          _notifCard(
-              'Réservations et annulations',
-              _profile.pushPrimordiales,
+          _notifCard('Réservations et annulations', _profile.pushPrimordiales,
               (v) => setState(() => _profile.pushPrimordiales = v)),
-          _notifCard(
-              'Rappels et correspondances',
-              _profile.pushSecondaires,
+          _notifCard('Rappels et correspondances', _profile.pushSecondaires,
               (v) => setState(() => _profile.pushSecondaires = v)),
-          _notifCard(
-              'Conseils et promotions',
-              _profile.pushNegligeables,
+          _notifCard('Conseils et promotions', _profile.pushNegligeables,
               (v) => setState(() => _profile.pushNegligeables = v)),
         ],
       ),
@@ -1266,8 +1278,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         title: Text(label,
             style: const TextStyle(fontSize: 13, color: Color(0xFF374151))),
         trailing: _buildSwitch(value, onChanged),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       ),
     );
   }
@@ -1275,6 +1286,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   // ════════════════════════════════════════════════════════════
   //  ONGLET 5 — CONFIDENTIALITÉ
   // ════════════════════════════════════════════════════════════
+
   Widget _buildConfidentialiteTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -1284,8 +1296,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           const Text('Confidentialité',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          const Text(
-              'Contrôlez qui peut voir vos informations personnelles.',
+          const Text('Contrôlez qui peut voir vos informations personnelles.',
               style: TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
           const SizedBox(height: 20),
           _privacyCard(
@@ -1311,8 +1322,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               onPressed: _showLogoutDialog,
               icon: const Icon(Icons.logout, size: 18),
               label: const Text('Déconnexion',
-                  style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w600)),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.redMid,
                 foregroundColor: Colors.white,
@@ -1363,8 +1373,9 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   // ════════════════════════════════════════════════════════════
-  //  ONGLET 6 — VÉHICULE
+  //  ONGLET 6 — VÉHICULE (conducteurs seulement)
   // ════════════════════════════════════════════════════════════
+
   Widget _buildVehicleTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -1372,39 +1383,76 @@ class _ProfileScreenState extends State<ProfileScreen>
         _SectionCard(
           title: 'Mon véhicule',
           children: [
-            _LabeledField(label: 'Marque', initialValue: ''),
-            const SizedBox(height: 12),
-            _LabeledField(label: 'Modèle', initialValue: ''),
+            _LabeledField(
+              label: 'Marque',
+              controller: _vMakeCtrl,
+              hint: 'Toyota',
+            ),
             const SizedBox(height: 12),
             _LabeledField(
-                label: 'Année',
-                initialValue: '',
-                keyboardType: TextInputType.number),
+              label: 'Modèle',
+              controller: _vModelCtrl,
+              hint: 'Corolla',
+            ),
             const SizedBox(height: 12),
-            _LabeledField(label: 'Couleur', initialValue: ''),
+            _LabeledField(
+              label: 'Année',
+              controller: _vYearCtrl,
+              hint: '2020',
+              keyboardType: TextInputType.number,
+            ),
             const SizedBox(height: 12),
-            _LabeledField(label: 'Plaque', initialValue: ''),
+            _LabeledField(
+              label: 'Couleur',
+              controller: _vColorCtrl,
+              hint: 'Bleu nuit',
+            ),
+            const SizedBox(height: 12),
+            _LabeledField(
+              label: 'Plaque',
+              controller: _vPlateCtrl,
+              hint: 'ABC-1234',
+            ),
             const SizedBox(height: 12),
             Row(
               children: [
                 const Text('Places disponibles',
-                    style:
-                        TextStyle(fontSize: 13, color: Color(0xFF374151))),
+                    style: TextStyle(fontSize: 13, color: Color(0xFF374151))),
                 const Spacer(),
-                _SeatsCounter(),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed:
+                          _vSeats > 1 ? () => setState(() => _vSeats--) : null,
+                      icon: const Icon(Icons.remove_circle_outline),
+                      color: AppColors.blue,
+                      iconSize: 22,
+                    ),
+                    Text('$_vSeats',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    IconButton(
+                      onPressed:
+                          _vSeats < 7 ? () => setState(() => _vSeats++) : null,
+                      icon: const Icon(Icons.add_circle_outline),
+                      color: AppColors.blue,
+                      iconSize: 22,
+                    ),
+                  ],
+                ),
               ],
             ),
           ],
         ),
         const SizedBox(height: 24),
         ElevatedButton(
-          onPressed: _saveVehicle,
+          onPressed: _saveVehicleFromTab,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.blue,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 48),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           child: const Text('Enregistrer le véhicule'),
         ),
@@ -1415,68 +1463,46 @@ class _ProfileScreenState extends State<ProfileScreen>
   // ════════════════════════════════════════════════════════════
   //  ONGLET 7 — SÉCURITÉ
   // ════════════════════════════════════════════════════════════
+
   Widget _buildSecurityTab() {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _SectionCard(
-          title: 'Mot de passe',
-          children: [
-            _LabeledField(
-                label: 'Mot de passe actuel', obscureText: true),
-            const SizedBox(height: 12),
-            _LabeledField(
-                label: 'Nouveau mot de passe', obscureText: true),
-            const SizedBox(height: 12),
-            _LabeledField(
-                label: 'Confirmer le mot de passe', obscureText: true),
-          ],
-        ),
-        const SizedBox(height: 16),
-        _SectionCard(
           title: 'Actions du compte',
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.logout,
-                  color: Color(0xFFDC2626)),
+              leading: const Icon(Icons.logout, color: Color(0xFFDC2626)),
               title: const Text('Se déconnecter',
                   style: TextStyle(
-                      color: Color(0xFFDC2626),
-                      fontWeight: FontWeight.w600)),
+                      color: Color(0xFFDC2626), fontWeight: FontWeight.w600)),
               onTap: _showLogoutDialog,
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.delete_forever,
-                  color: Color(0xFFDC2626)),
+              leading: const Icon(Icons.lock_outline, color: AppColors.blue),
+              title: const Text('Changer le mot de passe',
+                  style: TextStyle(
+                      color: AppColors.blue, fontWeight: FontWeight.w600)),
+              onTap: _changePassword,
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading:
+                  const Icon(Icons.delete_forever, color: Color(0xFFDC2626)),
               title: const Text('Supprimer le compte',
                   style: TextStyle(
-                      color: Color(0xFFDC2626),
-                      fontWeight: FontWeight.w600)),
+                      color: Color(0xFFDC2626), fontWeight: FontWeight.w600)),
               onTap: _deleteAccount,
             ),
           ],
-        ),
-        const SizedBox(height: 32),
-        ElevatedButton(
-          onPressed: _changePassword,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.blue,
-            foregroundColor: Colors.white,
-            minimumSize: const Size(double.infinity, 48),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
-          ),
-          child: const Text('Changer le mot de passe'),
         ),
       ],
     );
   }
 
-  // ────────────────────────────────────────────────────────────
-  //  UTILITY WIDGETS
-  // ────────────────────────────────────────────────────────────
+  // ── Utility Widgets ───────────────────────────────────────────────────────
 
   Widget _sectionLabel(String label) => Padding(
         padding: const EdgeInsets.only(bottom: 6),
@@ -1505,8 +1531,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
         child: Text(value,
-            style: const TextStyle(
-                fontSize: 13, color: Color(0xFF6B7280))),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
       );
 
   Widget _editableField({
@@ -1520,26 +1545,25 @@ class _ProfileScreenState extends State<ProfileScreen>
         style: const TextStyle(fontSize: 13),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(
-              color: Color(0xFF9CA3AF), fontSize: 13),
+          hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14, vertical: 12),
-          suffixIcon: const Icon(Icons.edit,
-              size: 14, color: Color(0xFF9CA3AF)),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          suffixIcon:
+              const Icon(Icons.edit, size: 14, color: Color(0xFF9CA3AF)),
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  const BorderSide(color: Color(0xFFE5E7EB))),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
           enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  const BorderSide(color: Color(0xFFE5E7EB))),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
           focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  const BorderSide(color: Color(0xFF60A5FA))),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF60A5FA)),
+          ),
         ),
       );
 
@@ -1553,26 +1577,25 @@ class _ProfileScreenState extends State<ProfileScreen>
         decoration: InputDecoration(
           filled: true,
           fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14, vertical: 12),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  const BorderSide(color: Color(0xFFE5E7EB))),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
           enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  const BorderSide(color: Color(0xFFE5E7EB))),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+          ),
           focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide:
-                  const BorderSide(color: Color(0xFF60A5FA))),
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF60A5FA)),
+          ),
         ),
         items: items.entries
             .map((e) => DropdownMenuItem(
                 value: e.key,
-                child: Text(e.value,
-                    style: const TextStyle(fontSize: 13))))
+                child: Text(e.value, style: const TextStyle(fontSize: 13))))
             .toList(),
         onChanged: onChanged,
       );
@@ -1589,9 +1612,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         .replaceAll('-', '')
         .replaceAll(' ', '');
 
-    if (_schoolRoleItems.containsKey(normalized)) {
-      return normalized;
-    }
+    if (_schoolRoleItems.containsKey(normalized)) return normalized;
     if (normalized.contains('prof')) return 'professeur';
     if (normalized.contains('admin')) return 'administrateur';
     if (normalized.contains('personnel') || normalized.contains('employ')) {
@@ -1600,8 +1621,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return 'etudiant';
   }
 
-  Widget _toggleRow(
-      String label, bool value, ValueChanged<bool> onChanged) =>
+  Widget _toggleRow(String label, bool value, ValueChanged<bool> onChanged) =>
       Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Row(
@@ -1623,39 +1643,34 @@ class _ProfileScreenState extends State<ProfileScreen>
           width: 46,
           height: 26,
           decoration: BoxDecoration(
-            color: value
-                ? AppColors.tealMid
-                : const Color(0xFFD1D5DB),
+            color: value ? AppColors.tealMid : const Color(0xFFD1D5DB),
             borderRadius: BorderRadius.circular(13),
           ),
           child: AnimatedAlign(
             duration: const Duration(milliseconds: 200),
-            alignment: value
-                ? Alignment.centerRight
-                : Alignment.centerLeft,
+            alignment: value ? Alignment.centerRight : Alignment.centerLeft,
             child: Padding(
               padding: const EdgeInsets.all(3),
               child: Container(
                 width: 20,
                 height: 20,
                 decoration: const BoxDecoration(
-                    color: Colors.white, shape: BoxShape.circle),
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
           ),
         ),
       );
 
-  // ────────────────────────────────────────────────────────────
-  //  BOTTOM SHEETS & DIALOGS
-  // ────────────────────────────────────────────────────────────
+  // ── Bottom Sheets ─────────────────────────────────────────────────────────
 
   void _showChangeCoverSheet() {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(20))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -1669,20 +1684,19 @@ class _ProfileScreenState extends State<ProfileScreen>
                     borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
             const Text('Changer la photo de couverture',
-                style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             ListTile(
-                leading: Icon(Icons.photo_library_outlined,
-                    color: AppColors.blue),
-                title: const Text('Choisir depuis la galerie'),
-                onTap: () => Navigator.pop(context)),
+              leading:
+                  Icon(Icons.photo_library_outlined, color: AppColors.blue),
+              title: const Text('Choisir depuis la galerie'),
+              onTap: () => Navigator.pop(context),
+            ),
             ListTile(
-                leading: Icon(Icons.camera_alt_outlined,
-                    color: AppColors.blue),
-                title: const Text('Prendre une photo'),
-                onTap: () => Navigator.pop(context)),
-            const SizedBox(height: 8),
+              leading: Icon(Icons.camera_alt_outlined, color: AppColors.blue),
+              title: const Text('Prendre une photo'),
+              onTap: () => Navigator.pop(context),
+            ),
           ],
         ),
       ),
@@ -1693,8 +1707,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(20))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -1708,26 +1721,26 @@ class _ProfileScreenState extends State<ProfileScreen>
                     borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
             const Text('Changer la photo de profil',
-                style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             ListTile(
-                leading: Icon(Icons.photo_library_outlined,
-                    color: AppColors.blue),
-                title: const Text('Choisir depuis la galerie'),
-                onTap: () => Navigator.pop(context)),
+              leading:
+                  Icon(Icons.photo_library_outlined, color: AppColors.blue),
+              title: const Text('Choisir depuis la galerie'),
+              onTap: () => Navigator.pop(context),
+            ),
             ListTile(
-                leading: Icon(Icons.camera_alt_outlined,
-                    color: AppColors.blue),
-                title: const Text('Prendre une photo'),
-                onTap: () => Navigator.pop(context)),
+              leading: Icon(Icons.camera_alt_outlined, color: AppColors.blue),
+              title: const Text('Prendre une photo'),
+              onTap: () => Navigator.pop(context),
+            ),
             ListTile(
-                leading: const Icon(Icons.delete_outline,
-                    color: AppColors.redMid),
-                title: const Text('Supprimer la photo',
-                    style: TextStyle(color: AppColors.redMid)),
-                onTap: () => Navigator.pop(context)),
-            const SizedBox(height: 8),
+              leading:
+                  const Icon(Icons.delete_outline, color: AppColors.redMid),
+              title: const Text('Supprimer la photo',
+                  style: TextStyle(color: AppColors.redMid)),
+              onTap: () => Navigator.pop(context),
+            ),
           ],
         ),
       ),
@@ -1738,12 +1751,10 @@ class _ProfileScreenState extends State<ProfileScreen>
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Déconnexion',
             style: TextStyle(fontWeight: FontWeight.bold)),
-        content:
-            const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
+        content: const Text('Êtes-vous sûr de vouloir vous déconnecter ?'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context),
@@ -1765,9 +1776,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 }
 
-// ────────────────────────────────────────────────────────────
-//  SHARED WIDGETS
-// ────────────────────────────────────────────────────────────
+// ── Shared Widgets ─────────────────────────────────────────────────────────
 
 class _SectionCard extends StatelessWidget {
   const _SectionCard({required this.title, required this.children});
@@ -1804,9 +1813,11 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
+/// Champ labellisé — accepte un controller OU une initialValue (pas les deux).
 class _LabeledField extends StatelessWidget {
   const _LabeledField({
     required this.label,
+    this.controller,
     this.initialValue,
     this.readOnly = false,
     this.hint,
@@ -1815,6 +1826,7 @@ class _LabeledField extends StatelessWidget {
   });
 
   final String label;
+  final TextEditingController? controller;
   final String? initialValue;
   final bool readOnly;
   final String? hint;
@@ -1833,36 +1845,32 @@ class _LabeledField extends StatelessWidget {
                 color: Color(0xFF374151))),
         const SizedBox(height: 4),
         TextFormField(
-          initialValue: initialValue,
+          // Si controller fourni, ignorer initialValue (sinon erreur Flutter)
+          controller: controller,
+          initialValue: controller != null ? null : initialValue,
           readOnly: readOnly,
           keyboardType: keyboardType,
           obscureText: obscureText,
-          style: const TextStyle(
-              fontSize: 14, color: Color(0xFF111827)),
+          style: const TextStyle(fontSize: 14, color: Color(0xFF111827)),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle:
-                const TextStyle(color: Color(0xFF9CA3AF)),
+            hintStyle: const TextStyle(color: Color(0xFF9CA3AF)),
             filled: true,
-            fillColor: readOnly
-                ? const Color(0xFFF9FAFB)
-                : Colors.white,
-            contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12, vertical: 10),
+            fillColor: readOnly ? const Color(0xFFF9FAFB) : Colors.white,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide:
-                  const BorderSide(color: Color(0xFFD1D5DB)),
+              borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide:
-                  const BorderSide(color: Color(0xFFD1D5DB)),
+              borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(
-                  color: Color(0xFF1A56DB), width: 1.5),
+              borderSide:
+                  const BorderSide(color: Color(0xFF1A56DB), width: 1.5),
             ),
           ),
         ),
@@ -1870,46 +1878,3 @@ class _LabeledField extends StatelessWidget {
     );
   }
 }
-
-class _SeatsCounter extends StatefulWidget {
-  @override
-  State<_SeatsCounter> createState() => _SeatsCounterState();
-}
-
-class _SeatsCounterState extends State<_SeatsCounter> {
-  int _seats = 3;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        IconButton(
-          onPressed: _seats > 1
-              ? () => setState(() => _seats--)
-              : null,
-          icon: const Icon(Icons.remove_circle_outline),
-          color: AppColors.blue,
-          iconSize: 22,
-        ),
-        Text('$_seats',
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold)),
-        IconButton(
-          onPressed: _seats < 7
-              ? () => setState(() => _seats++)
-              : null,
-          icon: const Icon(Icons.add_circle_outline),
-          color: AppColors.blue,
-          iconSize: 22,
-        ),
-      ],
-    );
-  }
-}
-
-// ────────────────────────────────────────────────────────────
-//  HELPERS
-// ────────────────────────────────────────────────────────────
-
-
-
