@@ -32,7 +32,7 @@ import 'features/trajet_en_cours/trajet_en_cours_screen.dart';
 import 'features/trip/create_trip_screen.dart';
 import 'features/trip/reservation_request_detail_screen.dart';
 import 'features/trip/reservation_screen.dart';
-import 'features/trip/published_trip_screen-1.dart';
+import 'features/trip/published_trip_screen.dart';
 import 'features/chat/chat_screen.dart';
 
 final TripService _tripService = TripService(ApiService.instance);
@@ -177,6 +177,7 @@ final GoRouter appRouter = GoRouter(
           existingReservationStatus: resStatus,
           source: source,
           sourceStatus: sourceStatus,
+          reservationId: extra?['reservationId']?.toString(),
         );
       },
     ),
@@ -249,6 +250,9 @@ final GoRouter appRouter = GoRouter(
       path: '/reservation-request/:id',
       builder: (_, GoRouterState state) => ReservationRequestDetailScreen(
         reservationId: state.pathParameters['id'] ?? '',
+        initialData: state.extra is Map<String, dynamic>
+            ? state.extra as Map<String, dynamic>
+            : null,
       ),
     ),
   ],

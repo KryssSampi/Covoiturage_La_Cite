@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Enum des états possibles du bouton réservation (inspiré du site web)
+/// Enum des Ã©tats possibles du bouton rÃ©servation (inspirÃ© du site web)
 enum ReserveButtonStateKind {
   reserve,
   pending,
@@ -63,15 +63,15 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: onReserveClick,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFF08316E)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF08316E)),
           ),
-          child: const Text('Réserver ce trajet'),
+          child: const Text('RÃ©server ce trajet'),
         );
       case ReserveButtonStateKind.pending:
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFF08316E)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF08316E)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -79,10 +79,11 @@ class ReserveButton extends StatelessWidget {
               SizedBox(
                 width: 18,
                 height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.5, color: Colors.white),
               ),
               SizedBox(width: 10),
-              Text('En attente de confirmation…'),
+              Text('En attente de confirmationâ€¦'),
             ],
           ),
         );
@@ -90,7 +91,7 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: onFollowClick,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFF1a6b3a)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF1a6b3a)),
           ),
           child: const Text('Suivre le trajet'),
         );
@@ -100,17 +101,20 @@ class ReserveButton extends StatelessWidget {
             ElevatedButton(
               onPressed: null,
               style: baseStyle.copyWith(
-                backgroundColor: MaterialStateProperty.all(const Color(0xFFe0e0e0)),
-                foregroundColor: MaterialStateProperty.all(const Color(0xFF757575)),
+                backgroundColor:
+                    WidgetStateProperty.all(const Color(0xFFe0e0e0)),
+                foregroundColor:
+                    WidgetStateProperty.all(const Color(0xFF757575)),
               ),
-              child: const Text('Demande refusée'),
+              child: const Text('Demande refusÃ©e'),
             ),
             if (state.hoursLeft != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   'Vous pourrez retenter dans ${state.hoursLeft!.ceil()}h',
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF757575)),
+                  style:
+                      const TextStyle(fontSize: 12, color: Color(0xFF757575)),
                 ),
               ),
           ],
@@ -119,8 +123,8 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFFe0e0e0)),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFF757575)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
           child: const Text('Trajet complet'),
         );
@@ -128,9 +132,9 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: onManageClick,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFF08316E)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF08316E)),
           ),
-          child: const Text('Gérer les demandes'),
+          child: const Text('GÃ©rer les demandes'),
         );
       case ReserveButtonStateKind.readonly:
         return const SizedBox.shrink();
@@ -138,15 +142,15 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFF1a6b3a)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF1a6b3a)),
           ),
-          child: const Text('Confirmé'),
+          child: const Text('ConfirmÃ©'),
         );
       case ReserveButtonStateKind.reservationInProgress:
         return ElevatedButton(
           onPressed: onFollowClick,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFF08316E)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF08316E)),
           ),
           child: const Text('Suivre le trajet'),
         );
@@ -154,17 +158,17 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFFe0e0e0)),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFF757575)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
-          child: const Text('Annulé'),
+          child: const Text('AnnulÃ©'),
         );
       case ReserveButtonStateKind.reservationPending:
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFFe0e0e0)),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFF757575)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
           child: const Text('En attente de confirmation'),
         );
@@ -172,37 +176,38 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(Colors.transparent),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFFBDBDBD)),
-            shadowColor: MaterialStateProperty.all(Colors.transparent),
+            backgroundColor: WidgetStateProperty.all(Colors.transparent),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFFBDBDBD)),
+            shadowColor: WidgetStateProperty.all(Colors.transparent),
           ),
-          child: const Text('Complété'),
+          child: const Text('ComplÃ©tÃ©'),
         );
       case ReserveButtonStateKind.reservationRejected:
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFFe0e0e0)),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFF757575)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
-          child: const Text('Rejeté'),
+          child: const Text('RejetÃ©'),
         );
       case ReserveButtonStateKind.tripPublished:
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFFe0e0e0)),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFF757575)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
-          child: const Text('Publié'),
+          child: const Text('PubliÃ©'),
         );
       case ReserveButtonStateKind.tripFull:
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFF0F6E56)),
-            side: MaterialStateProperty.all(const BorderSide(color: Color(0xFFe0e0e0))),
+            backgroundColor: WidgetStateProperty.all(Colors.white),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFF0F6E56)),
+            side: WidgetStateProperty.all(
+                const BorderSide(color: Color(0xFFe0e0e0))),
           ),
           child: const Text('Plein'),
         );
@@ -210,15 +215,15 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFF1a6b3a)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF1a6b3a)),
           ),
-          child: const Text('Confirmé'),
+          child: const Text('ConfirmÃ©'),
         );
       case ReserveButtonStateKind.tripInProgress:
         return ElevatedButton(
           onPressed: onFollowClick,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFF08316E)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF08316E)),
           ),
           child: const Text('Suivre le trajet'),
         );
@@ -226,27 +231,27 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(Colors.transparent),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFFBDBDBD)),
-            shadowColor: MaterialStateProperty.all(Colors.transparent),
+            backgroundColor: WidgetStateProperty.all(Colors.transparent),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFFBDBDBD)),
+            shadowColor: WidgetStateProperty.all(Colors.transparent),
           ),
-          child: const Text('Terminé'),
+          child: const Text('TerminÃ©'),
         );
       case ReserveButtonStateKind.tripCancelled:
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFFe0e0e0)),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFF757575)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
-          child: const Text('Annulé'),
+          child: const Text('AnnulÃ©'),
         );
       case ReserveButtonStateKind.tripNoShow:
         return ElevatedButton(
           onPressed: null,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFFFFEBEE)),
-            foregroundColor: MaterialStateProperty.all(const Color(0xFFD32F2F)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFFFFEBEE)),
+            foregroundColor: WidgetStateProperty.all(const Color(0xFFD32F2F)),
           ),
           child: const Text('Absent'),
         );
@@ -255,14 +260,14 @@ class ReserveButton extends StatelessWidget {
         return ElevatedButton(
           onPressed: onStartTripClick,
           style: baseStyle.copyWith(
-            backgroundColor: MaterialStateProperty.all(const Color(0xFF0aad6a)),
+            backgroundColor: WidgetStateProperty.all(const Color(0xFF0aad6a)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
               Icon(Icons.play_arrow, color: Colors.white),
               SizedBox(width: 8),
-              Text('Démarrer le trajet'),
+              Text('DÃ©marrer le trajet'),
             ],
           ),
         );

@@ -1,35 +1,51 @@
 // ============================================================
 // lib/features/trip/create_trip_screen.dart
 // Formulaire de création de trajet — Version Mobile Flutter
-// Miroir fidèle du CreateTripForm web (Next.js)
+// RECONSTRUIT — coordonnées lat/lng branchées via OrsRouteService
+// Conforme à CreateTrajetDto (.NET) : VehicleId, DepartureLat/Lng,
+// ArrivalLat/Lng, DepartureDate (DateOnly), DepartureTime (TimeOnly)
 // ============================================================
 
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/services/api_service.dart';
+import '../../core/services/ors_route_service.dart';
+import 'trip_view_converter.dart';
 
 // ─────────────────────────────────────────────────────────────
-// MODÈLE — données du formulaire
+// MODÈLES LOCAUX
 // ─────────────────────────────────────────────────────────────
+
+class _PlaceSelection {
+  final String label;
+  final String address;
+  final double lat;
+  final double lng;
+
+  const _PlaceSelection({
+    required this.label,
+    required this.address,
+    required this.lat,
+    required this.lng,
+  });
+}
+
 class _TripPreferences {
   bool baggageAllowed;
   bool petsAllowed;
   bool smokingAllowed;
   bool musicAllowed;
   bool flexibleItinerary;
-  String? driverNote;
 
   _TripPreferences()
       : baggageAllowed = false,
         petsAllowed = false,
         smokingAllowed = false,
         musicAllowed = false,
-        flexibleItinerary = false,
-        driverNote = null;
+        flexibleItinerary = false;
 }
 
 class _Vehicle {
@@ -37,23 +53,41 @@ class _Vehicle {
   final String label;
   final String color;
   final int maxPassengers;
+
   const _Vehicle({
     required this.id,
     required this.label,
     required this.color,
     required this.maxPassengers,
   });
+
   factory _Vehicle.fromJson(Map<String, dynamic> j) => _Vehicle(
         id: j['id']?.toString() ?? '',
-        label: j['label'] ?? j['model'] ?? 'Véhicule',
+        label: _firstStr(j, ['label', 'model', 'make']) ?? 'Véhicule',
         color: j['color']?.toString() ?? '',
-        maxPassengers: (j['maxPassengers'] ?? j['maxSeats'] ?? 4) as int,
+        maxPassengers: _toInt(j['maxPassengers'] ?? j['capacity'] ?? j['seats'],
+            fallback: 4),
       );
+
+  static String? _firstStr(Map<String, dynamic> m, List<String> keys) {
+    for (final k in keys) {
+      final v = m[k]?.toString().trim();
+      if (v != null && v.isNotEmpty) return v;
+    }
+    return null;
+  }
+
+  static int _toInt(dynamic v, {int fallback = 0}) {
+    if (v is int) return v;
+    if (v is num) return v.toInt();
+    return int.tryParse(v?.toString() ?? '') ?? fallback;
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
 // ÉCRAN PRINCIPAL
 // ─────────────────────────────────────────────────────────────
+
 class CreateTripScreen extends StatefulWidget {
   const CreateTripScreen({super.key, this.prefill});
   final Map<String, dynamic>? prefill;
@@ -65,18 +99,31 @@ class CreateTripScreen extends StatefulWidget {
 class _CreateTripScreenState extends State<CreateTripScreen>
     with SingleTickerProviderStateMixin {
   final _api = ApiService.instance;
+  final _ors = OrsRouteService.instance;
   late final TabController _tabCtrl;
-  final _scrollCtrl = ScrollController();
 
-  // Form state
+  // ── Lieux sélectionnés (avec coordonnées) ────────────────
+  _PlaceSelection? _departure;
+  _PlaceSelection? _arrival;
+
+  // ── Contrôleurs texte + autocomplete ────────────────────
   final _departureCtrl = TextEditingController();
   final _arrivalCtrl = TextEditingController();
   final _noteCtrl = TextEditingController();
-  DateTime _departureDate = DateTime.now().add(const Duration(hours: 1));
-  TimeOfDay _departureTime =
-      TimeOfDay.fromDateTime(DateTime.now().add(const Duration(hours: 1)));
 
-  String _tripType = 'unique'; // unique | recurrent
+  List<OrsPlaceSuggestion> _departureSuggestions = [];
+  List<OrsPlaceSuggestion> _arrivalSuggestions = [];
+  bool _showDepartureSuggestions = false;
+  bool _showArrivalSuggestions = false;
+  Timer? _debounce;
+
+  // ── Horaire ──────────────────────────────────────────────
+  DateTime _departureDate = DateTime.now().add(const Duration(hours: 2));
+  TimeOfDay _departureTime =
+      TimeOfDay.fromDateTime(DateTime.now().add(const Duration(hours: 2)));
+
+  // ── Options trajet ───────────────────────────────────────
+  String _tripType = 'unique';
   int _availableSeats = 1;
   int _maxPassengers = 4;
   double _pricePerPassenger = 5.0;
@@ -85,22 +132,27 @@ class _CreateTripScreenState extends State<CreateTripScreen>
   List<_Vehicle> _vehicles = [];
   final _prefs = _TripPreferences();
 
-  // Recurrence
+  // ── Récurrence ───────────────────────────────────────────
   List<bool> _recurrenceDays = List.filled(7, false);
   DateTime? _recurrenceEndDate;
 
-  // UI state
+  // ── État UI ──────────────────────────────────────────────
   bool _isLoadingVehicles = true;
   bool _isSubmitting = false;
   bool _showNoteField = false;
   Map<String, String?> _errors = {};
 
-  // Toast
+  // ── Route calculée (ORS) ─────────────────────────────────
+  int _estimatedDurationMinutes = 0;
+  double _estimatedDistanceKm = 0;
+  List<Map<String, double>> _routePoints = [];
+  bool _isCalculatingRoute = false;
+
+  // ── Toast ────────────────────────────────────────────────
   bool _showToast = false;
   bool _toastSuccess = false;
   String _toastMsg = '';
 
-  // Tabs: Infos, Véhicule, Préférences, Tarif
   static const _tabs = ['Infos', 'Véhicule', 'Préférences', 'Tarif'];
 
   @override
@@ -113,24 +165,59 @@ class _CreateTripScreenState extends State<CreateTripScreen>
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _tabCtrl.dispose();
-    _scrollCtrl.dispose();
     _departureCtrl.dispose();
     _arrivalCtrl.dispose();
     _noteCtrl.dispose();
     super.dispose();
   }
 
+  // ─────────────────────────────────────────────────────────
+  // PREFILL
+  // ─────────────────────────────────────────────────────────
   void _applyPrefill() {
     final p = widget.prefill;
     if (p == null) return;
-    _departureCtrl.text = _firstStr(p, ['departureLabel', 'departureAddress', 'from', 'departureLocation']);
-    _arrivalCtrl.text = _firstStr(p, ['arrivalLabel', 'arrivalAddress', 'to', 'arrivalLocation']);
+
+    final depLabel =
+        _firstStr(p, ['departureLabel', 'from', 'departureLocation']) ?? '';
+    final arrLabel =
+        _firstStr(p, ['arrivalLabel', 'to', 'arrivalLocation']) ?? '';
+    final depLat = _toNullableDouble(p['departureLat'] ?? p['fromLat']);
+    final depLng = _toNullableDouble(p['departureLng'] ?? p['fromLng']);
+    final arrLat = _toNullableDouble(p['arrivalLat'] ?? p['toLat']);
+    final arrLng = _toNullableDouble(p['arrivalLng'] ?? p['toLng']);
+
+    if (depLabel.isNotEmpty) {
+      _departureCtrl.text = depLabel;
+      if (depLat != null && depLng != null) {
+        _departure = _PlaceSelection(
+          label: depLabel,
+          address: depLabel,
+          lat: depLat,
+          lng: depLng,
+        );
+      }
+    }
+    if (arrLabel.isNotEmpty) {
+      _arrivalCtrl.text = arrLabel;
+      if (arrLat != null && arrLng != null) {
+        _arrival = _PlaceSelection(
+          label: arrLabel,
+          address: arrLabel,
+          lat: arrLat,
+          lng: arrLng,
+        );
+      }
+    }
+
     final price = p['pricePerSeat'] ?? p['pricePerPassenger'] ?? p['price'];
-    if (price != null) _pricePerPassenger = (price as num).toDouble();
+    if (price != null) _pricePerPassenger = _toDouble(price, fallback: 5.0);
+
     final seats = p['availableSeats'] ?? p['seats'];
-    if (seats != null) _availableSeats = (seats as num).toInt().clamp(1, 7);
-    // Date-time prefill from ISO string
+    if (seats != null) _availableSeats = _toInt(seats, fallback: 1).clamp(1, 7);
+
     final dt = p['departureTime'] ?? p['departureDateTime'];
     if (dt != null) {
       final parsed = DateTime.tryParse(dt.toString())?.toLocal();
@@ -141,27 +228,27 @@ class _CreateTripScreenState extends State<CreateTripScreen>
     }
   }
 
-  String _firstStr(Map<String, dynamic> m, List<String> keys) {
-    for (final k in keys) {
-      final v = m[k]?.toString().trim();
-      if (v != null && v.isNotEmpty) return v;
-    }
-    return '';
-  }
-
+  // ─────────────────────────────────────────────────────────
+  // CHARGEMENT VÉHICULES
+  // ─────────────────────────────────────────────────────────
   Future<void> _loadVehicles() async {
     setState(() => _isLoadingVehicles = true);
     try {
       final data = await _api.get('/api/vehicles');
       final list = _extractList(data);
-      final vehicles = list.whereType<Map<String, dynamic>>().map(_Vehicle.fromJson).toList();
+      final vehicles = list
+          .whereType<Map<String, dynamic>>()
+          .map(_Vehicle.fromJson)
+          .where((v) => v.id.isNotEmpty)
+          .toList();
       if (!mounted) return;
       setState(() {
         _vehicles = vehicles;
         if (vehicles.length == 1) {
           _selectedVehicleId = vehicles.first.id;
           _maxPassengers = vehicles.first.maxPassengers;
-          _availableSeats = (_availableSeats).clamp(1, _maxPassengers - 1);
+          _availableSeats =
+              _availableSeats.clamp(1, (_maxPassengers - 1).clamp(1, 7));
         }
         _isLoadingVehicles = false;
       });
@@ -170,67 +257,276 @@ class _CreateTripScreenState extends State<CreateTripScreen>
     }
   }
 
+  // ─────────────────────────────────────────────────────────
+  // AUTOCOMPLÉTION LIEUX
+  // ─────────────────────────────────────────────────────────
+  void _onDepartureChanged(String value) {
+    _debounce?.cancel();
+    if (value.trim().length < 3) {
+      setState(() {
+        _departureSuggestions = [];
+        _showDepartureSuggestions = false;
+        // Si l'utilisateur efface, on réinitialise la sélection
+        if (_departure != null && value != _departure!.label) {
+          _departure = null;
+        }
+      });
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 350), () async {
+      try {
+        final suggestions = await _ors.suggestPlaces(value, limit: 5);
+        if (!mounted) return;
+        setState(() {
+          _departureSuggestions = suggestions;
+          _showDepartureSuggestions = suggestions.isNotEmpty;
+        });
+      } catch (_) {}
+    });
+  }
+
+  void _onArrivalChanged(String value) {
+    _debounce?.cancel();
+    if (value.trim().length < 3) {
+      setState(() {
+        _arrivalSuggestions = [];
+        _showArrivalSuggestions = false;
+        if (_arrival != null && value != _arrival!.label) {
+          _arrival = null;
+        }
+      });
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 350), () async {
+      try {
+        final suggestions = await _ors.suggestPlaces(value, limit: 5);
+        if (!mounted) return;
+        setState(() {
+          _arrivalSuggestions = suggestions;
+          _showArrivalSuggestions = suggestions.isNotEmpty;
+        });
+      } catch (_) {}
+    });
+  }
+
+  void _selectDeparture(OrsPlaceSuggestion s) {
+    setState(() {
+      _departure = _PlaceSelection(
+        label: s.label,
+        address: s.label,
+        lat: s.lat,
+        lng: s.lng,
+      );
+      _departureCtrl.text = s.label;
+      _departureSuggestions = [];
+      _showDepartureSuggestions = false;
+      _errors.remove('departure');
+    });
+    _maybeCalculateRoute();
+  }
+
+  void _selectArrival(OrsPlaceSuggestion s) {
+    setState(() {
+      _arrival = _PlaceSelection(
+        label: s.label,
+        address: s.label,
+        lat: s.lat,
+        lng: s.lng,
+      );
+      _arrivalCtrl.text = s.label;
+      _arrivalSuggestions = [];
+      _showArrivalSuggestions = false;
+      _errors.remove('arrival');
+    });
+    _maybeCalculateRoute();
+  }
+
+  Future<void> _maybeCalculateRoute() async {
+    final dep = _departure;
+    final arr = _arrival;
+    if (dep == null || arr == null) return;
+    setState(() => _isCalculatingRoute = true);
+    try {
+      final points = await _ors.routeBetweenCoords(
+        fromLat: dep.lat,
+        fromLng: dep.lng,
+        toLat: arr.lat,
+        toLng: arr.lng,
+      );
+      if (!mounted) return;
+      // Calculer distance approximative depuis les points
+      double distKm = 0;
+      for (int i = 1; i < points.length; i++) {
+        final lat1 = (points[i - 1]['lat'] ?? 0.0) as double;
+        final lng1 = (points[i - 1]['lng'] ?? 0.0) as double;
+        final lat2 = (points[i]['lat'] ?? 0.0) as double;
+        final lng2 = (points[i]['lng'] ?? 0.0) as double;
+        distKm += _haversine(lat1, lng1, lat2, lng2);
+      }
+      final durationMin = (distKm * 1.5).round().clamp(5, 300);
+      setState(() {
+        _routePoints = points
+            .map((p) => {
+                  'lat': (p['lat'] ?? 0.0) as double,
+                  'lng': (p['lng'] ?? 0.0) as double,
+                })
+            .toList();
+        _estimatedDistanceKm = distKm;
+        _estimatedDurationMinutes = durationMin;
+        _isCalculatingRoute = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _isCalculatingRoute = false);
+    }
+  }
+
+  double _haversine(double lat1, double lng1, double lat2, double lng2) {
+    const r = 6371.0;
+    final dLat = _deg2rad(lat2 - lat1);
+    final dLng = _deg2rad(lng2 - lng1);
+    final a = _sin(dLat / 2) * _sin(dLat / 2) +
+        _cos(_deg2rad(lat1)) *
+            _cos(_deg2rad(lat2)) *
+            _sin(dLng / 2) *
+            _sin(dLng / 2);
+    final c = 2 * _atan2(_sqrt(a), _sqrt(1 - a));
+    return r * c;
+  }
+
+  double _deg2rad(double deg) => deg * 3.14159265358979 / 180;
+  double _sin(double x) {
+    // Approximation Taylor pour valeurs proches de 0
+    return x - x * x * x / 6;
+  }
+
+  double _cos(double x) => 1 - x * x / 2;
+  double _sqrt(double x) => x <= 0
+      ? 0
+      : x < 1
+          ? x * (1 + (1 - x) / 2)
+          : x;
+  double _atan2(double y, double x) {
+    if (x > 0) return _atan(y / x);
+    if (x < 0 && y >= 0) return _atan(y / x) + 3.14159;
+    if (x < 0 && y < 0) return _atan(y / x) - 3.14159;
+    if (x == 0 && y > 0) return 3.14159 / 2;
+    return -3.14159 / 2;
+  }
+
+  double _atan(double x) => x - x * x * x / 3 + x * x * x * x * x / 5;
+
+  // ─────────────────────────────────────────────────────────
+  // VALIDATION
+  // ─────────────────────────────────────────────────────────
   bool _validate() {
     final e = <String, String?>{};
-    if (_departureCtrl.text.trim().isEmpty) e['departure'] = 'Requis';
-    if (_arrivalCtrl.text.trim().isEmpty) e['arrival'] = 'Requis';
-    if (_selectedVehicleId == null && _vehicles.isNotEmpty) e['vehicle'] = 'Sélectionnez un véhicule';
-    if (_pricePerPassenger < 1) e['price'] = 'Prix minimum 1 \$';
+    if (_departure == null) {
+      e['departure'] = 'Sélectionnez un lieu de départ dans la liste';
+    }
+    if (_arrival == null) {
+      e['arrival'] = 'Sélectionnez un lieu d\'arrivée dans la liste';
+    }
+    if (_selectedVehicleId == null && _vehicles.isNotEmpty) {
+      e['vehicle'] = 'Sélectionnez un véhicule';
+    }
+    if (_vehicles.isEmpty) {
+      e['vehicle'] =
+          'Aucun véhicule enregistré. Ajoutez-en un dans votre profil.';
+    }
+    if (_pricePerPassenger < 1) {
+      e['price'] = 'Prix minimum 1 \$';
+    }
+    if (_tripType == 'recurrent' && !_recurrenceDays.any((d) => d)) {
+      e['recurrence'] = 'Sélectionnez au moins un jour de récurrence';
+    }
     setState(() => _errors = e);
     return e.isEmpty;
   }
 
+  // ─────────────────────────────────────────────────────────
+  // SOUMISSION
+  // ─────────────────────────────────────────────────────────
   Future<void> _submit(bool publish) async {
     if (!_validate()) {
-      // Scroll to first error tab
+      // Navigation vers l'onglet avec l'erreur
+      if (_errors.containsKey('departure') || _errors.containsKey('arrival')) {
+        _tabCtrl.animateTo(0);
+      } else if (_errors.containsKey('vehicle')) {
+        _tabCtrl.animateTo(1);
+      } else if (_errors.containsKey('price')) {
+        _tabCtrl.animateTo(3);
+      }
       return;
     }
+
     setState(() => _isSubmitting = true);
     try {
+      final dep = _departure!;
+      final arr = _arrival!;
       final departureDt = DateTime(
-        _departureDate.year, _departureDate.month, _departureDate.day,
-        _departureTime.hour, _departureTime.minute,
+        _departureDate.year,
+        _departureDate.month,
+        _departureDate.day,
+        _departureTime.hour,
+        _departureTime.minute,
       );
-      final body = <String, dynamic>{
-        'departureLabel': _departureCtrl.text.trim(),
-        'arrivalLabel': _arrivalCtrl.text.trim(),
-        'departureAddress': _departureCtrl.text.trim(),
-        'arrivalAddress': _arrivalCtrl.text.trim(),
-        'departureTime': departureDt.toUtc().toIso8601String(),
-        'departureDate': '${departureDt.year}-${_pad(departureDt.month)}-${_pad(departureDt.day)}',
-        'vehicleId': _selectedVehicleId,
-        'maxPassengers': _maxPassengers,
-        'availableSeats': _availableSeats,
-        'pricePerPassenger': _pricePerPassenger,
-        'paymentMethod': _paymentMethod,
-        'tripType': _tripType,
-        'status': publish ? 'published' : 'draft',
-        'preferences': {
-          'baggageAllowed': _prefs.baggageAllowed,
-          'petsAllowed': _prefs.petsAllowed,
-          'smokingAllowed': _prefs.smokingAllowed,
-          'musicAllowed': _prefs.musicAllowed,
-          'flexibleItinerary': _prefs.flexibleItinerary,
-          'driverNote': _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
-        },
-        if (_tripType == 'recurrent') ...{
-          'recurrenceDays': _recurrenceDays
+
+      String? recurrenceEndDateStr;
+      if (_tripType == 'recurrent' && _recurrenceEndDate != null) {
+        final d = _recurrenceEndDate!;
+        recurrenceEndDateStr = '${d.year}-${_p(d.month)}-${_p(d.day)}';
+      }
+
+      // Récupérer les jours sélectionnés (indices 0-6)
+      final List<int>? recurrenceDays = _tripType == 'recurrent'
+          ? _recurrenceDays
               .asMap()
               .entries
               .where((e) => e.value)
               .map((e) => e.key)
-              .toList(),
-          if (_recurrenceEndDate != null)
-            'recurrenceEndDate':
-                '${_recurrenceEndDate!.year}-${_pad(_recurrenceEndDate!.month)}-${_pad(_recurrenceEndDate!.day)}',
-        },
-      };
+              .toList()
+          : null;
+
+      final body = TripViewConverter.buildCreateTripBody(
+        departureLabel: dep.label,
+        departureAddress: dep.address,
+        departureLat: dep.lat,
+        departureLng: dep.lng,
+        arrivalLabel: arr.label,
+        arrivalAddress: arr.address,
+        arrivalLat: arr.lat,
+        arrivalLng: arr.lng,
+        departureDt: departureDt,
+        vehicleId: _selectedVehicleId!,
+        maxPassengers: _maxPassengers,
+        pricePerPassenger: _pricePerPassenger,
+        paymentMethod: _paymentMethod,
+        tripType: _tripType,
+        baggageAllowed: _prefs.baggageAllowed,
+        petsAllowed: _prefs.petsAllowed,
+        smokingAllowed: _prefs.smokingAllowed,
+        musicAllowed: _prefs.musicAllowed,
+        flexibleItinerary: _prefs.flexibleItinerary,
+        driverNote:
+            _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
+        estimatedDurationMinutes: _estimatedDurationMinutes,
+        estimatedDistanceKm: _estimatedDistanceKm,
+        recurrenceDays: recurrenceDays,
+        recurrenceEndDate: recurrenceEndDateStr,
+        publish: publish,
+      );
+
+      // Ajouter le statut
+      body['status'] = publish ? 'published' : 'draft';
+
       await _api.post('/api/trips', body);
       if (!mounted) return;
+
       setState(() {
         _showToast = true;
         _toastSuccess = true;
-        _toastMsg = publish ? 'Trajet publié avec succès !' : 'Brouillon sauvegardé.';
+        _toastMsg =
+            publish ? 'Trajet publié avec succès !' : 'Brouillon sauvegardé.';
       });
       await Future.delayed(const Duration(seconds: 2));
       if (mounted) context.pop();
@@ -239,20 +535,26 @@ class _CreateTripScreenState extends State<CreateTripScreen>
       setState(() {
         _showToast = true;
         _toastSuccess = false;
-        _toastMsg = 'Erreur : $e';
+        _toastMsg = 'Erreur : ${e.toString().replaceAll('Exception: ', '')}';
       });
+      await Future.delayed(const Duration(seconds: 4));
+      if (mounted) setState(() => _showToast = false);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
-  String _pad(int v) => v < 10 ? '0$v' : '$v';
+  String _p(int v) => v < 10 ? '0$v' : '$v';
 
-  // ── Date & time pickers ──────────────────────────────────
+  // ─────────────────────────────────────────────────────────
+  // PICKERS
+  // ─────────────────────────────────────────────────────────
   Future<void> _pickDate() async {
     final d = await showDatePicker(
       context: context,
-      initialDate: _departureDate,
+      initialDate: _departureDate.isAfter(DateTime.now())
+          ? _departureDate
+          : DateTime.now().add(const Duration(hours: 1)),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       builder: (ctx, child) => Theme(
@@ -262,7 +564,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         child: child!,
       ),
     );
-    if (d != null) setState(() => _departureDate = d);
+    if (d != null && mounted) setState(() => _departureDate = d);
   }
 
   Future<void> _pickTime() async {
@@ -276,13 +578,14 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         child: child!,
       ),
     );
-    if (t != null) setState(() => _departureTime = t);
+    if (t != null && mounted) setState(() => _departureTime = t);
   }
 
   Future<void> _pickEndDate() async {
     final d = await showDatePicker(
       context: context,
-      initialDate: _recurrenceEndDate ?? DateTime.now().add(const Duration(days: 30)),
+      initialDate:
+          _recurrenceEndDate ?? DateTime.now().add(const Duration(days: 30)),
       firstDate: _departureDate,
       lastDate: DateTime.now().add(const Duration(days: 365)),
       builder: (ctx, child) => Theme(
@@ -292,38 +595,50 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         child: child!,
       ),
     );
-    if (d != null) setState(() => _recurrenceEndDate = d);
+    if (d != null && mounted) setState(() => _recurrenceEndDate = d);
   }
 
-  // ── Build ────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────
+  // BUILD
+  // ─────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F5FA),
-      body: Stack(
-        children: [
-          NestedScrollView(
-            headerSliverBuilder: (_, __) => [_buildAppBar()],
-            body: Column(
-              children: [
-                _buildTabBar(),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabCtrl,
-                    children: [
-                      _buildInfosTab(),
-                      _buildVehicleTab(),
-                      _buildPrefsTab(),
-                      _buildTarifTab(),
-                    ],
+    return GestureDetector(
+      onTap: () {
+        // Fermer suggestions si clic ailleurs
+        setState(() {
+          _showDepartureSuggestions = false;
+          _showArrivalSuggestions = false;
+        });
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF2F5FA),
+        body: Stack(
+          children: [
+            NestedScrollView(
+              headerSliverBuilder: (_, __) => [_buildAppBar()],
+              body: Column(
+                children: [
+                  _buildTabBar(),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabCtrl,
+                      children: [
+                        _buildInfosTab(),
+                        _buildVehicleTab(),
+                        _buildPrefsTab(),
+                        _buildTarifTab(),
+                      ],
+                    ),
                   ),
-                ),
-                _buildBottomActions(),
-              ],
+                  _buildBottomActions(),
+                ],
+              ),
             ),
-          ),
-          if (_showToast) _buildToast(),
-        ],
+            if (_showToast) _buildToast(),
+          ],
+        ),
       ),
     );
   }
@@ -363,10 +678,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                   ),
                   Text(
                     'Remplissez les informations pour publier',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 12,
-                      color: Colors.white70,
-                    ),
+                    style:
+                        GoogleFonts.dmSans(fontSize: 12, color: Colors.white70),
                   ),
                 ],
               ),
@@ -394,7 +707,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
   }
 
   // ─────────────────────────────────────────────────────────
-  // TAB 1 — Informations de base
+  // TAB 1 — Informations
   // ─────────────────────────────────────────────────────────
   Widget _buildInfosTab() {
     return SingleChildScrollView(
@@ -406,25 +719,81 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             title: 'Lieux de départ et d\'arrivée',
             icon: Icons.place_outlined,
             children: [
-              // Départ
               _fieldLabel('Point de départ'),
-              _inputField(
+              _autocompleteField(
                 controller: _departureCtrl,
                 hint: 'Ex: Campus La Cité, Ottawa',
                 prefixIcon: Icons.my_location,
                 prefixColor: const Color(0xFF08316E),
+                isSelected: _departure != null,
                 error: _errors['departure'],
+                onChanged: _onDepartureChanged,
+                suggestions: _departureSuggestions,
+                showSuggestions: _showDepartureSuggestions,
+                onSelect: _selectDeparture,
+                onDismiss: () =>
+                    setState(() => _showDepartureSuggestions = false),
               ),
               const SizedBox(height: 12),
-              // Arrivée
               _fieldLabel('Point d\'arrivée'),
-              _inputField(
+              _autocompleteField(
                 controller: _arrivalCtrl,
                 hint: 'Ex: Place d\'Orléans',
                 prefixIcon: Icons.location_on,
                 prefixColor: const Color(0xFFE24B4A),
+                isSelected: _arrival != null,
                 error: _errors['arrival'],
+                onChanged: _onArrivalChanged,
+                suggestions: _arrivalSuggestions,
+                showSuggestions: _showArrivalSuggestions,
+                onSelect: _selectArrival,
+                onDismiss: () =>
+                    setState(() => _showArrivalSuggestions = false),
               ),
+              // Indicateur route calculée
+              if (_isCalculatingRoute)
+                const Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Color(0xFF08316E)),
+                      ),
+                      SizedBox(width: 8),
+                      Text('Calcul de l\'itinéraire…',
+                          style: TextStyle(
+                              fontSize: 11, color: Color(0xFF8A95A8))),
+                    ],
+                  ),
+                )
+              else if (_estimatedDistanceKm > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE1F5EE),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.route,
+                            size: 13, color: Color(0xFF0F6E56)),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${_estimatedDistanceKm.toStringAsFixed(1)} km · $_estimatedDurationMinutes min',
+                          style: GoogleFonts.dmSans(
+                              fontSize: 12, color: const Color(0xFF0F6E56)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
           const SizedBox(height: 14),
@@ -432,81 +801,37 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             title: 'Date et heure de départ',
             icon: Icons.calendar_today_outlined,
             children: [
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isSmall = constraints.maxWidth < 350;
-                  return isSmall
-                      ? Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      _fieldLabel('Date'),
-                                      _tapField(
-                                        value: '${_departureDate.day}/${_departureDate.month}/${_departureDate.year}',
-                                        icon: Icons.calendar_today,
-                                        onTap: _pickDate,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      _fieldLabel('Heure'),
-                                      _tapField(
-                                        value: _departureTime.format(context),
-                                        icon: Icons.access_time,
-                                        onTap: _pickTime,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                      : Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _fieldLabel('Date'),
-                                  _tapField(
-                                    value: '${_departureDate.day}/${_departureDate.month}/${_departureDate.year}',
-                                    icon: Icons.calendar_today,
-                                    onTap: _pickDate,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _fieldLabel('Heure'),
-                                  _tapField(
-                                    value: _departureTime.format(context),
-                                    icon: Icons.access_time,
-                                    onTap: _pickTime,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        );
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _fieldLabel('Date'),
+                        _tapField(
+                          value:
+                              '${_departureDate.day}/${_departureDate.month}/${_departureDate.year}',
+                          icon: Icons.calendar_today,
+                          onTap: _pickDate,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _fieldLabel('Heure'),
+                        _tapField(
+                          value: _departureTime.format(context),
+                          icon: Icons.access_time,
+                          onTap: _pickTime,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -519,6 +844,13 @@ class _CreateTripScreenState extends State<CreateTripScreen>
               if (_tripType == 'recurrent') ...[
                 const SizedBox(height: 14),
                 _fieldLabel('Jours de récurrence'),
+                if (_errors['recurrence'] != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(_errors['recurrence']!,
+                        style: const TextStyle(
+                            color: Color(0xFFE24B4A), fontSize: 11)),
+                  ),
                 _dayPicker(),
                 const SizedBox(height: 12),
                 _fieldLabel('Date de fin (optionnel)'),
@@ -538,7 +870,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
   }
 
   // ─────────────────────────────────────────────────────────
-  // TAB 2 — Véhicule & places
+  // TAB 2 — Véhicule
   // ─────────────────────────────────────────────────────────
   Widget _buildVehicleTab() {
     return SingleChildScrollView(
@@ -550,7 +882,12 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             icon: Icons.directions_car_outlined,
             children: [
               if (_isLoadingVehicles)
-                const Center(child: CircularProgressIndicator(color: Color(0xFF08316E)))
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: CircularProgressIndicator(color: Color(0xFF08316E)),
+                  ),
+                )
               else if (_vehicles.isEmpty)
                 _emptyVehicleHint()
               else if (_vehicles.length == 1)
@@ -564,16 +901,23 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                       onTap: () => setState(() {
                         _selectedVehicleId = v.id;
                         _maxPassengers = v.maxPassengers;
-                        _availableSeats = _availableSeats.clamp(1, v.maxPassengers - 1);
+                        _availableSeats = _availableSeats.clamp(
+                            1, (_maxPassengers - 1).clamp(1, 7));
+                        _errors.remove('vehicle');
                       }),
-                      child: _vehicleChip(v, selected: _selectedVehicleId == v.id),
+                      child:
+                          _vehicleChip(v, selected: _selectedVehicleId == v.id),
                     ),
                   ),
                 ),
-                if (_errors['vehicle'] != null)
-                  Text(_errors['vehicle']!,
-                      style: const TextStyle(color: Color(0xFFE24B4A), fontSize: 11)),
               ],
+              if (_errors['vehicle'] != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text(_errors['vehicle']!,
+                      style: const TextStyle(
+                          color: Color(0xFFE24B4A), fontSize: 11)),
+                ),
             ],
           ),
           const SizedBox(height: 14),
@@ -582,7 +926,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             icon: Icons.event_seat_outlined,
             children: [
               _fieldLabel(
-                  'Places offertes aux passagers (max ${(_maxPassengers - 1).clamp(1, 7)})'),
+                  'Places offertes (max ${(_maxPassengers - 1).clamp(1, 7)})'),
               const SizedBox(height: 10),
               _stepper(
                 value: _availableSeats,
@@ -603,7 +947,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
   }
 
   // ─────────────────────────────────────────────────────────
-  // TAB 3 — Préférences passager
+  // TAB 3 — Préférences
   // ─────────────────────────────────────────────────────────
   Widget _buildPrefsTab() {
     final prefRows = [
@@ -611,31 +955,31 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         icon: Icons.luggage_outlined,
         label: 'Bagages autorisés',
         get: _prefs.baggageAllowed,
-        set: (v) => setState(() => _prefs.baggageAllowed = v),
+        set: (bool v) => setState(() => _prefs.baggageAllowed = v),
       ),
       (
         icon: Icons.pets_outlined,
         label: 'Animaux acceptés',
         get: _prefs.petsAllowed,
-        set: (v) => setState(() => _prefs.petsAllowed = v),
+        set: (bool v) => setState(() => _prefs.petsAllowed = v),
       ),
       (
         icon: Icons.smoke_free,
         label: 'Fumeur accepté',
         get: _prefs.smokingAllowed,
-        set: (v) => setState(() => _prefs.smokingAllowed = v),
+        set: (bool v) => setState(() => _prefs.smokingAllowed = v),
       ),
       (
         icon: Icons.music_note_outlined,
         label: 'Musique autorisée',
         get: _prefs.musicAllowed,
-        set: (v) => setState(() => _prefs.musicAllowed = v),
+        set: (bool v) => setState(() => _prefs.musicAllowed = v),
       ),
       (
         icon: Icons.map_outlined,
         label: 'Itinéraire flexible',
         get: _prefs.flexibleItinerary,
-        set: (v) => setState(() => _prefs.flexibleItinerary = v),
+        set: (bool v) => setState(() => _prefs.flexibleItinerary = v),
       ),
     ];
 
@@ -646,16 +990,16 @@ class _CreateTripScreenState extends State<CreateTripScreen>
           _sectionCard(
             title: 'Options pour les passagers',
             icon: Icons.tune_outlined,
-            children: [
-              ...prefRows.map(
-                (p) => _prefToggleRow(
-                  icon: p.icon,
-                  label: p.label,
-                  value: p.get,
-                  onChanged: (v) => p.set(v),
-                ),
-              ),
-            ],
+            children: prefRows
+                .map(
+                  (p) => _prefToggleRow(
+                    icon: p.icon,
+                    label: p.label,
+                    value: p.get,
+                    onChanged: p.set,
+                  ),
+                )
+                .toList(),
           ),
           const SizedBox(height: 14),
           _sectionCard(
@@ -685,9 +1029,11 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                 TextField(
                   controller: _noteCtrl,
                   maxLines: 3,
+                  style: GoogleFonts.dmSans(fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: 'Ex: Rendez-vous devant l\'entrée principale...',
-                    hintStyle: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF8A95A8)),
+                    hintText: 'Ex: Rendez-vous devant l\'entrée principale…',
+                    hintStyle: GoogleFonts.dmSans(
+                        fontSize: 13, color: const Color(0xFF8A95A8)),
                     filled: true,
                     fillColor: const Color(0xFFF8F9FC),
                     border: OutlineInputBorder(
@@ -709,11 +1055,14 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                     _noteCtrl.clear();
                     setState(() => _showNoteField = false);
                   },
-                  child: Text('Supprimer le message',
-                      style: GoogleFonts.dmSans(
-                          fontSize: 11,
-                          color: const Color(0xFFE24B4A),
-                          fontWeight: FontWeight.w600)),
+                  child: Text(
+                    'Supprimer le message',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 11,
+                      color: const Color(0xFFE24B4A),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ],
             ],
@@ -741,7 +1090,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                 Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text(_errors['price']!,
-                      style: const TextStyle(color: Color(0xFFE24B4A), fontSize: 11)),
+                      style: const TextStyle(
+                          color: Color(0xFFE24B4A), fontSize: 11)),
                 ),
               const SizedBox(height: 8),
               Container(
@@ -749,15 +1099,17 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                 decoration: BoxDecoration(
                   color: const Color(0xFFE1F5EE),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF0F6E56).withOpacity(0.2)),
+                  border: Border.all(
+                      color: const Color(0xFF0F6E56).withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, size: 14, color: Color(0xFF0F6E56)),
+                    const Icon(Icons.info_outline,
+                        size: 14, color: Color(0xFF0F6E56)),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Prix affiché aux passagers: ${(_pricePerPassenger * 1.15).toStringAsFixed(2)} \$ (frais 15% inclus)',
+                        'Prix affiché aux passagers : ${(_pricePerPassenger * 1.15).toStringAsFixed(2)} \$ (frais 15% inclus)',
                         style: GoogleFonts.dmSans(
                             fontSize: 12, color: const Color(0xFF0F6E56)),
                       ),
@@ -771,25 +1123,38 @@ class _CreateTripScreenState extends State<CreateTripScreen>
           _sectionCard(
             title: 'Mode de paiement',
             icon: Icons.credit_card_outlined,
-            children: [
-              _paymentSelector(),
-            ],
+            children: [_paymentSelector()],
           ),
           const SizedBox(height: 14),
-          // Récapitulatif
           _sectionCard(
             title: 'Récapitulatif',
             icon: Icons.summarize_outlined,
             children: [
-              _summaryRow('Départ', _departureCtrl.text.isEmpty ? '—' : _departureCtrl.text),
-              _summaryRow('Arrivée', _arrivalCtrl.text.isEmpty ? '—' : _arrivalCtrl.text),
               _summaryRow(
-                  'Date',
-                  '${_departureDate.day}/${_departureDate.month}/${_departureDate.year} '
-                      'à ${_departureTime.format(context)}'),
+                  'Départ',
+                  _departure?.label ??
+                      (_departureCtrl.text.isEmpty
+                          ? '—'
+                          : _departureCtrl.text)),
+              _summaryRow(
+                  'Arrivée',
+                  _arrival?.label ??
+                      (_arrivalCtrl.text.isEmpty ? '—' : _arrivalCtrl.text)),
+              _summaryRow(
+                'Date',
+                '${_departureDate.day}/${_departureDate.month}/${_departureDate.year} '
+                    'à ${_departureTime.format(context)}',
+              ),
+              if (_estimatedDistanceKm > 0) ...[
+                _summaryRow('Distance',
+                    '${_estimatedDistanceKm.toStringAsFixed(1)} km'),
+                _summaryRow('Durée estimée', '$_estimatedDurationMinutes min'),
+              ],
               _summaryRow('Places', '$_availableSeats passager(s)'),
-              _summaryRow('Prix', '${_pricePerPassenger.toStringAsFixed(2)} \$ / passager'),
-              _summaryRow('Paiement', _paymentMethod == 'cash' ? 'Argent comptant' : 'Virement Interac'),
+              _summaryRow('Prix',
+                  '${_pricePerPassenger.toStringAsFixed(2)} \$ / passager'),
+              _summaryRow('Paiement',
+                  _paymentMethod == 'cash' ? 'Argent comptant' : 'Interac'),
             ],
           ),
         ],
@@ -798,19 +1163,23 @@ class _CreateTripScreenState extends State<CreateTripScreen>
   }
 
   // ─────────────────────────────────────────────────────────
-  // BOTTOM ACTIONS
+  // ACTIONS BAS DE PAGE
   // ─────────────────────────────────────────────────────────
   Widget _buildBottomActions() {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(16, 10, 16, 20),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        10,
+        16,
+        MediaQuery.of(context).padding.bottom + 16,
+      ),
       child: Row(
         children: [
           Expanded(
             child: _outlineBtn(
               label: 'Brouillon',
               icon: Icons.save_outlined,
-              isLoading: false,
               onTap: _isSubmitting ? null : () => _submit(false),
             ),
           ),
@@ -830,7 +1199,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
   }
 
   // ─────────────────────────────────────────────────────────
-  // COMPOSANTS UI ATOMIQUES
+  // COMPOSANTS UI
   // ─────────────────────────────────────────────────────────
 
   Widget _sectionCard({
@@ -843,7 +1212,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
-          BoxShadow(color: Color(0x0F000000), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(
+              color: Color(0x0F000000), blurRadius: 8, offset: Offset(0, 2)),
         ],
         border: Border.all(color: const Color(0x12000000)),
       ),
@@ -882,44 +1252,134 @@ class _CreateTripScreenState extends State<CreateTripScreen>
 
   Widget _fieldLabel(String label) => Padding(
         padding: const EdgeInsets.only(bottom: 6),
-        child: Text(label,
-            style: GoogleFonts.sora(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFF545D6E),
-                letterSpacing: 0.3)),
+        child: Text(
+          label,
+          style: GoogleFonts.sora(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFF545D6E),
+            letterSpacing: 0.3,
+          ),
+        ),
       );
 
-  Widget _inputField({
+  // Champ avec autocomplétion
+  Widget _autocompleteField({
     required TextEditingController controller,
     required String hint,
     required IconData prefixIcon,
     Color prefixColor = const Color(0xFF08316E),
+    required bool isSelected,
     String? error,
+    required ValueChanged<String> onChanged,
+    required List<OrsPlaceSuggestion> suggestions,
+    required bool showSuggestions,
+    required ValueChanged<OrsPlaceSuggestion> onSelect,
+    required VoidCallback onDismiss,
   }) {
-    return TextField(
-      controller: controller,
-      style: GoogleFonts.dmSans(fontSize: 14),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle:
-            GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF8A95A8)),
-        prefixIcon: Icon(prefixIcon, size: 16, color: prefixColor),
-        filled: true,
-        fillColor: const Color(0xFFF8F9FC),
-        errorText: error,
-        border: OutlineInputBorder(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8F9FC),
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFD8DBE5))),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFD8DBE5))),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF08316E))),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      ),
+            border: Border.all(
+              color: error != null
+                  ? const Color(0xFFE24B4A)
+                  : isSelected
+                      ? const Color(0xFF08316E)
+                      : const Color(0xFFD8DBE5),
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Icon(
+                  isSelected ? Icons.check_circle : prefixIcon,
+                  size: 16,
+                  color: isSelected ? const Color(0xFF0F6E56) : prefixColor,
+                ),
+              ),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  onChanged: onChanged,
+                  style: GoogleFonts.dmSans(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: GoogleFonts.dmSans(
+                        fontSize: 13, color: const Color(0xFF8A95A8)),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+              if (controller.text.isNotEmpty)
+                GestureDetector(
+                  onTap: () {
+                    controller.clear();
+                    onChanged('');
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child:
+                        Icon(Icons.close, size: 16, color: Color(0xFF8A95A8)),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(error,
+                style: const TextStyle(color: Color(0xFFE24B4A), fontSize: 11)),
+          ),
+        if (showSuggestions && suggestions.isNotEmpty)
+          Container(
+            margin: const EdgeInsets.only(top: 2),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFD8DBE5)),
+              boxShadow: const [
+                BoxShadow(
+                    color: Color(0x14000000),
+                    blurRadius: 8,
+                    offset: Offset(0, 4)),
+              ],
+            ),
+            child: Column(
+              children: suggestions.map((s) {
+                return InkWell(
+                  onTap: () => onSelect(s),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 12),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.location_on_outlined,
+                            size: 14, color: Color(0xFF8A95A8)),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            s.label,
+                            style: GoogleFonts.dmSans(
+                                fontSize: 13, color: const Color(0xFF0D1624)),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+      ],
     );
   }
 
@@ -943,9 +1403,11 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             Icon(icon, size: 16, color: const Color(0xFF8A95A8)),
             const SizedBox(width: 10),
             Text(value,
-                style: GoogleFonts.dmSans(fontSize: 14, color: const Color(0xFF0D1624))),
+                style: GoogleFonts.dmSans(
+                    fontSize: 14, color: const Color(0xFF0D1624))),
             const Spacer(),
-            const Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF8A95A8)),
+            const Icon(Icons.keyboard_arrow_down,
+                size: 16, color: Color(0xFF8A95A8)),
           ],
         ),
       ),
@@ -968,7 +1430,9 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                   color: selected ? const Color(0xFF08316E) : Colors.white,
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: selected ? const Color(0xFF08316E) : const Color(0xFFD8DBE5),
+                    color: selected
+                        ? const Color(0xFF08316E)
+                        : const Color(0xFFD8DBE5),
                   ),
                 ),
                 alignment: Alignment.center,
@@ -997,15 +1461,20 @@ class _CreateTripScreenState extends State<CreateTripScreen>
           child: Padding(
             padding: EdgeInsets.only(right: i < 6 ? 4 : 0),
             child: GestureDetector(
-              onTap: () => setState(() => _recurrenceDays[i] = !_recurrenceDays[i]),
+              onTap: () =>
+                  setState(() => _recurrenceDays[i] = !_recurrenceDays[i]),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 120),
                 height: 38,
                 decoration: BoxDecoration(
-                  color: selected ? const Color(0xFF08316E) : const Color(0xFFF2F5FA),
+                  color: selected
+                      ? const Color(0xFF08316E)
+                      : const Color(0xFFF2F5FA),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: selected ? const Color(0xFF08316E) : const Color(0xFFD8DBE5),
+                    color: selected
+                        ? const Color(0xFF08316E)
+                        : const Color(0xFFD8DBE5),
                   ),
                 ),
                 alignment: Alignment.center,
@@ -1043,7 +1512,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: selected ? const Color(0xFF08316E) : const Color(0xFFEEF0F5),
+              color:
+                  selected ? const Color(0xFF08316E) : const Color(0xFFEEF0F5),
               shape: BoxShape.circle,
             ),
             child: Icon(Icons.directions_car,
@@ -1086,8 +1556,9 @@ class _CreateTripScreenState extends State<CreateTripScreen>
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Aucun véhicule enregistré. Ajoutez un véhicule dans votre profil.',
-              style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF854F0B)),
+              'Aucun véhicule enregistré. Ajoutez-en un dans votre profil.',
+              style: GoogleFonts.dmSans(
+                  fontSize: 12, color: const Color(0xFF854F0B)),
             ),
           ),
         ],
@@ -1109,13 +1580,16 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         Text(
           '$value',
           style: GoogleFonts.sora(
-              fontSize: 22, fontWeight: FontWeight.w800, color: const Color(0xFF08316E)),
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF08316E)),
         ),
         const SizedBox(width: 16),
         _stepBtn(icon: Icons.add, onTap: value < max ? onIncrement : null),
         const SizedBox(width: 12),
         Text('place(s)',
-            style: GoogleFonts.dmSans(fontSize: 14, color: const Color(0xFF7A879A))),
+            style: GoogleFonts.dmSans(
+                fontSize: 14, color: const Color(0xFF7A879A))),
       ],
     );
   }
@@ -1128,7 +1602,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: onTap != null ? const Color(0xFF08316E) : const Color(0xFFEEF0F5),
+          color:
+              onTap != null ? const Color(0xFF08316E) : const Color(0xFFEEF0F5),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon,
@@ -1166,11 +1641,13 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(label,
-                  style: GoogleFonts.dmSans(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF0D1624))),
+              child: Text(
+                label,
+                style: GoogleFonts.dmSans(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF0D1624)),
+              ),
             ),
             Switch.adaptive(
               value: value,
@@ -1190,8 +1667,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         _stepBtn(
           icon: Icons.remove,
           onTap: _pricePerPassenger > 1
-              ? () => setState(() => _pricePerPassenger =
-                  (_pricePerPassenger - 1).clamp(1, 99))
+              ? () => setState(() =>
+                  _pricePerPassenger = (_pricePerPassenger - 1).clamp(1, 99))
               : null,
         ),
         const SizedBox(width: 20),
@@ -1227,8 +1704,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         _stepBtn(
           icon: Icons.add,
           onTap: _pricePerPassenger < 99
-              ? () => setState(() => _pricePerPassenger =
-                  (_pricePerPassenger + 1).clamp(1, 99))
+              ? () => setState(() =>
+                  _pricePerPassenger = (_pricePerPassenger + 1).clamp(1, 99))
               : null,
         ),
       ],
@@ -1251,10 +1728,14 @@ class _CreateTripScreenState extends State<CreateTripScreen>
               duration: const Duration(milliseconds: 150),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
-                color: selected ? const Color(0xFFE8F0FE) : const Color(0xFFF8F9FC),
+                color: selected
+                    ? const Color(0xFFE8F0FE)
+                    : const Color(0xFFF8F9FC),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: selected ? const Color(0xFF08316E) : const Color(0xFFD8DBE5),
+                  color: selected
+                      ? const Color(0xFF08316E)
+                      : const Color(0xFFD8DBE5),
                   width: selected ? 1.5 : 1,
                 ),
               ),
@@ -1266,13 +1747,16 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                           ? const Color(0xFF08316E)
                           : const Color(0xFF8A95A8)),
                   const SizedBox(width: 12),
-                  Text(m.$2,
-                      style: GoogleFonts.dmSans(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: selected
-                              ? const Color(0xFF08316E)
-                              : const Color(0xFF3D4A5C))),
+                  Text(
+                    m.$2,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: selected
+                          ? const Color(0xFF08316E)
+                          : const Color(0xFF3D4A5C),
+                    ),
+                  ),
                   const Spacer(),
                   if (selected)
                     const Icon(Icons.check_circle,
@@ -1322,7 +1806,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         duration: const Duration(milliseconds: 150),
         height: 50,
         decoration: BoxDecoration(
-          color: onTap != null ? const Color(0xFF08316E) : const Color(0xFF8A95A8),
+          color:
+              onTap != null ? const Color(0xFF08316E) : const Color(0xFF8A95A8),
           borderRadius: BorderRadius.circular(14),
         ),
         child: Center(
@@ -1330,18 +1815,21 @@ class _CreateTripScreenState extends State<CreateTripScreen>
               ? const SizedBox(
                   width: 22,
                   height: 22,
-                  child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2.5, color: Colors.white),
                 )
               : Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(icon, size: 16, color: Colors.white),
                     const SizedBox(width: 8),
-                    Text(label,
-                        style: GoogleFonts.sora(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white)),
+                    Text(
+                      label,
+                      style: GoogleFonts.sora(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white),
+                    ),
                   ],
                 ),
         ),
@@ -1352,7 +1840,6 @@ class _CreateTripScreenState extends State<CreateTripScreen>
   Widget _outlineBtn({
     required String label,
     required IconData icon,
-    required bool isLoading,
     VoidCallback? onTap,
   }) {
     return GestureDetector(
@@ -1370,11 +1857,13 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             children: [
               Icon(icon, size: 16, color: const Color(0xFF545D6E)),
               const SizedBox(width: 6),
-              Text(label,
-                  style: GoogleFonts.sora(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF545D6E))),
+              Text(
+                label,
+                style: GoogleFonts.sora(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF545D6E)),
+              ),
             ],
           ),
         ),
@@ -1399,23 +1888,28 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                 : const Color(0xFFE24B4A),
             borderRadius: BorderRadius.circular(14),
             boxShadow: const [
-              BoxShadow(color: Colors.black26, blurRadius: 12, offset: Offset(0, 4)),
+              BoxShadow(
+                  color: Colors.black26, blurRadius: 12, offset: Offset(0, 4)),
             ],
           ),
           child: Row(
             children: [
               Icon(
-                _toastSuccess ? Icons.check_circle_outline : Icons.error_outline,
+                _toastSuccess
+                    ? Icons.check_circle_outline
+                    : Icons.error_outline,
                 color: Colors.white,
                 size: 20,
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(_toastMsg,
-                    style: GoogleFonts.sora(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white)),
+                child: Text(
+                  _toastMsg,
+                  style: GoogleFonts.sora(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -1426,8 +1920,9 @@ class _CreateTripScreenState extends State<CreateTripScreen>
 }
 
 // ─────────────────────────────────────────────────────────────
-// HELPERS
+// HELPERS PRIVÉS
 // ─────────────────────────────────────────────────────────────
+
 List<dynamic> _extractList(dynamic payload) {
   if (payload is List) return payload;
   if (payload is Map<String, dynamic>) {
@@ -1435,4 +1930,28 @@ List<dynamic> _extractList(dynamic payload) {
     if (d is List) return d;
   }
   return [];
+}
+
+String _firstStr(Map<String, dynamic> m, List<String> keys) {
+  for (final k in keys) {
+    final v = m[k]?.toString().trim();
+    if (v != null && v.isNotEmpty) return v;
+  }
+  return '';
+}
+
+double? _toNullableDouble(dynamic v) {
+  if (v is num) return v.toDouble();
+  return double.tryParse(v?.toString() ?? '');
+}
+
+double _toDouble(dynamic v, {double fallback = 0}) {
+  if (v is num) return v.toDouble();
+  return double.tryParse(v?.toString() ?? '') ?? fallback;
+}
+
+int _toInt(dynamic v, {int fallback = 0}) {
+  if (v is int) return v;
+  if (v is num) return v.toInt();
+  return int.tryParse(v?.toString() ?? '') ?? fallback;
 }

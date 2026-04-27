@@ -5,14 +5,21 @@ import '../../core/services/api_service.dart';
 import '../../core/state/app_state.dart';
 
 class ReservationRequestDetailScreen extends StatefulWidget {
-  const ReservationRequestDetailScreen({super.key, required this.reservationId});
+  const ReservationRequestDetailScreen({
+    super.key,
+    required this.reservationId,
+    this.initialData,
+  });
   final String reservationId;
+  final Map<String, dynamic>? initialData;
 
   @override
-  State<ReservationRequestDetailScreen> createState() => _ReservationRequestDetailScreenState();
+  State<ReservationRequestDetailScreen> createState() =>
+      _ReservationRequestDetailScreenState();
 }
 
-class _ReservationRequestDetailScreenState extends State<ReservationRequestDetailScreen> {
+class _ReservationRequestDetailScreenState
+    extends State<ReservationRequestDetailScreen> {
   final ApiService _api = ApiService.instance;
 
   bool _isLoading = true;
@@ -25,31 +32,56 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
   void initState() {
     super.initState();
     AppStateStore.instance.clearPageNews(AppNavPage.reservations);
-    _loadRequest();
+    if (widget.initialData != null && widget.initialData!.isNotEmpty) {
+      _data = widget.initialData;
+      _isLoading = false;
+      _loadRequest(silent: true);
+    } else {
+      _loadRequest();
+    }
   }
 
-  Future<void> _loadRequest() async {
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+  Future<void> _loadRequest({bool silent = false}) async {
+    if (!silent) {
+      setState(() {
+        _isLoading = true;
+        _error = null;
+      });
+    }
     try {
-      final dynamic payload = await _api.get('/api/reservations/${widget.reservationId}');
-      final Map<String, dynamic>? map = _extractMap(payload);
+      final dynamic enrichedPayload =
+          await _api.get('/api/driver/reservation-requests');
+      final List<dynamic> rows = _extractList(enrichedPayload);
+      Map<String, dynamic>? found;
+      for (final dynamic row in rows) {
+        if (row is! Map<String, dynamic>) continue;
+        final dynamic res = row['reservation'];
+        if (res is! Map<String, dynamic>) continue;
+        final String id = res['id']?.toString() ?? row['id']?.toString() ?? '';
+        if (id == widget.reservationId) {
+          found = row;
+          break;
+        }
+      }
+      if (found == null) {
+        final dynamic payload =
+            await _api.get('/api/reservations/${widget.reservationId}');
+        found = _extractMap(payload);
+      }
       if (!mounted) return;
       setState(() {
-        _data = map;
+        _data = found;
+        _isLoading = false;
+        _error = null;
       });
     } catch (e) {
       if (!mounted) return;
-      setState(() {
-        _error = e.toString();
-      });
-    } finally {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-      });
+      if (!silent) {
+        setState(() {
+          _error = e.toString();
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -66,13 +98,16 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
         <String, dynamic>{},
       );
       if (!mounted) return;
+      setState(() => _result = accept ? 'accepted' : 'refused');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(accept ? 'Demande acceptee' : 'Demande refusee'),
-          backgroundColor: accept ? const Color(0xFF16A34A) : const Color(0xFFE24B4A),
+          content: Text(accept ? 'Demande acceptée' : 'Demande refusée'),
+          backgroundColor:
+              accept ? const Color(0xFF16A34A) : const Color(0xFFE24B4A),
         ),
       );
-      context.pop();
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (mounted) context.pop();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -93,7 +128,8 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmer la décision'),
-          content: Text('Voulez-vous confirmer cette décision pour $passengerName ?'),
+          content: Text(
+              'Voulez-vous confirmer cette décision pour $passengerName ?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -126,7 +162,8 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
             onPressed: () => context.pop(),
             icon: const Icon(Icons.arrow_back, color: Color(0xFF08316E)),
           ),
-          title: const Text('Demande de réservation', style: TextStyle(color: Color(0xFF111827))),
+          title: const Text('Demande de réservation',
+              style: TextStyle(color: Color(0xFF111827))),
         ),
         body: Center(
           child: Padding(
@@ -136,7 +173,8 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
               children: [
                 Text('Erreur: $_error', textAlign: TextAlign.center),
                 const SizedBox(height: 8),
-                FilledButton(onPressed: _loadRequest, child: const Text('Reessayer')),
+                FilledButton(
+                    onPressed: _loadRequest, child: const Text('Reessayer')),
               ],
             ),
           ),
@@ -153,7 +191,8 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
           onPressed: () => context.pop(),
           icon: const Icon(Icons.arrow_back, color: Color(0xFF08316E)),
         ),
-        title: const Text('Demande de réservation', style: TextStyle(color: Color(0xFF111827))),
+        title: const Text('Demande de réservation',
+            style: TextStyle(color: Color(0xFF111827))),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -191,7 +230,8 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
             child: CircleAvatar(
               radius: 37,
               backgroundColor: const Color(0xFF1A56CC),
-              backgroundImage: _avatarUrl.isNotEmpty ? NetworkImage(_avatarUrl) : null,
+              backgroundImage:
+                  _avatarUrl.isNotEmpty ? NetworkImage(_avatarUrl) : null,
               child: _avatarUrl.isNotEmpty
                   ? null
                   : Text(
@@ -219,7 +259,8 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
             children: [
               ...List<Widget>.generate(
                 5,
-                (_) => const Icon(Icons.star, size: 14, color: Color(0xFFF59E0B)),
+                (_) =>
+                    const Icon(Icons.star, size: 14, color: Color(0xFFF59E0B)),
               ),
               const SizedBox(width: 6),
               Text(
@@ -252,7 +293,10 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
         children: [
           const Text(
             '🛡 Vérifications',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF08316E)),
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF08316E)),
           ),
           const SizedBox(height: 10),
           GridView.count(
@@ -286,15 +330,20 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
         children: [
           const Text(
             '🛣 Trajet demandé',
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF08316E)),
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF08316E)),
           ),
           const SizedBox(height: 10),
           _tripRow('📍', 'Départ', _departure),
-          _tripRow('📍', 'Arrivée', _arrival, iconColor: const Color(0xFFE24B4A)),
+          _tripRow('📍', 'Arrivée', _arrival,
+              iconColor: const Color(0xFFE24B4A)),
           _tripRow('📅', 'Date', _dateLabel),
           _tripRow('🕐', 'Heure', _timeLabel),
           _tripRow('👥', 'Places', '$_seats place(s)'),
-          _tripRow('💰', 'Prix', '${_price.toStringAsFixed(2)} \$', valueColor: const Color(0xFF16A34A)),
+          _tripRow('💰', 'Prix', '${_price.toStringAsFixed(2)} \$',
+              valueColor: const Color(0xFF16A34A)),
         ],
       ),
     );
@@ -314,14 +363,16 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
             onPressed: _isBusy ? null : () => _handleDecision(true),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF16A34A),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
             child: _isBusy
                 ? const SizedBox(
                     width: 16,
                     height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
                 : const Text('Accepter', style: TextStyle(color: Colors.white)),
           ),
@@ -332,7 +383,8 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
             onPressed: _isBusy ? null : () => _handleDecision(false),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFDC2626),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
             child: const Text('Refuser', style: TextStyle(color: Colors.white)),
@@ -353,7 +405,8 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
       child: Text(
         text,
         textAlign: TextAlign.center,
-        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+        style:
+            const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
       ),
     );
   }
@@ -400,7 +453,9 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
     final dynamic rawPassenger = _data == null ? null : _data!['passenger'];
     final Map<String, dynamic>? passenger =
         rawPassenger is Map<String, dynamic> ? rawPassenger : null;
-    final String full = '${passenger?['firstName'] ?? ''} ${passenger?['lastName'] ?? ''}'.trim();
+    final String full =
+        '${passenger?['firstName'] ?? ''} ${passenger?['lastName'] ?? ''}'
+            .trim();
     return full.isEmpty ? 'Passager' : full;
   }
 
@@ -437,12 +492,14 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
   }
 
   String get _departure =>
-      _trip?['departureLabel']?.toString() ?? (_data == null ? '' : _data!['departureLabel']?.toString() ?? '');
+      _trip?['departureLabel']?.toString() ??
+      (_data == null ? '' : _data!['departureLabel']?.toString() ?? '');
   String get _arrival =>
-      _trip?['arrivalLabel']?.toString() ?? (_data == null ? '' : _data!['arrivalLabel']?.toString() ?? '');
+      _trip?['arrivalLabel']?.toString() ??
+      (_data == null ? '' : _data!['arrivalLabel']?.toString() ?? '');
 
-  DateTime? get _departureTime =>
-      _toDateTime(_trip?['departureTime'] ?? (_data == null ? null : _data!['departureTime']));
+  DateTime? get _departureTime => _toDateTime(_trip?['departureTime'] ??
+      (_data == null ? null : _data!['departureTime']));
 
   String get _dateLabel {
     final DateTime? dt = _departureTime;
@@ -458,9 +515,12 @@ class _ReservationRequestDetailScreenState extends State<ReservationRequestDetai
     return '${two(dt.hour)}:${two(dt.minute)}';
   }
 
-  int get _seats => _toInt((_data == null ? null : _data!['seats']) ?? (_data == null ? null : _data!['requestedSeats']) ?? 1);
+  int get _seats => _toInt((_data == null ? null : _data!['seats']) ??
+      (_data == null ? null : _data!['requestedSeats']) ??
+      1);
 
-  double get _price => _toDouble(_trip?['pricePerSeat'] ?? (_data == null ? null : _data!['price']) ?? 0);
+  double get _price => _toDouble(
+      _trip?['pricePerSeat'] ?? (_data == null ? null : _data!['price']) ?? 0);
 }
 
 class _InfoChip extends StatelessWidget {
@@ -476,7 +536,8 @@ class _InfoChip extends StatelessWidget {
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(text, style: const TextStyle(fontSize: 12, color: Color(0xFF374151))),
+      child: Text(text,
+          style: const TextStyle(fontSize: 12, color: Color(0xFF374151))),
     );
   }
 }
@@ -488,6 +549,15 @@ Map<String, dynamic>? _extractMap(dynamic payload) {
     return payload;
   }
   return null;
+}
+
+List<dynamic> _extractList(dynamic payload) {
+  if (payload is List) return payload;
+  if (payload is Map<String, dynamic>) {
+    final dynamic d = payload['data'] ?? payload['items'] ?? payload['results'];
+    if (d is List) return d;
+  }
+  return <dynamic>[];
 }
 
 DateTime? _toDateTime(dynamic value) {

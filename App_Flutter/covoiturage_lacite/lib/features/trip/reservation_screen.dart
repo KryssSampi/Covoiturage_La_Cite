@@ -140,7 +140,8 @@ class _ReservationScreenState extends State<ReservationScreen> {
     if (confirmed != true) return;
 
     try {
-      await _api.post('/api/reservations/${item.id}/cancel', <String, dynamic>{});
+      await _api
+          .post('/api/reservations/${item.id}/cancel', <String, dynamic>{});
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Reservation annulee.')),
@@ -156,7 +157,10 @@ class _ReservationScreenState extends State<ReservationScreen> {
 
   void _openReservation(_ReservationVm item) {
     if (item.isDriverRequest) {
-      context.push('/reservation-request/${item.id}');
+      context.push(
+        '/reservation-request/${item.id}',
+        extra: item.tripData.isNotEmpty ? item.tripData : null,
+      );
       return;
     }
     if (item.tripId.isEmpty) return;
@@ -182,8 +186,11 @@ class _ReservationScreenState extends State<ReservationScreen> {
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
             child: widget.embedded
                 ? Text(
-                    widget.isDriver ? 'Demandes de reservation' : 'Mes reservations',
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                    widget.isDriver
+                        ? 'Demandes de reservation'
+                        : 'Mes reservations',
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.w700),
                   )
                 : Row(
                     children: [
@@ -197,8 +204,11 @@ class _ReservationScreenState extends State<ReservationScreen> {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          widget.isDriver ? 'Demandes de reservation' : 'Mes reservations',
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                          widget.isDriver
+                              ? 'Demandes de reservation'
+                              : 'Mes reservations',
+                          style: const TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.w700),
                         ),
                       ),
                     ],
@@ -338,7 +348,9 @@ class _ReservationVm {
       personName: driverName,
       personInitials: _initials(driverName),
       personRating: _toDoubleOrNull(driver['averageRating']),
-      status: reservation['status']?.toString() ?? row['status']?.toString() ?? 'pending',
+      status: reservation['status']?.toString() ??
+          row['status']?.toString() ??
+          'pending',
       isDriverRequest: false,
       price: _toDoubleOrNull(trip['pricePerPassenger']),
       seatsInfo: _seatsInfo(
@@ -385,7 +397,9 @@ class _ReservationVm {
       personName: passengerName,
       personInitials: _initials(passengerName),
       personRating: _toDoubleOrNull(passenger['averageRating']),
-      status: reservation['status']?.toString() ?? row['status']?.toString() ?? 'pending',
+      status: reservation['status']?.toString() ??
+          row['status']?.toString() ??
+          'pending',
       isDriverRequest: true,
       tripData: _buildTripExtra(
         trip,
@@ -396,7 +410,8 @@ class _ReservationVm {
     );
   }
 
-  factory _ReservationVm.fromLegacyPassengerReservation(Map<String, dynamic> row) {
+  factory _ReservationVm.fromLegacyPassengerReservation(
+      Map<String, dynamic> row) {
     final Map<String, dynamic> trip = _asMap(row['trip']);
     final Map<String, dynamic> driver = _asMap(row['driver']);
     final DateTime? departureDt = _parseDepartureDateTime(trip);
@@ -424,7 +439,8 @@ class _ReservationVm {
       time: _fmtTime(departureDt),
       personName: driverName,
       personInitials: _initials(driverName),
-      personRating: _toDoubleOrNull(driver['averageRating'] ?? driver['rating']),
+      personRating:
+          _toDoubleOrNull(driver['averageRating'] ?? driver['rating']),
       status: row['status']?.toString() ?? 'pending',
       isDriverRequest: false,
       price: _toDoubleOrNull(
@@ -528,8 +544,9 @@ Map<String, dynamic> _buildTripExtra(
   Map<String, dynamic>? driver,
   Map<String, dynamic>? reservationRow,
 }) {
-  final Map<String, dynamic> base =
-      <String, dynamic>{...(trip ?? const <String, dynamic>{})};
+  final Map<String, dynamic> base = <String, dynamic>{
+    ...(trip ?? const <String, dynamic>{})
+  };
 
   if ((base['id']?.toString().isNotEmpty ?? false) == false &&
       (fallbackTripId?.isNotEmpty ?? false)) {
@@ -563,4 +580,3 @@ Map<String, dynamic> _buildTripExtra(
 
   return base;
 }
-

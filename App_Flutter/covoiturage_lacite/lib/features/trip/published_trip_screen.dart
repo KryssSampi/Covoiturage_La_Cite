@@ -45,6 +45,7 @@ class PublishedTripScreen extends StatefulWidget {
     this.existingReservationStatus = PTReservationStatus.none,
     this.source,
     this.sourceStatus,
+    this.reservationId,
   }) : assert(trip != null || tripId != null || initialData != null);
 
   final TripService tripService;
@@ -55,6 +56,7 @@ class PublishedTripScreen extends StatefulWidget {
   final PTReservationStatus existingReservationStatus;
   final String? source;
   final String? sourceStatus;
+  final String? reservationId;
 
   @override
   State<PublishedTripScreen> createState() => _PublishedTripScreenState();
@@ -181,16 +183,20 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     if (widget.source == 'reservation') {
       switch (widget.sourceStatus) {
         case 'confirmed':
-          return ReserveButtonState(ReserveButtonStateKind.reservationConfirmed);
+          return ReserveButtonState(
+              ReserveButtonStateKind.reservationConfirmed);
         case 'in-progress':
         case 'in_progress':
-          return ReserveButtonState(ReserveButtonStateKind.reservationInProgress);
+          return ReserveButtonState(
+              ReserveButtonStateKind.reservationInProgress);
         case 'cancelled':
-          return ReserveButtonState(ReserveButtonStateKind.reservationCancelled);
+          return ReserveButtonState(
+              ReserveButtonStateKind.reservationCancelled);
         case 'pending':
           return ReserveButtonState(ReserveButtonStateKind.reservationPending);
         case 'completed':
-          return ReserveButtonState(ReserveButtonStateKind.reservationCompleted);
+          return ReserveButtonState(
+              ReserveButtonStateKind.reservationCompleted);
         case 'rejected':
           return ReserveButtonState(ReserveButtonStateKind.reservationRejected);
         case 'imminent':
@@ -247,7 +253,8 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
       case PTReservationStatus.confirmed:
         return ReserveButtonState(ReserveButtonStateKind.confirmed);
       case PTReservationStatus.refused:
-        return ReserveButtonState(ReserveButtonStateKind.cooldown, hoursLeft: 24);
+        return ReserveButtonState(ReserveButtonStateKind.cooldown,
+            hoursLeft: 24);
       case PTReservationStatus.cancelled:
         return ReserveButtonState(ReserveButtonStateKind.reserve);
       case PTReservationStatus.inProgress:
@@ -266,12 +273,21 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
   }
 
   bool get _canShowMessageBtn {
-    return _reservationStatus == PTReservationStatus.confirmed ||
-        widget.source == 'reservation' && widget.sourceStatus == 'confirmed';
+    if (_reservationStatus == PTReservationStatus.confirmed ||
+        _reservationStatus == PTReservationStatus.inProgress) {
+      return true;
+    }
+    if (widget.source == 'reservation') {
+      final s = widget.sourceStatus ?? '';
+      return s == 'confirmed' || s == 'in-progress' || s == 'in_progress';
+    }
+    return false;
   }
 
   bool get _canShowSosBtn {
-    return widget.source == 'reservation' && widget.sourceStatus == 'in-progress';
+    final s = widget.sourceStatus ?? '';
+    return widget.source == 'reservation' &&
+        (s == 'in-progress' || s == 'in_progress');
   }
 
   // ── BUILD ──────────────────────────────────────────────────
@@ -280,7 +296,8 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFFF0F4F8),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF08316E))),
+        body:
+            Center(child: CircularProgressIndicator(color: Color(0xFF08316E))),
       );
     }
     if (_errorMsg != null) {
@@ -361,8 +378,10 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
               top: MediaQuery.of(context).padding.top + 8,
               right: 12,
               child: _CircleIconBtn(
-                icon: _showMapExpanded ? Icons.fullscreen_exit : Icons.fullscreen,
-                onTap: () => setState(() => _showMapExpanded = !_showMapExpanded),
+                icon:
+                    _showMapExpanded ? Icons.fullscreen_exit : Icons.fullscreen,
+                onTap: () =>
+                    setState(() => _showMapExpanded = !_showMapExpanded),
                 bg: Colors.black.withOpacity(0.45),
               ),
             ),
@@ -405,7 +424,10 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: const [
-              BoxShadow(color: Color(0x14000000), blurRadius: 20, offset: Offset(0, 6)),
+              BoxShadow(
+                  color: Color(0x14000000),
+                  blurRadius: 20,
+                  offset: Offset(0, 6)),
             ],
           ),
           child: Column(
@@ -421,22 +443,27 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(t.driverName,
-                              style: GoogleFonts.sora(fontSize: 15, fontWeight: FontWeight.w700)),
+                              style: GoogleFonts.sora(
+                                  fontSize: 15, fontWeight: FontWeight.w700)),
                           const SizedBox(height: 2),
                           Row(
                             children: [
-                              const Icon(Icons.star, size: 12, color: Color(0xFFF59E0B)),
+                              const Icon(Icons.star,
+                                  size: 12, color: Color(0xFFF59E0B)),
                               const SizedBox(width: 3),
                               Text(
                                 '${t.driverRating.toStringAsFixed(1)} - ${t.driverTripCount} trajets',
-                                style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
+                                style: GoogleFonts.dmSans(
+                                    fontSize: 12,
+                                    color: const Color(0xFF7A879A)),
                               ),
                             ],
                           ),
                           if (t.vehicleModel.isNotEmpty)
                             Text(
                               '${t.vehicleModel} - ${t.vehicleColor}',
-                              style: GoogleFonts.dmSans(fontSize: 11, color: const Color(0xFF8A95A8)),
+                              style: GoogleFonts.dmSans(
+                                  fontSize: 11, color: const Color(0xFF8A95A8)),
                             ),
                         ],
                       ),
@@ -453,7 +480,8 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                           ),
                         ),
                         Text('/ passager',
-                            style: GoogleFonts.dmSans(fontSize: 10, color: const Color(0xFF7A879A))),
+                            style: GoogleFonts.dmSans(
+                                fontSize: 10, color: const Color(0xFF7A879A))),
                       ],
                     ),
                   ],
@@ -466,7 +494,8 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                   children: [
                     _MetaCell(label: 'Date', value: t.departureDate),
                     _MetaCell(label: 'Depart', value: t.departureTime),
-                    _MetaCell(label: 'Duree', value: '${t.estimatedDurationMin} min'),
+                    _MetaCell(
+                        label: 'Duree', value: '${t.estimatedDurationMin} min'),
                     _MetaCell(
                       label: 'Places',
                       value: '${t.availableSeats}/${t.totalSeats}',
@@ -482,11 +511,15 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
                 child: Row(
                   children: [
-                    const Icon(Icons.payment, size: 14, color: Color(0xFF8A95A8)),
+                    const Icon(Icons.payment,
+                        size: 14, color: Color(0xFF8A95A8)),
                     const SizedBox(width: 6),
                     Text(
-                      t.paymentMethod == 'Cash' ? 'Argent comptant' : 'Virement Interac',
-                      style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF545D6E)),
+                      t.paymentMethod == 'Cash'
+                          ? 'Argent comptant'
+                          : 'Virement Interac',
+                      style: GoogleFonts.dmSans(
+                          fontSize: 13, color: const Color(0xFF545D6E)),
                     ),
                     const Spacer(),
                     if (t.tripType == 'recurrent')
@@ -539,7 +572,8 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 borderRadius: BorderRadius.circular(10),
               ),
               indicatorSize: TabBarIndicatorSize.tab,
-              labelStyle: GoogleFonts.sora(fontSize: 11, fontWeight: FontWeight.w700),
+              labelStyle:
+                  GoogleFonts.sora(fontSize: 11, fontWeight: FontWeight.w700),
               unselectedLabelStyle: GoogleFonts.sora(fontSize: 11),
               tabs: const [
                 Tab(text: 'Points'),
@@ -617,11 +651,13 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 child: ReserveButton(
                   state: _reserveButtonState,
                   tripId: t.id,
-                  onReserveClick:
-                      _isReserving ? null : () => setState(() => _showConfirmModal = true),
+                  onReserveClick: _isReserving
+                      ? null
+                      : () => setState(() => _showConfirmModal = true),
                   onFollowClick: () => context.push('/chat/${t.id}'),
                   onManageClick: () => context.push('/reservations'),
-                  onStartTripClick: () => context.push('/trajet-en-cours/${t.id}'),
+                  onStartTripClick: () =>
+                      context.push('/trajet-en-cours/${t.id}'),
                 ),
               ),
               // Bouton annuler (si passager avec réservation active)
@@ -671,20 +707,24 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
               children: [
                 Row(
                   children: [
-                    _DriverAvatar(name: t.driverName, url: t.driverAvatarUrl, size: 40),
+                    _DriverAvatar(
+                        name: t.driverName, url: t.driverAvatarUrl, size: 40),
                     const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(t.driverName,
-                            style: GoogleFonts.sora(fontSize: 14, fontWeight: FontWeight.w700)),
+                            style: GoogleFonts.sora(
+                                fontSize: 14, fontWeight: FontWeight.w700)),
                         Row(
                           children: [
-                            const Icon(Icons.star, size: 11, color: Color(0xFFF59E0B)),
+                            const Icon(Icons.star,
+                                size: 11, color: Color(0xFFF59E0B)),
                             const SizedBox(width: 2),
                             Text(
                               '${t.driverRating.toStringAsFixed(1)} - ${t.driverTripCount} trajets',
-                              style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
+                              style: GoogleFonts.dmSans(
+                                  fontSize: 12, color: const Color(0xFF7A879A)),
                             ),
                           ],
                         ),
@@ -707,21 +747,27 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                         value: '${t.departureDate} a ${t.departureTime}',
                       ),
                       const SizedBox(height: 8),
-                      _ModalRow(icon: Icons.place, label: 'De', value: t.departureLabel),
+                      _ModalRow(
+                          icon: Icons.place,
+                          label: 'De',
+                          value: t.departureLabel),
                       const SizedBox(height: 8),
-                      _ModalRow(icon: Icons.flag, label: 'A', value: t.arrivalLabel),
+                      _ModalRow(
+                          icon: Icons.flag, label: 'A', value: t.arrivalLabel),
                       const SizedBox(height: 8),
                       _ModalRow(
                         icon: Icons.attach_money,
                         label: 'Prix',
-                        value: '${t.passengerPrice.toStringAsFixed(2)} \$ (frais inclus)',
+                        value:
+                            '${t.passengerPrice.toStringAsFixed(2)} \$ (frais inclus)',
                       ),
                       const SizedBox(height: 8),
                       _ModalRow(
                         icon: Icons.payment,
                         label: 'Paiement',
-                        value:
-                            t.paymentMethod == 'Cash' ? 'Argent comptant' : 'Virement Interac',
+                        value: t.paymentMethod == 'Cash'
+                            ? 'Argent comptant'
+                            : 'Virement Interac',
                       ),
                     ],
                   ),
@@ -730,7 +776,8 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 Text(
                   'Votre demande sera envoyee au conducteur pour approbation.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
+                  style: GoogleFonts.dmSans(
+                      fontSize: 12, color: const Color(0xFF7A879A)),
                 ),
               ],
             ),
@@ -750,7 +797,8 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                   flex: 2,
                   child: GestureDetector(
                     onTap: _reserve,
-                    child: _FilledBtn(label: 'Confirmer', isLoading: _isReserving),
+                    child:
+                        _FilledBtn(label: 'Confirmer', isLoading: _isReserving),
                   ),
                 ),
               ],
@@ -763,8 +811,15 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
 
   Widget _buildCancelModal() {
     String? getReservationId() {
-      if (widget.initialData != null && widget.initialData!['reservationId'] != null) {
-        return widget.initialData!['reservationId'] as String;
+      if (widget.reservationId != null && widget.reservationId!.isNotEmpty) {
+        return widget.reservationId;
+      }
+      final fromData = widget.initialData?['reservationId']?.toString();
+      if (fromData != null && fromData.isNotEmpty) return fromData;
+      final res = widget.initialData?['reservation'];
+      if (res is Map<String, dynamic>) {
+        final id = res['id']?.toString();
+        if (id != null && id.isNotEmpty) return id;
       }
       return null;
     }
@@ -806,7 +861,8 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                 Text(
                   'Cette action est irreversible. Des frais d\'annulation peuvent s\'appliquer.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.dmSans(fontSize: 13, color: const Color(0xFF7A879A)),
+                  style: GoogleFonts.dmSans(
+                      fontSize: 13, color: const Color(0xFF7A879A)),
                 ),
               ],
             ),
@@ -830,14 +886,16 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                       if (reservationId == null || reservationId.isEmpty) {
                         setState(() {
                           _showErrorToast = true;
-                          _toastMsg = 'Impossible de trouver l\'ID de reservation.';
+                          _toastMsg =
+                              'Impossible de trouver l\'ID de reservation.';
                         });
                         await Future.delayed(const Duration(seconds: 3));
                         if (mounted) setState(() => _showErrorToast = false);
                         return;
                       }
                       try {
-                        await widget.tripService.cancelReservation(reservationId, reason: null);
+                        await widget.tripService
+                            .cancelReservation(reservationId, reason: null);
                         if (!mounted) return;
                         setState(() {
                           _reservationStatus = PTReservationStatus.cancelled;
@@ -898,10 +956,12 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: isSuccess ? const Color(0xFF0F6E56) : const Color(0xFFE24B4A),
+            color:
+                isSuccess ? const Color(0xFF0F6E56) : const Color(0xFFE24B4A),
             borderRadius: BorderRadius.circular(14),
             boxShadow: const [
-              BoxShadow(color: Colors.black26, blurRadius: 16, offset: Offset(0, 4)),
+              BoxShadow(
+                  color: Colors.black26, blurRadius: 16, offset: Offset(0, 4)),
             ],
           ),
           child: Row(
@@ -964,7 +1024,8 @@ class _PointsTab extends StatelessWidget {
 }
 
 class _PointCard extends StatelessWidget {
-  const _PointCard({required this.type, required this.label, required this.dotColor});
+  const _PointCard(
+      {required this.type, required this.label, required this.dotColor});
   final String type;
   final String label;
   final Color dotColor;
@@ -978,7 +1039,8 @@ class _PointCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0x12000000)),
         boxShadow: const [
-          BoxShadow(color: Color(0x0A000000), blurRadius: 6, offset: Offset(0, 2)),
+          BoxShadow(
+              color: Color(0x0A000000), blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
       child: Column(
@@ -989,7 +1051,8 @@ class _PointCard extends StatelessWidget {
               Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                decoration:
+                    BoxDecoration(color: dotColor, shape: BoxShape.circle),
               ),
               const SizedBox(width: 6),
               Text(
@@ -1006,7 +1069,8 @@ class _PointCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             label,
-            style: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600),
+            style:
+                GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w600),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
@@ -1054,7 +1118,9 @@ class _PreferencesTab extends StatelessWidget {
                   Icon(
                     p.$1 ? Icons.check_circle : Icons.cancel,
                     size: 14,
-                    color: p.$1 ? const Color(0xFF0F6E56) : const Color(0xFFE24B4A),
+                    color: p.$1
+                        ? const Color(0xFF0F6E56)
+                        : const Color(0xFFE24B4A),
                   ),
                   const SizedBox(width: 5),
                   Text(
@@ -1062,7 +1128,9 @@ class _PreferencesTab extends StatelessWidget {
                     style: GoogleFonts.dmSans(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: p.$1 ? const Color(0xFF0F6E56) : const Color(0xFFE24B4A),
+                      color: p.$1
+                          ? const Color(0xFF0F6E56)
+                          : const Color(0xFFE24B4A),
                     ),
                   ),
                 ],
@@ -1091,13 +1159,16 @@ class _StatusTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _InfoRow('Type', trip.tripType == 'recurrent' ? 'Recurrent' : 'Unique'),
-          _InfoRow('Places', '${trip.availableSeats} dispo. / ${trip.totalSeats}'),
+          _InfoRow(
+              'Type', trip.tripType == 'recurrent' ? 'Recurrent' : 'Unique'),
+          _InfoRow(
+              'Places', '${trip.availableSeats} dispo. / ${trip.totalSeats}'),
           _InfoRow(
             'Paiement',
             trip.paymentMethod == 'Cash' ? 'Argent comptant' : 'Interac',
           ),
-          _InfoRow('Distance', '${trip.estimatedDistanceKm.toStringAsFixed(1)} km'),
+          _InfoRow(
+              'Distance', '${trip.estimatedDistanceKm.toStringAsFixed(1)} km'),
           _InfoRow('Duree', '${trip.estimatedDurationMin} min'),
           if (trip.driverNote != null && trip.driverNote!.isNotEmpty)
             _InfoRow('Note', trip.driverNote!),
@@ -1123,7 +1194,8 @@ class _InfoRow extends StatelessWidget {
             width: 72,
             child: Text(
               label,
-              style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
+              style: GoogleFonts.dmSans(
+                  fontSize: 12, color: const Color(0xFF7A879A)),
             ),
           ),
           Expanded(
@@ -1206,14 +1278,16 @@ class _MapPlaceholder extends StatelessWidget {
                   point: points.first,
                   width: 36,
                   height: 36,
-                  child: const Icon(Icons.location_on, color: Color(0xFF08316E), size: 32),
+                  child: const Icon(Icons.location_on,
+                      color: Color(0xFF08316E), size: 32),
                 ),
                 if (points.length > 1)
                   Marker(
                     point: points.last,
                     width: 36,
                     height: 36,
-                    child: const Icon(Icons.flag, color: Color(0xFFE24B4A), size: 32),
+                    child: const Icon(Icons.flag,
+                        color: Color(0xFFE24B4A), size: 32),
                   ),
               ],
             ),
@@ -1264,7 +1338,8 @@ class _MetaBadge extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.sora(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
+          style: GoogleFonts.sora(
+              fontSize: 12, fontWeight: FontWeight.w700, color: Colors.white),
         ),
       );
 }
@@ -1317,10 +1392,12 @@ class _TagChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+        decoration:
+            BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
         child: Text(
           label,
-          style: GoogleFonts.sora(fontSize: 10, fontWeight: FontWeight.w700, color: fg),
+          style: GoogleFonts.sora(
+              fontSize: 10, fontWeight: FontWeight.w700, color: fg),
         ),
       );
 }
@@ -1337,7 +1414,8 @@ class _MetaCell extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(label,
-                style: GoogleFonts.dmSans(fontSize: 10, color: const Color(0xFF8A95A8))),
+                style: GoogleFonts.dmSans(
+                    fontSize: 10, color: const Color(0xFF8A95A8))),
             const SizedBox(height: 2),
             Text(
               value,
@@ -1361,7 +1439,8 @@ class _DriverAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (url != null && url!.isNotEmpty) {
-      return CircleAvatar(radius: size / 2, backgroundImage: NetworkImage(url!));
+      return CircleAvatar(
+          radius: size / 2, backgroundImage: NetworkImage(url!));
     }
     return CircleAvatar(
       radius: size / 2,
@@ -1397,7 +1476,10 @@ class _ModalOverlay extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: const [
-                    BoxShadow(color: Colors.black26, blurRadius: 24, offset: Offset(0, 8)),
+                    BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 24,
+                        offset: Offset(0, 8)),
                   ],
                 ),
                 child: child,
@@ -1437,7 +1519,8 @@ class _ModalHeader extends StatelessWidget {
                   color: const Color(0xFFEEF0F5),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(Icons.close, size: 14, color: Color(0xFF545D6E)),
+                child:
+                    const Icon(Icons.close, size: 14, color: Color(0xFF545D6E)),
               ),
             ),
           ],
@@ -1446,7 +1529,8 @@ class _ModalHeader extends StatelessWidget {
 }
 
 class _ModalRow extends StatelessWidget {
-  const _ModalRow({required this.icon, required this.label, required this.value});
+  const _ModalRow(
+      {required this.icon, required this.label, required this.value});
   final IconData icon;
   final String label;
   final String value;
@@ -1461,7 +1545,8 @@ class _ModalRow extends StatelessWidget {
             width: 70,
             child: Text(
               label,
-              style: GoogleFonts.dmSans(fontSize: 12, color: const Color(0xFF7A879A)),
+              style: GoogleFonts.dmSans(
+                  fontSize: 12, color: const Color(0xFF7A879A)),
             ),
           ),
           Expanded(
@@ -1518,7 +1603,8 @@ class _FilledBtn extends StatelessWidget {
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white),
+                child: CircularProgressIndicator(
+                    strokeWidth: 2.5, color: Colors.white),
               )
             : Text(
                 label,
@@ -1542,14 +1628,15 @@ class _ErrorView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: Color(0xFFE24B4A)),
+              const Icon(Icons.error_outline,
+                  size: 48, color: Color(0xFFE24B4A)),
               const SizedBox(height: 12),
               Text(message, textAlign: TextAlign.center),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: onRetry,
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: const Color(0xFF08316E)),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF08316E)),
                 child: const Text('Reessayer'),
               ),
             ],
@@ -1564,8 +1651,10 @@ class _ErrorView extends StatelessWidget {
 
 List<Offset> _extractPolyline(Map<String, dynamic>? raw) {
   if (raw == null) return [];
-  final source =
-      raw['polyline'] ?? raw['routePolyline'] ?? raw['waypoints'] ?? raw['coordinates'];
+  final source = raw['polyline'] ??
+      raw['routePolyline'] ??
+      raw['waypoints'] ??
+      raw['coordinates'];
   if (source is List) {
     return source
         .map<Offset?>((dynamic row) {
@@ -1577,9 +1666,12 @@ List<Offset> _extractPolyline(Map<String, dynamic>? raw) {
           }
           if (row is Map) {
             final Map<dynamic, dynamic> m = row;
-            final double lat = ((m['lat'] ?? m['latitude']) as num?)?.toDouble() ?? 0;
+            final double lat =
+                ((m['lat'] ?? m['latitude']) as num?)?.toDouble() ?? 0;
             final double lng =
-                ((m['lng'] ?? m['lon'] ?? m['longitude']) as num?)?.toDouble() ?? 0;
+                ((m['lng'] ?? m['lon'] ?? m['longitude']) as num?)
+                        ?.toDouble() ??
+                    0;
             if (lat == 0 && lng == 0) return null;
             return Offset(lng, lat);
           }
