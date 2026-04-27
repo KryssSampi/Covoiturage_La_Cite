@@ -6,6 +6,7 @@ import { useLoader } from "@/core/context/loader.context";
 import { useAppState } from "@/core/state/app_state";
 import { NotificationsPage } from "@/features/notifications";
 import type { NotificationModel } from "@/core/models/NotificationModel";
+import { mapServerNotification } from "@/core/utils/notification-type-mapper";
 
 export default function DriverNotificationsRoutePage() {
   const appState            = useAppState();
@@ -47,12 +48,10 @@ export default function DriverNotificationsRoutePage() {
     return () => { cancelled = true; };
   }, [user, params.id, version]);
 
-  // Polling 30s (remplacement SSE db-watch 503)
+  // Polling 30s
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const intervalId = setInterval(() => {
-      reload();
-    }, 30_000);
+    const intervalId = setInterval(reload, 30_000);
     return () => clearInterval(intervalId);
   }, [user, params.id, reload]);
 
@@ -60,28 +59,25 @@ export default function DriverNotificationsRoutePage() {
   useEffect(() => {
     if (!user || user.id !== params.id) return;
     const es = new EventSource('/api/sse/notifications');
+
     es.addEventListener('notification', (event) => {
       try {
-        const notif = JSON.parse(event.data);
-        const mapped: NotificationModel = {
-          id: String(notif.id ?? ''),
-          userId: String(notif.userId ?? ''),
-          title: String(notif.title ?? notif.body ?? ''),
-          message: String(notif.body ?? notif.message ?? ''),
-          createdAt: String(notif.createdAt ?? ''),
-          type: (notif.type ?? 'info') as NotificationModel['type'],
-          link: String(notif.deepLink ?? notif.link ?? ''),
-          isRead: false,
-          isImportant: Boolean(notif.isImportant),
-        };
+        const raw = JSON.parse(event.data) as Record<string, unknown>;
+        // FIX : appliquer le mapping type PascalCase → snake_case + deepLink → link
+        const mapped = mapServerNotification(raw);
         setItems(prev => [mapped, ...(prev ?? [])]);
       } catch { /* ignore parse errors */ }
     });
+
+    es.addEventListener('error', () => {
+      es.close();
+    });
+
     return () => es.close();
   }, [user, params.id]);
 
   const onRead = useCallback(async (id: string) => {
-      try {
+    try {
       await fetch(`/api/notifications/${id}/read`, { method: "PATCH", credentials: 'same-origin' });
       reload();
     } catch (err) {

@@ -6,6 +6,7 @@ import { useLoader } from "@/core/context/loader.context";
 import { useAppState } from "@/core/state/app_state";
 import { NotificationsPage } from "@/features/notifications";
 import type { NotificationModel } from "@/core/models/NotificationModel";
+import { mapServerNotification } from "@/core/utils/notification-type-mapper";
 
 export default function PassengerNotificationsRoutePage() {
   const appState            = useAppState();
@@ -37,6 +38,7 @@ export default function PassengerNotificationsRoutePage() {
       try {
         const res = await fetch(`/api/notifications`, { credentials: 'same-origin' });
         if (!res.ok || cancelled) return;
+        // La route /api/notifications applique déjà mapServerNotification
         const data: NotificationModel[] = await res.json();
         if (!cancelled) setItems(data);
       } catch (err) {
@@ -47,14 +49,34 @@ export default function PassengerNotificationsRoutePage() {
     return () => { cancelled = true; };
   }, [user, params.id, version]);
 
-  // Polling 30s (remplacement SSE db-watch 503)
+  // Polling 30s
   useEffect(() => {
     if (!user || user.id !== params.id) return;
-    const intervalId = setInterval(() => {
-      reload();
-    }, 30_000);
+    const intervalId = setInterval(reload, 30_000);
     return () => clearInterval(intervalId);
   }, [user, params.id, reload]);
+
+  // SSE — nouvelles notifications en temps réel (identique au driver)
+  useEffect(() => {
+    if (!user || user.id !== params.id) return;
+    const es = new EventSource('/api/sse/notifications');
+
+    es.addEventListener('notification', (event) => {
+      try {
+        const raw = JSON.parse(event.data) as Record<string, unknown>;
+        // Appliquer le mapping type + deepLink → link
+        const mapped = mapServerNotification(raw);
+        setItems(prev => [mapped, ...(prev ?? [])]);
+      } catch { /* ignore parse errors */ }
+    });
+
+    es.addEventListener('error', () => {
+      // SSE indisponible → on se repose sur le polling 30s
+      es.close();
+    });
+
+    return () => es.close();
+  }, [user, params.id]);
 
   const onRead = useCallback(async (id: string) => {
     try {
