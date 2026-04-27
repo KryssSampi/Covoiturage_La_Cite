@@ -45,6 +45,7 @@ import { Trip } from "@/features/dashboard/types/trip.types";
 import { Language, useAppState } from "@/core/state/app_state";
 import type { PendingDateTime } from "@/features/planner/context/SearchBarContext";
 import { fetchTripRoute } from "@/features/search/services/osrm.service";
+import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
 
 export interface RouteMapSearchProps {
   role:             SearchRole;
@@ -107,6 +108,15 @@ export function RouteMapSearch({
   const [filters, setFilters] = useState<SearchFilters>(DEFAULT_SEARCH_FILTERS);
   const [sortKey, setSortKey] = useState<SortKey>(role === "passenger" ? "matching_desc" : "default");
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [favorites, setFavorites] = useState<LieuFavoriUnifie[]>([]);
+
+  useEffect(() => {
+    if (!appState.userConnected) return;
+    fetch("/api/lieux-favoris")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: LieuFavoriUnifie[]) => setFavorites(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, [appState.userConnected]);
 
   // Réf pour ignorer le montage initial (filtres par défaut)
   const isFirstFilterRender = useRef(true);
@@ -344,6 +354,7 @@ export function RouteMapSearch({
             mapCircuits={mapCircuits}
             activeCircuitIdx={activeCircuitIdx}
             filters={filters}
+            favorites={favorites}
           />
         )}
       />

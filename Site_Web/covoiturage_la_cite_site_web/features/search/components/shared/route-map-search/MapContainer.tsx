@@ -3,6 +3,7 @@
 
 import dynamic from "next/dynamic";
 import { MapCircuit, SearchFilters, SearchRole } from "@/features/search/types/search.feature.types";
+import type { LieuFavoriUnifie } from "@/shared/types/lieu-favori.types";
 
 // MapView charge en client-only (Leaflet)
 const MapView = dynamic(() => import("../MapView").then((m) => m.MapView), { ssr: false });
@@ -23,6 +24,7 @@ interface MapContainerProps {
   mapCircuits: MapCircuit[];
   activeCircuitIdx: number;
   filters: SearchFilters;
+  favorites?: LieuFavoriUnifie[];
 }
 
 export function MapContainer({
@@ -41,6 +43,7 @@ export function MapContainer({
   mapCircuits,
   activeCircuitIdx,
   filters,
+  favorites = [],
 }: MapContainerProps) {
   return (
     <div style={{ flex: 1, minWidth: 280, maxHeight: "60vh", position: "relative" }}>
@@ -62,6 +65,7 @@ export function MapContainer({
           showRadiusCircles={role === "passenger"}
           departureRadiusMeters={filters.departureRadiusMeters}
           arrivalRadiusMeters={filters.arrivalRadiusMeters}
+          favorites={favorites}
           height="60vh"
         />
       </div>

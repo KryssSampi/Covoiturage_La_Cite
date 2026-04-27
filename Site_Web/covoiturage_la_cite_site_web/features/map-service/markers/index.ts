@@ -5,7 +5,7 @@
 import type { CursorMode, MarkerStatus, ZoneCampus } from '../types'
 import { MAP_COLORS } from '../constants'
 // Ajout des icônes React pour les pins
-import { FaHome, FaSchool, FaStar, FaBus, FaLandmark, FaHospital, FaBook, FaGavel, FaFireExtinguisher, FaUsers, FaBuilding, FaBalanceScale, FaShieldAlt } from 'react-icons/fa'
+import { FaHome, FaSchool, FaStar, FaBus, FaLandmark, FaHospital, FaBook, FaGavel, FaFireExtinguisher, FaUsers, FaBuilding, FaBalanceScale, FaShieldAlt, FaCar } from 'react-icons/fa'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 // ── Import Leaflet (lazy — évite les erreurs SSR) ────────────────────────────
@@ -149,16 +149,26 @@ export async function createArriveeIcon() {
 // Mapping des icônes React pour les zones campus (retourne du SVG statique)
 function getCampusIconSVG(type: string): string {
   switch (type) {
+    case 'EP':
+      return renderToStaticMarkup(FaLandmark({ color: '#08316e', size: 20 }));
+    case 'PA':
+    case 'PB':
+    case 'PC':
+      return renderToStaticMarkup(FaCar({ color: '#08316e', size: 20 }));
+    case 'BUS':
+      return renderToStaticMarkup(FaBus({ color: '#e11d48', size: 20 }));
+    case 'BIB':
+      return renderToStaticMarkup(FaBook({ color: '#08316e', size: 20 }));
+    case 'GYM':
+      return renderToStaticMarkup(FaUsers({ color: '#0aad6a', size: 20 }));
     case 'maison':
+    case 'domicile':
       return renderToStaticMarkup(FaHome({ color: '#0aad6a', size: 20 }));
     case 'ecole':
+    case 'campus':
       return renderToStaticMarkup(FaSchool({ color: '#08316e', size: 20 }));
-    case 'star':
-      return renderToStaticMarkup(FaStar({ color: '#fbbf24', size: 20 }));
     case 'bus':
       return renderToStaticMarkup(FaBus({ color: '#e11d48', size: 20 }));
-    case 'autre':
-      return renderToStaticMarkup(FaLandmark({ color: '#2563eb', size: 20 }));
     default:
       return renderToStaticMarkup(FaStar({ color: '#fbbf24', size: 20 }));
   }

@@ -115,6 +115,7 @@ export const getDRIVER_SORT_OPTIONS = (isFR: boolean): SortOption<DriverSortKey>
 export type TripWithCoords = Trip & {
   departureCoords?: [number, number]; // [lng, lat]
   arrivalCoords?:   [number, number]; // [lng, lat]
+  latLngs?:         [number, number][];
   status?:          string;           // Champ optionnel pour le filtre statuses
   blockedReason?:   BlockedTripReason;
 };

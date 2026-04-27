@@ -1,26 +1,34 @@
 "use client";
 
 /**
- * @file page.tsx — app/(protected)/passenger/search/[id]/page.tsx
+ * @file app/(protected)/passenger/search/[id]/page.tsx
+ * Page de recherche de trajets — rôle Passager.
  *
- * La page fait le fetch : POST /api/passenger/search
- * Le backend exécute le matching v4 côté serveur et renvoie des TripSearchDTO
- * (sans données sensibles). Le converter transforme les DTOs en TripWithCoords
- * pour RouteMapSearch.
+ * Responsabilités :
+ *   1. Guard : vérification rôle/identité
+ *   2. Fetch initial (trajets disponibles + réservations actives du passager)
+ *   3. Callback onPassengerSearch → appel POST /api/passenger/search
+ *   4. Propagation des données à RouteMapSearch
  */
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { useParams, useSearchParams, useRouter }     from "next/navigation";
-import { useLoader }                                 from "@/core/context/loader.context";
-import { useAppState }                               from "@/core/state/app_state";
-import { tripSearchDTOToTripWithCoords }             from "@/features/search/converters/search.converter";
-import { RouteMapSearch }                            from "@/features/search/components/shared/RouteMapSearch";
-import { ReservationRequestToast }                   from "@/features/reservation/components/ReservationRequestToast";
-import type { TripWithCoords }                       from "@/features/search/types/search.feature.types";
-import type { TripSearchDTO }                        from "@/features/search/utils/matchingV4";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useAppState } from "@/core/state/app_state";
+import { useLoader } from "@/core/context/loader.context";
+import { RouteMapSearch } from "@/features/search/components/shared/RouteMapSearch";
+import { tripSearchDTOToTripWithCoords } from "@/features/search/converters/search.converter";
+import type { TripWithCoords } from "@/features/search/types/search.feature.types";
+import type { Trip } from "@/features/dashboard/types/trip.types";
 
-/** Statuts actifs — une réservation dans ces états bloque une nouvelle demande */
-const ACTIVE_RESERVATION_STATUSES = ["pending", "confirmed", "in_progress"];
+// ─── Types internes ───────────────────────────────────────────────────────────
+
+interface SearchApiResponse {
+  trips: Record<string, unknown>[];
+  blockedTrips: Record<string, unknown>[];
+  serverScores: Record<string, number>;
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function PassengerSearchPage() {
   const appState            = useAppState();
@@ -29,214 +37,154 @@ export default function PassengerSearchPage() {
   const searchParams        = useSearchParams();
   const { setActiveLoader } = useLoader();
   const user                = appState.userConnected;
-  const [, startTransition] = useTransition();
 
-  const [availableTrips, setAvailableTrips] = useState<TripWithCoords[]>([]);
-  const [blockedTrips, setBlockedTrips] = useState<TripWithCoords[]>([]);
-  const [serverScoresMap, setServerScoresMap] = useState<Map<string, number>>(new Map());
-  // Ref pour éviter les appels en cascade lors du changement de dépendances
-  const hasFetchedRef = useRef(false);
-
-  // Carte tripId → statut de la réservation active du passager connecté
+  const [trips,            setTrips]           = useState<Trip[]>([]);
+  const [blockedTrips,     setBlockedTrips]     = useState<TripWithCoords[]>([]);
+  const [serverScores,     setServerScores]     = useState<Map<string, number>>(new Map());
   const [userReservations, setUserReservations] = useState<Map<string, string>>(new Map());
 
-  // État du toast de confirmation de réservation
-  const [reservationToast, setReservationToast] = useState<{
-    isOpen: boolean;
-    success: boolean;
-    message: string;
-  }>({ isOpen: false, success: false, message: "" });
+  // Gardez les derniers paramètres pour le rafraîchissement
+  const lastSearchParams = useRef<Parameters<typeof handlePassengerSearch>[0] | null>(null);
 
-  // Coordonnées issues des searchParams ([lng, lat] côté UI, [lat, lng] attendu par l'API)
-  const depLat = searchParams.get("depLat");
-  const depLng = searchParams.get("depLng");
-  const arrLat = searchParams.get("arrLat");
-  const arrLng = searchParams.get("arrLng");
-  const dateParam = searchParams.get("date");
-  const timeParam = searchParams.get("time");
+  // ── Guard ────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    const role = user?.role?.toString().toLowerCase();
+    if (user?.id !== params.id || role !== "passenger") {
+      setActiveLoader(true);
+      router.push(`/${role}/${user?.id}`);
+    } else {
+      const t = setTimeout(() => setActiveLoader(false), 300);
+      return () => clearTimeout(t);
+    }
+  }, [user, params, router, setActiveLoader]);
 
-  // Charge les réservations actives du passager connecté pour chaque trip
-  const fetchUserReservations = useCallback(async () => {
-    if (!user?.id) return;
+  // ── Charge les réservations actives du passager ───────────────────────────
+  const loadReservations = useCallback(async () => {
+    if (!user) return;
     try {
-      const res = await fetch(`/api/reservations?passengerId=${encodeURIComponent(user.id)}`);
+      const res = await fetch(`/api/reservations?passengerId=${encodeURIComponent(user.id)}&status=pending,confirmed,in_progress`);
       if (!res.ok) return;
-      const data = await res.json() as Array<Record<string, unknown>>;
+      const json = await res.json();
+      const data: Array<{ tripId?: string; status?: string }> = Array.isArray(json)
+        ? json
+        : (json.data ?? json.items ?? []);
       const map = new Map<string, string>();
-      for (const r of data) {
-        if (
-          typeof r.tripId === "string" &&
-          typeof r.status === "string" &&
-          ACTIVE_RESERVATION_STATUSES.includes(r.status)
-        ) {
-          map.set(r.tripId, r.status);
-        }
-      }
+      data.forEach((r) => { if (r.tripId && r.status) map.set(r.tripId, r.status); });
       setUserReservations(map);
-    } catch (err) { console.error('[passenger/search] fetchUserReservations', err); }
+    } catch { /* silencieux */ }
   }, [user]);
 
-  // Handler du bouton OK du toast — redirige vers planifier et scrolle vers ride area
-  const handleToastOk = useCallback(() => {
-    const wasSuccess = reservationToast.success;
-    setReservationToast((prev) => ({ ...prev, isOpen: false }));
-    if (wasSuccess && user?.id) {
-      try { sessionStorage.setItem("plannerScrollToRides", "1"); } catch { /* sstorage indisponible */ }
-      router.push(`/passenger/planifier/${user.id}?showAll=true`);
-    }
-  }, [reservationToast.success, user, router]);
-
-  const fetchTrips = useCallback(async (search?: {
-    departureCoords?: [number, number];
-    arrivalCoords?: [number, number];
-    departureDate?: string;
-    departureTime?: string;
-    maxPrice?: number;
-    minSeatsAvailable?: number;
+  // ── Recherche passager via Server Core (matching v4) ──────────────────────
+  const handlePassengerSearch = useCallback(async (p: {
+    departureCoords:      [number, number];
+    arrivalCoords:        [number, number];
+    departureDate?:       string;
+    departureTime?:       string;
+    maxPrice?:            number;
+    minSeatsAvailable?:   number;
     departureRadiusMeters?: number;
-    arrivalRadiusMeters?: number;
+    arrivalRadiusMeters?:   number;
   }) => {
-    if (!user?.id) return;
-
-    // Mode survey : trips pré-calculés en sessionStorage → on les utilise directement
+    lastSearchParams.current = p;
     try {
-      const raw = sessionStorage.getItem("surveyMatchingTrips");
-      sessionStorage.removeItem("surveyMatchingTrips");
-      if (raw) {
-        const parsed: TripWithCoords[] = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setAvailableTrips(parsed);
-          setBlockedTrips([]);
-          setServerScoresMap(new Map());
-          return; // only short-circuit when we actually have data
-        }
-      }
-    } catch { /* sessionStorage indisponible ou JSON invalide */ }
+      const body = {
+        passengerId:          user?.id ?? "",
+        departureCoords:      p.departureCoords,
+        arrivalCoords:        p.arrivalCoords,
+        date:                 p.departureDate,
+        desiredHour:          p.departureTime
+          ? (() => { const [h, m] = p.departureTime!.split(":").map(Number); return h + m / 60; })()
+          : undefined,
+        maxPrice:             p.maxPrice,
+        minSeatsAvailable:    p.minSeatsAvailable ?? 1,
+        departureRadiusMeters: p.departureRadiusMeters ?? 1000,
+        arrivalRadiusMeters:   p.arrivalRadiusMeters   ?? 1000,
+      };
 
-    // Fetch côté serveur : matching v4, données sensibles masquées côté serveur
-    try {
-      const body: Record<string, unknown> = { passengerId: user.id };
-      const effectiveDepartureCoords = search?.departureCoords
-        ?? (depLat && depLng ? [parseFloat(depLat), parseFloat(depLng)] as [number, number] : undefined);
-      const effectiveArrivalCoords = search?.arrivalCoords
-        ?? (arrLat && arrLng ? [parseFloat(arrLat), parseFloat(arrLng)] as [number, number] : undefined);
-      const effectiveDate = search?.departureDate ?? dateParam ?? undefined;
-      const effectiveTime = search?.departureTime ?? timeParam ?? undefined;
-
-      if (effectiveDepartureCoords) body.departureCoords = effectiveDepartureCoords;
-      if (effectiveArrivalCoords) body.arrivalCoords   = effectiveArrivalCoords;
-      if (effectiveTime) {
-        const [h, m] = effectiveTime.split(":").map(Number);
-        body.desiredHour = h + (m ?? 0) / 60;
-      }
-      if (effectiveDate) {
-        body.date = effectiveDate; // filtre exact sur la date
-        const day = new Date(effectiveDate).getDay(); // 0=dim … 6=sam
-        body.desiredWeekday = day;
-      }
-
-      // Filtres côté serveur (matching v4)
-      if (search?.maxPrice != null) body.maxPrice = search.maxPrice;
-      if (search?.minSeatsAvailable != null) body.minSeatsAvailable = search.minSeatsAvailable;
-      if (search?.departureRadiusMeters != null) body.departureRadiusMeters = search.departureRadiusMeters;
-      if (search?.arrivalRadiusMeters != null) body.arrivalRadiusMeters = search.arrivalRadiusMeters;
-
-      const res = await fetch('/api/passenger/search', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/passenger/search", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
         body:    JSON.stringify(body),
       });
 
       if (!res.ok) return;
+      const json: SearchApiResponse = await res.json();
 
-      const data = await res.json() as {
-        trips?: TripSearchDTO[];
-        blockedTrips?: TripSearchDTO[];
-        serverScores?: Record<string, number>;
-      };
-      setAvailableTrips((data.trips ?? []).map(tripSearchDTOToTripWithCoords));
-      setBlockedTrips((data.blockedTrips ?? []).map(tripSearchDTOToTripWithCoords));
-      if (data.serverScores) setServerScoresMap(new Map(Object.entries(data.serverScores)));
-      else setServerScoresMap(new Map());
-    } catch (err) { console.error('[passenger/search] fetchTrips', err); }
-  }, [user, depLat, depLng, arrLat, arrLng, dateParam, timeParam]);
+      // Conversion DTO → TripWithCoords
+      const converted = (json.trips ?? []).map((dto) =>
+        tripSearchDTOToTripWithCoords(dto as unknown as Parameters<typeof tripSearchDTOToTripWithCoords>[0])
+      );
+      const convertedBlocked = (json.blockedTrips ?? []).map((dto) =>
+        tripSearchDTOToTripWithCoords(dto as unknown as Parameters<typeof tripSearchDTOToTripWithCoords>[0])
+      );
 
-  // Déclenche le fetch une seule fois au montage du composant
+      setTrips(converted as unknown as Trip[]);
+      setBlockedTrips(convertedBlocked);
+      setServerScores(new Map(Object.entries(json.serverScores ?? {})));
+
+      // Rafraîchit les réservations en parallèle
+      void loadReservations();
+    } catch (err) {
+      console.error("[passenger/search] handlePassengerSearch", err);
+    }
+  }, [user, loadReservations]);
+
+  // ── Rafraîchissement (même paramètres) ───────────────────────────────────
+  const handleRefresh = useCallback(() => {
+    if (lastSearchParams.current) {
+      void handlePassengerSearch(lastSearchParams.current);
+    }
+  }, [handlePassengerSearch]);
+
+  // ── Chargement initial si params dans l'URL ───────────────────────────────
   useEffect(() => {
-    if (!hasFetchedRef.current) {
-      hasFetchedRef.current = true;
-      startTransition(() => {
-        fetchTrips();
+    if (!user || user.id !== params.id) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadReservations();
+
+    const depLat = searchParams.get("depLat");
+    const depLng = searchParams.get("depLng");
+    const arrLat = searchParams.get("arrLat");
+    const arrLng = searchParams.get("arrLng");
+
+    if (depLat && depLng && arrLat && arrLng) {
+      void handlePassengerSearch({
+        departureCoords: [parseFloat(depLng), parseFloat(depLat)],
+        arrivalCoords:   [parseFloat(arrLng), parseFloat(arrLat)],
+        departureDate:   searchParams.get("date")        ?? undefined,
+        departureTime:   searchParams.get("time")        ?? undefined,
       });
-      // On utilise une fonction asynchrone pour éviter un setState synchrone dans l'effet
-      (async () => {
-        await fetchUserReservations();
-      })();
     }
-  }, [fetchUserReservations, fetchTrips, startTransition]);
+  }, [user, params.id, searchParams, loadReservations, handlePassengerSearch]);
 
-  // ── Guard : vérification rôle / identité ─────────────────────────────────
-  useEffect(() => {
-    if (
-      user?.id !== params.id ||
-      user?.role?.toString().toLowerCase() !== "passenger"
-    ) {
-      setActiveLoader(true);
-      router.push(`/${user?.role?.toString().toLowerCase()}/${user?.id}`);
-    } else {
-      const timer = setTimeout(() => setActiveLoader(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [user, params, router, setActiveLoader]);
+  if (!user || user.id !== params.id || user.role?.toString().toLowerCase() !== "passenger") {
+    return null;
+  }
 
-  if (
-    user?.id !== params.id ||
-    user?.role?.toString().toLowerCase() !== "passenger"
-  ) return null;
-
-  // On ajoute la date et l'heure pour préremplir les pickers
+  // Valeurs initiales pour pré-remplir la barre de recherche
   const initialValues = {
-    departureLabel:  searchParams.get("dep") ?? undefined,
-    arrivalLabel:    searchParams.get("arr") ?? undefined,
-    departureCoords: depLng && depLat
-      ? [parseFloat(depLng), parseFloat(depLat)] as [number, number]
+    departureLabel:  searchParams.get("dep")    ?? undefined,
+    arrivalLabel:    searchParams.get("arr")    ?? undefined,
+    departureCoords: searchParams.get("depLng") && searchParams.get("depLat")
+      ? [parseFloat(searchParams.get("depLng")!), parseFloat(searchParams.get("depLat")!)] as [number, number]
       : undefined,
-    arrivalCoords: arrLng && arrLat
-      ? [parseFloat(arrLng), parseFloat(arrLat)] as [number, number]
+    arrivalCoords: searchParams.get("arrLng") && searchParams.get("arrLat")
+      ? [parseFloat(searchParams.get("arrLng")!), parseFloat(searchParams.get("arrLat")!)] as [number, number]
       : undefined,
-    departureDate: dateParam ?? undefined, // Ajout date
-    departureTime: timeParam ?? undefined, // Ajout heure
+    departureDate: searchParams.get("date") ?? undefined,
+    departureTime: searchParams.get("time") ?? undefined,
   };
 
   return (
-    <>
-      <RouteMapSearch
-        role="passenger"
-        initialValues={initialValues}
-        availableTrips={availableTrips}
-        blockedTrips={blockedTrips}
-        serverScores={serverScoresMap}
-        userReservations={userReservations}
-        onPassengerSearch={async ({ departureCoords, arrivalCoords, departureDate, departureTime, maxPrice, minSeatsAvailable, departureRadiusMeters, arrivalRadiusMeters }) => {
-          await fetchTrips({
-            departureCoords: [departureCoords[1], departureCoords[0]],
-            arrivalCoords: [arrivalCoords[1], arrivalCoords[0]],
-            departureDate,
-            departureTime,
-            maxPrice,
-            minSeatsAvailable,
-            departureRadiusMeters,
-            arrivalRadiusMeters,
-          });
-        }}
-        onRefresh={() => { fetchTrips(); }}
-      />
-      <ReservationRequestToast
-        isOpen={reservationToast.isOpen}
-        success={reservationToast.success}
-        message={reservationToast.message}
-        onOk={handleToastOk}
-      />
-    </>
+    <RouteMapSearch
+      role="passenger"
+      initialValues={initialValues}
+      availableTrips={trips}
+      blockedTrips={blockedTrips}
+      serverScores={serverScores}
+      userReservations={userReservations}
+      onPassengerSearch={handlePassengerSearch}
+      onRefresh={handleRefresh}
+    />
   );
 }
