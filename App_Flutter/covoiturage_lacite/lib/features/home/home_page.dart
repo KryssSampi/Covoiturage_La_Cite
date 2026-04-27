@@ -10,6 +10,7 @@ import '../../core/app_text_styles.dart';
 import '../../core/converters/display_converters.dart';
 import '../../core/services/api_service.dart';
 import '../../core/services/ors_route_service.dart';
+import '../../core/services/trip_service.dart';
 import '../../core/state/app_state.dart';
 import '../../shared/widgets/shared_widgets.dart';
 
@@ -126,21 +127,11 @@ enum _LocationResolveStatus {
 // PAGE
 // ══════════════════════════════════════════════════════════════════════════════
 
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageStatetest extends State<HomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text("OK")),
-    );
-  }
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
@@ -168,25 +159,25 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   // FavPills définis ici (pas en const static pour éviter le conflit AppColors)
   List<_FavPill> get _favPills => [
-    _FavPill(
-      label: 'La Cité',
-      icon: Icons.school_outlined,
-      bg: AppColors.blueLight,
-      fg: AppColors.blue,
-    ),
-    _FavPill(
-      label: 'Maison',
-      icon: Icons.home_outlined,
-      bg: AppColors.tealLight,
-      fg: AppColors.teal,
-    ),
-    _FavPill(
-      label: 'Travail',
-      icon: Icons.work_outline,
-      bg: AppColors.amberLight,
-      fg: AppColors.amber,
-    ),
-  ];
+        _FavPill(
+          label: 'La Cité',
+          icon: Icons.school_outlined,
+          bg: AppColors.blueLight,
+          fg: AppColors.blue,
+        ),
+        _FavPill(
+          label: 'Maison',
+          icon: Icons.home_outlined,
+          bg: AppColors.tealLight,
+          fg: AppColors.teal,
+        ),
+        _FavPill(
+          label: 'Travail',
+          icon: Icons.work_outline,
+          bg: AppColors.amberLight,
+          fg: AppColors.amber,
+        ),
+      ];
 
   @override
   void initState() {
@@ -229,7 +220,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
-    final double keyboardInset = WidgetsBinding.instance.platformDispatcher.views.first.viewInsets.bottom;
+    final double keyboardInset = WidgetsBinding
+        .instance.platformDispatcher.views.first.viewInsets.bottom;
     // Si le clavier se ferme alors qu'on est en focus sur la barre de recherche
     if (keyboardInset == 0 && _isSearchFocused) {
       // On attend un court délai avant de fermer le focus pour laisser le clavier sortir
@@ -337,7 +329,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _showLocationRequiredDialog(_LocationResolveStatus status) async {
+  Future<void> _showLocationRequiredDialog(
+      _LocationResolveStatus status) async {
     if (!mounted) return;
     String message;
     switch (status) {
@@ -406,6 +399,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return 'Votre position (${position.latitude.toStringAsFixed(5)}, '
         '${position.longitude.toStringAsFixed(5)})';
   }
+
   Future<void> _loadDashboard() async {
     if (!mounted) return;
     setState(() {
@@ -415,7 +409,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     try {
       final bool isDriver = AppStateStore.instance.isDriver;
-      final List<dynamic> payloads = await Future.wait<dynamic>(<Future<dynamic>>[
+      final List<dynamic> payloads =
+          await Future.wait<dynamic>(<Future<dynamic>>[
         _api.get('/api/users/me'),
         isDriver
             ? _api.get('/api/trips/mine/driver')
@@ -503,10 +498,34 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   List<_StatCard> _buildEmptyStats() {
     return [
-      _StatCard(value: '-', unit: '', label: 'Trajets', iconBg: AppColors.blueLight, iconFg: AppColors.blue, icon: Icons.directions_car_outlined),
-      _StatCard(value: '-', unit: '', label: 'Note', iconBg: AppColors.amberLight, iconFg: AppColors.amberMid, icon: Icons.star_outline),
-      _StatCard(value: '-', unit: '', label: 'Passagers', iconBg: AppColors.tealLight, iconFg: AppColors.teal, icon: Icons.people_alt_outlined),
-      _StatCard(value: '-', unit: r'$', label: 'Revenus', iconBg: AppColors.blueLight, iconFg: AppColors.blue, icon: Icons.payments_outlined),
+      _StatCard(
+          value: '-',
+          unit: '',
+          label: 'Trajets',
+          iconBg: AppColors.blueLight,
+          iconFg: AppColors.blue,
+          icon: Icons.directions_car_outlined),
+      _StatCard(
+          value: '-',
+          unit: '',
+          label: 'Note',
+          iconBg: AppColors.amberLight,
+          iconFg: AppColors.amberMid,
+          icon: Icons.star_outline),
+      _StatCard(
+          value: '-',
+          unit: '',
+          label: 'Passagers',
+          iconBg: AppColors.tealLight,
+          iconFg: AppColors.teal,
+          icon: Icons.people_alt_outlined),
+      _StatCard(
+          value: '-',
+          unit: r'$',
+          label: 'Revenus',
+          iconBg: AppColors.blueLight,
+          iconFg: AppColors.blue,
+          icon: Icons.payments_outlined),
     ];
   }
 
@@ -526,20 +545,22 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           m['passenger'] is Map<String, dynamic>
               ? m['passenger'] as Map<String, dynamic>
               : <String, dynamic>{};
-      final Map<String, dynamic> driver =
-          m['driver'] is Map<String, dynamic>
-              ? m['driver'] as Map<String, dynamic>
-              : <String, dynamic>{};
+      final Map<String, dynamic> driver = m['driver'] is Map<String, dynamic>
+          ? m['driver'] as Map<String, dynamic>
+          : <String, dynamic>{};
 
       final String first = isDriver
-          ? '${m['passengerFirstName'] ?? passenger['firstName'] ?? m['firstName'] ?? ''}'.trim()
+          ? '${m['passengerFirstName'] ?? passenger['firstName'] ?? m['firstName'] ?? ''}'
+              .trim()
           : '${driver['firstName'] ?? m['driverFirstName'] ?? ''}'.trim();
       final String last = isDriver
-          ? '${m['passengerLastName'] ?? passenger['lastName'] ?? m['lastName'] ?? ''}'.trim()
+          ? '${m['passengerLastName'] ?? passenger['lastName'] ?? m['lastName'] ?? ''}'
+              .trim()
           : '${driver['lastName'] ?? m['driverLastName'] ?? ''}'.trim();
       final String fallbackName = isDriver ? 'Passager' : 'Conducteur';
-      final String name =
-          ('$first $last').trim().isEmpty ? fallbackName : ('$first $last').trim();
+      final String name = ('$first $last').trim().isEmpty
+          ? fallbackName
+          : ('$first $last').trim();
       final String initials = name
           .split(' ')
           .where((String e) => e.isNotEmpty)
@@ -597,7 +618,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         status.contains('in_progress') || status.contains('in progress');
     final bool isImminent = status.contains('imminent');
     final String tripId = row['id']?.toString() ?? '';
-    final int totalSeats = _toInt(row['totalSeats'] ?? row['seats'], fallback: 4);
+    final int totalSeats =
+        _toInt(row['totalSeats'] ?? row['seats'], fallback: 4);
     final int availableSeats = _toInt(row['availableSeats'], fallback: 0);
     final int currentPassengers =
         ((totalSeats - availableSeats).clamp(0, totalSeats)) as int;
@@ -605,15 +627,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       row['pricePerPassenger'] ?? row['passengerPrice'] ?? row['price'],
       fallback: 0,
     );
-    final int durationMin =
-        _toInt(row['estimatedDurationMin'] ?? row['estimatedDurationMinutes'], fallback: 7);
+    final int durationMin = _toInt(
+        row['estimatedDurationMin'] ?? row['estimatedDurationMinutes'],
+        fallback: 7);
 
     return _ActiveTripSnapshot(
       tripId: tripId,
       timeLabel: _timeLabel(row['departureTime']),
       fromLabel: row['departureLabel']?.toString() ?? 'Depart',
       toLabel: row['arrivalLabel']?.toString() ?? 'Destination',
-      statusLabel: isInProgress ? 'En cours' : (isImminent ? 'Imminent' : 'Planifie'),
+      statusLabel:
+          isInProgress ? 'En cours' : (isImminent ? 'Imminent' : 'Planifie'),
       statusBg: isInProgress ? AppColors.redLight : AppColors.amberLight,
       statusFg: isInProgress ? AppColors.redMid : AppColors.amberMid,
       priceLabel: '${price.toStringAsFixed(price % 1 == 0 ? 0 : 2)} CAD',
@@ -751,7 +775,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFF8A95A8)),
+            const Icon(Icons.wifi_off_rounded,
+                size: 48, color: Color(0xFF8A95A8)),
             const SizedBox(height: 16),
             Text(
               'Impossible de charger le tableau de bord',
@@ -772,7 +797,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.blue,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],
@@ -785,8 +811,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     return CustomScrollView(
       controller: _scrollCtrl,
       slivers: <Widget>[
-        if (!_isSearchFocused)
-          SliverToBoxAdapter(child: _buildHeroSection()),
+        if (!_isSearchFocused) SliverToBoxAdapter(child: _buildHeroSection()),
         SliverPersistentHeader(
           pinned: true,
           delegate: _SearchBarDelegate(
@@ -832,7 +857,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               child: _ActiveTripCard(
                 trip: _activeTrip,
                 onTap: () {
-                  if (_activeTrip == null || !_activeTrip!.canOpenLiveTrip) return;
+                  if (_activeTrip == null || !_activeTrip!.canOpenLiveTrip)
+                    return;
                   context.push('/trajet-en-cours/${_activeTrip!.tripId}');
                 },
               ),
@@ -847,7 +873,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
           const SliverToBoxAdapter(child: SectionLabel('Nouvelles demandes')),
           SliverToBoxAdapter(child: _RequestsScroll(requests: _requests)),
-          const SliverToBoxAdapter(child: SectionLabel('Plus de fonctionnalites')),
+          const SliverToBoxAdapter(
+              child: SectionLabel('Plus de fonctionnalites')),
           SliverToBoxAdapter(child: _QuickNavGrid()),
         ],
       ],
@@ -894,7 +921,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     children: [
                       const TextSpan(text: 'Bienvenue, '),
                       TextSpan(
-                        text: (_firstName?.isNotEmpty == true) ? _firstName! : 'Conducteur',
+                        text: (_firstName?.isNotEmpty == true)
+                            ? _firstName!
+                            : 'Conducteur',
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           color: Color(0xFF08316E),
@@ -1001,7 +1030,8 @@ class _HomeSuggestionPanel extends StatelessWidget {
       color: Colors.white,
       child: ListView.separated(
         itemCount: suggestions.length,
-        separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0x12000000)),
+        separatorBuilder: (_, __) =>
+            const Divider(height: 1, color: Color(0x12000000)),
         itemBuilder: (_, int i) {
           final OrsPlaceSuggestion suggestion = suggestions[i];
           return ListTile(
@@ -1023,6 +1053,7 @@ class _HomeSuggestionPanel extends StatelessWidget {
     );
   }
 }
+
 class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
   final List<_FavPill> favPills;
   final TextEditingController controller;
@@ -1044,7 +1075,8 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => 76;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       // color: AppColors.surface,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
@@ -1052,7 +1084,12 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
         color: AppColors.surface,
         border: const Border(bottom: BorderSide(color: AppColors.border)),
         boxShadow: overlapsContent
-            ? [BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 8, offset: const Offset(0, 2))]
+            ? [
+                BoxShadow(
+                    color: Colors.black.withOpacity(.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2))
+              ]
             : null,
       ),
       child: Focus(
@@ -1069,7 +1106,8 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
               const SizedBox(width: 16),
               GestureDetector(
                 onTap: onSearchTap,
-                child: const Icon(Icons.search, size: 18, color: AppColors.text3),
+                child:
+                    const Icon(Icons.search, size: 18, color: AppColors.text3),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -1094,18 +1132,24 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
                   width: 156,
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
                     itemCount: favPills.length,
                     separatorBuilder: (_, __) => const SizedBox(width: 6),
                     itemBuilder: (_, i) {
                       final pill = favPills[i];
                       return GestureDetector(
-                        onTap: () => controller.text = pill.label,
+                        onTap: () {
+                          controller.text = pill.label;
+                          onSearchTap();
+                        },
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
                             color: pill.bg,
-                            borderRadius: BorderRadius.circular(AppColors.rFull),
+                            borderRadius:
+                                BorderRadius.circular(AppColors.rFull),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -1114,7 +1158,8 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
                               const SizedBox(width: 4),
                               Text(
                                 pill.label,
-                                style: AppTextStyles.soraBadge(color: pill.fg).copyWith(fontSize: 12),
+                                style: AppTextStyles.soraBadge(color: pill.fg)
+                                    .copyWith(fontSize: 12),
                               ),
                             ],
                           ),
@@ -1188,31 +1233,37 @@ class _ActiveTripCard extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(AppColors.rMd),
                     ),
-                    child: const Icon(Icons.location_city, size: 36, color: AppColors.blue),
+                    child: const Icon(Icons.location_city,
+                        size: 36, color: AppColors.blue),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(model.timeLabel, style: AppTextStyles.soraSubtitle()),
+                        Text(model.timeLabel,
+                            style: AppTextStyles.soraSubtitle()),
                         const SizedBox(height: 3),
                         RouteMiniRow(from: model.fromLabel, to: model.toLabel),
                         const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             color: AppColors.blueLight,
-                            borderRadius: BorderRadius.circular(AppColors.rFull),
+                            borderRadius:
+                                BorderRadius.circular(AppColors.rFull),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.person, size: 11, color: AppColors.blue),
+                              const Icon(Icons.person,
+                                  size: 11, color: AppColors.blue),
                               const SizedBox(width: 4),
                               Text(
                                 model.passengerLabel,
-                                style: AppTextStyles.soraBadge().copyWith(fontSize: 11.5),
+                                style: AppTextStyles.soraBadge()
+                                    .copyWith(fontSize: 11.5),
                               ),
                             ],
                           ),
@@ -1229,7 +1280,9 @@ class _ActiveTripCard extends StatelessWidget {
                         fg: model.statusFg,
                       ),
                       const SizedBox(height: 6),
-                      Text(model.priceLabel, style: AppTextStyles.soraSubtitle(color: AppColors.blue)),
+                      Text(model.priceLabel,
+                          style: AppTextStyles.soraSubtitle(
+                              color: AppColors.blue)),
                     ],
                   ),
                 ],
@@ -1244,7 +1297,8 @@ class _ActiveTripCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     model.statusLabel,
-                    style: AppTextStyles.soraSemibold(size: 12, color: model.statusFg),
+                    style: AppTextStyles.soraSemibold(
+                        size: 12, color: model.statusFg),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -1253,13 +1307,15 @@ class _ActiveTripCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: model.progress,
                         backgroundColor: AppColors.gray200,
-                        valueColor: AlwaysStoppedAnimation<Color>(model.statusFg),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(model.statusFg),
                         minHeight: 6,
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(model.etaLabel, style: AppTextStyles.soraSubtitle(color: AppColors.blue)),
+                  Text(model.etaLabel,
+                      style: AppTextStyles.soraSubtitle(color: AppColors.blue)),
                 ],
               ),
             ),
@@ -1278,14 +1334,16 @@ class _PulsingDot extends StatefulWidget {
   State<_PulsingDot> createState() => _PulsingDotState();
 }
 
-class _PulsingDotState extends State<_PulsingDot> with SingleTickerProviderStateMixin {
+class _PulsingDotState extends State<_PulsingDot>
+    with SingleTickerProviderStateMixin {
   late AnimationController _ctrl;
   late Animation<double> _anim;
 
   @override
   void initState() {
     super.initState();
-    _ctrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1500))
       ..repeat(reverse: true);
     _anim = Tween<double>(begin: 1.0, end: .5).animate(_ctrl);
   }
@@ -1305,7 +1363,8 @@ class _PulsingDotState extends State<_PulsingDot> with SingleTickerProviderState
         child: Container(
           width: 8,
           height: 8,
-          decoration: BoxDecoration(color: widget.color, shape: BoxShape.circle),
+          decoration:
+              BoxDecoration(color: widget.color, shape: BoxShape.circle),
         ),
       ),
     );
@@ -1369,18 +1428,22 @@ class _StatsGrid extends StatelessWidget {
                     ],
                   ],
                 ),
-                Text(s.label, style: AppTextStyles.caption(), overflow: TextOverflow.ellipsis),
+                Text(s.label,
+                    style: AppTextStyles.caption(),
+                    overflow: TextOverflow.ellipsis),
                 if (s.badge != null)
                   Container(
                     margin: const EdgeInsets.only(top: 3),
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.greenLight,
                       borderRadius: BorderRadius.circular(AppColors.rFull),
                     ),
                     child: Text(
                       s.badge!,
-                      style: AppTextStyles.soraBadge(color: AppColors.green).copyWith(fontSize: 10),
+                      style: AppTextStyles.soraBadge(color: AppColors.green)
+                          .copyWith(fontSize: 10),
                     ),
                   ),
               ],
@@ -1436,7 +1499,46 @@ class _RequestsScroll extends StatelessWidget {
 
 class _RequestCardWidget extends StatelessWidget {
   final _RequestCard card;
+  static final _tripService = TripService(ApiService.instance);
   const _RequestCardWidget({required this.card});
+
+  Future<void> _handleAccept(BuildContext context) async {
+    final String? id = card.reservationId;
+    if (id == null || id.isEmpty) return;
+    try {
+      await _tripService.acceptReservation(id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Demande acceptee')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors de l\'acceptation')),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleRefuse(BuildContext context) async {
+    final String? id = card.reservationId;
+    if (id == null || id.isEmpty) return;
+    try {
+      await _tripService.refuseReservation(id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Demande refusee')),
+        );
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erreur lors du refus')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1484,7 +1586,8 @@ class _RequestCardWidget extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              Text(card.timeLabel, style: AppTextStyles.caption()),
+                              Text(card.timeLabel,
+                                  style: AppTextStyles.caption()),
                             ],
                           ),
                           const SizedBox(height: 3),
@@ -1495,7 +1598,10 @@ class _RequestCardWidget extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
-                          StatusPill(label: card.typeLabel, bg: card.typeBg, fg: card.typeFg),
+                          StatusPill(
+                              label: card.typeLabel,
+                              bg: card.typeBg,
+                              fg: card.typeFg),
                         ],
                       ),
                     ),
@@ -1508,13 +1614,22 @@ class _RequestCardWidget extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: RouteMiniRow(from: card.routeFrom, to: card.routeTo),
+                      child:
+                          RouteMiniRow(from: card.routeFrom, to: card.routeTo),
                     ),
                     const SizedBox(width: 8),
                     if (card.hasAccept) ...[
-                      _smallBtn('Refuser', AppColors.gray100, AppColors.gray600),
+                      GestureDetector(
+                        onTap: () => _handleRefuse(context),
+                        child: _smallBtn(
+                            'Refuser', AppColors.gray100, AppColors.gray600),
+                      ),
                       const SizedBox(width: 6),
-                      _smallBtn('Accepter', AppColors.blue, AppColors.surface),
+                      GestureDetector(
+                        onTap: () => _handleAccept(context),
+                        child: _smallBtn(
+                            'Accepter', AppColors.blue, AppColors.surface),
+                      ),
                     ] else
                       _smallBtn('Voir', AppColors.blueLight, AppColors.blue),
                   ],
@@ -1533,7 +1648,8 @@ class _RequestCardWidget extends StatelessWidget {
           color: bg,
           borderRadius: BorderRadius.circular(AppColors.rSm),
         ),
-        child: Text(label, style: AppTextStyles.button(color: fg).copyWith(fontSize: 12)),
+        child: Text(label,
+            style: AppTextStyles.button(color: fg).copyWith(fontSize: 12)),
       );
 }
 
@@ -1558,17 +1674,48 @@ class _QuickNavItem {
 
 class _QuickNavGrid extends StatelessWidget {
   static final List<_QuickNavItem> _items = [
-    _QuickNavItem(label: 'Mes favoris', icon: Icons.favorite_outline, bg: AppColors.blueLight, fg: AppColors.blue, route: '/favoris'),
-    _QuickNavItem(label: 'Planificateur', icon: Icons.calendar_today_outlined, bg: AppColors.tealLight, fg: AppColors.teal, route: '/search'),
-    _QuickNavItem(label: 'Statistiques', icon: Icons.bar_chart_outlined, bg: AppColors.amberLight, fg: AppColors.amber, route: '/stats'),
-    _QuickNavItem(label: 'Reservation', icon: Icons.event_outlined, bg: AppColors.tealLight, fg: AppColors.teal, route: '/reservations'),
-    _QuickNavItem(label: 'Profil', icon: Icons.person_outline, bg: AppColors.amberLight, fg: AppColors.amber, route: '/profile'),
-    _QuickNavItem(label: 'Avis', icon: Icons.star_outline, bg: AppColors.blueLight, fg: AppColors.blue, route: '/reviews'),
+    _QuickNavItem(
+        label: 'Mes favoris',
+        icon: Icons.favorite_outline,
+        bg: AppColors.blueLight,
+        fg: AppColors.blue,
+        route: '/favoris'),
+    _QuickNavItem(
+        label: 'Planificateur',
+        icon: Icons.calendar_today_outlined,
+        bg: AppColors.tealLight,
+        fg: AppColors.teal,
+        route: '/search'),
+    _QuickNavItem(
+        label: 'Statistiques',
+        icon: Icons.bar_chart_outlined,
+        bg: AppColors.amberLight,
+        fg: AppColors.amber,
+        route: '/stats'),
+    _QuickNavItem(
+        label: 'Reservation',
+        icon: Icons.event_outlined,
+        bg: AppColors.tealLight,
+        fg: AppColors.teal,
+        route: '/reservations'),
+    _QuickNavItem(
+        label: 'Profil',
+        icon: Icons.person_outline,
+        bg: AppColors.amberLight,
+        fg: AppColors.amber,
+        route: '/profile'),
+    _QuickNavItem(
+        label: 'Avis',
+        icon: Icons.star_outline,
+        bg: AppColors.blueLight,
+        fg: AppColors.blue,
+        route: '/reviews'),
   ];
 
   @override
   Widget build(BuildContext context) {
-    final double totalWidth = MediaQuery.of(context).size.width - 16 * 2 - 12 * 2;
+    final double totalWidth =
+        MediaQuery.of(context).size.width - 16 * 2 - 12 * 2;
     final double itemWidth = totalWidth / 3;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -1576,7 +1723,8 @@ class _QuickNavGrid extends StatelessWidget {
         spacing: 12,
         runSpacing: 14,
         children: _items
-            .map((item) => SizedBox(width: itemWidth, child: _buildItem(context, item)))
+            .map((item) =>
+                SizedBox(width: itemWidth, child: _buildItem(context, item)))
             .toList(),
       ),
     );
@@ -1591,7 +1739,8 @@ class _QuickNavGrid extends StatelessWidget {
           Container(
             width: 60,
             height: 60,
-            decoration: BoxDecoration(color: item.bg, borderRadius: BorderRadius.circular(18)),
+            decoration: BoxDecoration(
+                color: item.bg, borderRadius: BorderRadius.circular(18)),
             child: Icon(item.icon, size: 28, color: item.fg),
           ),
           const SizedBox(height: 6),
@@ -1611,7 +1760,6 @@ class _QuickNavGrid extends StatelessWidget {
 // ══════════════════════════════════════════════════════════════════════════════
 // MES OPTIONS SECTION
 // ══════════════════════════════════════════════════════════════════════════════
-
 
 class _MesOptionsSection extends StatelessWidget {
   const _MesOptionsSection();
@@ -1648,7 +1796,8 @@ class _MesOptionsSection extends StatelessWidget {
               ),
             ),
             _tile(context, Icons.history_rounded, 'Historique', '/historique'),
-            _tile(context, Icons.description_outlined, 'Brouillons', '/brouillons'),
+            _tile(context, Icons.description_outlined, 'Brouillons',
+                '/brouillons'),
             _tile(context, Icons.bar_chart_rounded, 'Statistiques', '/stats'),
             _tile(context, Icons.reviews_outlined, 'Avis', '/reviews'),
             _tile(context, Icons.favorite_outline, 'Favoris', '/favoris'),
@@ -1659,7 +1808,8 @@ class _MesOptionsSection extends StatelessWidget {
     );
   }
 
-  Widget _tile(BuildContext context, IconData icon, String label, String route) {
+  Widget _tile(
+      BuildContext context, IconData icon, String label, String route) {
     return ListTile(
       onTap: () => context.push(route),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16),

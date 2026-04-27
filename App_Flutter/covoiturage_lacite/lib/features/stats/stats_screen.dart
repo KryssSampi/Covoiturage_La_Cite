@@ -71,7 +71,21 @@ class _StatsScreenState extends State<StatsScreen>
   Map<String, dynamic> get _stats =>
       (_myStats['stats'] as Map?)?.cast<String, dynamic>() ?? _myStats;
 
-  Map<String, dynamic> get _finance => _finances;
+  Map<String, dynamic> get _financeNorm {
+    final Map<String, dynamic> f = _finances;
+    return <String, dynamic>{
+      'availableBalance': f['soldeDisponible'] ?? f['availableBalance'] ?? 0,
+      'inTransit': f['soldeEnTransit'] ?? f['inTransit'] ?? 0,
+      'penalties': f['soldePenalites'] ?? f['penalties'] ?? 0,
+      'monthlyRevenue': f['gainMois'] ?? f['monthlyRevenue'] ?? 0,
+      'weeklyRevenue': f['gainSemaine'] ?? f['weeklyRevenue'] ?? 0,
+      'grossRevenue': f['gainMois'] ?? f['grossRevenue'] ?? 0,
+      'netRevenue': f['gainMois'] ?? f['netRevenue'] ?? 0,
+      'monthlyGoal': f['monthlyGoal'] ?? 500,
+      'commission': f['commissionTotale'] ?? f['commission'] ?? 0,
+      'goScore': f['goScore'] ?? 0,
+    };
+  }
 
   List<Map<String, dynamic>> get _goTasks =>
       _rankings.whereType<Map<String, dynamic>>().toList();
@@ -92,22 +106,41 @@ class _StatsScreenState extends State<StatsScreen>
   Future<void> _loadStats() async {
     setState(() => _isLoading = true);
     try {
-      final dynamic goboard = await ApiService.instance.get('/api/goboard/rankings');
+      final bool isDriver = AppStateStore.instance.isDriver;
+      final dynamic goboard =
+          await ApiService.instance.get('/api/gotasks/goboard');
+      final dynamic finance = await ApiService.instance.get(
+        isDriver
+            ? '/api/finances/driver/summary'
+            : '/api/finances/passenger/summary',
+      );
       final dynamic stats = await ApiService.instance.get('/api/stats/me');
-      final dynamic finance = await ApiService.instance.get('/api/stats/finances');
       if (!mounted) return;
+
+      final dynamic goboardData = (goboard is Map<String, dynamic>)
+          ? ((goboard['data'] is Map<String, dynamic>)
+              ? goboard['data']
+              : goboard)
+          : <String, dynamic>{};
+
+      final Map<String, dynamic> statsMap = (stats is Map<String, dynamic>)
+          ? ((stats['data'] is Map<String, dynamic>)
+              ? stats['data'] as Map<String, dynamic>
+              : stats)
+          : <String, dynamic>{};
+
+      if (goboardData['goScore'] != null) {
+        statsMap['goScore'] = goboardData['goScore'];
+      }
+
       setState(() {
-        _rankings = _extractList(goboard);
-        _myStats = (stats is Map<String, dynamic>)
-            ? ((stats['data'] is Map<String, dynamic>)
-                ? stats['data'] as Map<String, dynamic>
-                : stats)
-            : {};
+        _rankings = _extractList(goboardData['tasks'] ?? goboardData);
+        _myStats = statsMap;
         _finances = (finance is Map<String, dynamic>)
             ? ((finance['data'] is Map<String, dynamic>)
                 ? finance['data'] as Map<String, dynamic>
                 : finance)
-            : {};
+            : <String, dynamic>{};
         _isLoading = false;
       });
     } catch (_) {
@@ -138,10 +171,11 @@ class _StatsScreenState extends State<StatsScreen>
   }
 
   Future<void> _withdrawBalance() async {
-    final double available =
-        double.tryParse(_display(_finance['availableBalance']).replaceAll(',', '.')) ?? 0;
-    final TextEditingController ctrl =
-        TextEditingController(text: available > 0 ? available.toStringAsFixed(2) : '');
+    final double available = double.tryParse(
+            _display(_financeNorm['availableBalance']).replaceAll(',', '.')) ??
+        0;
+    final TextEditingController ctrl = TextEditingController(
+        text: available > 0 ? available.toStringAsFixed(2) : '');
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(
@@ -205,8 +239,7 @@ class _StatsScreenState extends State<StatsScreen>
       appBar: AppBar(
         backgroundColor: _C.blueDeep,
         title: const Text('Statistiques',
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w700)),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
         automaticallyImplyLeading: false,
         leading: showBack
             ? IconButton(
@@ -228,15 +261,14 @@ class _StatsScreenState extends State<StatsScreen>
           _buildTabBar(),
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: _C.blue))
+                ? const Center(child: CircularProgressIndicator(color: _C.blue))
                 : IndexedStack(
                     index: _tab.index,
                     children: [
                       _GoboardTab(
                           goTasks: _goTasks,
-                          goScore: _display(_stats['goScore'] ??
-                              _finance['goScore'])),
+                          goScore: _display(
+                              _stats['goScore'] ?? _financeNorm['goScore'])),
                       _buildStatsTab(),
                       _buildFinanceTab(),
                     ],
@@ -257,9 +289,7 @@ class _StatsScreenState extends State<StatsScreen>
         border: Border(bottom: BorderSide(color: _C.border)),
         boxShadow: [
           BoxShadow(
-              color: Color(0x0A000000),
-              blurRadius: 8,
-              offset: Offset(0, 2))
+              color: Color(0x0A000000), blurRadius: 8, offset: Offset(0, 2))
         ],
       ),
       child: Padding(
@@ -267,22 +297,13 @@ class _StatsScreenState extends State<StatsScreen>
         child: Container(
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-              color: _C.gray100,
-              borderRadius: BorderRadius.circular(20)),
+              color: _C.gray100, borderRadius: BorderRadius.circular(20)),
           child: Row(
             children: [
-              _tabBtn(
-                  _Tab.goboard,
-                  'GoBoard',
-                  Icons.emoji_events_rounded,
-                  const LinearGradient(
-                      colors: [_C.teal, _C.tealMid])),
-              _tabBtn(
-                  _Tab.stats,
-                  'Statistiques',
-                  Icons.bar_chart_rounded,
-                  const LinearGradient(
-                      colors: [_C.blueDeep, _C.blueMid])),
+              _tabBtn(_Tab.goboard, 'GoBoard', Icons.emoji_events_rounded,
+                  const LinearGradient(colors: [_C.teal, _C.tealMid])),
+              _tabBtn(_Tab.stats, 'Statistiques', Icons.bar_chart_rounded,
+                  const LinearGradient(colors: [_C.blueDeep, _C.blueMid])),
               if (isDriver)
                 _tabBtn(
                     _Tab.finance,
@@ -299,16 +320,14 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
-  Widget _tabBtn(
-      _Tab t, String label, IconData icon, Gradient activeGrad) {
+  Widget _tabBtn(_Tab t, String label, IconData icon, Gradient activeGrad) {
     final isActive = _tab == t;
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _tab = t),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding:
-              const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
+          padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 4),
           decoration: BoxDecoration(
             gradient: isActive ? activeGrad : null,
             borderRadius: BorderRadius.circular(14),
@@ -324,9 +343,7 @@ class _StatsScreenState extends State<StatsScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon,
-                  size: 14,
-                  color: isActive ? Colors.white : _C.text3),
+              Icon(icon, size: 14, color: isActive ? Colors.white : _C.text3),
               const SizedBox(width: 5),
               Text(label,
                   style: GoogleFonts.sora(
@@ -394,7 +411,7 @@ class _StatsScreenState extends State<StatsScreen>
                     icon: Icons.attach_money_rounded,
                     iconBg: _C.blueLight,
                     iconColor: _C.blue,
-                    value: _display(_finance['monthlyRevenue'] ??
+                    value: _display(_financeNorm['monthlyRevenue'] ??
                         _stats['monthlyRevenue']),
                     unit: '\$',
                     label: 'Revenus ce mois',
@@ -414,8 +431,8 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           const SizedBox(height: 16),
           // Ratings card
-          _sectionHead('Évaluations reçues',
-              '${_display(_stats['reviewsCount'])} avis'),
+          _sectionHead(
+              'Évaluations reçues', '${_display(_stats['reviewsCount'])} avis'),
           _card(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -423,8 +440,7 @@ class _StatsScreenState extends State<StatsScreen>
                 children: [
                   Column(
                     children: [
-                      Text(
-                          _display(_stats['averageRating']),
+                      Text(_display(_stats['averageRating']),
                           style: GoogleFonts.sora(
                               fontSize: 40,
                               fontWeight: FontWeight.w800,
@@ -434,8 +450,7 @@ class _StatsScreenState extends State<StatsScreen>
                               color: Color(0xFFF59E0B),
                               fontSize: 16,
                               letterSpacing: 2)),
-                      Text(
-                          '${_display(_stats['reviewsCount'])} avis',
+                      Text('${_display(_stats['reviewsCount'])} avis',
                           style: GoogleFonts.dmSans(
                               fontSize: 11, color: _C.text3)),
                     ],
@@ -494,9 +509,7 @@ class _StatsScreenState extends State<StatsScreen>
           decoration: BoxDecoration(
             color: isActive ? _C.blueDeep : _C.surface,
             borderRadius: BorderRadius.circular(999),
-            border: isActive
-                ? null
-                : Border.all(color: _C.gray200, width: 1.5),
+            border: isActive ? null : Border.all(color: _C.gray200, width: 1.5),
             boxShadow: isActive
                 ? const [
                     BoxShadow(
@@ -545,8 +558,7 @@ class _StatsScreenState extends State<StatsScreen>
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                    color: iconBg,
-                    borderRadius: BorderRadius.circular(10)),
+                    color: iconBg, borderRadius: BorderRadius.circular(10)),
                 child: Icon(icon, size: 18, color: iconColor),
               ),
               const SizedBox(width: 10),
@@ -576,8 +588,7 @@ class _StatsScreenState extends State<StatsScreen>
           ),
           const SizedBox(height: 8),
           Text(label,
-              style: GoogleFonts.dmSans(
-                  fontSize: 11.5, color: _C.text3)),
+              style: GoogleFonts.dmSans(fontSize: 11.5, color: _C.text3)),
           const SizedBox(height: 4),
           Row(
             children: [
@@ -611,8 +622,7 @@ class _StatsScreenState extends State<StatsScreen>
           SizedBox(
               width: 16,
               child: Text('$stars',
-                  style: GoogleFonts.dmSans(
-                      fontSize: 12, color: _C.text3),
+                  style: GoogleFonts.dmSans(fontSize: 12, color: _C.text3),
                   textAlign: TextAlign.right)),
           const SizedBox(width: 8),
           Expanded(
@@ -621,8 +631,7 @@ class _StatsScreenState extends State<StatsScreen>
               child: LinearProgressIndicator(
                 value: fill,
                 backgroundColor: _C.gray100,
-                valueColor: const AlwaysStoppedAnimation(
-                    Color(0xFFF59E0B)),
+                valueColor: const AlwaysStoppedAnimation(Color(0xFFF59E0B)),
                 minHeight: 6,
               ),
             ),
@@ -631,15 +640,14 @@ class _StatsScreenState extends State<StatsScreen>
           SizedBox(
               width: 14,
               child: Text('$count',
-                  style: GoogleFonts.dmSans(
-                      fontSize: 11, color: _C.text3))),
+                  style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3))),
         ],
       ),
     );
   }
 
-  Widget _badgeCard(String emoji, String name, String date,
-      String progress, bool locked) {
+  Widget _badgeCard(
+      String emoji, String name, String date, String progress, bool locked) {
     return Opacity(
       opacity: locked ? 0.45 : 1.0,
       child: Container(
@@ -663,8 +671,7 @@ class _StatsScreenState extends State<StatsScreen>
             if (date.isNotEmpty) ...[
               const SizedBox(height: 3),
               Text(date,
-                  style: GoogleFonts.dmSans(
-                      fontSize: 10, color: _C.text3)),
+                  style: GoogleFonts.dmSans(fontSize: 10, color: _C.text3)),
             ],
             if (progress.isNotEmpty) ...[
               const SizedBox(height: 3),
@@ -708,7 +715,7 @@ class _StatsScreenState extends State<StatsScreen>
                         color: Colors.white60,
                         letterSpacing: 0.7)),
                 const SizedBox(height: 6),
-                Text('${_display(_finance['availableBalance'])} \$',
+                Text('${_display(_financeNorm['availableBalance'])} \$',
                     style: GoogleFonts.sora(
                         fontSize: 40,
                         fontWeight: FontWeight.w800,
@@ -718,18 +725,16 @@ class _StatsScreenState extends State<StatsScreen>
                 Row(
                   children: [
                     Expanded(
-                        child: _balanceSub('En transit',
-                            '${_display(_finance['inTransit'])} \$',
+                        child: _balanceSub(
+                            'En transit',
+                            '${_display(_financeNorm['inTransit'])} \$',
                             false)),
                     const SizedBox(width: 10),
                     Expanded(
                         child: _balanceSub('Pénalités',
-                            '${_display(_finance['penalties'])} \$',
-                            true)),
+                            '${_display(_financeNorm['penalties'])} \$', true)),
                     const SizedBox(width: 10),
-                    Expanded(
-                        child: _balanceSub(
-                            'IBAN', '***-2918', false)),
+                    Expanded(child: _balanceSub('IBAN', '***-2918', false)),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -776,19 +781,19 @@ class _StatsScreenState extends State<StatsScreen>
                     children: [
                       _progressRow(
                           'Revenus bruts',
-                          '${_display(_finance['grossRevenue'])} \$',
+                          '${_display(_financeNorm['grossRevenue'])} \$',
                           0.8,
                           _C.tealMid),
                       const SizedBox(height: 10),
                       _progressRow(
                           'Revenus nets',
-                          '${_display(_finance['netRevenue'])} \$',
+                          '${_display(_financeNorm['netRevenue'])} \$',
                           0.68,
                           _C.blue),
                       const SizedBox(height: 10),
                       _progressRow(
                           'Objectif mensuel',
-                          '${_display(_finance['monthlyRevenue'])} \$ / ${_display(_finance['monthlyGoal'])} \$',
+                          '${_display(_financeNorm['monthlyRevenue'])} \$ / ${_display(_financeNorm['monthlyGoal'])} \$',
                           0.20,
                           _C.amberMid),
                     ],
@@ -847,9 +852,7 @@ class _StatsScreenState extends State<StatsScreen>
               style: GoogleFonts.sora(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: isRed
-                      ? const Color(0xFFFFB3B3)
-                      : Colors.white)),
+                  color: isRed ? const Color(0xFFFFB3B3) : Colors.white)),
         ],
       ),
     );
@@ -862,15 +865,12 @@ class _StatsScreenState extends State<StatsScreen>
       child: Container(
         height: 46,
         decoration: BoxDecoration(
-          color: white
-              ? Colors.white
-              : Colors.white.withValues(alpha: 0.15),
+          color: white ? Colors.white : Colors.white.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(14),
           border: white
               ? null
               : Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
-                  width: 1.5),
+                  color: Colors.white.withValues(alpha: 0.3), width: 1.5),
         ),
         child: Center(
           child: Text(label,
@@ -892,9 +892,7 @@ class _StatsScreenState extends State<StatsScreen>
         decoration: BoxDecoration(
           color: isActive ? _C.amberMid : _C.surface,
           borderRadius: BorderRadius.circular(999),
-          border: isActive
-              ? null
-              : Border.all(color: _C.gray200, width: 1.5),
+          border: isActive ? null : Border.all(color: _C.gray200, width: 1.5),
           boxShadow: isActive
               ? const [
                   BoxShadow(
@@ -915,16 +913,30 @@ class _StatsScreenState extends State<StatsScreen>
 
   Widget _resumeGrid() {
     final cells = [
-      ('Gain mensuel', '${_display(_finance['monthlyRevenue'])} \$',
-          _C.tealMid, 'Sem. actuelle'),
-      ('Gain semaine', '${_display(_finance['weeklyRevenue'])} \$',
-          _C.blue, ''),
-      ('Commission (15%)',
-          '${_display(_finance['commission'])} \$', _C.amberMid,
-          'Plateforme'),
-      ('Trajets payants',
-          _display(_stats['paidTrips'] ?? _stats['tripsCount']),
-          _C.blue, 'complétés'),
+      (
+        'Gain mensuel',
+        '${_display(_financeNorm['monthlyRevenue'])} \$',
+        _C.tealMid,
+        'Sem. actuelle'
+      ),
+      (
+        'Gain semaine',
+        '${_display(_financeNorm['weeklyRevenue'])} \$',
+        _C.blue,
+        ''
+      ),
+      (
+        'Commission (15%)',
+        '${_display(_financeNorm['commission'])} \$',
+        _C.amberMid,
+        'Plateforme'
+      ),
+      (
+        'Trajets payants',
+        _display(_stats['paidTrips'] ?? _stats['tripsCount']),
+        _C.blue,
+        'complétés'
+      ),
     ];
     return GridView.count(
       shrinkWrap: true,
@@ -934,24 +946,22 @@ class _StatsScreenState extends State<StatsScreen>
       children: cells.map((c) {
         return Container(
           padding: const EdgeInsets.all(14),
-          decoration:
-              const BoxDecoration(border: Border(right: BorderSide(color: _C.border), bottom: BorderSide(color: _C.border))),
+          decoration: const BoxDecoration(
+              border: Border(
+                  right: BorderSide(color: _C.border),
+                  bottom: BorderSide(color: _C.border))),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(c.$1,
-                  style: GoogleFonts.dmSans(
-                      fontSize: 11, color: _C.text3)),
+                  style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3)),
               const SizedBox(height: 4),
               Text(c.$2,
                   style: GoogleFonts.sora(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: c.$3)),
+                      fontSize: 18, fontWeight: FontWeight.w800, color: c.$3)),
               if (c.$4.isNotEmpty)
                 Text(c.$4,
-                    style: GoogleFonts.dmSans(
-                        fontSize: 11, color: _C.text3)),
+                    style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3)),
             ],
           ),
         );
@@ -959,21 +969,17 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
-  Widget _progressRow(
-      String label, String valLabel, double fill, Color color) {
+  Widget _progressRow(String label, String valLabel, double fill, Color color) {
     return Column(
       children: [
         Row(
           children: [
             Expanded(
                 child: Text(label,
-                    style: GoogleFonts.dmSans(
-                        fontSize: 12, color: _C.text2))),
+                    style: GoogleFonts.dmSans(fontSize: 12, color: _C.text2))),
             Text(valLabel,
                 style: GoogleFonts.sora(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: color)),
+                    fontSize: 12, fontWeight: FontWeight.w700, color: color)),
           ],
         ),
         const SizedBox(height: 4),
@@ -1030,10 +1036,7 @@ class _StatsScreenState extends State<StatsScreen>
                                   : const LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
-                                      colors: [
-                                          _C.tealMid,
-                                          Color(0xFF0A8A60)
-                                        ]),
+                                      colors: [_C.tealMid, Color(0xFF0A8A60)]),
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(4),
                                 topRight: Radius.circular(4),
@@ -1059,8 +1062,8 @@ class _StatsScreenState extends State<StatsScreen>
     );
   }
 
-  Widget _txItem(bool first, String name, String date, String amount,
-      bool isCredit) {
+  Widget _txItem(
+      bool first, String name, String date, String amount, bool isCredit) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
       decoration: const BoxDecoration(
@@ -1087,8 +1090,7 @@ class _StatsScreenState extends State<StatsScreen>
                         color: _C.text1),
                     overflow: TextOverflow.ellipsis),
                 Text(date,
-                    style: GoogleFonts.dmSans(
-                        fontSize: 11, color: _C.text3)),
+                    style: GoogleFonts.dmSans(fontSize: 11, color: _C.text3)),
               ],
             ),
           ),
@@ -1116,8 +1118,7 @@ class _StatsScreenState extends State<StatsScreen>
                       color: _C.text1))),
           if (trailing.isNotEmpty)
             Text(trailing,
-                style: GoogleFonts.dmSans(
-                    fontSize: 12, color: _C.text3)),
+                style: GoogleFonts.dmSans(fontSize: 12, color: _C.text3)),
         ],
       ),
     );
@@ -1157,16 +1158,18 @@ class _GoboardTab extends StatelessWidget {
           _card(
             child: Column(
               children: goTasks.isNotEmpty
-                  ? goTasks.map((task) => _taskItem(
-                        done: task['done'] == true ||
-                            task['isDone'] == true ||
-                            task['completed'] == true,
-                        title:
-                            '${task['title'] ?? task['name'] ?? 'Tâche'}',
-                        desc:
-                            '${task['desc'] ?? task['description'] ?? ''}',
-                        pts: int.tryParse('${task['points'] ?? 0}') ?? 0,
-                      )).toList()
+                  ? goTasks
+                      .map((task) => _taskItem(
+                            done: task['done'] == true ||
+                                task['isDone'] == true ||
+                                task['completed'] == true,
+                            title:
+                                '${task['title'] ?? task['name'] ?? 'Tâche'}',
+                            desc:
+                                '${task['desc'] ?? task['description'] ?? ''}',
+                            pts: int.tryParse('${task['points'] ?? 0}') ?? 0,
+                          ))
+                      .toList()
                   : [
                       _taskItem(
                           done: false,
@@ -1316,8 +1319,8 @@ class _GoboardTab extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(999),
@@ -1343,24 +1346,24 @@ class _GoboardTab extends StatelessWidget {
               value: 0.52,
               minHeight: 10,
               backgroundColor: Colors.white.withValues(alpha: 0.2),
-              valueColor: AlwaysStoppedAnimation(
-                  Colors.white.withValues(alpha: 0.85)),
+              valueColor:
+                  AlwaysStoppedAnimation(Colors.white.withValues(alpha: 0.85)),
             ),
           ),
           const SizedBox(height: 8),
           Row(
             children: [
               Text('0',
-                  style: GoogleFonts.dmSans(
-                      fontSize: 11, color: Colors.white54)),
+                  style:
+                      GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
               const Spacer(),
               Text('Intermédiaire',
-                  style: GoogleFonts.dmSans(
-                      fontSize: 11, color: Colors.white54)),
+                  style:
+                      GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
               const Spacer(),
               Text('1000',
-                  style: GoogleFonts.dmSans(
-                      fontSize: 11, color: Colors.white54)),
+                  style:
+                      GoogleFonts.dmSans(fontSize: 11, color: Colors.white54)),
             ],
           ),
         ],
@@ -1377,9 +1380,7 @@ class _GoboardTab extends StatelessWidget {
         border: Border.all(color: const Color(0x12000000)),
         boxShadow: const [
           BoxShadow(
-              color: Color(0x0F000000),
-              blurRadius: 4,
-              offset: Offset(0, 1))
+              color: Color(0x0F000000), blurRadius: 4, offset: Offset(0, 1))
         ],
       ),
       clipBehavior: Clip.antiAlias,
@@ -1415,8 +1416,7 @@ class _GoboardTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       decoration: const BoxDecoration(
-          border: Border(
-              bottom: BorderSide(color: Color(0x12000000)))),
+          border: Border(bottom: BorderSide(color: Color(0x12000000)))),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1424,18 +1424,14 @@ class _GoboardTab extends StatelessWidget {
             width: 22,
             height: 22,
             decoration: BoxDecoration(
-              color: done
-                  ? const Color(0xFF1D9E75)
-                  : Colors.transparent,
+              color: done ? const Color(0xFF1D9E75) : Colors.transparent,
               shape: BoxShape.circle,
               border: done
                   ? null
-                  : Border.all(
-                      color: const Color(0xFFD8DBE5), width: 2),
+                  : Border.all(color: const Color(0xFFD8DBE5), width: 2),
             ),
             child: done
-                ? const Icon(Icons.check_rounded,
-                    size: 12, color: Colors.white)
+                ? const Icon(Icons.check_rounded, size: 12, color: Colors.white)
                 : null,
           ),
           const SizedBox(width: 12),
@@ -1450,9 +1446,7 @@ class _GoboardTab extends StatelessWidget {
                         color: done
                             ? const Color(0xFF7A879A)
                             : const Color(0xFF0D1624),
-                        decoration: done
-                            ? TextDecoration.lineThrough
-                            : null)),
+                        decoration: done ? TextDecoration.lineThrough : null)),
                 const SizedBox(height: 2),
                 Text(desc,
                     style: GoogleFonts.dmSans(
@@ -1507,8 +1501,7 @@ class _GoboardTab extends StatelessWidget {
           Container(
             width: 34,
             height: 34,
-            decoration: BoxDecoration(
-                color: avatarBg, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: avatarBg, shape: BoxShape.circle),
             child: Center(
               child: Text(initials,
                   style: GoogleFonts.sora(
@@ -1560,8 +1553,7 @@ class _GoboardTab extends StatelessWidget {
                 child: Text.rich(
                   TextSpan(children: [
                     TextSpan(
-                        text: '$emoji ',
-                        style: const TextStyle(fontSize: 14)),
+                        text: '$emoji ', style: const TextStyle(fontSize: 14)),
                     TextSpan(
                         text: name,
                         style: GoogleFonts.sora(
@@ -1572,11 +1564,9 @@ class _GoboardTab extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                    color: statusBg,
-                    borderRadius: BorderRadius.circular(999)),
+                    color: statusBg, borderRadius: BorderRadius.circular(999)),
                 child: Text(status,
                     style: GoogleFonts.sora(
                         fontSize: 10,
@@ -1588,9 +1578,7 @@ class _GoboardTab extends StatelessWidget {
           const SizedBox(height: 4),
           Text(desc,
               style: GoogleFonts.dmSans(
-                  fontSize: 11.5,
-                  color: const Color(0xFF7A879A),
-                  height: 1.3)),
+                  fontSize: 11.5, color: const Color(0xFF7A879A), height: 1.3)),
           const SizedBox(height: 8),
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
@@ -1607,8 +1595,7 @@ class _GoboardTab extends StatelessWidget {
               Expanded(
                   child: Text(target,
                       style: GoogleFonts.dmSans(
-                          fontSize: 11,
-                          color: const Color(0xFF7A879A)))),
+                          fontSize: 11, color: const Color(0xFF7A879A)))),
               Text('${(progress * 100).round()}%',
                   style: GoogleFonts.sora(
                       fontSize: 11,

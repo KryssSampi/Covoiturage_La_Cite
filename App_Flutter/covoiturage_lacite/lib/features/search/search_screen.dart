@@ -64,14 +64,6 @@ class _SearchScreenState extends State<SearchScreen> {
   String? _error;
   List<Trip> _results = <Trip>[];
 
-  static const List<String> _suggestions = <String>[
-    'Campus La Cite',
-    'Place d\'Orleans',
-    'Barrhaven Town Centre',
-    'Arret Hurdman',
-    'Gatineau Centre',
-  ];
-
   bool get _canSearch =>
       _fromCtrl.text.trim().isNotEmpty && _toCtrl.text.trim().isNotEmpty;
 
@@ -198,7 +190,10 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _triggerDriverAutoSearchIfReady() async {
-    if (!mounted || !widget.isDriver || !_canSearch || _driverAutoSearchInFlight) {
+    if (!mounted ||
+        !widget.isDriver ||
+        !_canSearch ||
+        _driverAutoSearchInFlight) {
       return;
     }
     final String key = '${_fromCtrl.text.trim()}|${_toCtrl.text.trim()}';
@@ -239,7 +234,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
       if (!mounted) return;
       setState(() {
-        _favoritePlaces = parsed.isEmpty ? _FavoritePlaceItem.fixtureFallback : parsed;
+        _favoritePlaces =
+            parsed.isEmpty ? _FavoritePlaceItem.fixtureFallback : parsed;
       });
     } catch (_) {
       if (!mounted) return;
@@ -256,7 +252,8 @@ class _SearchScreenState extends State<SearchScreen> {
   List<dynamic> _extractList(dynamic data) {
     if (data is List<dynamic>) return data;
     if (data is Map<String, dynamic>) {
-      final dynamic candidate = data['items'] ?? data['data'] ?? data['results'];
+      final dynamic candidate =
+          data['items'] ?? data['data'] ?? data['results'];
       if (candidate is List<dynamic>) return candidate;
     }
     return const <dynamic>[];
@@ -462,16 +459,6 @@ class _SearchScreenState extends State<SearchScreen> {
     await _runPassengerSearch();
   }
 
-  void _selectSuggestion(String label) {
-    if (_fromFocus.hasFocus) {
-      _fromCtrl.text = label;
-    } else {
-      _toCtrl.text = label;
-    }
-    setState(() {});
-    FocusScope.of(context).unfocus();
-  }
-
   void _selectDriverSuggestion(OrsPlaceSuggestion suggestion) {
     if (_fromFieldActive) {
       _fromCtrl.text = suggestion.label;
@@ -568,12 +555,13 @@ class _SearchScreenState extends State<SearchScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Icon(Icons.search, color: Colors.white, size: 24),
+                          : const Icon(Icons.search,
+                              color: Colors.white, size: 24),
                     ),
                   ),
                 ],
-                ),
               ),
+            ),
             if (showDriverQuickPlaces)
               _DriverQuickPlaces(
                 isLocatingUser: _isLocatingUser,
@@ -672,7 +660,8 @@ class _SearchField extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: hint,
                 border: InputBorder.none,
-                hintStyle: const TextStyle(color: Color(0xFF8A95A8), fontSize: 14),
+                hintStyle:
+                    const TextStyle(color: Color(0xFF8A95A8), fontSize: 14),
               ),
               style: const TextStyle(fontSize: 14, color: Color(0xFF0D1624)),
             ),
@@ -718,7 +707,8 @@ class _DriverQuickPlaces extends StatelessWidget {
         children: <Widget>[
           ListTile(
             onTap: isLocatingUser ? null : onUseCurrentLocation,
-            leading: const Icon(Icons.my_location_rounded, color: Color(0xFF1A56CC)),
+            leading:
+                const Icon(Icons.my_location_rounded, color: Color(0xFF1A56CC)),
             title: const Text(
               'Votre position',
               style: TextStyle(fontWeight: FontWeight.w700),
@@ -733,7 +723,8 @@ class _DriverQuickPlaces extends StatelessWidget {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.chevron_right_rounded, color: Color(0xFF94A3B8)),
+                : const Icon(Icons.chevron_right_rounded,
+                    color: Color(0xFF94A3B8)),
           ),
           const Divider(height: 1, color: Color(0x12000000)),
           if (isLoadingFavorites)
@@ -800,30 +791,6 @@ class _DriverQuickPlaces extends StatelessWidget {
   }
 }
 
-class _FocusSuggestions extends StatelessWidget {
-  const _FocusSuggestions({required this.suggestions, required this.onSelect});
-
-  final List<String> suggestions;
-  final ValueChanged<String> onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: ListView.separated(
-        itemCount: suggestions.length,
-        separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0x12000000)),
-        itemBuilder: (_, i) => ListTile(
-          onTap: () => onSelect(suggestions[i]),
-          leading: const Icon(Icons.place_outlined, color: Color(0xFF1A56CC)),
-          title: Text(suggestions[i], style: const TextStyle(fontWeight: FontWeight.w600)),
-          subtitle: const Text('Lieu suggere', style: TextStyle(color: Color(0xFF7A879A))),
-        ),
-      ),
-    );
-  }
-}
-
 class _FavoritePlaceItem {
   const _FavoritePlaceItem({
     required this.id,
@@ -847,22 +814,30 @@ class _FavoritePlaceItem {
   }
 
   static _FavoritePlaceItem fromJson(Map<String, dynamic> row) {
-    final dynamic coords = row['coordinates'] ?? row['coordonnees'] ?? row['location'];
+    final dynamic coords =
+        row['coordinates'] ?? row['coordonnees'] ?? row['location'];
     double? parsedLat =
         _toNullableDouble(row['lat'] ?? row['latitude'] ?? row['y']);
     double? parsedLng = _toNullableDouble(
       row['lng'] ?? row['lon'] ?? row['longitude'] ?? row['x'],
     );
 
-    if ((parsedLat == null || parsedLng == null) && coords is Map<String, dynamic>) {
+    if ((parsedLat == null || parsedLng == null) &&
+        coords is Map<String, dynamic>) {
       parsedLat = parsedLat ??
           _toNullableDouble(coords['lat'] ?? coords['latitude'] ?? coords['y']);
-      parsedLng = parsedLng ?? _toNullableDouble(
-        coords['lng'] ?? coords['lon'] ?? coords['longitude'] ?? coords['x'],
-      );
+      parsedLng = parsedLng ??
+          _toNullableDouble(
+            coords['lng'] ??
+                coords['lon'] ??
+                coords['longitude'] ??
+                coords['x'],
+          );
     }
 
-    if ((parsedLat == null || parsedLng == null) && coords is List && coords.length >= 2) {
+    if ((parsedLat == null || parsedLng == null) &&
+        coords is List &&
+        coords.length >= 2) {
       final double first = _toNullableDouble(coords[0]) ?? 0;
       final double second = _toNullableDouble(coords[1]) ?? 0;
       if (first.abs() <= 90 && second.abs() <= 180) {
@@ -880,7 +855,8 @@ class _FavoritePlaceItem {
           row['name']?.toString() ??
           row['title']?.toString() ??
           '',
-      address: row['address']?.toString() ?? row['description']?.toString() ?? '',
+      address:
+          row['address']?.toString() ?? row['description']?.toString() ?? '',
       lat: parsedLat,
       lng: parsedLng,
     );
@@ -938,7 +914,8 @@ class _DriverSuggestions extends StatelessWidget {
       color: Colors.white,
       child: ListView.separated(
         itemCount: suggestions.length,
-        separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0x12000000)),
+        separatorBuilder: (_, __) =>
+            const Divider(height: 1, color: Color(0x12000000)),
         itemBuilder: (_, i) {
           final s = suggestions[i];
           return ListTile(
@@ -1041,7 +1018,8 @@ class _ResultsZone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Color(0xFF1A56CC)));
+      return const Center(
+          child: CircularProgressIndicator(color: Color(0xFF1A56CC)));
     }
 
     if (error != null) {
@@ -1049,14 +1027,17 @@ class _ResultsZone extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 48, color: Color(0xFF8A95A8)),
+            const Icon(Icons.wifi_off_rounded,
+                size: 48, color: Color(0xFF8A95A8)),
             const SizedBox(height: 12),
             const Text(
               'Connexion impossible',
-              style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF0D1624)),
+              style: TextStyle(
+                  fontWeight: FontWeight.w600, color: Color(0xFF0D1624)),
             ),
             const SizedBox(height: 4),
-            Text(error!, style: const TextStyle(fontSize: 12, color: Color(0xFF7A879A))),
+            Text(error!,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF7A879A))),
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: onRetry,
@@ -1081,7 +1062,10 @@ class _ResultsZone extends StatelessWidget {
             SizedBox(height: 12),
             Text(
               'Ou souhaitez-vous aller ?',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF0D1624)),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF0D1624)),
             ),
           ],
         ),
@@ -1092,7 +1076,10 @@ class _ResultsZone extends StatelessWidget {
       return const Center(
         child: Text(
           'Aucun resultat',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF0D1624)),
+          style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0D1624)),
         ),
       );
     }
@@ -1111,7 +1098,8 @@ class _ResultsZone extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF0F6E56),
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),
@@ -1136,7 +1124,8 @@ class _ResultsZone extends StatelessWidget {
                   ),
                 ],
               ),
-              child: TripCard(trip: results[i], onTap: () => onTripTap(results[i])),
+              child: TripCard(
+                  trip: results[i], onTap: () => onTripTap(results[i])),
             ),
           ),
         ),
