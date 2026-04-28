@@ -1,5 +1,7 @@
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
+using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -64,13 +66,37 @@ public class InactiveUserReminderJob
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var cutoff = DateTimeOffset.UtcNow.AddDays(-14);
+        var notifications = scope.ServiceProvider.GetRequiredService<INotificationService>();
+        var now = DateTimeOffset.UtcNow;
+        var cutoff = now.AddDays(-14);
         var inactive = await db.Users
             .Where(u => u.LastLoginAt < cutoff && u.Status == Domain.Enums.UserStatus.Active)
-            .CountAsync();
+            .ToListAsync();
 
-        _logger.LogInformation("InactiveUserReminder: {Count} utilisateurs inactifs >14j identifiés", inactive);
-        // TODO: Créer notification in-app pour chaque utilisateur
+        foreach (var user in inactive)
+        {
+            var alreadySent = await db.Notifications.AnyAsync(n =>
+                n.UserId == user.Id &&
+                n.Type == NotificationType.Suggestion &&
+                n.CreatedAt >= now.AddDays(-7));
+            if (alreadySent) continue;
+
+            try
+            {
+                await notifications.CreateAsync(new CreateNotificationDto
+                {
+                    UserId = user.Id,
+                    Type = NotificationType.Suggestion,
+                    Title = "On vous attend sur Covoiturage La Cite",
+                    Body = "De nouveaux trajets sont disponibles. Revenez trouver votre prochain covoiturage en quelques secondes.",
+                    IsImportant = false,
+                    DeepLink = "/search"
+                });
+            }
+            catch { }
+        }
+
+        _logger.LogInformation("InactiveUserReminder: {Count} utilisateurs inactifs >14j identifies", inactive.Count);
     }
 }
 
@@ -107,15 +133,57 @@ public class ChallengeProgressCheckJob
             {
                 p.IsCompleted = true;
                 p.CompletedAt = now;
+                p.UpdatedAt = now;
                 completed++;
             }
         }
 
-        if (completed > 0)
+        if (completed == 0) return;
+
+        await db.SaveChangesAsync();
+
+        var completedNow = participations.Where(p => p.IsCompleted && !p.RewardClaimed).ToList();
+        foreach (var p in completedNow)
         {
-            await db.SaveChangesAsync();
-            _logger.LogInformation("ChallengeProgressCheck: {Count} défis complétés", completed);
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == p.UserId);
+            if (user == null) continue;
+
+            user.GoScore += p.EcoChallenge.RewardPoints;
+            p.RewardClaimed = true;
+            p.UpdatedAt = now;
+
+            if (p.EcoChallenge.RewardBadgeId.HasValue)
+            {
+                var hasBadge = await db.UserBadges.AnyAsync(ub =>
+                    ub.UserId == p.UserId && ub.BadgeId == p.EcoChallenge.RewardBadgeId.Value);
+                if (!hasBadge)
+                {
+                    db.UserBadges.Add(new Domain.Entities.UserBadge
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = p.UserId,
+                        BadgeId = p.EcoChallenge.RewardBadgeId.Value,
+                        AwardedAt = now
+                    });
+                }
+            }
+
+            db.Notifications.Add(new Domain.Entities.Notification
+            {
+                Id = Guid.NewGuid(),
+                UserId = p.UserId,
+                Type = NotificationType.ChallengeCompleted,
+                Title = "Defi complete",
+                Body = $"Bravo! Vous avez complete le defi '{p.EcoChallenge.Title}' et gagne {p.EcoChallenge.RewardPoints} points.",
+                IsImportant = false,
+                IsRead = false,
+                DeepLink = "/goboard",
+                CreatedAt = now
+            });
         }
+
+        await db.SaveChangesAsync();
+        _logger.LogInformation("ChallengeProgressCheck: {Count} defis completes et recompenses attribuees", completed);
     }
 }
 
@@ -135,18 +203,58 @@ public class WithdrawalProcessingJob
 
         var pending = await db.Withdrawals
             .Where(w => w.Status == "Pending")
+            .Include(w => w.DriverProfile)
             .ToListAsync();
 
+        var now = DateTimeOffset.UtcNow;
         foreach (var w in pending)
         {
-            w.Status = "Processing";
-            // TODO: Intégrer Interac/Stripe pour le transfert réel
+            if (w.DriverProfile.BalanceAvailable >= w.Amount)
+            {
+                w.DriverProfile.BalanceAvailable -= w.Amount;
+                w.Status = "Completed";
+                w.ProcessedAt = now;
+                w.CompletedAt = now;
+                w.ExternalReference = $"SIM-{now:yyyyMMddHHmmss}-{w.Id.ToString()[..8]}";
+
+                db.Notifications.Add(new Domain.Entities.Notification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = w.DriverProfile.UserId,
+                    Type = NotificationType.PaymentProcessed,
+                    Title = "Retrait traite",
+                    Body = $"Votre retrait de {w.Amount:0.00}$ a ete traite.",
+                    IsImportant = true,
+                    IsRead = false,
+                    DeepLink = "/finance/withdrawals",
+                    CreatedAt = now
+                });
+            }
+            else
+            {
+                w.Status = "Rejected";
+                w.ProcessedAt = now;
+                w.RejectionReason = "Solde insuffisant au moment du traitement";
+
+                db.Notifications.Add(new Domain.Entities.Notification
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = w.DriverProfile.UserId,
+                    Type = NotificationType.SystemAlert,
+                    Title = "Retrait refuse",
+                    Body = $"Votre retrait de {w.Amount:0.00}$ a ete refuse (solde insuffisant).",
+                    IsImportant = true,
+                    IsRead = false,
+                    DeepLink = "/finance/withdrawals",
+                    CreatedAt = now
+                });
+            }
         }
 
         if (pending.Count > 0)
         {
             await db.SaveChangesAsync();
-            _logger.LogInformation("WithdrawalProcessing: {Count} retraits en traitement", pending.Count);
+            _logger.LogInformation("WithdrawalProcessing: {Count} retraits traites", pending.Count);
         }
     }
 }
@@ -271,6 +379,18 @@ public class BadgeAwardCheckJob
                         BadgeId = firstTripBadge.Id,
                         AwardedAt = DateTimeOffset.UtcNow
                     });
+                    db.Notifications.Add(new Domain.Entities.Notification
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = userId,
+                        Type = NotificationType.BadgeEarned,
+                        Title = "Nouveau badge obtenu",
+                        Body = $"Felicitations! Vous avez obtenu le badge '{firstTripBadge.Name}'.",
+                        IsImportant = false,
+                        IsRead = false,
+                        DeepLink = "/goboard",
+                        CreatedAt = DateTimeOffset.UtcNow
+                    });
                     awarded++;
                 }
             }
@@ -279,7 +399,7 @@ public class BadgeAwardCheckJob
         if (awarded > 0)
         {
             await db.SaveChangesAsync();
-            _logger.LogInformation("BadgeAwardCheck: {Count} badges attribués", awarded);
+            _logger.LogInformation("BadgeAwardCheck: {Count} badges attribues", awarded);
         }
     }
 }

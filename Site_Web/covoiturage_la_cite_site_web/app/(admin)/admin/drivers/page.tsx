@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPendingDriversAction, approveDriverAction, rejectDriverAction, PendingDriver } from "@/features/admin/services/admin.drivers.actions";
+import { getPendingDriversAction, approveDriverAction, rejectDriverAction, PendingDriver } from "@/features/admin/services/admin.actions";
 
 export default function AdminDriversPage() {
   const [drivers, setDrivers] = useState<PendingDriver[]>([]);

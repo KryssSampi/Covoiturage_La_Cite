@@ -37,6 +37,7 @@ public class HangfireJobRegistrar : IHangfireJobRegistrar
         RecurringJob.AddOrUpdate<PenaltyExpiryJob>("penalty-expiry", j => j.ExecuteAsync(), Cron.Hourly);
         RecurringJob.AddOrUpdate<PlatformStatsJob>("platform-stats", j => j.ExecuteAsync(), Cron.Hourly);
         RecurringJob.AddOrUpdate<AnomalyDetectionJob>("anomaly-detection", j => j.ExecuteAsync(), Cron.Hourly);
+        RecurringJob.AddOrUpdate<TripAutoCancelUnstartedJob>("trip-auto-cancel-unstarted", j => j.ExecuteAsync(), Cron.Hourly);
 
         // ── Quotidien (2h du matin) ──────────────────────────────────────
         RecurringJob.AddOrUpdate<GoScoreRecalcJob>("goscore-recalc", j => j.ExecuteAsync(), "0 2 * * *");
@@ -44,6 +45,7 @@ public class HangfireJobRegistrar : IHangfireJobRegistrar
         RecurringJob.AddOrUpdate<AccountLifecycleJob>("account-lifecycle", j => j.ExecuteAsync(), "0 4 * * *");
         RecurringJob.AddOrUpdate<ChallengeProgressCheckJob>("challenge-progress-check", j => j.ExecuteAsync(), "0 4 * * *");
         RecurringJob.AddOrUpdate<WithdrawalProcessingJob>("withdrawal-processing", j => j.ExecuteAsync(), "0 6 * * *");
+        RecurringJob.AddOrUpdate<RecurringTripsGenerationJob>("recurring-trips-generation", j => j.ExecuteAsync(), "0 23 * * *");
 
         // ── Hebdomadaire (lundi 1h) ──────────────────────────────────────
         RecurringJob.AddOrUpdate<WeeklyReportJob>("weekly-report", j => j.ExecuteAsync(), "0 1 * * 1");

@@ -834,6 +834,32 @@ public class AdminFeatureModuleController : ControllerBase
         return Ok(ApiResponse<object>.Ok(new { maintenanceMode = request.Enabled }));
     }
 
+    // Trips
+    [HttpGet("trips")]
+    public async Task<IActionResult> GetTrips(CancellationToken ct)
+    {
+        var trips = await _db.Trips
+            .OrderByDescending(t => t.CreatedAt)
+            .Take(500)
+            .Select(t => new AdminTripVm
+            {
+                Id = t.Id.ToString(),
+                DriverId = t.DriverId.ToString(),
+                DepartureLabel = t.DepartureLabel,
+                ArrivalLabel = t.ArrivalLabel,
+                DepartureDate = t.DepartureDate.ToString("yyyy-MM-dd"),
+                DepartureTime = t.DepartureTime.ToString("HH\\:mm"),
+                Status = t.Status.ToString(),
+                CurrentPassengers = t.CurrentPassengers,
+                MaxPassengers = t.MaxPassengers,
+                PricePerPassenger = decimal.ToDouble(t.PricePerPassenger),
+                CreatedAt = t.CreatedAt
+            })
+            .ToListAsync(ct);
+
+        return Ok(ApiResponse<List<AdminTripVm>>.Ok(trips));
+    }
+
     // Helpers
     private Guid GetUid()
     {
@@ -1332,4 +1358,19 @@ public sealed class UpdateSettingsRequest
 public sealed class ToggleMaintenanceRequest
 {
     public bool Enabled { get; set; }
+}
+
+public sealed class AdminTripVm
+{
+    public string Id { get; set; } = string.Empty;
+    public string DriverId { get; set; } = string.Empty;
+    public string DepartureLabel { get; set; } = string.Empty;
+    public string ArrivalLabel { get; set; } = string.Empty;
+    public string DepartureDate { get; set; } = string.Empty;
+    public string DepartureTime { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public int CurrentPassengers { get; set; }
+    public int MaxPassengers { get; set; }
+    public double PricePerPassenger { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 }

@@ -14,12 +14,15 @@ public class ChatMessage
     public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
     /// <summary>Identifiant du trajet lié à la conversation.</summary>
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid TripId { get; set; }
 
     /// <summary>Identifiant de l'expéditeur.</summary>
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid SenderId { get; set; }
 
     /// <summary>Identifiant du destinataire.</summary>
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid RecipientId { get; set; }
 
     /// <summary>Contenu textuel du message.</summary>

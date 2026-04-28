@@ -22,8 +22,11 @@ public class MongoDbContext
             {
                 if (!_serializersRegistered)
                 {
-                    BsonSerializer.RegisterSerializer(
+                    // DateTimeOffset -> ISO string for readability/interoperability.
+                    BsonSerializer.TryRegisterSerializer(
                         new DateTimeOffsetSerializer(BsonType.String));
+                    // Ensure every Guid in Mongo models is encoded with Standard representation.
+                    BsonSerializer.TryRegisterSerializer(typeof(Guid), new GuidSerializer(GuidRepresentation.Standard));
                     _serializersRegistered = true;
                 }
             }

@@ -1,176 +1,184 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   getModerationQueueAction,
   approveModerationAction,
-  removeModerationContentAction,
-  getReportedMessagesAction,
-  ModerationItem,
-  ChatMessage,
-} from "@/features/admin/services/admin.moderations.actions";
+  removeModerationAction,
+  getSignaledMessagesAction,
+} from "@/features/admin/services/admin.actions";
+import {
+  toAdminModerationView,
+  type AdminModerationView,
+} from "@/features/admin/converters/admin.converter";
+import {
+  AdminPageHeader,
+  AdminTabs,
+  AdminTable,
+  Badge,
+  ActionButton,
+  ErrorDisplay,
+  EmptyState,
+  confirmAction,
+  promptText,
+} from "@/features/admin/components/AdminShared";
+
+const TABS = ["File de modÃ©ration", "Messages signalÃ©s"] as const;
+type Tab = typeof TABS[number];
+
+interface SignaledMessage {
+  id: string;
+  content: string;
+  authorId: string;
+  reportCount: number;
+  createdAt: string;
+}
 
 export default function AdminModerationsPage() {
-  const [items, setItems] = useState<ModerationItem[]>([]);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"queue" | "messages">("queue");
+  const [tab, setTab]             = useState<Tab>("File de modÃ©ration");
+  const [queue, setQueue]         = useState<AdminModerationView[]>([]);
+  const [messages, setMessages]   = useState<SignaledMessage[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState<string | null>(null);
+  const [feedback, setFeedback]   = useState<string | null>(null);
+  const [busy, setBusy]           = useState<string | null>(null);
 
-  useEffect(() => {
-    loadData();
-  }, [tab]);
-
-  const loadData = async () => {
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      if (tab === "queue") {
-        const queueData = await getModerationQueueAction();
-        setItems(queueData);
-      } else {
-        const messagesData = await getReportedMessagesAction();
-        setMessages(messagesData);
-      }
-    } catch (error) {
-      console.error("Erreur chargement moderations:", error);
+      const [q, m] = await Promise.all([
+        getModerationQueueAction(),
+        getSignaledMessagesAction(),
+      ]);
+      setQueue((q as Parameters<typeof toAdminModerationView>[0][]).map(toAdminModerationView));
+      setMessages((m as Array<{ id: string; message?: string; senderId?: string; createdAt: string; }>).map((x) => ({ id: x.id, content: x.message ?? "", authorId: x.senderId ?? "", reportCount: 1, createdAt: x.createdAt })));
+    } catch (e) {
+      setError((e as Error).message ?? "Impossible de charger la modÃ©ration");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleApprove = async (id: string) => {
-    const notes = prompt("Notes (optionnel):");
+  useEffect(() => { void load(); }, [load]);
+
+  async function handleApprove(id: string) {
+    if (!await confirmAction("Approuver ce contenu (le conserver) ?")) return;
+    setBusy(id); setFeedback(null);
     try {
-      await approveModerationAction(id, notes || undefined);
-      await loadData();
-      alert("Contenu approuvé!");
-    } catch (error) {
-      console.error("Erreur approbation:", error);
-    }
-  };
+      await approveModerationAction(id);
+      setFeedback("âœ… Contenu approuvÃ©.");
+      await load();
+    } catch (e) { setFeedback(`âŒ ${(e as Error).message}`); }
+    finally { setBusy(null); }
+  }
 
-  const handleRemove = async (id: string) => {
-    const reason = prompt("Raison du retrait:");
-    if (reason) {
-      try {
-        await removeModerationContentAction(id, reason);
-        await loadData();
-        alert("Contenu retiré!");
-      } catch (error) {
-        console.error("Erreur retrait:", error);
-      }
-    }
-  };
-
-  if (loading) return <div>Chargement...</div>;
+  async function handleRemove(id: string) {
+    const reason = await promptText("Raison du retrait :");
+    if (!reason) return;
+    setBusy(id); setFeedback(null);
+    try {
+      await removeModerationAction(id, reason);
+      setFeedback("âœ… Contenu retirÃ©.");
+      await load();
+    } catch (e) { setFeedback(`âŒ ${(e as Error).message}`); }
+    finally { setBusy(null); }
+  }
 
   return (
-    <>
-      <h1>Modération Contenu</h1>
+    <div className="space-y-4">
+      <AdminPageHeader
+        title="ModÃ©ration"
+        subtitle={`${queue.length} Ã©lÃ©ment${queue.length !== 1 ? "s" : ""} en attente de dÃ©cision`}
+        action={<ActionButton label="â†º" onClick={load} disabled={loading} />}
+      />
 
-      <div className="tab-controls">
-        <button
-          className={tab === "queue" ? "active" : ""}
-          onClick={() => setTab("queue")}
-        >
-          File de Modération ({items.length})
-        </button>
-        <button
-          className={tab === "messages" ? "active" : ""}
-          onClick={() => setTab("messages")}
-        >
-          Messages Signalés ({messages.length})
-        </button>
-      </div>
+      {feedback && (
+        <div className={`px-4 py-2.5 rounded-lg text-sm font-medium border ${
+          feedback.startsWith("âœ…") ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"
+        }`}>
+          {feedback}
+        </div>
+      )}
 
-      {tab === "queue" && (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Signalé par</th>
-              <th>Contenu</th>
-              <th>Statut</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.id}>
-                <td>
-                  <span className="type-badge">{item.type}</span>
-                </td>
-                <td>{item.reportedBy.substring(0, 8)}</td>
-                <td>
-                  <div className="content-preview">
-                    {item.content.substring(0, 100)}...
-                  </div>
-                </td>
-                <td>
-                  <span className={`status-badge ${item.status.toLowerCase()}`}>
-                    {item.status}
-                  </span>
-                </td>
-                <td>{new Date(item.createdAt).toLocaleDateString()}</td>
-                <td>
-                  <button
+      {error && <ErrorDisplay message={error} onRetry={load} />}
+
+      <AdminTabs tabs={[...TABS]} active={tab} onChange={(t) => setTab(t as Tab)} />
+
+      {tab === "File de modÃ©ration" && (
+        <AdminTable
+          headers={["Contenu", "Type", "Auteur", "Signalements", "SÃ©vÃ©ritÃ©", "Actions"]}
+          loading={loading}
+          empty={!loading && queue.length === 0}
+          emptyText="La file de modÃ©ration est vide."
+        >
+          {queue.map((item) => (
+            <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+              <td className="py-3 px-4 max-w-xs">
+                <p className="text-sm text-slate-700 truncate">{item.contentPreview}</p>
+              </td>
+              <td className="py-3 px-4 text-xs text-slate-500 capitalize">{item.contentType}</td>
+              <td className="py-3 px-4 font-mono text-xs text-slate-400">{(item.reportedById ?? "").slice(0, 8)}â€¦</td>
+              <td className="py-3 px-4 text-sm font-semibold text-slate-700 text-center">{item.reportCount}</td>
+              <td className="py-3 px-4">
+                <Badge
+                  label={item.severity ?? "Low"}
+                  color={item.severityColor as "red" | "amber" | "slate"}
+                />
+              </td>
+              <td className="py-3 px-4">
+                <div className="flex gap-1.5">
+                  <ActionButton
+                    label="âœ“ Conserver"
                     onClick={() => handleApprove(item.id)}
-                    className="btn-success"
-                  >
-                    Approuver
-                  </button>
-                  <button
+                    variant="success"
+                    disabled={busy === item.id}
+                  />
+                  <ActionButton
+                    label="âœ— Retirer"
                     onClick={() => handleRemove(item.id)}
-                    className="btn-danger"
-                  >
-                    Retirer
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {tab === "messages" && (
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>De</th>
-              <th>Message</th>
-              <th>Trajet</th>
-              <th>Date</th>
-              <th>Actions</th>
+                    variant="danger"
+                    disabled={busy === item.id}
+                  />
+                </div>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {messages.map((msg) => (
-              <tr key={msg.id}>
-                <td>{msg.senderEmail.substring(0, 20)}</td>
-                <td>
-                  <div className="content-preview">{msg.message.substring(0, 100)}</div>
-                </td>
-                <td>{msg.tripId.substring(0, 8)}</td>
-                <td>{new Date(msg.createdAt).toLocaleDateString()}</td>
-                <td>
-                  <button
-                    onClick={() =>
-                      handleRemove(msg.id)
-                    }
-                    className="btn-danger"
-                  >
-                    Supprimer
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          ))}
+        </AdminTable>
       )}
 
-      {(tab === "queue" && items.length === 0) ||
-        (tab === "messages" && messages.length === 0) ? (
-        <p>Aucun contenu à modérer.</p>
-      ) : null}
-    </>
+      {tab === "Messages signalÃ©s" && (
+        <AdminTable
+          headers={["Message", "Auteur", "Signalements", "Date"]}
+          loading={loading}
+          empty={!loading && messages.length === 0}
+          emptyText="Aucun message signalÃ©."
+        >
+          {messages.map((msg) => (
+            <tr key={msg.id} className="hover:bg-slate-50 transition-colors">
+              <td className="py-3 px-4 max-w-sm">
+                <p className="text-sm text-slate-700 truncate">{msg.content}</p>
+              </td>
+              <td className="py-3 px-4 font-mono text-xs text-slate-400">{msg.authorId.slice(0, 8)}â€¦</td>
+              <td className="py-3 px-4 text-center">
+                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${
+                  msg.reportCount >= 5 ? "bg-red-100 text-red-700" :
+                  msg.reportCount >= 2 ? "bg-amber-100 text-amber-700" :
+                  "bg-slate-100 text-slate-600"
+                }`}>
+                  {msg.reportCount}
+                </span>
+              </td>
+              <td className="py-3 px-4 text-xs text-slate-400">
+                {new Date(msg.createdAt).toLocaleDateString("fr-CA")}
+              </td>
+            </tr>
+          ))}
+        </AdminTable>
+      )}
+    </div>
   );
 }
+
+
+

@@ -45,16 +45,53 @@ class Circuit {
         'durationSeconds': durationSeconds,
       };
 
+  /// Encode les waypoints en polyline string (simplifié, compatible serveur).
+  String? _encodePolyline() {
+    if (waypoints.isEmpty) return null;
+    final buffer = StringBuffer();
+    int prevLat = 0, prevLng = 0;
+    for (final p in waypoints) {
+      final lat = ((p['lat'] as double? ?? 0.0) * 1e5).round();
+      final lng = ((p['lng'] as double? ?? 0.0) * 1e5).round();
+      _encode(buffer, lat - prevLat);
+      _encode(buffer, lng - prevLng);
+      prevLat = lat;
+      prevLng = lng;
+    }
+    return buffer.toString();
+  }
+
+  static void _encode(StringBuffer buffer, int value) {
+    int v = value < 0 ? ~(value << 1) : value << 1;
+    while (v >= 0x20) {
+      buffer.writeCharCode((0x20 | (v & 0x1f)) + 63);
+      v >>= 5;
+    }
+    buffer.writeCharCode(v + 63);
+  }
+
   Map<String, dynamic> toCreateTripPrefill() => <String, dynamic>{
         'circuitId': id,
         'circuitLabel': label,
         'departureLabel': departureLabel,
         'arrivalLabel': arrivalLabel,
-        'waypoints': waypoints,
-        'estimatedDistanceMeters': distanceMeters,
-        'estimatedDurationSeconds': durationSeconds,
-        if (waypoints.isNotEmpty) 'departureCoordinates': waypoints.first,
-        if (waypoints.isNotEmpty) 'arrivalCoordinates': waypoints.last,
+        'departureLat': waypoints.isNotEmpty
+            ? (waypoints.first['lat'] as double? ?? 0.0)
+            : 0.0,
+        'departureLng': waypoints.isNotEmpty
+            ? (waypoints.first['lng'] as double? ?? 0.0)
+            : 0.0,
+        'arrivalLat': waypoints.isNotEmpty
+            ? (waypoints.last['lat'] as double? ?? 0.0)
+            : 0.0,
+        'arrivalLng': waypoints.isNotEmpty
+            ? (waypoints.last['lng'] as double? ?? 0.0)
+            : 0.0,
+        'estimatedDistanceKm':
+            distanceMeters > 0 ? (distanceMeters / 1000.0) : 0.0,
+        'estimatedDurationMinutes':
+            durationSeconds > 0 ? (durationSeconds / 60.0).round() : 0,
+        'polyline': _encodePolyline(),
         if (tripId != null) 'tripId': tripId,
       };
 }

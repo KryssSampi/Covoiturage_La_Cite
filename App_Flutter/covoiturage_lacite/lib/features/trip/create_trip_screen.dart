@@ -146,6 +146,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
   int _estimatedDurationMinutes = 0;
   double _estimatedDistanceKm = 0;
   List<Map<String, double>> _routePoints = [];
+  String? _polylineString;
   bool _isCalculatingRoute = false;
 
   // ── Toast ────────────────────────────────────────────────
@@ -225,6 +226,35 @@ class _CreateTripScreenState extends State<CreateTripScreen>
         _departureDate = parsed;
         _departureTime = TimeOfDay.fromDateTime(parsed);
       }
+    }
+
+    // Données géo calculées depuis le circuit sélectionné
+    final prefillDistance = _toNullableDouble(p['estimatedDistanceKm']);
+    if (prefillDistance != null && prefillDistance > 0) {
+      _estimatedDistanceKm = prefillDistance;
+    }
+
+    final prefillDuration = _toNullableDouble(p['estimatedDurationMinutes']);
+    if (prefillDuration != null && prefillDuration > 0) {
+      _estimatedDurationMinutes = prefillDuration.round();
+    }
+
+    // Polyline / waypoints
+    final dynamic pl = p['polyline'];
+    if (pl is String && pl.isNotEmpty) {
+      _polylineString = pl;
+    }
+
+    final dynamic wp = p['waypoints'] ?? p['polyline'];
+    if (wp is List && wp.isNotEmpty) {
+      _routePoints = wp
+          .whereType<Map<String, dynamic>>()
+          .map((p) => <String, double>{
+                'lat': (p['lat'] as num?)?.toDouble() ?? 0.0,
+                'lng': (p['lng'] as num?)?.toDouble() ?? 0.0,
+              })
+          .where((p) => p['lat'] != 0 || p['lng'] != 0)
+          .toList();
     }
   }
 
@@ -345,6 +375,14 @@ class _CreateTripScreenState extends State<CreateTripScreen>
     final dep = _departure;
     final arr = _arrival;
     if (dep == null || arr == null) return;
+
+    // Si la route est déjà pré-remplie (circuit), ne pas recalculer
+    if (_routePoints.isNotEmpty &&
+        _estimatedDistanceKm > 0 &&
+        _estimatedDurationMinutes > 0) {
+      return;
+    }
+
     setState(() => _isCalculatingRoute = true);
     try {
       final points = await _ors.routeBetweenCoords(
@@ -511,6 +549,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             _noteCtrl.text.trim().isEmpty ? null : _noteCtrl.text.trim(),
         estimatedDurationMinutes: _estimatedDurationMinutes,
         estimatedDistanceKm: _estimatedDistanceKm,
+        polyline: _polylineString,
         recurrenceDays: recurrenceDays,
         recurrenceEndDate: recurrenceEndDateStr,
         publish: publish,

@@ -8,6 +8,7 @@ import { FaBan } from 'react-icons/fa6';
 import { PublishedTripViewData, ReserveButtonState, ViewerRole } from '../../../types/published-trip.view.types';
 import { ReserveButton } from '../ui/ReserveButton';
 import { TripHeaderCard } from '@/shared/components/trip-header-card/TripHeaderCard';
+import { utcToLocalDateIso, utcToLocalTime } from '@/core/utils/date.utils';
 import { Language, useAppState } from '@/core/state/app_state';
 
 interface TripSummaryCardProps {
@@ -40,6 +41,9 @@ export const TripSummaryCard: React.FC<TripSummaryCardProps> = ({
       ? (isFR ? 'Admin' : 'Admin')
       : (isFR ? 'Vue passager' : 'Passenger view');
 
+  const localDate = utcToLocalDateIso(trip.departureDate, trip.departureTime);
+  const localTime = utcToLocalTime(trip.departureDate, trip.departureTime);
+
   return (
     <TripHeaderCard
       title={`${trip.departure.label} → ${trip.arrival.label}`}
@@ -55,8 +59,8 @@ export const TripSummaryCard: React.FC<TripSummaryCardProps> = ({
         imageUrl: trip.vehicle.imageUrl,
       }}
       price={viewerRole === 'passenger' ? trip.passengerPrice : trip.pricePerPassenger}
-      departureDate={trip.departureDate}
-      departureTime={trip.departureTime}
+      departureDate={localDate}
+      departureTime={localTime}
       availableSeats={trip.availableSeats}
       roleLabel={roleLabel}
       className="mx-4 -mt-6 relative z-10"

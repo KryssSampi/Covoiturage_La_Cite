@@ -3,6 +3,7 @@ using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Auth;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Sse;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Entities;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
@@ -21,6 +22,7 @@ public class UserService : IUserService
     private readonly AppDbContext _db;
     private readonly ILogger<UserService> _logger;
     private readonly IGoTaskService _goTasks;
+    private readonly SseChannelService _sse;
 
     public UserService(
         IUserRepository userRepository,
@@ -31,7 +33,8 @@ public class UserService : IUserService
         IEmailService emailService,
         AppDbContext db,
         ILogger<UserService> logger,
-        IGoTaskService goTasks)
+        IGoTaskService goTasks,
+        SseChannelService sse)
     {
         _userRepository = userRepository;
         _ssoService = ssoService;
@@ -42,6 +45,7 @@ public class UserService : IUserService
         _db = db;
         _logger = logger;
         _goTasks = goTasks;
+        _sse = sse;
     }
 
     // ── Auth SSO ─────────────────────────────────────────────────────────────
@@ -76,6 +80,7 @@ public class UserService : IUserService
             await _userRepository.AddAsync(user, ct);
             await _provisioning.ProvisionAsync(user.Id, ct);
             isNew = true;
+            _sse.PublishResourceUpdated(user.Id, "account", "created", new { userId = user.Id });
             _logger.LogInformation("Nouvel utilisateur créé: {Email}", user.Email);
         }
 
@@ -151,6 +156,7 @@ public class UserService : IUserService
             await _userRepository.AddAsync(user, ct);
             await _provisioning.ProvisionAsync(user.Id, ct);
             isNew = true;
+            _sse.PublishResourceUpdated(user.Id, "account", "created", new { userId = user.Id });
             _logger.LogInformation("[TESTMODE] Nouvel utilisateur test créé: {Email}", email);
         }
 
@@ -428,6 +434,7 @@ public class UserService : IUserService
 
         user.UpdatedAt = DateTimeOffset.UtcNow;
         await _userRepository.UpdateAsync(user, ct);
+        _sse.PublishResourceUpdated(userId, "profile", "updated");
 
         // GoTask GT-003 — Profil complet (AvatarUrl + PhoneNumber + Bio)
         if (!string.IsNullOrWhiteSpace(user.AvatarUrl) &&
@@ -562,5 +569,6 @@ public class UserService : IUserService
         user.DisabledOtpAt = disabledOtp ? DateTimeOffset.UtcNow : null;
         user.UpdatedAt = DateTimeOffset.UtcNow;
         await _db.SaveChangesAsync(ct);
+        _sse.PublishResourceUpdated(userId, "security", "otp-preference-updated", new { disabledOtp });
     }
 }

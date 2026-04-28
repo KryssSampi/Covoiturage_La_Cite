@@ -187,15 +187,19 @@ class _PlannerScreenState extends State<PlannerScreen> {
           final String timeLabel = dt != null
               ? '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}'
               : '';
-          final int total = (t['totalSeats'] as num?)?.toInt() ?? 0;
-          final int available = (t['availableSeats'] as num?)?.toInt() ?? 0;
+          // TrajetResponseDto : maxPassengers + currentPassengers
+          final int maxPax = (t['maxPassengers'] as num?)?.toInt() ??
+              (t['totalSeats'] as num?)?.toInt() ?? 0;
+          final int currentPax = (t['currentPassengers'] as num?)?.toInt() ??
+              (t['availableSeats'] as num?)?.toInt() ?? 0;
           return _DriverRide(
             id: t['id']?.toString() ?? '',
             time: timeLabel,
             from: t['departureLabel']?.toString() ?? '',
             to: t['arrivalLabel']?.toString() ?? '',
-            passengerLabel: '${total - available}/$total passagers',
-            price: (t['pricePerSeat'] as num?)?.toDouble() ??
+            passengerLabel: '$currentPax/$maxPax passagers',
+            price: (t['pricePerPassenger'] as num?)?.toDouble() ??
+                (t['pricePerSeat'] as num?)?.toDouble() ??
                 (t['passengerPrice'] as num?)?.toDouble() ??
                 (t['price'] as num?)?.toDouble() ??
                 0,
@@ -263,6 +267,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
         ? row['driver'] as Map<String, dynamic>
         : null;
 
+    // Extraction date : TrajetResponseDto/TripSummaryDto envoient departureDate + departureTime
     final DateTime? departureTime = _toDateTime(
       _extractTripDateValue(
         trip,
@@ -301,8 +306,9 @@ class _PlannerScreenState extends State<PlannerScreen> {
         lastName: driver?['lastName']?.toString(),
         fallback: 'Conducteur',
       ),
-      price: _toDouble(trip?['passengerPrice'] ??
-          trip?['pricePerPassenger'] ??
+      price: _toDouble(trip?['pricePerPassenger'] ??
+          trip?['passengerPrice'] ??
+          trip?['pricePerSeat'] ??
           trip?['price']),
       status: _toPassengerStatus(status),
       dateTime: departureTime,
@@ -2085,25 +2091,34 @@ dynamic _extractTripDateValue(
   Map<String, dynamic>? fallback,
   Map<String, dynamic>? root,
 }) {
+  // Le serveur .NET envoie DateOnly + TimeOnly séparés (departureDate + departureTime)
+  // On les combine en ISO 8601 avant tout fallback obsolète.
   final dynamic combined =
       trip?['departureDate'] != null && trip?['departureTime'] != null
           ? '${trip!['departureDate']}T${trip['departureTime']}'
           : null;
+  final dynamic fallbackCombined =
+      fallback?['departureDate'] != null && fallback?['departureTime'] != null
+          ? '${fallback!['departureDate']}T${fallback['departureTime']}'
+          : null;
+  final dynamic rootCombined =
+      root?['departureDate'] != null && root?['departureTime'] != null
+          ? '${root!['departureDate']}T${root['departureTime']}'
+          : null;
 
-  return trip?['departureDateTime'] ??
-      trip?['departureTime'] ??
+  return combined ??
+      trip?['departureDateTime'] ??
       trip?['startTime'] ??
       trip?['dateTime'] ??
       trip?['plannedStartAt'] ??
       trip?['startsAt'] ??
       trip?['date'] ??
       trip?['tripDate'] ??
-      combined ??
+      fallbackCombined ??
       fallback?['departureDateTime'] ??
-      fallback?['departureTime'] ??
       fallback?['startTime'] ??
+      rootCombined ??
       root?['departureDateTime'] ??
-      root?['departureTime'] ??
       root?['startTime'];
 }
 

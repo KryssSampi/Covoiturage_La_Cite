@@ -151,13 +151,60 @@ public class SosEscalationJob
 /// </summary>
 public class EtaRecalculationJob
 {
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<EtaRecalculationJob> _logger;
-    public EtaRecalculationJob(ILogger<EtaRecalculationJob> logger) => _logger = logger;
-
-    public Task ExecuteAsync()
+    public EtaRecalculationJob(IServiceScopeFactory scopeFactory, ILogger<EtaRecalculationJob> logger)
     {
-        // TODO: Intégrer OSRM pour recalcul ETA dynamique
-        _logger.LogDebug("EtaRecalculation: stub — intégrer OSRM");
-        return Task.CompletedTask;
+        _scopeFactory = scopeFactory;
+        _logger = logger;
+    }
+
+    public async Task ExecuteAsync()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var trips = await db.Trips
+            .Where(t => t.Status == TripStatus.InProgress)
+            .ToListAsync();
+
+        var updated = 0;
+        foreach (var trip in trips)
+        {
+            var lastGps = await db.GpsPositions
+                .Where(g => g.TripId == trip.Id)
+                .OrderByDescending(g => g.CapturedAt)
+                .FirstOrDefaultAsync();
+            if (lastGps == null) continue;
+
+            var distanceKm = DistanceKm(
+                lastGps.Location.Y, lastGps.Location.X,
+                trip.ArrivalPoint.Y, trip.ArrivalPoint.X);
+
+            var speedKmh = (double)Math.Max(10m, lastGps.SpeedKmh);
+            var etaHours = distanceKm / speedKmh;
+            var eta = DateTimeOffset.UtcNow.AddHours(Math.Clamp(etaHours, 0, 8));
+            trip.EstimatedArrivalTime = TimeOnly.FromDateTime(eta.UtcDateTime);
+            trip.UpdatedAt = DateTimeOffset.UtcNow;
+            updated++;
+        }
+
+        if (updated > 0)
+        {
+            await db.SaveChangesAsync();
+            _logger.LogInformation("EtaRecalculation: ETA mis a jour pour {Count} trajets", updated);
+        }
+    }
+
+    private static double DistanceKm(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double r = 6371.0;
+        var dLat = (lat2 - lat1) * Math.PI / 180.0;
+        var dLon = (lon2 - lon1) * Math.PI / 180.0;
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2)
+            + Math.Cos(lat1 * Math.PI / 180.0) * Math.Cos(lat2 * Math.PI / 180.0)
+            * Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        return r * c;
     }
 }

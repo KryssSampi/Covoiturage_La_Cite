@@ -2,6 +2,7 @@ using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Trip;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Sse;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -19,15 +20,17 @@ public class TrajetService : ITrajetService
     private readonly INotificationService _notifications;
     private readonly ILogger<TrajetService> _logger;
     private readonly AppDbContext _db;
+    private readonly SseChannelService _sse;
     private static readonly GeometryFactory _gf = new(new PrecisionModel(), 4326);
 
-    public TrajetService(ITrajetRepository repo, IGoTaskService goTasks, INotificationService notifications, ILogger<TrajetService> logger, AppDbContext db)
+    public TrajetService(ITrajetRepository repo, IGoTaskService goTasks, INotificationService notifications, ILogger<TrajetService> logger, AppDbContext db, SseChannelService sse)
     {
         _repo = repo;
         _goTasks = goTasks;
         _notifications = notifications;
         _logger = logger;
         _db = db;
+        _sse = sse;
     }
 
     // ── Lecture ───────────────────────────────────────────────────────────────
@@ -223,6 +226,7 @@ public class TrajetService : ITrajetService
 
         // Notifier les abonnés SurveyTripAlert
         FireSurveyTripAlertNotifications(trip, ct);
+        PublishTripChanged(driverId, trip.Id, "created");
 
         return MapToResponse(trip);
     }
@@ -275,6 +279,7 @@ public class TrajetService : ITrajetService
 
         trip.UpdatedAt = DateTimeOffset.UtcNow;
         await _repo.UpdateAsync(trip, ct);
+        PublishTripChanged(driverId, trip.Id, "updated");
         return MapToResponse(trip);
     }
 
@@ -296,6 +301,7 @@ public class TrajetService : ITrajetService
 
         // Notifier les abonnés SurveyTripAlert
         FireSurveyTripAlertNotifications(trip, ct);
+        PublishTripChanged(driverId, trip.Id, "published");
         return MapToResponse(trip);
     }
 
@@ -353,6 +359,7 @@ public class TrajetService : ITrajetService
         trip.ActualStartedAt = DateTimeOffset.UtcNow;
         trip.UpdatedAt = DateTimeOffset.UtcNow;
         await _repo.UpdateAsync(trip, ct);
+        PublishTripChanged(driverId, trip.Id, "started");
 
         // Notifier tous les passagers confirmés — trajet démarré
         try
@@ -465,6 +472,7 @@ public class TrajetService : ITrajetService
         {
             _logger.LogError(ex, "[TrajetService] Erreur side effects complétion — trip {Id}", trip.Id);
         }
+        PublishTripChanged(driverId, trip.Id, "completed");
         return MapToResponse(trip);
     }
 
@@ -479,6 +487,7 @@ public class TrajetService : ITrajetService
         trip.DriverNote = reason ?? trip.DriverNote;
         trip.UpdatedAt = DateTimeOffset.UtcNow;
         await _repo.UpdateAsync(trip, ct);
+        PublishTripChanged(driverId, trip.Id, "cancelled");
 
         // Cascade : annuler toutes les réservations actives + notifier les passagers
         try
@@ -523,6 +532,12 @@ public class TrajetService : ITrajetService
         }
 
         _logger.LogInformation("Trajet annulé: {TripId}, raison: {Reason}", tripId, reason);
+    }
+
+    private void PublishTripChanged(Guid driverId, Guid tripId, string action)
+    {
+        _sse.PublishResourceUpdated(driverId, "trips", action, new { tripId });
+        _sse.PublishResourceUpdated(driverId, "driver-dashboard", "refresh", new { tripId, action });
     }
 
     // ── Helpers privés ───────────────────────────────────────────────────────

@@ -47,4 +47,15 @@ public class SseChannelService
         var message = $"event: {eventName}\ndata: {json}\n\n";
         channel.Writer.TryWrite(message);
     }
+
+    public void PublishResourceUpdated(Guid userId, string resource, string action, object? metadata = null)
+    {
+        Publish(userId, "resource-updated", new
+        {
+            resource,
+            action,
+            at = DateTimeOffset.UtcNow,
+            metadata
+        });
+    }
 }

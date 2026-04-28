@@ -72,6 +72,45 @@ class OrsRouteService {
     return items.first;
   }
 
+  /// Reverse geocoding — trouve le label d'une adresse à partir de coordonnées.
+  Future<OrsPlaceSuggestion?> reverseGeocode(double lat, double lng) async {
+    try {
+      final Response<dynamic> response = await _dio.get<dynamic>(
+        'https://nominatim.openstreetmap.org/reverse',
+        queryParameters: <String, dynamic>{
+          'lat': lat,
+          'lon': lng,
+          'format': 'jsonv2',
+          'addressdetails': 1,
+        },
+        options: Options(
+          headers: <String, dynamic>{
+            'User-Agent': 'CovoiturageLaCiteMobile/1.0',
+          },
+        ),
+      );
+
+      final dynamic data = response.data;
+      if (data is! Map<String, dynamic>) return null;
+
+      final String displayName =
+          data['display_name']?.toString().trim() ?? '';
+      if (displayName.isEmpty) return null;
+
+      final double? respLat = _toNullableDouble(data['lat']);
+      final double? respLng = _toNullableDouble(data['lon']);
+      if (respLat == null || respLng == null) return null;
+
+      return OrsPlaceSuggestion(
+        label: displayName,
+        lat: respLat,
+        lng: respLng,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> routeBetweenLabels({
     required String fromText,
     required String toText,

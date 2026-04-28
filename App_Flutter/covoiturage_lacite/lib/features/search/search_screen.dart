@@ -298,8 +298,18 @@ class _SearchScreenState extends State<SearchScreen> {
         desiredAccuracy: LocationAccuracy.bestForNavigation,
       );
 
-      final String label =
-          'Votre position (${position.latitude.toStringAsFixed(5)}, ${position.longitude.toStringAsFixed(5)})';
+      // Reverse geocoding pour trouver le vrai nom du lieu
+      String label = 'Votre position';
+      try {
+        final OrsPlaceSuggestion? place = await OrsRouteService.instance
+            .reverseGeocode(position.latitude, position.longitude);
+        if (place != null && place.label.isNotEmpty) {
+          label = place.label;
+        }
+      } catch (_) {
+        // Fallback silencieux
+      }
+
       final OrsPlaceSuggestion currentLocation = OrsPlaceSuggestion(
         label: label,
         lat: position.latitude,

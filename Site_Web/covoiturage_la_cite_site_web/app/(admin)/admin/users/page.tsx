@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUsersAction, suspendUserAction, AdminUser } from "@/features/admin/services/admin.users.actions";
+import { getUsersAction, suspendUserAction, AdminUser } from "@/features/admin/services/admin.actions";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);

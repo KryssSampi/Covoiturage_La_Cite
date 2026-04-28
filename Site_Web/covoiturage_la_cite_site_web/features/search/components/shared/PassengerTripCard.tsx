@@ -14,22 +14,24 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Trip } from "@/features/dashboard/types/trip.types";
 import { MatchingScore } from "@/features/search/types/search.feature.types";
+
 import {
   FaLocationDot, FaFlag, FaCalendarDays, FaClock, FaStar,
   FaUserGroup, FaArrowRight,
 } from "react-icons/fa6";
+import { utcToLocalDateIso, utcToLocalTime, formatDate as formatDateUtil } from "@/core/utils/date.utils";
 
 interface PassengerTripCardProps {
   trip:   Trip;
   score?: MatchingScore;
 }
 
-function formatDate(dateStr: string): string {
-  try {
-    return new Date(dateStr).toLocaleDateString("fr-CA", {
-      weekday: "short", day: "2-digit", month: "short",
-    });
-  } catch { return dateStr; }
+
+// Utilise la conversion locale UTC → local
+function formatDate(date: string, time?: string): string {
+  const localIso = utcToLocalDateIso(date, time ?? "00:00");
+  const localTime = utcToLocalTime(date, time ?? "00:00");
+  return `${formatDateUtil(localIso, "fr", localTime)}${time ? ` · ${localTime}` : ""}`;
 }
 
 function matchColor(score: number): { bg: string; color: string; label: string } {
@@ -138,16 +140,11 @@ export function PassengerTripCard({ trip, score }: PassengerTripCardProps) {
 
       {/* Date et heure */}
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+
         <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#5a6a85" }}>
           <FaCalendarDays size={11} color="#08316e" />
-          {formatDate(trip.date)}
+          {formatDate(trip.date, trip.time)}
         </span>
-        {trip.time && (
-          <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#5a6a85" }}>
-            <FaClock size={11} color="#08316e" />
-            <strong style={{ color: "#1a2a45" }}>{trip.time}</strong>
-          </span>
-        )}
         <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#5a6a85", marginLeft: "auto" }}>
           <FaUserGroup size={11} color={seatsLeft > 0 ? "#2e7d32" : "#c62828"} />
           <span style={{

@@ -13,6 +13,7 @@ public class UserActivity
     [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; set; } = ObjectId.GenerateNewId().ToString();
 
+    [BsonGuidRepresentation(GuidRepresentation.Standard)]
     public Guid UserId { get; set; }
 
     public DateTimeOffset LastSeenAt { get; set; } = DateTimeOffset.UtcNow;

@@ -1,45 +1,81 @@
-import { SERVER_CORE_URL } from "@/server/config";
+﻿import { cookies } from "next/headers";
 
-type WrappedResponse<T> = {
-  success?: boolean;
-  message?: string;
-  errors?: string[];
-  data?: T;
-};
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 
-export async function adminFetch<T>(
+export class AdminApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "AdminApiError";
+  }
+}
+
+async function getAuthToken(): Promise<string> {
+  const store = await cookies();
+  const token = store.get("sc_token")?.value ?? store.get("auth_token")?.value;
+  if (!token) throw new AdminApiError(401, "Non authentifie");
+  return token;
+}
+
+export async function adminFetch<T = unknown>(
   path: string,
   options: RequestInit = {},
-  token?: string
+  token?: string,
 ): Promise<T> {
-  const res = await fetch(`${SERVER_CORE_URL}${path}`, {
+  const bearer = token ?? await getAuthToken();
+
+  const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
-      Accept: "application/json",
       "Content-Type": "application/json",
+      Authorization: `Bearer ${bearer}`,
       ...(options.headers ?? {}),
-      ...(token && { Authorization: `Bearer ${token}` }),
     },
     cache: "no-store",
   });
 
-  const json = (await res.json().catch(() => null)) as WrappedResponse<T> | T | null;
-
   if (!res.ok) {
-    const message =
-      (json as WrappedResponse<T> | null)?.message ??
-      `Admin API error (${res.status})`;
-    throw new Error(message);
+    let message = `Erreur serveur (${res.status})`;
+    try {
+      const body = (await res.json()) as { message?: string; title?: string };
+      message = body.message ?? body.title ?? message;
+    } catch {
+      // keep default message
+    }
+    throw new AdminApiError(res.status, message);
   }
 
-  if (
-    json &&
-    typeof json === "object" &&
-    "success" in json &&
-    "data" in json
-  ) {
-    return (json as WrappedResponse<T>).data as T;
-  }
+  if (res.status === 204) return undefined as T;
+  return res.json() as Promise<T>;
+}
 
-  return json as T;
+export async function adminGet<T = unknown>(path: string): Promise<T> {
+  return adminFetch<T>(path);
+}
+
+export async function adminPost<T = unknown>(path: string, body?: unknown): Promise<T> {
+  return adminFetch<T>(path, {
+    method: "POST",
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+}
+
+export async function adminPut<T = unknown>(path: string, body?: unknown): Promise<T> {
+  return adminFetch<T>(path, {
+    method: "PUT",
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+}
+
+export async function adminPatch<T = unknown>(path: string, body?: unknown): Promise<T> {
+  return adminFetch<T>(path, {
+    method: "PATCH",
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+}
+
+export async function adminDelete<T = unknown>(path: string): Promise<T> {
+  return adminFetch<T>(path, { method: "DELETE" });
 }

@@ -6,7 +6,7 @@ import {
   approveVehicleAction,
   rejectVehicleAction,
   Vehicle,
-} from "@/features/admin/services/admin.vehicles.actions";
+} from "@/features/admin/services/admin.actions";
 
 export default function AdminVehiclesPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);

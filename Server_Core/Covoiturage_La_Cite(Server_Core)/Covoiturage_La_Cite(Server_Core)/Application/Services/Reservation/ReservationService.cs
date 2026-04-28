@@ -2,6 +2,7 @@ using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Reservation;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
+using Covoiturage_La_Cite_Server_Core_.Application.Services.Sse;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
 using Covoiturage_La_Cite_Server_Core_.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ public class ReservationService : IReservationService
     private readonly IGoTaskService _goTasks;
     private readonly INotificationService _notifications;
     private readonly AppDbContext _db;
+    private readonly SseChannelService _sse;
     private readonly ILogger<ReservationService> _logger;
 
     public ReservationService(
@@ -23,6 +25,7 @@ public class ReservationService : IReservationService
         IGoTaskService goTasks,
         INotificationService notifications,
         AppDbContext db,
+        SseChannelService sse,
         ILogger<ReservationService> logger)
     {
         _repo = repo;
@@ -30,6 +33,7 @@ public class ReservationService : IReservationService
         _goTasks = goTasks;
         _notifications = notifications;
         _db = db;
+        _sse = sse;
         _logger = logger;
     }
 
@@ -165,6 +169,7 @@ catch (Exception ex)
 
 // GoTask trigger — GT-012 : première réservation passager
 _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
+        PublishReservationChanged(reservation.PassengerId, reservation.DriverId, reservation.TripId, "created");
 
         return MapToResponse(reservation);
     }
@@ -196,7 +201,12 @@ _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
             trip.Status = TripStatus.Full;
 
         await _repo.UpdateAsync(reservation, ct);
+        PublishReservationChanged(reservation.PassengerId, reservation.DriverId, reservation.TripId, "refused");
         await _trajetRepo.UpdateAsync(trip, ct);
+
+        // Auto-annulation des autres demandes en attente du mÃªme passager.
+        await CancelAllPendingAsync(reservation.PassengerId, ct);
+        PublishReservationChanged(reservation.PassengerId, reservation.DriverId, reservation.TripId, "accepted");
 
         // Notifier le passager — réservation confirmée
         try
@@ -311,6 +321,7 @@ _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
 
             await _trajetRepo.UpdateAsync(trip, ct);
         }
+        PublishReservationChanged(reservation.PassengerId, reservation.DriverId, reservation.TripId, "cancelled");
 
         // Notifier l'autre partie de l'annulation
         try
@@ -380,6 +391,7 @@ _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
 
         reservation.UpdatedAt = DateTimeOffset.UtcNow;
         await _repo.UpdateAsync(reservation, ct);
+        PublishReservationChanged(reservation.PassengerId, reservation.DriverId, reservation.TripId, "boarding-driver");
 
         return MapToResponse(reservation);
     }
@@ -401,6 +413,7 @@ _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
 
         reservation.UpdatedAt = DateTimeOffset.UtcNow;
         await _repo.UpdateAsync(reservation, ct);
+        PublishReservationChanged(reservation.PassengerId, reservation.DriverId, reservation.TripId, "boarding-passenger");
 
         return MapToResponse(reservation);
     }
@@ -418,7 +431,15 @@ _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
             reservation.CancelledAt = DateTimeOffset.UtcNow;
             reservation.UpdatedAt = DateTimeOffset.UtcNow;
             await _repo.UpdateAsync(reservation, ct);
+            PublishReservationChanged(reservation.PassengerId, reservation.DriverId, reservation.TripId, "cancelled-by-auto");
         }
+    }
+
+    private void PublishReservationChanged(Guid passengerId, Guid driverId, Guid tripId, string action)
+    {
+        _sse.PublishResourceUpdated(passengerId, "reservations", action, new { tripId });
+        _sse.PublishResourceUpdated(driverId, "driver-requests", action, new { tripId, passengerId });
+        _sse.PublishResourceUpdated(driverId, "trips", "occupancy-changed", new { tripId });
     }
 
     // -- Mapping privé --------------------------------------------------------

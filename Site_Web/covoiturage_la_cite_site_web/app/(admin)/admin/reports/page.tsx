@@ -6,7 +6,7 @@ import {
   updateReportStatusAction,
   dismissReportAction,
   Report,
-} from "@/features/admin/services/admin.reports.actions";
+} from "@/features/admin/services/admin.actions";
 
 export default function AdminReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);

@@ -10,7 +10,7 @@ import {
   FinanceData,
   Transaction,
   Penalty,
-} from "@/features/admin/services/admin.finance.actions";
+} from "@/features/admin/services/admin.actions";
 
 export default function AdminFinancePage() {
   const [analytics, setAnalytics] = useState<FinanceData | null>(null);
