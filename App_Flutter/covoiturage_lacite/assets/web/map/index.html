@@ -49,15 +49,28 @@
       return points
         .map((p) => {
           if (Array.isArray(p) && p.length >= 2) {
-            const lat = Number(p[0]);
-            const lng = Number(p[1]);
+            let first = Number(p[0]);
+            let second = Number(p[1]);
+            if (!Number.isFinite(first) || !Number.isFinite(second)) return null;
+
+            // Accepte [lat,lng] et [lng,lat]. Si ambigu, on prefere [lng,lat]
+            // car les APIs de routing retournent souvent ce format.
+            let lat = first;
+            let lng = second;
+            const looksLikeLngLat = Math.abs(first) > 60 && Math.abs(second) <= 90;
+            if (looksLikeLngLat) {
+              lat = second;
+              lng = first;
+            }
             if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+            if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
             return { lat, lng };
           }
           if (p && typeof p === 'object') {
             const lat = Number(p.lat ?? p.latitude ?? 0);
             const lng = Number(p.lng ?? p.lon ?? p.longitude ?? 0);
             if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+            if (Math.abs(lat) > 90 || Math.abs(lng) > 180) return null;
             return { lat, lng };
           }
           return null;
@@ -78,11 +91,15 @@
       const latLngs = normalize(points).map((p) => [p.lat, p.lng]);
       if (latLngs.length === 0) return;
 
-      routeLayer = L.polyline(latLngs, {
-        color: '#1A56CC',
-        weight: 5,
-        opacity: 0.9,
-      }).addTo(map);
+      try {
+        routeLayer = L.polyline(latLngs, {
+          color: '#1A56CC',
+          weight: 5,
+          opacity: 0.9,
+        }).addTo(map);
+      } catch (_) {
+        return;
+      }
 
       const start = latLngs[0];
       const end = latLngs[latLngs.length - 1];
@@ -115,7 +132,8 @@
       const i = Math.max(0, Math.min(index, circuits.length - 1));
       activeIndex = i;
       const c = circuits[i] || {};
-      drawRoute(c.waypoints || c.points || [], true);
+      const pts = c.points || c.waypoints || c.polyline || c.latLngs || [];
+      drawRoute(pts, true);
       notify('CIRCUIT_SELECTED', { index: i, id: c.id || '' });
     }
 

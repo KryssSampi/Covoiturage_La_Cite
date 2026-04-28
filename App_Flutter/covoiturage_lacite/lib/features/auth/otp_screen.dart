@@ -24,6 +24,9 @@ class OtpScreen extends StatefulWidget {
 }
 
 class _OtpScreenState extends State<OtpScreen> {
+  static const int _otpValiditySeconds = 300;
+  static const int _resendCooldownSeconds = 30;
+
   final AuthService _auth = AuthService(ApiService.instance);
 
   final TextEditingController _passwordController = TextEditingController();
@@ -35,21 +38,25 @@ class _OtpScreenState extends State<OtpScreen> {
 
   bool _isLoading = false;
   String? _errorMessage;
-  int _remainingSeconds = 300;
+  int _otpValidityRemaining = _otpValiditySeconds;
+  int _resendCooldownRemaining = 0;
+  int _remainingResends = 3;
+  bool _showPassword = false;
+  bool _showRegisterPassword = false;
   Timer? _timer;
-  String _lastPassword = '';
 
   late _AuthStage _stage;
 
   bool get _isRegisterFlow => widget.mode == 'register_otp';
-  bool get _canResend => _remainingSeconds <= 0;
+  bool get _canResend => _resendCooldownRemaining <= 0 && _remainingResends > 0;
+  bool get _isOtpExpired => _otpValidityRemaining <= 0;
 
   @override
   void initState() {
     super.initState();
     _stage = _isRegisterFlow ? _AuthStage.otp : _AuthStage.password;
     if (_stage == _AuthStage.otp) {
-      _startTimer();
+      _enterOtpStage(resetValidity: true);
     }
   }
 
@@ -66,23 +73,70 @@ class _OtpScreenState extends State<OtpScreen> {
 
   void _startTimer() {
     _timer?.cancel();
-    setState(() => _remainingSeconds = 300);
     _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       if (!mounted) {
         t.cancel();
         return;
       }
-      if (_remainingSeconds <= 0) {
-        t.cancel();
-      } else {
-        setState(() => _remainingSeconds--);
+
+      bool changed = false;
+
+      if (_stage == _AuthStage.otp && _otpValidityRemaining > 0) {
+        _otpValidityRemaining--;
+        changed = true;
       }
+
+      if (_resendCooldownRemaining > 0) {
+        _resendCooldownRemaining--;
+        changed = true;
+      }
+
+      if (!changed) {
+        t.cancel();
+        return;
+      }
+
+      setState(() {});
     });
   }
 
-  String get _timerText {
-    final int m = _remainingSeconds ~/ 60;
-    final int s = _remainingSeconds % 60;
+  void _enterOtpStage({required bool resetValidity}) {
+    _timer?.cancel();
+    setState(() {
+      _stage = _AuthStage.otp;
+      _errorMessage = null;
+      if (resetValidity) {
+        _otpValidityRemaining = _otpValiditySeconds;
+      }
+      _resendCooldownRemaining = 0;
+    });
+    _startTimer();
+    unawaited(_syncOtpStatus());
+  }
+
+  Future<void> _syncOtpStatus() async {
+    final OtpStatusSnapshot? snapshot = await _auth.getOtpStatus();
+    if (!mounted || snapshot == null) return;
+
+    final DateTime? expiresAt = snapshot.otpExpiresAt;
+    final int seconds = expiresAt == null
+        ? _otpValiditySeconds
+        : expiresAt
+            .difference(DateTime.now())
+            .inSeconds
+            .clamp(0, 24 * 60 * 60)
+            .toInt();
+
+    setState(() {
+      _remainingResends = snapshot.remainingResends;
+      _otpValidityRemaining = seconds;
+    });
+    _startTimer();
+  }
+
+  String get _otpTimerText {
+    final int m = _otpValidityRemaining ~/ 60;
+    final int s = _otpValidityRemaining % 60;
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
@@ -99,7 +153,6 @@ class _OtpScreenState extends State<OtpScreen> {
     });
 
     try {
-      _lastPassword = password;
       final AuthStepResult result = await _auth.passwordLogin(password);
       if (!mounted) return;
 
@@ -112,25 +165,22 @@ class _OtpScreenState extends State<OtpScreen> {
         final int seconds = result.retryAfterSeconds ?? 0;
         setState(() {
           _errorMessage = seconds > 0
-              ? 'Compte temporairement bloqué ($seconds s)'
-              : (result.message ?? 'Compte temporairement bloqué');
+              ? 'Compte temporairement bloque ($seconds s)'
+              : (result.message ?? 'Compte temporairement bloque');
         });
         return;
       }
 
       if (result.requiresCode) {
-        setState(() {
-          _stage = _AuthStage.otp;
-          _errorMessage = null;
-        });
-        _startTimer();
+        _enterOtpStage(resetValidity: true);
       } else {
         setState(
             () => _errorMessage = result.message ?? 'Mot de passe invalide');
       }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() => _errorMessage = 'Erreur lors de la connexion');
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -138,6 +188,12 @@ class _OtpScreenState extends State<OtpScreen> {
 
   Future<void> _submitOtp() async {
     final String code = _otpController.text.trim();
+
+    if (_isOtpExpired) {
+      setState(() => _errorMessage = 'Code expire. Renvoyez un nouveau code.');
+      return;
+    }
+
     if (code.length < 4) {
       setState(() => _errorMessage = 'Code OTP invalide');
       return;
@@ -160,6 +216,7 @@ class _OtpScreenState extends State<OtpScreen> {
       if (result.requiresRegistration ||
           (_isRegisterFlow &&
               (result.message == null || result.message!.trim().isEmpty))) {
+        _timer?.cancel();
         setState(() {
           _stage = _AuthStage.register;
           _errorMessage = null;
@@ -207,147 +264,219 @@ class _OtpScreenState extends State<OtpScreen> {
             _errorMessage = result.message ?? 'Erreur lors de l\'inscription');
       }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() => _errorMessage = 'Erreur lors de l\'inscription');
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _resendCode() async {
-    if (!_canResend) return;
+    if (!_canResend || _isLoading) return;
 
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _resendCooldownRemaining = _resendCooldownSeconds;
     });
+    _startTimer();
 
     try {
-      if (_isRegisterFlow) {
-        await _auth.verifyEmail(widget.email);
-      } else if (_lastPassword.isNotEmpty) {
-        await _auth.passwordLogin(_lastPassword);
-      } else {
-        await _auth.verifyEmail(widget.email);
+      final RenewCodeResult result = await _auth.renewCode();
+
+      if (!mounted) return;
+      if (!result.success) {
+        setState(() {
+          _remainingResends = result.remainingResends;
+          _errorMessage = result.message ?? 'Impossible de renvoyer le code';
+        });
+        return;
       }
-      _startTimer();
-    } catch (_) {
-      if (mounted)
-        setState(() => _errorMessage = 'Impossible de renvoyer le code');
+
+      setState(() {
+        _remainingResends = result.remainingResends;
+        _otpValidityRemaining = _otpValiditySeconds;
+      });
+      await _syncOtpStatus();
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
+  void _goBack() {
+    if (_isLoading) return;
+
+    if (_stage == _AuthStage.register) {
+      setState(() {
+        _stage = _AuthStage.otp;
+        _errorMessage = null;
+      });
+      _startTimer();
+      return;
+    }
+
+    if (_stage == _AuthStage.otp && !_isRegisterFlow) {
+      _timer?.cancel();
+      setState(() {
+        _stage = _AuthStage.password;
+        _errorMessage = null;
+      });
+      return;
+    }
+
+    context.go('/login');
+  }
+
+  Future<bool> _handleSystemBack() async {
+    _goBack();
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 460),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => context.pop(),
-                    style:
-                        TextButton.styleFrom(alignment: Alignment.centerLeft),
-                    icon:
-                        const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
-                    label: const Text('Retour'),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _stage == _AuthStage.password
-                        ? 'Mot de passe'
-                        : _stage == _AuthStage.otp
-                            ? 'Code OTP'
-                            : 'Inscription',
-                    style: const TextStyle(
-                        fontSize: 26, fontWeight: FontWeight.w700),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    widget.email,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Color(0xFF6B7280)),
-                  ),
-                  const SizedBox(height: 24),
-                  if (_stage == _AuthStage.password) ...[
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: _fieldDecoration('Mot de passe'),
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (_) => _submitPassword(),
-                    ),
-                    const SizedBox(height: 14),
-                    _actionButton('Continuer', _submitPassword),
-                  ],
-                  if (_stage == _AuthStage.otp) ...[
-                    TextField(
-                      controller: _otpController,
-                      keyboardType: TextInputType.number,
-                      decoration: _fieldDecoration('Code OTP'),
-                      textInputAction: TextInputAction.done,
-                      onSubmitted: (_) => _submitOtp(),
+    return WillPopScope(
+      onWillPop: _handleSystemBack,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8F9FA),
+        body: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 460),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    TextButton.icon(
+                      onPressed: _goBack,
+                      style:
+                          TextButton.styleFrom(alignment: Alignment.centerLeft),
+                      icon:
+                          const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
+                      label: const Text('Retour'),
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      _canResend
-                          ? 'Vous pouvez renvoyer un code.'
-                          : 'Renvoi possible dans $_timerText',
-                      textAlign: TextAlign.center,
+                      _stage == _AuthStage.password
+                          ? 'Mot de passe'
+                          : _stage == _AuthStage.otp
+                              ? 'Code OTP'
+                              : 'Inscription',
                       style: const TextStyle(
-                          color: Color(0xFF6B7280), fontSize: 12),
-                    ),
-                    const SizedBox(height: 12),
-                    _actionButton('Vérifier', _submitOtp),
-                    const SizedBox(height: 10),
-                    OutlinedButton(
-                      onPressed:
-                          (_isLoading || !_canResend) ? null : _resendCode,
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: const Text('Renvoyer le code'),
-                    ),
-                  ],
-                  if (_stage == _AuthStage.register) ...[
-                    TextField(
-                      controller: _firstNameController,
-                      decoration: _fieldDecoration('Prénom'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: _lastNameController,
-                      decoration: _fieldDecoration('Nom'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: _registerPasswordController,
-                      obscureText: true,
-                      decoration: _fieldDecoration('Mot de passe'),
-                    ),
-                    const SizedBox(height: 14),
-                    _actionButton('Créer mon compte', _submitRegister),
-                  ],
-                  if (_errorMessage != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      _errorMessage!,
-                      style: const TextStyle(color: Color(0xFFE24B4A)),
+                          fontSize: 26, fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
+                    const SizedBox(height: 6),
+                    Text(
+                      widget.email,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Color(0xFF6B7280)),
+                    ),
+                    const SizedBox(height: 24),
+                    if (_stage == _AuthStage.password) ...<Widget>[
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: !_showPassword,
+                        decoration: _fieldDecoration(
+                          'Mot de passe',
+                          isPasswordField: true,
+                          isVisible: _showPassword,
+                          onToggleVisibility: () {
+                            setState(() => _showPassword = !_showPassword);
+                          },
+                        ),
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _submitPassword(),
+                      ),
+                      const SizedBox(height: 14),
+                      _actionButton('Continuer', _submitPassword),
+                    ],
+                    if (_stage == _AuthStage.otp) ...<Widget>[
+                      TextField(
+                        controller: _otpController,
+                        keyboardType: TextInputType.number,
+                        decoration: _fieldDecoration('Code OTP'),
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _submitOtp(),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _isOtpExpired
+                            ? 'Le code a expire. Renvoyez un nouveau code.'
+                            : 'Code valide pendant $_otpTimerText',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _isOtpExpired
+                              ? const Color(0xFFE24B4A)
+                              : const Color(0xFF6B7280),
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _remainingResends <= 0
+                            ? 'Aucun renvoi disponible.'
+                            : _canResend
+                                ? 'Renvoyer le code ($_remainingResends restant${_remainingResends > 1 ? 's' : ''})'
+                                : 'Renvoyer dans ${_resendCooldownRemaining}s',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            color: Color(0xFF6B7280), fontSize: 12),
+                      ),
+                      const SizedBox(height: 12),
+                      _actionButton('Verifier', _submitOtp),
+                      const SizedBox(height: 10),
+                      OutlinedButton(
+                        onPressed:
+                            (_isLoading || !_canResend) ? null : _resendCode,
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(48),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Renvoyer le code'),
+                      ),
+                    ],
+                    if (_stage == _AuthStage.register) ...<Widget>[
+                      TextField(
+                        controller: _firstNameController,
+                        decoration: _fieldDecoration('Prenom'),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _lastNameController,
+                        decoration: _fieldDecoration('Nom'),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _registerPasswordController,
+                        obscureText: !_showRegisterPassword,
+                        decoration: _fieldDecoration(
+                          'Mot de passe',
+                          isPasswordField: true,
+                          isVisible: _showRegisterPassword,
+                          onToggleVisibility: () {
+                            setState(
+                              () => _showRegisterPassword =
+                                  !_showRegisterPassword,
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      _actionButton('Creer mon compte', _submitRegister),
+                    ],
+                    if (_errorMessage != null) ...<Widget>[
+                      const SizedBox(height: 12),
+                      Text(
+                        _errorMessage!,
+                        style: const TextStyle(color: Color(0xFFE24B4A)),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -356,11 +485,24 @@ class _OtpScreenState extends State<OtpScreen> {
     );
   }
 
-  InputDecoration _fieldDecoration(String label) {
+  InputDecoration _fieldDecoration(
+    String label, {
+    bool isPasswordField = false,
+    bool isVisible = false,
+    VoidCallback? onToggleVisibility,
+  }) {
     return InputDecoration(
       labelText: label,
       filled: true,
       fillColor: Colors.white,
+      suffixIcon: isPasswordField
+          ? IconButton(
+              onPressed: onToggleVisibility,
+              icon: Icon(
+                isVisible ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+              ),
+            )
+          : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: Color(0xFFD1D5DB)),

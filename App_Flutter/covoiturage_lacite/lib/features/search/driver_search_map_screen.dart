@@ -88,7 +88,8 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
             if (!mounted) return;
             setState(() {
               _mapReady = false;
-              _mapError = 'Carte indisponible. Les circuits restent selectionnables.';
+              _mapError =
+                  'Carte indisponible. Les circuits restent selectionnables.';
             });
           },
         ),
@@ -139,9 +140,7 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
     });
 
     try {
-      final List<Circuit> circuits = <Circuit>[
-        ..._args.initialCircuits,
-      ];
+      List<Circuit> circuits = <Circuit>[];
 
       // Recherche conducteur : appel direct à l'API circuits du site web
       if (_hasCoordinates) {
@@ -153,7 +152,13 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
           depLabel: _args.fromText,
           arrLabel: _args.toText,
         );
-        circuits.addAll(webCircuits);
+        if (webCircuits.isNotEmpty) {
+          circuits = webCircuits;
+        }
+      }
+
+      if (circuits.isEmpty && _args.initialCircuits.isNotEmpty) {
+        circuits = <Circuit>[..._args.initialCircuits];
       }
 
       if (!mounted) return;
@@ -201,10 +206,30 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
   }
 
   Map<String, dynamic> _toMapCircuit(Circuit circuit) {
+    final List<List<double>> compactPoints = circuit.waypoints
+        .map<List<double>>((Map<String, dynamic> p) {
+          final double lat = _toDouble(p['lat']);
+          final double lng = _toDouble(p['lng']);
+          return <double>[lat, lng];
+        })
+        .where((List<double> p) =>
+            p.length == 2 &&
+            p[0] != 0 &&
+            p[1] != 0 &&
+            p[0].abs() <= 90 &&
+            p[1].abs() <= 180)
+        .toList();
+
     final Map<String, dynamic> base = circuit.toJson();
     base['polyline'] = circuit.waypoints;
-    base['points'] = circuit.waypoints;
+    base['points'] = compactPoints;
+    base['latLngs'] = compactPoints;
     return base;
+  }
+
+  double _toDouble(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
   }
 
   @override
@@ -221,7 +246,8 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
                 children: <Widget>[
                   IconButton(
                     onPressed: () => context.pop(),
-                    icon: const Icon(Icons.arrow_back, color: Color(0xFF08316E)),
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF08316E)),
                   ),
                   Expanded(
                     child: Text(
@@ -246,7 +272,8 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
               Container(
                 width: double.infinity,
                 color: const Color(0xFFFAEEDA),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: Text(
                   'Erreur: $_error',
                   style: const TextStyle(
@@ -270,12 +297,15 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
                       : ListView.separated(
                           padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                           itemCount: _circuits.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 8),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 8),
                           itemBuilder: (_, i) {
                             final c = _circuits[i];
                             final bool selected = i == _activeIndex;
                             return Card(
-                              color: selected ? const Color(0xFFE8F0FE) : Colors.white,
+                              color: selected
+                                  ? const Color(0xFFE8F0FE)
+                                  : Colors.white,
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
                                 child: Column(
@@ -286,7 +316,8 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
                                         Expanded(
                                           child: Text(
                                             c.label,
-                                            style: const TextStyle(fontWeight: FontWeight.w700),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w700),
                                           ),
                                         ),
                                         if (selected)
@@ -298,11 +329,13 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
                                       ],
                                     ),
                                     const SizedBox(height: 4),
-                                    Text('${c.departureLabel} -> ${c.arrivalLabel}'),
+                                    Text(
+                                        '${c.departureLabel} -> ${c.arrivalLabel}'),
                                     const SizedBox(height: 2),
                                     Text(
                                       '${c.formattedDistance} | ${c.formattedDuration}',
-                                      style: const TextStyle(color: Color(0xFF6B7280)),
+                                      style: const TextStyle(
+                                          color: Color(0xFF6B7280)),
                                     ),
                                     const SizedBox(height: 10),
                                     Wrap(
@@ -311,14 +344,16 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
                                       children: <Widget>[
                                         OutlinedButton(
                                           onPressed: () => _selectCircuit(i),
-                                          child: const Text('Afficher ce circuit'),
+                                          child:
+                                              const Text('Afficher ce circuit'),
                                         ),
                                         FilledButton(
                                           onPressed: () => context.push(
                                             '/create-trip',
                                             extra: c.toCreateTripPrefill(),
                                           ),
-                                          child: const Text('Choisir ce circuit'),
+                                          child:
+                                              const Text('Choisir ce circuit'),
                                         ),
                                       ],
                                     ),
@@ -380,4 +415,3 @@ class _DriverSearchMapScreenState extends State<DriverSearchMapScreen> {
     );
   }
 }
-

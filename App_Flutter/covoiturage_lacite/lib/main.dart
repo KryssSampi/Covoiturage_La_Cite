@@ -1,10 +1,13 @@
 // lib/main.dart
 // App entry point — fixed imports, no broken profile path
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/models/trip.dart';
 import 'core/navigation_key.dart';
@@ -44,6 +47,69 @@ void main() {
 
 class CovoiturageApp extends StatelessWidget {
   const CovoiturageApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const _AppLifecycleRoot();
+  }
+}
+
+class _AppLifecycleRoot extends StatefulWidget {
+  const _AppLifecycleRoot();
+
+  @override
+  State<_AppLifecycleRoot> createState() => _AppLifecycleRootState();
+}
+
+class _AppLifecycleRootState extends State<_AppLifecycleRoot>
+    with WidgetsBindingObserver {
+  static const String _kLifecycleStateKey = 'app.lifecycle.state';
+  static const String _kLifecycleAtKey = 'app.lifecycle.at';
+  static const String _kLifecycleRouteKey = 'app.lifecycle.route';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    unawaited(_persistLifecycleState('start'));
+  }
+
+  @override
+  void dispose() {
+    unawaited(_persistLifecycleState('close'));
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        unawaited(_persistLifecycleState('resume'));
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        unawaited(_persistLifecycleState('pause'));
+        break;
+      case AppLifecycleState.detached:
+        unawaited(_persistLifecycleState('close'));
+        break;
+    }
+  }
+
+  Future<void> _persistLifecycleState(String state) async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String route =
+          appRouter.routeInformationProvider.value.uri.toString();
+      await prefs.setString(_kLifecycleStateKey, state);
+      await prefs.setString(_kLifecycleAtKey, DateTime.now().toIso8601String());
+      await prefs.setString(_kLifecycleRouteKey, route);
+    } catch (_) {
+      // Best effort persistence only.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

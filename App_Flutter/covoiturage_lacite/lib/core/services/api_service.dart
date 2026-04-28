@@ -18,7 +18,7 @@ import '../state/app_state.dart';
 class ApiService {
   static const String _baseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'https://covoituragelacite-production.railway.app/',
+    defaultValue: 'https://covoituragelacite-production.up.railway.app/',
   );
 
   static const String _publicKeyStorageKey = 'server_public_key';
@@ -100,13 +100,21 @@ class ApiService {
 
     adapter.createHttpClient = () {
       final HttpClient client = HttpClient();
-      client.badCertificateCallback = (
-        X509Certificate cert,
-        String host,
-        int port,
-      ) {
-        return true;
-      };
+      // Production: rely on platform trust store.
+      // Dev override can be enabled explicitly via --dart-define=ALLOW_BAD_CERT=true.
+      const bool allowBadCert = bool.fromEnvironment(
+        'ALLOW_BAD_CERT',
+        defaultValue: false,
+      );
+      if (allowBadCert) {
+        client.badCertificateCallback = (
+          X509Certificate cert,
+          String host,
+          int port,
+        ) {
+          return true;
+        };
+      }
       return client;
     };
 
@@ -115,19 +123,9 @@ class ApiService {
       String host,
       int port,
     ) {
-      if (cert == null) {
-        return false;
-      }
-
-      final String derFingerprint = sha256.convert(cert.der).toString();
-      final String pemFingerprint =
-          sha256.convert(utf8.encode(cert.pem)).toString();
-      final String? pinned = _pinnedFingerprint;
-
-      if (pinned == null || pinned.isEmpty) {
-        return true;
-      }
-      return pinned == derFingerprint || pinned == pemFingerprint;
+      // Keep handshake strict enough to require a certificate object.
+      // Trust decision is delegated to platform validation above.
+      return cert != null;
     };
   }
 
@@ -138,6 +136,7 @@ class ApiService {
     String? cacheKey,
     bool forceRefresh = false,
   }) async {
+    final bool isAuthPath = path.startsWith('/api/auth/');
     final String? effectiveCacheKey = cacheKey ?? _inferCacheKey(path, params);
 
     if (effectiveCacheKey != null && !forceRefresh) {
@@ -175,6 +174,10 @@ class ApiService {
       }
       return data;
     } catch (error) {
+      if (isAuthPath) {
+        rethrow;
+      }
+
       if (effectiveCacheKey != null) {
         final dynamic stale = await _cache.getStale(effectiveCacheKey);
         if (stale != null) {
@@ -210,6 +213,7 @@ class ApiService {
     Options? options,
     List<String> invalidateKeys = const <String>[],
   }) async {
+    final bool isAuthPath = path.startsWith('/api/auth/');
     final List<String> keys = <String>{
       ...invalidateKeys,
       ..._inferInvalidationKeysForPost(path),
@@ -228,6 +232,10 @@ class ApiService {
       }
       return response.data;
     } catch (error) {
+      if (isAuthPath) {
+        rethrow;
+      }
+
       final dynamic fallback = AppFixtures.postFallback(
         path,
         body,
@@ -254,6 +262,7 @@ class ApiService {
     Options? options,
     List<String> invalidateKeys = const <String>[],
   }) async {
+    final bool isAuthPath = path.startsWith('/api/auth/');
     final List<String> keys = <String>{
       ...invalidateKeys,
       ..._inferInvalidationKeysForPatch(path),
@@ -272,6 +281,10 @@ class ApiService {
       }
       return response.data;
     } catch (error) {
+      if (isAuthPath) {
+        rethrow;
+      }
+
       final dynamic fallback = AppFixtures.patchFallback(
         path,
         body,
@@ -358,7 +371,9 @@ class ApiService {
         path == '/api/passenger/historique') {
       return CacheKeys.historique;
     }
-    if (path == '/api/favorites' || path == '/api/lieux-favoris') {
+    if (path == '/api/favorites' ||
+        path == '/api/lieux-favoris' ||
+        path == '/api/places-favoris') {
       return CacheKeys.favorites;
     }
     if (path == '/api/messages/conversations' || path == '/api/conversations') {
@@ -502,10 +517,23 @@ class _AuthInterceptor extends Interceptor {
   ) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('auth_token');
-    final bool isSessionFlow = options.path.contains('/api/auth/session/');
+    final String? authSessionKey = prefs.getString('auth_session_key');
+    final bool isAuthFlow = options.path.startsWith('/api/auth/');
 
-    if (!isSessionFlow && token != null && token.isNotEmpty) {
+    if (!isAuthFlow && token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
+    }
+
+    if (isAuthFlow &&
+        authSessionKey != null &&
+        authSessionKey.isNotEmpty &&
+        options.path != '/api/auth/init-session') {
+      final String existingCookie = options.headers['Cookie']?.toString() ?? '';
+      if (!existingCookie.contains('auth_session_key=')) {
+        final String prefix =
+            existingCookie.isEmpty ? '' : '${existingCookie.trim()}; ';
+        options.headers['Cookie'] = '${prefix}auth_session_key=$authSessionKey';
+      }
     }
 
     options.headers['X-Client-Type'] = 'mobile';
@@ -524,7 +552,9 @@ class _AuthInterceptor extends Interceptor {
     final int? statusCode = err.response?.statusCode;
     final String requestPath = err.requestOptions.path;
 
-    if (statusCode == 401 && !requestPath.contains('/api/auth/refresh')) {
+    if (statusCode == 401 &&
+        !requestPath.startsWith('/api/auth/') &&
+        !requestPath.contains('/api/auth/refresh')) {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final String? currentToken = prefs.getString('auth_token');
       if (currentToken != null && currentToken.startsWith('fixture_access_')) {

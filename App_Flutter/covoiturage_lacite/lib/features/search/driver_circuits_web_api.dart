@@ -4,6 +4,11 @@ import 'package:http/http.dart' as http;
 
 import 'models/circuit.dart';
 
+const String _publicWebBaseUrl = String.fromEnvironment(
+  'WEB_PUBLIC_URL',
+  defaultValue: 'https://covoiturage-la-cite.vercel.app',
+);
+
 /// Appelle l'API circuits du site web et convertit la reponse en `List<Circuit>`.
 Future<List<Circuit>> fetchDriverCircuitsFromWeb({
   required double depLng,
@@ -13,12 +18,15 @@ Future<List<Circuit>> fetchDriverCircuitsFromWeb({
   String depLabel = 'Depart',
   String arrLabel = 'Arrivee',
 }) async {
-  final Uri url = Uri.parse(
-    'http://192.168.2.16:3000/api/circuits'
-    '?dep=$depLng,$depLat'
-    '&arr=$arrLng,$arrLat'
-    '&depLabel=${Uri.encodeComponent(depLabel)}'
-    '&arrLabel=${Uri.encodeComponent(arrLabel)}',
+  final Uri baseUri = Uri.parse(_publicWebBaseUrl);
+  final Uri url = baseUri.replace(
+    path: '/api/circuits',
+    queryParameters: <String, String>{
+      'dep': '$depLng,$depLat',
+      'arr': '$arrLng,$arrLat',
+      'depLabel': depLabel,
+      'arrLabel': arrLabel,
+    },
   );
 
   try {

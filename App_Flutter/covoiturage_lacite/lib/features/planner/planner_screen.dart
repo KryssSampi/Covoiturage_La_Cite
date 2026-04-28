@@ -81,6 +81,7 @@ class _PassengerRide {
   final String driverName;
   final double price;
   final _PassengerStatus status;
+  final DateTime? dateTime;
   final Map<String, dynamic> tripData;
 
   const _PassengerRide({
@@ -92,6 +93,7 @@ class _PassengerRide {
     required this.driverName,
     required this.price,
     required this.status,
+    this.dateTime,
     required this.tripData,
   });
 }
@@ -181,8 +183,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
         final List<Map<String, dynamic>> tripData =
             await _tripService.getDriverTrips();
         driverRides = tripData.map((t) {
-          final DateTime? dt =
-              _parseDate(t['departureTime'] ?? t['departureDateTime'] ?? '');
+          final DateTime? dt = _parseDate(_extractTripDateValue(t));
           final String timeLabel = dt != null
               ? '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}'
               : '';
@@ -263,12 +264,11 @@ class _PlannerScreenState extends State<PlannerScreen> {
         : null;
 
     final DateTime? departureTime = _toDateTime(
-      trip?['departureDateTime'] ??
-          (trip?['departureDate'] != null && trip?['departureTime'] != null
-              ? '${trip!['departureDate']}T${trip['departureTime']}'
-              : null) ??
-          trip?['departureTime'] ??
-          trip?['startTime'],
+      _extractTripDateValue(
+        trip,
+        fallback: reservation,
+        root: row,
+      ),
     );
 
     final String status =
@@ -305,6 +305,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
           trip?['pricePerPassenger'] ??
           trip?['price']),
       status: _toPassengerStatus(status),
+      dateTime: departureTime,
       // FIX #5 : injecter viewerRole + reservationStatus dans tripData
       tripData: _buildTripExtra(
         trip,
@@ -381,8 +382,10 @@ class _PlannerScreenState extends State<PlannerScreen> {
       }
     }
     for (final ride in _passengerRides) {
-      // Les passager rides n'ont pas de dateTime directement, on skip pour l'instant
-      // (le tripData contient les infos mais pas parsées ici)
+      final DateTime? dt = ride.dateTime;
+      if (dt != null && dt.year == _currentYear && dt.month == _currentMonth) {
+        rideCountByDay[dt.day] = (rideCountByDay[dt.day] ?? 0) + 1;
+      }
     }
 
     // Jours du mois précédent (padding)
@@ -569,32 +572,20 @@ class _PlannerScreenState extends State<PlannerScreen> {
                 child: GestureDetector(
                   onTap: () => context.push('/search'),
                   child: _ActionBtn(
-                    iconBg: AppColors.blue,
-                    cardBg: AppColors.blueLight,
-                    borderColor: AppColors.blue.withValues(alpha: 0.25),
-                    icon: Icons.search,
-                    label: 'Trouver\nun trajet',
-                    labelColor: AppColors.blueDark,
+                    iconBg: _isDriver ? AppColors.amberMid : AppColors.blue,
+                    cardBg:
+                        _isDriver ? AppColors.amberLight : AppColors.blueLight,
+                    borderColor:
+                        (_isDriver ? AppColors.amberMid : AppColors.blue)
+                            .withValues(alpha: 0.25),
+                    icon: _isDriver ? Icons.add_road : Icons.search,
+                    label:
+                        _isDriver ? 'Publier\nun trajet' : 'Trouver\nun trajet',
+                    labelColor:
+                        _isDriver ? AppColors.amber : AppColors.blueDark,
                   ),
                 ),
               ),
-              // FIX #6 : bouton "Publier un trajet" pour conducteur
-              if (_isDriver) ...[
-                const SizedBox(width: 10),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => context.push('/create-trip'),
-                    child: _ActionBtn(
-                      iconBg: AppColors.amberMid,
-                      cardBg: AppColors.amberLight,
-                      borderColor: AppColors.amberMid.withValues(alpha: 0.25),
-                      icon: Icons.add_road,
-                      label: 'Publier\nun trajet',
-                      labelColor: AppColors.amber,
-                    ),
-                  ),
-                ),
-              ],
             ],
           ),
         ],
@@ -957,15 +948,10 @@ class _RidesSection extends StatelessWidget {
   }
 
   List<_PassengerRide> _filteredPassengerRides() {
-    // Les rides passager n'ont pas de DateTime parsée directement dans le modèle
-    // On les affiche toutes ou on filtre via tripData si disponible
     if (isViewAll) return passengerRides;
     return passengerRides.where((r) {
-      final dynamic dtRaw =
-          r.tripData['departureTime'] ?? r.tripData['departureDateTime'];
-      if (dtRaw == null) return true; // afficher si pas de date
-      final DateTime? dt = DateTime.tryParse(dtRaw.toString())?.toLocal();
-      if (dt == null) return true;
+      final DateTime? dt = r.dateTime;
+      if (dt == null) return false;
       return dt.day == selectedDay &&
           dt.month == currentMonth &&
           dt.year == currentYear;
@@ -2094,10 +2080,38 @@ List<dynamic> _extractList(dynamic payload) {
   return <dynamic>[];
 }
 
+dynamic _extractTripDateValue(
+  Map<String, dynamic>? trip, {
+  Map<String, dynamic>? fallback,
+  Map<String, dynamic>? root,
+}) {
+  final dynamic combined =
+      trip?['departureDate'] != null && trip?['departureTime'] != null
+          ? '${trip!['departureDate']}T${trip['departureTime']}'
+          : null;
+
+  return trip?['departureDateTime'] ??
+      trip?['departureTime'] ??
+      trip?['startTime'] ??
+      trip?['dateTime'] ??
+      trip?['plannedStartAt'] ??
+      trip?['startsAt'] ??
+      trip?['date'] ??
+      trip?['tripDate'] ??
+      combined ??
+      fallback?['departureDateTime'] ??
+      fallback?['departureTime'] ??
+      fallback?['startTime'] ??
+      root?['departureDateTime'] ??
+      root?['departureTime'] ??
+      root?['startTime'];
+}
+
 DateTime? _toDateTime(dynamic value) {
   if (value == null) return null;
   if (value is DateTime) return value;
-  return DateTime.tryParse(value.toString());
+  final DateTime? parsed = DateTime.tryParse(value.toString());
+  return parsed?.toLocal();
 }
 
 double _toDouble(dynamic value) {

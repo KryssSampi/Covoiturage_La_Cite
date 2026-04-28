@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/app_colors.dart';
 import '../../core/app_text_styles.dart';
+import '../../core/converters/active_trip_display_converter.dart';
 import '../../core/converters/display_converters.dart';
+import '../../core/converters/home_favorite_pill_converter.dart';
 import '../../core/services/api_service.dart';
 import '../../core/services/ors_route_service.dart';
 import '../../core/services/trip_service.dart';
@@ -20,34 +21,65 @@ import '../../shared/widgets/shared_widgets.dart';
 
 class _FavPill {
   final String label;
+  final String value;
   final IconData icon;
   final Color bg;
   final Color fg;
   const _FavPill({
     required this.label,
+    required this.value,
     required this.icon,
     required this.bg,
     required this.fg,
   });
 }
 
-class _StatCard {
-  final String value;
-  final String unit;
-  final String label;
-  final Color iconBg;
-  final Color iconFg;
-  final IconData icon;
-  final String? badge;
-  const _StatCard({
-    required this.value,
-    required this.unit,
-    required this.label,
-    required this.iconBg,
-    required this.iconFg,
-    required this.icon,
-    this.badge,
+class _ProfileOverviewStats {
+  const _ProfileOverviewStats({
+    required this.goScore,
+    required this.totalTrips,
+    required this.averageRating,
+    required this.co2SavedKg,
   });
+
+  final int goScore;
+  final int totalTrips;
+  final double averageRating;
+  final int co2SavedKg;
+
+  static const _ProfileOverviewStats empty = _ProfileOverviewStats(
+    goScore: 0,
+    totalTrips: 0,
+    averageRating: 0,
+    co2SavedKg: 0,
+  );
+
+  factory _ProfileOverviewStats.fromUserPayload(dynamic payload) {
+    final Map<String, dynamic> base = DisplayConverters.extractMap(payload);
+    final Map<String, dynamic> view = DisplayConverters.toProfileViewJson(base);
+    final Map<String, dynamic> stats = view['stats'] is Map<String, dynamic>
+        ? view['stats'] as Map<String, dynamic>
+        : <String, dynamic>{};
+
+    int toInt(dynamic value) {
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      return int.tryParse(value?.toString() ?? '') ?? 0;
+    }
+
+    double toDouble(dynamic value) {
+      if (value is double) return value;
+      if (value is num) return value.toDouble();
+      return double.tryParse(value?.toString() ?? '') ?? 0;
+    }
+
+    return _ProfileOverviewStats(
+      goScore: toInt(stats['goScore'] ?? view['goScore']),
+      totalTrips: toInt(stats['totalTrips'] ?? view['totalTrips']),
+      averageRating: toDouble(stats['averageRating'] ?? view['averageRating']),
+      co2SavedKg: toInt(stats['co2SavedKg'] ?? view['co2SavedKg']),
+    );
+  }
 }
 
 class _RequestCard {
@@ -136,6 +168,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _searchCtrl = TextEditingController();
+  final _searchFocusNode = FocusNode();
   final _scrollCtrl = ScrollController();
   final _api = ApiService.instance;
   static const Duration _loadTimeout = Duration(seconds: 18);
@@ -153,37 +186,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   OrsPlaceSuggestion? _selectedSuggestion;
   Timer? _suggestionDebounce;
   List<OrsPlaceSuggestion> _searchSuggestions = const <OrsPlaceSuggestion>[];
-  List<_StatCard> _stats = [];
+  _ProfileOverviewStats _profileOverviewStats = _ProfileOverviewStats.empty;
   List<_RequestCard> _requests = [];
+  List<_FavPill> _favoritePills = <_FavPill>[];
   _ActiveTripSnapshot? _activeTrip;
 
-  // FavPills définis ici (pas en const static pour éviter le conflit AppColors)
-  List<_FavPill> get _favPills => [
-        _FavPill(
-          label: 'La Cité',
-          icon: Icons.school_outlined,
-          bg: AppColors.blueLight,
-          fg: AppColors.blue,
-        ),
-        _FavPill(
-          label: 'Maison',
-          icon: Icons.home_outlined,
-          bg: AppColors.tealLight,
-          fg: AppColors.teal,
-        ),
-        _FavPill(
-          label: 'Travail',
-          icon: Icons.work_outline,
-          bg: AppColors.amberLight,
-          fg: AppColors.amber,
-        ),
-      ];
+  _FavPill get _campusPill => const _FavPill(
+        label: 'La Cite',
+        value:
+            'College La Cite, 801 Promenade de l\'Aviation, Ottawa, ON K1K 4R3',
+        icon: Icons.school_outlined,
+        bg: AppColors.blueLight,
+        fg: AppColors.blue,
+      );
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _searchCtrl.addListener(_onSearchTextChanged);
+    _searchFocusNode.addListener(_onSearchFocusChanged);
+    _favoritePills = <_FavPill>[_campusPill];
     _loadDashboard();
     unawaited(_resolveCurrentPosition(showSystemPrompt: true));
   }
@@ -193,6 +216,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _suggestionDebounce?.cancel();
     _searchCtrl.removeListener(_onSearchTextChanged);
+    _searchFocusNode.removeListener(_onSearchFocusChanged);
+    _searchFocusNode.dispose();
     _searchCtrl.dispose();
     _scrollCtrl.dispose();
     _keyboardCloseTimer?.cancel();
@@ -222,18 +247,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.didChangeMetrics();
     final double keyboardInset = WidgetsBinding
         .instance.platformDispatcher.views.first.viewInsets.bottom;
-    // Si le clavier se ferme alors qu'on est en focus sur la barre de recherche
-    if (keyboardInset == 0 && _isSearchFocused) {
+    // Fermer l'etat "focus recherche" uniquement si le clavier est ferme ET
+    // le TextField a perdu le focus (evite la fermeture immediate au tap).
+    if (keyboardInset == 0 && _isSearchFocused && !_searchFocusNode.hasFocus) {
       // On attend un court délai avant de fermer le focus pour laisser le clavier sortir
       _keyboardCloseTimer?.cancel();
       _keyboardCloseTimer = Timer(const Duration(milliseconds: 350), () {
         if (!mounted) return;
-        FocusManager.instance.primaryFocus?.unfocus();
-        setState(() {
-          _isSearchFocused = false;
-          _isLoadingSuggestions = false;
-          _searchSuggestions = const <OrsPlaceSuggestion>[];
-        });
+        _resetSearchUiState();
       });
     } else {
       // Si le clavier s'ouvre ou autre, on annule le timer
@@ -262,6 +283,32 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (_isSearchFocused) {
       _queueSuggestions(query);
     }
+  }
+
+  void _onSearchFocusChanged() {
+    if (!mounted) return;
+    final bool focused = _searchFocusNode.hasFocus;
+    if (_isSearchFocused == focused) return;
+    setState(() => _isSearchFocused = focused);
+    if (focused) {
+      _queueSuggestions(_searchCtrl.text);
+      return;
+    }
+    _suggestionDebounce?.cancel();
+    setState(() {
+      _isLoadingSuggestions = false;
+      _searchSuggestions = const <OrsPlaceSuggestion>[];
+    });
+  }
+
+  void _resetSearchUiState() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (!mounted) return;
+    setState(() {
+      _isSearchFocused = false;
+      _isLoadingSuggestions = false;
+      _searchSuggestions = const <OrsPlaceSuggestion>[];
+    });
   }
 
   void _queueSuggestions(String raw) {
@@ -429,14 +476,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         pendingPayload: payloads[2],
         financePayload: payloads[3],
       );
+      final List<_FavPill> favoritePills = await _loadFavoritePills();
+      final _ProfileOverviewStats profileOverviewStats =
+          _ProfileOverviewStats.fromUserPayload(payloads[0]);
       final _ActiveTripSnapshot? activeTrip = _extractActiveTrip(payloads[1]);
 
       if (!mounted) return;
       setState(() {
         _firstName = dashboard.firstName;
-        _stats = _buildStats(dashboard);
+        _profileOverviewStats = profileOverviewStats;
         _requests = _extractRequests(dashboard.pendingRequests.cast<dynamic>());
         _activeTrip = activeTrip;
+        _favoritePills = favoritePills;
         _isLoading = false;
         _hasError = false;
       });
@@ -452,81 +503,74 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _hasError = true;
         _firstName ??= AppStateStore.instance.currentUser.firstName;
         _requests = const <_RequestCard>[];
-        _stats = _buildEmptyStats();
+        _profileOverviewStats = _ProfileOverviewStats.empty;
         _activeTrip = null;
+        _favoritePills = <_FavPill>[_campusPill];
       });
       AppStateStore.instance.setPageHasNews(AppNavPage.reservations, false);
     }
   }
 
-  List<_StatCard> _buildStats(HomeDashboardDisplay dashboard) {
-    return [
-      _StatCard(
-        value: '${dashboard.totalTrips}',
-        unit: '',
-        label: 'Trajets',
-        iconBg: const Color(0xFFFDECEA),
-        iconFg: AppColors.redMid,
-        icon: Icons.directions_car_outlined,
-      ),
-      _StatCard(
-        value: dashboard.averageRating.toStringAsFixed(1),
-        unit: '',
-        label: 'Note',
-        iconBg: AppColors.amberLight,
-        iconFg: AppColors.amberMid,
-        icon: Icons.star_outline,
-      ),
-      _StatCard(
-        value: '${dashboard.totalPassengers}',
-        unit: '',
-        label: 'Passagers',
-        iconBg: AppColors.tealLight,
-        iconFg: AppColors.teal,
-        icon: Icons.people_alt_outlined,
-      ),
-      _StatCard(
-        value: dashboard.totalRevenue.toStringAsFixed(0),
-        unit: r'$',
-        label: 'Revenus',
-        iconBg: AppColors.blueLight,
-        iconFg: AppColors.blue,
-        icon: Icons.payments_outlined,
-      ),
-    ];
+  Future<List<_FavPill>> _loadFavoritePills() async {
+    List<HomeFavoritePillModel> models = const <HomeFavoritePillModel>[];
+
+    try {
+      final dynamic placesPayload = await _api.get('/api/places-favoris');
+      models = HomeFavoritePillConverter.toPills(placesPayload);
+    } catch (_) {
+      // Fallback local fixtures/stub.
+      try {
+        final dynamic legacyPayload = await _api.get('/api/favorites');
+        models = HomeFavoritePillConverter.toPills(legacyPayload);
+      } catch (_) {
+        models = const <HomeFavoritePillModel>[];
+      }
+    }
+
+    final _FavPill campus = _campusPill;
+    final String campusValue = campus.value.trim().toLowerCase();
+    final List<_FavPill> mapped = models
+        .where((HomeFavoritePillModel m) =>
+            m.value.trim().isNotEmpty &&
+            m.value.trim().toLowerCase() != campusValue)
+        .map(_mapFavoritePill)
+        .toList();
+
+    return <_FavPill>[campus, ...mapped];
   }
 
-  List<_StatCard> _buildEmptyStats() {
-    return [
-      _StatCard(
-          value: '-',
-          unit: '',
-          label: 'Trajets',
-          iconBg: AppColors.blueLight,
-          iconFg: AppColors.blue,
-          icon: Icons.directions_car_outlined),
-      _StatCard(
-          value: '-',
-          unit: '',
-          label: 'Note',
-          iconBg: AppColors.amberLight,
-          iconFg: AppColors.amberMid,
-          icon: Icons.star_outline),
-      _StatCard(
-          value: '-',
-          unit: '',
-          label: 'Passagers',
-          iconBg: AppColors.tealLight,
-          iconFg: AppColors.teal,
-          icon: Icons.people_alt_outlined),
-      _StatCard(
-          value: '-',
-          unit: r'$',
-          label: 'Revenus',
-          iconBg: AppColors.blueLight,
-          iconFg: AppColors.blue,
-          icon: Icons.payments_outlined),
-    ];
+  _FavPill _mapFavoritePill(HomeFavoritePillModel model) {
+    final String tag = model.iconTag.trim().toLowerCase();
+    final IconData icon = switch (tag) {
+      'home' || 'maison' => Icons.home_outlined,
+      'work' || 'travail' || 'office' => Icons.work_outline,
+      'school' ||
+      'campus' ||
+      'college' ||
+      'universite' =>
+        Icons.school_outlined,
+      _ => Icons.place_outlined,
+    };
+    final Color bg = switch (tag) {
+      'home' || 'maison' => AppColors.tealLight,
+      'work' || 'travail' || 'office' => AppColors.amberLight,
+      'school' || 'campus' || 'college' || 'universite' => AppColors.blueLight,
+      _ => AppColors.gray100,
+    };
+    final Color fg = switch (tag) {
+      'home' || 'maison' => AppColors.teal,
+      'work' || 'travail' || 'office' => AppColors.amber,
+      'school' || 'campus' || 'college' || 'universite' => AppColors.blue,
+      _ => AppColors.text2,
+    };
+
+    return _FavPill(
+      label: model.label,
+      value: model.value,
+      icon: icon,
+      bg: bg,
+      fg: fg,
+    );
   }
 
   List<_RequestCard> _extractRequests(List<dynamic> raw) {
@@ -596,82 +640,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   _ActiveTripSnapshot? _extractActiveTrip(dynamic tripsPayload) {
-    final List<Map<String, dynamic>> rows =
-        DisplayConverters.extractMapList(tripsPayload);
-    if (rows.isEmpty) return null;
-
-    Map<String, dynamic>? row;
-    for (final Map<String, dynamic> item in rows) {
-      final String status = _tripStatus(item);
-      if (status.contains('in_progress') ||
-          status.contains('in progress') ||
-          status.contains('imminent')) {
-        row = item;
-        break;
-      }
-    }
-    row ??= rows.first;
-    if (row == null) return null;
-
-    final String status = _tripStatus(row);
-    final bool isInProgress =
-        status.contains('in_progress') || status.contains('in progress');
-    final bool isImminent = status.contains('imminent');
-    final String tripId = row['id']?.toString() ?? '';
-    final int totalSeats =
-        _toInt(row['totalSeats'] ?? row['seats'], fallback: 4);
-    final int availableSeats = _toInt(row['availableSeats'], fallback: 0);
-    final int currentPassengers =
-        ((totalSeats - availableSeats).clamp(0, totalSeats)) as int;
-    final double price = _toDouble(
-      row['pricePerPassenger'] ?? row['passengerPrice'] ?? row['price'],
-      fallback: 0,
-    );
-    final int durationMin = _toInt(
-        row['estimatedDurationMin'] ?? row['estimatedDurationMinutes'],
-        fallback: 7);
+    final ActiveTripDisplayModel? display =
+        ActiveTripDisplayConverter.fromDriverTripsPayload(tripsPayload);
+    if (display == null) return null;
 
     return _ActiveTripSnapshot(
-      tripId: tripId,
-      timeLabel: _timeLabel(row['departureTime']),
-      fromLabel: row['departureLabel']?.toString() ?? 'Depart',
-      toLabel: row['arrivalLabel']?.toString() ?? 'Destination',
-      statusLabel:
-          isInProgress ? 'En cours' : (isImminent ? 'Imminent' : 'Planifie'),
-      statusBg: isInProgress ? AppColors.redLight : AppColors.amberLight,
-      statusFg: isInProgress ? AppColors.redMid : AppColors.amberMid,
-      priceLabel: '${price.toStringAsFixed(price % 1 == 0 ? 0 : 2)} CAD',
-      passengerLabel: '$currentPassengers/$totalSeats passagers',
-      progress: isInProgress ? 0.38 : (isImminent ? 0.1 : 0.0),
-      etaLabel: '$durationMin min',
-      canOpenLiveTrip: (isInProgress || isImminent) && tripId.isNotEmpty,
+      tripId: display.tripId,
+      timeLabel: display.timeLabel,
+      fromLabel: display.fromLabel,
+      toLabel: display.toLabel,
+      statusLabel: display.statusLabel,
+      statusBg: AppColors.redLight,
+      statusFg: AppColors.redMid,
+      priceLabel: display.priceLabel,
+      passengerLabel: display.passengerLabel,
+      progress: display.progress,
+      etaLabel: display.etaLabel,
+      canOpenLiveTrip: display.canOpenLiveTrip,
     );
-  }
-
-  String _tripStatus(Map<String, dynamic> row) {
-    final dynamic status = row['tripStatus'] ?? row['status'];
-    if (status is Map<String, dynamic>) {
-      return status['tripStatus']?.toString().toLowerCase() ?? '';
-    }
-    return status?.toString().toLowerCase() ?? '';
-  }
-
-  String _timeLabel(dynamic raw) {
-    final DateTime? dt = _parseDate(raw);
-    if (dt == null) return '--:--';
-    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
-
-  int _toInt(dynamic value, {int fallback = 0}) {
-    if (value is int) return value;
-    if (value is num) return value.toInt();
-    return int.tryParse(value?.toString() ?? '') ?? fallback;
-  }
-
-  double _toDouble(dynamic value, {double fallback = 0}) {
-    if (value is double) return value;
-    if (value is num) return value.toDouble();
-    return double.tryParse(value?.toString() ?? '') ?? fallback;
   }
 
   String _shortDate(String raw) {
@@ -815,21 +801,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         SliverPersistentHeader(
           pinned: true,
           delegate: _SearchBarDelegate(
-            favPills: _favPills,
+            favPills: _favoritePills,
             controller: _searchCtrl,
-            onFocusChanged: (bool focused) {
-              if (!mounted) return;
-              setState(() => _isSearchFocused = focused);
-              if (focused) {
-                _queueSuggestions(_searchCtrl.text);
-              } else {
-                _suggestionDebounce?.cancel();
-                setState(() {
-                  _isLoadingSuggestions = false;
-                  _searchSuggestions = const <OrsPlaceSuggestion>[];
-                });
-              }
-            },
+            focusNode: _searchFocusNode,
             onChanged: (_) => _queueSuggestions(_searchCtrl.text),
             onSearchTap: _openSearch,
           ),
@@ -850,25 +824,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ),
           )
         else ...<Widget>[
-          const SliverToBoxAdapter(child: SectionLabel('Trajet en cours')),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _ActiveTripCard(
-                trip: _activeTrip,
-                onTap: () {
-                  if (_activeTrip == null || !_activeTrip!.canOpenLiveTrip)
-                    return;
-                  context.push('/trajet-en-cours/${_activeTrip!.tripId}');
-                },
+          if (_activeTrip != null) ...<Widget>[
+            const SliverToBoxAdapter(child: SectionLabel('Trajet en cours')),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _ActiveTripCard(
+                  trip: _activeTrip!,
+                  onTap: () {
+                    if (!_activeTrip!.canOpenLiveTrip) return;
+                    context.push('/trajet-en-cours/${_activeTrip!.tripId}');
+                  },
+                ),
               ),
             ),
-          ),
+          ],
           const SliverToBoxAdapter(child: SectionLabel('Mes statistiques')),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _StatsGrid(stats: _stats),
+              child: _ProfileOverviewStatsGrid(stats: _profileOverviewStats),
             ),
           ),
           const SliverToBoxAdapter(child: SectionLabel('Nouvelles demandes')),
@@ -897,7 +872,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                stops: [0.4, 1.0],
+                // Keep only a short white fade at the bottom (no dark overlay).
+                stops: [0.7, 1.0],
                 colors: [Colors.transparent, Color(0xFFF2F5FA)],
               ),
             ),
@@ -1057,14 +1033,14 @@ class _HomeSuggestionPanel extends StatelessWidget {
 class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
   final List<_FavPill> favPills;
   final TextEditingController controller;
-  final ValueChanged<bool> onFocusChanged;
+  final FocusNode focusNode;
   final ValueChanged<String>? onChanged;
   final VoidCallback onSearchTap;
 
   const _SearchBarDelegate({
     required this.favPills,
     required this.controller,
-    required this.onFocusChanged,
+    required this.focusNode,
     this.onChanged,
     required this.onSearchTap,
   });
@@ -1092,91 +1068,87 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
               ]
             : null,
       ),
-      child: Focus(
-        onFocusChange: onFocusChanged,
-        child: Container(
-          height: 50,
-          decoration: BoxDecoration(
-            color: AppColors.gray50,
-            borderRadius: BorderRadius.circular(AppColors.rFull),
-            border: Border.all(color: AppColors.gray200, width: 1.5),
-          ),
-          child: Row(
-            children: [
-              const SizedBox(width: 16),
-              GestureDetector(
-                onTap: onSearchTap,
-                child:
-                    const Icon(Icons.search, size: 18, color: AppColors.text3),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  controller: controller,
-                  onChanged: onChanged,
-                  onSubmitted: (_) => onSearchTap(),
-                  style: AppTextStyles.searchText(),
-                  decoration: InputDecoration(
-                    hintText: 'Rechercher une destination...',
-                    hintStyle: AppTextStyles.searchPlaceholder(),
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: AppColors.gray50,
+          borderRadius: BorderRadius.circular(AppColors.rFull),
+          border: Border.all(color: AppColors.gray200, width: 1.5),
+        ),
+        child: Row(
+          children: [
+            const SizedBox(width: 16),
+            GestureDetector(
+              onTap: onSearchTap,
+              child: const Icon(Icons.search, size: 18, color: AppColors.text3),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                focusNode: focusNode,
+                controller: controller,
+                onChanged: onChanged,
+                onSubmitted: (_) => onSearchTap(),
+                style: AppTextStyles.searchText(),
+                decoration: InputDecoration(
+                  hintText: 'Rechercher une destination...',
+                  hintStyle: AppTextStyles.searchPlaceholder(),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
                 ),
               ),
-              // Favoris pills
-              if (favPills.isNotEmpty)
-                SizedBox(
-                  height: 50,
-                  width: 156,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 9),
-                    itemCount: favPills.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 6),
-                    itemBuilder: (_, i) {
-                      final pill = favPills[i];
-                      return GestureDetector(
-                        onTap: () {
-                          controller.text = pill.label;
-                          onSearchTap();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: pill.bg,
-                            borderRadius:
-                                BorderRadius.circular(AppColors.rFull),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(pill.icon, size: 13, color: pill.fg),
-                              const SizedBox(width: 4),
-                              Text(
-                                pill.label,
-                                style: AppTextStyles.soraBadge(color: pill.fg)
-                                    .copyWith(fontSize: 12),
-                              ),
-                            ],
-                          ),
+            ),
+            // Favoris pills
+            if (favPills.isNotEmpty)
+              SizedBox(
+                height: 50,
+                width: favPills.length > 1 ? 86 : 74,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 3, vertical: 9),
+                  itemCount: favPills.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 4),
+                  itemBuilder: (_, i) {
+                    final pill = favPills[i];
+                    return GestureDetector(
+                      onTap: () {
+                        controller.text = pill.value;
+                        onSearchTap();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: pill.bg,
+                          borderRadius: BorderRadius.circular(AppColors.rFull),
                         ),
-                      );
-                    },
-                  ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(pill.icon, size: 13, color: pill.fg),
+                            const SizedBox(width: 4),
+                            Text(
+                              pill.label,
+                              style: AppTextStyles.soraBadge(color: pill.fg)
+                                  .copyWith(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
   }
 
   @override
-  bool shouldRebuild(covariant _SearchBarDelegate oldDelegate) => false;
+  bool shouldRebuild(covariant _SearchBarDelegate oldDelegate) => true;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1189,26 +1161,12 @@ class _ActiveTripCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final _ActiveTripSnapshot? trip;
+  final _ActiveTripSnapshot trip;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final _ActiveTripSnapshot fallback = _ActiveTripSnapshot(
-      tripId: '',
-      timeLabel: '07:40',
-      fromLabel: 'Campus La Cite',
-      toLabel: 'Place d\'Orleans',
-      statusLabel: 'En cours',
-      statusBg: AppColors.redLight,
-      statusFg: AppColors.redMid,
-      priceLabel: '5 CAD',
-      passengerLabel: '2/3 passagers',
-      progress: .38,
-      etaLabel: '7 min',
-      canOpenLiveTrip: false,
-    );
-    final _ActiveTripSnapshot model = trip ?? fallback;
+    final _ActiveTripSnapshot model = trip;
 
     return GestureDetector(
       onTap: model.canOpenLiveTrip ? onTap : null,
@@ -1375,39 +1333,76 @@ class _PulsingDotState extends State<_PulsingDot>
 // STATS GRID
 // ══════════════════════════════════════════════════════════════════════════════
 
-class _StatsGrid extends StatelessWidget {
-  final List<_StatCard> stats;
-  const _StatsGrid({required this.stats});
+class _ProfileOverviewStatsGrid extends StatelessWidget {
+  final _ProfileOverviewStats stats;
+  const _ProfileOverviewStatsGrid({required this.stats});
 
   @override
   Widget build(BuildContext context) {
-    if (stats.isEmpty) return const SizedBox.shrink();
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisSpacing: 10,
       mainAxisSpacing: 10,
-      childAspectRatio: 1.6,
-      children: stats.map(_buildCard).toList(),
+      childAspectRatio: 2.4,
+      children: <Widget>[
+        _buildCard(
+          icon: Icons.speed,
+          bg: const Color(0xFFDCFCE7),
+          iconColor: const Color(0xFF16A34A),
+          label: 'Go Score',
+          value: '${stats.goScore}',
+        ),
+        _buildCard(
+          icon: Icons.directions_car,
+          bg: const Color(0xFFDDEFFE),
+          iconColor: const Color(0xFF2563EB),
+          label: 'Trajets',
+          value: '${stats.totalTrips}',
+        ),
+        _buildCard(
+          icon: Icons.star,
+          bg: const Color(0xFFF3E8FF),
+          iconColor: const Color(0xFF9333EA),
+          label: 'Note',
+          value: stats.averageRating.toStringAsFixed(1),
+        ),
+        _buildCard(
+          icon: Icons.eco,
+          bg: const Color(0xFFDCFCE7),
+          iconColor: const Color(0xFF16A34A),
+          label: 'CO₂ évité',
+          value: '${(stats.co2SavedKg / 1000).toStringAsFixed(1)}T',
+        ),
+      ],
     );
   }
 
-  Widget _buildCard(_StatCard s) {
-    return AppCard(
-      shadows: AppColors.shSm,
-      radius: AppColors.rLg,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+  Widget _buildCard({
+    required IconData icon,
+    required Color bg,
+    required Color iconColor,
+    required String label,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF3F4F6)),
+      ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: s.iconBg,
-              borderRadius: BorderRadius.circular(AppColors.rMd),
+              color: bg,
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(s.icon, size: 24, color: s.iconFg),
+            child: Icon(icon, color: iconColor, size: 20),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -1415,37 +1410,19 @@ class _StatsGrid extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(s.value, style: AppTextStyles.soraNumber()),
-                    if (s.unit.isNotEmpty) ...[
-                      const SizedBox(width: 2),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 2),
-                        child: Text(s.unit, style: AppTextStyles.caption()),
-                      ),
-                    ],
-                  ],
+                Text(
+                  label,
+                  style:
+                      const TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
                 ),
-                Text(s.label,
-                    style: AppTextStyles.caption(),
-                    overflow: TextOverflow.ellipsis),
-                if (s.badge != null)
-                  Container(
-                    margin: const EdgeInsets.only(top: 3),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.greenLight,
-                      borderRadius: BorderRadius.circular(AppColors.rFull),
-                    ),
-                    child: Text(
-                      s.badge!,
-                      style: AppTextStyles.soraBadge(color: AppColors.green)
-                          .copyWith(fontSize: 10),
-                    ),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF111827),
                   ),
+                ),
               ],
             ),
           ),

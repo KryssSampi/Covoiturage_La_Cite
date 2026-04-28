@@ -50,7 +50,8 @@ class AppFixtures {
     if ((_driverUser['email']?.toString().toLowerCase() ?? '') == normalized) {
       return _cloneMap(_driverUser);
     }
-    if ((_passengerUser['email']?.toString().toLowerCase() ?? '') == normalized) {
+    if ((_passengerUser['email']?.toString().toLowerCase() ?? '') ==
+        normalized) {
       return _cloneMap(_passengerUser);
     }
     return null;
@@ -73,6 +74,20 @@ class AppFixtures {
     required bool isDriver,
   }) {
     _ensureReady();
+
+    if (path == '/api/auth/otp-status') {
+      return <String, dynamic>{
+        'success': true,
+        'data': <String, dynamic>{
+          'hasOtp': true,
+          'otpExpiresAt': DateTime.now()
+              .add(const Duration(minutes: 5))
+              .toUtc()
+              .toIso8601String(),
+          'remainingResends': 3,
+        },
+      };
+    }
 
     if (path == '/api/locations/suggestions') {
       final String query = params?['q']?.toString().trim() ?? '';
@@ -104,7 +119,8 @@ class AppFixtures {
           tripId: tripId,
           isDriver: isDriver,
         );
-        if (payload != null && payload['driverPosition'] is Map<String, dynamic>) {
+        if (payload != null &&
+            payload['driverPosition'] is Map<String, dynamic>) {
           return <String, dynamic>{
             'success': true,
             'data': <String, dynamic>{
@@ -196,7 +212,8 @@ class AppFixtures {
         path == '/api/passenger/historique') {
       return <String, dynamic>{
         'success': true,
-        'data': (path == '/api/driver/historique' || path == '/api/passenger/historique')
+        'data': (path == '/api/driver/historique' ||
+                path == '/api/passenger/historique')
             ? <String, dynamic>{
                 'items': _cloneList(_historyTrips),
                 'totalCount': _historyTrips.length,
@@ -233,8 +250,11 @@ class AppFixtures {
 
     if (path == '/api/messages/unread-count') {
       int unread = 0;
-      for (final List<Map<String, dynamic>> messages in _messagesByTrip.values) {
-        unread += messages.where((Map<String, dynamic> m) => m['isRead'] != true).length;
+      for (final List<Map<String, dynamic>> messages
+          in _messagesByTrip.values) {
+        unread += messages
+            .where((Map<String, dynamic> m) => m['isRead'] != true)
+            .length;
       }
       return <String, dynamic>{'success': true, 'data': unread};
     }
@@ -376,7 +396,8 @@ class AppFixtures {
       final List<String> parts = path.split('/');
       if (parts.length >= 4) {
         final String reservationId = parts[3];
-        final Map<String, dynamic>? reservation = _reservationById[reservationId];
+        final Map<String, dynamic>? reservation =
+            _reservationById[reservationId];
         if (reservation != null) {
           return <String, dynamic>{
             'success': true,
@@ -390,12 +411,12 @@ class AppFixtures {
       final List<String> parts = path.split('/');
       if (parts.length >= 4) {
         final String notificationId = parts[3];
-        final Map<String, dynamic>? item = _notifications
-            .cast<Map<String, dynamic>?>()
-            .firstWhere(
-              (Map<String, dynamic>? row) => row?['id']?.toString() == notificationId,
-              orElse: () => null,
-            );
+        final Map<String, dynamic>? item =
+            _notifications.cast<Map<String, dynamic>?>().firstWhere(
+                  (Map<String, dynamic>? row) =>
+                      row?['id']?.toString() == notificationId,
+                  orElse: () => null,
+                );
         if (item != null) {
           return <String, dynamic>{
             'success': true,
@@ -426,16 +447,18 @@ class AppFixtures {
   }) {
     _ensureReady();
 
-    if (path == '/api/auth/session/init') {
+    if (path == '/api/auth/session/init' || path == '/api/auth/init-session') {
       return <String, dynamic>{
         'success': true,
         'data': <String, dynamic>{
-          'publicId': 'fixture-session-${DateTime.now().millisecondsSinceEpoch}',
+          'publicId':
+              'fixture-session-${DateTime.now().millisecondsSinceEpoch}',
         },
       };
     }
 
-    if (path == '/api/auth/session/verify-email') {
+    if (path == '/api/auth/session/verify-email' ||
+        path == '/api/auth/verify-email') {
       final String email = body is Map<String, dynamic>
           ? body['email']?.toString().trim().toLowerCase() ?? ''
           : '';
@@ -454,7 +477,8 @@ class AppFixtures {
       };
     }
 
-    if (path == '/api/auth/session/password-login') {
+    if (path == '/api/auth/session/password-login' ||
+        path == '/api/auth/password-login') {
       final String password = body is Map<String, dynamic>
           ? body['password']?.toString() ?? ''
           : '';
@@ -466,8 +490,10 @@ class AppFixtures {
         return <String, dynamic>{
           'success': true,
           'data': <String, dynamic>{
-            'accessToken': 'fixture_access_${DateTime.now().millisecondsSinceEpoch}_$userId',
-            'refreshToken': 'fixture_refresh_${DateTime.now().millisecondsSinceEpoch}_$userId',
+            'accessToken':
+                'fixture_access_${DateTime.now().millisecondsSinceEpoch}_$userId',
+            'refreshToken':
+                'fixture_refresh_${DateTime.now().millisecondsSinceEpoch}_$userId',
             'userId': userId,
             'user': _cloneMap(user),
             'otpRequired': false,
@@ -483,7 +509,8 @@ class AppFixtures {
       };
     }
 
-    if (path == '/api/auth/session/verify-code') {
+    if (path == '/api/auth/session/verify-code' ||
+        path == '/api/auth/verify-code') {
       final String email = _authSessionEmail ?? '';
       final Map<String, dynamic>? user = fixtureProfileByEmail(email);
       if (user != null) {
@@ -492,8 +519,10 @@ class AppFixtures {
         return <String, dynamic>{
           'success': true,
           'data': <String, dynamic>{
-            'accessToken': 'fixture_access_${DateTime.now().millisecondsSinceEpoch}_$userId',
-            'refreshToken': 'fixture_refresh_${DateTime.now().millisecondsSinceEpoch}_$userId',
+            'accessToken':
+                'fixture_access_${DateTime.now().millisecondsSinceEpoch}_$userId',
+            'refreshToken':
+                'fixture_refresh_${DateTime.now().millisecondsSinceEpoch}_$userId',
             'userId': userId,
             'user': _cloneMap(user),
           },
@@ -507,13 +536,27 @@ class AppFixtures {
       };
     }
 
-    if (path == '/api/auth/session/register') {
+    if (path == '/api/auth/session/register' || path == '/api/auth/register') {
       return <String, dynamic>{
         'success': false,
         'data': <String, dynamic>{
           'message': 'Inscription non disponible en mode fixture',
         },
       };
+    }
+
+    if (path == '/api/auth/renew-code') {
+      return <String, dynamic>{
+        'success': true,
+        'data': <String, dynamic>{
+          'success': true,
+          'remainingResends': 2,
+        },
+      };
+    }
+
+    if (path == '/api/auth/logout') {
+      return <String, dynamic>{'success': true};
     }
 
     if (path == '/api/users/change-password') {
@@ -533,8 +576,8 @@ class AppFixtures {
     if (path == '/api/vehicles') {
       final Map<String, dynamic> payload =
           body is Map<String, dynamic> ? _cloneMap(body) : <String, dynamic>{};
-      final String id =
-          payload['id']?.toString() ?? 'veh_${DateTime.now().millisecondsSinceEpoch}';
+      final String id = payload['id']?.toString() ??
+          'veh_${DateTime.now().millisecondsSinceEpoch}';
       final Map<String, dynamic> row = <String, dynamic>{
         'id': id,
         'label': payload['label']?.toString() ?? 'Vehicule',
@@ -554,11 +597,11 @@ class AppFixtures {
     }
 
     if (path == '/api/finances/withdraw') {
-      final double amount = body is Map<String, dynamic>
-          ? _toDouble(body['amount'])
-          : 0;
+      final double amount =
+          body is Map<String, dynamic> ? _toDouble(body['amount']) : 0;
       final double current = _toDouble(_finances['availableBalance']);
-      final double safeAmount = amount <= 0 ? 0 : amount.clamp(0, current).toDouble();
+      final double safeAmount =
+          amount <= 0 ? 0 : amount.clamp(0, current).toDouble();
       _finances['availableBalance'] = (current - safeAmount);
       return <String, dynamic>{
         'success': true,
@@ -573,10 +616,9 @@ class AppFixtures {
       final Map<String, dynamic> payload =
           body is Map<String, dynamic> ? _cloneMap(body) : <String, dynamic>{};
       if (payload.isNotEmpty) {
-        payload['id'] =
-            payload['id']?.toString() ?? 'review_${DateTime.now().millisecondsSinceEpoch}';
-        payload['createdAt'] =
-            DateTime.now().toUtc().toIso8601String();
+        payload['id'] = payload['id']?.toString() ??
+            'review_${DateTime.now().millisecondsSinceEpoch}';
+        payload['createdAt'] = DateTime.now().toUtc().toIso8601String();
         _submittedReviews.add(payload);
       }
       return <String, dynamic>{'success': true, 'data': payload};
@@ -592,8 +634,9 @@ class AppFixtures {
     }
 
     if (path == '/api/reservations') {
-      final String tripId =
-          (body is Map<String, dynamic>) ? body['tripId']?.toString() ?? '' : '';
+      final String tripId = (body is Map<String, dynamic>)
+          ? body['tripId']?.toString() ?? ''
+          : '';
       final Map<String, dynamic>? trip = _findTripById(tripId);
       if (trip == null) {
         return <String, dynamic>{
@@ -635,8 +678,8 @@ class AppFixtures {
           'status': 'pending',
           'passenger': passengerPreview,
         };
-        final List<dynamic> requests = (_driverTrips[driverTripIndex]['reservationRequests']
-                as List<dynamic>? ??
+        final List<dynamic> requests = (_driverTrips[driverTripIndex]
+                ['reservationRequests'] as List<dynamic>? ??
             <dynamic>[]);
         requests.insert(0, request);
         _driverTrips[driverTripIndex]['reservationRequests'] = requests;
@@ -676,8 +719,8 @@ class AppFixtures {
             'sentAt': DateTime.now().toUtc().toIso8601String(),
             'isRead': false,
           };
-          final List<Map<String, dynamic>> list =
-              _messagesByTrip.putIfAbsent(tripId, () => <Map<String, dynamic>>[]);
+          final List<Map<String, dynamic>> list = _messagesByTrip.putIfAbsent(
+              tripId, () => <Map<String, dynamic>>[]);
           list.add(message);
           _touchThread(tripId: tripId, content: content);
           return <String, dynamic>{'success': true, 'data': _cloneMap(message)};
@@ -702,8 +745,8 @@ class AppFixtures {
             'sentAt': DateTime.now().toUtc().toIso8601String(),
             'isRead': false,
           };
-          final List<Map<String, dynamic>> list =
-              _messagesByTrip.putIfAbsent(tripId, () => <Map<String, dynamic>>[]);
+          final List<Map<String, dynamic>> list = _messagesByTrip.putIfAbsent(
+              tripId, () => <Map<String, dynamic>>[]);
           list.add(message);
           _touchThread(tripId: tripId, content: message['content'].toString());
         }
@@ -718,7 +761,10 @@ class AppFixtures {
       final String tripId = body['tripId']?.toString() ?? '';
       final String content = body['content']?.toString().trim() ?? '';
       if (tripId.isEmpty || content.isEmpty) {
-        return <String, dynamic>{'success': false, 'message': 'Message invalide'};
+        return <String, dynamic>{
+          'success': false,
+          'message': 'Message invalide'
+        };
       }
 
       final Map<String, dynamic> message = <String, dynamic>{
@@ -747,20 +793,21 @@ class AppFixtures {
             payload['departureTime']?.toString() ?? '',
           )?.toLocal() ??
           now.add(const Duration(hours: 3));
-      final String status = payload['status']?.toString().toLowerCase() == 'draft'
-          ? 'draft'
-          : 'published';
+      final String status =
+          payload['status']?.toString().toLowerCase() == 'draft'
+              ? 'draft'
+              : 'published';
       final Map<String, dynamic> trip = _buildTrip(
         id: id,
         driver: _driverPreview(_driverUser),
         departureLabel:
             payload['departureLabel']?.toString() ?? 'Campus La Cite',
-        arrivalLabel:
-            payload['arrivalLabel']?.toString() ?? 'Place d\'Orleans',
+        arrivalLabel: payload['arrivalLabel']?.toString() ?? 'Place d\'Orleans',
         departureTime: departure,
         availableSeats: _toInt(payload['availableSeats'], fallback: 2),
         totalSeats: _toInt(payload['maxPassengers'], fallback: 3),
-        pricePerPassenger: _toDouble(payload['pricePerPassenger'], fallback: 7.0),
+        pricePerPassenger:
+            _toDouble(payload['pricePerPassenger'], fallback: 7.0),
         paymentMethod: payload['paymentMethod']?.toString() ?? 'cash',
         durationMin: _toInt(payload['estimatedDurationMinutes'], fallback: 28),
         distanceKm: _toDouble(payload['estimatedDistanceKm'], fallback: 11.4),
@@ -782,7 +829,10 @@ class AppFixtures {
     }
 
     if (path == '/api/sos') {
-      return <String, dynamic>{'success': true, 'message': 'Signalement envoye'};
+      return <String, dynamic>{
+        'success': true,
+        'message': 'Signalement envoye'
+      };
     }
 
     return null;
@@ -814,7 +864,8 @@ class AppFixtures {
     if (path == '/api/users/me') {
       final Map<String, dynamic> updates =
           body is Map<String, dynamic> ? body : <String, dynamic>{};
-      final Map<String, dynamic> target = isDriver ? _driverUser : _passengerUser;
+      final Map<String, dynamic> target =
+          isDriver ? _driverUser : _passengerUser;
 
       void mergeNested(String key) {
         final dynamic patch = updates[key];
@@ -825,21 +876,26 @@ class AppFixtures {
         target[key] = <String, dynamic>{...current, ...patch};
       }
 
-      if (updates['firstName'] != null) target['firstName'] = updates['firstName'];
+      if (updates['firstName'] != null)
+        target['firstName'] = updates['firstName'];
       if (updates['lastName'] != null) target['lastName'] = updates['lastName'];
-      if (updates['schoolRole'] != null) target['schoolRole'] = updates['schoolRole'];
+      if (updates['schoolRole'] != null)
+        target['schoolRole'] = updates['schoolRole'];
       if (updates['notificationEmail'] != null) {
         target['notificationEmail'] = updates['notificationEmail'];
       }
-      if (updates['phoneNumber'] != null) target['phoneNumber'] = updates['phoneNumber'];
+      if (updates['phoneNumber'] != null)
+        target['phoneNumber'] = updates['phoneNumber'];
       if (updates['bio'] != null) target['bio'] = updates['bio'];
       if (updates['languagesSpoken'] is List) {
-        target['languagesSpoken'] = (updates['languagesSpoken'] as List<dynamic>)
-            .map((dynamic e) => e.toString())
-            .toList();
+        target['languagesSpoken'] =
+            (updates['languagesSpoken'] as List<dynamic>)
+                .map((dynamic e) => e.toString())
+                .toList();
       }
       if (updates['canBeDriver'] is bool) {
-        target['role'] = updates['canBeDriver'] == true ? 'Conducteur' : 'Passager';
+        target['role'] =
+            updates['canBeDriver'] == true ? 'Conducteur' : 'Passager';
       }
       mergeNested('preferences');
       mergeNested('notifications');
@@ -863,7 +919,8 @@ class AppFixtures {
       }
     }
     for (final Map<String, dynamic> trip in _driverTrips) {
-      final List<dynamic> requests = trip['reservationRequests'] as List<dynamic>? ?? <dynamic>[];
+      final List<dynamic> requests =
+          trip['reservationRequests'] as List<dynamic>? ?? <dynamic>[];
       for (final dynamic item in requests) {
         if (item is Map<String, dynamic> &&
             item['id']?.toString() == reservationId) {
@@ -880,8 +937,7 @@ class AppFixtures {
       row['tripStatus'] = status;
       row['status'] = status;
       if (previousStatus is Map<String, dynamic>) {
-        final Map<String, dynamic> current =
-            previousStatus;
+        final Map<String, dynamic> current = previousStatus;
         row['status'] = <String, dynamic>{...current, 'tripStatus': status};
       }
     }
@@ -902,8 +958,9 @@ class AppFixtures {
       applyStatus(row);
     }
     for (final Map<String, dynamic> row in _passengerReservations) {
-      final Map<String, dynamic>? trip =
-          row['trip'] is Map<String, dynamic> ? row['trip'] as Map<String, dynamic> : null;
+      final Map<String, dynamic>? trip = row['trip'] is Map<String, dynamic>
+          ? row['trip'] as Map<String, dynamic>
+          : null;
       if (trip != null && trip['id']?.toString() == tripId) {
         trip['status'] = status;
         row['status'] = status;
@@ -912,37 +969,10 @@ class AppFixtures {
   }
 
   static List<Map<String, dynamic>> _locationSuggestions(String query) {
-    final String q = query.trim().toLowerCase();
+    final String q = query.trim();
     if (q.length < 3) return <Map<String, dynamic>>[];
-
-    final List<Map<String, dynamic>> catalog = <Map<String, dynamic>>[
-      <String, dynamic>{
-        'label': 'Campus La Cite, Ottawa',
-        'coordinates': <double>[-75.6699, 45.4215],
-      },
-      <String, dynamic>{
-        'label': 'Place d\'Orleans, Ottawa',
-        'coordinates': <double>[-75.5242, 45.4786],
-      },
-      <String, dynamic>{
-        'label': 'Hurdman, Ottawa',
-        'coordinates': <double>[-75.6673, 45.4128],
-      },
-      <String, dynamic>{
-        'label': 'Gatineau Centre, Gatineau',
-        'coordinates': <double>[-75.7014, 45.4765],
-      },
-      <String, dynamic>{
-        'label': 'Barrhaven Town Centre, Ottawa',
-        'coordinates': <double>[-75.7380, 45.2792],
-      },
-    ];
-
-    final List<Map<String, dynamic>> filtered = catalog
-        .where((Map<String, dynamic> row) =>
-            row['label']?.toString().toLowerCase().contains(q) ?? false)
-        .toList();
-    return filtered.isEmpty ? catalog.take(3).toList() : filtered;
+    // Intentionally no hardcoded geo suggestions in fixtures.
+    return <Map<String, dynamic>>[];
   }
 
   static Map<String, dynamic>? _buildTrajetEnCoursPayload({
@@ -954,10 +984,9 @@ class AppFixtures {
     if (trip == null) return null;
 
     final String id = trip['id']?.toString() ?? tripId;
-    final Map<String, dynamic> driver =
-        trip['driver'] is Map<String, dynamic>
-            ? _cloneMap(trip['driver'] as Map<String, dynamic>)
-            : _driverPreview(_driverUser);
+    final Map<String, dynamic> driver = trip['driver'] is Map<String, dynamic>
+        ? _cloneMap(trip['driver'] as Map<String, dynamic>)
+        : _driverPreview(_driverUser);
 
     final List<List<double>> points = _extractRoutePoints(trip);
     final List<double> departure =
@@ -969,11 +998,13 @@ class AppFixtures {
         ? 0
         : ((DateTime.now().second % (segmentCount - 1))
             .clamp(0, segmentCount - 1)) as int;
-    final List<double> current = points.isEmpty ? departure : points[progressIdx];
+    final List<double> current =
+        points.isEmpty ? departure : points[progressIdx];
 
-    final String departureIso =
-        trip['departureTime']?.toString() ?? DateTime.now().toUtc().toIso8601String();
-    final DateTime departureDt = DateTime.tryParse(departureIso)?.toLocal() ?? DateTime.now();
+    final String departureIso = trip['departureTime']?.toString() ??
+        DateTime.now().toUtc().toIso8601String();
+    final DateTime departureDt =
+        DateTime.tryParse(departureIso)?.toLocal() ?? DateTime.now();
 
     final String status = _tripStatusLabel(trip);
     final int totalSeats = _toInt(trip['totalSeats'], fallback: 4);
@@ -997,24 +1028,29 @@ class AppFixtures {
         'driverId': driver['id']?.toString() ?? _driverUser['id'],
         'vehicleId': 'veh_fixture_1',
         'departureLabel': trip['departureLabel']?.toString() ?? 'Depart',
-        'departureAddress':
-            trip['departureAddress']?.toString() ?? trip['departureLabel']?.toString() ?? 'Depart',
+        'departureAddress': trip['departureAddress']?.toString() ??
+            trip['departureLabel']?.toString() ??
+            'Depart',
         'departureLat': departure[0],
         'departureLng': departure[1],
         'arrivalLabel': trip['arrivalLabel']?.toString() ?? 'Destination',
-        'arrivalAddress':
-            trip['arrivalAddress']?.toString() ?? trip['arrivalLabel']?.toString() ?? 'Destination',
+        'arrivalAddress': trip['arrivalAddress']?.toString() ??
+            trip['arrivalLabel']?.toString() ??
+            'Destination',
         'arrivalLat': arrival[0],
         'arrivalLng': arrival[1],
         'departureDate':
             '${departureDt.year.toString().padLeft(4, '0')}-${departureDt.month.toString().padLeft(2, '0')}-${departureDt.day.toString().padLeft(2, '0')}',
         'departureTime':
             '${departureDt.hour.toString().padLeft(2, '0')}:${departureDt.minute.toString().padLeft(2, '0')}:00',
-        'estimatedDurationMinutes': _toInt(trip['estimatedDurationMin'], fallback: 28),
-        'estimatedDistanceKm': _toDouble(trip['estimatedDistanceKm'], fallback: 11.8),
+        'estimatedDurationMinutes':
+            _toInt(trip['estimatedDurationMin'], fallback: 28),
+        'estimatedDistanceKm':
+            _toDouble(trip['estimatedDistanceKm'], fallback: 11.8),
         'maxPassengers': totalSeats,
         'currentPassengers': currentPassengers,
-        'pricePerPassenger': _toDouble(trip['pricePerPassenger'], fallback: 7.5),
+        'pricePerPassenger':
+            _toDouble(trip['pricePerPassenger'], fallback: 7.5),
         'paymentMethod': trip['paymentMethod']?.toString() ?? 'cash',
         'tripType': 'unique',
         'status': status,
@@ -1027,7 +1063,8 @@ class AppFixtures {
         'updatedAt': DateTime.now().toUtc().toIso8601String(),
         'driver': <String, dynamic>{
           'id': driver['id']?.toString() ?? _driverUser['id'],
-          'firstName': driver['firstName']?.toString() ?? _driverUser['firstName'],
+          'firstName':
+              driver['firstName']?.toString() ?? _driverUser['firstName'],
           'lastName': driver['lastName']?.toString() ?? _driverUser['lastName'],
           'averageRating': _toDouble(
             driver['rating'] ?? driver['averageRating'],
@@ -1072,7 +1109,8 @@ class AppFixtures {
   }
 
   static List<List<double>> _extractRoutePoints(Map<String, dynamic> trip) {
-    final dynamic waypoints = trip['waypoints'] ?? trip['polyline'] ?? trip['routePolyline'];
+    final dynamic waypoints =
+        trip['waypoints'] ?? trip['polyline'] ?? trip['routePolyline'];
     if (waypoints is List) {
       final List<List<double>> points = waypoints
           .whereType<dynamic>()
@@ -1092,8 +1130,7 @@ class AppFixtures {
             return null;
           })
           .whereType<List<double>>()
-          .where((List<double> row) =>
-              row[0] != 0 || row[1] != 0)
+          .where((List<double> row) => row[0] != 0 || row[1] != 0)
           .toList();
       if (points.isNotEmpty) return points;
     }
@@ -1122,7 +1159,8 @@ class AppFixtures {
     );
     if (i == -1) return;
     _conversationThreads[i]['lastMessage'] = content;
-    _conversationThreads[i]['updatedAt'] = DateTime.now().toUtc().toIso8601String();
+    _conversationThreads[i]['updatedAt'] =
+        DateTime.now().toUtc().toIso8601String();
   }
 
   static List<Map<String, dynamic>> _conversationItemsForRole({
@@ -1218,14 +1256,12 @@ class AppFixtures {
 
   static List<Map<String, dynamic>> _passengerReservationsEnriched() {
     return _passengerReservations.map((Map<String, dynamic> row) {
-      final Map<String, dynamic> trip =
-          row['trip'] is Map<String, dynamic>
-              ? _cloneMap(row['trip'] as Map<String, dynamic>)
-              : <String, dynamic>{};
-      final Map<String, dynamic> driver =
-          row['driver'] is Map<String, dynamic>
-              ? _cloneMap(row['driver'] as Map<String, dynamic>)
-              : <String, dynamic>{};
+      final Map<String, dynamic> trip = row['trip'] is Map<String, dynamic>
+          ? _cloneMap(row['trip'] as Map<String, dynamic>)
+          : <String, dynamic>{};
+      final Map<String, dynamic> driver = row['driver'] is Map<String, dynamic>
+          ? _cloneMap(row['driver'] as Map<String, dynamic>)
+          : <String, dynamic>{};
 
       final String departureTime = trip['departureTime']?.toString() ?? '';
       final DateTime? dt = DateTime.tryParse(departureTime);
@@ -1253,7 +1289,8 @@ class AppFixtures {
               _toInt(trip['estimatedDurationMin'], fallback: 20),
           'maxPassengers': _toInt(trip['totalSeats'], fallback: 4),
           'currentPassengers': 1,
-          'pricePerPassenger': _toDouble(row['price'] ?? trip['passengerPrice']),
+          'pricePerPassenger':
+              _toDouble(row['price'] ?? trip['passengerPrice']),
           'status': trip['status'] ?? 'published',
         },
         'driver': <String, dynamic>{
@@ -1261,10 +1298,11 @@ class AppFixtures {
           'firstName': driver['firstName'] ?? _driverUser['firstName'],
           'lastName': driver['lastName'] ?? _driverUser['lastName'],
           'avatarUrl': driver['avatarUrl'] ?? _driverUser['avatarUrl'],
-          'averageRating':
-              _toDouble(driver['rating'] ?? driver['averageRating'], fallback: 4.7),
-          'totalTripsAsDriver':
-              _toInt(driver['tripCount'], fallback: _driverUser['stats']?['totalTrips'] ?? 0),
+          'averageRating': _toDouble(
+              driver['rating'] ?? driver['averageRating'],
+              fallback: 4.7),
+          'totalTripsAsDriver': _toInt(driver['tripCount'],
+              fallback: _driverUser['stats']?['totalTrips'] ?? 0),
         },
         'passenger': <String, dynamic>{
           'id': _passengerUser['id'],
@@ -1285,15 +1323,21 @@ class AppFixtures {
     final String to = params?['to']?.toString().trim().toLowerCase() ?? '';
     final int seats = _toInt(params?['seats'], fallback: 1);
 
-    final List<Map<String, dynamic>> filtered = _publishedTrips.where((Map<String, dynamic> trip) {
-      final String dep = trip['departureLabel']?.toString().toLowerCase() ?? '';
-      final String arr = trip['arrivalLabel']?.toString().toLowerCase() ?? '';
-      final int availableSeats = _toInt(trip['availableSeats'], fallback: 0);
-      final bool matchFrom = from.isEmpty || dep.contains(from);
-      final bool matchTo = to.isEmpty || arr.contains(to);
-      final bool seatsOk = availableSeats >= seats;
-      return matchFrom && matchTo && seatsOk;
-    }).map((Map<String, dynamic> row) => _cloneMap(row)).toList();
+    final List<Map<String, dynamic>> filtered = _publishedTrips
+        .where((Map<String, dynamic> trip) {
+          final String dep =
+              trip['departureLabel']?.toString().toLowerCase() ?? '';
+          final String arr =
+              trip['arrivalLabel']?.toString().toLowerCase() ?? '';
+          final int availableSeats =
+              _toInt(trip['availableSeats'], fallback: 0);
+          final bool matchFrom = from.isEmpty || dep.contains(from);
+          final bool matchTo = to.isEmpty || arr.contains(to);
+          final bool seatsOk = availableSeats >= seats;
+          return matchFrom && matchTo && seatsOk;
+        })
+        .map((Map<String, dynamic> row) => _cloneMap(row))
+        .toList();
 
     if (filtered.isNotEmpty) return filtered;
     return _cloneList(_publishedTrips).cast<Map<String, dynamic>>();
@@ -1411,8 +1455,10 @@ class AppFixtures {
     if (_ready) return;
 
     final DateTime now = DateTime.now();
-    final DateTime morningTrip = DateTime(now.year, now.month, now.day + 1, 7, 40);
-    final DateTime eveningTrip = DateTime(now.year, now.month, now.day + 1, 17, 10);
+    final DateTime morningTrip =
+        DateTime(now.year, now.month, now.day + 1, 7, 40);
+    final DateTime eveningTrip =
+        DateTime(now.year, now.month, now.day + 1, 17, 10);
     final DateTime soonTrip = now.add(const Duration(hours: 3));
     final DateTime midTrip = now.add(const Duration(hours: 5));
     final DateTime draftTripDate = now.add(const Duration(days: 2, hours: 2));
@@ -1719,7 +1765,8 @@ class AppFixtures {
         'driver': _cloneMap(driverB),
         'passenger': _driverPreview(_passengerUser),
         'lastMessage': 'Parfait, merci! A tantot.',
-        'updatedAt': now.subtract(const Duration(minutes: 18)).toUtc().toIso8601String(),
+        'updatedAt':
+            now.subtract(const Duration(minutes: 18)).toUtc().toIso8601String(),
       },
       <String, dynamic>{
         'id': 'conv_trip_201',
@@ -1727,7 +1774,8 @@ class AppFixtures {
         'driver': _cloneMap(driverA),
         'passenger': _driverPreview(_passengerUser),
         'lastMessage': 'Je serai au point de depart 5 min avant.',
-        'updatedAt': now.subtract(const Duration(hours: 2)).toUtc().toIso8601String(),
+        'updatedAt':
+            now.subtract(const Duration(hours: 2)).toUtc().toIso8601String(),
       },
     ];
 
@@ -1737,8 +1785,12 @@ class AppFixtures {
           'id': 'msg_3001',
           'tripId': 'trip_301',
           'senderId': _passengerUser['id'],
-          'content': 'Bonjour, le point de rendez-vous est bien devant l\'entree principale?',
-          'sentAt': now.subtract(const Duration(minutes: 35)).toUtc().toIso8601String(),
+          'content':
+              'Bonjour, le point de rendez-vous est bien devant l\'entree principale?',
+          'sentAt': now
+              .subtract(const Duration(minutes: 35))
+              .toUtc()
+              .toIso8601String(),
           'isRead': true,
         },
         <String, dynamic>{
@@ -1746,7 +1798,10 @@ class AppFixtures {
           'tripId': 'trip_301',
           'senderId': driverB['id'],
           'content': 'Oui, devant l\'entree principale cote nord.',
-          'sentAt': now.subtract(const Duration(minutes: 26)).toUtc().toIso8601String(),
+          'sentAt': now
+              .subtract(const Duration(minutes: 26))
+              .toUtc()
+              .toIso8601String(),
           'isRead': true,
         },
         <String, dynamic>{
@@ -1754,7 +1809,10 @@ class AppFixtures {
           'tripId': 'trip_301',
           'senderId': _passengerUser['id'],
           'content': 'Parfait, merci! A tantot.',
-          'sentAt': now.subtract(const Duration(minutes: 18)).toUtc().toIso8601String(),
+          'sentAt': now
+              .subtract(const Duration(minutes: 18))
+              .toUtc()
+              .toIso8601String(),
           'isRead': false,
         },
       ],
@@ -1764,7 +1822,10 @@ class AppFixtures {
           'tripId': 'trip_201',
           'senderId': _passengerUser['id'],
           'content': 'Salut Nadia, j\'aimerais reserver une place.',
-          'sentAt': now.subtract(const Duration(hours: 2, minutes: 10)).toUtc().toIso8601String(),
+          'sentAt': now
+              .subtract(const Duration(hours: 2, minutes: 10))
+              .toUtc()
+              .toIso8601String(),
           'isRead': true,
         },
       ],
@@ -1775,21 +1836,26 @@ class AppFixtures {
         'id': 'notif_1001',
         'type': 'Reservation',
         'title': 'Nouvelle demande de reservation',
-        'body': '${_passengerUser['firstName']} souhaite rejoindre votre trajet de demain matin.',
-        'createdAt': now.subtract(const Duration(minutes: 22)).toUtc().toIso8601String(),
+        'body':
+            '${_passengerUser['firstName']} souhaite rejoindre votre trajet de demain matin.',
+        'createdAt':
+            now.subtract(const Duration(minutes: 22)).toUtc().toIso8601String(),
         'isRead': false,
         'tripId': 'trip_201',
         'data': <String, dynamic>{'tripId': 'trip_201'},
         'trip': _cloneMap(trip201),
-        'passengerName': '${_passengerUser['firstName']} ${_passengerUser['lastName']}',
+        'passengerName':
+            '${_passengerUser['firstName']} ${_passengerUser['lastName']}',
         'driverName': '${_driverUser['firstName']} ${_driverUser['lastName']}',
       },
       <String, dynamic>{
         'id': 'notif_1002',
         'type': 'Trip',
         'title': 'Trajet confirme',
-        'body': 'Votre reservation pour Gatineau Centre -> Campus La Cite est confirmee.',
-        'createdAt': now.subtract(const Duration(hours: 5)).toUtc().toIso8601String(),
+        'body':
+            'Votre reservation pour Gatineau Centre -> Campus La Cite est confirmee.',
+        'createdAt':
+            now.subtract(const Duration(hours: 5)).toUtc().toIso8601String(),
         'isRead': true,
         'tripId': 'trip_301',
         'data': <String, dynamic>{'tripId': 'trip_301'},
@@ -1800,7 +1866,8 @@ class AppFixtures {
         'type': 'Review',
         'title': 'Nouvel avis recu',
         'body': 'Amelie vous a attribue 5 etoiles.',
-        'createdAt': now.subtract(const Duration(days: 1)).toUtc().toIso8601String(),
+        'createdAt':
+            now.subtract(const Duration(days: 1)).toUtc().toIso8601String(),
         'isRead': true,
         'tripId': 'trip_301',
         'data': <String, dynamic>{'tripId': 'trip_301'},
