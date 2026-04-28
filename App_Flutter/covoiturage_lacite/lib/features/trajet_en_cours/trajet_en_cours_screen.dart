@@ -10,6 +10,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/services/api_service.dart';
@@ -40,6 +41,7 @@ class _TrajetEnCoursScreenState extends State<TrajetEnCoursScreen> {
   TrajetEnCoursDto? _data;
 
   Timer? _positionTimer;
+  Timer? _uploadTimer;
   DriverPositionDto? _driverPosition;
 
   Timer? _elapsedTimer;
@@ -65,6 +67,7 @@ class _TrajetEnCoursScreenState extends State<TrajetEnCoursScreen> {
   @override
   void dispose() {
     _positionTimer?.cancel();
+    _uploadTimer?.cancel();
     _elapsedTimer?.cancel();
     super.dispose();
   }
@@ -106,6 +109,7 @@ class _TrajetEnCoursScreenState extends State<TrajetEnCoursScreen> {
       });
 
       _startPolling();
+      _startLocationUpload();
       _startElapsedTimer();
 
       if (isCompleted) {
@@ -129,6 +133,43 @@ class _TrajetEnCoursScreenState extends State<TrajetEnCoursScreen> {
     _positionTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
       final pos = await _service.getDriverPosition(widget.tripId, driverId);
       if (mounted && pos != null) setState(() => _driverPosition = pos);
+    });
+  }
+
+  void _startLocationUpload() {
+    _uploadTimer?.cancel();
+    _uploadTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
+      try {
+        final bool serviceEnabled =
+            await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) return;
+
+        LocationPermission permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+        if (permission == LocationPermission.denied ||
+            permission == LocationPermission.deniedForever) {
+          return;
+        }
+
+        final Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+
+        await ApiService.instance.post('/api/gps/position', {
+          'tripId': widget.tripId,
+          'latitude': position.latitude,
+          'longitude': position.longitude,
+          'speedKmh':
+              position.speed.isFinite && position.speed > 0 ? position.speed * 3.6 : 0,
+          'headingDegrees': position.heading.isFinite ? position.heading : 0,
+          'accuracyMeters': position.accuracy.isFinite ? position.accuracy : 0,
+          'capturedAt': DateTime.now().toUtc().toIso8601String(),
+        });
+      } catch (_) {
+        // Best-effort polling only.
+      }
     });
   }
 

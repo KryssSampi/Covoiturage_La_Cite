@@ -15,6 +15,44 @@ class TrajetEnCoursDto {
   });
 
   factory TrajetEnCoursDto.fromJson(Map<String, dynamic> json) {
+    if (json['trip'] is! Map<String, dynamic>) {
+      final Map<String, dynamic> tripMap = <String, dynamic>{
+        'id': json['id'],
+        'driverId': (json['driver'] as Map<String, dynamic>?)?['id'],
+        'vehicleId': (json['vehicle'] as Map<String, dynamic>?)?['id'],
+        'departureLabel': json['departureLabel'],
+        'departureAddress': json['departureAddress'] ?? json['departureLabel'],
+        'departureLat': json['departureLat'],
+        'departureLng': json['departureLng'],
+        'arrivalLabel': json['arrivalLabel'],
+        'arrivalAddress': json['arrivalAddress'] ?? json['arrivalLabel'],
+        'arrivalLat': json['arrivalLat'],
+        'arrivalLng': json['arrivalLng'],
+        'departureDate': json['departureDate'],
+        'departureTime': json['departureTime'],
+        'estimatedArrivalTime': json['estimatedArrivalTime'],
+        'status': json['status'],
+        'polyline': json['polyline'],
+        'driver': json['driver'],
+        'vehicle': json['vehicle'],
+      };
+
+      final dynamic passengersRaw = json['passengers'];
+      final List<dynamic> passengers = passengersRaw is List<dynamic> ? passengersRaw : const <dynamic>[];
+      final bool hasPos = json['currentLat'] != null && json['currentLng'] != null;
+      final Map<String, dynamic> normalized = <String, dynamic>{
+        'trip': tripMap,
+        'passengers': passengers,
+        if (hasPos)
+          'driverPosition': <String, dynamic>{
+            'lat': json['currentLat'],
+            'lng': json['currentLng'],
+            'updatedAt': json['lastGpsUpdate'],
+          },
+      };
+      return TrajetEnCoursDto.fromJson(normalized);
+    }
+
     return TrajetEnCoursDto(
       trip: TrajetResponseDto.fromJson(json['trip'] as Map<String, dynamic>),
       passengers: (json['passengers'] as List<dynamic>? ?? [])

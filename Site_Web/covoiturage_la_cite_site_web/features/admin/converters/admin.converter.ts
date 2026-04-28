@@ -412,13 +412,15 @@ export function toAdminUserExportView(raw: {
 
 export function toAdminAuditLogView(raw: { id: string; action: string; date: string; adminEmail: string }): AdminAuditLogView {
   const d = new Date(raw.date);
+  const isValid = !Number.isNaN(d.getTime());
+  const timestamp = isValid ? d.toISOString() : "";
   return {
     id: raw.id,
     action: raw.action,
     adminEmail: raw.adminEmail,
-    date: d.toLocaleDateString('fr-CA'),
-    time: d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' }),
-    timestamp: d.toISOString(),
+    date: isValid ? d.toLocaleDateString('fr-CA') : raw.date,
+    time: isValid ? d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit' }) : "",
+    timestamp,
     actorId: raw.adminEmail,
     targetId: "",
     ipAddress: "",

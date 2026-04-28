@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Enum des Ã©tats possibles du bouton rÃ©servation (inspirÃ© du site web)
+/// Enum des états possibles du bouton réservation (inspiré du site web)
 enum ReserveButtonStateKind {
   reserve,
   pending,
@@ -65,7 +65,22 @@ class ReserveButton extends StatelessWidget {
           style: baseStyle.copyWith(
             backgroundColor: WidgetStateProperty.all(const Color(0xFF08316E)),
           ),
-          child: const Text('RÃ©server ce trajet'),
+          child: const Text(
+            'Réserver ce trajet',
+            style: TextStyle(
+              color: Color(0xFFFFFFFF), // blanc opaque
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              letterSpacing: 0.2,
+              shadows: [
+                Shadow(
+                  color: Color(0x33000000), // légère ombre pour contraste
+                  offset: Offset(0, 1),
+                  blurRadius: 2,
+                ),
+              ],
+            ),
+          ),
         );
       case ReserveButtonStateKind.pending:
         return ElevatedButton(
@@ -83,7 +98,7 @@ class ReserveButton extends StatelessWidget {
                     strokeWidth: 2.5, color: Colors.white),
               ),
               SizedBox(width: 10),
-              Text('En attente de confirmationâ€¦'),
+              Text('En attente de confirmation…'),
             ],
           ),
         );
@@ -106,7 +121,7 @@ class ReserveButton extends StatelessWidget {
                 foregroundColor:
                     WidgetStateProperty.all(const Color(0xFF757575)),
               ),
-              child: const Text('Demande refusÃ©e'),
+              child: const Text('Demande refusée'),
             ),
             if (state.hoursLeft != null)
               Padding(
@@ -134,7 +149,7 @@ class ReserveButton extends StatelessWidget {
           style: baseStyle.copyWith(
             backgroundColor: WidgetStateProperty.all(const Color(0xFF08316E)),
           ),
-          child: const Text('GÃ©rer les demandes'),
+          child: const Text('Gérer les demandes'),
         );
       case ReserveButtonStateKind.readonly:
         return const SizedBox.shrink();
@@ -144,7 +159,7 @@ class ReserveButton extends StatelessWidget {
           style: baseStyle.copyWith(
             backgroundColor: WidgetStateProperty.all(const Color(0xFF1a6b3a)),
           ),
-          child: const Text('ConfirmÃ©'),
+          child: const Text('Confirmé'),
         );
       case ReserveButtonStateKind.reservationInProgress:
         return ElevatedButton(
@@ -161,7 +176,7 @@ class ReserveButton extends StatelessWidget {
             backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
             foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
-          child: const Text('AnnulÃ©'),
+          child: const Text('Annulé'),
         );
       case ReserveButtonStateKind.reservationPending:
         return ElevatedButton(
@@ -180,7 +195,7 @@ class ReserveButton extends StatelessWidget {
             foregroundColor: WidgetStateProperty.all(const Color(0xFFBDBDBD)),
             shadowColor: WidgetStateProperty.all(Colors.transparent),
           ),
-          child: const Text('ComplÃ©tÃ©'),
+          child: const Text('Complété'),
         );
       case ReserveButtonStateKind.reservationRejected:
         return ElevatedButton(
@@ -189,7 +204,7 @@ class ReserveButton extends StatelessWidget {
             backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
             foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
-          child: const Text('RejetÃ©'),
+          child: const Text('Rejeté'),
         );
       case ReserveButtonStateKind.tripPublished:
         return ElevatedButton(
@@ -198,7 +213,7 @@ class ReserveButton extends StatelessWidget {
             backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
             foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
-          child: const Text('PubliÃ©'),
+          child: const Text('Publié'),
         );
       case ReserveButtonStateKind.tripFull:
         return ElevatedButton(
@@ -217,7 +232,7 @@ class ReserveButton extends StatelessWidget {
           style: baseStyle.copyWith(
             backgroundColor: WidgetStateProperty.all(const Color(0xFF1a6b3a)),
           ),
-          child: const Text('ConfirmÃ©'),
+          child: const Text('Confirmé'),
         );
       case ReserveButtonStateKind.tripInProgress:
         return ElevatedButton(
@@ -235,7 +250,7 @@ class ReserveButton extends StatelessWidget {
             foregroundColor: WidgetStateProperty.all(const Color(0xFFBDBDBD)),
             shadowColor: WidgetStateProperty.all(Colors.transparent),
           ),
-          child: const Text('TerminÃ©'),
+          child: const Text('Terminé'),
         );
       case ReserveButtonStateKind.tripCancelled:
         return ElevatedButton(
@@ -244,7 +259,7 @@ class ReserveButton extends StatelessWidget {
             backgroundColor: WidgetStateProperty.all(const Color(0xFFe0e0e0)),
             foregroundColor: WidgetStateProperty.all(const Color(0xFF757575)),
           ),
-          child: const Text('AnnulÃ©'),
+          child: const Text('Annulé'),
         );
       case ReserveButtonStateKind.tripNoShow:
         return ElevatedButton(
@@ -267,7 +282,7 @@ class ReserveButton extends StatelessWidget {
             children: const [
               Icon(Icons.play_arrow, color: Colors.white),
               SizedBox(width: 8),
-              Text('DÃ©marrer le trajet'),
+              Text('Démarrer le trajet'),
             ],
           ),
         );

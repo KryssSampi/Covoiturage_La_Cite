@@ -1,6 +1,7 @@
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Notification;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Reservation;
 using Covoiturage_La_Cite_Server_Core_.Application.DTOs.User;
+using Covoiturage_La_Cite_Server_Core_.Application.DTOs.Chat;
 using Covoiturage_La_Cite_Server_Core_.Application.Interfaces;
 using Covoiturage_La_Cite_Server_Core_.Application.Services.Sse;
 using Covoiturage_La_Cite_Server_Core_.Data.PostgreSQL;
@@ -15,6 +16,7 @@ public class ReservationService : IReservationService
     private readonly ITrajetRepository _trajetRepo;
     private readonly IGoTaskService _goTasks;
     private readonly INotificationService _notifications;
+    private readonly IChatService _chat;
     private readonly AppDbContext _db;
     private readonly SseChannelService _sse;
     private readonly ILogger<ReservationService> _logger;
@@ -24,6 +26,7 @@ public class ReservationService : IReservationService
         ITrajetRepository trajetRepo,
         IGoTaskService goTasks,
         INotificationService notifications,
+        IChatService chat,
         AppDbContext db,
         SseChannelService sse,
         ILogger<ReservationService> logger)
@@ -32,6 +35,7 @@ public class ReservationService : IReservationService
         _trajetRepo = trajetRepo;
         _goTasks = goTasks;
         _notifications = notifications;
+        _chat = chat;
         _db = db;
         _sse = sse;
         _logger = logger;
@@ -201,7 +205,6 @@ _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
             trip.Status = TripStatus.Full;
 
         await _repo.UpdateAsync(reservation, ct);
-        PublishReservationChanged(reservation.PassengerId, reservation.DriverId, reservation.TripId, "refused");
         await _trajetRepo.UpdateAsync(trip, ct);
 
         // Auto-annulation des autres demandes en attente du mÃªme passager.
@@ -233,6 +236,21 @@ _ = Task.Run(() => _goTasks.TryCompleteAsync(passengerId, "GT-012", ct), ct);
         catch (Exception ex)
         {
             _logger.LogError(ex, "[ReservationService] Erreur notification passager acceptation — {Id}", reservation.Id);
+        }
+
+        try
+        {
+            await _chat.SendAsync(driverId, new SendMessageDto
+            {
+                TripId = reservation.TripId,
+                RecipientId = reservation.PassengerId,
+                Content = "Reservation acceptee. Vous pouvez me contacter ici pour organiser le depart.",
+                Type = "text"
+            }, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ReservationService] Erreur creation conversation initiale â€” {Id}", reservation.Id);
         }
 
         return MapToResponse(reservation);

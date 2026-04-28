@@ -60,10 +60,12 @@ export function usePublishedTripView({
       switch (sourceStatus) {
         case 'confirmed':   return { kind: 'reservation-confirmed' };
         case 'in-progress':  return { kind: 'reservation-inprogress' };
+        case 'in_progress': return { kind: 'reservation-inprogress' };
         case 'cancelled':   return { kind: 'reservation-cancelled' };
         case 'pending':     return { kind: 'reservation-pending' };
         case 'completed':   return { kind: 'reservation-completed' };
         case 'rejected':    return { kind: 'reservation-rejected' };
+        case 'refused':     return { kind: 'reservation-rejected' };
         case 'imminent':    return { kind: 'reservation-imminent' };
       }
     }
@@ -74,6 +76,7 @@ export function usePublishedTripView({
         case 'full':        return { kind: 'trip-full' };
         case 'confirmed':   return { kind: 'trip-confirmed' };
         case 'in-progress':  return { kind: 'trip-inprogress' };
+        case 'in_progress': return { kind: 'trip-inprogress' };
         case 'completed':   return { kind: 'trip-completed' };
         case 'cancelled':   return { kind: 'trip-cancelled' };
         case 'no-show':     return { kind: 'trip-noshow' };

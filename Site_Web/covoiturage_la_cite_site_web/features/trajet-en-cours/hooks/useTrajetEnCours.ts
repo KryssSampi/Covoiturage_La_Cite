@@ -178,16 +178,69 @@ export function useTrajetEnCours({ tripId }: UseTrajetEnCoursProps): UseTrajetEn
         const data = await res.json() as TrajetEnCoursDto;
         setApiData(data);
 
-        // Fetch conducteur + véhicule en parallèle
-        const [driverRes, vehicleRes] = await Promise.allSettled([
-          fetch(`/api/users/${encodeURIComponent(data.trip.driverId)}`),
-          fetch(`/api/vehicles/${encodeURIComponent(data.trip.vehicleId)}`),
-        ]);
-        if (driverRes.status === 'fulfilled' && driverRes.value.ok) {
-          setDriverUser(await driverRes.value.json() as UserModel);
+        // Utiliser directement les données live enrichies du Server Core.
+        if (data.trip.driver) {
+          const d = data.trip.driver;
+          setDriverUser({
+            id: d.id,
+            email: '',
+            firstName: d.firstName,
+            lastName: d.lastName,
+            initials: `${d.firstName?.[0] ?? ''}${d.lastName?.[0] ?? ''}`.toUpperCase(),
+            avatarUrl: d.avatarUrl,
+            role: 'driver',
+            canBeDriver: true,
+            profileVerified: d.isProfileVerified,
+            isActive: true,
+            driverProfile: {
+              validationStatus: d.isProfileVerified ? 'approved' : 'pending',
+              reputationPoints: d.goScore ?? 0,
+              averageRating: d.averageRating ?? 0,
+              totalTripsAsDriver: 0,
+              co2SavedKg: 0,
+              cancellationRate: 0,
+              punctualityScore: 80,
+              noShowCount: 0,
+            },
+            passengerProfile: {
+              averageRating: 0,
+              totalTripsAsPassenger: 0,
+              co2SavedKg: 0,
+              punctualityScore: 80,
+              noShowCount: 0,
+            },
+            preferences: {
+              musicAccepted: true,
+              petsAccepted: false,
+              smokingAccepted: false,
+              conversationLevel: 'moderate',
+            },
+            goScore: d.goScore ?? 0,
+            badgeIds: [],
+            createdAt: '',
+            updatedAt: '',
+            phone: undefined,
+            currentLocation: undefined,
+          } as UserModel);
         }
-        if (vehicleRes.status === 'fulfilled' && vehicleRes.value.ok) {
-          setVehicleModel(await vehicleRes.value.json() as VehicleModel);
+
+        if (data.trip.vehicle) {
+          const v = data.trip.vehicle;
+          setVehicleModel({
+            id: v.id,
+            driverId: data.trip.driverId,
+            make: v.make,
+            model: v.model,
+            year: v.year,
+            color: v.color,
+            licensePlate: v.licensePlate,
+            maxSeats: v.capacity,
+            photoUrl: v.photoUrl,
+            isActive: true,
+            isValidated: true,
+            createdAt: '',
+            updatedAt: '',
+          });
         }
       } catch (err) {
         console.error('[useTrajetEnCours] fetch initial', err);

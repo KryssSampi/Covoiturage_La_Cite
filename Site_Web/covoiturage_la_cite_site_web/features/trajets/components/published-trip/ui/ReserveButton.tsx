@@ -19,6 +19,15 @@ export const ReserveButton: React.FC<ReserveButtonProps> = ({
 }) => {
   const router = useRouter();
   const { userConnected } = useAppState();
+  const openTripTracking = async () => {
+    try {
+      await fetch(`/api/trips/${encodeURIComponent(tripId)}/start`, { method: 'PATCH' });
+    } catch {
+      // best-effort only
+    } finally {
+      router.push(`/trajet-en-cours/${tripId}`);
+    }
+  };
 
   const baseClass =
     'w-full py-3.5 rounded-xl font-bold text-base transition-all duration-200';
@@ -130,7 +139,7 @@ export const ReserveButton: React.FC<ReserveButtonProps> = ({
     case 'reservation-inprogress':
       return (
         <button
-          onClick={() => router.push(`/map?reservationId=${tripId}`)}
+          onClick={() => router.push(`/trajet-en-cours/${tripId}`)}
           className={`${baseClass} text-white hover:opacity-90 active:scale-95`}
           style={{ backgroundColor: '#08316e' }}
         >
@@ -217,7 +226,7 @@ export const ReserveButton: React.FC<ReserveButtonProps> = ({
     case 'trip-inprogress':
       return (
         <button
-          onClick={() => router.push(`/map?reservationId=${tripId}`)}
+          onClick={() => router.push(`/trajet-en-cours/${tripId}`)}
           className={`${baseClass} text-white hover:opacity-90 active:scale-95`}
           style={{ backgroundColor: '#08316e' }}
         >
@@ -259,7 +268,9 @@ export const ReserveButton: React.FC<ReserveButtonProps> = ({
     case 'reservation-imminent':
       return (
         <button
-          onClick={() => router.push(`/trajet-en-cours/${tripId}`)}
+          onClick={() => {
+            void openTripTracking();
+          }}
           className={`${baseClass} text-white hover:opacity-90 active:scale-95 animate-pulse`}
           style={{ backgroundColor: '#0aad6a' }}
         >

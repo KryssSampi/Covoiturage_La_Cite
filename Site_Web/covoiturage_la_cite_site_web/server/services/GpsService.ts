@@ -12,9 +12,10 @@ export interface RecordPositionDto {
   tripId: string;
   latitude: number;
   longitude: number;
-  accuracy?: number;
-  speed?: number;
-  heading?: number;
+  accuracyMeters?: number;
+  speedKmh?: number;
+  headingDegrees?: number;
+  capturedAt?: string;
 }
 
 export interface GpsPositionResponseDto {
@@ -23,9 +24,9 @@ export interface GpsPositionResponseDto {
   userId: string;
   latitude: number;
   longitude: number;
-  accuracy?: number;
-  speed?: number;
-  heading?: number;
+  accuracyMeters?: number;
+  speedKmh?: number;
+  headingDegrees?: number;
   capturedAt: string;
 }
 
@@ -33,18 +34,19 @@ export interface GpsPositionResponseDto {
 
 export interface TriggerSosDto {
   tripId: string;
+  emergencyType: string;
   latitude: number;
   longitude: number;
-  message?: string;
 }
 
 export interface SosAlertResponseDto {
   id: string;
   userId: string;
   tripId: string;
-  latitude: number;
-  longitude: number;
-  message?: string;
+  triggerLatitude: number;
+  triggerLongitude: number;
+  emergencyType: string;
+  emergencyContactsNotified: boolean;
   status: string;
   triggeredAt: string;
   resolvedAt?: string;

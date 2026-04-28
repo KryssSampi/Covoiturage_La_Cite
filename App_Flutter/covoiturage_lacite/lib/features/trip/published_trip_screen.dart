@@ -279,7 +279,10 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     }
     if (widget.source == 'reservation') {
       final s = widget.sourceStatus ?? '';
-      return s == 'confirmed' || s == 'in-progress' || s == 'in_progress';
+      return s == 'confirmed' ||
+          s == 'in-progress' ||
+          s == 'in_progress' ||
+          s == 'imminent';
     }
     return false;
   }
@@ -288,6 +291,29 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
     final s = widget.sourceStatus ?? '';
     return widget.source == 'reservation' &&
         (s == 'in-progress' || s == 'in_progress');
+  }
+
+  Future<void> _openTripTracking(Trip t, {bool tryStart = false}) async {
+    if (widget.reservationId != null && widget.reservationId!.isNotEmpty) {
+      try {
+        await ApiService.instance.patch(
+          '/api/reservations/${widget.reservationId}/boarding/passenger',
+          {},
+        );
+      } catch (_) {
+        // Best-effort only.
+      }
+    }
+
+    if (tryStart) {
+      try {
+        await ApiService.instance.patch('/api/trips/${t.id}/start', {});
+      } catch (_) {
+        // Best-effort: passenger/no-rights can still access tracking screen.
+      }
+    }
+    if (!mounted) return;
+    context.push('/trajet-en-cours/${t.id}');
   }
 
   // ── BUILD ──────────────────────────────────────────────────
@@ -654,10 +680,9 @@ class _PublishedTripScreenState extends State<PublishedTripScreen>
                   onReserveClick: _isReserving
                       ? null
                       : () => setState(() => _showConfirmModal = true),
-                  onFollowClick: () => context.push('/chat/${t.id}'),
+                  onFollowClick: () => _openTripTracking(t),
                   onManageClick: () => context.push('/reservations'),
-                  onStartTripClick: () =>
-                      context.push('/trajet-en-cours/${t.id}'),
+                  onStartTripClick: () => _openTripTracking(t, tryStart: true),
                 ),
               ),
               // Bouton annuler (si passager avec réservation active)

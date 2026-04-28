@@ -18,7 +18,7 @@ import '../state/app_state.dart';
 class ApiService {
   static const String _baseUrl = String.fromEnvironment(
     'API_URL',
-    defaultValue: 'https://covoituragelacite-production.up.railway.app/',
+    defaultValue: 'http://covoituragelacite-production.up.railway.app/',
   );
 
   static const String _publicKeyStorageKey = 'server_public_key';
@@ -468,6 +468,27 @@ class ApiService {
     }
     if (path == '/api/notifications/read-all') {
       return <String>[CacheKeys.notifications];
+    }
+    if (path.startsWith('/api/reservations/') &&
+        path.contains('/boarding/')) {
+      return <String>[
+        CacheKeys.reservations,
+        CacheKeys.reservationsEnriched,
+        CacheKeys.driverRequests,
+        CacheKeys.myPassengerTrips,
+        CacheKeys.myDriverTrips,
+        CacheKeys.dashboard,
+      ];
+    }
+    if (path.startsWith('/api/trips/') &&
+        (path.endsWith('/start') || path.endsWith('/complete'))) {
+      return <String>[
+        CacheKeys.myPassengerTrips,
+        CacheKeys.myDriverTrips,
+        CacheKeys.reservations,
+        CacheKeys.reservationsEnriched,
+        CacheKeys.dashboard,
+      ];
     }
     return const <String>[];
   }

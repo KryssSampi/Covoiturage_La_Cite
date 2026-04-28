@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import {
@@ -12,25 +12,37 @@ import {
   ActionButton,
   ErrorDisplay,
   LoadingSpinner,
+  EmptyState,
 } from "@/features/admin/components/AdminShared";
 
-const TABS = ["GÃ©nÃ©ral", "SÃ©curitÃ©", "Notifications", "CORS & API"] as const;
+const TABS = ["General", "Securite", "CORS & API", "Notifications"] as const;
 type Tab = typeof TABS[number];
 
 interface PlatformSettings {
-  maintenanceMode: boolean;
-  platformName: string;
-  supportEmail: string;
-  maxUploadSizeMb: number;
-  sessionTimeoutMinutes: number;
+  id: string;
+  smtpHost: string;
+  smtpPort: number;
+  corsOrigins: string[];
+  jwtExpiration: number;
   maxLoginAttempts: number;
-  jwtExpiryHours: number;
   rateLimitPerMinute: number;
-  emailNotificationsEnabled: boolean;
-  pushNotificationsEnabled: boolean;
-  smsNotificationsEnabled: boolean;
-  allowedOrigins: string[];
-  apiRateLimit: number;
+  platformName: string;
+  maintenanceMode: boolean;
+}
+
+type UpdateSettingsPayload = Partial<Omit<PlatformSettings, "id">>;
+
+function toUpdatePayload(settings: PlatformSettings): UpdateSettingsPayload {
+  return {
+    smtpHost: settings.smtpHost,
+    smtpPort: settings.smtpPort,
+    corsOrigins: settings.corsOrigins,
+    jwtExpiration: settings.jwtExpiration,
+    maxLoginAttempts: settings.maxLoginAttempts,
+    rateLimitPerMinute: settings.rateLimitPerMinute,
+    platformName: settings.platformName,
+    maintenanceMode: settings.maintenanceMode,
+  };
 }
 
 function Toggle({
@@ -98,7 +110,7 @@ function Field({
 }
 
 export default function AdminSettingsPage() {
-  const [tab, setTab]           = useState<Tab>("GÃ©nÃ©ral");
+  const [tab, setTab]           = useState<Tab>("General");
   const [settings, setSettings] = useState<PlatformSettings | null>(null);
   const [draft, setDraft]       = useState<PlatformSettings | null>(null);
   const [loading, setLoading]   = useState(true);
@@ -107,44 +119,56 @@ export default function AdminSettingsPage() {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
       const data = await getPlatformSettingsAction();
-      setSettings(data as unknown as PlatformSettings);
-      setDraft(data as unknown as PlatformSettings);
-    } catch (e) { setError((e as Error).message ?? "Impossible de charger les paramÃ¨tres"); }
-    finally { setLoading(false); }
+      setSettings(data as PlatformSettings);
+      setDraft(data as PlatformSettings);
+    } catch (e) {
+      setError((e as Error).message ?? "Impossible de charger les parametres");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { void load(); }, [load]);
 
-  function patch(key: keyof PlatformSettings, value: unknown) {
+  function patch<K extends keyof PlatformSettings>(key: K, value: PlatformSettings[K]) {
     setDraft((prev) => prev ? { ...prev, [key]: value } : prev);
   }
 
   async function handleSave() {
     if (!draft) return;
-    setSaving(true); setFeedback(null);
+    setSaving(true);
+    setFeedback(null);
     try {
-      await updatePlatformSettingsAction(draft);
+      await updatePlatformSettingsAction(toUpdatePayload(draft));
       setSettings(draft);
-      setFeedback("âœ… ParamÃ¨tres sauvegardÃ©s.");
-    } catch (e) { setFeedback(`âŒ ${(e as Error).message}`); }
-    finally { setSaving(false); }
+      setFeedback("Parametres sauvegardes.");
+    } catch (e) {
+      setFeedback((e as Error).message ?? "Erreur lors de la sauvegarde.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleToggleMaintenance() {
     if (!draft) return;
     const next = !draft.maintenanceMode;
-    const label = next ? "activer" : "dÃ©sactiver";
+    const label = next ? "activer" : "desactiver";
     if (!window.confirm(`Voulez-vous ${label} le mode maintenance ?`)) return;
-    setSaving(true); setFeedback(null);
+    setSaving(true);
+    setFeedback(null);
     try {
       await toggleMaintenanceModeAction(next);
       patch("maintenanceMode", next);
-      setFeedback(`âœ… Mode maintenance ${next ? "activÃ©" : "dÃ©sactivÃ©"}.`);
-    } catch (e) { setFeedback(`âŒ ${(e as Error).message}`); }
-    finally { setSaving(false); }
+      setFeedback(`Mode maintenance ${next ? "active" : "desactive"}.`);
+    } catch (e) {
+      setFeedback((e as Error).message ?? "Erreur lors de la mise a jour du mode maintenance.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   const isDirty = JSON.stringify(settings) !== JSON.stringify(draft);
@@ -157,18 +181,18 @@ export default function AdminSettingsPage() {
     );
   }
 
-  if (!draft) return <ErrorDisplay message={error ?? "ParamÃ¨tres introuvables"} onRetry={load} />;
+  if (!draft) return <ErrorDisplay message={error ?? "Parametres introuvables"} onRetry={load} />;
 
   return (
     <div className="space-y-4">
       <AdminPageHeader
         title="Configuration plateforme"
-        subtitle="ParamÃ¨tres globaux de l'application"
+        subtitle="Parametres globaux alignes avec le server core"
         action={
           <div className="flex gap-2">
-            <ActionButton label="â†º" onClick={load} disabled={loading} />
+            <ActionButton label="Refresh" onClick={load} disabled={loading} />
             <ActionButton
-              label={saving ? "Sauvegardeâ€¦" : "Sauvegarder"}
+              label={saving ? "Sauvegarde..." : "Sauvegarder"}
               onClick={handleSave}
               variant="primary"
               disabled={!isDirty || saving}
@@ -179,7 +203,7 @@ export default function AdminSettingsPage() {
 
       {feedback && (
         <div className={`px-4 py-2.5 rounded-lg text-sm font-medium border ${
-          feedback.startsWith("âœ…") ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"
+          feedback.includes("Erreur") ? "bg-red-50 text-red-700 border-red-200" : "bg-green-50 text-green-700 border-green-200"
         }`}>
           {feedback}
         </div>
@@ -187,22 +211,20 @@ export default function AdminSettingsPage() {
 
       {error && <ErrorDisplay message={error} onRetry={load} />}
 
-      {/* BanniÃ¨re maintenance */}
       {draft.maintenanceMode && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-amber-800">âš  Mode maintenance actif</p>
-            <p className="text-xs text-amber-600">Seuls les administrateurs peuvent accÃ©der Ã  la plateforme.</p>
+            <p className="text-sm font-semibold text-amber-800">Mode maintenance actif</p>
+            <p className="text-xs text-amber-600">Seuls les administrateurs peuvent acceder a la plateforme.</p>
           </div>
-          <ActionButton label="DÃ©sactiver" onClick={handleToggleMaintenance} variant="danger" disabled={saving} />
+          <ActionButton label="Desactiver" onClick={handleToggleMaintenance} variant="danger" disabled={saving} />
         </div>
       )}
 
       <AdminTabs tabs={[...TABS]} active={tab} onChange={(t) => setTab(t as Tab)} />
 
       <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-5">
-
-        {tab === "GÃ©nÃ©ral" && (
+        {tab === "General" && (
           <>
             <Field
               label="Nom de la plateforme"
@@ -210,21 +232,20 @@ export default function AdminSettingsPage() {
               onChange={(v) => patch("platformName", v)}
             />
             <Field
-              label="Email de support"
-              value={draft.supportEmail}
-              onChange={(v) => patch("supportEmail", v)}
-              type="email"
+              label="Serveur SMTP"
+              value={draft.smtpHost}
+              onChange={(v) => patch("smtpHost", v)}
             />
             <Field
-              label="Taille max upload (MB)"
-              value={draft.maxUploadSizeMb}
-              onChange={(v) => patch("maxUploadSizeMb", Number(v))}
+              label="Port SMTP"
+              value={draft.smtpPort}
+              onChange={(v) => patch("smtpPort", Number(v))}
               type="number"
             />
             <div className="border-t border-slate-100 pt-4">
               <Toggle
                 label="Mode maintenance"
-                description="Bloque l'accÃ¨s Ã  tous sauf les administrateurs."
+                description="Bloque l'acces a tous sauf les administrateurs."
                 checked={draft.maintenanceMode}
                 onChange={handleToggleMaintenance}
                 danger
@@ -233,29 +254,23 @@ export default function AdminSettingsPage() {
           </>
         )}
 
-        {tab === "SÃ©curitÃ©" && (
+        {tab === "Securite" && (
           <>
             <Field
-              label="Expiration session (minutes)"
-              value={draft.sessionTimeoutMinutes}
-              onChange={(v) => patch("sessionTimeoutMinutes", Number(v))}
+              label="Expiration JWT (secondes)"
+              value={draft.jwtExpiration}
+              onChange={(v) => patch("jwtExpiration", Number(v))}
               type="number"
             />
             <Field
               label="Tentatives de connexion max"
-              description="AprÃ¨s ce nombre d'Ã©checs, le compte est temporairement bloquÃ©."
+              description="Apres ce nombre d'echecs, le compte est temporairement bloque."
               value={draft.maxLoginAttempts}
               onChange={(v) => patch("maxLoginAttempts", Number(v))}
               type="number"
             />
             <Field
-              label="Expiration JWT (heures)"
-              value={draft.jwtExpiryHours}
-              onChange={(v) => patch("jwtExpiryHours", Number(v))}
-              type="number"
-            />
-            <Field
-              label="Rate limit (requÃªtes/minute)"
+              label="Rate limit (requetes/minute)"
               value={draft.rateLimitPerMinute}
               onChange={(v) => patch("rateLimitPerMinute", Number(v))}
               type="number"
@@ -263,57 +278,30 @@ export default function AdminSettingsPage() {
           </>
         )}
 
-        {tab === "Notifications" && (
-          <>
-            <Toggle
-              label="Notifications par email"
-              description="Envoie des emails aux utilisateurs pour les Ã©vÃ©nements importants."
-              checked={draft.emailNotificationsEnabled}
-              onChange={(v) => patch("emailNotificationsEnabled", v)}
+        {tab === "CORS & API" && (
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-700">Origines autorisees (CORS)</label>
+            <p className="text-xs text-slate-400">Une URL par ligne.</p>
+            <textarea
+              rows={5}
+              value={draft.corsOrigins.join("\n")}
+              onChange={(e) =>
+                patch("corsOrigins", e.target.value.split("\n").map((s) => s.trim()).filter(Boolean))
+              }
+              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-mono text-slate-700 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300"
             />
-            <Toggle
-              label="Notifications push"
-              description="Notifications push mobiles via FCM/APNs."
-              checked={draft.pushNotificationsEnabled}
-              onChange={(v) => patch("pushNotificationsEnabled", v)}
-            />
-            <Toggle
-              label="Notifications SMS"
-              description="SMS pour les alertes critiques (conducteur absent, urgence)."
-              checked={draft.smsNotificationsEnabled}
-              onChange={(v) => patch("smsNotificationsEnabled", v)}
-            />
-          </>
+          </div>
         )}
 
-        {tab === "CORS & API" && (
-          <>
-            <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Origines autorisÃ©es (CORS)</label>
-              <p className="text-xs text-slate-400">Une URL par ligne.</p>
-              <textarea
-                rows={5}
-                value={draft.allowedOrigins.join("\n")}
-                onChange={(e) =>
-                  patch("allowedOrigins", e.target.value.split("\n").map((s) => s.trim()).filter(Boolean))
-                }
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-mono text-slate-700 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-300"
-              />
-            </div>
-            <Field
-              label="Rate limit API global (req/min)"
-              value={draft.apiRateLimit}
-              onChange={(v) => patch("apiRateLimit", Number(v))}
-              type="number"
-            />
-          </>
+        {tab === "Notifications" && (
+          <EmptyState text="Les reglages de notifications ne sont pas exposes par le server core admin pour le moment." />
         )}
       </div>
 
       {isDirty && (
         <div className="flex justify-end">
           <ActionButton
-            label={saving ? "Sauvegardeâ€¦" : "Sauvegarder les modifications"}
+            label={saving ? "Sauvegarde..." : "Sauvegarder les modifications"}
             onClick={handleSave}
             variant="primary"
             disabled={saving}
@@ -323,4 +311,3 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
-

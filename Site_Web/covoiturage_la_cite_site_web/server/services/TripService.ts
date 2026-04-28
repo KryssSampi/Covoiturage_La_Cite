@@ -106,6 +106,83 @@ export interface TrajetEnCoursDto {
   driverPosition?: { lat: number; lng: number; updatedAt: string };
 }
 
+interface TrajetEnCoursCoreDto {
+  id: string;
+  status: string;
+  driver?: TripDriverDto;
+  vehicle?: TripVehicleDto;
+  departureLabel?: string;
+  departureAddress?: string;
+  departureLat?: number;
+  departureLng?: number;
+  arrivalLabel?: string;
+  arrivalAddress?: string;
+  arrivalLat?: number;
+  arrivalLng?: number;
+  polyline?: string;
+  departureDate?: string;
+  departureTime?: string;
+  estimatedArrivalTime?: string;
+  actualStartedAt?: string;
+  passengers?: TrajetPassengerDto[];
+  currentLat?: number;
+  currentLng?: number;
+  lastGpsUpdate?: string;
+}
+
+function normalizeLivePayload(payload: unknown): TrajetEnCoursDto {
+  if (payload && typeof payload === 'object' && 'trip' in (payload as Record<string, unknown>)) {
+    return payload as TrajetEnCoursDto;
+  }
+
+  const raw = (payload ?? {}) as TrajetEnCoursCoreDto;
+  const vehicleId = raw.vehicle?.id ?? '';
+  const trip: TrajetResponseDto = {
+    id: raw.id ?? '',
+    driverId: raw.driver?.id ?? '',
+    vehicleId,
+    departureLabel: raw.departureLabel ?? raw.departureAddress ?? '',
+    departureAddress: raw.departureAddress ?? raw.departureLabel ?? '',
+    departureLat: raw.departureLat ?? 0,
+    departureLng: raw.departureLng ?? 0,
+    arrivalLabel: raw.arrivalLabel ?? raw.arrivalAddress ?? '',
+    arrivalAddress: raw.arrivalAddress ?? raw.arrivalLabel ?? '',
+    arrivalLat: raw.arrivalLat ?? 0,
+    arrivalLng: raw.arrivalLng ?? 0,
+    departureDate: raw.departureDate ?? '',
+    departureTime: raw.departureTime ?? '',
+    estimatedArrivalTime: raw.estimatedArrivalTime,
+    estimatedDurationMinutes: 0,
+    estimatedDistanceKm: 0,
+    maxPassengers: Array.isArray(raw.passengers) ? raw.passengers.length : 0,
+    currentPassengers: Array.isArray(raw.passengers) ? raw.passengers.length : 0,
+    pricePerPassenger: 0,
+    paymentMethod: 'cash',
+    tripType: 'unique',
+    status: raw.status ?? 'in_progress',
+    polyline: raw.polyline,
+    createdAt: raw.actualStartedAt ?? new Date(0).toISOString(),
+    updatedAt: raw.lastGpsUpdate ?? raw.actualStartedAt ?? new Date(0).toISOString(),
+    driver: raw.driver,
+    vehicle: raw.vehicle,
+  };
+
+  const passengers = Array.isArray(raw.passengers) ? raw.passengers : [];
+  const hasPosition = typeof raw.currentLat === 'number' && typeof raw.currentLng === 'number';
+
+  return {
+    trip,
+    passengers,
+    driverPosition: hasPosition
+      ? {
+          lat: raw.currentLat!,
+          lng: raw.currentLng!,
+          updatedAt: raw.lastGpsUpdate ?? new Date().toISOString(),
+        }
+      : undefined,
+  };
+}
+
 export interface CancelTripRequest {
   reason?: string;
 }
@@ -183,7 +260,15 @@ export const TripService = {
 
   /** Trajet en cours (live) */
   async getLive(tripId: string, options?: RequestOptions): Promise<ApiResponse<TrajetEnCoursDto>> {
-    return get<TrajetEnCoursDto>(`api/trips/${tripId}/live`, options);
+    const response = await get<unknown>(`api/trips/${tripId}/live`, options);
+    if (!response.success) {
+      return response as ApiResponse<TrajetEnCoursDto>;
+    }
+
+    return {
+      ...response,
+      data: normalizeLivePayload(response.data),
+    };
   },
 
   /** Sauvegarder un brouillon */

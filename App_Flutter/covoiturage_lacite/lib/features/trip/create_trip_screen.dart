@@ -770,8 +770,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                 suggestions: _departureSuggestions,
                 showSuggestions: _showDepartureSuggestions,
                 onSelect: _selectDeparture,
-                onDismiss: () =>
-                    setState(() => _showDepartureSuggestions = false),
+                onDismiss: () => setState(() => _showDepartureSuggestions = false),
+                readOnly: true,
               ),
               const SizedBox(height: 12),
               _fieldLabel('Point d\'arrivée'),
@@ -786,8 +786,8 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                 suggestions: _arrivalSuggestions,
                 showSuggestions: _showArrivalSuggestions,
                 onSelect: _selectArrival,
-                onDismiss: () =>
-                    setState(() => _showArrivalSuggestions = false),
+                onDismiss: () => setState(() => _showArrivalSuggestions = false),
+                readOnly: true,
               ),
               // Indicateur route calculée
               if (_isCalculatingRoute)
@@ -840,35 +840,22 @@ class _CreateTripScreenState extends State<CreateTripScreen>
             title: 'Date et heure de départ',
             icon: Icons.calendar_today_outlined,
             children: [
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _fieldLabel('Date'),
-                        _tapField(
-                          value:
-                              '${_departureDate.day}/${_departureDate.month}/${_departureDate.year}',
-                          icon: Icons.calendar_today,
-                          onTap: _pickDate,
-                        ),
-                      ],
-                    ),
+                  _fieldLabel('Date'),
+                  _tapField(
+                    value:
+                        '${_departureDate.day}/${_departureDate.month}/${_departureDate.year}',
+                    icon: Icons.calendar_today,
+                    onTap: _pickDate,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _fieldLabel('Heure'),
-                        _tapField(
-                          value: _departureTime.format(context),
-                          icon: Icons.access_time,
-                          onTap: _pickTime,
-                        ),
-                      ],
-                    ),
+                  const SizedBox(height: 12),
+                  _fieldLabel('Heure'),
+                  _tapField(
+                    value: _departureTime.format(context),
+                    icon: Icons.access_time,
+                    onTap: _pickTime,
                   ),
                 ],
               ),
@@ -1315,6 +1302,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
     required bool showSuggestions,
     required ValueChanged<OrsPlaceSuggestion> onSelect,
     required VoidCallback onDismiss,
+    bool readOnly = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1345,8 +1333,9 @@ class _CreateTripScreenState extends State<CreateTripScreen>
               Expanded(
                 child: TextField(
                   controller: controller,
-                  onChanged: onChanged,
+                  onChanged: readOnly ? null : onChanged,
                   style: GoogleFonts.dmSans(fontSize: 14),
+                  readOnly: readOnly,
                   decoration: InputDecoration(
                     hintText: hint,
                     hintStyle: GoogleFonts.dmSans(
@@ -1356,7 +1345,7 @@ class _CreateTripScreenState extends State<CreateTripScreen>
                   ),
                 ),
               ),
-              if (controller.text.isNotEmpty)
+              if (!readOnly && controller.text.isNotEmpty)
                 GestureDetector(
                   onTap: () {
                     controller.clear();

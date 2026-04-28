@@ -74,6 +74,7 @@ class OrsRouteService {
 
   /// Reverse geocoding — trouve le label d'une adresse à partir de coordonnées.
   Future<OrsPlaceSuggestion?> reverseGeocode(double lat, double lng) async {
+    // 1. Essayer Nominatim (OpenStreetMap)
     try {
       final Response<dynamic> response = await _dio.get<dynamic>(
         'https://nominatim.openstreetmap.org/reverse',
@@ -91,24 +92,52 @@ class OrsRouteService {
       );
 
       final dynamic data = response.data;
-      if (data is! Map<String, dynamic>) return null;
-
-      final String displayName =
-          data['display_name']?.toString().trim() ?? '';
-      if (displayName.isEmpty) return null;
-
-      final double? respLat = _toNullableDouble(data['lat']);
-      final double? respLng = _toNullableDouble(data['lon']);
-      if (respLat == null || respLng == null) return null;
-
-      return OrsPlaceSuggestion(
-        label: displayName,
-        lat: respLat,
-        lng: respLng,
-      );
+      if (data is Map<String, dynamic>) {
+        final String displayName = data['display_name']?.toString().trim() ?? '';
+        if (displayName.isNotEmpty) {
+          final double? respLat = _toNullableDouble(data['lat']);
+          final double? respLng = _toNullableDouble(data['lon']);
+          if (respLat != null && respLng != null) {
+            return OrsPlaceSuggestion(
+              label: displayName,
+              lat: respLat,
+              lng: respLng,
+            );
+          }
+        }
+      }
     } catch (_) {
-      return null;
+      // On tente le fallback web après
     }
+
+    // 2. Fallback : API web /api/locations/reverse
+    try {
+      final Uri base = Uri.parse(_webPublicBaseUrl);
+      final Uri url = base.replace(
+        path: '/api/locations/reverse',
+        queryParameters: <String, String>{
+          'lat': lat.toString(),
+          'lng': lng.toString(),
+        },
+      );
+      final Response<dynamic> response = await _dio.getUri<dynamic>(url);
+      final dynamic data = response.data;
+      if (data is Map<String, dynamic>) {
+        final String label = data['label']?.toString().trim() ?? data['display_name']?.toString().trim() ?? '';
+        final double? respLat = _toNullableDouble(data['lat']);
+        final double? respLng = _toNullableDouble(data['lng'] ?? data['lon']);
+        if (label.isNotEmpty && respLat != null && respLng != null) {
+          return OrsPlaceSuggestion(
+            label: label,
+            lat: respLat,
+            lng: respLng,
+          );
+        }
+      }
+    } catch (_) {
+      // Fallback silencieux
+    }
+    return null;
   }
 
   Future<List<Map<String, dynamic>>> routeBetweenLabels({

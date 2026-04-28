@@ -14,6 +14,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Trip } from "@/features/dashboard/types/trip.types";
 import { MatchingScore } from "@/features/search/types/search.feature.types";
+import { Language, useAppState } from "@/core/state/app_state";
 
 import {
   FaLocationDot, FaFlag, FaCalendarDays, FaClock, FaStar,
@@ -28,10 +29,11 @@ interface PassengerTripCardProps {
 
 
 // Utilise la conversion locale UTC → local
-function formatDate(date: string, time?: string): string {
+function formatDate(date: string, lang:Language, time?: string ): string {
   const localIso = utcToLocalDateIso(date, time ?? "00:00");
   const localTime = utcToLocalTime(date, time ?? "00:00");
-  return `${formatDateUtil(localIso, "fr", localTime)}${time ? ` · ${localTime}` : ""}`;
+
+  return `${formatDateUtil(localIso, lang , localTime)}${time ? ` · ${localTime}` : ""}`;
 }
 
 function matchColor(score: number): { bg: string; color: string; label: string } {
@@ -45,6 +47,7 @@ export function PassengerTripCard({ trip, score }: PassengerTripCardProps) {
   const router = useRouter();
   const seatsLeft = trip.maxPassengers - trip.passengers.length;
   const mc = score ? matchColor(score.total) : null;
+  const { lang } = useAppState();
 
   return (
     <div style={{
@@ -143,7 +146,7 @@ export function PassengerTripCard({ trip, score }: PassengerTripCardProps) {
 
         <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#5a6a85" }}>
           <FaCalendarDays size={11} color="#08316e" />
-          {formatDate(trip.date, trip.time)}
+          {formatDate(trip.date,lang, trip.time)}
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#5a6a85", marginLeft: "auto" }}>
           <FaUserGroup size={11} color={seatsLeft > 0 ? "#2e7d32" : "#c62828"} />

@@ -7,10 +7,11 @@ type Context = { params: Promise<{ id: string }> };
 export async function POST(req: Request, { params }: Context) {
   try {
     const { id } = await params;
-    const body = (await req.json().catch(() => ({}))) as { raison?: string };
+    const body = (await req.json().catch(() => ({}))) as { raison?: string; reason?: string };
     const auth = await withAuth(req);
 
-    const result = await ReservationService.refuse(id, body.raison ? { reason: body.raison } : undefined, auth);
+    const reason = body.reason ?? body.raison;
+    const result = await ReservationService.refuse(id, reason ? { reason } : undefined, auth);
 
     if (!result.success) {
       return NextResponse.json({ error: result.message }, { status: 400 });

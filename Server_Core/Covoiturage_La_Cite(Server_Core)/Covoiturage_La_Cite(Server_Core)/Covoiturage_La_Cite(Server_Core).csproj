@@ -15,6 +15,7 @@
 
     <!-- OpenAPI / Swagger -->
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.15" />
     <PackageReference Include="StackExchange.Redis" Version="2.12.14" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.11" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />

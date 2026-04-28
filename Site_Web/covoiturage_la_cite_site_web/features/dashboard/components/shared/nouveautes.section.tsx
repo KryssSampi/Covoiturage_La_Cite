@@ -21,7 +21,7 @@
  */
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
@@ -30,6 +30,13 @@ import { Language, useAppState } from "@/core/state/app_state";
 import {useNouveautesSlider} from "../../hooks/useNouveautesSlider";
 
 import { NouveauteVideo, NOUVEAUTE_VIDEOS } from "@/tests/fixtures/dashboard/nouveautes.fixtures";
+
+function getYoutubeId(url: string): string | null {
+  const match = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
 
 /** Durée en ms entre chaque avancement automatique (3 minutes) */
 const AUTO_SLIDE_INTERVAL_MS = 180_000;
@@ -44,19 +51,45 @@ const AUTO_SLIDE_INTERVAL_MS = 180_000;
  *   TODO (optionnel): Brancher sur GET /api/admin/nouveautes
  *     si les vidéos doivent être modifiables sans redéploiement.
  */
-export function NouveautesSection({ videos = NOUVEAUTE_VIDEOS }: { videos?: NouveauteVideo[] }) {
+export function NouveautesSection() {
   const appState = useAppState();
   const isFR = appState.lang === Language.FR;
-
-  // useNouveautesSlider gère l'index courant et les transitions framer-motion
+  const [videos, setVideos] = useState<NouveauteVideo[]>(NOUVEAUTE_VIDEOS);
   const { currentIndex, transitions, next, prev } = useNouveautesSlider();
 
-  // Auto-avancement toutes les 3 minutes
-  // next est stable (useCallback dans le hook) → pas de fuite mémoire
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/nouveautes");
+        if (!res.ok) throw new Error("Erreur serveur");
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) return;
+        // Mapper le format API vers NouveauteVideo[] (YouTube uniquement)
+        const mapped = data
+          .map((item: any) => {
+            const youtubeId = getYoutubeId(item.videoUrl);
+            if (!youtubeId) return null;
+            return {
+              youtubeId,
+              title: item.title || "Nouveauté",
+            };
+          })
+          .filter(Boolean);
+        if (!cancelled && mapped.length > 0) setVideos(mapped);
+      } catch (e) {
+        // fallback sur fixtures
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(next, AUTO_SLIDE_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [next]);
+
+  if (!videos.length) return null;
 
   return (
     <section className="w-full h-100 scale-110 relative">

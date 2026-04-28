@@ -23,13 +23,26 @@ class TripService {
     int seats = 1,
   }) async {
     final data = await _api.get('/api/trips/search', params: {
-      'from': from,
-      'to': to,
-      if (date != null) 'date': date,
-      'seats': '$seats',
+      if (date != null && date.isNotEmpty) 'date': date,
+      'page': '1',
+      'pageSize': '100',
     });
     final items = parsing.extractList(data);
-    return items.map((e) => Trip.fromJson(e as Map<String, dynamic>)).toList();
+    final trips =
+        items.map((e) => Trip.fromJson(e as Map<String, dynamic>)).toList();
+
+    final fromQ = from.trim().toLowerCase();
+    final toQ = to.trim().toLowerCase();
+    if (fromQ.isEmpty && toQ.isEmpty) return trips;
+
+    return trips.where((trip) {
+      final dep = trip.departureLabel.toLowerCase();
+      final arr = trip.arrivalLabel.toLowerCase();
+      final fromOk = fromQ.isEmpty || dep.contains(fromQ);
+      final toOk = toQ.isEmpty || arr.contains(toQ);
+      final seatsOk = trip.availableSeats >= seats;
+      return fromOk && toOk && seatsOk;
+    }).toList();
   }
 
   Future<Map<String, dynamic>> getTripPayloadById(String id) async {

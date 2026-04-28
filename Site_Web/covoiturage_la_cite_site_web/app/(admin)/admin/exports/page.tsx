@@ -20,6 +20,14 @@ import {
 
 const EXPORT_TYPES = ["users", "trips", "finance", "reports", "audit"];
 const EXPORT_FORMATS = ["json", "csv", "xlsx"];
+const SERVER_CORE_BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+function resolveDownloadUrl(url?: string): string | null {
+  if (!url) return null;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  if (!SERVER_CORE_BASE) return url;
+  return `${SERVER_CORE_BASE.replace(/\/$/, "")}/${url.replace(/^\//, "")}`;
+}
 
 export default function AdminExportsPage() {
   const [exports, setExports]   = useState<AdminExportView[]>([]);
@@ -127,7 +135,7 @@ export default function AdminExportsPage() {
             <td className="py-3 px-4">
               {ex.downloadUrl ? (
                 <a
-                  href={ex.downloadUrl}
+                  href={resolveDownloadUrl(ex.downloadUrl) ?? ex.downloadUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="text-xs text-indigo-600 hover:text-indigo-800 font-medium underline"
